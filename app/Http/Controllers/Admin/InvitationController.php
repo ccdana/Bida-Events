@@ -9,6 +9,7 @@ use App\Models\Plan;
 use App\Models\User;
 use App\Support\InvitationDefaults;
 use App\Services\InvitationModuleService;
+use App\Services\MediaUploadService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -87,6 +88,7 @@ class InvitationController extends Controller
             'eventTypes' => EventType::orderBy('name')->get(),
             'plans' => Plan::orderBy('price')->get(),
             'clients' => User::where('is_admin', false)->orderBy('name')->get(),
+            'cloudinaryConfigured' => app(MediaUploadService::class)->isCloudinaryConfigured(),
         ];
     }
 

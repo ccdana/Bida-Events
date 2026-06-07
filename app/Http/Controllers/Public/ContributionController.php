@@ -7,11 +7,14 @@ use App\Models\Guest;
 use App\Models\GuestContribution;
 use App\Models\Invitation;
 use App\Models\PollVote;
+use App\Services\MediaUploadService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class ContributionController extends Controller
 {
+    public function __construct(
+        protected MediaUploadService $mediaUpload
+    ) {}
     public function listSongs(string $slug)
     {
         $invitation = Invitation::where('slug', $slug)->where('status', 'active')->firstOrFail();
@@ -78,13 +81,19 @@ class ContributionController extends Controller
             $guestId = $guest?->id;
         }
 
-        $path = $request->file('photo')->store('live-photos/'.$invitation->slug, 'public');
+        $this->mediaUpload->validateFile($request->file('photo'), 'image');
+        $upload = $this->mediaUpload->upload(
+            $request->file('photo'),
+            'image',
+            $invitation->slug,
+            'fotomural'
+        );
 
         GuestContribution::create([
             'invitation_id' => $invitation->id,
             'guest_id' => $guestId,
             'type' => 'live_photo',
-            'file_path' => Storage::disk('public')->url($path),
+            'file_path' => $upload['url'],
             'created_at' => now(),
         ]);
 

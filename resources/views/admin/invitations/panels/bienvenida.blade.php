@@ -20,8 +20,11 @@
         <label class="admin-label">Mensaje post-evento</label>
         <textarea x-model="modules.bienvenida.mensaje_post_evento" rows="2" class="admin-input"></textarea>
     </div>
-    <div>
-        <label class="admin-label">Imagen hero (URL Cloudinary)</label>
-        <input type="url" x-model="modules.bienvenida.imagen_hero" class="admin-input" placeholder="https://res.cloudinary.com/...">
-    </div>
+    @include('admin.partials.cloudinary-upload', [
+        'label' => 'Imagen hero',
+        'type' => 'image',
+        'context' => 'hero',
+        'accept' => 'image/jpeg,image/png,image/webp',
+        'previewExpr' => 'modules.bienvenida.imagen_hero',
+    ])
 </div>

@@ -31,6 +31,15 @@
                 :value="(sug.ejemplos || []).join(', ')"
                 @input="sug.ejemplos = $event.target.value.split(',').map(s => s.trim()).filter(Boolean)"
                 class="admin-input" placeholder="Ejemplos separados por coma">
+            <div class="flex gap-2 items-center pt-1">
+                <img x-show="sug.imagen" :src="sug.imagen" class="w-14 h-14 rounded-lg object-cover border" x-cloak>
+                <label class="flex-1 flex items-center justify-center px-3 py-2 rounded-lg border border-dashed border-stone-200 text-xs text-stone-500 cursor-pointer hover:border-amber-400">
+                    <span x-text="sug.imagen ? 'Cambiar foto' : 'Foto de referencia'"></span>
+                    <input type="file" accept="image/jpeg,image/png,image/webp" class="hidden"
+                        @change="uploadTo($event, 'image', 'dress-code', url => sug.imagen = url)">
+                </label>
+                <button type="button" x-show="sug.imagen" x-cloak @click="sug.imagen = null" class="text-xs text-red-600">×</button>
+            </div>
         </div>
     </template>
 

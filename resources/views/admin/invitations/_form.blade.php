@@ -4,7 +4,14 @@
     $defaultExpires = $inv?->expires_at?->format('Y-m-d') ?? now()->addMonths(9)->format('Y-m-d');
 @endphp
 
-<div class="flex h-full" x-data="invitationForm(@js([
+<div class="flex flex-col h-full">
+    @unless($cloudinaryConfigured)
+        <div class="shrink-0 bg-amber-50 border-b border-amber-200 text-amber-900 px-4 py-2 text-xs text-center">
+            Cloudinary no configurado — los archivos se guardan en storage local. Configura <code class="font-mono">CLOUDINARY_URL</code> en tu .env
+        </div>
+    @endunless
+
+<div class="flex flex-1 min-h-0" x-data="invitationForm(@js([
     'modules' => $modulos,
     'meta' => [
         'title' => $inv?->title ?? '',
@@ -21,7 +28,9 @@
     'slugManual' => !($isCreate ?? false),
     'previewUrl' => route('admin.preview.frame'),
     'previewStoreUrl' => route('admin.preview.store'),
+    'mediaUploadUrl' => route('admin.media.upload'),
     'itineraryIcons' => $itineraryIcons,
+    'cloudinaryConfigured' => $cloudinaryConfigured,
 ]))" x-init="init()">
 
     {{-- Panel izquierdo: navegación + formulario --}}
@@ -82,6 +91,7 @@
         </div>
     </div>
 </div>
+</div>
 
 <script>
 function invitationForm(config) {
@@ -92,9 +102,12 @@ function invitationForm(config) {
         activeTab: 'general',
         previewUrl: config.previewUrl,
         previewStoreUrl: config.previewStoreUrl,
+        mediaUploadUrl: config.mediaUploadUrl,
         previewTick: Date.now(),
         previewLoading: false,
         previewTimer: null,
+        mediaUploading: false,
+        geocodeLoading: false,
         itineraryIcons: config.itineraryIcons,
         tabs: [
             { id: 'general', label: 'General' },
@@ -174,6 +187,103 @@ function invitationForm(config) {
             }
         },
 
+        async uploadTo(event, type, context, callback) {
+            const file = event.target.files?.[0];
+            if (!file) return;
+            this.mediaUploading = true;
+            try {
+                const url = await this._uploadFile(file, type, context);
+                if (url) callback(url);
+            } catch (e) {
+                alert(e.message || 'Error al subir el archivo');
+            } finally {
+                this.mediaUploading = false;
+                event.target.value = '';
+            }
+        },
+
+        async _uploadFile(file, type, context) {
+            const fd = new FormData();
+            fd.append('file', file);
+            fd.append('type', type);
+            fd.append('context', context);
+            fd.append('slug', this.meta.slug || 'draft');
+            const res = await fetch(this.mediaUploadUrl, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
+                    'Accept': 'application/json',
+                },
+                body: fd,
+            });
+            const data = await res.json();
+            if (!res.ok || !data.success) throw new Error(data.message || 'Error de subida');
+            return data.url;
+        },
+
+        async uploadGalleryFiles(event) {
+            const files = [...(event.target.files || [])];
+            for (const file of files) {
+                this.mediaUploading = true;
+                try {
+                    const url = await this._uploadFile(file, 'image', 'gallery');
+                    if (url) this.modules.galeria.fotos.push(url);
+                } catch (e) {
+                    alert(e.message);
+                    break;
+                }
+            }
+            this.mediaUploading = false;
+            event.target.value = '';
+        },
+
+        removeGalleryPhoto(index) {
+            this.modules.galeria.fotos.splice(index, 1);
+        },
+
+        async uploadPostEventPhotos(event) {
+            const files = [...(event.target.files || [])];
+            this.modules.post_evento.fotos ??= [];
+            for (const file of files) {
+                this.mediaUploading = true;
+                try {
+                    const url = await this._uploadFile(file, 'image', 'post-evento');
+                    if (url) this.modules.post_evento.fotos.push(url);
+                } catch (e) {
+                    alert(e.message);
+                    break;
+                }
+            }
+            this.mediaUploading = false;
+            event.target.value = '';
+        },
+
+        async geocodeAddress() {
+            const q = [this.modules.ubicacion.nombre_lugar, this.modules.ubicacion.direccion].filter(Boolean).join(', ');
+            if (!q.trim()) { alert('Ingresa el nombre del lugar o la dirección'); return; }
+            this.geocodeLoading = true;
+            try {
+                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(q)}`, {
+                    headers: { 'Accept-Language': 'es', 'User-Agent': 'BidaEvents/1.0' },
+                });
+                const data = await res.json();
+                if (data?.[0]) {
+                    this.modules.ubicacion.lat = parseFloat(data[0].lat);
+                    this.modules.ubicacion.lng = parseFloat(data[0].lon);
+                    this.modules.ubicacion.maps_url = `https://www.google.com/maps?q=${data[0].lat},${data[0].lon}`;
+                    if (!this.modules.ubicacion.direccion) {
+                        this.modules.ubicacion.direccion = data[0].display_name;
+                    }
+                } else {
+                    alert('No se encontró la ubicación. Verifica la dirección.');
+                }
+            } catch (e) {
+                alert('Error al buscar la ubicación');
+            } finally {
+                this.geocodeLoading = false;
+            }
+        },
+
         // Itinerario
         addEvento() { this.modules.itinerario.eventos.push({ hora: '20:00', titulo: '', icono: 'star', descripcion: '' }); },
         removeEvento(i) { this.modules.itinerario.eventos.splice(i, 1); },
@@ -188,10 +298,6 @@ function invitationForm(config) {
         addChambelan() { this.modules.destacados.chambelanes.push({ nombre: '', iniciales: '', detalle: '' }); },
         addDamita() { this.modules.destacados.damitas.push({ nombre: '', iniciales: '' }); },
         addPadrino() { this.modules.destacados.padrinos.push({ rol: '', nombres: '', mensaje: '' }); },
-
-        // Galería — sync textarea
-        get galeriaText() { return (this.modules.galeria.fotos || []).join('\n'); },
-        set galeriaText(val) { this.modules.galeria.fotos = val.split('\n').map(s => s.trim()).filter(Boolean); },
 
         // Encuestas
         addEncuesta() { this.modules.encuestas.preguntas.push({ id: 'poll-' + Date.now(), pregunta: '', opciones: ['', ''] }); },
