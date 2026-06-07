@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\PreviewController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\GuestController as AdminGuestController;
 use App\Http\Controllers\Admin\InvitationController as AdminInvitationController;
@@ -35,6 +36,10 @@ Route::prefix('p')->name('invitation.')->group(function () {
 // Panel administrativo
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/invitations/create', [AdminInvitationController::class, 'create'])->name('invitations.create');
+    Route::post('/invitations', [AdminInvitationController::class, 'store'])->name('invitations.store');
+    Route::post('/preview', [PreviewController::class, 'store'])->name('preview.store');
+    Route::get('/preview/frame', [PreviewController::class, 'frame'])->name('preview.frame');
     Route::get('/invitations/{invitation}/edit', [AdminInvitationController::class, 'edit'])->name('invitations.edit');
     Route::put('/invitations/{invitation}', [AdminInvitationController::class, 'update'])->name('invitations.update');
     Route::get('/invitations/{invitation}/guests', [AdminGuestController::class, 'index'])->name('guests.index');
