@@ -30,6 +30,15 @@ class Guest extends Model
         'confirmed_at' => 'datetime',
     ];
 
+    protected static function booted(): void
+    {
+        static::creating(function (Guest $guest) {
+            if (empty($guest->qr_code_token)) {
+                $guest->qr_code_token = \App\Services\InvitationModuleService::generateGuestToken();
+            }
+        });
+    }
+
     public function invitation(): BelongsTo
     {
         return $this->belongsTo(Invitation::class);

@@ -14,6 +14,7 @@ class Invitation extends Model
         'event_type_id',
         'plan_id',
         'slug',
+        'template',
         'title',
         'event_date',
         'status',
@@ -74,5 +75,25 @@ class Invitation extends Model
     public function contributions(): HasMany
     {
         return $this->hasMany(GuestContribution::class);
+    }
+
+    public function pollVotes(): HasMany
+    {
+        return $this->hasMany(PollVote::class);
+    }
+
+    /**
+     * Módulos indexados por feature_code para la vista pública.
+     */
+    public function getModulesAttribute(): array
+    {
+        return $this->modulesData
+            ->pluck('json_data', 'feature_code')
+            ->toArray();
+    }
+
+    public function isPostEvent(): bool
+    {
+        return now()->isAfter($this->event_date);
     }
 }

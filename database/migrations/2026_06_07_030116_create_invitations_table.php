@@ -15,6 +15,7 @@ return new class extends Migration
             $blueprint->foreignId('event_type_id')->constrained();
             $blueprint->foreignId('plan_id')->constrained();
             $blueprint->string('slug', 255)->unique(); // La URL de la invitación
+            $blueprint->string('template', 255)->default('invitations.templates.xv-premium');
             $blueprint->string('title', 255);
             $blueprint->dateTime('event_date'); // Para la cuenta regresiva
             $blueprint->enum('status', ['draft', 'active', 'suspended', 'expired'])->default('draft');
