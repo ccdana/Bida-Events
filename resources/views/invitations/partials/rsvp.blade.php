@@ -1,7 +1,7 @@
 @php use SimpleSoftwareIO\QrCode\Facades\QrCode; @endphp
-<section class="invitation-section py-16 px-6 z-10 relative" id="rsvp"
+<section class="invitation-section reveal" id="rsvp"
     x-data="rsvpForm('{{ $slug }}', '{{ $guest->qr_code_token }}', {{ $guest->passes_allocated }}, '{{ $guest->status }}', {{ $guest->passes_confirmed }})">
-    <div class="max-w-md mx-auto">
+    <div class="section-inner-wide">
         @if($guest->status === 'confirmed')
             {{-- Tarjeta VIP con QR --}}
             <div class="rounded-3xl border-2 border-primary bg-gradient-to-b from-white to-accent/30 p-8 text-center shadow-2xl">

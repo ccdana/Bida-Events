@@ -22,7 +22,7 @@
                 <template x-for="(foto, i) in modules.post_evento.fotos" :key="'pe'+i">
                     <div class="relative aspect-square rounded-lg overflow-hidden border">
                         <img :src="foto" class="w-full h-full object-cover">
-                        <button type="button" @click="modules.post_evento.fotos.splice(i,1)" class="absolute top-0.5 right-0.5 w-5 h-5 bg-red-600 text-white text-xs rounded-full">×</button>
+                        <button type="button" @click="clearMediaUrl(foto); modules.post_evento.fotos.splice(i,1)" class="absolute top-0.5 right-0.5 w-5 h-5 bg-red-600 text-white text-xs rounded-full">×</button>
                     </div>
                 </template>
             </div>

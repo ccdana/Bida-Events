@@ -30,6 +30,7 @@ Route::prefix('p')->name('invitation.')->group(function () {
     Route::post('/{slug}/i/{token}/confirm', [RsvpController::class, 'confirm'])->name('rsvp');
     Route::get('/{slug}/playlist', [ContributionController::class, 'listSongs'])->name('playlist.list');
     Route::post('/{slug}/playlist', [ContributionController::class, 'storeSong'])->name('playlist');
+    Route::get('/{slug}/fotomural', [ContributionController::class, 'listPhotos'])->name('fotomural.list');
     Route::post('/{slug}/fotomural', [ContributionController::class, 'storePhoto'])->name('fotomural');
     Route::post('/{slug}/polls/{pollId}/vote', [ContributionController::class, 'votePoll'])->name('poll.vote');
 });

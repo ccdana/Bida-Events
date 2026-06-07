@@ -1,12 +1,13 @@
-<section class="invitation-section relative z-10">
+<section class="invitation-section reveal">
     <div class="section-inner-wide">
-        <header class="text-center mb-10">
-            @include('invitations.partials.icon', ['name' => 'poll', 'class' => 'w-8 h-8 text-primary mx-auto mb-4'])
-            <h2 class="font-title text-3xl text-primary">{{ $encuestas['titulo'] ?? 'Encuestas' }}</h2>
-            <p class="text-sm opacity-50 mt-2">Tu opinión cuenta — elige cómo prefieres votar</p>
+        <header class="section-header">
+            @include('invitations.partials.icon', ['name' => 'poll', 'class' => 'w-8 h-8 text-primary mx-auto mb-3'])
+            <span class="section-eyebrow">Tu opinión cuenta</span>
+            <h2 class="section-title">{{ $encuestas['titulo'] ?? 'Encuestas' }}</h2>
+            <div class="section-ornament"></div>
         </header>
 
-        <div class="space-y-12">
+        <div class="space-y-6">
             @foreach($encuestas['preguntas'] ?? [] as $poll)
                 <div x-data="pollVoter('{{ $poll['id'] }}', @js($pollResults[$poll['id']] ?? array_fill(0, count($poll['opciones']), 0)), @js($poll['opciones']), '{{ $slug }}', '{{ $guestToken }}')"
                     class="rounded-3xl border border-primary/15 bg-white/60 backdrop-blur-sm overflow-hidden">

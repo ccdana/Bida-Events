@@ -4,17 +4,29 @@
     $lng = $ubicacion['lng'] ?? -68.15;
     $mapEmbed = "https://maps.google.com/maps?q={$lat},{$lng}&z=15&output=embed";
 @endphp
-<section class="invitation-section relative z-10">
+<section class="invitation-section reveal">
     <div class="section-inner-wide">
-        <header class="text-center mb-10">
-            @include('invitations.partials.icon', ['name' => 'map-pin', 'class' => 'w-8 h-8 text-primary mx-auto mb-4'])
-            <h2 class="font-title text-3xl text-primary">Ubicación</h2>
-            <p class="font-title text-lg mt-4">{{ $ubicacion['nombre_lugar'] ?? '' }}</p>
-            <p class="text-sm opacity-60 mt-2 leading-relaxed">{{ $ubicacion['direccion'] ?? '' }}</p>
+        <header class="section-header">
+            @include('invitations.partials.icon', ['name' => 'map-pin', 'class' => 'w-8 h-8 text-primary mx-auto mb-3'])
+            <span class="section-eyebrow">¿Dónde nos vemos?</span>
+            <h2 class="section-title">Ubicación</h2>
+            <div class="section-ornament"></div>
+            @if(!empty($ubicacion['nombre_lugar']))
+                <p class="font-title text-lg mt-3">{{ $ubicacion['nombre_lugar'] }}</p>
+            @endif
+            @if(!empty($ubicacion['direccion']))
+                <p class="text-sm opacity-60 mt-2 leading-relaxed max-w-xs mx-auto">{{ $ubicacion['direccion'] }}</p>
+            @endif
         </header>
 
+        @if(!empty($ubicacion['imagen_lugar']))
+            <div class="rounded-2xl overflow-hidden mb-5 aspect-[16/9] shadow-lg ring-2 ring-white/80 border border-primary/10">
+                <img src="{{ $ubicacion['imagen_lugar'] }}" alt="{{ $ubicacion['nombre_lugar'] ?? 'Lugar del evento' }}" class="w-full h-full object-cover" loading="lazy">
+            </div>
+        @endif
+
         {{-- Mapa embebido --}}
-        <div class="rounded-2xl overflow-hidden border border-primary/15 shadow-lg mb-8 aspect-[4/3] bg-stone-100">
+        <div class="rounded-2xl overflow-hidden border border-primary/15 shadow-lg mb-6 aspect-[4/3] bg-stone-100 ring-2 ring-white/80">
             <iframe src="{{ $mapEmbed }}" width="100%" height="100%" style="border:0" allowfullscreen="" loading="lazy"
                 referrerpolicy="no-referrer-when-downgrade" title="Mapa del evento" class="w-full h-full min-h-[220px]"></iframe>
         </div>

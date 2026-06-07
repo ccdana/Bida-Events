@@ -36,9 +36,10 @@
                 <label class="flex-1 flex items-center justify-center px-3 py-2 rounded-lg border border-dashed border-stone-200 text-xs text-stone-500 cursor-pointer hover:border-amber-400">
                     <span x-text="sug.imagen ? 'Cambiar foto' : 'Foto de referencia'"></span>
                     <input type="file" accept="image/jpeg,image/png,image/webp" class="hidden"
-                        @change="uploadTo($event, 'image', 'dress-code', url => sug.imagen = url)">
+                        @change="pickLocalFileReplace($event, 'image', 'dress-code', () => sug.imagen, url => sug.imagen = url)">
                 </label>
-                <button type="button" x-show="sug.imagen" x-cloak @click="sug.imagen = null" class="text-xs text-red-600">×</button>
+                <button type="button" x-show="sug.imagen" x-cloak
+                    @click="clearMediaUrl(sug.imagen); sug.imagen = null" class="text-xs text-red-600">×</button>
             </div>
         </div>
     </template>

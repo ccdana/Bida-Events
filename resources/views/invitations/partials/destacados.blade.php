@@ -1,8 +1,12 @@
-<section class="invitation-section relative z-10" x-data="{ section: 'cortejo' }">
-    <div class="section-inner-wide space-y-16">
+<section class="invitation-section reveal" x-data="{ section: 'cortejo' }">
+    <div class="section-inner-wide">
+        <header class="section-header">
+            <span class="section-eyebrow">Quién me acompaña</span>
+            <h2 class="section-title">Mi cortejo</h2>
+            <div class="section-ornament"></div>
+        </header>
 
-        {{-- Selector de sección --}}
-        <div class="flex justify-center gap-2">
+        <div class="flex justify-center gap-2 mb-8">
             @foreach(['cortejo' => 'Cortejo', 'padrinos' => 'Padrinos'] as $key => $label)
                 <button type="button" @click="section='{{ $key }}'"
                     class="px-5 py-2.5 rounded-full text-xs uppercase tracking-widest border transition-all duration-300"
@@ -15,7 +19,7 @@
         {{-- Cortejo: chambelanes + damitas --}}
         <div x-show="section === 'cortejo'" x-cloak>
             @if(!empty($destacados['chambelanes']))
-            <div class="mb-14">
+            <div class="mb-10">
                 <div class="flex items-center justify-center gap-2 mb-6">
                     @include('invitations.partials.icon', ['name' => 'users', 'class' => 'w-5 h-5 text-primary'])
                     <h3 class="font-title text-xl text-primary">Chambelanes</h3>

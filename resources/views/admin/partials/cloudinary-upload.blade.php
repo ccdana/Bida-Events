@@ -1,5 +1,5 @@
 {{--
-    Subida de medios a Cloudinary (fallback local si no hay credenciales).
+    Selección de medios con vista previa local. Se sube a Cloudinary al guardar la invitación.
 --}}
 @props([
     'label',
@@ -30,11 +30,12 @@
             <label class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-dashed border-stone-200 hover:border-amber-400 hover:bg-amber-50/30 cursor-pointer transition text-sm text-stone-600"
                 :class="mediaUploading ? 'opacity-60 pointer-events-none' : ''">
                 <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5-5 5 5M12 5v12" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                <span x-text="mediaUploading ? 'Subiendo a Cloudinary...' : 'Elegir archivo'"></span>
+                <span x-text="mediaUploading ? 'Subiendo archivos...' : 'Elegir archivo'"></span>
                 <input type="file" accept="{{ $accept }}" class="hidden"
-                    @change="uploadTo($event, '{{ $type }}', '{{ $context }}', url => {{ $previewExpr }} = url)">
+                    @change="pickLocalFileReplace($event, '{{ $type }}', '{{ $context }}', () => {{ $previewExpr }}, url => {{ $previewExpr }} = url)">
             </label>
-            <button type="button" x-show="{{ $previewExpr }}" x-cloak @click="{{ $clear }}"
+            <button type="button" x-show="{{ $previewExpr }}" x-cloak
+                @click="clearMediaUrl({{ $previewExpr }}); {{ $clear }}"
                 class="text-xs text-red-600 hover:text-red-800">Quitar</button>
         </div>
     </div>

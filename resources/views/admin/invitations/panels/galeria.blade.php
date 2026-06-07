@@ -16,7 +16,7 @@
     </div>
 
     <div x-show="(modules.galeria.fotos || []).length" x-cloak>
-        <p class="admin-label"><span x-text="(modules.galeria.fotos || []).length"></span> fotos en Cloudinary</p>
+        <p class="admin-label"><span x-text="(modules.galeria.fotos || []).length"></span> fotos seleccionadas</p>
         <div class="grid grid-cols-3 gap-2">
             <template x-for="(foto, i) in modules.galeria.fotos" :key="i">
                 <div class="relative group aspect-square rounded-xl overflow-hidden border border-stone-200">

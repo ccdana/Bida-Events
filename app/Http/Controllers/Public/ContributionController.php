@@ -63,6 +63,26 @@ class ContributionController extends Controller
         return response()->json(['success' => true, 'message' => '¡Canción agregada a la playlist!']);
     }
 
+    public function listPhotos(string $slug)
+    {
+        $invitation = Invitation::where('slug', $slug)->where('status', 'active')->firstOrFail();
+
+        $photos = $invitation->contributions()
+            ->where('type', 'live_photo')
+            ->with('guest:id,name')
+            ->latest('created_at')
+            ->take(60)
+            ->get()
+            ->map(fn ($c) => [
+                'id' => $c->id,
+                'url' => $c->file_path,
+                'guest' => $c->guest?->name,
+                'at' => $c->created_at?->diffForHumans(),
+            ]);
+
+        return response()->json(['photos' => $photos]);
+    }
+
     public function storePhoto(Request $request, string $slug)
     {
         $invitation = Invitation::where('slug', $slug)->where('status', 'active')->firstOrFail();

@@ -62,13 +62,29 @@ class InvitationController extends Controller
             ->values()
             ->all();
 
+        $fotomuralPhotos = $invitation->contributions()
+            ->where('type', 'live_photo')
+            ->with('guest:id,name')
+            ->latest('created_at')
+            ->take(60)
+            ->get()
+            ->map(fn ($c) => [
+                'id' => $c->id,
+                'url' => $c->file_path,
+                'guest' => $c->guest?->name,
+                'at' => $c->created_at?->diffForHumans(),
+            ])
+            ->values()
+            ->all();
+
         return view($template, compact(
             'invitation',
             'modulos',
             'guest',
             'pollResults',
             'calendarUrl',
-            'playlistSongs'
+            'playlistSongs',
+            'fotomuralPhotos'
         ));
     }
 }

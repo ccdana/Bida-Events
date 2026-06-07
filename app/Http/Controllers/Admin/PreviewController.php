@@ -57,6 +57,7 @@ class PreviewController extends Controller
             'pollResults' => $pollResults,
             'calendarUrl' => $calendarUrl,
             'playlistSongs' => [],
+            'fotomuralPhotos' => [],
             'isPreview' => true,
         ]);
     }

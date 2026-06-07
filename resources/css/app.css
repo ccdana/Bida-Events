@@ -69,9 +69,133 @@
 .icon-bounce-soft { animation: bounce-soft 2s ease-in-out infinite; }
 .particle-dot { animation: particle-drift 6s ease-in-out infinite; }
 
-.invitation-section { scroll-margin-top: 2rem; padding-top: 5rem; padding-bottom: 5rem; }
-.section-inner { max-width: 28rem; margin-left: auto; margin-right: auto; padding-left: 1.5rem; padding-right: 1.5rem; }
-.section-inner-wide { max-width: 32rem; margin-left: auto; margin-right: auto; padding-left: 1.5rem; padding-right: 1.5rem; }
+.invitation-section { scroll-margin-top: 1.5rem; padding-top: 3rem; padding-bottom: 3rem; }
+.section-inner { max-width: 28rem; margin-left: auto; margin-right: auto; padding-left: 1.25rem; padding-right: 1.25rem; }
+.section-inner-wide { max-width: 32rem; margin-left: auto; margin-right: auto; padding-left: 1.25rem; padding-right: 1.25rem; }
+
+/* Encabezados de sección */
+.section-header { text-align: center; margin-bottom: 2rem; }
+.section-eyebrow {
+    display: block;
+    font-size: 0.625rem;
+    text-transform: uppercase;
+    letter-spacing: 0.35em;
+    color: color-mix(in srgb, var(--primary-color) 70%, transparent);
+    margin-bottom: 0.75rem;
+}
+.section-title { font-family: var(--font-titles); font-size: 1.875rem; line-height: 1.2; color: var(--primary-color); }
+.section-ornament {
+    width: 3rem;
+    height: 1px;
+    margin: 1rem auto 0;
+    background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+}
+
+/* Hero */
+.hero-bg { position: absolute; inset: 0; z-index: 0; }
+.hero-bg img { width: 100%; height: 100%; object-fit: cover; }
+.hero-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to bottom, rgb(0 0 0 / 0.45) 0%, rgb(0 0 0 / 0.25) 45%, var(--bg-color) 100%);
+}
+.hero-no-image {
+    background: linear-gradient(160deg, color-mix(in srgb, var(--accent-color) 80%, white) 0%, var(--bg-color) 55%, color-mix(in srgb, var(--primary-color) 8%, var(--bg-color)) 100%);
+}
+.hero-content { position: relative; z-index: 10; }
+.hero-text-light { color: #fff; }
+.hero-text-light .text-primary { color: color-mix(in srgb, var(--primary-color) 85%, white); }
+.hero-scroll { animation: bounce-soft 2.5s ease-in-out infinite; }
+
+@keyframes hero-ken-burns {
+    0% { transform: scale(1.05); }
+    100% { transform: scale(1.12); }
+}
+.hero-ken-burns { animation: hero-ken-burns 20s ease-in-out infinite alternate; }
+
+@keyframes fade-up {
+    from { opacity: 0; transform: translateY(28px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up { animation: fade-up 0.9s ease both; }
+.animate-fade-up-delay-1 { animation-delay: 0.15s; }
+.animate-fade-up-delay-2 { animation-delay: 0.3s; }
+.animate-fade-up-delay-3 { animation-delay: 0.45s; }
+.animate-fade-up-delay-4 { animation-delay: 0.6s; }
+
+.reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.65s ease, transform 0.65s ease;
+}
+.reveal.is-visible { opacity: 1; transform: translateY(0); }
+
+/* Modal invitación */
+.invitation-modal-backdrop {
+    position: fixed; inset: 0; z-index: 100;
+    display: flex; align-items: flex-end; justify-content: center;
+    padding: 1rem;
+    background: rgb(0 0 0 / 0.55);
+    backdrop-filter: blur(4px);
+}
+@media (min-width: 640px) {
+    .invitation-modal-backdrop { align-items: center; }
+}
+.invitation-modal-panel {
+    width: 100%; max-width: 22rem;
+    border-radius: 1.5rem;
+    background: #fff;
+    padding: 1.5rem;
+    box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.35);
+    animation: modal-slide-up 0.35s ease;
+}
+@keyframes modal-slide-up {
+    from { opacity: 0; transform: translateY(16px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Galería fotomural / fotos compartidas */
+.photo-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.625rem;
+}
+.photo-grid-item {
+    position: relative;
+    overflow: hidden;
+    border-radius: 1rem;
+    border: 2px solid rgb(255 255 255 / 0.8);
+    box-shadow: 0 4px 14px rgb(0 0 0 / 0.08);
+    aspect-ratio: 1;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.photo-grid-item:hover { transform: scale(1.02); box-shadow: 0 8px 24px rgb(0 0 0 / 0.12); }
+.photo-grid-item img { width: 100%; height: 100%; object-fit: cover; }
+.photo-grid-item:nth-child(3n+1) { aspect-ratio: 3/4; }
+.photo-grid-item:nth-child(5n) { grid-column: span 2; aspect-ratio: 2/1; }
+
+.photo-masonry {
+    columns: 2;
+    column-gap: 0.625rem;
+}
+.photo-masonry-item {
+    position: relative;
+    break-inside: avoid;
+    margin-bottom: 0.625rem;
+    border-radius: 1rem;
+    overflow: hidden;
+    border: 2px solid rgb(255 255 255 / 0.85);
+    box-shadow: 0 4px 16px rgb(0 0 0 / 0.08);
+}
+.photo-masonry-item img { width: 100%; display: block; object-fit: cover; }
+
+/* Tarjetas glass */
+.glass-card {
+    border-radius: 1.25rem;
+    border: 1px solid color-mix(in srgb, var(--primary-color) 15%, transparent);
+    background: rgb(255 255 255 / 0.65);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 20px rgb(0 0 0 / 0.04);
+}
 
 .timeline-progress {
     transition: height 0.15s linear;

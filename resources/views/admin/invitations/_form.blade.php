@@ -7,7 +7,7 @@
 <div class="flex flex-col h-full">
     @unless($cloudinaryConfigured)
         <div class="shrink-0 bg-amber-50 border-b border-amber-200 text-amber-900 px-4 py-2 text-xs text-center">
-            Cloudinary no configurado — los archivos se guardan en storage local. Configura <code class="font-mono">CLOUDINARY_URL</code> en tu .env
+            Cloudinary no configurado — los archivos se guardarán en storage local al guardar la invitación. Configura <code class="font-mono">CLOUDINARY_URL</code> en tu .env
         </div>
     @endunless
 
@@ -45,7 +45,7 @@
             </template>
         </nav>
 
-        <form id="invitation-form" method="POST" action="{{ $formAction }}" class="flex-1 overflow-y-auto">
+        <form id="invitation-form" method="POST" action="{{ $formAction }}" class="flex-1 overflow-y-auto" @submit.prevent="handleFormSubmit($event)">
             @csrf
             @if($formMethod !== 'POST') @method($formMethod) @endif
 
@@ -108,7 +108,16 @@ function invitationForm(config) {
         previewTimer: null,
         mediaUploading: false,
         geocodeLoading: false,
+        pendingUploads: [],
+        locationMap: null,
+        locationMarker: null,
+        locationMapReady: false,
         itineraryIcons: config.itineraryIcons,
+        moduleCodes: [
+            'config', 'bienvenida', 'ubicacion', 'itinerario', 'dress_code',
+            'destacados', 'galeria', 'musica', 'video', 'playlist', 'hashtag',
+            'encuestas', 'regalos', 'post_evento', 'rsvp',
+        ],
         tabs: [
             { id: 'general', label: 'General' },
             { id: 'estetica', label: 'Estética' },
@@ -129,6 +138,8 @@ function invitationForm(config) {
             this.$watch('meta.template', v => { if (this.modules.config) this.modules.config.template = v; });
             this.$watch('modules', () => this.schedulePreview(), { deep: true });
             this.$watch('meta', () => this.schedulePreview(), { deep: true });
+            this.$watch('modules.ubicacion.lat', () => this.syncLocationMarker());
+            this.$watch('modules.ubicacion.lng', () => this.syncLocationMarker());
             this.refreshPreview();
         },
 
@@ -144,6 +155,7 @@ function invitationForm(config) {
             m.dress_code ??= { sugerencias: [], colores_permitidos: [], colores_prohibidos: [] };
             m.destacados ??= { chambelanes: [], damitas: [], padrinos: [] };
             m.galeria ??= { fotos: [] };
+            m.galeria.fotos ??= [];
             m.musica ??= {};
             m.video ??= {};
             m.playlist ??= {};
@@ -159,21 +171,43 @@ function invitationForm(config) {
         schedulePreview() {
             clearTimeout(this.previewTimer);
             this.previewLoading = true;
-            this.previewTimer = setTimeout(() => this.refreshPreview(), 700);
+            this.previewTimer = setTimeout(() => this.refreshPreview(), 500);
+        },
+
+        buildPreviewPayload() {
+            const fd = new FormData();
+            fd.append('title', this.meta.title ?? '');
+            fd.append('slug', this.meta.slug ?? '');
+            fd.append('template', this.meta.template ?? '');
+            fd.append('event_type_id', this.meta.event_type_id ?? '');
+            fd.append('plan_id', this.meta.plan_id ?? '');
+            fd.append('user_id', this.meta.user_id ?? '');
+            fd.append('event_date', this.meta.event_date ?? '');
+            fd.append('expires_at', this.meta.expires_at ?? '');
+            fd.append('status', this.meta.status ?? 'draft');
+            for (const code of this.moduleCodes) {
+                fd.append(`modulos[${code}]`, JSON.stringify(this.modules[code] ?? {}));
+            }
+            return fd;
         },
 
         async refreshPreview() {
             this.previewLoading = true;
-            const fd = new FormData(document.getElementById('invitation-form'));
             try {
                 await fetch(this.previewStoreUrl, {
                     method: 'POST',
-                    headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content, 'Accept': 'application/json' },
-                    body: fd,
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
+                        'Accept': 'application/json',
+                    },
+                    body: this.buildPreviewPayload(),
                 });
                 this.previewTick = Date.now();
-            } catch (e) { console.error(e); }
-            this.previewLoading = false;
+            } catch (e) {
+                console.error(e);
+            } finally {
+                this.previewLoading = false;
+            }
         },
 
         slugify(text) {
@@ -187,18 +221,32 @@ function invitationForm(config) {
             }
         },
 
-        async uploadTo(event, type, context, callback) {
+        pickLocalFileReplace(event, type, context, getUrl, setUrl) {
+            this.clearMediaUrl(getUrl());
+            this.pickLocalFile(event, type, context, setUrl);
+        },
+
+        pickLocalFile(event, type, context, setUrl) {
             const file = event.target.files?.[0];
             if (!file) return;
-            this.mediaUploading = true;
-            try {
-                const url = await this._uploadFile(file, type, context);
-                if (url) callback(url);
-            } catch (e) {
-                alert(e.message || 'Error al subir el archivo');
-            } finally {
-                this.mediaUploading = false;
-                event.target.value = '';
+            const blobUrl = URL.createObjectURL(file);
+            this.pendingUploads.push({
+                file,
+                type,
+                context,
+                blobUrl,
+                apply: (url) => setUrl(url),
+            });
+            setUrl(blobUrl);
+            event.target.value = '';
+        },
+
+        clearMediaUrl(url) {
+            if (!url || !String(url).startsWith('blob:')) return;
+            const idx = this.pendingUploads.findIndex(p => p.blobUrl === url);
+            if (idx >= 0) {
+                URL.revokeObjectURL(this.pendingUploads[idx].blobUrl);
+                this.pendingUploads.splice(idx, 1);
             }
         },
 
@@ -221,41 +269,183 @@ function invitationForm(config) {
             return data.url;
         },
 
-        async uploadGalleryFiles(event) {
+        async uploadPendingMedia() {
+            for (const pending of this.pendingUploads) {
+                const url = await this._uploadFile(pending.file, pending.type, pending.context);
+                pending.apply(url);
+                URL.revokeObjectURL(pending.blobUrl);
+            }
+            this.pendingUploads = [];
+        },
+
+        syncHiddenInputs() {
+            const form = document.getElementById('invitation-form');
+            if (!form) return;
+            for (const code of this.moduleCodes) {
+                const input = form.querySelector(`input[name="modulos[${code}]"]`);
+                if (input) input.value = JSON.stringify(this.modules[code] ?? {});
+            }
+        },
+
+        async handleFormSubmit(event) {
+            const form = event.target;
+            if (this.mediaUploading) return;
+            this.mediaUploading = true;
+            try {
+                if (this.pendingUploads.length) {
+                    await this.uploadPendingMedia();
+                }
+                this.syncHiddenInputs();
+                await this.$nextTick();
+                form.submit();
+            } catch (e) {
+                alert(e.message || 'Error al subir archivos. Intenta de nuevo.');
+                this.mediaUploading = false;
+            }
+        },
+
+        uploadGalleryFiles(event) {
             const files = [...(event.target.files || [])];
             for (const file of files) {
-                this.mediaUploading = true;
-                try {
-                    const url = await this._uploadFile(file, 'image', 'gallery');
-                    if (url) this.modules.galeria.fotos.push(url);
-                } catch (e) {
-                    alert(e.message);
-                    break;
-                }
+                const blobUrl = URL.createObjectURL(file);
+                const index = this.modules.galeria.fotos.length;
+                this.modules.galeria.fotos.push(blobUrl);
+                this.pendingUploads.push({
+                    file,
+                    type: 'image',
+                    context: 'gallery',
+                    blobUrl,
+                    apply: (url) => { this.modules.galeria.fotos[index] = url; },
+                });
             }
-            this.mediaUploading = false;
             event.target.value = '';
         },
 
         removeGalleryPhoto(index) {
+            this.clearMediaUrl(this.modules.galeria.fotos[index]);
             this.modules.galeria.fotos.splice(index, 1);
         },
 
-        async uploadPostEventPhotos(event) {
+        uploadPostEventPhotos(event) {
             const files = [...(event.target.files || [])];
             this.modules.post_evento.fotos ??= [];
             for (const file of files) {
-                this.mediaUploading = true;
-                try {
-                    const url = await this._uploadFile(file, 'image', 'post-evento');
-                    if (url) this.modules.post_evento.fotos.push(url);
-                } catch (e) {
-                    alert(e.message);
-                    break;
-                }
+                const blobUrl = URL.createObjectURL(file);
+                const index = this.modules.post_evento.fotos.length;
+                this.modules.post_evento.fotos.push(blobUrl);
+                this.pendingUploads.push({
+                    file,
+                    type: 'image',
+                    context: 'post-evento',
+                    blobUrl,
+                    apply: (url) => { this.modules.post_evento.fotos[index] = url; },
+                });
             }
-            this.mediaUploading = false;
             event.target.value = '';
+        },
+
+        parseMapsLink(link) {
+            if (!link?.trim()) return null;
+            const s = link.trim();
+            let m = s.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+            if (m) return { lat: parseFloat(m[1]), lng: parseFloat(m[2]) };
+            m = s.match(/[?&]q=(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+            if (m) return { lat: parseFloat(m[1]), lng: parseFloat(m[2]) };
+            m = s.match(/!3d(-?\d+\.?\d*)!4d(-?\d+\.?\d*)/);
+            if (m) return { lat: parseFloat(m[1]), lng: parseFloat(m[2]) };
+            m = s.match(/place\/[^/]+\/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+            if (m) return { lat: parseFloat(m[1]), lng: parseFloat(m[2]) };
+            return null;
+        },
+
+        applyMapsLink() {
+            const coords = this.parseMapsLink(this.modules.ubicacion.maps_url);
+            if (!coords) {
+                alert('No se pudieron extraer coordenadas del enlace. Pega el enlace completo de Google Maps.');
+                return;
+            }
+            this.modules.ubicacion.lat = coords.lat;
+            this.modules.ubicacion.lng = coords.lng;
+            this.syncLocationMarker();
+        },
+
+        loadStylesheet(href) {
+            if (document.querySelector(`link[href="${href}"]`)) return Promise.resolve();
+            return new Promise((resolve, reject) => {
+                const link = document.createElement('link');
+                link.rel = 'stylesheet';
+                link.href = href;
+                link.onload = resolve;
+                link.onerror = reject;
+                document.head.appendChild(link);
+            });
+        },
+
+        loadScript(src) {
+            if (document.querySelector(`script[src="${src}"]`)) {
+                return window.L ? Promise.resolve() : new Promise(r => {
+                    const check = setInterval(() => { if (window.L) { clearInterval(check); r(); } }, 50);
+                });
+            }
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = src;
+                script.onload = resolve;
+                script.onerror = reject;
+                document.head.appendChild(script);
+            });
+        },
+
+        async ensureLeaflet() {
+            await Promise.all([
+                this.loadStylesheet('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'),
+                this.loadScript('https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'),
+            ]);
+        },
+
+        async initLocationMap() {
+            if (this.locationMapReady) {
+                this.syncLocationMarker();
+                return;
+            }
+            await this.$nextTick();
+            const el = this.$refs.locationMap;
+            if (!el || el.offsetParent === null) return;
+            try {
+                await this.ensureLeaflet();
+                const lat = this.modules.ubicacion.lat ?? -16.5;
+                const lng = this.modules.ubicacion.lng ?? -68.15;
+                this.locationMap = L.map(el).setView([lat, lng], 15);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; OpenStreetMap',
+                    maxZoom: 19,
+                }).addTo(this.locationMap);
+                this.locationMarker = L.marker([lat, lng], { draggable: true }).addTo(this.locationMap);
+                this.locationMarker.on('dragend', () => {
+                    const p = this.locationMarker.getLatLng();
+                    this.modules.ubicacion.lat = p.lat;
+                    this.modules.ubicacion.lng = p.lng;
+                    this.modules.ubicacion.maps_url = `https://www.google.com/maps?q=${p.lat},${p.lng}`;
+                });
+                this.locationMap.on('click', (e) => {
+                    this.modules.ubicacion.lat = e.latlng.lat;
+                    this.modules.ubicacion.lng = e.latlng.lng;
+                    this.modules.ubicacion.maps_url = `https://www.google.com/maps?q=${e.latlng.lat},${e.latlng.lng}`;
+                    this.syncLocationMarker(false);
+                });
+                this.locationMapReady = true;
+                setTimeout(() => this.locationMap?.invalidateSize(), 150);
+            } catch (e) {
+                console.error('No se pudo cargar el mapa', e);
+            }
+        },
+
+        syncLocationMarker(pan = true) {
+            if (!this.locationMap || !this.locationMarker) return;
+            const lat = this.modules.ubicacion.lat ?? -16.5;
+            const lng = this.modules.ubicacion.lng ?? -68.15;
+            this.locationMarker.setLatLng([lat, lng]);
+            if (pan) this.locationMap.setView([lat, lng], this.locationMap.getZoom());
         },
 
         async geocodeAddress() {
@@ -274,6 +464,7 @@ function invitationForm(config) {
                     if (!this.modules.ubicacion.direccion) {
                         this.modules.ubicacion.direccion = data[0].display_name;
                     }
+                    this.syncLocationMarker();
                 } else {
                     alert('No se encontró la ubicación. Verifica la dirección.');
                 }

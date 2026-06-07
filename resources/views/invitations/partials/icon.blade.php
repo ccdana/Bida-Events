@@ -108,6 +108,11 @@
             <rect x="4" y="12" width="4" height="8" rx="1"/><rect x="10" y="8" width="4" height="12" rx="1"/><rect x="16" y="4" width="4" height="16" rx="1"/>
         </svg>
         @break
+    @case('gift')
+        <svg class="{{ $class }} {{ $animClass }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <rect x="3" y="8" width="18" height="13" rx="1"/><path d="M12 8v13M3 12h18M12 8c-2 0-3-1.5-3-3s1.5-2 3-2 3 1 3 2-1 3-3 3z" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        @break
     @default
         <svg class="{{ $class }} {{ $animClass }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
             <circle cx="12" cy="12" r="9"/>

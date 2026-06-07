@@ -1,14 +1,20 @@
-<section class="invitation-section relative z-10" x-data="{ tab: 'sugerencias' }">
+<section class="invitation-section reveal" x-data="{ tab: 'sugerencias' }">
     <div class="section-inner-wide">
-        <header class="text-center mb-10">
-            @include('invitations.partials.icon', ['name' => 'shirt', 'class' => 'w-8 h-8 text-primary mx-auto mb-4'])
-            <h2 class="font-title text-3xl text-primary">{{ $dressCode['titulo'] ?? 'Dress Code' }}</h2>
-            <p class="font-title text-lg mt-3 opacity-80">{{ $dressCode['estilo'] ?? '' }}</p>
-            <p class="text-sm opacity-60 mt-3 leading-relaxed max-w-xs mx-auto">{{ $dressCode['descripcion'] ?? '' }}</p>
+        <header class="section-header">
+            @include('invitations.partials.icon', ['name' => 'shirt', 'class' => 'w-8 h-8 text-primary mx-auto mb-3'])
+            <span class="section-eyebrow">Vestimenta</span>
+            <h2 class="section-title">{{ $dressCode['titulo'] ?? 'Dress Code' }}</h2>
+            <div class="section-ornament"></div>
+            @if(!empty($dressCode['estilo']))
+                <p class="font-title text-base mt-2 opacity-80">{{ $dressCode['estilo'] }}</p>
+            @endif
+            @if(!empty($dressCode['descripcion']))
+                <p class="text-sm opacity-60 mt-2 leading-relaxed max-w-xs mx-auto">{{ $dressCode['descripcion'] }}</p>
+            @endif
         </header>
 
         {{-- Tabs --}}
-        <div class="flex justify-center gap-1 mb-10 p-1 rounded-full bg-primary/5 border border-primary/10">
+        <div class="flex justify-center gap-1 mb-8 p-1 rounded-full bg-primary/5 border border-primary/10 max-w-sm mx-auto">
             @foreach(['sugerencias' => 'Sugerencias', 'colores' => 'Colores', 'evitar' => 'Evitar'] as $key => $label)
                 <button type="button" @click="tab='{{ $key }}'"
                     class="px-4 py-2 rounded-full text-xs uppercase tracking-wider transition-all duration-300"

@@ -1,9 +1,13 @@
-<section class="invitation-section relative z-10" x-data="playlistApp('{{ $slug }}', '{{ $guestToken }}', @js($songs ?? []))" x-init="init()">
+<section class="invitation-section reveal" x-data="playlistApp('{{ $slug }}', '{{ $guestToken }}', @js($songs ?? []))" x-init="init()">
     <div class="section-inner-wide">
-        <header class="text-center mb-8">
-            @include('invitations.partials.icon', ['name' => 'music', 'class' => 'w-8 h-8 text-primary mx-auto mb-4'])
-            <h2 class="font-title text-2xl text-primary">{{ $playlist['titulo'] ?? 'Playlist Colaborativa' }}</h2>
-            <p class="text-sm opacity-60 mt-2 max-w-xs mx-auto">{{ $playlist['descripcion'] ?? '' }}</p>
+        <header class="section-header">
+            @include('invitations.partials.icon', ['name' => 'music', 'class' => 'w-8 h-8 text-primary mx-auto mb-3'])
+            <span class="section-eyebrow">Colabora con la fiesta</span>
+            <h2 class="section-title">{{ $playlist['titulo'] ?? 'Playlist Colaborativa' }}</h2>
+            <div class="section-ornament"></div>
+            @if(!empty($playlist['descripcion']))
+                <p class="text-sm opacity-60 mt-2 max-w-xs mx-auto">{{ $playlist['descripcion'] }}</p>
+            @endif
         </header>
 
         <div class="rounded-2xl border border-primary/15 bg-white/60 backdrop-blur-sm overflow-hidden">

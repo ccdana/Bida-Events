@@ -1,11 +1,15 @@
-<section class="invitation-section relative z-10" x-data="countdown('{{ $eventDate }}')" x-init="start()">
+<section class="invitation-section reveal" x-data="countdown('{{ $eventDate }}')" x-init="start()">
     <div class="section-inner text-center">
-        <h2 class="font-title text-2xl mb-8 text-primary">Faltan</h2>
-        <div class="grid grid-cols-4 gap-3">
+        <header class="section-header">
+            <span class="section-eyebrow">El gran día se acerca</span>
+            <h2 class="section-title">Faltan</h2>
+            <div class="section-ornament"></div>
+        </header>
+        <div class="grid grid-cols-4 gap-2.5">
             <template x-for="unit in ['days','hours','minutes','seconds']" :key="unit">
-                <div class="rounded-2xl border border-primary/20 bg-white/50 backdrop-blur py-4">
-                    <p class="font-title text-2xl sm:text-3xl" x-text="String(time[unit]).padStart(2,'0')"></p>
-                    <p class="text-[10px] uppercase tracking-wider opacity-60 mt-1" x-text="labels[unit]"></p>
+                <div class="rounded-2xl border border-primary/15 bg-white/60 backdrop-blur-sm py-4 shadow-sm">
+                    <p class="font-title text-2xl sm:text-3xl tabular-nums" x-text="String(time[unit]).padStart(2,'0')"></p>
+                    <p class="text-[10px] uppercase tracking-wider opacity-50 mt-1" x-text="labels[unit]"></p>
                 </div>
             </template>
         </div>

@@ -1,23 +1,33 @@
-<section class="invitation-section py-16 px-6 z-10 relative">
-    <div class="max-w-lg mx-auto text-center">
-        <h2 class="font-title text-2xl text-primary mb-4">{{ $postEvento['titulo'] ?? 'Galería del Fotógrafo' }}</h2>
-        <p class="text-sm opacity-70 mb-8">{{ $postEvento['descripcion'] ?? '' }}</p>
+<section class="invitation-section reveal" id="post-evento">
+    <div class="section-inner-wide">
+        <header class="section-header">
+            <span class="section-eyebrow">Recuerdos oficiales</span>
+            <h2 class="section-title">{{ $postEvento['titulo'] ?? 'Galería del Fotógrafo' }}</h2>
+            <div class="section-ornament"></div>
+            @if(!empty($postEvento['descripcion']))
+                <p class="text-sm opacity-60 mt-2 max-w-xs mx-auto">{{ $postEvento['descripcion'] }}</p>
+            @endif
+        </header>
 
         @if(!empty($postEvento['fotos']))
-            <div class="grid grid-cols-2 gap-3">
-                @foreach($postEvento['fotos'] as $foto)
-                    <a href="{{ $foto }}" target="_blank" class="block rounded-xl overflow-hidden aspect-square">
-                        <img src="{{ $foto }}" alt="Foto oficial" class="w-full h-full object-cover" loading="lazy">
+            <div class="photo-grid max-w-md mx-auto">
+                @foreach($postEvento['fotos'] as $i => $foto)
+                    <a href="{{ $foto }}" target="_blank" rel="noopener"
+                        class="photo-grid-item block {{ $i % 5 === 4 ? 'col-span-2' : '' }}">
+                        <img src="{{ $foto }}" alt="Foto oficial {{ $i + 1 }}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500" loading="lazy">
                     </a>
                 @endforeach
             </div>
         @elseif(!empty($postEvento['enlace_externo']))
-            <a href="{{ $postEvento['enlace_externo'] }}" target="_blank" class="inline-block px-6 py-3 rounded-full border border-primary text-primary text-sm">
-                Ver galería completa
-            </a>
+            <div class="text-center">
+                <a href="{{ $postEvento['enlace_externo'] }}" target="_blank" rel="noopener"
+                    class="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-primary text-white text-sm font-medium shadow-lg active:scale-[0.98] transition-transform">
+                    Ver galería completa
+                </a>
+            </div>
         @else
-            <div class="py-16 rounded-2xl border-2 border-dashed border-primary/20">
-                <p class="text-sm opacity-50">Las fotos oficiales se publicaran pronto</p>
+            <div class="py-12 rounded-2xl border-2 border-dashed border-primary/15 text-center">
+                <p class="text-sm opacity-40">Las fotos oficiales se publicarán pronto</p>
             </div>
         @endif
     </div>

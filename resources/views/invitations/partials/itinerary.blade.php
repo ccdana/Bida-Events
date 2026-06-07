@@ -1,10 +1,11 @@
-<section class="invitation-section relative z-10" id="itinerario"
+<section class="invitation-section reveal" id="itinerario"
     x-data="scrollItinerary({{ count($itinerario['eventos'] ?? []) }})"
     x-init="init()">
     <div class="section-inner-wide">
-        <header class="text-center mb-14">
-            <p class="text-[10px] uppercase tracking-[0.35em] text-primary/60 mb-3">El recorrido de la noche</p>
-            <h2 class="font-title text-3xl text-primary">{{ $itinerario['titulo'] ?? 'Itinerario' }}</h2>
+        <header class="section-header">
+            <span class="section-eyebrow">El recorrido de la noche</span>
+            <h2 class="section-title">{{ $itinerario['titulo'] ?? 'Itinerario' }}</h2>
+            <div class="section-ornament"></div>
         </header>
 
         <div class="relative" x-ref="container">
@@ -16,7 +17,7 @@
             <div class="space-y-0">
                 @foreach($itinerario['eventos'] ?? [] as $index => $evento)
                     @php $iconName = $evento['icono'] ?? 'star'; @endphp
-                    <article class="timeline-step relative pl-12 pb-14 last:pb-4"
+                    <article class="timeline-step relative pl-12 pb-10 last:pb-2"
                         data-step="{{ $index }}"
                         :class="stepClass({{ $index }})">
                         {{-- Nodo --}}
