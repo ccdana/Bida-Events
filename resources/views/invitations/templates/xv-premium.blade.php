@@ -106,7 +106,23 @@
     </header>
 
     @if(($flags['cuenta_regresiva'] ?? false) && !$isPostEvent)
-        @include('invitations.partials.countdown', ['eventDate' => $invitation->event_date->toIso8601String()])
+        @include('invitations.partials.countdown', [
+            'eventDate' => $invitation->event_date->toIso8601String(),
+            'calendarUrl' => $calendarUrl,
+            'agendar' => $flags['agendar'] ?? false,
+        ])
+    @endif
+
+    @if(!($flags['cuenta_regresiva'] ?? false) && ($flags['agendar'] ?? false) && !$isPostEvent)
+        <section class="invitation-section reveal py-6">
+            <div class="section-inner text-center">
+                <a href="{{ $calendarUrl }}" target="_blank" rel="noopener"
+                    class="inline-flex items-center gap-2 px-6 py-3 rounded-full inv-card text-sm font-medium text-primary active:scale-[0.98] transition-transform">
+                    @include('invitations.partials.icon', ['name' => 'calendar', 'class' => 'w-4 h-4', 'animated' => false])
+                    Agendar en Google Calendar
+                </a>
+            </div>
+        </section>
     @endif
 
     @if(($flags['video'] ?? false) && !empty($modulos['video']['video_url']))

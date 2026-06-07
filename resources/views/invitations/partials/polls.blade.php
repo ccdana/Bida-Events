@@ -10,7 +10,7 @@
         <div class="space-y-6">
             @foreach($encuestas['preguntas'] ?? [] as $poll)
                 <div x-data="pollVoter('{{ $poll['id'] }}', @js($pollResults[$poll['id']] ?? array_fill(0, count($poll['opciones']), 0)), @js($poll['opciones']), '{{ $slug }}', '{{ $guestToken }}')"
-                    class="rounded-3xl border border-primary/15 bg-white/60 backdrop-blur-sm overflow-hidden">
+                    class="inv-card overflow-hidden">
 
                     <div class="p-6 pb-4">
                         <p class="font-title text-lg leading-snug">{{ $poll['pregunta'] }}</p>

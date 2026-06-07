@@ -7,7 +7,7 @@
             <div class="section-ornament"></div>
         </header>
 
-        <div class="flex justify-center gap-1 mb-6 p-1 rounded-full bg-primary/5 border border-primary/10 max-w-xs mx-auto">
+        <div class="flex justify-center gap-1 mb-6 p-1 rounded-full inv-card-soft max-w-xs mx-auto">
             <button type="button" @click="tab='regalos'"
                 class="flex-1 px-4 py-2 rounded-full text-xs uppercase tracking-wider transition-all duration-300"
                 :class="tab==='regalos' ? 'bg-primary text-white shadow-sm' : 'opacity-50'">Regalos</button>

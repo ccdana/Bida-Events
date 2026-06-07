@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Guest;
 use App\Models\Invitation;
 use App\Services\InvitationModuleService;
+use App\Support\YouTubeHelper;
 use Illuminate\Http\Request;
 
 class InvitationController extends Controller
@@ -53,12 +54,7 @@ class InvitationController extends Controller
             ->latest('created_at')
             ->take(50)
             ->get()
-            ->map(fn ($c) => [
-                'id' => $c->id,
-                'text' => $c->content_text,
-                'guest' => $c->guest?->name,
-                'at' => $c->created_at?->diffForHumans(),
-            ])
+            ->map(fn ($c) => YouTubeHelper::formatContribution($c))
             ->values()
             ->all();
 

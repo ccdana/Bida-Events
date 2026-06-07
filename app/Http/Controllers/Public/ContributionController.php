@@ -8,6 +8,7 @@ use App\Models\GuestContribution;
 use App\Models\Invitation;
 use App\Models\PollVote;
 use App\Services\MediaUploadService;
+use App\Support\YouTubeHelper;
 use Illuminate\Http\Request;
 
 class ContributionController extends Controller
@@ -25,12 +26,7 @@ class ContributionController extends Controller
             ->latest('created_at')
             ->take(50)
             ->get()
-            ->map(fn ($c) => [
-                'id' => $c->id,
-                'text' => $c->content_text,
-                'guest' => $c->guest?->name,
-                'at' => $c->created_at?->diffForHumans(),
-            ]);
+            ->map(fn ($c) => YouTubeHelper::formatContribution($c));
 
         return response()->json(['songs' => $songs]);
     }

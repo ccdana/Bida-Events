@@ -13,26 +13,24 @@
             @endif
         </header>
 
-        {{-- Tabs --}}
-        <div class="flex justify-center gap-1 mb-8 p-1 rounded-full bg-primary/5 border border-primary/10 max-w-sm mx-auto">
+        <div class="flex justify-center gap-1 mb-8 p-1 rounded-full inv-card-soft max-w-sm mx-auto">
             @foreach(['sugerencias' => 'Sugerencias', 'colores' => 'Colores', 'evitar' => 'Evitar'] as $key => $label)
                 <button type="button" @click="tab='{{ $key }}'"
-                    class="px-4 py-2 rounded-full text-xs uppercase tracking-wider transition-all duration-300"
+                    class="flex-1 px-3 py-2 rounded-full text-xs uppercase tracking-wider transition-all duration-300"
                     :class="tab === '{{ $key }}' ? 'bg-primary text-white shadow-sm' : 'opacity-50 hover:opacity-80'">
                     {{ $label }}
                 </button>
             @endforeach
         </div>
 
-        {{-- Sugerencias de vestimenta --}}
         <div x-show="tab === 'sugerencias'" x-cloak class="space-y-4">
             @forelse($dressCode['sugerencias'] ?? [] as $i => $sug)
-                <article class="rounded-2xl border border-primary/10 bg-white/60 overflow-hidden flex gap-0 transition hover:border-primary/30"
+                <article class="inv-card overflow-hidden flex gap-0 transition hover:border-primary/30"
                     x-data="{ open: {{ $i === 0 ? 'true' : 'false' }} }">
                     @if(!empty($sug['imagen']))
                         <div class="w-24 shrink-0 bg-cover bg-center" style="background-image:url('{{ $sug['imagen'] }}')"></div>
                     @else
-                        <div class="w-24 shrink-0 bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                        <div class="w-24 shrink-0 flex items-center justify-center" style="background: color-mix(in srgb, var(--primary-color) 12%, var(--accent-color))">
                             @include('invitations.partials.icon', ['name' => 'shirt', 'class' => 'w-8 h-8 text-primary/50'])
                         </div>
                     @endif
@@ -52,7 +50,7 @@
                             @if(!empty($sug['ejemplos']))
                                 <ul class="mt-3 flex flex-wrap gap-2">
                                     @foreach($sug['ejemplos'] as $ej)
-                                        <li class="text-[11px] px-3 py-1 rounded-full border border-primary/20 bg-primary/5">{{ $ej }}</li>
+                                        <li class="text-[11px] px-3 py-1 rounded-full border border-primary/20 inv-card-soft">{{ $ej }}</li>
                                     @endforeach
                                 </ul>
                             @endif
@@ -64,36 +62,37 @@
             @endforelse
         </div>
 
-        {{-- Colores permitidos --}}
         <div x-show="tab === 'colores'" x-cloak>
             <div class="grid grid-cols-2 gap-4">
                 @foreach($dressCode['colores_permitidos'] ?? [] as $color)
-                    <div class="rounded-2xl border border-primary/10 p-4 text-center bg-white/50 hover:scale-[1.02] transition-transform">
-                        <div class="w-16 h-16 rounded-full mx-auto shadow-inner border-2 border-white ring-2 ring-primary/10" style="background: {{ $color['hex'] }}"></div>
+                    <div class="inv-card p-4 text-center hover:scale-[1.02] transition-transform">
+                        <div class="w-16 h-16 rounded-full mx-auto shadow-inner border-2 border-white ring-2 ring-primary/15" style="background: {{ $color['hex'] }}"></div>
                         <p class="text-sm font-medium mt-3">{{ $color['nombre'] }}</p>
                     </div>
                 @endforeach
             </div>
         </div>
 
-        {{-- Colores a evitar --}}
         <div x-show="tab === 'evitar'" x-cloak>
             <div class="space-y-3">
-                @foreach($dressCode['colores_prohibidos'] ?? [] as $color)
-                    <div class="flex items-center gap-4 rounded-2xl border border-red-200/60 bg-white/50 p-4">
-                        <div class="relative w-12 h-12 rounded-full shrink-0 border-2 border-red-200" style="background: {{ $color['hex'] }}">
+                @forelse($dressCode['colores_prohibidos'] ?? [] as $color)
+                    <div class="inv-card flex items-center gap-4 p-4">
+                        <div class="relative w-14 h-14 rounded-full shrink-0 border-2 border-primary/20 overflow-hidden" style="background: {{ $color['hex'] }}">
                             <span class="absolute inset-0 flex items-center justify-center">
-                                @include('invitations.partials.icon', ['name' => 'close', 'class' => 'w-5 h-5 text-red-600', 'animated' => false])
+                                <span class="block w-full h-0.5 bg-primary rotate-45 absolute"></span>
                             </span>
                         </div>
-                        <div>
-                            <p class="font-medium text-sm">{{ $color['nombre'] }}</p>
+                        <div class="flex-1 min-w-0">
+                            <p class="font-title text-sm">{{ $color['nombre'] }}</p>
                             @if(!empty($color['motivo']))
                                 <p class="text-xs opacity-50 mt-0.5">{{ $color['motivo'] }}</p>
                             @endif
                         </div>
+                        <span class="shrink-0 text-[10px] uppercase tracking-wider text-primary/50 px-2 py-1 rounded-full inv-card-soft">Evitar</span>
                     </div>
-                @endforeach
+                @empty
+                    <p class="text-center text-sm opacity-50 py-6">No hay colores restringidos</p>
+                @endforelse
             </div>
         </div>
     </div>

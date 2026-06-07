@@ -9,8 +9,7 @@
         </header>
 
         <div class="relative" x-ref="container">
-            {{-- Línea de progreso fija --}}
-            <div class="absolute left-[1.125rem] top-2 bottom-2 w-px bg-primary/15" aria-hidden="true">
+            <div class="absolute left-[1.125rem] top-2 bottom-2 w-0.5 bg-primary/10 rounded-full" aria-hidden="true">
                 <div class="timeline-progress absolute top-0 left-0 w-full rounded-full" :style="`height:${lineProgress}%`"></div>
             </div>
 
@@ -20,16 +19,14 @@
                     <article class="timeline-step relative pl-12 pb-10 last:pb-2"
                         data-step="{{ $index }}"
                         :class="stepClass({{ $index }})">
-                        {{-- Nodo --}}
-                        <div class="timeline-node absolute left-2 top-1 w-5 h-5 rounded-full border-2 border-primary/30 bg-[var(--bg-color)] transition-all duration-500 z-10"
-                            :class="stepClass({{ $index }}) === 'is-done' || stepClass({{ $index }}) === 'is-active' ? 'scale-110 !bg-primary !border-primary' : ''">
+                        <div class="timeline-node absolute left-2 top-1 w-5 h-5 rounded-full border-2 transition-all duration-700 z-10"
+                            style="background: var(--bg-color)"
+                            :class="stepClass({{ $index }}) !== 'is-pending' ? 'scale-110 border-primary bg-primary shadow-[0_0_0_4px_color-mix(in_srgb,var(--primary-color)_18%,transparent)]' : 'border-primary/25'">
                         </div>
 
-                        {{-- Tarjeta --}}
-                        <div class="rounded-2xl border border-primary/10 bg-white/70 backdrop-blur-sm p-5 shadow-sm transition-all duration-500"
-                            :class="stepClass({{ $index }}) === 'is-active' ? 'border-primary/40 shadow-md -translate-x-0' : ''">
+                        <div class="timeline-card inv-card p-5 transition-all duration-700 ease-out">
                             <div class="flex items-start gap-4">
-                                <div class="shrink-0 w-11 h-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                                <div class="shrink-0 w-11 h-11 rounded-xl inv-card-soft text-primary flex items-center justify-center">
                                     @include('invitations.partials.icon', ['name' => $iconName, 'class' => 'w-5 h-5'])
                                 </div>
                                 <div class="flex-1 min-w-0 pt-0.5">
@@ -54,27 +51,15 @@ function scrollItinerary(totalSteps) {
         lineProgress: 0,
         init() {
             const steps = this.$el.querySelectorAll('[data-step]');
-            const update = () => {
-                const rect = this.$refs.container.getBoundingClientRect();
-                const vh = window.innerHeight;
-                const start = vh * 0.15;
-                const end = rect.height - vh * 0.5;
-                const scrolled = Math.min(Math.max(start - rect.top, 0), Math.max(end, 1));
-                const ratio = end > 0 ? scrolled / end : 0;
-                this.lineProgress = Math.min(ratio * 100, 100);
-                this.activeStep = Math.min(Math.floor(ratio * totalSteps), totalSteps - 1);
-
-                steps.forEach((el, i) => {
-                    const r = el.getBoundingClientRect();
-                    const visible = r.top < vh * 0.78 && r.bottom > vh * 0.22;
-                    el.classList.toggle('is-active', visible && i === this.activeStep);
-                    el.classList.toggle('is-done', i < this.activeStep);
-                    el.classList.toggle('is-pending', i > this.activeStep && !visible);
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (!entry.isIntersecting) return;
+                    const i = parseInt(entry.target.dataset.step, 10);
+                    this.activeStep = i;
+                    this.lineProgress = totalSteps > 1 ? ((i + 1) / totalSteps) * 100 : 100;
                 });
-            };
-            update();
-            window.addEventListener('scroll', update, { passive: true });
-            window.addEventListener('resize', update, { passive: true });
+            }, { threshold: 0.45, rootMargin: '-12% 0px -22% 0px' });
+            steps.forEach(el => observer.observe(el));
         },
         stepClass(index) {
             if (index < this.activeStep) return 'is-done';

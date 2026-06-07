@@ -10,40 +10,53 @@
             @endif
         </header>
 
-        <div class="rounded-2xl border border-primary/15 bg-white/60 backdrop-blur-sm overflow-hidden">
-            {{-- Formulario --}}
+        <div class="inv-card overflow-hidden">
             <form @submit.prevent="submit" class="flex gap-2 p-4 border-b border-primary/10">
                 <input type="text" x-model="song" placeholder="{{ $playlist['placeholder'] ?? 'Canción o link de YouTube' }}"
-                    class="flex-1 rounded-xl border border-primary/20 px-4 py-3 text-sm bg-white/80 focus:border-primary focus:outline-none">
+                    class="flex-1 rounded-xl border border-primary/20 px-4 py-3 text-sm inv-card-soft focus:border-primary focus:outline-none">
                 <button type="submit" :disabled="submitting"
                     class="shrink-0 px-4 py-3 rounded-xl bg-primary text-white text-sm font-medium disabled:opacity-50 active:scale-95 transition-transform">
                     <span x-text="submitting ? '...' : 'Agregar'"></span>
                 </button>
             </form>
 
-            {{-- Lista de canciones --}}
-            <div class="max-h-64 overflow-y-auto">
+            <div class="max-h-80 overflow-y-auto">
                 <template x-if="songs.length === 0">
                     <p class="text-sm text-center opacity-40 py-10 px-4">Sé el primero en sugerir una canción</p>
                 </template>
-                <ul class="divide-y divide-primary/5">
+                <ul class="divide-y divide-primary/8">
                     <template x-for="(item, i) in songs" :key="item.id">
-                        <li class="flex items-center gap-3 px-4 py-3.5 hover:bg-primary/5 transition-colors">
-                            <span class="shrink-0 w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center text-xs font-medium tabular-nums" x-text="i+1"></span>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-medium truncate" x-text="item.text"></p>
-                                <p class="text-[10px] opacity-45 mt-0.5">
-                                    <span x-show="item.guest" x-text="item.guest + ' · '" x-cloak></span>
-                                    <span x-text="item.at"></span>
-                                </p>
+                        <li class="px-4 py-3">
+                            <div class="flex items-center gap-3">
+                                <button type="button" @click="togglePlay(item)"
+                                    class="shrink-0 w-9 h-9 rounded-full flex items-center justify-center transition-all"
+                                    :class="playingId === item.id ? 'bg-primary text-white' : 'inv-card-soft text-primary'">
+                                    <span x-show="playingId !== item.id">@include('invitations.partials.icon', ['name' => 'play', 'class' => 'w-4 h-4', 'animated' => false])</span>
+                                    <span x-show="playingId === item.id" x-cloak>@include('invitations.partials.icon', ['name' => 'pause', 'class' => 'w-4 h-4', 'animated' => false])</span>
+                                </button>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium leading-snug" x-text="item.text"></p>
+                                    <p class="text-[10px] opacity-45 mt-0.5">
+                                        <span x-show="item.guest" x-text="item.guest + ' · '" x-cloak></span>
+                                        <span x-text="item.at"></span>
+                                    </p>
+                                </div>
+                                <span class="shrink-0 w-6 h-6 rounded-md inv-card-soft text-primary flex items-center justify-center text-[10px] font-medium tabular-nums" x-text="i+1"></span>
                             </div>
-                            @include('invitations.partials.icon', ['name' => 'music', 'class' => 'w-4 h-4 text-primary/40 shrink-0', 'animated' => false])
+                            <div x-show="playingId === item.id && item.is_youtube" x-cloak x-transition class="mt-3 rounded-xl overflow-hidden aspect-video inv-card-soft">
+                                <iframe :src="'https://www.youtube.com/embed/' + item.youtube_id + '?autoplay=1&rel=0'"
+                                    class="w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowfullscreen loading="lazy" title="Reproductor YouTube"></iframe>
+                            </div>
+                            <div x-show="playingId === item.id && !item.is_youtube" x-cloak class="mt-2 text-xs text-primary/70 px-1">
+                                <span x-text="item.text"></span>
+                            </div>
                         </li>
                     </template>
                 </ul>
             </div>
 
-            <div class="px-4 py-2 border-t border-primary/10 flex items-center justify-between">
+            <div class="px-4 py-2.5 border-t border-primary/10 flex items-center justify-between inv-card-soft">
                 <p x-show="message" x-text="message" class="text-xs text-primary" x-cloak></p>
                 <button type="button" @click="refresh()" class="text-[10px] uppercase tracking-wider opacity-40 hover:opacity-70 ml-auto">Actualizar</button>
             </div>
@@ -53,12 +66,23 @@
 <script>
 function playlistApp(slug, guestToken, initialSongs) {
     return {
-        songs: initialSongs, song: '', message: '', submitting: false,
+        songs: initialSongs,
+        song: '',
+        message: '',
+        submitting: false,
+        playingId: null,
         init() { this.refresh(); },
         async refresh() {
             const res = await fetch(`/p/${slug}/playlist`);
             const data = await res.json();
             if (data.songs) this.songs = data.songs;
+        },
+        togglePlay(item) {
+            if (this.playingId === item.id) {
+                this.playingId = null;
+                return;
+            }
+            this.playingId = item.id;
         },
         async submit() {
             if (!this.song.trim() || this.submitting) return;
