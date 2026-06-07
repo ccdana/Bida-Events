@@ -2,40 +2,73 @@
     $address = urlencode($ubicacion['direccion'] ?? '');
     $lat = $ubicacion['lat'] ?? -16.5;
     $lng = $ubicacion['lng'] ?? -68.15;
+    $mapEmbed = "https://maps.google.com/maps?q={$lat},{$lng}&z=15&output=embed";
 @endphp
-<section class="invitation-section py-16 px-6 z-10 relative">
-    <div class="max-w-md mx-auto text-center">
-        <h2 class="font-title text-2xl text-primary mb-6">Ubicación</h2>
-        <p class="font-title text-lg">{{ $ubicacion['nombre_lugar'] ?? '' }}</p>
-        <p class="text-sm opacity-70 mt-2 mb-6">{{ $ubicacion['direccion'] ?? '' }}</p>
+<section class="invitation-section relative z-10">
+    <div class="section-inner-wide">
+        <header class="text-center mb-10">
+            @include('invitations.partials.icon', ['name' => 'map-pin', 'class' => 'w-8 h-8 text-primary mx-auto mb-4'])
+            <h2 class="font-title text-3xl text-primary">Ubicación</h2>
+            <p class="font-title text-lg mt-4">{{ $ubicacion['nombre_lugar'] ?? '' }}</p>
+            <p class="text-sm opacity-60 mt-2 leading-relaxed">{{ $ubicacion['direccion'] ?? '' }}</p>
+        </header>
 
-        @if(!empty($ubicacion['maps_url']))
-            <a href="{{ $ubicacion['maps_url'] }}" target="_blank" rel="noopener"
-                class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-white text-sm tracking-wide shadow-lg">
-                📍 Abrir en Google Maps
-            </a>
-        @endif
+        {{-- Mapa embebido --}}
+        <div class="rounded-2xl overflow-hidden border border-primary/15 shadow-lg mb-8 aspect-[4/3] bg-stone-100">
+            <iframe src="{{ $mapEmbed }}" width="100%" height="100%" style="border:0" allowfullscreen="" loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade" title="Mapa del evento" class="w-full h-full min-h-[220px]"></iframe>
+        </div>
 
-        @if($agendar ?? false)
-            <a href="{{ $calendarUrl }}" target="_blank" rel="noopener"
-                class="inline-flex items-center gap-2 px-6 py-3 mt-4 rounded-full border border-primary text-primary text-sm tracking-wide">
-                📅 Agendar en Calendar
-            </a>
-        @endif
+        {{-- Acciones principales --}}
+        <div class="flex flex-col gap-3 mb-6">
+            @if(!empty($ubicacion['maps_url']))
+                <a href="{{ $ubicacion['maps_url'] }}" target="_blank" rel="noopener"
+                    class="flex items-center justify-center gap-2 py-3.5 rounded-xl bg-primary text-white text-sm font-medium tracking-wide shadow-md active:scale-[0.98] transition-transform">
+                    @include('invitations.partials.icon', ['name' => 'map-pin', 'class' => 'w-4 h-4', 'animated' => false])
+                    Abrir en Google Maps
+                </a>
+            @endif
+            @if($agendar ?? false)
+                <a href="{{ $calendarUrl }}" target="_blank" rel="noopener"
+                    class="flex items-center justify-center gap-2 py-3.5 rounded-xl border border-primary/30 text-sm active:scale-[0.98] transition-transform">
+                    @include('invitations.partials.icon', ['name' => 'calendar', 'class' => 'w-4 h-4 text-primary', 'animated' => false])
+                    Agendar en Calendar
+                </a>
+            @endif
+        </div>
 
+        {{-- Transporte con logos --}}
         @if($transporte ?? false)
-            <div class="mt-8 flex flex-wrap justify-center gap-3">
-                <a href="https://m.uber.com/ul/?action=setPickup&dropoff[latitude]={{ $lat }}&dropoff[longitude]={{ $lng }}&dropoff[nickname]=Evento"
-                    class="px-4 py-2 rounded-xl bg-black text-white text-xs">Uber</a>
-                <a href="https://3.redirect.appmetrica.yandex.com/route?end-lat={{ $lat }}&end-lon={{ $lng }}"
-                    class="px-4 py-2 rounded-xl bg-yellow-500 text-black text-xs">Yango</a>
-                <a href="indrive://order?destination={{ $address }}"
-                    class="px-4 py-2 rounded-xl bg-green-600 text-white text-xs">InDrive</a>
+            <div class="mt-8">
+                <p class="text-[10px] uppercase tracking-[0.3em] text-center opacity-50 mb-4">Llegar en transporte</p>
+                <div class="grid grid-cols-3 gap-3">
+                    <a href="https://m.uber.com/ul/?action=setPickup&dropoff[latitude]={{ $lat }}&dropoff[longitude]={{ $lng }}&dropoff[nickname]=Evento"
+                        class="flex flex-col items-center gap-2 py-4 px-2 rounded-2xl bg-stone-900 text-white active:scale-95 transition-transform">
+                        <svg class="h-5" viewBox="0 0 64 20" fill="currentColor" aria-label="Uber">
+                            <text x="0" y="16" font-family="system-ui,sans-serif" font-size="16" font-weight="600">Uber</text>
+                        </svg>
+                        <span class="text-[10px] opacity-70">Pedir viaje</span>
+                    </a>
+                    <a href="https://3.redirect.appmetrica.yandex.com/route?end-lat={{ $lat }}&end-lon={{ $lng }}"
+                        class="flex flex-col items-center gap-2 py-4 px-2 rounded-2xl bg-[#FFCC00] text-stone-900 active:scale-95 transition-transform">
+                        <svg class="h-5" viewBox="0 0 72 20" fill="currentColor" aria-label="Yango">
+                            <text x="0" y="16" font-family="system-ui,sans-serif" font-size="16" font-weight="700">Yango</text>
+                        </svg>
+                        <span class="text-[10px] opacity-70">Solicitar</span>
+                    </a>
+                    <a href="indrive://order?destination={{ $address }}"
+                        class="flex flex-col items-center gap-2 py-4 px-2 rounded-2xl bg-[#26A65B] text-white active:scale-95 transition-transform">
+                        <svg class="h-5" viewBox="0 0 80 20" fill="currentColor" aria-label="inDrive">
+                            <text x="0" y="16" font-family="system-ui,sans-serif" font-size="14" font-weight="600">inDrive</text>
+                        </svg>
+                        <span class="text-[10px] opacity-70">Negociar</span>
+                    </a>
+                </div>
             </div>
         @endif
 
         @if(!empty($ubicacion['nota']))
-            <p class="text-xs opacity-50 mt-6">{{ $ubicacion['nota'] }}</p>
+            <p class="text-xs text-center opacity-45 mt-8 leading-relaxed">{{ $ubicacion['nota'] }}</p>
         @endif
     </div>
 </section>

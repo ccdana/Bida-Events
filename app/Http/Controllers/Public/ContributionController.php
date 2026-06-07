@@ -12,6 +12,26 @@ use Illuminate\Support\Facades\Storage;
 
 class ContributionController extends Controller
 {
+    public function listSongs(string $slug)
+    {
+        $invitation = Invitation::where('slug', $slug)->where('status', 'active')->firstOrFail();
+
+        $songs = $invitation->contributions()
+            ->where('type', 'song_request')
+            ->with('guest:id,name')
+            ->latest('created_at')
+            ->take(50)
+            ->get()
+            ->map(fn ($c) => [
+                'id' => $c->id,
+                'text' => $c->content_text,
+                'guest' => $c->guest?->name,
+                'at' => $c->created_at?->diffForHumans(),
+            ]);
+
+        return response()->json(['songs' => $songs]);
+    }
+
     public function storeSong(Request $request, string $slug)
     {
         $invitation = Invitation::where('slug', $slug)->where('status', 'active')->firstOrFail();

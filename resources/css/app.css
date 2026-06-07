@@ -26,7 +26,64 @@
     animation: shimmer 3s infinite;
 }
 
-.invitation-section { scroll-margin-top: 2rem; }
+@keyframes eq {
+    0%, 100% { transform: scaleY(0.4); }
+    50% { transform: scaleY(1); }
+}
+
+@keyframes flicker {
+    0%, 100% { opacity: 1; transform: scaleY(1); }
+    50% { opacity: 0.7; transform: scaleY(0.92); }
+}
+
+@keyframes sway {
+    0%, 100% { transform: rotate(-3deg); }
+    50% { transform: rotate(3deg); }
+}
+
+@keyframes float-soft {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+}
+
+@keyframes spin-slow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes bounce-soft {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(3px); }
+}
+
+@keyframes particle-drift {
+    0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.15; }
+    50% { transform: translate(8px, -16px) scale(1.2); opacity: 0.35; }
+}
+
+.animate-eq { animation: eq 0.8s ease-in-out infinite; transform-origin: bottom; }
+.icon-flicker { animation: flicker 2s ease-in-out infinite; transform-origin: center bottom; }
+.icon-sway { animation: sway 3s ease-in-out infinite; transform-origin: center bottom; }
+.icon-float-soft { animation: float-soft 3s ease-in-out infinite; }
+.icon-spin-slow { animation: spin-slow 12s linear infinite; }
+.icon-bounce-soft { animation: bounce-soft 2s ease-in-out infinite; }
+.particle-dot { animation: particle-drift 6s ease-in-out infinite; }
+
+.invitation-section { scroll-margin-top: 2rem; padding-top: 5rem; padding-bottom: 5rem; }
+.section-inner { max-width: 28rem; margin-left: auto; margin-right: auto; padding-left: 1.5rem; padding-right: 1.5rem; }
+.section-inner-wide { max-width: 32rem; margin-left: auto; margin-right: auto; padding-left: 1.5rem; padding-right: 1.5rem; }
+
+.timeline-progress {
+    transition: height 0.15s linear;
+    background: linear-gradient(to bottom, var(--primary-color), color-mix(in srgb, var(--primary-color) 60%, transparent));
+}
+
+.timeline-step {
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.timeline-step.is-active { opacity: 1; transform: translateY(0); }
+.timeline-step.is-pending { opacity: 0.35; transform: translateY(12px); }
+.timeline-step.is-done .timeline-node { background: var(--primary-color); border-color: var(--primary-color); box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary-color) 25%, transparent); }
 
 .card-stack-item {
     transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;

@@ -1,5 +1,5 @@
-<section class="invitation-section py-16 px-6 z-10 relative" x-data="countdown('{{ $eventDate }}')" x-init="start()">
-    <div class="max-w-lg mx-auto text-center">
+<section class="invitation-section relative z-10" x-data="countdown('{{ $eventDate }}')" x-init="start()">
+    <div class="section-inner text-center">
         <h2 class="font-title text-2xl mb-8 text-primary">Faltan</h2>
         <div class="grid grid-cols-4 gap-3">
             <template x-for="unit in ['days','hours','minutes','seconds']" :key="unit">

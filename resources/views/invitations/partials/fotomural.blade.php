@@ -1,11 +1,13 @@
-<section class="invitation-section py-12 px-6 z-10 relative text-center" x-data="fotomural('{{ $slug }}', '{{ $guestToken }}')">
-    <button @click="$refs.fileInput.click()"
-        class="inline-flex items-center gap-3 px-8 py-4 rounded-full bg-primary text-white shadow-lg">
-        <span class="text-xl">📷</span>
-        <span class="text-sm tracking-wide">Compartir foto en vivo</span>
-    </button>
-    <input type="file" x-ref="fileInput" accept="image/*" capture="environment" class="hidden" @change="upload">
-    <p x-show="message" x-text="message" class="text-sm text-primary mt-4"></p>
+<section class="invitation-section relative z-10 text-center" x-data="fotomural('{{ $slug }}', '{{ $guestToken }}')">
+    <div class="section-inner">
+        <button type="button" @click="$refs.fileInput.click()"
+            class="inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-primary text-white shadow-lg active:scale-[0.98] transition-transform">
+            @include('invitations.partials.icon', ['name' => 'camera', 'class' => 'w-5 h-5', 'animated' => false])
+            <span class="text-sm tracking-wide font-medium">Compartir foto en vivo</span>
+        </button>
+        <input type="file" x-ref="fileInput" accept="image/*" capture="environment" class="hidden" @change="upload">
+        <p x-show="message" x-text="message" class="text-sm text-primary mt-5" x-cloak></p>
+    </div>
 </section>
 <script>
 function fotomural(slug, guestToken) {
@@ -23,7 +25,7 @@ function fotomural(slug, guestToken) {
                 body: fd
             });
             const data = await res.json();
-            this.message = data.message || '¡Foto enviada!';
+            this.message = data.message || 'Foto enviada al fotomural';
         }
     };
 }

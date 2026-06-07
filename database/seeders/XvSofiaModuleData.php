@@ -66,7 +66,7 @@ class XvSofiaModuleData
                 'subtitulo' => 'Celebrando mis XV Años',
                 'mensaje' => 'Con inmensa alegría, te invito a ser parte de esta noche mágica llena de amor, música y momentos inolvidables.',
                 'fecha_texto' => 'Sábado 15 de Noviembre, 2026',
-                'mensaje_post_evento' => '¡Gracias por acompañarme en mi noche mágica! Tu presencia hizo de este día algo inolvidable. 💫',
+                'mensaje_post_evento' => 'Gracias por acompañarme en mi noche magica. Tu presencia hizo de este dia algo inolvidable.',
                 'imagen_hero' => 'https://res.cloudinary.com/demo/image/upload/v1690000000/xv-sofia/hero.jpg',
             ],
             'ubicacion' => [
@@ -80,18 +80,38 @@ class XvSofiaModuleData
             'itinerario' => [
                 'titulo' => 'Itinerario de la Noche',
                 'eventos' => [
-                    ['hora' => '18:00', 'titulo' => 'Recepción de Invitados', 'icono' => '🥂', 'descripcion' => 'Cóctel de bienvenida'],
-                    ['hora' => '19:00', 'titulo' => 'Ceremonia de Velas', 'icono' => '🕯️', 'descripcion' => 'Momento especial con la familia'],
-                    ['hora' => '19:30', 'titulo' => 'Vals con Papá', 'icono' => '💃', 'descripcion' => 'El primer vals de la quinceañera'],
-                    ['hora' => '20:00', 'titulo' => 'Cena & Brindis', 'icono' => '🍽️', 'descripcion' => 'Menú gourmet de tres tiempos'],
-                    ['hora' => '21:00', 'titulo' => 'Fiesta & DJ', 'icono' => '🎵', 'descripcion' => '¡A bailar hasta el amanecer!'],
-                    ['hora' => '00:00', 'titulo' => 'Sorpresa Final', 'icono' => '✨', 'descripcion' => 'Un momento que no olvidarás'],
+                    ['hora' => '18:00', 'titulo' => 'Recepcion de Invitados', 'icono' => 'glass', 'descripcion' => 'Coctel de bienvenida en el salon principal'],
+                    ['hora' => '19:00', 'titulo' => 'Ceremonia de Velas', 'icono' => 'candle', 'descripcion' => 'Momento especial con la familia'],
+                    ['hora' => '19:30', 'titulo' => 'Vals con Papa', 'icono' => 'dance', 'descripcion' => 'El primer vals de la quinceanera'],
+                    ['hora' => '20:00', 'titulo' => 'Cena y Brindis', 'icono' => 'dinner', 'descripcion' => 'Menu gourmet de tres tiempos'],
+                    ['hora' => '21:00', 'titulo' => 'Fiesta y DJ', 'icono' => 'music', 'descripcion' => 'A bailar hasta el amanecer'],
+                    ['hora' => '00:00', 'titulo' => 'Sorpresa Final', 'icono' => 'star', 'descripcion' => 'Un momento que no olvidaras'],
                 ],
             ],
             'dress_code' => [
-                'titulo' => 'Código de Vestimenta',
+                'titulo' => 'Codigo de Vestimenta',
                 'estilo' => 'Etiqueta Semi-Formal',
-                'descripcion' => 'Te pedimos evitar colores que compitan con la quinceañera.',
+                'descripcion' => 'Te pedimos evitar colores que compitan con la quinceanera.',
+                'sugerencias' => [
+                    [
+                        'para' => 'Damas',
+                        'titulo' => 'Vestido largo o cocktail',
+                        'descripcion' => 'Preferimos vestidos elegantes de longitud media o larga. Telas fluidas en tonos tierra, vino o negro.',
+                        'ejemplos' => ['Vestido satinado', 'Jump suit elegante', 'Falda larga + blusa'],
+                    ],
+                    [
+                        'para' => 'Caballeros',
+                        'titulo' => 'Traje o guayabera formal',
+                        'descripcion' => 'Camisa formal con saco o traje completo. Corbata opcional en tonos sobrios.',
+                        'ejemplos' => ['Traje oscuro', 'Camisa blanca + saco', 'Guayabera premium'],
+                    ],
+                    [
+                        'para' => 'Jovenes',
+                        'titulo' => 'Semi-formal moderno',
+                        'descripcion' => 'Pantalon de vestir o falda elegante. Evitar jeans, tenis deportivos o ropa casual.',
+                        'ejemplos' => ['Pantalon de vestir', 'Blazer casual', 'Vestido corto elegante'],
+                    ],
+                ],
                 'colores_permitidos' => [
                     ['nombre' => 'Dorado', 'hex' => '#C9A96E'],
                     ['nombre' => 'Vino', 'hex' => '#722F37'],
@@ -99,17 +119,27 @@ class XvSofiaModuleData
                     ['nombre' => 'Champagne', 'hex' => '#F7E7CE'],
                 ],
                 'colores_prohibidos' => [
-                    ['nombre' => 'Blanco', 'hex' => '#FFFFFF', 'motivo' => 'Reservado para la quinceañera'],
+                    ['nombre' => 'Blanco', 'hex' => '#FFFFFF', 'motivo' => 'Reservado para la quinceanera'],
                     ['nombre' => 'Rosa fuerte', 'hex' => '#FF69B4', 'motivo' => 'Color exclusivo del evento'],
                 ],
             ],
             'destacados' => [
-                'chambelanes' => ['Mateo R.', 'Diego M.', 'Sebastián L.', 'Andrés V.'],
-                'damitas' => ['Valentina C.', 'Camila P.', 'Isabella G.', 'Lucía F.'],
+                'chambelanes' => [
+                    ['nombre' => 'Mateo R.', 'iniciales' => 'MR', 'detalle' => 'Mejor amigo desde kinder'],
+                    ['nombre' => 'Diego M.', 'iniciales' => 'DM', 'detalle' => 'Companero de danza'],
+                    ['nombre' => 'Sebastian L.', 'iniciales' => 'SL', 'detalle' => 'Primo y confidente'],
+                    ['nombre' => 'Andres V.', 'iniciales' => 'AV', 'detalle' => 'Del equipo de basquet'],
+                ],
+                'damitas' => [
+                    ['nombre' => 'Valentina C.', 'iniciales' => 'VC'],
+                    ['nombre' => 'Camila P.', 'iniciales' => 'CP'],
+                    ['nombre' => 'Isabella G.', 'iniciales' => 'IG'],
+                    ['nombre' => 'Lucia F.', 'iniciales' => 'LF'],
+                ],
                 'padrinos' => [
-                    ['rol' => 'Padrinos de Honor', 'nombres' => 'Sr. Roberto & Sra. Elena Quispe'],
-                    ['rol' => 'Padrinos de Anillo', 'nombres' => 'Sr. Carlos & Sra. María Pereyra'],
-                    ['rol' => 'Padrinos de Vals', 'nombres' => 'Sr. Fernando & Sra. Ana Mamani'],
+                    ['rol' => 'Padrinos de Honor', 'nombres' => 'Sr. Roberto y Sra. Elena Quispe', 'mensaje' => 'Gracias por ser nuestro guia y ejemplo de amor en la familia.'],
+                    ['rol' => 'Padrinos de Anillo', 'nombres' => 'Sr. Carlos y Sra. Maria Pereyra', 'mensaje' => 'Su carino ha acompanado a Sofia en cada etapa de su vida.'],
+                    ['rol' => 'Padrinos de Vals', 'nombres' => 'Sr. Fernando y Sra. Ana Mamani', 'mensaje' => 'Bendicen este vals que queda grabado en nuestros corazones.'],
                 ],
             ],
             'galeria' => [
@@ -123,9 +153,9 @@ class XvSofiaModuleData
                 ],
             ],
             'musica' => [
-                'titulo' => 'Mi Canción Especial',
-                'artista' => 'Shakira - Waka Waka',
-                'audio_url' => 'https://res.cloudinary.com/demo/video/upload/v1690000000/xv-sofia/musica.mp3',
+                'titulo' => 'Banda Sonora de la Noche',
+                'artista' => 'Vals de Sofia — instrumental',
+                'audio_url' => 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
                 'autoplay' => false,
             ],
             'video' => [
@@ -135,8 +165,8 @@ class XvSofiaModuleData
             ],
             'playlist' => [
                 'titulo' => 'Playlist Colaborativa',
-                'descripcion' => 'Sugiere una canción para la pista de baile 🎶',
-                'placeholder' => 'Nombre de canción o link de YouTube',
+                'descripcion' => 'Sugiere una cancion para la pista de baile',
+                'placeholder' => 'Nombre de cancion o link de YouTube',
             ],
             'hashtag' => [
                 'hashtag' => '#SofiaXV2026',
@@ -154,7 +184,7 @@ class XvSofiaModuleData
                     [
                         'id' => 'caida-pista',
                         'pregunta' => '¿Quién se caerá primero en la pista?',
-                        'opciones' => ['El tío Juan', 'Mateo (chambelán)', 'Yo mismo 😅', 'Nadie, somos pro'],
+                        'opciones' => ['El tio Juan', 'Mateo (chambelan)', 'Yo mismo', 'Nadie, somos pro'],
                     ],
                 ],
             ],

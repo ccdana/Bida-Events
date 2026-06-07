@@ -26,6 +26,7 @@ Route::prefix('p')->name('invitation.')->group(function () {
     Route::get('/{slug}', [PublicInvitationController::class, 'show'])->name('show');
     Route::get('/{slug}/i/{token}', [PublicInvitationController::class, 'show'])->name('guest');
     Route::post('/{slug}/i/{token}/confirm', [RsvpController::class, 'confirm'])->name('rsvp');
+    Route::get('/{slug}/playlist', [ContributionController::class, 'listSongs'])->name('playlist.list');
     Route::post('/{slug}/playlist', [ContributionController::class, 'storeSong'])->name('playlist');
     Route::post('/{slug}/fotomural', [ContributionController::class, 'storePhoto'])->name('fotomural');
     Route::post('/{slug}/polls/{pollId}/vote', [ContributionController::class, 'votePoll'])->name('poll.vote');

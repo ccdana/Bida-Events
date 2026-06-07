@@ -4,6 +4,7 @@
     $tipografias = $config['tipografias'] ?? [];
     $flags = $config['modulos'] ?? [];
     $bienvenida = $modulos['bienvenida'] ?? [];
+    $musica = $modulos['musica'] ?? [];
     $isPostEvent = $invitation->isPostEvent();
     $guestToken = $guest?->qr_code_token ?? '';
 @endphp
@@ -35,83 +36,73 @@
         .text-primary { color: var(--primary-color); }
         .bg-primary { background-color: var(--primary-color); }
         .border-primary { border-color: var(--primary-color); }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
     </style>
 </head>
-<body class="overflow-x-hidden" x-data="invitationApp()" x-init="init()">
+<body class="overflow-x-hidden pb-28" x-data="invitationApp()" x-init="init()">
 
-    {{-- Partículas flotantes --}}
+    {{-- Partículas sutiles (puntos CSS, sin emojis) --}}
     <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
-        <template x-for="p in particles" :key="p.id">
-            <span class="absolute text-primary opacity-30 animate-float" :style="`left:${p.x}%;top:${p.y}%;animation-delay:${p.delay}s;font-size:${p.size}px`" x-text="p.char"></span>
-        </template>
+        @for($i = 0; $i < 10; $i++)
+            <span class="particle-dot absolute w-1 h-1 rounded-full bg-primary"
+                style="left:{{ rand(5, 95) }}%;top:{{ rand(5, 95) }}%;animation-delay:{{ $i * 0.6 }}s"></span>
+        @endfor
     </div>
 
-    {{-- Reproductor música flotante --}}
-    @if(($flags['musica'] ?? false) && !empty($modulos['musica']['audio_url']))
-    <div class="fixed bottom-24 right-4 z-50" x-data="{ playing: false, volume: 0.5 }">
-        <audio x-ref="audio" src="{{ $modulos['musica']['audio_url'] }}" loop preload="metadata"></audio>
-        <button @click="playing = !playing; playing ? $refs.audio.play() : $refs.audio.pause()"
-            class="w-12 h-12 rounded-full bg-primary/90 text-white shadow-lg flex items-center justify-center backdrop-blur-sm">
-            <span x-text="playing ? '⏸' : '▶'"></span>
-        </button>
-    </div>
-    @endif
+    {{-- Reproductor de música (configurable por admin) --}}
+    @include('invitations.partials.music-player', ['musica' => $musica, 'flags' => $flags])
 
     {{-- HERO --}}
-    <header class="relative min-h-screen flex flex-col items-center justify-center text-center px-6 py-20 z-10">
+    <header class="relative min-h-[100dvh] flex flex-col items-center justify-center text-center px-8 py-24 z-10">
         @if($isPostEvent && ($flags['post_evento'] ?? false))
-            <p class="font-script text-4xl sm:text-5xl text-primary mb-4">{{ $bienvenida['mensaje_post_evento'] ?? '¡Gracias por acompañarme!' }}</p>
+            <p class="font-script text-4xl sm:text-5xl text-primary mb-6 leading-tight max-w-sm">{{ $bienvenida['mensaje_post_evento'] ?? 'Gracias por acompañarme en mi noche magica' }}</p>
         @else
-            <p class="text-xs uppercase tracking-[0.3em] text-primary/80 mb-4">{{ $bienvenida['subtitulo'] ?? 'Mis XV Años' }}</p>
-            <h1 class="font-script text-6xl sm:text-8xl text-primary leading-none mb-6">{{ $bienvenida['nombre_quinceanera'] ?? 'Quinceañera' }}</h1>
-            <p class="font-title text-lg sm:text-xl max-w-md leading-relaxed opacity-80">{{ $bienvenida['mensaje'] ?? '' }}</p>
-            <p class="mt-8 text-sm tracking-widest uppercase border-t border-b border-primary/30 py-3 px-6">{{ $bienvenida['fecha_texto'] ?? $invitation->event_date->format('d \d\e F, Y') }}</p>
+            <p class="text-[10px] uppercase tracking-[0.35em] text-primary/70 mb-5">{{ $bienvenida['subtitulo'] ?? 'Mis XV Anos' }}</p>
+            <h1 class="font-script text-6xl sm:text-[5.5rem] text-primary leading-none mb-8">{{ $bienvenida['nombre_quinceanera'] ?? 'Quinceanera' }}</h1>
+            <p class="font-title text-lg sm:text-xl max-w-sm leading-relaxed opacity-75">{{ $bienvenida['mensaje'] ?? '' }}</p>
+            <p class="mt-10 text-xs tracking-[0.25em] uppercase border-t border-b border-primary/25 py-4 px-8">{{ $bienvenida['fecha_texto'] ?? $invitation->event_date->format('d \d\e F, Y') }}</p>
         @endif
 
         @if($guest)
-            <div class="mt-10 px-6 py-4 rounded-2xl border border-primary/40 bg-white/60 backdrop-blur-sm max-w-sm">
-                <p class="text-sm opacity-70">Invitación personal para</p>
-                <p class="font-title text-xl mt-1">{{ $guest->name }}</p>
+            <div class="mt-12 px-8 py-5 rounded-2xl border border-primary/30 bg-white/50 backdrop-blur-md max-w-sm w-full">
+                <p class="text-[10px] uppercase tracking-widest opacity-50">Invitacion personal</p>
+                <p class="font-title text-xl mt-2">{{ $guest->name }}</p>
                 @if($guest->status === 'pending')
-                    <p class="text-sm text-primary mt-2">Tienes <strong>{{ $guest->passes_allocated }}</strong> {{ $guest->passes_allocated === 1 ? 'pase' : 'pases' }} disponibles</p>
+                    <p class="text-sm text-primary mt-3">Tienes <strong>{{ $guest->passes_allocated }}</strong> {{ $guest->passes_allocated === 1 ? 'pase disponible' : 'pases disponibles' }}</p>
                 @endif
             </div>
         @endif
 
-        <div class="absolute bottom-8 animate-bounce opacity-50">↓</div>
+        <div class="absolute bottom-10 text-primary/40">
+            @include('invitations.partials.icon', ['name' => 'chevron-down', 'class' => 'w-6 h-6'])
+        </div>
     </header>
 
-    {{-- CUENTA REGRESIVA --}}
     @if(($flags['cuenta_regresiva'] ?? false) && !$isPostEvent)
         @include('invitations.partials.countdown', ['eventDate' => $invitation->event_date->toIso8601String()])
     @endif
 
-    {{-- VIDEO SAVE THE DATE --}}
     @if(($flags['video'] ?? false) && !empty($modulos['video']['video_url']))
         @include('invitations.partials.video', ['video' => $modulos['video']])
     @endif
 
-    {{-- GALERÍA STACK --}}
     @if(($flags['galeria'] ?? false) && !empty($modulos['galeria']['fotos']))
         @include('invitations.partials.gallery-stack', ['galeria' => $modulos['galeria']])
     @endif
 
-    {{-- ITINERARIO --}}
     @if($flags['itinerario'] ?? false)
         @include('invitations.partials.itinerary', ['itinerario' => $modulos['itinerario'] ?? []])
     @endif
 
-    {{-- DRESS CODE --}}
     @if($flags['dress_code'] ?? false)
         @include('invitations.partials.dress-code', ['dressCode' => $modulos['dress_code'] ?? []])
     @endif
 
-    {{-- DESTACADOS --}}
     @if($flags['destacados'] ?? false)
         @include('invitations.partials.destacados', ['destacados' => $modulos['destacados'] ?? []])
     @endif
 
-    {{-- UBICACIÓN + TRANSPORTE --}}
     @if($flags['ubicacion'] ?? false)
         @include('invitations.partials.location', [
             'ubicacion' => $modulos['ubicacion'] ?? [],
@@ -121,12 +112,10 @@
         ])
     @endif
 
-    {{-- HASHTAG --}}
     @if($flags['hashtag'] ?? false)
         @include('invitations.partials.hashtag', ['hashtag' => $modulos['hashtag'] ?? []])
     @endif
 
-    {{-- ENCUESTAS --}}
     @if($flags['encuestas'] ?? false)
         @include('invitations.partials.polls', [
             'encuestas' => $modulos['encuestas'] ?? [],
@@ -136,21 +125,19 @@
         ])
     @endif
 
-    {{-- PLAYLIST --}}
     @if($flags['playlist'] ?? false)
         @include('invitations.partials.playlist', [
             'playlist' => $modulos['playlist'] ?? [],
             'slug' => $invitation->slug,
             'guestToken' => $guestToken,
+            'songs' => $playlistSongs ?? [],
         ])
     @endif
 
-    {{-- REGALOS --}}
     @if($flags['regalos'] ?? false)
         @include('invitations.partials.regalos', ['regalos' => $modulos['regalos'] ?? []])
     @endif
 
-    {{-- RSVP --}}
     @if(($flags['rsvp'] ?? false) && $guest)
         @include('invitations.partials.rsvp', [
             'rsvp' => $modulos['rsvp'] ?? [],
@@ -159,37 +146,21 @@
         ])
     @endif
 
-    {{-- FOTOMURAL --}}
     @if(($flags['fotomural'] ?? false) && !$isPostEvent)
         @include('invitations.partials.fotomural', ['slug' => $invitation->slug, 'guestToken' => $guestToken])
     @endif
 
-    {{-- POST EVENTO GALERÍA --}}
     @if($isPostEvent && ($flags['post_evento'] ?? false))
         @include('invitations.partials.post-event', ['postEvento' => $modulos['post_evento'] ?? []])
     @endif
 
-    {{-- FOOTER --}}
-    <footer class="py-12 text-center text-xs tracking-widest uppercase opacity-40 z-10 relative">
-        Diseñado con ♡ por <span class="text-primary">Bida-Events</span>
+    <footer class="py-16 text-center z-10 relative">
+        <p class="text-[10px] tracking-[0.3em] uppercase opacity-35">Disenado por <span class="text-primary opacity-100">Bida-Events</span></p>
     </footer>
 
     <script>
     function invitationApp() {
-        return {
-            particles: [],
-            init() {
-                const chars = ['✦', '✧', '·', '♡'];
-                this.particles = Array.from({ length: 12 }, (_, i) => ({
-                    id: i,
-                    x: Math.random() * 100,
-                    y: Math.random() * 100,
-                    delay: Math.random() * 4,
-                    size: 8 + Math.random() * 12,
-                    char: chars[i % chars.length]
-                }));
-            }
-        };
+        return { init() {} };
     }
     </script>
 </body>

@@ -17,7 +17,7 @@
             </a>
         @else
             <div class="py-16 rounded-2xl border-2 border-dashed border-primary/20">
-                <p class="text-sm opacity-50">Las fotos oficiales se publicarán pronto ✨</p>
+                <p class="text-sm opacity-50">Las fotos oficiales se publicaran pronto</p>
             </div>
         @endif
     </div>

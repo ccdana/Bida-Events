@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\EventType;
 use App\Models\Feature;
 use App\Models\Guest;
+use App\Models\GuestContribution;
 use App\Models\Invitation;
 use App\Models\InvitationData;
 use App\Models\Plan;
@@ -88,6 +89,24 @@ class DatabaseSeeder extends Seeder
                 'invitation_id' => $invitation->id,
                 ...$guestData,
                 'qr_code_token' => InvitationModuleService::generateGuestToken(),
+            ]);
+        }
+
+        $sampleSongs = [
+            ['content_text' => 'Vivir mi vida — Marc Anthony', 'guest' => 'Familia Mamani'],
+            ['content_text' => 'Bailando — Enrique Iglesias', 'guest' => 'Carlos Pereyra'],
+            ['content_text' => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', 'guest' => null],
+        ];
+
+        $guestRecords = Guest::where('invitation_id', $invitation->id)->get()->keyBy('name');
+
+        foreach ($sampleSongs as $song) {
+            GuestContribution::create([
+                'invitation_id' => $invitation->id,
+                'guest_id' => $song['guest'] ? $guestRecords[$song['guest']]?->id : null,
+                'type' => 'song_request',
+                'content_text' => $song['content_text'],
+                'created_at' => now()->subMinutes(rand(10, 120)),
             ]);
         }
     }

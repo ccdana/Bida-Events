@@ -47,12 +47,28 @@ class InvitationController extends Controller
             $modulos['ubicacion'] ?? []
         );
 
+        $playlistSongs = $invitation->contributions()
+            ->where('type', 'song_request')
+            ->with('guest:id,name')
+            ->latest('created_at')
+            ->take(50)
+            ->get()
+            ->map(fn ($c) => [
+                'id' => $c->id,
+                'text' => $c->content_text,
+                'guest' => $c->guest?->name,
+                'at' => $c->created_at?->diffForHumans(),
+            ])
+            ->values()
+            ->all();
+
         return view($template, compact(
             'invitation',
             'modulos',
             'guest',
             'pollResults',
-            'calendarUrl'
+            'calendarUrl',
+            'playlistSongs'
         ));
     }
 }

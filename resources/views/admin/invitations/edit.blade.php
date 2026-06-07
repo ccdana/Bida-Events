@@ -113,8 +113,24 @@
         <input type="hidden" name="modulos[ubicacion]" :value="JSON.stringify(modules.ubicacion)">
     </section>
 
-    {{-- Hidden JSON para módulos no editados inline --}}
-    @foreach(['itinerario','dress_code','destacados','galeria','musica','video','playlist','hashtag','encuestas','regalos','post_evento','rsvp'] as $code)
+    {{-- Musica de fondo --}}
+    <section class="rounded-2xl border border-stone-200 bg-white p-6 mb-6">
+        <h2 class="text-lg font-medium mb-4">Musica de fondo</h2>
+        <p class="text-xs text-stone-500 mb-4">Los invitados podran reproducir o pausar desde la invitacion. Activa el modulo "musica" en Estetica.</p>
+        <div class="space-y-3">
+            <input type="text" x-model="modules.musica.titulo" placeholder="Titulo" class="w-full rounded-lg border-stone-300">
+            <input type="text" x-model="modules.musica.artista" placeholder="Artista / descripcion" class="w-full rounded-lg border-stone-300">
+            <input type="url" x-model="modules.musica.audio_url" placeholder="URL del audio (Cloudinary, MP3...)" class="w-full rounded-lg border-stone-300">
+            <label class="flex items-center gap-2 text-sm">
+                <input type="checkbox" x-model="modules.musica.autoplay" class="rounded border-stone-300 text-amber-600">
+                Reproducir automaticamente al abrir
+            </label>
+        </div>
+        <input type="hidden" name="modulos[musica]" :value="JSON.stringify(modules.musica || {})">
+    </section>
+
+    {{-- Hidden JSON para modulos no editados inline --}}
+    @foreach(['itinerario','dress_code','destacados','galeria','video','playlist','hashtag','encuestas','regalos','post_evento','rsvp'] as $code)
         <input type="hidden" name="modulos[{{ $code }}]" :value="JSON.stringify(modules['{{ $code }}'] || {})">
     @endforeach
 
