@@ -4,7 +4,7 @@
 @section('header-title', 'Crear invitación')
 
 @section('header-actions')
-    <button form="invitation-form" type="submit" class="px-4 py-2 bg-stone-900 text-white text-sm rounded-xl hover:bg-stone-800 transition font-medium">Crear invitación</button>
+    <button form="invitation-form" type="submit" class="admin-primary-button">Crear invitación</button>
 @endsection
 
 @section('content')

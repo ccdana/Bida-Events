@@ -1,4 +1,4 @@
-<section class="invitation-section reveal" x-data="{ tab: 'regalos', showBank: false }"
+<section class="invitation-section reveal" x-data="{ showBank: false }"
     x-effect="document.body.style.overflow = showBank ? 'hidden' : ''">
     <div class="section-inner-wide">
         <header class="section-header">
@@ -7,40 +7,55 @@
             <div class="section-ornament"></div>
         </header>
 
-        <div class="flex justify-center gap-1 mb-6 p-1 rounded-full inv-card-soft max-w-xs mx-auto">
-            <button type="button" @click="tab='regalos'"
-                class="flex-1 px-4 py-2 rounded-full text-xs uppercase tracking-wider transition-all duration-300"
-                :class="tab==='regalos' ? 'bg-primary text-white shadow-sm' : 'opacity-50'">Regalos</button>
-            <button type="button" @click="tab='sobres'"
-                class="flex-1 px-4 py-2 rounded-full text-xs uppercase tracking-wider transition-all duration-300"
-                :class="tab==='sobres' ? 'bg-primary text-white shadow-sm' : 'opacity-50'">Sobres</button>
-            <button type="button" @click="showBank=true"
-                class="flex-1 px-4 py-2 rounded-full text-xs uppercase tracking-wider transition-all duration-300 opacity-60 hover:opacity-100">
-                Banco
-            </button>
-        </div>
+        <div class="space-y-4">
+            <div class="grid gap-3 sm:grid-cols-3">
+                <button type="button" @click="showBank=true" class="inv-card rounded-[1.25rem] p-4 text-left sm:col-span-1">
+                    <p class="text-[10px] uppercase tracking-[0.2em] text-primary/60">Banco</p>
+                    <p class="mt-2 font-title text-lg">Ver datos</p>
+                    <p class="mt-1 text-sm opacity-60">Transferencia y QR.</p>
+                </button>
+                <div class="inv-card rounded-[1.25rem] p-4 sm:col-span-2">
+                    @if(!empty($regalos['tienda_url']))
+                        <a href="{{ $regalos['tienda_url'] }}" target="_blank" rel="noopener"
+                            class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-white text-sm font-medium shadow-lg active:scale-[0.98] transition-transform">
+                            @include('invitations.partials.icon', ['name' => 'gift', 'class' => 'w-4 h-4', 'animated' => false])
+                            {{ $regalos['tienda_texto'] ?? 'Ver lista de regalos' }}
+                        </a>
+                    @else
+                        <p class="text-sm opacity-50 py-4">Tu presencia es el mejor regalo</p>
+                    @endif
+                </div>
+            </div>
 
-        <div x-show="tab==='regalos'" class="text-center">
-            @if(!empty($regalos['tienda_url']))
-                <a href="{{ $regalos['tienda_url'] }}" target="_blank" rel="noopener"
-                    class="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-primary text-white text-sm font-medium shadow-lg active:scale-[0.98] transition-transform">
-                    @include('invitations.partials.icon', ['name' => 'gift', 'class' => 'w-4 h-4', 'animated' => false])
-                    {{ $regalos['tienda_texto'] ?? 'Ver lista de regalos' }}
-                </a>
-            @else
-                <p class="text-sm opacity-50 py-4">Tu presencia es el mejor regalo</p>
+            @if(!empty($regalos['opciones']))
+                <div class="grid gap-3 md:grid-cols-2">
+                    @foreach($regalos['opciones'] as $gift)
+                        <article class="inv-card p-4">
+                            <p class="text-[10px] uppercase tracking-[0.2em] text-primary/60">{{ $gift['icono'] ?? 'gift' }}</p>
+                            <h3 class="font-title text-lg mt-2">{{ $gift['titulo'] ?? 'Opción' }}</h3>
+                            @if(!empty($gift['descripcion']))
+                                <p class="mt-1 text-sm opacity-65 leading-relaxed">{{ $gift['descripcion'] }}</p>
+                            @endif
+                            @if(!empty($gift['enlace']))
+                                <a href="{{ $gift['enlace'] }}" target="_blank" rel="noopener" class="mt-4 inline-flex items-center gap-2 text-sm font-medium text-primary">
+                                    Abrir enlace
+                                    @include('invitations.partials.icon', ['name' => 'arrow-right', 'class' => 'w-4 h-4', 'animated' => false])
+                                </a>
+                            @endif
+                        </article>
+                    @endforeach
+                </div>
             @endif
-        </div>
 
-        <div x-show="tab==='sobres'" x-cloak class="text-center glass-card p-6">
-            <p class="font-title text-lg text-primary">{{ $regalos['sobres']['titulo'] ?? 'Lluvia de Sobres' }}</p>
-            @if(!empty($regalos['sobres']['direccion']))
-                <p class="text-sm opacity-70 mt-3 leading-relaxed">{{ $regalos['sobres']['direccion'] }}</p>
-            @endif
+            <div class="inv-card rounded-[1.25rem] p-5 text-center">
+                <p class="font-title text-lg text-primary">{{ $regalos['sobres']['titulo'] ?? 'Lluvia de Sobres' }}</p>
+                @if(!empty($regalos['sobres']['direccion']))
+                    <p class="text-sm opacity-70 mt-3 leading-relaxed">{{ $regalos['sobres']['direccion'] }}</p>
+                @endif
+            </div>
         </div>
     </div>
 
-    {{-- Modal bancario (teleport al body para evitar conflictos de z-index) --}}
     <template x-teleport="body">
         <div x-show="showBank" x-cloak
             x-transition:enter="transition ease-out duration-200"

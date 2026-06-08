@@ -11,6 +11,7 @@ use App\Support\InvitationDefaults;
 use App\Services\InvitationModuleService;
 use App\Services\MediaUploadService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
@@ -76,6 +77,30 @@ class InvitationController extends Controller
         return redirect()
             ->route('admin.invitations.edit', $invitation)
             ->with('success', 'Invitación actualizada correctamente.');
+    }
+
+    public function storeClient(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')],
+        ]);
+
+        $client = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make(Str::random(16)),
+            'is_admin' => false,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'client' => [
+                'id' => $client->id,
+                'name' => $client->name,
+                'email' => $client->email,
+            ],
+        ], 201);
     }
 
     protected function formData(?Invitation $invitation, array $modulos): array

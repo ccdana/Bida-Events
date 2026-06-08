@@ -58,6 +58,7 @@
                         @php
                             $nombre = is_array($persona) ? ($persona['nombre'] ?? '') : $persona;
                             $iniciales = is_array($persona) ? ($persona['iniciales'] ?? strtoupper(substr($nombre, 0, 2))) : strtoupper(substr($nombre, 0, 2));
+                            $detalle = is_array($persona) ? ($persona['detalle'] ?? null) : null;
                         @endphp
                         <button type="button" @click="active = {{ $i }}"
                             class="scroll-carousel-item w-[9.5rem] rounded-2xl p-5 text-center transition-all duration-300 inv-card"
@@ -67,6 +68,9 @@
                                 {{ $iniciales }}
                             </div>
                             <p class="text-sm font-medium">{{ $nombre }}</p>
+                            @if($detalle)
+                                <p class="text-[10px] opacity-50 mt-1.5 leading-snug">{{ $detalle }}</p>
+                            @endif
                         </button>
                     @endforeach
                 </div>

@@ -21,6 +21,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family={{ urlencode($tipografias['titulos'] ?? 'Playfair Display') }}:wght@400;600;700&family={{ urlencode($tipografias['cuerpo'] ?? 'Montserrat') }}:wght@300;400;500;600&family={{ urlencode($tipografias['script'] ?? 'Great Vibes') }}&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Cormorant+Garamond:wght@400;600;700&family=Cinzel:wght@400;600;700&family=Libre+Baskerville:wght@400;700&family=Bodoni+Moda:wght@400;600;700&family=Prata&family=Lora:wght@400;500;600;700&family=Merriweather:wght@300;400;700&family=Montserrat:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Lato:wght@300;400;700&family=Nunito+Sans:wght@300;400;600;700&family=Source+Sans+3:wght@300;400;600;700&family=Poppins:wght@300;400;500;600;700&family=Raleway:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;600;700&family=Great+Vibes&family=Parisienne&family=Alex+Brush&family=Dancing+Script:wght@400;700&family=Sacramento&family=Allura&family=Tangerine:wght@400;700&family=Petit+Formal+Script&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary-color: {{ $colores['primary'] ?? '#C9A96E' }};
@@ -28,6 +29,8 @@
             --accent-color: {{ $colores['accent'] ?? '#F5E6D3' }};
             --text-color: {{ $colores['text'] ?? '#1A1A1A' }};
             --bg-color: {{ $colores['background'] ?? '#FFFAF5' }};
+            --surface-color: color-mix(in srgb, var(--accent-color) 32%, var(--bg-color));
+            --surface-soft: color-mix(in srgb, var(--accent-color) 18%, var(--bg-color));
             --font-titles: '{{ $tipografias['titulos'] ?? 'Playfair Display' }}', serif;
             --font-body: '{{ $tipografias['cuerpo'] ?? 'Montserrat' }}', sans-serif;
             --font-script: '{{ $tipografias['script'] ?? 'Great Vibes' }}', cursive;
@@ -36,8 +39,11 @@
         .font-title { font-family: var(--font-titles); }
         .font-script { font-family: var(--font-script); }
         .text-primary { color: var(--primary-color); }
+        .text-secondary { color: var(--secondary-color); }
         .bg-primary { background-color: var(--primary-color); }
+        .bg-secondary { background-color: var(--secondary-color); }
         .border-primary { border-color: var(--primary-color); }
+        .border-secondary { border-color: var(--secondary-color); }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
     </style>
@@ -68,14 +74,14 @@
                     {{ $bienvenida['mensaje_post_evento'] ?? 'Gracias por acompañarme en mi noche mágica' }}
                 </p>
             @else
-                <p class="text-[10px] uppercase tracking-[0.35em] mb-5 animate-fade-up {{ $hasHeroImage ? 'text-white/75' : 'text-primary/70' }}">
+                <p class="text-[10px] uppercase tracking-[0.35em] mb-5 animate-fade-up {{ $hasHeroImage ? 'text-white/75' : 'text-secondary' }}">
                     {{ $bienvenida['subtitulo'] ?? 'Mis XV Años' }}
                 </p>
                 <h1 class="font-script text-6xl sm:text-[5.5rem] leading-none mb-6 animate-fade-up animate-fade-up-delay-1 {{ $hasHeroImage ? 'text-white drop-shadow-lg' : 'text-primary' }}">
                     {{ $bienvenida['nombre_quinceanera'] ?? 'Quinceañera' }}
                 </h1>
                 @if(!empty($bienvenida['mensaje']))
-                    <p class="font-title text-base sm:text-lg max-w-sm mx-auto leading-relaxed animate-fade-up animate-fade-up-delay-2 {{ $hasHeroImage ? 'text-white/85' : 'opacity-75' }}">
+                    <p class="font-title text-base sm:text-lg max-w-sm mx-auto leading-relaxed animate-fade-up animate-fade-up-delay-2 {{ $hasHeroImage ? 'text-white/85' : 'text-secondary/90' }}">
                         {{ $bienvenida['mensaje'] }}
                     </p>
                 @endif

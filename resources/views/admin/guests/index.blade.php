@@ -27,10 +27,13 @@
                         <td class="px-5 py-3.5 font-medium">{{ $guest->name }}</td>
                         <td class="px-5 py-3.5 tabular-nums">{{ $guest->passes_confirmed }}/{{ $guest->passes_allocated }}</td>
                         <td class="px-5 py-3.5">
-                            <span class="px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wider font-medium
-                                @if($guest->status === 'confirmed') bg-emerald-100 text-emerald-800
-                                @elseif($guest->status === 'declined') bg-red-100 text-red-800
-                                @else bg-stone-100 text-stone-600 @endif">{{ $guest->status }}</span>
+                            <span class="admin-status-badge
+                                @if($guest->status === 'confirmed') is-confirmed
+                                @elseif($guest->status === 'declined') is-declined
+                                @else is-pending @endif">
+                                <span class="admin-status-dot"></span>
+                                {{ $guest->status }}
+                            </span>
                         </td>
                         <td class="px-5 py-3.5">
                             <a href="{{ route('invitation.guest', [$invitation->slug, $guest->qr_code_token]) }}" target="_blank" class="text-xs text-amber-800 hover:underline">Abrir</a>

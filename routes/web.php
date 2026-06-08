@@ -40,6 +40,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::get('/invitations/create', [AdminInvitationController::class, 'create'])->name('invitations.create');
     Route::post('/invitations', [AdminInvitationController::class, 'store'])->name('invitations.store');
+    Route::post('/clients', [AdminInvitationController::class, 'storeClient'])->name('clients.store');
     Route::post('/preview', [PreviewController::class, 'store'])->name('preview.store');
     Route::get('/preview/frame', [PreviewController::class, 'frame'])->name('preview.frame');
     Route::post('/media/upload', [MediaUploadController::class, 'store'])->name('media.upload');

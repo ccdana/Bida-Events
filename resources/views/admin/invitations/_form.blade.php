@@ -4,7 +4,8 @@
     $defaultExpires = $inv?->expires_at?->format('Y-m-d') ?? now()->addMonths(9)->format('Y-m-d');
 @endphp
 
-<div class="flex flex-col h-full">
+<div class="flex flex-col h-full admin-editor-shell"
+    :style="`--admin-primary:${modules.config?.colores?.primary || '#C9A96E'};--admin-secondary:${modules.config?.colores?.secondary || '#2C1810'};--admin-accent:${modules.config?.colores?.accent || '#F5E6D3'};--admin-text:${modules.config?.colores?.text || '#1A1A1A'};--admin-bg:${modules.config?.colores?.background || '#FFFAF5'}`">
     @unless($cloudinaryConfigured)
         <div class="shrink-0 bg-amber-50 border-b border-amber-200 text-amber-900 px-4 py-2 text-xs text-center">
             Cloudinary no configurado — los archivos se guardarán en storage local al guardar la invitación. Configura <code class="font-mono">CLOUDINARY_URL</code> en tu .env
@@ -13,6 +14,7 @@
 
 <div class="flex flex-1 min-h-0" x-data="invitationForm(@js([
     'modules' => $modulos,
+    'clients' => $clients->map(fn ($client) => ['id' => $client->id, 'name' => $client->name, 'email' => $client->email])->values(),
     'meta' => [
         'title' => $inv?->title ?? '',
         'slug' => $inv?->slug ?? '',
@@ -28,15 +30,50 @@
     'slugManual' => !($isCreate ?? false),
     'previewUrl' => route('admin.preview.frame'),
     'previewStoreUrl' => route('admin.preview.store'),
+    'clientStoreUrl' => route('admin.clients.store'),
     'mediaUploadUrl' => route('admin.media.upload'),
     'itineraryIcons' => $itineraryIcons,
     'cloudinaryConfigured' => $cloudinaryConfigured,
 ]))" x-init="init()">
 
     {{-- Panel izquierdo: navegación + formulario --}}
-    <div class="w-full lg:w-[480px] xl:w-[540px] shrink-0 flex flex-col border-r border-stone-200 bg-white h-full">
+    <div class="w-full lg:w-[500px] xl:w-[560px] shrink-0 flex flex-col border-r border-stone-200 bg-stone-50 h-full">
+        <div class="shrink-0 border-b border-stone-200/80 bg-white/95 px-4 py-4 backdrop-blur-sm">
+            <div class="flex items-start justify-between gap-3">
+                <div class="min-w-0">
+                    <p class="text-[10px] uppercase tracking-widest text-stone-400" x-text="config.isCreate ? 'Nueva invitación' : 'Editando invitación'"></p>
+                    <h1 class="truncate text-lg font-serif text-stone-950" x-text="meta.title || 'Invitación sin título'"></h1>
+                    <div class="mt-3 flex flex-wrap gap-2">
+                        <span class="admin-context-badge is-primary">
+                            <span class="admin-editor-swatch" :style="`background:${modules.config.colores.primary}`"></span>
+                            <span>Principal</span>
+                        </span>
+                        <span class="admin-context-badge is-secondary">
+                            <span class="admin-editor-swatch" :style="`background:${modules.config.colores.secondary}`"></span>
+                            <span>Secundario</span>
+                        </span>
+                        <span class="admin-status-badge is-live">
+                            <span class="admin-editor-swatch" :class="previewLoading ? 'bg-amber-400 animate-pulse' : 'bg-emerald-400'"></span>
+                            <span x-text="previewLoading ? 'Sincronizando' : 'Vista previa viva'"></span>
+                        </span>
+                    </div>
+                </div>
+                <span class="admin-status-badge shrink-0"
+                    :class="{
+                        'is-active': meta.status === 'active',
+                        'is-draft': meta.status === 'draft',
+                        'is-pending': meta.status === 'pending',
+                        'is-declined': meta.status === 'declined',
+                        'is-suspended': meta.status === 'suspended',
+                        'is-expired': meta.status === 'expired'
+                    }">
+                    <span class="admin-status-dot"></span>
+                    <span x-text="meta.status"></span>
+                </span>
+            </div>
+        </div>
         {{-- Tabs --}}
-        <nav class="shrink-0 flex gap-1 overflow-x-auto p-3 border-b border-stone-100 scrollbar-hide">
+        <nav class="shrink-0 flex gap-1 overflow-x-auto p-3 border-b border-stone-200 bg-white scrollbar-hide">
             <template x-for="tab in tabs" :key="tab.id">
                 <button type="button" @click="activeTab = tab.id"
                     class="shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium uppercase tracking-wider transition whitespace-nowrap"
@@ -45,11 +82,11 @@
             </template>
         </nav>
 
-        <form id="invitation-form" method="POST" action="{{ $formAction }}" class="flex-1 overflow-y-auto" @submit.prevent="handleFormSubmit($event)">
+        <form id="invitation-form" method="POST" action="{{ $formAction }}" class="flex-1 overflow-y-auto admin-editor-scroll" @submit.prevent="handleFormSubmit($event)">
             @csrf
             @if($formMethod !== 'POST') @method($formMethod) @endif
 
-            <div class="p-4 space-y-4 pb-24">
+            <div class="p-4 space-y-4 pb-28">
                 @include('admin.invitations.panels.general')
                 @include('admin.invitations.panels.estetica')
                 @include('admin.invitations.panels.bienvenida')
@@ -73,17 +110,17 @@
 
     {{-- Panel derecho: vista previa --}}
     <div class="hidden lg:flex flex-1 flex-col bg-stone-200/60 min-w-0">
-        <div class="shrink-0 flex items-center justify-between px-4 py-2.5 border-b border-stone-200/80 bg-white/70 backdrop-blur-sm">
+        <div class="shrink-0 flex items-center justify-between px-4 py-2.5 border-b border-stone-200/80 bg-white/80 backdrop-blur-sm">
             <div class="flex items-center gap-2">
                 <span class="w-2 h-2 rounded-full" :class="previewLoading ? 'bg-amber-400 animate-pulse' : 'bg-emerald-400'"></span>
-                <span class="text-xs uppercase tracking-widest text-stone-500">Vista previa en vivo</span>
+                <span class="admin-context-badge is-live">Vista previa en vivo</span>
             </div>
-            <button type="button" @click="refreshPreview()" class="text-xs text-stone-500 hover:text-stone-800 uppercase tracking-wider">Actualizar</button>
+            <button type="button" @click="refreshPreview()" class="admin-link-button">Actualizar</button>
         </div>
         <div class="flex-1 p-4 min-h-0">
-            <div class="mx-auto h-full max-w-[390px] rounded-[2rem] border-[6px] border-stone-800 bg-stone-800 shadow-2xl overflow-hidden">
-                <div class="h-6 bg-stone-800 flex items-center justify-center">
-                    <div class="w-16 h-1 rounded-full bg-stone-600"></div>
+            <div class="mx-auto h-full max-w-[390px] rounded-[2rem] border-[8px] border-stone-400 bg-stone-200 shadow-[0_24px_60px_rgba(28,25,23,0.16)] overflow-hidden">
+                <div class="h-6 flex items-center justify-center bg-stone-300">
+                    <div class="w-16 h-1 rounded-full bg-stone-500/60"></div>
                 </div>
                 <iframe x-ref="previewFrame" :src="previewUrl + '?t=' + previewTick"
                     class="w-full bg-white" style="height: calc(100% - 1.5rem)" title="Vista previa"></iframe>
@@ -97,16 +134,21 @@
 function invitationForm(config) {
     return {
         modules: config.modules,
+        config,
+        clients: config.clients ?? [],
         meta: config.meta,
         slugManual: config.slugManual ?? false,
         activeTab: 'general',
         previewUrl: config.previewUrl,
         previewStoreUrl: config.previewStoreUrl,
+        clientStoreUrl: config.clientStoreUrl,
         mediaUploadUrl: config.mediaUploadUrl,
         previewTick: Date.now(),
         previewLoading: false,
         previewTimer: null,
         mediaUploading: false,
+        clientCreating: false,
+        newClient: { name: '', email: '' },
         geocodeLoading: false,
         pendingUploads: [],
         locationMap: null,
@@ -132,6 +174,27 @@ function invitationForm(config) {
             { id: 'regalos', label: 'Regalos' },
             { id: 'rsvp', label: 'RSVP' },
         ],
+        colorLabels: {
+            primary: 'Principal',
+            secondary: 'Secundario',
+            accent: 'Acento',
+            text: 'Texto',
+            background: 'Fondo',
+        },
+        fontOptions: {
+            titulos: [
+                'Playfair Display', 'Cormorant Garamond', 'Cinzel', 'Libre Baskerville',
+                'Bodoni Moda', 'Prata', 'Lora', 'Merriweather',
+            ],
+            cuerpo: [
+                'Montserrat', 'Inter', 'Lato', 'Nunito Sans', 'Source Sans 3',
+                'Poppins', 'Raleway', 'Open Sans',
+            ],
+            script: [
+                'Great Vibes', 'Parisienne', 'Alex Brush', 'Dancing Script',
+                'Sacramento', 'Allura', 'Tangerine', 'Petit Formal Script',
+            ],
+        },
 
         init() {
             this.ensureStructure();
@@ -149,11 +212,28 @@ function invitationForm(config) {
             m.config.colores ??= {};
             m.config.tipografias ??= {};
             m.config.modulos ??= {};
+            m.config.colores = {
+                primary: '#C9A96E',
+                secondary: '#2C1810',
+                accent: '#F5E6D3',
+                text: '#1A1A1A',
+                background: '#FFFAF5',
+                ...m.config.colores,
+            };
+            m.config.tipografias = {
+                titulos: 'Playfair Display',
+                cuerpo: 'Montserrat',
+                script: 'Great Vibes',
+                ...m.config.tipografias,
+            };
             m.bienvenida ??= {};
             m.ubicacion ??= { lat: -16.5, lng: -68.15 };
             m.itinerario ??= { titulo: 'Itinerario', eventos: [] };
             m.dress_code ??= { sugerencias: [], colores_permitidos: [], colores_prohibidos: [] };
             m.destacados ??= { chambelanes: [], damitas: [], padrinos: [] };
+            m.destacados.chambelanes ??= [];
+            m.destacados.damitas ??= [];
+            m.destacados.padrinos ??= [];
             m.galeria ??= { fotos: [] };
             m.galeria.fotos ??= [];
             m.musica ??= {};
@@ -161,11 +241,14 @@ function invitationForm(config) {
             m.playlist ??= {};
             m.hashtag ??= {};
             m.encuestas ??= { preguntas: [] };
-            m.regalos ??= { sobres: {}, banco: {}, titulo: '' };
+            m.encuestas.preguntas ??= [];
+            m.regalos ??= { sobres: {}, banco: {}, titulo: '', opciones: [] };
             m.regalos.sobres ??= {};
             m.regalos.banco ??= {};
+            m.regalos.opciones ??= [];
             m.post_evento ??= {};
             m.rsvp ??= {};
+            (m.encuestas.preguntas || []).forEach(poll => this.ensurePollDefaults(poll));
         },
 
         schedulePreview() {
@@ -218,6 +301,37 @@ function invitationForm(config) {
         onTitleInput() {
             if (config.isCreate && !this.slugManual) {
                 this.meta.slug = this.slugify(this.meta.title);
+            }
+        },
+
+        async createClient() {
+            if (!this.newClient.name?.trim() || !this.newClient.email?.trim()) {
+                alert('Completa nombre y email del cliente.');
+                return;
+            }
+            this.clientCreating = true;
+            try {
+                const res = await fetch(this.clientStoreUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(this.newClient),
+                });
+                const data = await res.json();
+                if (!res.ok || !data.success) {
+                    const message = data.message || Object.values(data.errors || {})[0]?.[0] || 'No se pudo crear el cliente.';
+                    throw new Error(message);
+                }
+                this.clients.push(data.client);
+                this.meta.user_id = data.client.id;
+                this.newClient = { name: '', email: '' };
+            } catch (error) {
+                alert(error.message || 'No se pudo crear el cliente.');
+            } finally {
+                this.clientCreating = false;
             }
         },
 
@@ -487,14 +601,37 @@ function invitationForm(config) {
 
         // Destacados
         addChambelan() { this.modules.destacados.chambelanes.push({ nombre: '', iniciales: '', detalle: '' }); },
-        addDamita() { this.modules.destacados.damitas.push({ nombre: '', iniciales: '' }); },
+        addDamita() { this.modules.destacados.damitas.push({ nombre: '', iniciales: '', detalle: '' }); },
         addPadrino() { this.modules.destacados.padrinos.push({ rol: '', nombres: '', mensaje: '' }); },
 
-        // Encuestas
-        addEncuesta() { this.modules.encuestas.preguntas.push({ id: 'poll-' + Date.now(), pregunta: '', opciones: ['', ''] }); },
+        ensurePollDefaults(poll) {
+            poll.tipo ??= 'single';
+            poll.pregunta ??= '';
+            poll.opciones ??= [];
+            if (poll.tipo === 'rating') poll.opciones = poll.opciones.length ? poll.opciones : ['1', '2', '3', '4', '5'];
+            if (poll.tipo === 'yesno') poll.opciones = poll.opciones.length ? poll.opciones : ['Sí', 'No'];
+            if (poll.tipo === 'emoji') poll.opciones = poll.opciones.length ? poll.opciones : ['😍', '✨', '🎉', '💖', '🔥'];
+            if (poll.tipo === 'single' && poll.opciones.length < 2) poll.opciones = ['Opción 1', 'Opción 2'];
+        },
+        addEncuesta(tipo = 'single') {
+            const poll = { id: 'poll-' + Date.now(), tipo, pregunta: '', opciones: [] };
+            this.ensurePollDefaults(poll);
+            this.modules.encuestas.preguntas.push(poll);
+        },
         removeEncuesta(i) { this.modules.encuestas.preguntas.splice(i, 1); },
         addOpcion(poll) { poll.opciones.push(''); },
         removeOpcion(poll, i) { poll.opciones.splice(i, 1); },
+        setPollType(poll, type) {
+            poll.tipo = type;
+            this.ensurePollDefaults(poll);
+        },
+
+        addGiftOption() {
+            this.modules.regalos.opciones.push({ titulo: '', descripcion: '', enlace: '', icono: 'gift' });
+        },
+        removeGiftOption(i) {
+            this.modules.regalos.opciones.splice(i, 1);
+        },
 
         normalizePerson(list, i, field, val) {
             if (typeof list[i] === 'string') list[i] = { nombre: list[i], iniciales: list[i].substring(0,2).toUpperCase() };

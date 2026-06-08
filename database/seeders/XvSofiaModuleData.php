@@ -131,10 +131,10 @@ class XvSofiaModuleData
                     ['nombre' => 'Andres V.', 'iniciales' => 'AV', 'detalle' => 'Del equipo de basquet'],
                 ],
                 'damitas' => [
-                    ['nombre' => 'Valentina C.', 'iniciales' => 'VC'],
-                    ['nombre' => 'Camila P.', 'iniciales' => 'CP'],
-                    ['nombre' => 'Isabella G.', 'iniciales' => 'IG'],
-                    ['nombre' => 'Lucia F.', 'iniciales' => 'LF'],
+                    ['nombre' => 'Valentina C.', 'iniciales' => 'VC', 'detalle' => 'Hermana menor y cómplice de aventuras'],
+                    ['nombre' => 'Camila P.', 'iniciales' => 'CP', 'detalle' => 'Amiga de toda la vida'],
+                    ['nombre' => 'Isabella G.', 'iniciales' => 'IG', 'detalle' => 'Prima y apoyo constante'],
+                    ['nombre' => 'Lucia F.', 'iniciales' => 'LF', 'detalle' => 'Sonrisa y energía de la noche'],
                 ],
                 'padrinos' => [
                     ['rol' => 'Padrinos de Honor', 'nombres' => 'Sr. Roberto y Sra. Elena Quispe', 'mensaje' => 'Gracias por ser nuestro guia y ejemplo de amor en la familia.'],
@@ -178,13 +178,27 @@ class XvSofiaModuleData
                 'preguntas' => [
                     [
                         'id' => 'color-vestido',
+                        'tipo' => 'single',
                         'pregunta' => '¿De qué color será el vestido?',
                         'opciones' => ['Rosa palo', 'Champagne', 'Azul cielo', 'Sorpresa total'],
                     ],
                     [
                         'id' => 'caida-pista',
+                        'tipo' => 'single',
                         'pregunta' => '¿Quién se caerá primero en la pista?',
                         'opciones' => ['El tio Juan', 'Mateo (chambelan)', 'Yo mismo', 'Nadie, somos pro'],
+                    ],
+                    [
+                        'id' => 'nivel-fiesta',
+                        'tipo' => 'rating',
+                        'pregunta' => '¿Qué tan épica estuvo la noche?',
+                        'opciones' => ['1', '2', '3', '4', '5'],
+                    ],
+                    [
+                        'id' => 'seguir-bailando',
+                        'tipo' => 'yesno',
+                        'pregunta' => '¿Te quedas a bailar hasta el final?',
+                        'opciones' => ['Sí, obvio', 'Me retiro temprano'],
                     ],
                 ],
             ],
@@ -192,6 +206,18 @@ class XvSofiaModuleData
                 'titulo' => 'Detalles & Regalos',
                 'tienda_url' => 'https://example.com/lista-regalos-sofia',
                 'tienda_texto' => 'Ver lista de regalos',
+                'opciones' => [
+                    [
+                        'titulo' => 'Regalo grupal',
+                        'descripcion' => 'Aporta con otros invitados para un detalle especial.',
+                        'enlace' => 'https://example.com/regalo-grupal',
+                    ],
+                    [
+                        'titulo' => 'Tarjeta virtual',
+                        'descripcion' => 'Si prefieres enviar tu cariño de forma digital.',
+                        'enlace' => 'https://example.com/tarjeta-virtual',
+                    ],
+                ],
                 'sobres' => [
                     'titulo' => 'Lluvia de Sobres',
                     'direccion' => 'Av. 6 de Agosto #789, Edificio Mirador, La Paz',
