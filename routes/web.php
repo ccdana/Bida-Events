@@ -11,9 +11,26 @@ use App\Http\Controllers\Client\ExportController;
 use App\Http\Controllers\Public\ContributionController;
 use App\Http\Controllers\Public\InvitationController as PublicInvitationController;
 use App\Http\Controllers\Public\RsvpController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', fn () => redirect()->route('login'));
+Route::get('/', function (Request $request) {
+    return $request->user()
+        ? redirect()->route('dashboard')
+        : redirect()->route('login');
+});
+
+Route::get('/dashboard', function (Request $request) {
+    $user = $request->user();
+
+    if (! $user) {
+        return redirect()->route('login');
+    }
+
+    return $user->isAdmin()
+        ? redirect()->route('admin.dashboard')
+        : redirect()->route('client.dashboard');
+})->middleware('auth')->name('dashboard');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');

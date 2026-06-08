@@ -23,12 +23,25 @@ class LoginController extends Controller
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
             $user = Auth::user();
+            $intended = $request->session()->get('url.intended');
+            if (is_string($intended)) {
+                $path = parse_url($intended, PHP_URL_PATH) ?: '/';
 
-            if ($user->isAdmin()) {
-                return redirect()->intended(route('admin.dashboard'));
+                if (in_array($path, ['/', '/login', '/client/login', '/dashboard'], true)) {
+                    $request->session()->forget('url.intended');
+                    $intended = null;
+                }
             }
 
-            return redirect()->intended(route('client.dashboard'));
+            if ($user->isAdmin()) {
+                return $intended
+                    ? redirect()->intended(route('admin.dashboard'))
+                    : redirect()->route('admin.dashboard');
+            }
+
+            return $intended
+                ? redirect()->intended(route('client.dashboard'))
+                : redirect()->route('client.dashboard');
         }
 
         return back()->withErrors([
@@ -42,6 +55,6 @@ class LoginController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        return redirect()->route('login');
     }
 }
