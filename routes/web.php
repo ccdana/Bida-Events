@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\MapsController;
 use App\Http\Controllers\Admin\MediaUploadController;
 use App\Http\Controllers\Admin\PreviewController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
@@ -61,6 +62,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::post('/preview', [PreviewController::class, 'store'])->name('preview.store');
     Route::get('/preview/frame', [PreviewController::class, 'frame'])->name('preview.frame');
     Route::post('/media/upload', [MediaUploadController::class, 'store'])->name('media.upload');
+    Route::get('/maps/search', [MapsController::class, 'search'])->name('maps.search');
+    Route::post('/maps/resolve', [MapsController::class, 'resolve'])->name('maps.resolve');
     Route::get('/invitations/{invitation}/edit', [AdminInvitationController::class, 'edit'])->name('invitations.edit');
     Route::put('/invitations/{invitation}', [AdminInvitationController::class, 'update'])->name('invitations.update');
     Route::get('/invitations/{invitation}/guests', [AdminGuestController::class, 'index'])->name('guests.index');

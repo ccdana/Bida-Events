@@ -28,6 +28,8 @@
         'previewStoreUrl' => route('admin.preview.store'),
         'clientStoreUrl' => route('admin.clients.store'),
         'mediaUploadUrl' => route('admin.media.upload'),
+        'mapsSearchUrl' => route('admin.maps.search'),
+        'mapsResolveUrl' => route('admin.maps.resolve'),
         'itineraryIcons' => $itineraryIcons,
         'cloudinaryConfigured' => $cloudinaryConfigured,
             'moduleCodes' => $moduleCodes ?? [],

@@ -23,7 +23,9 @@ function invitationForm(config) {
         mediaUploading: false,
         clientCreating: false,
         newClient: { name: '', email: '' },
-        geocodeLoading: false,
+        locationStatusMessage: '',
+        mapsLinkLoading: false,
+        mapsResolveUrl: config.mapsResolveUrl,
         pendingUploads: [],
         locationMap: null,
         locationMarker: null,
@@ -181,6 +183,13 @@ function invitationForm(config) {
                 ...m.config.tipografias,
             };
             m.ubicacion ??= { lat: -16.5, lng: -68.15 };
+            m.ubicacion.lat ??= -16.5;
+            m.ubicacion.lng ??= -68.15;
+            m.ubicacion.maps_url ??= '';
+            m.ubicacion.nombre_lugar ??= '';
+            m.ubicacion.direccion ??= '';
+            m.ubicacion.nota ??= '';
+            this.updateLocationStatusMessage();
             m.itinerario ??= { titulo: 'Itinerario', eventos: [] };
             m.dress_code ??= { sugerencias: [], colores_permitidos: [], colores_prohibidos: [] };
             m.destacados ??= { chambelanes: [], damitas: [], padrinos: [] };
@@ -615,29 +624,150 @@ function invitationForm(config) {
             event.target.value = '';
         },
 
+        hasLocationCoordinates() {
+            const lat = Number(this.modules.ubicacion?.lat);
+            const lng = Number(this.modules.ubicacion?.lng);
+            return Number.isFinite(lat) && Number.isFinite(lng) && !(lat === 0 && lng === 0);
+        },
+
+        formatCoordinates() {
+            if (!this.hasLocationCoordinates()) return 'Sin definir';
+            return `${Number(this.modules.ubicacion.lat).toFixed(5)}, ${Number(this.modules.ubicacion.lng).toFixed(5)}`;
+        },
+
+        googleMapsPreviewUrl() {
+            if (!this.hasLocationCoordinates()) return '#';
+            const lat = this.modules.ubicacion.lat;
+            const lng = this.modules.ubicacion.lng;
+            return this.modules.ubicacion.maps_url?.trim() || this.buildMapsUrl(lat, lng);
+        },
+
+        buildMapsUrl(lat, lng) {
+            return `https://www.google.com/maps?q=${lat},${lng}`;
+        },
+
+        updateLocationStatusMessage() {
+            if (!this.hasLocationCoordinates()) {
+                this.locationStatusMessage = 'Pega un enlace de Google Maps para fijar la ubicación.';
+                return;
+            }
+            const place = this.modules.ubicacion.nombre_lugar?.trim();
+            const address = this.modules.ubicacion.direccion?.trim();
+            this.locationStatusMessage = place || address || 'Coordenadas listas para el mapa de la invitación.';
+        },
+
+        setLocationCoordinates(lat, lng, options = {}) {
+            this.modules.ubicacion.lat = lat;
+            this.modules.ubicacion.lng = lng;
+            if (options.mapsUrl) {
+                this.modules.ubicacion.maps_url = options.mapsUrl;
+            } else {
+                this.modules.ubicacion.maps_url = this.buildMapsUrl(lat, lng);
+            }
+            this.updateLocationStatusMessage();
+            this.syncLocationMarker(options.pan !== false);
+            this.schedulePreview();
+        },
+
         parseMapsLink(link) {
             if (!link?.trim()) return null;
             const s = link.trim();
-            let m = s.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
-            if (m) return { lat: parseFloat(m[1]), lng: parseFloat(m[2]) };
-            m = s.match(/[?&]q=(-?\d+\.?\d*),(-?\d+\.?\d*)/);
-            if (m) return { lat: parseFloat(m[1]), lng: parseFloat(m[2]) };
-            m = s.match(/!3d(-?\d+\.?\d*)!4d(-?\d+\.?\d*)/);
-            if (m) return { lat: parseFloat(m[1]), lng: parseFloat(m[2]) };
-            m = s.match(/place\/[^/]+\/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
-            if (m) return { lat: parseFloat(m[1]), lng: parseFloat(m[2]) };
+            const patterns = [
+                /@(-?\d+\.?\d*),(-?\d+\.?\d*)/,
+                /[?&]q=(-?\d+\.?\d*),(-?\d+\.?\d*)/,
+                /[?&]query=(-?\d+\.?\d*),(-?\d+\.?\d*)/,
+                /[?&]ll=(-?\d+\.?\d*),(-?\d+\.?\d*)/,
+                /!3d(-?\d+\.?\d*)!4d(-?\d+\.?\d*)/,
+                /place\/[^/]+\/@(-?\d+\.?\d*),(-?\d+\.?\d*)/,
+            ];
+            for (const pattern of patterns) {
+                const m = s.match(pattern);
+                if (m) {
+                    const lat = parseFloat(m[1]);
+                    const lng = parseFloat(m[2]);
+                    if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+                        return { lat, lng };
+                    }
+                }
+            }
             return null;
         },
 
-        applyMapsLink() {
-            const coords = this.parseMapsLink(this.modules.ubicacion.maps_url);
-            if (!coords) {
-                alert('No se pudieron extraer coordenadas del enlace. Pega el enlace completo de Google Maps.');
-                return;
+        looksLikeMapsLink(value) {
+            const text = String(value || '').trim();
+            return /(google\.[a-z.]+\/maps|maps\.app\.goo\.gl|goo\.gl\/maps)/i.test(text);
+        },
+
+        async onMapsLinkPaste(event) {
+            const pasted = event.clipboardData?.getData('text')?.trim();
+            if (!pasted || !this.looksLikeMapsLink(pasted)) return;
+            event.preventDefault();
+            this.modules.ubicacion.maps_url = pasted;
+            await this.$nextTick();
+            this.applyMapsLink();
+        },
+
+        async applyMapsLink() {
+            const url = this.modules.ubicacion.maps_url?.trim();
+            if (!url) return;
+
+            this.mapsLinkLoading = true;
+            try {
+                let coords = this.parseMapsLink(url);
+
+                if (!coords) {
+                    const response = await fetch(this.mapsResolveUrl, {
+                        method: 'POST',
+                        credentials: 'same-origin',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content ?? '',
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                        body: JSON.stringify({ url }),
+                    });
+                    const data = await response.json();
+                    if (!response.ok || !data.success) {
+                        throw new Error(data.message || 'No se pudieron extraer coordenadas del enlace.');
+                    }
+                    coords = { lat: data.lat, lng: data.lng };
+                    if (data.maps_url) {
+                        this.modules.ubicacion.maps_url = data.maps_url;
+                    }
+                }
+
+                // Intentar extraer el nombre del establecimiento de la URL
+                const extractedName = this.extractPlaceNameFromMapsUrl(this.modules.ubicacion.maps_url || url);
+                if (extractedName && !this.modules.ubicacion.nombre_lugar) {
+                    this.modules.ubicacion.nombre_lugar = extractedName;
+                }
+
+                this.setLocationCoordinates(coords.lat, coords.lng, {
+                    mapsUrl: this.modules.ubicacion.maps_url,
+                    pan: true,
+                });
+            } catch (error) {
+                alert(error.message || 'No se pudo aplicar el enlace de Google Maps.');
+            } finally {
+                this.mapsLinkLoading = false;
             }
-            this.modules.ubicacion.lat = coords.lat;
-            this.modules.ubicacion.lng = coords.lng;
-            this.syncLocationMarker();
+        },
+
+        extractPlaceNameFromMapsUrl(url) {
+            if (!url) return null;
+            try {
+                // Formato: /maps/place/Nombre+Del+Lugar/ o /maps/place/Nombre%20Del%20Lugar/
+                const placeMatch = url.match(/\/maps\/place\/([^/@?]+)/);
+                if (placeMatch) {
+                    const raw = decodeURIComponent(placeMatch[1].replace(/\+/g, ' ')).trim();
+                    // Descartar si parece coordenadas o código interno
+                    if (raw && !/^[-\d.,]+$/.test(raw) && raw.length > 2) {
+                        return raw;
+                    }
+                }
+            } catch { /* silent */ }
+            return null;
         },
 
         loadStylesheet(href) {
@@ -694,18 +824,14 @@ function invitationForm(config) {
                 this.locationMarker = L.marker([lat, lng], { draggable: true }).addTo(this.locationMap);
                 this.locationMarker.on('dragend', () => {
                     const p = this.locationMarker.getLatLng();
-                    this.modules.ubicacion.lat = p.lat;
-                    this.modules.ubicacion.lng = p.lng;
-                    this.modules.ubicacion.maps_url = `https://www.google.com/maps?q=${p.lat},${p.lng}`;
+                    this.setLocationCoordinates(p.lat, p.lng);
                 });
                 this.locationMap.on('click', (e) => {
-                    this.modules.ubicacion.lat = e.latlng.lat;
-                    this.modules.ubicacion.lng = e.latlng.lng;
-                    this.modules.ubicacion.maps_url = `https://www.google.com/maps?q=${e.latlng.lat},${e.latlng.lng}`;
-                    this.syncLocationMarker(false);
+                    this.setLocationCoordinates(e.latlng.lat, e.latlng.lng, { pan: false });
                 });
                 this.locationMapReady = true;
                 setTimeout(() => this.locationMap?.invalidateSize(), 150);
+                this.syncLocationMarker(false);
             } catch (e) {
                 console.error('No se pudo cargar el mapa', e);
             }
@@ -716,34 +842,8 @@ function invitationForm(config) {
             const lat = this.modules.ubicacion.lat ?? -16.5;
             const lng = this.modules.ubicacion.lng ?? -68.15;
             this.locationMarker.setLatLng([lat, lng]);
-            if (pan) this.locationMap.setView([lat, lng], this.locationMap.getZoom());
-        },
-
-        async geocodeAddress() {
-            const q = [this.modules.ubicacion.nombre_lugar, this.modules.ubicacion.direccion].filter(Boolean).join(', ');
-            if (!q.trim()) { alert('Ingresa el nombre del lugar o la direccion'); return; }
-            this.geocodeLoading = true;
-            try {
-                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(q)}`, {
-                    headers: { 'Accept-Language': 'es', 'User-Agent': 'BidaEvents/1.0' },
-                });
-                const data = await res.json();
-                if (data?.[0]) {
-                    this.modules.ubicacion.lat = parseFloat(data[0].lat);
-                    this.modules.ubicacion.lng = parseFloat(data[0].lon);
-                    this.modules.ubicacion.maps_url = `https://www.google.com/maps?q=${data[0].lat},${data[0].lon}`;
-                    if (!this.modules.ubicacion.direccion) {
-                        this.modules.ubicacion.direccion = data[0].display_name;
-                    }
-                    this.syncLocationMarker();
-                } else {
-                    alert('No se encontro la ubicacion. Verifica la direccion.');
-                }
-            } catch (e) {
-                alert('Error al buscar la ubicacion');
-            } finally {
-                this.geocodeLoading = false;
-            }
+            if (pan) this.locationMap.setView([lat, lng], Math.max(this.locationMap.getZoom(), 15));
+            this.updateLocationStatusMessage();
         },
 
         addEvento() { this.modules.itinerario.eventos.push({ hora: '20:00', titulo: '', icono: 'star', descripcion: '' }); },
@@ -788,6 +888,29 @@ function invitationForm(config) {
         normalizePerson(list, i, field, val) {
             if (typeof list[i] === 'string') list[i] = { nombre: list[i], iniciales: list[i].substring(0,2).toUpperCase() };
             list[i][field] = val;
+        },
+
+        async handleFormSubmit(event) {
+            if (this.mediaUploading) return; // already submitting
+            this.mediaUploading = true;
+            try {
+                // Trigger any pending cloudinary uploads registered via custom event
+                const pending = this.$el.querySelectorAll('[data-pending-upload]');
+                if (pending.length > 0) {
+                    const uploads = Array.from(pending).map(el => {
+                        return new Promise(resolve => {
+                            el.addEventListener('upload-done', resolve, { once: true });
+                            el.dispatchEvent(new CustomEvent('trigger-upload'));
+                        });
+                    });
+                    await Promise.all(uploads);
+                }
+                // Native form submit (bypass Alpine prevent)
+                event.target.submit();
+            } catch (err) {
+                console.error('Error al guardar la invitación:', err);
+                this.mediaUploading = false;
+            }
         },
     };
 }

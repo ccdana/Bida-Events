@@ -1,66 +1,99 @@
-<div x-show="activeTab === 'ubicacion'" x-cloak class="admin-card space-y-4"
+<div x-show="activeTab === 'ubicacion'" x-cloak class="space-y-4"
     x-effect="if (activeTab === 'ubicacion') initLocationMap()">
-    <style>.leaflet-container { z-index: 0; font-family: inherit; }</style>
-    <div class="flex items-start justify-between gap-3">
+    <section class="admin-card space-y-5">
+        <div class="flex items-start justify-between gap-3">
+            <div>
+                <p class="admin-eyebrow">Ubicación</p>
+                <h2 class="font-serif text-xl text-stone-950">Lugar del evento</h2>
+                <p class="mt-1 text-sm text-stone-500">Pega un enlace de Google Maps para fijar las coordenadas automáticamente.</p>
+            </div>
+            <label class="admin-toggle-row shrink-0">
+                <input type="checkbox" x-model="modules.config.modulos.ubicacion" @change="schedulePreview()" class="rounded border-stone-300 text-amber-600 focus:ring-amber-500">
+                <span class="text-stone-700">Activo</span>
+            </label>
+        </div>
+
+        {{-- Estado de coordenadas --}}
+        <div class="rounded-2xl border p-4"
+            :class="hasLocationCoordinates() ? 'border-emerald-200 bg-emerald-50/60' : 'border-stone-200 bg-stone-50'">
+            <div class="flex items-start justify-between gap-3">
+                <div>
+                    <p class="text-[10px] uppercase tracking-[0.28em]"
+                        :class="hasLocationCoordinates() ? 'text-emerald-700' : 'text-stone-400'"
+                        x-text="hasLocationCoordinates() ? 'Ubicación confirmada' : 'Sin coordenadas'"></p>
+                    <p class="mt-1 text-sm text-stone-700" x-text="locationStatusMessage || 'Pega un enlace de Google Maps para fijar la ubicación.'"></p>
+                </div>
+                <a x-show="hasLocationCoordinates()" x-cloak
+                    :href="googleMapsPreviewUrl()" target="_blank" rel="noopener"
+                    class="admin-link-button shrink-0">Ver en Maps</a>
+            </div>
+        </div>
+
+        {{-- Pegar enlace de Google Maps --}}
+        <div class="space-y-3">
+            <div>
+                <label class="admin-label">Enlace de Google Maps</label>
+                <div class="flex gap-2">
+                    <input type="url" x-model="modules.ubicacion.maps_url"
+                        @paste="onMapsLinkPaste($event)"
+                        @keydown.enter.prevent="applyMapsLink()"
+                        class="admin-input flex-1"
+                        placeholder="https://maps.app.goo.gl/... o https://www.google.com/maps/place/...">
+                    <button type="button" @click="applyMapsLink()" :disabled="mapsLinkLoading || !modules.ubicacion.maps_url"
+                        class="admin-primary-button shrink-0 !min-h-[2.75rem] !px-4 !text-xs !uppercase !tracking-wider">
+                        <span x-text="mapsLinkLoading ? '…' : 'Aplicar'"></span>
+                    </button>
+                </div>
+                <p class="mt-2 text-[11px] leading-relaxed text-stone-400">
+                    Compatible con enlaces compartidos, cortos <code class="text-stone-500">maps.app.goo.gl</code> y URLs con coordenadas.
+                    También puedes pegar y presionar Enter.
+                </p>
+            </div>
+        </div>
+
+        {{-- Nombre del lugar --}}
         <div>
-            <p class="admin-eyebrow">Ubicación</p>
-            <h2 class="font-serif text-lg text-stone-900">Lugar del evento</h2>
+            <label class="admin-label">Nombre del lugar</label>
+            <input type="text" x-model="modules.ubicacion.nombre_lugar" @input="schedulePreview()"
+                class="admin-input" placeholder="Ej. Salón Imperial, Hacienda Los Olivos">
+            <p class="mt-1 text-[11px] text-stone-400">Se intenta extraer del enlace automáticamente. Puedes editar el nombre aquí.</p>
         </div>
-        <label class="admin-toggle-row shrink-0">
-            <input type="checkbox" x-model="modules.config.modulos.ubicacion" class="rounded border-stone-300 text-amber-600 focus:ring-amber-500">
-            <span class="text-stone-700">Activo</span>
-        </label>
-    </div>
 
-    <div>
-        <label class="admin-label">Nombre del lugar</label>
-        <input type="text" x-model="modules.ubicacion.nombre_lugar" class="admin-input" placeholder="Salón Imperial La Paz">
-    </div>
-
-    <div>
-        <label class="admin-label">Enlace de Google Maps</label>
-        <div class="flex gap-2">
-            <input type="url" x-model="modules.ubicacion.maps_url" class="admin-input flex-1"
-                placeholder="https://maps.google.com/... o https://goo.gl/maps/...">
-            <button type="button" @click="applyMapsLink()" :disabled="!modules.ubicacion.maps_url"
-                class="shrink-0 px-4 py-2 rounded-xl bg-stone-900 text-white text-xs uppercase tracking-wider disabled:opacity-40">
-                Aplicar
-            </button>
+        {{-- Dirección visible --}}
+        <div>
+            <label class="admin-label">Dirección visible en la invitación</label>
+            <textarea x-model="modules.ubicacion.direccion" @input="schedulePreview()" rows="2"
+                class="admin-input" placeholder="Dirección que verán los invitados"></textarea>
         </div>
-        <p class="text-[10px] text-stone-400 mt-1">Pega el enlace compartido de Google Maps para ubicar el evento al instante</p>
-    </div>
 
-    <div>
-        <label class="admin-label">Dirección visible</label>
-        <div class="flex gap-2">
-            <input type="text" x-model="modules.ubicacion.direccion" class="admin-input flex-1" placeholder="Av. Costanera 1234, La Paz">
-            <button type="button" @click="geocodeAddress()" :disabled="geocodeLoading"
-                class="shrink-0 px-4 py-2 rounded-xl border border-stone-300 text-stone-700 text-xs uppercase tracking-wider disabled:opacity-50">
-                <span x-text="geocodeLoading ? '...' : 'Buscar'"></span>
-            </button>
+        {{-- Mapa interactivo --}}
+        <div>
+            <div class="flex items-center justify-between gap-3 mb-2">
+                <label class="admin-label mb-0">Mapa interactivo</label>
+                <button type="button" @click="syncLocationMarker()" class="text-[11px] text-stone-500 hover:text-stone-800">
+                    Centrar marcador
+                </button>
+            </div>
+            <p class="text-[11px] text-stone-400 mb-2">Haz clic en el mapa o arrastra el pin para afinar la ubicación.</p>
+            <div x-ref="locationMap" class="admin-location-map"></div>
+            <div class="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-stone-500">
+                <span class="admin-editor-badge">Lat/Lng</span>
+                <span x-text="formatCoordinates()"></span>
+            </div>
         </div>
-    </div>
 
-    <div>
-        <label class="admin-label">Ubicación en el mapa</label>
-        <p class="text-[10px] text-stone-400 mb-2">Haz clic en el mapa o arrastra el marcador para ajustar la ubicación</p>
-        <div x-ref="locationMap" class="w-full h-56 rounded-xl overflow-hidden border border-stone-200 bg-stone-100 z-0"></div>
-        <p class="text-[10px] text-stone-400 mt-1.5">
-            Coordenadas:
-            <span x-text="(modules.ubicacion.lat ?? 0).toFixed(5) + ', ' + (modules.ubicacion.lng ?? 0).toFixed(5)"></span>
-        </p>
-    </div>
+        @include('admin.partials.cloudinary-upload', [
+            'label' => 'Foto del lugar (opcional)',
+            'type' => 'image',
+            'context' => 'ubicacion',
+            'accept' => 'image/jpeg,image/png,image/webp',
+            'previewExpr' => 'modules.ubicacion.imagen_lugar',
+        ])
 
-    @include('admin.partials.cloudinary-upload', [
-        'label' => 'Foto del lugar (opcional)',
-        'type' => 'image',
-        'context' => 'ubicacion',
-        'accept' => 'image/jpeg,image/png,image/webp',
-        'previewExpr' => 'modules.ubicacion.imagen_lugar',
-    ])
-
-    <div>
-        <label class="admin-label">Nota adicional</label>
-        <textarea x-model="modules.ubicacion.nota" rows="2" class="admin-input"></textarea>
-    </div>
+        <div>
+            <label class="admin-label">Nota adicional</label>
+            <textarea x-model="modules.ubicacion.nota" @input="schedulePreview()" rows="2"
+                class="admin-input" placeholder="Ej. Ingreso por puerta lateral, estacionamiento disponible"></textarea>
+        </div>
+    </section>
 </div>
