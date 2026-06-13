@@ -1,4 +1,7 @@
-@if(($flags['musica'] ?? false) && !empty($musica['audio_url']))
+@php
+    $showMusicPlayer = ($flags['musica'] ?? false) && !empty($musica['audio_url'] ?? null);
+@endphp
+@if($showMusicPlayer && !empty($musica['audio_url']))
 <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-sm"
     x-data="musicPlayer('{{ $musica['audio_url'] }}', {{ ($musica['autoplay'] ?? false) ? 'true' : 'false' }})"
     x-init="init()">

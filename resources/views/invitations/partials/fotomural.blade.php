@@ -1,4 +1,4 @@
-<section class="invitation-section reveal" x-data="fotomural('{{ $slug }}', '{{ $guestToken }}', @js($photos ?? []))" x-init="init()">
+<section class="invitation-section reveal" x-data="fotomural('{{ $slug }}', '{{ $guestToken }}', @js($photos ?? []), @js($isPreview ?? false))" x-init="init()">
     <div class="section-inner-wide">
         <header class="section-header">
             <span class="section-eyebrow">Recuerdos en vivo</span>
@@ -46,23 +46,38 @@
     </div>
 </section>
 <script>
-function fotomural(slug, guestToken, initialPhotos) {
+function fotomural(slug, guestToken, initialPhotos, isPreview) {
     return {
         photos: initialPhotos,
         message: '',
         uploading: false,
         loading: false,
-        init() { this.refresh(); },
+        init() {
+            if (!isPreview) {
+                this.refresh();
+            }
+        },
         async refresh() {
+            if (isPreview) return;
             this.loading = true;
             try {
-                const res = await fetch(`/p/${slug}/fotomural`);
+                const res = await fetch(`/p/${slug}/fotomural`, {
+                    headers: { 'Accept': 'application/json' },
+                });
                 const data = await res.json();
                 if (data.photos) this.photos = data.photos;
-            } catch (e) { /* silencioso */ }
-            this.loading = false;
+                if (!res.ok && data.message) this.message = data.message;
+            } catch (e) {
+                this.message = 'No se pudo cargar el fotomural';
+            } finally {
+                this.loading = false;
+            }
         },
         async upload(e) {
+            if (isPreview) {
+                this.message = 'El fotomural no está disponible en vista previa';
+                return;
+            }
             const file = e.target.files[0];
             if (!file) return;
             this.uploading = true;
@@ -73,7 +88,10 @@ function fotomural(slug, guestToken, initialPhotos) {
             try {
                 const res = await fetch(`/p/${slug}/fotomural`, {
                     method: 'POST',
-                    headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content, 'Accept': 'application/json' },
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
+                        'Accept': 'application/json'
+                    },
                     body: fd
                 });
                 const data = await res.json();
@@ -81,9 +99,10 @@ function fotomural(slug, guestToken, initialPhotos) {
                 if (data.success) await this.refresh();
             } catch (err) {
                 this.message = 'No se pudo subir la foto';
+            } finally {
+                this.uploading = false;
+                e.target.value = '';
             }
-            this.uploading = false;
-            e.target.value = '';
         }
     };
 }

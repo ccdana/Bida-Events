@@ -8,7 +8,6 @@ use App\Models\Guest;
 use App\Models\GuestContribution;
 use App\Models\Invitation;
 use App\Models\InvitationData;
-use App\Models\Plan;
 use App\Models\User;
 use App\Services\InvitationModuleService;
 use Illuminate\Database\Seeder;
@@ -37,14 +36,6 @@ class DatabaseSeeder extends Seeder
             'slug' => 'xv-anos',
         ]);
 
-        $plan = Plan::create([
-            'name' => 'Premium Imperial',
-            'slug' => 'premium-imperial',
-            'max_photos' => 20,
-            'months_online' => 6,
-            'price' => 899.00,
-        ]);
-
         $features = [
             ['name' => 'Cuenta Regresiva', 'code' => 'cuenta_regresiva'],
             ['name' => 'Galería Premium', 'code' => 'galeria'],
@@ -61,7 +52,6 @@ class DatabaseSeeder extends Seeder
         $invitation = Invitation::create([
             'user_id' => $client->id,
             'event_type_id' => $eventType->id,
-            'plan_id' => $plan->id,
             'slug' => 'xv-sofia',
             'template' => 'invitations.templates.xv-premium',
             'title' => 'XV Años de Sofía Valentina',

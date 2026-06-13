@@ -3,7 +3,7 @@
         <div>
             <p class="admin-eyebrow">Diseño visual</p>
             <h2 class="font-serif text-xl text-stone-950">Estética de la invitación</h2>
-            <p class="mt-1 text-sm leading-relaxed text-stone-500">Ajusta color y tipografía con controles que sí muestran el resultado final.</p>
+            <p class="mt-1 text-sm leading-relaxed text-stone-500">Ajusta color y tipografía con controles que muestran el resultado final.</p>
         </div>
 
         <div class="rounded-2xl border border-stone-200 bg-stone-50 p-4">
@@ -110,23 +110,6 @@
                     </template>
                 </div>
             </div>
-        </div>
-    </section>
-
-    <section class="admin-card">
-        <div class="flex items-end justify-between gap-3 mb-3">
-            <div>
-                <p class="admin-label mb-1">Módulos visibles</p>
-                <p class="text-xs text-stone-500">Activa sólo lo necesario para mantener la UI limpia.</p>
-            </div>
-        </div>
-        <div class="grid gap-2 sm:grid-cols-2">
-            <template x-for="(enabled, code) in modules.config.modulos" :key="code">
-                <label class="admin-toggle-row">
-                    <input type="checkbox" x-model="modules.config.modulos[code]" class="rounded border-stone-300 text-amber-600 focus:ring-amber-500">
-                    <span class="capitalize text-stone-700" x-text="code.replace(/_/g, ' ')"></span>
-                </label>
-            </template>
         </div>
     </section>
 </div>

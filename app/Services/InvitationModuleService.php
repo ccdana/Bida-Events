@@ -4,15 +4,35 @@ namespace App\Services;
 
 use App\Models\Invitation;
 use App\Models\PollVote;
+use App\Support\InvitationDefaults;
 use Illuminate\Support\Str;
 
 class InvitationModuleService
 {
+    public function normalizeModules(array $modules): array
+    {
+        $rawVisibility = $modules['config']['modulos'] ?? null;
+        $normalized = array_replace_recursive(InvitationDefaults::emptyModules(), $modules);
+        $normalized = $this->coerceObjectModules($normalized);
+
+        $defaults = InvitationDefaults::moduleVisibilityDefaults();
+        foreach ($defaults as $code => $default) {
+            if (is_array($rawVisibility) && array_key_exists($code, $rawVisibility)) {
+                $normalized['config']['modulos'][$code] = (bool) $rawVisibility[$code];
+                continue;
+            }
+
+            $normalized['config']['modulos'][$code] = $this->moduleHasContent($normalized, $code) ?: $default;
+        }
+
+        return $normalized;
+    }
+
     public function loadForDisplay(Invitation $invitation): array
     {
-        $invitation->load(['modulesData', 'eventType', 'plan']);
+        $invitation->load(['modulesData', 'eventType']);
 
-        return $invitation->modules;
+        return $this->normalizeModules($invitation->modules);
     }
 
     public function pollResults(Invitation $invitation, string $pollId, int $optionsCount): array
@@ -40,6 +60,19 @@ class InvitationModuleService
             ['feature_code' => $featureCode],
             ['json_data' => $jsonData]
         );
+
+        $invitation->clearModulesCache();
+    }
+
+    public function syncAllModules(Invitation $invitation, array $modules): array
+    {
+        $normalized = $this->normalizeModules($modules);
+
+        foreach (InvitationDefaults::moduleCodes() as $code) {
+            $this->syncModule($invitation, $code, $normalized[$code] ?? []);
+        }
+
+        return $normalized;
     }
 
     public function googleCalendarUrl(Invitation $invitation, array $ubicacion): string
@@ -56,5 +89,61 @@ class InvitationModuleService
     public static function generateGuestToken(): string
     {
         return Str::random(32);
+    }
+
+    protected function coerceObjectModules(array $modules): array
+    {
+        foreach (['bienvenida', 'musica', 'video', 'playlist', 'hashtag', 'post_evento', 'rsvp'] as $code) {
+            $value = $modules[$code] ?? [];
+            if (! is_array($value) || array_is_list($value)) {
+                $modules[$code] = [];
+            }
+        }
+
+        return $modules;
+    }
+
+    protected function moduleHasContent(array $modules, string $code): bool
+    {
+        return match ($code) {
+            'bienvenida' => ! empty($modules['bienvenida']['nombre_quinceanera'] ?? null)
+                || ! empty($modules['bienvenida']['subtitulo'] ?? null)
+                || ! empty($modules['bienvenida']['mensaje'] ?? null)
+                || ! empty($modules['bienvenida']['imagen_hero'] ?? null),
+            'ubicacion' => ! empty($modules['ubicacion']['nombre_lugar'] ?? null)
+                || ! empty($modules['ubicacion']['direccion'] ?? null)
+                || ! empty($modules['ubicacion']['maps_url'] ?? null)
+                || ! empty($modules['ubicacion']['imagen_lugar'] ?? null),
+            'itinerario' => ! empty($modules['itinerario']['eventos'] ?? []),
+            'dress_code' => ! empty($modules['dress_code']['titulo'] ?? null)
+                || ! empty($modules['dress_code']['estilo'] ?? null)
+                || ! empty($modules['dress_code']['descripcion'] ?? null)
+                || ! empty($modules['dress_code']['sugerencias'] ?? []),
+            'destacados' => ! empty($modules['destacados']['chambelanes'] ?? [])
+                || ! empty($modules['destacados']['damitas'] ?? [])
+                || ! empty($modules['destacados']['padrinos'] ?? []),
+            'galeria' => ! empty($modules['galeria']['fotos'] ?? []),
+            'video' => ! empty($modules['video']['video_url'] ?? null) || ! empty($modules['video']['poster'] ?? null),
+            'musica' => ! empty($modules['musica']['audio_url'] ?? null) || ! empty($modules['musica']['titulo'] ?? null),
+            'playlist' => ! empty($modules['playlist']['titulo'] ?? null)
+                || ! empty($modules['playlist']['descripcion'] ?? null)
+                || ! empty($modules['playlist']['placeholder'] ?? null),
+            'hashtag' => ! empty($modules['hashtag']['hashtag'] ?? null),
+            'encuestas' => ! empty($modules['encuestas']['preguntas'] ?? []),
+            'regalos' => ! empty($modules['regalos']['titulo'] ?? null)
+                || ! empty($modules['regalos']['tienda_url'] ?? null)
+                || ! empty($modules['regalos']['opciones'] ?? [])
+                || ! empty($modules['regalos']['sobres'] ?? [])
+                || ! empty($modules['regalos']['banco'] ?? []),
+            'rsvp' => ! empty($modules['rsvp']['titulo_confirmacion'] ?? null)
+                || ! empty($modules['rsvp']['mensaje_personalizado'] ?? null)
+                || ! empty($modules['rsvp']['texto_confirmado'] ?? null)
+                || ! empty($modules['rsvp']['texto_declinado'] ?? null),
+            'post_evento' => ! empty($modules['post_evento']['titulo'] ?? null)
+                || ! empty($modules['post_evento']['descripcion'] ?? null)
+                || ! empty($modules['post_evento']['enlace_externo'] ?? null)
+                || ! empty($modules['post_evento']['fotos'] ?? []),
+            default => false,
+        };
     }
 }

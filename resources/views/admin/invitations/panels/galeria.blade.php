@@ -1,5 +1,14 @@
 <div x-show="activeTab === 'galeria'" x-cloak class="admin-card space-y-4">
-    <h2 class="font-serif text-lg text-stone-900">Galería de fotos</h2>
+    <div class="flex items-start justify-between gap-3">
+        <div>
+            <p class="admin-eyebrow">Galería</p>
+            <h2 class="font-serif text-lg text-stone-900">Galería de fotos</h2>
+        </div>
+        <label class="admin-toggle-row shrink-0">
+            <input type="checkbox" x-model="modules.config.modulos.galeria" class="rounded border-stone-300 text-amber-600 focus:ring-amber-500">
+            <span class="text-stone-700">Activo</span>
+        </label>
+    </div>
     <div>
         <label class="admin-label">Título de sección</label>
         <input type="text" x-model="modules.galeria.titulo" class="admin-input">

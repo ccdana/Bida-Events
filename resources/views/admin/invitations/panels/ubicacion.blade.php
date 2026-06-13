@@ -1,7 +1,16 @@
 <div x-show="activeTab === 'ubicacion'" x-cloak class="admin-card space-y-4"
     x-effect="if (activeTab === 'ubicacion') initLocationMap()">
     <style>.leaflet-container { z-index: 0; font-family: inherit; }</style>
-    <h2 class="font-serif text-lg text-stone-900">Ubicación</h2>
+    <div class="flex items-start justify-between gap-3">
+        <div>
+            <p class="admin-eyebrow">Ubicación</p>
+            <h2 class="font-serif text-lg text-stone-900">Lugar del evento</h2>
+        </div>
+        <label class="admin-toggle-row shrink-0">
+            <input type="checkbox" x-model="modules.config.modulos.ubicacion" class="rounded border-stone-300 text-amber-600 focus:ring-amber-500">
+            <span class="text-stone-700">Activo</span>
+        </label>
+    </div>
 
     <div>
         <label class="admin-label">Nombre del lugar</label>

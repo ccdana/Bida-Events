@@ -6,7 +6,13 @@
                 <h2 class="font-serif text-xl text-stone-950">Dress code</h2>
                 <p class="mt-1 text-sm text-stone-500">Una experiencia visual más elegante para explicar qué vestir sin parecer lista rígida.</p>
             </div>
-            <button type="button" @click="addSugerencia()" class="admin-primary-button">+ Sugerencia</button>
+            <div class="flex items-center gap-3">
+                <label class="admin-toggle-row">
+                    <input type="checkbox" x-model="modules.config.modulos.dress_code" class="rounded border-stone-300 text-amber-600 focus:ring-amber-500">
+                    <span class="text-stone-700">Activo</span>
+                </label>
+                <button type="button" @click="addSugerencia()" class="admin-primary-button">+ Sugerencia</button>
+            </div>
         </div>
 
         <div class="grid gap-3 md:grid-cols-2">
@@ -73,7 +79,7 @@
         <div class="flex items-center justify-between gap-3">
             <div>
                 <p class="admin-label mb-1">Colores a evitar</p>
-                <p class="text-xs text-stone-500">No hace falta prohibir demasiado, sólo lo que realmente choque con el evento.</p>
+                <p class="text-xs text-stone-500">No hace falta prohibir demasiado, solo lo que realmente choque con el evento.</p>
             </div>
             <button type="button" @click="addColorProhibido()" class="admin-link-button">+ Color</button>
         </div>

@@ -1,4 +1,4 @@
-<section class="invitation-section reveal" x-data="playlistApp('{{ $slug }}', '{{ $guestToken }}', @js($songs ?? []))" x-init="init()">
+<section class="invitation-section reveal" x-data="playlistApp('{{ $slug }}', '{{ $guestToken }}', @js($songs ?? []), @js($isPreview ?? false))" x-init="init()">
     <div class="section-inner-wide">
         <header class="section-header">
             @include('invitations.partials.icon', ['name' => 'music', 'class' => 'w-8 h-8 text-primary mx-auto mb-3'])
@@ -64,18 +64,30 @@
     </div>
 </section>
 <script>
-function playlistApp(slug, guestToken, initialSongs) {
+function playlistApp(slug, guestToken, initialSongs, isPreview) {
     return {
         songs: initialSongs,
         song: '',
         message: '',
         submitting: false,
         playingId: null,
-        init() { this.refresh(); },
+        init() {
+            if (!isPreview) {
+                this.refresh();
+            }
+        },
         async refresh() {
-            const res = await fetch(`/p/${slug}/playlist`);
-            const data = await res.json();
-            if (data.songs) this.songs = data.songs;
+            if (isPreview) return;
+            try {
+                const res = await fetch(`/p/${slug}/playlist`, {
+                    headers: { 'Accept': 'application/json' },
+                });
+                const data = await res.json();
+                if (data.songs) this.songs = data.songs;
+                if (!res.ok && data.message) this.message = data.message;
+            } catch (e) {
+                this.message = 'No se pudo cargar la playlist';
+            }
         },
         togglePlay(item) {
             if (this.playingId === item.id) {
@@ -85,19 +97,32 @@ function playlistApp(slug, guestToken, initialSongs) {
             this.playingId = item.id;
         },
         async submit() {
+            if (isPreview) {
+                this.message = 'La playlist no está disponible en vista previa';
+                return;
+            }
             if (!this.song.trim() || this.submitting) return;
             this.submitting = true;
-            const res = await fetch(`/p/${slug}/playlist`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content, 'Accept': 'application/json' },
-                body: JSON.stringify({ content_text: this.song, guest_token: guestToken || null })
-            });
-            const data = await res.json();
-            this.submitting = false;
-            if (data.success) {
-                this.message = data.message;
-                this.song = '';
-                await this.refresh();
+            try {
+                const res = await fetch(`/p/${slug}/playlist`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ content_text: this.song, guest_token: guestToken || null })
+                });
+                const data = await res.json();
+                if (data.message) this.message = data.message;
+                if (data.success) {
+                    this.song = '';
+                    await this.refresh();
+                }
+            } catch (e) {
+                this.message = 'No se pudo enviar la canción';
+            } finally {
+                this.submitting = false;
             }
         }
     };

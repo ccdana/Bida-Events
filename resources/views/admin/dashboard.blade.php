@@ -5,8 +5,8 @@
 @section('content')
 @php
     $total = $invitations->count();
-    $active = $invitations->where('status', 'active')->count();
-    $draft = $invitations->where('status', 'draft')->count();
+    $active = $invitations->where('status', 'activo')->count();
+    $draft = $invitations->where('status', 'borrador')->count();
     $guests = $invitations->sum(fn ($invitation) => $invitation->guests->count());
 @endphp
 
@@ -17,10 +17,6 @@
                 <p class="admin-eyebrow">Resumen</p>
                 <h1 class="font-serif text-4xl text-stone-950">Invitaciones</h1>
                 <p class="mt-2 text-sm leading-relaxed text-stone-500">Gestión limpia, sin paneles pesados. Revisa el estado de cada evento y entra directo al editor.</p>
-            </div>
-            <div class="flex flex-wrap gap-2">
-                <a href="{{ route('admin.invitations.create') }}" class="admin-primary-button">Nueva invitación</a>
-                <a href="{{ route('admin.invitations.create') }}" class="admin-link-button">Abrir editor</a>
             </div>
         </div>
     </section>
@@ -60,7 +56,7 @@
                         <div class="flex items-center gap-3 flex-wrap">
                             <h3 class="text-lg font-medium text-stone-950 truncate">{{ $invitation->title }}</h3>
                             <span class="admin-status-badge
-                                {{ $invitation->status === 'active' ? 'is-active' : ($invitation->status === 'draft' ? 'is-draft' : 'is-suspended') }}">
+                                {{ $invitation->status === 'activo' ? 'is-active' : ($invitation->status === 'borrador' ? 'is-draft' : 'is-suspended') }}">
                                 <span class="admin-status-dot"></span>
                                 {{ $invitation->status }}
                             </span>

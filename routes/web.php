@@ -41,7 +41,7 @@ Route::middleware('guest')->group(function () {
 Route::post('/logout', [LoginController::class, 'logout'])->middleware('auth')->name('logout');
 
 // Invitación pública
-Route::prefix('p')->name('invitation.')->group(function () {
+Route::prefix('p')->name('invitation.')->middleware('cache.public.invitations')->group(function () {
     Route::get('/{slug}', [PublicInvitationController::class, 'show'])->name('show');
     Route::get('/{slug}/i/{token}', [PublicInvitationController::class, 'show'])->name('guest');
     Route::post('/{slug}/i/{token}/confirm', [RsvpController::class, 'confirm'])->name('rsvp');

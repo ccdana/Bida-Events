@@ -3,7 +3,19 @@
         <div>
             <p class="admin-eyebrow">Datos generales</p>
             <h2 class="font-serif text-xl text-stone-950">Identidad de la invitación</h2>
-            <p class="mt-1 text-sm leading-relaxed text-stone-500">Mantén aquí lo esencial. El cliente puede asignarse o crearse sin salir del editor.</p>
+            <p class="mt-1 text-sm leading-relaxed text-stone-500">
+                Configura la información base del evento. Los módulos visibles se activan desde el panel lateral, organizados por apartado.
+            </p>
+        </div>
+
+        <div class="rounded-2xl border border-stone-200 bg-stone-50 p-4">
+            <div class="flex items-center justify-between gap-3">
+                <div>
+                    <p class="admin-label mb-1">Módulos activos</p>
+                    <p class="text-xs text-stone-500">Usa el menú lateral para elegir el apartado y activar o editar cada feature.</p>
+                </div>
+                <span class="admin-editor-badge" x-text="`${activeModulesCount} activos`"></span>
+            </div>
         </div>
 
         <div class="grid gap-4">
@@ -24,14 +36,6 @@
                     <select name="event_type_id" x-model="meta.event_type_id" class="admin-input" required>
                         @foreach($eventTypes as $type)
                             <option value="{{ $type->id }}">{{ $type->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div>
-                    <label class="admin-label">Plan</label>
-                    <select name="plan_id" x-model="meta.plan_id" class="admin-input" required>
-                        @foreach($plans as $plan)
-                            <option value="{{ $plan->id }}">{{ $plan->name }}</option>
                         @endforeach
                     </select>
                 </div>

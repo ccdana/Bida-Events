@@ -32,7 +32,7 @@
             </div>
             <div class="flex flex-wrap items-center gap-3 text-sm">
                 <button type="button" onclick="toggleAdminTheme()" class="admin-link-button">Tema</button>
-                <a href="{{ route('admin.invitations.create') }}" class="admin-primary-button">+ Nueva</a>
+                <a href="{{ route('admin.invitations.create') }}" class="admin-primary-button">+ Nueva invitación</a>
                 <span class="text-stone-400 hidden sm:inline">{{ auth()->user()->name }}</span>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf

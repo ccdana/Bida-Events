@@ -1,7 +1,16 @@
 <div x-show="activeTab === 'itinerario'" x-cloak class="admin-card space-y-4">
-    <div class="flex items-center justify-between">
-        <h2 class="font-serif text-lg text-stone-900">Itinerario</h2>
-        <button type="button" @click="addEvento()" class="text-xs px-3 py-1.5 bg-stone-900 text-white rounded-lg">+ Evento</button>
+    <div class="flex items-start justify-between gap-3">
+        <div>
+            <p class="admin-eyebrow">Itinerario</p>
+            <h2 class="font-serif text-lg text-stone-900">Cronograma del evento</h2>
+        </div>
+        <div class="flex items-center gap-3">
+            <label class="admin-toggle-row">
+                <input type="checkbox" x-model="modules.config.modulos.itinerario" class="rounded border-stone-300 text-amber-600 focus:ring-amber-500">
+                <span class="text-stone-700">Activo</span>
+            </label>
+            <button type="button" @click="addEvento()" class="text-xs px-3 py-1.5 bg-stone-900 text-white rounded-lg">+ Evento</button>
+        </div>
     </div>
     <div>
         <label class="admin-label">Título de sección</label>

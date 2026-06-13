@@ -1,39 +1,22 @@
-<div x-show="activeTab === 'interactivo'" x-cloak class="space-y-4">
-    <section class="admin-card space-y-3">
-        <div>
-            <p class="admin-eyebrow">Playlist</p>
-            <h2 class="font-serif text-xl text-stone-950">Colaboración musical</h2>
-        </div>
-        <input type="text" x-model="modules.playlist.titulo" class="admin-input" placeholder="Título">
-        <textarea x-model="modules.playlist.descripcion" rows="2" class="admin-input" placeholder="Descripción"></textarea>
-        <input type="text" x-model="modules.playlist.placeholder" class="admin-input" placeholder="Placeholder del input">
-    </section>
-
-    <section class="admin-card space-y-3">
-        <div>
-            <p class="admin-eyebrow">Hashtag</p>
-            <h2 class="font-serif text-xl text-stone-950">Etiqueta oficial</h2>
-        </div>
-        <input type="text" x-model="modules.hashtag.hashtag" class="admin-input" placeholder="#MiEvento2026">
-        <select x-model="modules.hashtag.plataforma" class="admin-input">
-            <option value="instagram">Instagram</option>
-            <option value="tiktok">TikTok</option>
-        </select>
-        <input type="text" x-model="modules.hashtag.texto_boton" class="admin-input" placeholder="Texto del botón">
-    </section>
-
+<div x-show="activeTab === 'encuestas'" x-cloak class="space-y-4">
     <section class="admin-card space-y-4">
         <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
             <div>
                 <p class="admin-eyebrow">Encuestas</p>
                 <h2 class="font-serif text-xl text-stone-950">Interactivo</h2>
-                <p class="mt-1 text-sm text-stone-500">Ahora puedes crear preguntas de opción única, escala, sí/no y emoji.</p>
+                <p class="mt-1 text-sm text-stone-500">Crea preguntas de opción única, escala, sí/no y emoji en un bloque independiente.</p>
             </div>
-            <div class="flex flex-wrap gap-2">
-                <button type="button" @click="addEncuesta('single')" class="admin-primary-button">+ Opción única</button>
-                <button type="button" @click="addEncuesta('rating')" class="admin-link-button">+ Escala</button>
-                <button type="button" @click="addEncuesta('yesno')" class="admin-link-button">+ Sí / No</button>
-                <button type="button" @click="addEncuesta('emoji')" class="admin-link-button">+ Emoji</button>
+            <div class="flex items-center gap-3">
+                <label class="admin-toggle-row">
+                    <input type="checkbox" x-model="modules.config.modulos.encuestas" class="rounded border-stone-300 text-amber-600 focus:ring-amber-500">
+                    <span class="text-stone-700">Activo</span>
+                </label>
+                <div class="flex flex-wrap gap-2">
+                    <button type="button" @click="addEncuesta('single')" class="admin-primary-button">+ Opción única</button>
+                    <button type="button" @click="addEncuesta('rating')" class="admin-link-button">+ Escala</button>
+                    <button type="button" @click="addEncuesta('yesno')" class="admin-link-button">+ Sí / No</button>
+                    <button type="button" @click="addEncuesta('emoji')" class="admin-link-button">+ Emoji</button>
+                </div>
             </div>
         </div>
         <input type="text" x-model="modules.encuestas.titulo" class="admin-input" placeholder="Título sección">

@@ -5,10 +5,13 @@
     $flags = $config['modulos'] ?? [];
     $bienvenida = $modulos['bienvenida'] ?? [];
     $musica = $modulos['musica'] ?? [];
-    $isPostEvent = $invitation->isPostEvent();
+    $isPostEvent = $invitation->is_post_event;
     $guestToken = $guest?->qr_code_token ?? '';
     $heroImage = $bienvenida['imagen_hero'] ?? null;
     $hasHeroImage = !empty($heroImage);
+    $moduleVisible = function (string $key) use ($flags): bool {
+        return (bool) ($flags[$key] ?? false);
+    };
 @endphp
 <!DOCTYPE html>
 <html lang="es">
@@ -57,7 +60,7 @@
         @endfor
     </div>
 
-    @include('invitations.partials.music-player', ['musica' => $musica, 'flags' => $flags])
+    @include('invitations.partials.music-player', ['musica' => $musica, 'flags' => array_merge($flags, ['musica' => $moduleVisible('musica')])])
 
     {{-- HERO --}}
     <header class="relative min-h-[100dvh] flex flex-col items-center justify-center text-center overflow-hidden">
@@ -69,10 +72,27 @@
         </div>
 
         <div class="hero-content px-6 py-20 sm:px-8 w-full max-w-lg {{ $hasHeroImage ? 'hero-text-light' : '' }}">
-            @if($isPostEvent && ($flags['post_evento'] ?? false))
+            @if($isPostEvent && $moduleVisible('post_evento'))
                 <p class="font-script text-4xl sm:text-5xl text-primary mb-6 leading-tight max-w-sm mx-auto animate-fade-up {{ $hasHeroImage ? '!text-white' : '' }}">
                     {{ $bienvenida['mensaje_post_evento'] ?? 'Gracias por acompañarme en mi noche mágica' }}
                 </p>
+                <p class="text-[10px] uppercase tracking-[0.35em] mb-5 animate-fade-up {{ $hasHeroImage ? 'text-white/75' : 'text-secondary' }}">
+                    {{ $bienvenida['subtitulo'] ?? 'Mis XV Años' }}
+                </p>
+                <h1 class="font-script text-6xl sm:text-[5.5rem] leading-none mb-6 animate-fade-up animate-fade-up-delay-1 {{ $hasHeroImage ? 'text-white drop-shadow-lg' : 'text-primary' }}">
+                    {{ $bienvenida['nombre_quinceanera'] ?? 'Quinceañera' }}
+                </h1>
+                @if(!empty($bienvenida['mensaje']))
+                    <p class="font-title text-base sm:text-lg max-w-sm mx-auto leading-relaxed animate-fade-up animate-fade-up-delay-2 {{ $hasHeroImage ? 'text-white/85' : 'text-secondary/90' }}">
+                        {{ $bienvenida['mensaje'] }}
+                    </p>
+                @endif
+                <div class="mt-8 animate-fade-up animate-fade-up-delay-3">
+                    <div class="section-ornament {{ $hasHeroImage ? 'bg-white/40' : '' }}" style="{{ $hasHeroImage ? 'background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent)' : '' }}"></div>
+                    <p class="mt-4 text-xs tracking-[0.25em] uppercase py-3 px-6 inline-block {{ $hasHeroImage ? 'text-white/90 border border-white/25 rounded-full' : 'border-t border-b border-primary/25' }}">
+                        {{ $bienvenida['fecha_texto'] ?? $invitation->event_date->format('d \d\e F, Y') }}
+                    </p>
+                </div>
             @else
                 <p class="text-[10px] uppercase tracking-[0.35em] mb-5 animate-fade-up {{ $hasHeroImage ? 'text-white/75' : 'text-secondary' }}">
                     {{ $bienvenida['subtitulo'] ?? 'Mis XV Años' }}
@@ -111,15 +131,15 @@
         </div>
     </header>
 
-    @if(($flags['cuenta_regresiva'] ?? false) && !$isPostEvent)
+    @if($moduleVisible('cuenta_regresiva') && !$isPostEvent)
         @include('invitations.partials.countdown', [
             'eventDate' => $invitation->event_date->toIso8601String(),
             'calendarUrl' => $calendarUrl,
-            'agendar' => $flags['agendar'] ?? false,
+            'agendar' => $moduleVisible('agendar'),
         ])
     @endif
 
-    @if(!($flags['cuenta_regresiva'] ?? false) && ($flags['agendar'] ?? false) && !$isPostEvent)
+    @if(!$moduleVisible('cuenta_regresiva') && $moduleVisible('agendar') && !$isPostEvent)
         <section class="invitation-section reveal py-6">
             <div class="section-inner text-center">
                 <a href="{{ $calendarUrl }}" target="_blank" rel="noopener"
@@ -131,40 +151,40 @@
         </section>
     @endif
 
-    @if(($flags['video'] ?? false) && !empty($modulos['video']['video_url']))
+    @if($moduleVisible('video'))
         @include('invitations.partials.video', ['video' => $modulos['video']])
     @endif
 
-    @if(($flags['galeria'] ?? false) && !empty($modulos['galeria']['fotos']))
+    @if($moduleVisible('galeria'))
         @include('invitations.partials.gallery-stack', ['galeria' => $modulos['galeria']])
     @endif
 
-    @if($flags['itinerario'] ?? false)
+    @if($moduleVisible('itinerario'))
         @include('invitations.partials.itinerary', ['itinerario' => $modulos['itinerario'] ?? []])
     @endif
 
-    @if($flags['dress_code'] ?? false)
+    @if($moduleVisible('dress_code'))
         @include('invitations.partials.dress-code', ['dressCode' => $modulos['dress_code'] ?? []])
     @endif
 
-    @if($flags['destacados'] ?? false)
+    @if($moduleVisible('destacados'))
         @include('invitations.partials.destacados', ['destacados' => $modulos['destacados'] ?? []])
     @endif
 
-    @if($flags['ubicacion'] ?? false)
+    @if($moduleVisible('ubicacion'))
         @include('invitations.partials.location', [
             'ubicacion' => $modulos['ubicacion'] ?? [],
-            'transporte' => $flags['transporte'] ?? false,
-            'agendar' => $flags['agendar'] ?? false,
+            'transporte' => $moduleVisible('transporte'),
+            'agendar' => $moduleVisible('agendar'),
             'calendarUrl' => $calendarUrl,
         ])
     @endif
 
-    @if($flags['hashtag'] ?? false)
+    @if($moduleVisible('hashtag'))
         @include('invitations.partials.hashtag', ['hashtag' => $modulos['hashtag'] ?? []])
     @endif
 
-    @if($flags['encuestas'] ?? false)
+    @if($moduleVisible('encuestas'))
         @include('invitations.partials.polls', [
             'encuestas' => $modulos['encuestas'] ?? [],
             'pollResults' => $pollResults,
@@ -173,7 +193,7 @@
         ])
     @endif
 
-    @if($flags['playlist'] ?? false)
+    @if($moduleVisible('playlist'))
         @include('invitations.partials.playlist', [
             'playlist' => $modulos['playlist'] ?? [],
             'slug' => $invitation->slug,
@@ -182,11 +202,11 @@
         ])
     @endif
 
-    @if($flags['regalos'] ?? false)
+    @if($moduleVisible('regalos'))
         @include('invitations.partials.regalos', ['regalos' => $modulos['regalos'] ?? []])
     @endif
 
-    @if(($flags['rsvp'] ?? false) && $guest)
+    @if($moduleVisible('rsvp') && $guest)
         @include('invitations.partials.rsvp', [
             'rsvp' => $modulos['rsvp'] ?? [],
             'guest' => $guest,
@@ -194,7 +214,7 @@
         ])
     @endif
 
-    @if(($flags['fotomural'] ?? false) && !$isPostEvent)
+    @if($moduleVisible('fotomural') && !$isPostEvent)
         @include('invitations.partials.fotomural', [
             'slug' => $invitation->slug,
             'guestToken' => $guestToken,
@@ -202,7 +222,7 @@
         ])
     @endif
 
-    @if($isPostEvent && ($flags['post_evento'] ?? false))
+    @if($isPostEvent && $moduleVisible('post_evento'))
         @include('invitations.partials.post-event', ['postEvento' => $modulos['post_evento'] ?? []])
     @endif
 

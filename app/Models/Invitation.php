@@ -2,17 +2,33 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property int $id
+ * @property int|null $user_id
+ * @property int $event_type_id
+ * @property string $slug
+ * @property string $template
+ * @property string $title
+ * @property Carbon $event_date
+ * @property string $status
+ * @property Carbon $expires_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property array $modules
+ * @property bool $is_post_event
+ */
 class Invitation extends Model
 {
     protected $fillable = [
         'user_id',
         'event_type_id',
-        'plan_id',
         'slug',
         'template',
         'title',
@@ -26,6 +42,12 @@ class Invitation extends Model
         'expires_at' => 'date',
     ];
 
+    protected ?array $modulesCache = null;
+
+    // Attributes cache
+    protected $appends = ['modules', 'is_post_event'];
+    protected $hidden = ['modulesData'];
+
     /**
      * Cliente dueño de la invitación.
      */
@@ -37,11 +59,6 @@ class Invitation extends Model
     public function eventType(): BelongsTo
     {
         return $this->belongsTo(EventType::class);
-    }
-
-    public function plan(): BelongsTo
-    {
-        return $this->belongsTo(Plan::class);
     }
 
     /**
@@ -83,16 +100,47 @@ class Invitation extends Model
     }
 
     /**
-     * Módulos indexados por feature_code para la vista pública.
+     * Scopes para queries optimizadas
+     */
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query->where('status', 'active');
+    }
+
+    public function scopePublished(Builder $query): Builder
+    {
+        return $query->where('status', 'active')
+                    ->where('expires_at', '>=', now()->toDateString());
+    }
+
+    public function scopeWithAllData(Builder $query): Builder
+    {
+        return $query->with(['eventType', 'user', 'modulesData']);
+    }
+
+    /**
+     * Módulos indexados por feature_code - computed property con cache
      */
     public function getModulesAttribute(): array
     {
-        return $this->modulesData
-            ->pluck('json_data', 'feature_code')
+        if ($this->modulesCache !== null) {
+            return $this->modulesCache;
+        }
+
+        $this->modulesCache = $this->modulesData
+            ->keyBy('feature_code')
+            ->map(fn ($item) => $item->json_data)
             ->toArray();
+
+        return $this->modulesCache;
     }
 
-    public function isPostEvent(): bool
+    public function clearModulesCache(): void
+    {
+        $this->modulesCache = null;
+    }
+
+    public function getIsPostEventAttribute(): bool
     {
         return now()->isAfter($this->event_date);
     }

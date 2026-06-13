@@ -35,7 +35,7 @@
                     @change="pickLocalFileReplace($event, '{{ $type }}', '{{ $context }}', () => {{ $previewExpr }}, url => {{ $previewExpr }} = url)">
             </label>
             <button type="button" x-show="{{ $previewExpr }}" x-cloak
-                @click="clearMediaUrl({{ $previewExpr }}); {{ $clear }}"
+                @click="clearMediaUrl({{ $previewExpr }}); {{ $clear }}; schedulePreview()"
                 class="text-xs text-red-600 hover:text-red-800">Quitar</button>
         </div>
     </div>

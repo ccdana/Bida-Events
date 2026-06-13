@@ -5,10 +5,11 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\EventType;
 use App\Models\Invitation;
-use App\Models\Plan;
 use App\Models\User;
 use App\Support\InvitationDefaults;
 use App\Services\InvitationModuleService;
+use App\Services\InvitationCacheService;
+use App\Services\InvitationPreviewSession;
 use App\Services\MediaUploadService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -23,9 +24,13 @@ class InvitationController extends Controller
 
     public function create()
     {
+        InvitationPreviewSession::forgetDraft();
+
+        $modulos = InvitationDefaults::emptyModules();
+
         return view('admin.invitations.create', $this->formData(
             invitation: null,
-            modulos: InvitationDefaults::modules(),
+            modulos: $modulos,
         ));
     }
 
@@ -44,6 +49,17 @@ class InvitationController extends Controller
 
         $this->syncModulesFromRequest($request, $invitation);
 
+        $invitation->load('modulesData');
+        $invitation->clearModulesCache();
+        $modulos = $this->moduleService->normalizeModules($invitation->modules);
+
+        InvitationCacheService::invalidate($invitation);
+        InvitationPreviewSession::seed(
+            $invitation,
+            InvitationPreviewSession::payloadFromInvitation($invitation, $modulos)
+        );
+        InvitationCacheService::warmup($invitation);
+
         return redirect()
             ->route('admin.invitations.edit', $invitation)
             ->with('success', 'Invitación creada correctamente.');
@@ -51,17 +67,25 @@ class InvitationController extends Controller
 
     public function edit(Invitation $invitation)
     {
-        $invitation->load('modulesData', 'eventType', 'user', 'plan');
+        $invitation->loadMissing('modulesData', 'eventType', 'user');
+        $invitation->clearModulesCache();
+        $modulos = $this->moduleService->normalizeModules($invitation->modules);
+
+        InvitationPreviewSession::seed(
+            $invitation,
+            InvitationPreviewSession::payloadFromInvitation($invitation, $modulos)
+        );
 
         return view('admin.invitations.edit', $this->formData(
             invitation: $invitation,
-            modulos: $invitation->modules,
+            modulos: $modulos,
         ));
     }
 
     public function update(Request $request, Invitation $invitation)
     {
         $validated = $this->validateInvitation($request, $invitation);
+        $previousSlug = $invitation->slug;
 
         if (empty($validated['user_id'])) {
             $validated['user_id'] = null;
@@ -73,6 +97,17 @@ class InvitationController extends Controller
         ]);
 
         $this->syncModulesFromRequest($request, $invitation);
+
+        $invitation->refresh();
+        $invitation->load('modulesData');
+        $modulos = $this->moduleService->normalizeModules($invitation->modules);
+
+        InvitationCacheService::invalidate($invitation, $previousSlug);
+        InvitationPreviewSession::seed(
+            $invitation,
+            InvitationPreviewSession::payloadFromInvitation($invitation, $modulos)
+        );
+        InvitationCacheService::warmup($invitation);
 
         return redirect()
             ->route('admin.invitations.edit', $invitation)
@@ -111,9 +146,10 @@ class InvitationController extends Controller
             'templates' => InvitationDefaults::templates(),
             'itineraryIcons' => InvitationDefaults::itineraryIcons(),
             'eventTypes' => EventType::orderBy('name')->get(),
-            'plans' => Plan::orderBy('price')->get(),
             'clients' => User::where('is_admin', false)->orderBy('name')->get(),
             'cloudinaryConfigured' => app(MediaUploadService::class)->isCloudinaryConfigured(),
+            'moduleCodes' => InvitationDefaults::moduleCodes(),
+            'moduleTabMap' => InvitationDefaults::moduleTabMap(),
         ];
     }
 
@@ -124,7 +160,6 @@ class InvitationController extends Controller
             'slug' => ['required', 'string', 'max:255', Rule::unique('invitations', 'slug')->ignore($invitation?->id)],
             'template' => ['required', 'string'],
             'event_type_id' => ['required', 'exists:event_types,id'],
-            'plan_id' => ['required', 'exists:plans,id'],
             'user_id' => ['nullable', 'exists:users,id'],
             'event_date' => ['required', 'date'],
             'status' => ['required', 'in:draft,active,suspended,expired'],
@@ -134,22 +169,21 @@ class InvitationController extends Controller
 
     protected function syncModulesFromRequest(Request $request, Invitation $invitation): void
     {
-        $moduleCodes = [
-            'config', 'bienvenida', 'ubicacion', 'itinerario', 'dress_code',
-            'destacados', 'galeria', 'musica', 'video', 'playlist', 'hashtag',
-            'encuestas', 'regalos', 'post_evento', 'rsvp',
-        ];
+        $moduleCodes = InvitationDefaults::moduleCodes();
+        $modules = InvitationDefaults::emptyModules();
 
         foreach ($moduleCodes as $code) {
-            $raw = $request->input("modulos.{$code}");
-            if ($raw === null) {
-                continue;
+            $raw = $request->input("modulos.{$code}", '{}');
+            $data = is_string($raw) ? json_decode($raw, true) : $raw;
+
+            if (! is_array($data) || (is_string($raw) && json_last_error() !== JSON_ERROR_NONE)) {
+                $data = [];
             }
 
-            $data = is_string($raw) ? json_decode($raw, true) : $raw;
-            if (is_array($data)) {
-                $this->moduleService->syncModule($invitation, $code, $data);
-            }
+            $modules[$code] = $data;
         }
+
+        $this->moduleService->syncAllModules($invitation, $modules);
+        $invitation->touch();
     }
 }

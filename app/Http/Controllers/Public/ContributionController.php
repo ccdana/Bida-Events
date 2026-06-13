@@ -18,7 +18,14 @@ class ContributionController extends Controller
     ) {}
     public function listSongs(string $slug)
     {
-        $invitation = Invitation::where('slug', $slug)->where('status', 'active')->firstOrFail();
+        $invitation = Invitation::where('slug', $slug)
+            ->where('status', 'active')
+            ->where('expires_at', '>=', now()->toDateString())
+            ->first();
+
+        if (! $invitation) {
+            return response()->json(['songs' => [], 'message' => 'Playlist no disponible'], 404);
+        }
 
         $songs = $invitation->contributions()
             ->where('type', 'song_request')
@@ -33,7 +40,14 @@ class ContributionController extends Controller
 
     public function storeSong(Request $request, string $slug)
     {
-        $invitation = Invitation::where('slug', $slug)->where('status', 'active')->firstOrFail();
+        $invitation = Invitation::where('slug', $slug)
+            ->where('status', 'active')
+            ->where('expires_at', '>=', now()->toDateString())
+            ->first();
+
+        if (! $invitation) {
+            return response()->json(['success' => false, 'message' => 'Playlist no disponible'], 404);
+        }
 
         $validated = $request->validate([
             'content_text' => ['required', 'string', 'max:500'],
@@ -61,7 +75,14 @@ class ContributionController extends Controller
 
     public function listPhotos(string $slug)
     {
-        $invitation = Invitation::where('slug', $slug)->where('status', 'active')->firstOrFail();
+        $invitation = Invitation::where('slug', $slug)
+            ->where('status', 'active')
+            ->where('expires_at', '>=', now()->toDateString())
+            ->first();
+
+        if (! $invitation) {
+            return response()->json(['photos' => [], 'message' => 'Fotomural no disponible'], 404);
+        }
 
         $photos = $invitation->contributions()
             ->where('type', 'live_photo')
@@ -81,7 +102,14 @@ class ContributionController extends Controller
 
     public function storePhoto(Request $request, string $slug)
     {
-        $invitation = Invitation::where('slug', $slug)->where('status', 'active')->firstOrFail();
+        $invitation = Invitation::where('slug', $slug)
+            ->where('status', 'active')
+            ->where('expires_at', '>=', now()->toDateString())
+            ->first();
+
+        if (! $invitation) {
+            return response()->json(['success' => false, 'message' => 'Fotomural no disponible'], 404);
+        }
 
         $validated = $request->validate([
             'photo' => ['required', 'image', 'max:5120'],
@@ -118,7 +146,10 @@ class ContributionController extends Controller
 
     public function votePoll(Request $request, string $slug, string $pollId)
     {
-        $invitation = Invitation::where('slug', $slug)->where('status', 'active')->firstOrFail();
+        $invitation = Invitation::where('slug', $slug)
+            ->where('status', 'active')
+            ->where('expires_at', '>=', now()->toDateString())
+            ->firstOrFail();
 
         $validated = $request->validate([
             'option_index' => ['required', 'integer', 'min:0'],
