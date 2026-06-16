@@ -5,19 +5,39 @@
     $defaultEventDate = $inv?->event_date?->format('Y-m-d\TH:i') ?? now()->addMonths(3)->format('Y-m-d\TH:i');
     $defaultExpires = $inv?->expires_at?->format('Y-m-d') ?? now()->addMonths(9)->format('Y-m-d');
 
+    $clientList = $clients;
+    if ($inv?->user_id && ! $clientList->contains('id', $inv->user_id)) {
+        $inv->loadMissing('user');
+        if ($inv->user) {
+            $clientList = $clientList->prepend($inv->user)->unique('id')->values();
+        }
+    }
+
     $editorConfig = [
         'modules' => $modulos,
-        'clients' => $clients->map(fn ($client) => [
-            'id' => $client->id,
+        'eventTypes' => $eventTypes->map(fn ($type) => [
+            'id' => (string) $type->id,
+            'name' => $type->name,
+        ])->values(),
+        'templateOptions' => collect($templates)->map(fn ($label, $value) => [
+            'value' => $value,
+            'label' => $label,
+        ])->values(),
+        'clients' => $clientList->map(fn ($client) => [
+            'id' => (string) $client->id,
             'name' => $client->name,
             'email' => $client->email,
         ])->values(),
+        'clientPasswords' => session('client_temp_passwords', []),
+        'assignedClientPassword' => $inv?->user_id
+            ? (session('client_temp_passwords', [])[$inv->user_id] ?? null)
+            : null,
         'meta' => [
             'title' => $inv?->title ?? '',
             'slug' => $inv?->slug ?? '',
             'template' => $inv?->template ?? array_key_first($templates),
-            'event_type_id' => $inv?->event_type_id ?? ($eventTypes->first()?->id),
-            'user_id' => $inv?->user_id ?? '',
+            'event_type_id' => $inv?->event_type_id ? (string) $inv->event_type_id : (string) ($eventTypes->first()?->id ?? ''),
+            'user_id' => $inv?->user_id ? (string) $inv->user_id : '',
             'event_date' => $defaultEventDate,
             'expires_at' => $defaultExpires,
             'status' => $inv?->status ?? 'draft',

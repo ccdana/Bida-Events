@@ -4,9 +4,11 @@
     $placeName = urlencode($ubicacion['nombre_lugar'] ?? 'Evento');
     $mapEmbed = "https://maps.google.com/maps?q={$lat},{$lng}&z=15&output=embed";
     $mapsNavUrl = $ubicacion['maps_url'] ?? "https://www.google.com/maps/dir/?api=1&destination={$lat},{$lng}";
-    $uberUrl = "https://m.uber.com/ul/?action=setPickup&dropoff%5Blatitude%5D={$lat}&dropoff%5Blongitude%5D={$lng}&dropoff%5Bnickname%5D={$placeName}";
-    $yangoUrl = "https://yango.com/route?end-lat={$lat}&end-lon={$lng}";
-    $indriveDeep = "indriver://open/client/root?latitude={$lat}&longitude={$lng}";
+    
+    // URLs mejoradas para apps de transporte
+    $uberUrl = "https://m.uber.com/?action=setPickup&pickup%5Blatitude%5D=&pickup%5Blongitude%5D=&dropoff%5Blatitude%5D={$lat}&dropoff%5Blongitude%5D={$lng}&dropoff%5Bnickname%5D={$placeName}";
+    $yangoUrl = "https://yango.com/route?start-lat=&start-lon=&end-lat={$lat}&end-lon={$lng}&end-address=" . urlencode($ubicacion['nombre_lugar'] ?? '');
+    $indriveUrl = "https://indriver.com/search?latitude={$lat}&longitude={$lng}&address=" . urlencode($ubicacion['nombre_lugar'] ?? '');
 @endphp
 <section class="invitation-section reveal">
     <div class="section-inner-wide">
@@ -35,38 +37,44 @@
         </div>
 
         <a href="{{ $mapsNavUrl }}" target="_blank" rel="noopener"
-                class="flex items-center justify-center gap-2 py-3.5 rounded-xl bg-primary text-white text-sm font-medium tracking-wide shadow-md active:scale-[0.98] transition-transform mb-6">
+                class="flex items-center justify-center gap-2 py-3.5 rounded-xl bg-primary text-white text-sm font-medium tracking-wide shadow-md active:scale-[0.98] transition-all duration-200 hover:shadow-lg mb-6">
                 @include('invitations.partials.icon', ['name' => 'map-pin', 'class' => 'w-4 h-4', 'animated' => false])
                 Abrir en Google Maps
             </a>
 
         @if($transporte ?? false)
-            <div class="inv-card p-5">
-                <p class="text-[10px] uppercase tracking-[0.3em] text-center text-primary/60 mb-4">Llegar en transporte</p>
-                <div class="transport-grid">
+            <div class="inv-card p-6">
+                <p class="text-[10px] uppercase tracking-[0.3em] text-center text-primary/60 mb-6">¿Cómo llegar? Solicita tu viaje</p>
+                <div class="grid grid-cols-3 gap-3 sm:gap-4">
+                    <!-- Uber -->
                     <a href="{{ $uberUrl }}" target="_blank" rel="noopener"
-                        class="transport-btn bg-[#000] text-white shadow-md">
-                        <svg viewBox="0 0 48 16" class="h-4" fill="currentColor" aria-label="Uber">
-                            <text x="0" y="13" font-family="system-ui,sans-serif" font-size="14" font-weight="600">Uber</text>
+                        class="flex flex-col items-center justify-center gap-3 p-4 rounded-xl bg-gradient-to-br from-black to-gray-800 text-white shadow-md hover:shadow-lg active:scale-[0.95] transition-all duration-200 group">
+                        <svg class="w-8 h-8 group-hover:scale-110 transition-transform" viewBox="0 0 48 48" fill="currentColor">
+                            <path d="M24 2C12.95 2 4 10.95 4 22c0 9.39 6.94 17.15 16 18.66V43h8v-2.34c9.06-1.51 16-9.27 16-18.66 0-11.05-8.95-20-20-20zm0 36c-8.84 0-16-7.16-16-16s7.16-16 16-16 16 7.16 16 16-7.16 16-16 16z"/>
                         </svg>
-                        <span>Pedir viaje</span>
+                        <span class="text-xs font-semibold text-center">Uber</span>
                     </a>
+                    
+                    <!-- Yango -->
                     <a href="{{ $yangoUrl }}" target="_blank" rel="noopener"
-                        class="transport-btn bg-[#FFCC00] text-[#1a1a1a] shadow-md">
-                        <svg viewBox="0 0 56 16" class="h-4" fill="currentColor" aria-label="Yango">
-                            <text x="0" y="13" font-family="system-ui,sans-serif" font-size="14" font-weight="700">Yango</text>
+                        class="flex flex-col items-center justify-center gap-3 p-4 rounded-xl bg-gradient-to-br from-yellow-400 to-yellow-500 text-black shadow-md hover:shadow-lg active:scale-[0.95] transition-all duration-200 group">
+                        <svg class="w-8 h-8 group-hover:scale-110 transition-transform" viewBox="0 0 48 48" fill="currentColor">
+                            <text x="6" y="32" font-family="Arial, sans-serif" font-size="24" font-weight="bold">Y</text>
                         </svg>
-                        <span>Solicitar</span>
+                        <span class="text-xs font-semibold text-center">Yango</span>
                     </a>
-                    <a href="{{ $indriveDeep }}" target="_blank" rel="noopener"
-                        class="transport-btn bg-[#26A65B] text-white shadow-md">
-                        <svg viewBox="0 0 64 16" class="h-4" fill="currentColor" aria-label="inDrive">
-                            <text x="0" y="13" font-family="system-ui,sans-serif" font-size="13" font-weight="600">inDrive</text>
+                    
+                    <!-- inDriver -->
+                    <a href="{{ $indriveUrl }}" target="_blank" rel="noopener"
+                        class="flex flex-col items-center justify-center gap-3 p-4 rounded-xl bg-gradient-to-br from-green-500 to-green-600 text-white shadow-md hover:shadow-lg active:scale-[0.95] transition-all duration-200 group">
+                        <svg class="w-8 h-8 group-hover:scale-110 transition-transform" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="24" cy="20" r="6"/>
+                            <path d="M12 35c0-6.627 5.373-12 12-12s12 5.373 12 12"/>
                         </svg>
-                        <span>Negociar</span>
+                        <span class="text-xs font-semibold text-center">inDriver</span>
                     </a>
                 </div>
-                <p class="text-[10px] text-center opacity-40 mt-3">Se abrirá la app si la tienes instalada</p>
+                <p class="text-[10px] text-center opacity-40 mt-4">Se abrirá la app si la tienes instalada, o el navegador</p>
             </div>
         @endif
 

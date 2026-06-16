@@ -4,6 +4,16 @@ function invitationForm(config) {
         modules: config.modules,
         config,
         clients: config.clients ?? [],
+        eventTypes: config.eventTypes ?? [],
+        templateOptions: config.templateOptions ?? [],
+        statusLabels: {
+            draft: 'Borrador',
+            active: 'Activa',
+            suspended: 'Suspendida',
+            expired: 'Expirada',
+        },
+        eventDatePart: '',
+        eventTimePart: '',
         meta: config.meta,
         slugManual: config.slugManual ?? false,
         activeTab: 'general',
@@ -23,6 +33,8 @@ function invitationForm(config) {
         mediaUploading: false,
         clientCreating: false,
         newClient: { name: '', email: '' },
+        clientPasswords: config.clientPasswords ?? {},
+        assignedClientPassword: config.assignedClientPassword ?? null,
         locationStatusMessage: '',
         mapsLinkLoading: false,
         mapsResolveUrl: config.mapsResolveUrl,
@@ -129,6 +141,9 @@ function invitationForm(config) {
 
         init() {
             this.ensureStructure();
+            this.normalizeMetaSelects();
+            this.initEventDateFields();
+            this.syncAssignedClientPassword();
             this.syncActiveGroup();
             this.$watch('meta.template', v => { if (this.modules.config) this.modules.config.template = v; });
             this.$watch('modules', () => this.schedulePreview(), { deep: true });
@@ -483,14 +498,91 @@ function invitationForm(config) {
                     const message = data.message || Object.values(data.errors || {})[0]?.[0] || 'No se pudo crear el cliente.';
                     throw new Error(message);
                 }
-                this.clients.push(data.client);
-                this.meta.user_id = data.client.id;
+                const client = {
+                    ...data.client,
+                    id: String(data.client.id),
+                };
+                this.clients.push(client);
+                this.meta.user_id = client.id;
+                this.clientPasswords[client.id] = data.client.tempPassword;
+                this.assignedClientPassword = data.client.tempPassword;
                 this.newClient = { name: '', email: '' };
             } catch (error) {
                 alert(error.message || 'No se pudo crear el cliente.');
             } finally {
                 this.clientCreating = false;
             }
+        },
+
+        normalizeMetaSelects() {
+            if (this.meta.user_id !== '' && this.meta.user_id != null) {
+                this.meta.user_id = String(this.meta.user_id);
+            }
+            if (this.meta.event_type_id != null && this.meta.event_type_id !== '') {
+                this.meta.event_type_id = String(this.meta.event_type_id);
+            }
+            this.clients = (this.clients ?? []).map(client => ({
+                ...client,
+                id: String(client.id),
+            }));
+            this.clientPasswords = Object.fromEntries(
+                Object.entries(this.clientPasswords ?? {}).map(([id, password]) => [String(id), password])
+            );
+        },
+
+        syncAssignedClientPassword() {
+            if (!this.meta.user_id) {
+                this.assignedClientPassword = null;
+                return;
+            }
+            const id = String(this.meta.user_id);
+            this.assignedClientPassword = this.clientPasswords[id] ?? null;
+        },
+
+        onClientChange() {
+            this.syncAssignedClientPassword();
+        },
+
+        initEventDateFields() {
+            const [date = '', time = '12:00'] = (this.meta.event_date || '').split('T');
+            this.eventDatePart = date;
+            this.eventTimePart = time.slice(0, 5) || '12:00';
+
+            this.$watch('eventDatePart', () => this.syncEventDateTime());
+            this.$watch('eventTimePart', () => this.syncEventDateTime());
+        },
+
+        syncEventDateTime() {
+            if (!this.eventDatePart) {
+                return;
+            }
+            this.meta.event_date = `${this.eventDatePart}T${this.eventTimePart || '12:00'}`;
+        },
+
+        getEventTypeName() {
+            const id = String(this.meta.event_type_id ?? '');
+            return this.eventTypes.find(type => String(type.id) === id)?.name ?? 'Seleccionar tipo';
+        },
+
+        getTemplateLabel() {
+            const value = String(this.meta.template ?? '');
+            return this.templateOptions.find(option => option.value === value)?.label ?? 'Seleccionar plantilla';
+        },
+
+        getStatusLabel() {
+            return this.statusLabels[this.meta.status] ?? this.meta.status ?? 'Seleccionar estado';
+        },
+
+        getAssignedClient() {
+            if (!this.meta.user_id) {
+                return null;
+            }
+            const id = String(this.meta.user_id);
+            return this.clients.find(c => String(c.id) === id) ?? null;
+        },
+
+        copyToClipboard(text) {
+            navigator.clipboard.writeText(text);
         },
 
         pickLocalFileReplace(event, type, context, getUrl, setUrl) {
@@ -911,6 +1003,96 @@ function invitationForm(config) {
                 console.error('Error al guardar la invitación:', err);
                 this.mediaUploading = false;
             }
+        },
+
+        // Funciones para presets de paletas de colores
+        getColorPresets() {
+            return [
+                {
+                    name: 'Elegancia Clásica',
+                    description: 'Neutro elegante',
+                    colors: { primary: '#C9A96E', secondary: '#2C1810', accent: '#F5E6D3', text: '#1A1A1A', background: '#FFFAF5' }
+                },
+                {
+                    name: 'Rosa Romántico',
+                    description: 'Tonos rosados',
+                    colors: { primary: '#E75B8C', secondary: '#7B2D5C', accent: '#FFD4E5', text: '#2A1A2A', background: '#FFF5F9' }
+                },
+                {
+                    name: 'Azul Profundo',
+                    description: 'Tonos azules',
+                    colors: { primary: '#2C5AA0', secondary: '#0F2847', accent: '#B8D4F1', text: '#0A1428', background: '#F0F4F9' }
+                },
+                {
+                    name: 'Verde Naturaleza',
+                    description: 'Tonos verdes',
+                    colors: { primary: '#2D7A4A', secondary: '#1A4D2E', accent: '#C1E4D0', text: '#0D3B1C', background: '#F0F9F5' }
+                },
+                {
+                    name: 'Coral Vibrante',
+                    description: 'Tonos cálidos',
+                    colors: { primary: '#FF6B5B', secondary: '#B82C1F', accent: '#FFD4CC', text: '#2A1A16', background: '#FFF5F3' }
+                },
+            ];
+        },
+
+        applyColorPreset(presetName) {
+            const presets = this.getColorPresets();
+            const preset = presets.find(p => p.name === presetName);
+            if (preset) {
+                Object.assign(this.modules.config.colores, preset.colors);
+                this.schedulePreview();
+            }
+        },
+
+        isCurrentPreset(presetName) {
+            const presets = this.getColorPresets();
+            const preset = presets.find(p => p.name === presetName);
+            if (!preset) return false;
+            
+            const currentColors = this.modules.config.colores;
+            return Object.keys(preset.colors).every(key => 
+                (currentColors[key] || '').toUpperCase() === (preset.colors[key] || '').toUpperCase()
+            );
+        },
+
+        // Función para calcular ratio de contraste WCAG
+        hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : { r: 255, g: 255, b: 255 };
+        },
+
+        getRelativeLuminance(hex) {
+            const rgb = this.hexToRgb(hex);
+            const [r, g, b] = [rgb.r, rgb.g, rgb.b].map(x => {
+                x = x / 255;
+                return x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4);
+            });
+            return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+        },
+
+        getContrastRatio() {
+            const lum1 = this.getRelativeLuminance(this.modules.config.colores.text);
+            const lum2 = this.getRelativeLuminance(this.modules.config.colores.background);
+            const lighter = Math.max(lum1, lum2);
+            const darker = Math.min(lum1, lum2);
+            return ((lighter + 0.05) / (darker + 0.05)).toFixed(2);
+        },
+
+        // Validación de colores hexadecimales
+        validateHexColor(key) {
+            const hex = this.modules.config.colores[key];
+            if (!hex.match(/^#[0-9A-Fa-f]{6}$/)) {
+                // Restaurar color anterior si es inválido
+                const presets = this.getColorPresets();
+                const preset = presets[0]; // Default elegancia clásica
+                this.modules.config.colores[key] = preset.colors[key];
+            }
+            this.schedulePreview();
         },
     };
 }

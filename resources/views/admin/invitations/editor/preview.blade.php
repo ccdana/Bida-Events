@@ -4,7 +4,7 @@
             <span class="w-2 h-2 rounded-full" :class="previewLoading ? 'bg-amber-400 animate-pulse' : 'bg-emerald-400'"></span>
             <span class="admin-context-badge is-live">Vista previa</span>
         </div>
-        <button type="button" @click="runPreviewUpdate()" class="admin-link-button">Actualizar</button>
+        
     </div>
     <div class="flex-1 p-4 min-h-0">
         <div class="mx-auto h-full max-w-[390px] rounded-[2rem] border-[8px] border-stone-400 bg-stone-200 shadow-[0_24px_60px_rgba(28,25,23,0.16)] overflow-hidden">

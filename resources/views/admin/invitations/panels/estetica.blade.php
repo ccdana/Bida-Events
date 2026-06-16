@@ -1,115 +1,92 @@
-<div x-show="activeTab === 'estetica'" x-cloak class="space-y-4">
-    <section class="admin-card space-y-5">
-        <div>
-            <p class="admin-eyebrow">Diseño visual</p>
-            <h2 class="font-serif text-xl text-stone-950">Estética de la invitación</h2>
-            <p class="mt-1 text-sm leading-relaxed text-stone-500">Ajusta color y tipografía con controles que muestran el resultado final.</p>
+<div x-show="activeTab === 'estetica'" x-cloak class="space-y-2">
+    <!-- Resumen rápido -->
+    <section class="admin-card p-3 space-y-3">
+        <div class="flex items-center justify-between gap-2">
+            <div class="min-w-0">
+                <p class="admin-eyebrow mb-0.5">Diseño Visual</p>
+                <p class="text-xs text-stone-600 truncate">Paleta y tipografía</p>
+            </div>
+            <span class="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-white border border-stone-200 text-xs font-semibold shrink-0" :class="{ 'text-green-700 bg-green-50 border-green-200': getContrastRatio() >= 4.5, 'text-amber-700 bg-amber-50 border-amber-200': getContrastRatio() >= 3 && getContrastRatio() < 4.5, 'text-red-700 bg-red-50 border-red-200': getContrastRatio() < 3 }">
+                <span class="inline-block w-1.5 h-1.5 rounded-full" :class="{ 'bg-green-500': getContrastRatio() >= 4.5, 'bg-amber-500': getContrastRatio() >= 3 && getContrastRatio() < 4.5, 'bg-red-500': getContrastRatio() < 3 }"></span>
+                <span x-text="getContrastRatio() >= 4.5 ? 'AAA' : getContrastRatio() >= 3 ? 'AA' : 'Bajo'"></span>
+            </span>
         </div>
-
-        <div class="rounded-2xl border border-stone-200 bg-stone-50 p-4">
-            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                    <p class="text-xs uppercase tracking-widest text-stone-500">Selección actual</p>
-                    <p class="mt-1 text-sm text-stone-500">Paleta y fuentes activas para esta invitación.</p>
+        
+        <!-- Swatches compactos -->
+        <div class="grid grid-cols-5 gap-1.5">
+            <template x-for="(color, key) in modules.config.colores" :key="key">
+                <div class="flex flex-col items-center gap-1">
+                    <div class="w-full aspect-square rounded-lg border border-stone-200 shadow-sm transition-all hover:shadow-md" :style="`background:${color}`" :title="colorLabels[key]"></div>
+                    <span class="text-xs text-center leading-tight font-medium text-stone-600 truncate w-full" x-text="colorLabels[key]"></span>
                 </div>
-                <div class="flex flex-wrap gap-2">
-                    <span class="admin-context-badge is-primary">
-                        <span class="admin-editor-swatch" :style="`background:${modules.config.colores.primary}`"></span>
-                        Primario
-                    </span>
-                    <span class="admin-context-badge is-secondary">
-                        <span class="admin-editor-swatch" :style="`background:${modules.config.colores.secondary}`"></span>
-                        Secundario
-                    </span>
-                </div>
-            </div>
-            <div class="mt-4 rounded-[1.25rem] border border-white p-4 shadow-sm overflow-hidden"
-                :style="`background:${modules.config.colores.background};color:${modules.config.colores.text}`">
-                <p class="text-[10px] uppercase tracking-[0.3em]" :style="`color:${modules.config.colores.secondary}`">Preview</p>
-                <p class="mt-2 font-serif text-lg" :style="`font-family:'${modules.config.tipografias.titulos}', serif;color:${modules.config.colores.secondary}`">Sofía Valentina</p>
-                <p class="mt-1 text-sm" :style="`font-family:'${modules.config.tipografias.cuerpo}', sans-serif`">Una noche para celebrar, con una presencia visual limpia y elegante.</p>
-                <div class="mt-4 h-1.5 rounded-full" :style="`background:linear-gradient(90deg, ${modules.config.colores.primary}, ${modules.config.colores.secondary})`"></div>
-            </div>
+            </template>
         </div>
     </section>
 
-    <section class="admin-card space-y-5">
-        <div>
-            <p class="admin-label mb-3">Paleta de colores</p>
-            <div class="grid gap-3 sm:grid-cols-2">
-                <template x-for="(color, key) in modules.config.colores" :key="key">
-                    <label class="admin-color-row">
-                        <input type="color" x-model="modules.config.colores[key]" class="admin-color-input">
-                        <span class="min-w-0 flex-1">
-                            <span class="block text-sm font-medium" :class="key === 'primary' || key === 'secondary' ? 'text-stone-950' : 'text-stone-800'" x-text="colorLabels[key] || key"></span>
-                            <span class="block font-mono text-[11px] uppercase text-stone-400" x-text="modules.config.colores[key]"></span>
-                        </span>
-                        <input type="text" x-model="modules.config.colores[key]" class="admin-hex-input" maxlength="7">
-                    </label>
-                </template>
-            </div>
+    <!-- Presets -->
+    <section class="admin-card p-3 space-y-2">
+        <div class="flex items-center justify-between gap-2">
+            <p class="admin-eyebrow mb-0">Presets</p>
+            <button type="button" @click="applyColorPreset('Elegancia Clásica')" class="text-xs px-2 py-1 rounded border border-stone-200 bg-white hover:bg-stone-50 transition-colors font-medium">↻</button>
+        </div>
+        <div class="grid grid-cols-2 gap-1.5">
+            <template x-for="preset in getColorPresets()" :key="preset.name">
+                <button type="button" @click="applyColorPreset(preset.name)"
+                    class="relative p-2 rounded-lg border-2 transition-all" :class="isCurrentPreset(preset.name) ? 'border-stone-900 bg-white ring-1 ring-stone-900/20' : 'border-stone-200 bg-stone-50 hover:border-stone-300'">
+                    <div class="flex gap-0.5 mb-1.5 h-3">
+                        <div class="flex-1 rounded-sm" :style="`background:${preset.colors.primary}`"></div>
+                        <div class="flex-1 rounded-sm" :style="`background:${preset.colors.secondary}`"></div>
+                        <div class="flex-1 rounded-sm" :style="`background:${preset.colors.accent}`"></div>
+                    </div>
+                    <p class="text-xs font-semibold text-stone-700 truncate" x-text="preset.name"></p>
+                </button>
+            </template>
         </div>
     </section>
 
-    <section class="admin-card space-y-5">
-        <div>
-            <p class="admin-eyebrow">Tipografías</p>
-            <h3 class="font-serif text-lg text-stone-950">Elegir por apariencia</h3>
-            <p class="mt-1 text-sm text-stone-500">Las tarjetas muestran el nombre de cada fuente con la propia fuente aplicada.</p>
+    <!-- Editor de colores individuales -->
+    <section class="admin-card p-3 space-y-2">
+        <p class="admin-eyebrow mb-1">Colores</p>
+        <div class="grid gap-2">
+            <template x-for="(color, key) in modules.config.colores" :key="key">
+                <label class="flex items-center gap-2 p-2 rounded-lg border border-stone-200 bg-stone-50 hover:bg-white transition-colors cursor-pointer">
+                    <input type="color" x-model="modules.config.colores[key]" class="w-9 h-9 rounded cursor-pointer flex-shrink-0 border border-stone-300">
+                    <span class="min-w-0 flex-1">
+                        <span class="block text-sm font-semibold text-stone-900 truncate" x-text="colorLabels[key] || key"></span>
+                    </span>
+                    <input type="text" x-model="modules.config.colores[key]" class="w-16 h-8 text-xs font-mono uppercase rounded border border-stone-200 bg-white px-1.5 py-1 text-center flex-shrink-0" maxlength="7" @change="validateHexColor(key)">
+                </label>
+            </template>
         </div>
+    </section>
 
-        <div class="space-y-4">
-            <div>
-                <div class="flex items-center justify-between gap-3 mb-3">
-                    <p class="admin-label mb-0">Títulos</p>
-                    <span class="text-xs uppercase tracking-widest text-stone-400" x-text="modules.config.tipografias.titulos"></span>
-                </div>
-                <div class="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
-                    <template x-for="font in fontOptions.titulos" :key="font">
-                        <button type="button" @click="modules.config.tipografias.titulos = font"
-                            class="rounded-2xl border p-3 text-left transition-all duration-300"
-                            :class="modules.config.tipografias.titulos === font ? 'border-stone-900 bg-white shadow-sm ring-1 ring-stone-900/10' : 'border-stone-200 bg-stone-50 hover:bg-white'">
-                            <span class="block text-[10px] uppercase tracking-widest text-stone-400" x-text="font"></span>
-                            <span class="mt-2 block text-xl leading-tight" :style="`font-family:'${font}', serif`">Sofía Valentina</span>
-                            <span class="mt-2 block text-xs text-stone-500">Una noche para celebrar</span>
+    <!-- Tipografías en acordeón -->
+    <section class="admin-card p-3 space-y-2">
+        <p class="admin-eyebrow mb-1">Tipografías</p>
+        
+        <template x-for="(fontType, typeKey) in { titulos: 'Títulos', cuerpo: 'Cuerpo', script: 'Script' }" :key="typeKey">
+            <div x-data="{ open: false }" class="admin-accordion">
+                <button type="button" @click="open = !open" class="admin-accordion-trigger">
+                    <div class="min-w-0">
+                        <p class="text-sm font-semibold text-stone-900 text-left" x-text="fontType"></p>
+                        <p class="text-xs text-stone-500 text-left truncate" x-text="`Actual: ${modules.config.tipografias[typeKey]}`"></p>
+                    </div>
+                    <svg class="w-4 h-4 flex-shrink-0 transition-transform text-stone-500" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                    </svg>
+                </button>
+                
+                <div x-show="open" class="admin-accordion-panel space-y-1">
+                    <template x-for="font in fontOptions[typeKey]" :key="font">
+                        <button type="button"
+                            @click="modules.config.tipografias[typeKey] = font; open = false"
+                            class="admin-accordion-option"
+                            :class="modules.config.tipografias[typeKey] === font ? 'is-selected' : ''">
+                            <span class="block font-semibold" :style="`font-family:'${font}', ${typeKey === 'script' ? 'cursive' : typeKey === 'titulos' ? 'serif' : 'sans-serif'}`" x-text="font"></span>
                         </button>
                     </template>
                 </div>
             </div>
-
-            <div>
-                <div class="flex items-center justify-between gap-3 mb-3">
-                    <p class="admin-label mb-0">Cuerpo</p>
-                    <span class="text-xs uppercase tracking-widest text-stone-400" x-text="modules.config.tipografias.cuerpo"></span>
-                </div>
-                <div class="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
-                    <template x-for="font in fontOptions.cuerpo" :key="font">
-                        <button type="button" @click="modules.config.tipografias.cuerpo = font"
-                            class="rounded-2xl border p-3 text-left transition-all duration-300"
-                            :class="modules.config.tipografias.cuerpo === font ? 'border-stone-900 bg-white shadow-sm ring-1 ring-stone-900/10' : 'border-stone-200 bg-stone-50 hover:bg-white'">
-                            <span class="block text-[10px] uppercase tracking-widest text-stone-400" x-text="font"></span>
-                            <span class="mt-2 block text-sm leading-relaxed" :style="`font-family:'${font}', sans-serif`">Texto legible para detalles, horarios y descripciones.</span>
-                        </button>
-                    </template>
-                </div>
-            </div>
-
-            <div>
-                <div class="flex items-center justify-between gap-3 mb-3">
-                    <p class="admin-label mb-0">Script</p>
-                    <span class="text-xs uppercase tracking-widest text-stone-400" x-text="modules.config.tipografias.script"></span>
-                </div>
-                <div class="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
-                    <template x-for="font in fontOptions.script" :key="font">
-                        <button type="button" @click="modules.config.tipografias.script = font"
-                            class="rounded-2xl border p-3 text-left transition-all duration-300"
-                            :class="modules.config.tipografias.script === font ? 'border-stone-900 bg-white shadow-sm ring-1 ring-stone-900/10' : 'border-stone-200 bg-stone-50 hover:bg-white'">
-                            <span class="block text-[10px] uppercase tracking-widest text-stone-400" x-text="font"></span>
-                            <span class="mt-2 block text-3xl leading-none" :style="`font-family:'${font}', cursive`">Sofía</span>
-                        </button>
-                    </template>
-                </div>
-            </div>
-        </div>
+        </template>
     </section>
 </div>

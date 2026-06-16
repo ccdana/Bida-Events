@@ -12,6 +12,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
+            $middleware->trustProxies(at: '*'),
             'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
             'client' => \App\Http\Middleware\EnsureUserIsClient::class,
             'cache.public.invitations' => \App\Http\Middleware\CachePublicInvitations::class,

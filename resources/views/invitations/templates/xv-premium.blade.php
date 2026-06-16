@@ -226,9 +226,41 @@
         @include('invitations.partials.post-event', ['postEvento' => $modulos['post_evento'] ?? []])
     @endif
 
-    <footer class="py-10 text-center relative">
-        <div class="section-ornament mb-4"></div>
-        <p class="text-[10px] tracking-[0.3em] uppercase opacity-35">Diseñado por <span class="text-primary opacity-100">Bida-Events</span></p>
+    <footer class="py-12 text-center relative overflow-hidden">
+        <!-- Gradient separator -->
+        <div class="mb-8 h-px bg-gradient-to-r from-transparent via-primary to-transparent opacity-20"></div>
+        
+        <!-- Footer content wrapper with subtle background -->
+        <div class="relative px-6">
+            <div class="absolute inset-0 bg-gradient-to-b from-transparent via-accent to-transparent opacity-[0.02] pointer-events-none"></div>
+            
+            <div class="relative z-10 flex flex-col items-center gap-3">
+                <!-- Decorative dots -->
+                <div class="flex items-center gap-2">
+                    <div class="w-1.5 h-1.5 rounded-full bg-primary opacity-30"></div>
+                    <div class="w-1.5 h-1.5 rounded-full bg-primary opacity-50"></div>
+                    <div class="w-1.5 h-1.5 rounded-full bg-primary opacity-30"></div>
+                </div>
+                
+                <!-- Brand text -->
+                <p class="text-[11px] tracking-[0.25em] uppercase font-light text-text-color opacity-40">
+                    Creado con amor por
+                </p>
+                <p class="text-sm font-semibold tracking-[0.1em] text-primary">
+                    Bida-Events
+                </p>
+                
+                <!-- Decorative dots -->
+                <div class="flex items-center gap-2">
+                    <div class="w-1.5 h-1.5 rounded-full bg-primary opacity-30"></div>
+                    <div class="w-1.5 h-1.5 rounded-full bg-primary opacity-50"></div>
+                    <div class="w-1.5 h-1.5 rounded-full bg-primary opacity-30"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Bottom gradient accent -->
+        <div class="mt-8 h-px bg-gradient-to-r from-transparent via-primary to-transparent opacity-15"></div>
     </footer>
 
     <script>

@@ -121,12 +121,18 @@ class InvitationController extends Controller
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')],
         ]);
 
+        $tempPassword = Str::random(16);
+        
         $client = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
-            'password' => Hash::make(Str::random(16)),
+            'password' => Hash::make($tempPassword),
             'is_admin' => false,
         ]);
+
+        $passwords = session('client_temp_passwords', []);
+        $passwords[$client->id] = $tempPassword;
+        session(['client_temp_passwords' => $passwords]);
 
         return response()->json([
             'success' => true,
@@ -134,6 +140,7 @@ class InvitationController extends Controller
                 'id' => $client->id,
                 'name' => $client->name,
                 'email' => $client->email,
+                'tempPassword' => $tempPassword,
             ],
         ], 201);
     }
