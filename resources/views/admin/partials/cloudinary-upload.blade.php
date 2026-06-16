@@ -34,6 +34,15 @@
                 <input type="file" accept="{{ $accept }}" class="hidden"
                     @change="pickLocalFileReplace($event, '{{ $type }}', '{{ $context }}', () => {{ $previewExpr }}, url => {{ $previewExpr }} = url)">
             </label>
+            @if($type === 'image')
+                <button type="button"
+                    x-show="{{ $previewExpr }}"
+                    x-cloak
+                    @click="openImageCropper({{ $previewExpr }}, '{{ $context }}')"
+                    class="text-[11px] text-stone-600 hover:text-stone-900">
+                    Recortar imagen según tarjeta
+                </button>
+            @endif
             <button type="button" x-show="{{ $previewExpr }}" x-cloak
                 @click="clearMediaUrl({{ $previewExpr }}); {{ $clear }}; schedulePreview()"
                 class="text-xs text-red-600 hover:text-red-800">Quitar</button>

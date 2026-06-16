@@ -91,7 +91,7 @@ class PreviewController extends Controller
             report($exception);
 
             return response(
-                '<html><body style="font-family:sans-serif;padding:2rem;color:#b91c1c">Error al renderizar la vista previa. Revisa los datos del Hero y las fechas del evento.</body></html>',
+                '<html><body style="font-family:sans-serif;padding:2rem;color:#b91c1c">Error al renderizar la vista previa. Revisa los datos del banner principal y las fechas del evento.</body></html>',
                 500
             );
         }

@@ -46,6 +46,24 @@ function invitationForm(config) {
         moduleCodes: [...(config.moduleCodes ?? [])],
         moduleTabMap: config.moduleTabMap ?? {},
 
+        // Cropper de imágenes
+        cropperOpen: false,
+        cropperBlobUrl: null,
+        cropperPendingIndex: null,
+        cropperAspect: 1,
+        cropperScale: 1,
+        cropperOffsetX: 0,
+        cropperOffsetY: 0,
+        cropperMinScale: 1,
+        cropperMaxScale: 3,
+        cropperImageNaturalWidth: 0,
+        cropperImageNaturalHeight: 0,
+        cropperFrameWidth: 0,
+        cropperFrameHeight: 0,
+        cropperDragging: false,
+        cropperLastX: 0,
+        cropperLastY: 0,
+
         tabGroups: [
             {
                 id: 'config',
@@ -61,7 +79,7 @@ function invitationForm(config) {
                 label: 'Presentación',
                 description: 'Primera impresión del evento',
                 tabs: [
-                    { id: 'hero', label: 'Hero', moduleCode: 'bienvenida', hint: 'Portada, saludo y fecha' },
+                    { id: 'hero', label: 'Banner principal', moduleCode: 'bienvenida', hint: 'Portada, saludo y fecha' },
                     { id: 'ubicacion', label: 'Ubicación', moduleCode: 'ubicacion', hint: 'Lugar y mapa' },
                     { id: 'itinerario', label: 'Itinerario', moduleCode: 'itinerario', hint: 'Agenda del evento' },
                     { id: 'dress', label: 'Dress code', moduleCode: 'dress_code', hint: 'Código de vestimenta' },
@@ -72,7 +90,7 @@ function invitationForm(config) {
                 label: 'Contenido',
                 description: 'Historias y medios del evento',
                 tabs: [
-                    { id: 'destacados', label: 'Cortejo', moduleCode: 'destacados', hint: 'Familia y acompañantes' },
+                    { id: 'destacados', label: 'Invitados de honor', moduleCode: 'destacados', hint: 'Chambelanes, damitas y padrinos' },
                     { id: 'galeria', label: 'Galería', moduleCode: 'galeria', hint: 'Fotos del evento' },
                     { id: 'video', label: 'Video', moduleCode: 'video', hint: 'Video principal' },
                 ],
@@ -150,6 +168,15 @@ function invitationForm(config) {
             this.$watch('meta', () => this.schedulePreview(), { deep: true });
             this.$watch('modules.ubicacion.lat', () => this.syncLocationMarker());
             this.$watch('modules.ubicacion.lng', () => this.syncLocationMarker());
+            this.$watch('cropperScale', (value) => {
+                this.cropperScale = Math.max(this.cropperMinScale, Math.min(this.cropperMaxScale, Number(value) || 1));
+                this.clampCropperOffsets();
+            });
+            window.addEventListener('resize', () => {
+                if (this.cropperOpen) {
+                    this.syncCropperFrameSize();
+                }
+            });
             this.runPreviewUpdate();
         },
 
@@ -632,6 +659,216 @@ function invitationForm(config) {
             const data = await res.json();
             if (!res.ok || !data.success) throw new Error(data.message || 'Error de subida');
             return data.url;
+        },
+
+        getCropAspectForContext(context) {
+            switch (context) {
+                case 'galeria':
+                case 'gallery':
+                    return 4 / 3;
+                case 'video-poster':
+                    return 16 / 9;
+                case 'bienvenida':
+                    return 4 / 5;
+                case 'ubicacion':
+                    return 3 / 2;
+                default:
+                    return 1;
+            }
+        },
+
+        openImageCropperFromGallery(index) {
+            const url = this.modules.galeria.fotos[index];
+            this.openImageCropper(url, 'gallery');
+        },
+
+        openImageCropper(url, contextOverride = null) {
+            if (!url || !String(url).startsWith('blob:')) return;
+            const idx = this.pendingUploads.findIndex(p => p.blobUrl === url);
+            if (idx === -1) return;
+            const entry = this.pendingUploads[idx];
+            const context = contextOverride || entry.context;
+            this.cropperPendingIndex = idx;
+            this.cropperBlobUrl = url;
+            this.cropperAspect = this.getCropAspectForContext(context);
+            this.cropperScale = this.cropperMinScale;
+            this.cropperOffsetX = 0;
+            this.cropperOffsetY = 0;
+            this.cropperImageNaturalWidth = 0;
+            this.cropperImageNaturalHeight = 0;
+            this.cropperDragging = false;
+            this.cropperOpen = true;
+            this.$nextTick(() => {
+                this.syncCropperFrameSize();
+            });
+        },
+
+        closeImageCropper() {
+            this.cropperOpen = false;
+            this.cropperDragging = false;
+        },
+
+        onCropperImageLoad(event) {
+            const img = event?.target;
+            if (!img) return;
+            this.cropperImageNaturalWidth = img.naturalWidth || 0;
+            this.cropperImageNaturalHeight = img.naturalHeight || 0;
+            this.syncCropperFrameSize();
+            this.cropperScale = this.cropperMinScale;
+            this.cropperOffsetX = 0;
+            this.cropperOffsetY = 0;
+        },
+
+        syncCropperFrameSize() {
+            const frame = this.$refs.cropperFrame;
+            if (!frame) return;
+            this.cropperFrameWidth = frame.clientWidth || 0;
+            this.cropperFrameHeight = frame.clientHeight || 0;
+            this.clampCropperOffsets();
+        },
+
+        getCropperRenderMetrics() {
+            const fw = this.cropperFrameWidth || 0;
+            const fh = this.cropperFrameHeight || 0;
+            const iw = this.cropperImageNaturalWidth || 0;
+            const ih = this.cropperImageNaturalHeight || 0;
+            if (!fw || !fh || !iw || !ih) {
+                return { renderW: 0, renderH: 0, maxOffsetX: 0, maxOffsetY: 0 };
+            }
+
+            const imageAspect = iw / ih;
+            const frameAspect = fw / fh;
+            const baseW = imageAspect > frameAspect ? fh * imageAspect : fw;
+            const baseH = imageAspect > frameAspect ? fh : fw / imageAspect;
+            const zoom = Math.max(this.cropperMinScale, Math.min(this.cropperMaxScale, this.cropperScale || 1));
+            const renderW = baseW * zoom;
+            const renderH = baseH * zoom;
+            return {
+                renderW,
+                renderH,
+                maxOffsetX: Math.max(0, (renderW - fw) / 2),
+                maxOffsetY: Math.max(0, (renderH - fh) / 2),
+            };
+        },
+
+        clampCropperOffsets() {
+            const m = this.getCropperRenderMetrics();
+            this.cropperOffsetX = Math.max(-m.maxOffsetX, Math.min(m.maxOffsetX, this.cropperOffsetX));
+            this.cropperOffsetY = Math.max(-m.maxOffsetY, Math.min(m.maxOffsetY, this.cropperOffsetY));
+        },
+
+        cropperImageStyle() {
+            const m = this.getCropperRenderMetrics();
+            if (!m.renderW || !m.renderH) {
+                return '';
+            }
+            const left = (this.cropperFrameWidth / 2) - (m.renderW / 2) + this.cropperOffsetX;
+            const top = (this.cropperFrameHeight / 2) - (m.renderH / 2) + this.cropperOffsetY;
+            return `width:${m.renderW}px;height:${m.renderH}px;left:${left}px;top:${top}px;`;
+        },
+
+        startCropDrag(event) {
+            const point = event.touches ? event.touches[0] : event;
+            this.cropperDragging = true;
+            this.cropperLastX = point.clientX;
+            this.cropperLastY = point.clientY;
+        },
+
+        onCropDrag(event) {
+            if (!this.cropperDragging) return;
+            const point = event.touches ? (event.touches[0] || event.changedTouches?.[0]) : event;
+            if (!point) return;
+            const dx = point.clientX - this.cropperLastX;
+            const dy = point.clientY - this.cropperLastY;
+            this.cropperOffsetX += dx;
+            this.cropperOffsetY += dy;
+            this.clampCropperOffsets();
+            this.cropperLastX = point.clientX;
+            this.cropperLastY = point.clientY;
+        },
+
+        endCropDrag() {
+            this.cropperDragging = false;
+        },
+
+        async applyImageCrop() {
+            try {
+                const idx = this.cropperPendingIndex;
+                if (idx == null || idx < 0 || idx >= this.pendingUploads.length) {
+                    this.closeImageCropper();
+                    return;
+                }
+                const entry = this.pendingUploads[idx];
+                if (!entry || !entry.file || !this.cropperBlobUrl) {
+                    this.closeImageCropper();
+                    return;
+                }
+
+                const image = new Image();
+                image.crossOrigin = 'anonymous';
+                const src = this.cropperBlobUrl;
+                const loadPromise = new Promise((resolve, reject) => {
+                    image.onload = () => resolve();
+                    image.onerror = (e) => reject(e);
+                });
+                image.src = src;
+                await loadPromise;
+
+                const targetWidth = 800;
+                const targetHeight = targetWidth / this.cropperAspect;
+                const canvas = document.createElement('canvas');
+                canvas.width = targetWidth;
+                canvas.height = targetHeight;
+                const ctx = canvas.getContext('2d');
+                if (!ctx) {
+                    this.closeImageCropper();
+                    return;
+                }
+
+                this.clampCropperOffsets();
+                const m = this.getCropperRenderMetrics();
+                if (!m.renderW || !m.renderH || !this.cropperFrameWidth || !this.cropperFrameHeight) {
+                    this.closeImageCropper();
+                    return;
+                }
+
+                const left = (this.cropperFrameWidth / 2) - (m.renderW / 2) + this.cropperOffsetX;
+                const top = (this.cropperFrameHeight / 2) - (m.renderH / 2) + this.cropperOffsetY;
+                const srcX = Math.max(0, (0 - left) * (image.width / m.renderW));
+                const srcY = Math.max(0, (0 - top) * (image.height / m.renderH));
+                const srcW = Math.min(image.width - srcX, this.cropperFrameWidth * (image.width / m.renderW));
+                const srcH = Math.min(image.height - srcY, this.cropperFrameHeight * (image.height / m.renderH));
+
+                ctx.drawImage(image, srcX, srcY, srcW, srcH, 0, 0, targetWidth, targetHeight);
+
+                const mimeType = entry.file.type && entry.file.type.startsWith('image/')
+                    ? entry.file.type
+                    : 'image/jpeg';
+
+                const blob = await new Promise((resolve) => canvas.toBlob(resolve, mimeType, 0.9));
+                if (!blob) {
+                    this.closeImageCropper();
+                    return;
+                }
+
+                const newFile = new File([blob], entry.file.name || 'crop.jpg', { type: blob.type });
+                const newBlobUrl = URL.createObjectURL(newFile);
+
+                // Actualizar entry y vista previa
+                URL.revokeObjectURL(entry.blobUrl);
+                entry.file = newFile;
+                entry.blobUrl = newBlobUrl;
+                if (typeof entry.apply === 'function') {
+                    entry.apply(newBlobUrl);
+                }
+
+                this.closeImageCropper();
+                this.schedulePreview();
+            } catch (e) {
+                console.error(e);
+                alert('No se pudo aplicar el recorte. Intenta de nuevo.');
+                this.closeImageCropper();
+            }
         },
 
         async uploadPendingMedia() {
