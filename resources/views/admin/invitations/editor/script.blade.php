@@ -168,8 +168,22 @@ function invitationForm(config) {
             this.$watch('meta', () => this.schedulePreview(), { deep: true });
             this.$watch('modules.ubicacion.lat', () => this.syncLocationMarker());
             this.$watch('modules.ubicacion.lng', () => this.syncLocationMarker());
-            this.$watch('cropperScale', (value) => {
-                this.cropperScale = Math.max(this.cropperMinScale, Math.min(this.cropperMaxScale, Number(value) || 1));
+            this.$watch('cropperScale', (value, oldValue) => {
+                const numValue = Number(value) || 1;
+                const newScale = Math.max(this.cropperMinScale, Math.min(this.cropperMaxScale, numValue));
+                
+                if (numValue !== newScale) {
+                    this.cropperScale = newScale;
+                    return;
+                }
+
+                const old = Number(oldValue);
+                if (old > 0 && old !== newScale) {
+                    const ratio = newScale / old;
+                    this.cropperOffsetX *= ratio;
+                    this.cropperOffsetY *= ratio;
+                }
+                
                 this.clampCropperOffsets();
             });
             window.addEventListener('resize', () => {
@@ -789,6 +803,11 @@ function invitationForm(config) {
 
         endCropDrag() {
             this.cropperDragging = false;
+        },
+
+        onCropWheel(event) {
+            const delta = event.deltaY > 0 ? -0.1 : 0.1;
+            this.cropperScale = Math.max(this.cropperMinScale, Math.min(this.cropperMaxScale, this.cropperScale + delta));
         },
 
         async applyImageCrop() {
