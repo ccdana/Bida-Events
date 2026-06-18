@@ -5,21 +5,22 @@
         opcionesActive: (modules.regalos?.opciones?.length > 0),
     }">
 
-    {{-- Encabezado --}}
-    <section class="admin-card space-y-4">
-        <div class="flex items-start justify-between gap-3">
-            <div>
-                <p class="admin-eyebrow">Regalos</p>
-                <h2 class="font-serif text-xl text-stone-950">Mesa de regalos</h2>
-                <p class="mt-1 text-sm text-stone-500">Activa solo las opciones que quieras ofrecer a tus invitados.</p>
+    <section class="admin-card p-3 space-y-3">
+        <div class="flex items-center justify-between gap-2">
+            <div class="min-w-0">
+                <p class="admin-eyebrow mb-0.5">Regalos</p>
+                <p class="text-xs text-stone-600 truncate">Mesa de regalos e información bancaria</p>
             </div>
-            <label class="admin-toggle-row shrink-0">
-                <input type="checkbox" x-model="modules.config.modulos.regalos" @change="schedulePreview()" class="rounded border-stone-300 text-amber-600 focus:ring-amber-500">
-                <span class="text-stone-700">Activo</span>
-            </label>
+            <span class="inline-flex items-center gap-1 px-2 py-1 rounded-md border text-xs font-semibold shrink-0"
+                :class="modules.config.modulos.regalos
+                    ? 'text-green-700 bg-green-50 border-green-200'
+                    : 'text-stone-500 bg-stone-50 border-stone-200'">
+                <span class="inline-block w-1.5 h-1.5 rounded-full"
+                    :class="modules.config.modulos.regalos ? 'bg-green-500' : 'bg-stone-400'"></span>
+                <span x-text="modules.config.modulos.regalos ? 'Activo' : 'Inactivo'"></span>
+            </span>
         </div>
 
-        {{-- Título sección --}}
         <div>
             <label class="admin-label">Título de la sección</label>
             <input type="text" x-model="modules.regalos.titulo" @input="schedulePreview()"

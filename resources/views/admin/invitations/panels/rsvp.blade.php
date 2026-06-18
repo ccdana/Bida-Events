@@ -1,19 +1,39 @@
-<div x-show="activeTab === 'rsvp'" x-cloak class="space-y-4">
-    <section class="admin-card space-y-4">
-        <div class="flex items-start justify-between gap-3">
-            <div>
-                <p class="admin-eyebrow">RSVP</p>
-                <h2 class="font-serif text-xl text-stone-950">Confirmación de asistencia</h2>
-                <p class="mt-1 text-sm text-stone-500">Sección dedicada solo a la respuesta de invitados.</p>
+<div x-show="activeTab === 'rsvp'" x-cloak class="space-y-2">
+    <section class="admin-card p-3 space-y-3">
+        <div class="flex items-center justify-between gap-2">
+            <div class="min-w-0">
+                <p class="admin-eyebrow mb-0.5">RSVP</p>
+                <p class="text-xs text-stone-600 truncate">Confirmación de asistencia de invitados</p>
             </div>
-            <label class="admin-toggle-row shrink-0">
-                <input type="checkbox" x-model="modules.config.modulos.rsvp" class="rounded border-stone-300 text-amber-600 focus:ring-amber-500">
-                <span class="text-stone-700">Activo</span>
-            </label>
+            <span class="inline-flex items-center gap-1 px-2 py-1 rounded-md border text-xs font-semibold shrink-0"
+                :class="modules.config.modulos.rsvp
+                    ? 'text-green-700 bg-green-50 border-green-200'
+                    : 'text-stone-500 bg-stone-50 border-stone-200'">
+                <span class="inline-block w-1.5 h-1.5 rounded-full"
+                    :class="modules.config.modulos.rsvp ? 'bg-green-500' : 'bg-stone-400'"></span>
+                <span x-text="modules.config.modulos.rsvp ? 'Activo' : 'Inactivo'"></span>
+            </span>
         </div>
-        <input type="text" x-model="modules.rsvp.titulo_confirmacion" class="admin-input" placeholder="Título">
-        <textarea x-model="modules.rsvp.mensaje_personalizado" rows="2" class="admin-input" placeholder="Mensaje personalizado"></textarea>
-        <input type="text" x-model="modules.rsvp.texto_confirmado" class="admin-input" placeholder="Texto al confirmar">
-        <input type="text" x-model="modules.rsvp.texto_declinado" class="admin-input" placeholder="Texto al declinar">
+
+        <div class="grid gap-2">
+            <div>
+                <label class="admin-label">Título de confirmación</label>
+                <input type="text" x-model="modules.rsvp.titulo_confirmacion" @input="schedulePreview()" class="admin-input" placeholder="Ej. Confirmación de asistencia">
+            </div>
+            <div>
+                <label class="admin-label">Mensaje personalizado</label>
+                <textarea x-model="modules.rsvp.mensaje_personalizado" @input="schedulePreview()" rows="2" class="admin-input" placeholder="Ej. Por favor confirma tu asistencia antes del 10 de Julio."></textarea>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label class="admin-label">Texto al confirmar</label>
+                    <input type="text" x-model="modules.rsvp.texto_confirmado" @input="schedulePreview()" class="admin-input" placeholder="Ej. ¡Sí, asistiré!">
+                </div>
+                <div>
+                    <label class="admin-label">Texto al declinar</label>
+                    <input type="text" x-model="modules.rsvp.texto_declinado" @input="schedulePreview()" class="admin-input" placeholder="Ej. No podré asistir">
+                </div>
+            </div>
+        </div>
     </section>
 </div>

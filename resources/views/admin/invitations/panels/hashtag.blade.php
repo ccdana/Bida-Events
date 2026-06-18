@@ -1,21 +1,38 @@
-<div x-show="activeTab === 'hashtag'" x-cloak class="space-y-4">
-    <section class="admin-card space-y-4">
-        <div class="flex items-start justify-between gap-3">
-            <div>
-                <p class="admin-eyebrow">Hashtag</p>
-                <h2 class="font-serif text-xl text-stone-950">Etiqueta oficial</h2>
-                <p class="mt-1 text-sm text-stone-500">Comparte la etiqueta del evento sin mezclarla con encuestas o playlist.</p>
+<div x-show="activeTab === 'hashtag'" x-cloak class="space-y-2">
+    <section class="admin-card p-3 space-y-3">
+        <div class="flex items-center justify-between gap-2">
+            <div class="min-w-0">
+                <p class="admin-eyebrow mb-0.5">Hashtag</p>
+                <p class="text-xs text-stone-600 truncate">Etiqueta oficial para redes sociales</p>
             </div>
-            <label class="admin-toggle-row shrink-0">
-                <input type="checkbox" x-model="modules.config.modulos.hashtag" class="rounded border-stone-300 text-amber-600 focus:ring-amber-500">
-                <span class="text-stone-700">Activo</span>
-            </label>
+            <span class="inline-flex items-center gap-1 px-2 py-1 rounded-md border text-xs font-semibold shrink-0"
+                :class="modules.config.modulos.hashtag
+                    ? 'text-green-700 bg-green-50 border-green-200'
+                    : 'text-stone-500 bg-stone-50 border-stone-200'">
+                <span class="inline-block w-1.5 h-1.5 rounded-full"
+                    :class="modules.config.modulos.hashtag ? 'bg-green-500' : 'bg-stone-400'"></span>
+                <span x-text="modules.config.modulos.hashtag ? 'Activo' : 'Inactivo'"></span>
+            </span>
         </div>
-        <input type="text" x-model="modules.hashtag.hashtag" class="admin-input" placeholder="#MiEvento2026">
-        <select x-model="modules.hashtag.plataforma" class="admin-input">
-            <option value="instagram">Instagram</option>
-            <option value="tiktok">TikTok</option>
-        </select>
-        <input type="text" x-model="modules.hashtag.texto_boton" class="admin-input" placeholder="Texto del botón">
+
+        <div class="grid gap-2">
+            <div>
+                <label class="admin-label">Hashtag del evento</label>
+                <input type="text" x-model="modules.hashtag.hashtag" @input="schedulePreview()" class="admin-input" placeholder="#MiEvento2026">
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label class="admin-label">Plataforma</label>
+                    <select x-model="modules.hashtag.plataforma" @change="schedulePreview()" class="admin-input">
+                        <option value="instagram">Instagram</option>
+                        <option value="tiktok">TikTok</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="admin-label">Texto del botón</label>
+                    <input type="text" x-model="modules.hashtag.texto_boton" @input="schedulePreview()" class="admin-input" placeholder="Ej. Ver en Instagram">
+                </div>
+            </div>
+        </div>
     </section>
 </div>
