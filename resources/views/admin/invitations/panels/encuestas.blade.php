@@ -127,20 +127,40 @@
             </div>
 
             {{-- Pregunta y tipo --}}
-            <div class="grid gap-3 md:grid-cols-[1.4fr_0.6fr]">
+            <div class="space-y-3">
                 <div>
                     <label class="admin-label">Pregunta</label>
                     <input type="text" x-model="poll.pregunta" @input="schedulePreview()"
                         class="admin-input" placeholder="Ej. ¿Cuál es tu canción favorita?">
                 </div>
-                <div>
-                    <label class="admin-label">Tipo</label>
-                    <select x-model="poll.tipo" @change="setPollType(poll, $event.target.value)" class="admin-input">
-                        <option value="single">Opción única</option>
-                        <option value="rating">Escala 1–5</option>
-                        <option value="yesno">Sí / No</option>
-                        <option value="emoji">Reacción</option>
-                    </select>
+                
+                <div x-data="{ open: false }" class="admin-accordion">
+                    <button type="button" @click="open = !open" class="admin-accordion-trigger">
+                        <div class="min-w-0">
+                            <p class="text-sm font-semibold text-stone-900 text-left">Tipo de encuesta</p>
+                            <p class="text-xs text-stone-500 text-left truncate" 
+                                x-text="poll.tipo === 'single' ? 'Opción única' : poll.tipo === 'rating' ? 'Escala 1–5' : poll.tipo === 'yesno' ? 'Sí / No' : 'Reacción'">
+                            </p>
+                        </div>
+                        <svg class="w-4 h-4 flex-shrink-0 transition-transform text-stone-500" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                        </svg>
+                    </button>
+                    <div x-show="open" class="admin-accordion-panel space-y-1">
+                        <template x-for="opt in [
+                            {v: 'single', l: 'Opción única'},
+                            {v: 'rating', l: 'Escala 1–5'},
+                            {v: 'yesno', l: 'Sí / No'},
+                            {v: 'emoji', l: 'Reacción'}
+                        ]" :key="opt.v">
+                            <button type="button"
+                                @click="setPollType(poll, opt.v); open = false"
+                                class="admin-accordion-option"
+                                :class="poll.tipo === opt.v ? 'is-selected' : ''"
+                                x-text="opt.l">
+                            </button>
+                        </template>
+                    </div>
                 </div>
             </div>
 

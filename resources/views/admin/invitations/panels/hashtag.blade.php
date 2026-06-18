@@ -20,13 +20,31 @@
                 <label class="admin-label">Hashtag del evento</label>
                 <input type="text" x-model="modules.hashtag.hashtag" @input="schedulePreview()" class="admin-input" placeholder="#MiEvento2026">
             </div>
-            <div class="grid grid-cols-2 gap-2">
-                <div>
-                    <label class="admin-label">Plataforma</label>
-                    <select x-model="modules.hashtag.plataforma" @change="schedulePreview()" class="admin-input">
-                        <option value="instagram">Instagram</option>
-                        <option value="tiktok">TikTok</option>
-                    </select>
+            <div class="space-y-3">
+                <div x-data="{ open: false }" class="admin-accordion">
+                    <button type="button" @click="open = !open" class="admin-accordion-trigger">
+                        <div class="min-w-0">
+                            <p class="text-sm font-semibold text-stone-900 text-left">Plataforma</p>
+                            <p class="text-xs text-stone-500 text-left truncate" x-text="modules.hashtag.plataforma === 'tiktok' ? 'TikTok' : 'Instagram'"></p>
+                        </div>
+                        <svg class="w-4 h-4 flex-shrink-0 transition-transform text-stone-500" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                        </svg>
+                    </button>
+                    <div x-show="open" class="admin-accordion-panel space-y-1">
+                        <button type="button"
+                            @click="modules.hashtag.plataforma = 'instagram'; schedulePreview(); open = false"
+                            class="admin-accordion-option"
+                            :class="modules.hashtag.plataforma === 'instagram' ? 'is-selected' : ''">
+                            Instagram
+                        </button>
+                        <button type="button"
+                            @click="modules.hashtag.plataforma = 'tiktok'; schedulePreview(); open = false"
+                            class="admin-accordion-option"
+                            :class="modules.hashtag.plataforma === 'tiktok' ? 'is-selected' : ''">
+                            TikTok
+                        </button>
+                    </div>
                 </div>
                 <div>
                     <label class="admin-label">Texto del botón</label>

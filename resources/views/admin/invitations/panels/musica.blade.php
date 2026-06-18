@@ -36,10 +36,11 @@
             ])
         </div>
 
-        <div class="pt-1">
-            <label class="flex items-center gap-2 text-sm cursor-pointer">
-                <input type="checkbox" x-model="modules.musica.autoplay" @change="schedulePreview()" class="rounded border-stone-300 text-amber-600 focus:ring-amber-500">
-                <span class="text-stone-700">Reproducir automáticamente al abrir la invitación</span>
+        <div class="pt-1 flex items-center justify-between border-t border-stone-100 mt-2">
+            <span class="text-sm font-semibold text-stone-700">Autoplay</span>
+            <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" x-model="modules.musica.autoplay" @change="schedulePreview()" class="sr-only peer">
+                <div class="w-9 h-5 bg-stone-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
             </label>
         </div>
     </section>
