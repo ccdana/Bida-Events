@@ -56,7 +56,6 @@ class XvSofiaModuleData
                     'encuestas' => true,
                     'rsvp' => true,
                     'regalos' => true,
-                    'transporte' => true,
                     'fotomural' => true,
                     'post_evento' => true,
                 ],

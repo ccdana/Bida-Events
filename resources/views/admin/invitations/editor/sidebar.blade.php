@@ -103,7 +103,6 @@
                 @include('admin.invitations.panels.rsvp')
                 @include('admin.invitations.panels.countdown')
                 @include('admin.invitations.panels.agendar')
-                @include('admin.invitations.panels.transporte')
                 @include('admin.invitations.panels.fotomural')
                 @include('admin.invitations.panels.post-evento')
             </div>

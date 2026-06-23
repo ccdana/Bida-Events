@@ -175,7 +175,6 @@
     @if($moduleVisible('ubicacion'))
         @include('invitations.partials.location', [
             'ubicacion' => $modulos['ubicacion'] ?? [],
-            'transporte' => $moduleVisible('transporte'),
             'agendar' => $moduleVisible('agendar'),
             'calendarUrl' => $calendarUrl,
         ])
@@ -293,72 +292,6 @@
         }
     }
 
-    /**
-     * Abre apps de transporte con deeplink nativo y fallback a web/store.
-     * Usa un iframe oculto para disparar el scheme sin error visible en el navegador.
-     */
-    function openRide(app, lat, lng, placeName) {
-        const enc = encodeURIComponent;
-        const schemes = {
-            uber: {
-                deep: `uber://?action=setPickup&pickup%5Blatitude%5D=&pickup%5Blongitude%5D=&dropoff%5Blatitude%5D=${lat}&dropoff%5Blongitude%5D=${lng}&dropoff%5Bnickname%5D=${enc(placeName)}`,
-                android: `intent://uber.com?action=setPickup&dropoff%5Blatitude%5D=${lat}&dropoff%5Blongitude%5D=${lng}#Intent;scheme=https;package=com.ubercab;S.browser_fallback_url=${enc('https://m.uber.com/?action=setPickup&dropoff%5Blatitude%5D=' + lat + '&dropoff%5Blongitude%5D=' + lng)};end`,
-                ios: `uber://?action=setPickup&dropoff%5Blatitude%5D=${lat}&dropoff%5Blongitude%5D=${lng}&dropoff%5Bnickname%5D=${enc(placeName)}`,
-                web: `https://m.uber.com/?action=setPickup&dropoff%5Blatitude%5D=${lat}&dropoff%5Blongitude%5D=${lng}&dropoff%5Bnickname%5D=${enc(placeName)}`,
-                store_android: 'https://play.google.com/store/apps/details?id=com.ubercab',
-                store_ios: 'https://apps.apple.com/app/uber/id368677368',
-            },
-            yango: {
-                deep: `yandex.navi://map?ll=${lng},${lat}&text=${enc(placeName)}`,
-                android: `intent://yango.com/route?end-lat=${lat}&end-lon=${lng}&end-address=${enc(placeName)}#Intent;scheme=https;package=ru.yandex.taxi;S.browser_fallback_url=${enc('https://yango.com/route?end-lat=' + lat + '&end-lon=' + lng)};end`,
-                ios: `yandex.maps://maps.yandex.ru/?rtext=~${lat},${lng}&rtn=1`,
-                web: `https://yango.com/route?end-lat=${lat}&end-lon=${lng}&end-address=${enc(placeName)}`,
-                store_android: 'https://play.google.com/store/apps/details?id=ru.yandex.taxi',
-                store_ios: 'https://apps.apple.com/app/yango/id1437854677',
-            },
-            indrive: {
-                deep: `indrive://open?lat=${lat}&lng=${lng}&address=${enc(placeName)}`,
-                android: `intent://open?lat=${lat}&lng=${lng}&address=${enc(placeName)}#Intent;scheme=indrive;package=sinet.startup.inDriver;S.browser_fallback_url=${enc('https://indrive.com')};end`,
-                ios: `indrive://open?lat=${lat}&lng=${lng}&address=${enc(placeName)}`,
-                web: `https://indrive.com`,
-                store_android: 'https://play.google.com/store/apps/details?id=sinet.startup.inDriver',
-                store_ios: 'https://apps.apple.com/app/indrive/id1440018387',
-            },
-        };
-
-        const cfg = schemes[app];
-        if (!cfg) return;
-
-        const ua = navigator.userAgent || '';
-        const isAndroid = /android/i.test(ua);
-        const isIOS = /iphone|ipad|ipod/i.test(ua);
-        const isMobile = isAndroid || isIOS;
-
-        if (!isMobile) {
-            window.open(cfg.web, '_blank', 'noopener');
-            return;
-        }
-
-        // En Android usamos intent:// que maneja el fallback a la tienda automáticamente
-        if (isAndroid) {
-            window.location.href = cfg.android;
-            return;
-        }
-
-        // En iOS: intentar abrir el scheme nativo, y si falla (app no instalada), redirigir a la Store
-        if (isIOS) {
-            const start = Date.now();
-            const timeout = setTimeout(() => {
-                // Si el navegador no cambió de pestaña en 1.5s, la app no estaba instalada
-                if (Date.now() - start < 2200) {
-                    window.location.href = cfg.store_ios;
-                }
-            }, 1500);
-
-            window.addEventListener('pagehide', () => clearTimeout(timeout), { once: true });
-            window.location.href = cfg.ios;
-        }
-    }
 
     // ─── App principal ────────────────────────────────────────────────────────
     function invitationApp() {

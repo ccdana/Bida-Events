@@ -26,7 +26,6 @@ class InvitationDefaults
             'rsvp',
             'cuenta_regresiva',
             'agendar',
-            'transporte',
             'fotomural',
         ];
     }
@@ -49,7 +48,6 @@ class InvitationDefaults
             'rsvp' => 'rsvp',
             'cuenta_regresiva' => 'countdown',
             'agendar' => 'agendar',
-            'transporte' => 'transporte',
             'fotomural' => 'fotomural',
             'post_evento' => 'post_evento',
         ];
@@ -66,7 +64,6 @@ class InvitationDefaults
             'dress_code' => false,
             'destacados' => false,
             'ubicacion' => false,
-            'transporte' => false,
             'hashtag' => false,
             'encuestas' => false,
             'playlist' => false,
