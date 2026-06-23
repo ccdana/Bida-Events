@@ -17,12 +17,16 @@ class InvitationModuleService
 
         $defaults = InvitationDefaults::moduleVisibilityDefaults();
         foreach ($defaults as $code => $default) {
+            $hasContent = $this->moduleHasContent($normalized, $code);
+
             if (is_array($rawVisibility) && array_key_exists($code, $rawVisibility)) {
-                $normalized['config']['modulos'][$code] = (bool) $rawVisibility[$code];
+                $explicitValue = (bool) $rawVisibility[$code];
+                // If explicitly enabled, respect it. If explicitly disabled but has content, still show it.
+                $normalized['config']['modulos'][$code] = $explicitValue || $hasContent;
                 continue;
             }
 
-            $normalized['config']['modulos'][$code] = $this->moduleHasContent($normalized, $code) ?: $default;
+            $normalized['config']['modulos'][$code] = $hasContent ?: $default;
         }
 
         return $normalized;
@@ -133,8 +137,13 @@ class InvitationModuleService
             'regalos' => ! empty($modules['regalos']['titulo'] ?? null)
                 || ! empty($modules['regalos']['tienda_url'] ?? null)
                 || ! empty($modules['regalos']['opciones'] ?? [])
-                || ! empty($modules['regalos']['sobres'] ?? [])
-                || ! empty($modules['regalos']['banco'] ?? []),
+                || ! empty($modules['regalos']['sobres']['titulo'] ?? null)
+                || ! empty($modules['regalos']['sobres']['direccion'] ?? null)
+                || ! empty($modules['regalos']['banco']['banco'] ?? null)
+                || ! empty($modules['regalos']['banco']['titular'] ?? null)
+                || ! empty($modules['regalos']['banco']['cuenta'] ?? null)
+                || ! empty($modules['regalos']['banco']['ci'] ?? null)
+                || ! empty($modules['regalos']['banco']['qr_url'] ?? null),
             'rsvp' => ! empty($modules['rsvp']['titulo_confirmacion'] ?? null)
                 || ! empty($modules['rsvp']['mensaje_personalizado'] ?? null)
                 || ! empty($modules['rsvp']['texto_confirmado'] ?? null)

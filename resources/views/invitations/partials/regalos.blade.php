@@ -1,12 +1,24 @@
+@php
+    $regalos = $regalos ?? [];
+    
+    // Safely extract arrays
+    $banco = is_array($regalos['banco'] ?? null) ? $regalos['banco'] : [];
+    $sobres = is_array($regalos['sobres'] ?? null) ? $regalos['sobres'] : [];
+    $opciones = is_array($regalos['opciones'] ?? null) ? $regalos['opciones'] : [];
+    
+    // Evaluate active status
+    $hasBanco = !empty($banco['banco']) || !empty($banco['titular']) || !empty($banco['cuenta']) || !empty($banco['qr_url']) || !empty($banco['ci']);
+    $hasSobres = !empty($sobres['titulo']) || !empty($sobres['direccion']);
+    $hasTienda = !empty($regalos['tienda_url']);
+    $hasOpciones = count($opciones) > 0;
+    
+    $hasAnyGiftContent = $hasBanco || $hasSobres || $hasTienda || $hasOpciones;
+@endphp
+
+@if($hasAnyGiftContent)
 <section class="invitation-section reveal" x-data="{ showBank: false }"
     x-effect="document.body.style.overflow = showBank ? 'hidden' : ''">
-    @php
-        $banco = $regalos['banco'] ?? [];
-        $hasBanco = !empty($banco['banco']) || !empty($banco['titular']) || !empty($banco['cuenta']) || !empty($banco['qr_url']);
-        $sobres = $regalos['sobres'] ?? [];
-        $hasSobres = !empty($sobres['titulo']) || !empty($sobres['direccion']);
-    @endphp
-
+    
     <div class="section-inner-wide">
         <header class="section-header">
             @include('invitations.partials.icon', ['name' => 'gift', 'class' => 'w-8 h-8 text-primary mx-auto mb-3'])
@@ -17,8 +29,8 @@
 
         <div class="space-y-4">
             <!-- Principales: Banco y Tienda -->
-            @if($hasBanco || !empty($regalos['tienda_url']))
-            <div class="grid gap-4 sm:grid-cols-2">
+            @if($hasBanco || $hasTienda)
+            <div class="grid gap-4 {{ ($hasBanco && $hasTienda) ? 'sm:grid-cols-2' : 'sm:grid-cols-1 max-w-sm mx-auto' }}">
                 <!-- Banco/Transferencia -->
                 @if($hasBanco)
                 <button type="button" @click="showBank=true" class="inv-card rounded-2xl p-6 text-left transition-all duration-300 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] group">
@@ -37,7 +49,7 @@
                 @endif
 
                 <!-- Tienda de Regalos -->
-                @if(!empty($regalos['tienda_url']))
+                @if($hasTienda)
                     <a href="{{ $regalos['tienda_url'] }}" target="_blank" rel="noopener"
                         class="inv-card rounded-2xl p-6 text-left transition-all duration-300 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] group">
                         <div class="flex items-start justify-between mb-3">
@@ -57,11 +69,11 @@
             @endif
 
             <!-- Opciones adicionales -->
-            @if(!empty($regalos['opciones']) && count($regalos['opciones']) > 0)
+            @if($hasOpciones)
                 <div>
                     <p class="text-[11px] uppercase tracking-[0.2em] text-primary/60 font-semibold mb-3">Otras formas de contribuir</p>
                     <div class="grid gap-3 sm:grid-cols-2">
-                        @foreach($regalos['opciones'] as $gift)
+                        @foreach($opciones as $gift)
                             <article class="inv-card p-5 rounded-xl transition-all duration-300 hover:shadow-md hover:scale-[1.01] group">
                                 @if(!empty($gift['icono']))
                                     @include('invitations.partials.icon', ['name' => $gift['icono'], 'class' => 'w-10 h-10 text-primary mb-3'])
@@ -147,3 +159,4 @@
     </template>
     @endif
 </section>
+@endif

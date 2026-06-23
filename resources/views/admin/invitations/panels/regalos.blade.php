@@ -11,19 +11,26 @@
                 <p class="admin-eyebrow mb-0.5">Regalos</p>
                 <p class="text-xs text-stone-600 truncate">Mesa de regalos e información bancaria</p>
             </div>
-            <span class="inline-flex items-center gap-1 px-2 py-1 rounded-md border text-xs font-semibold shrink-0"
-                :class="modules.config.modulos.regalos
-                    ? 'text-green-700 bg-green-50 border-green-200'
-                    : 'text-stone-500 bg-stone-50 border-stone-200'">
-                <span class="inline-block w-1.5 h-1.5 rounded-full"
-                    :class="modules.config.modulos.regalos ? 'bg-green-500' : 'bg-stone-400'"></span>
-                <span x-text="modules.config.modulos.regalos ? 'Activo' : 'Inactivo'"></span>
-            </span>
+            {{-- Toggle real --}}
+            <label class="relative inline-flex items-center gap-2 cursor-pointer select-none">
+                <span class="text-xs font-semibold"
+                    :class="modules.config.modulos.regalos ? 'text-green-700' : 'text-stone-400'"
+                    x-text="modules.config.modulos.regalos ? 'Activo' : 'Inactivo'"></span>
+                <div class="relative">
+                    <input type="checkbox"
+                        x-model="modules.config.modulos.regalos"
+                        @change="schedulePreview()"
+                        class="sr-only peer">
+                    <div class="w-9 h-5 bg-stone-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-500"></div>
+                </div>
+            </label>
         </div>
+
 
         <div>
             <label class="admin-label">Título de la sección</label>
-            <input type="text" x-model="modules.regalos.titulo" @input="schedulePreview()"
+            <input type="text" x-model="modules.regalos.titulo"
+                @input="modules.config.modulos.regalos = true; schedulePreview()"
                 class="admin-input" placeholder="Ej. Mesa de regalos, Con cariño…">
         </div>
 
@@ -40,12 +47,14 @@
             </div>
             <div>
                 <label class="admin-label">URL de la tienda</label>
-                <input type="url" x-model="modules.regalos.tienda_url" @input="schedulePreview()"
+                <input type="url" x-model="modules.regalos.tienda_url"
+                    @input="modules.config.modulos.regalos = true; schedulePreview()"
                     class="admin-input" placeholder="https://...">
             </div>
             <div>
                 <label class="admin-label">Texto del botón</label>
-                <input type="text" x-model="modules.regalos.tienda_texto" @input="schedulePreview()"
+                <input type="text" x-model="modules.regalos.tienda_texto"
+                    @input="modules.config.modulos.regalos = true; schedulePreview()"
                     class="admin-input" placeholder="Ej. Ver lista de regalos">
             </div>
         </div>
@@ -53,7 +62,7 @@
 
     {{-- Lluvia de sobres --}}
     <section class="admin-card space-y-0 overflow-hidden">
-        <button type="button" @click="sobresActive = !sobresActive"
+        <button type="button" @click="sobresActive = !sobresActive; if(sobresActive){ modules.config.modulos.regalos = true; schedulePreview(); }"
             class="w-full flex items-center gap-3 text-left group">
             <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
                 :class="sobresActive ? 'bg-amber-100 text-amber-700' : 'bg-stone-100 text-stone-400'">
@@ -79,12 +88,14 @@
         <div x-show="sobresActive" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-1" class="mt-4 space-y-3 pt-4 border-t border-stone-100">
             <div>
                 <label class="admin-label">Título de la sección sobres</label>
-                <input type="text" x-model="modules.regalos.sobres.titulo" @input="schedulePreview()"
+                <input type="text" x-model="modules.regalos.sobres.titulo"
+                    @input="modules.config.modulos.regalos = true; schedulePreview()"
                     class="admin-input" placeholder="Ej. Lluvia de sobres, Tu sobre es el mejor regalo">
             </div>
             <div>
                 <label class="admin-label">Dirección física</label>
-                <input type="text" x-model="modules.regalos.sobres.direccion" @input="schedulePreview()"
+                <input type="text" x-model="modules.regalos.sobres.direccion"
+                    @input="modules.config.modulos.regalos = true; schedulePreview()"
                     class="admin-input" placeholder="Ej. Av. Siempre Viva 742, Ciudad">
             </div>
         </div>
@@ -92,7 +103,7 @@
 
     {{-- Datos bancarios --}}
     <section class="admin-card space-y-0 overflow-hidden">
-        <button type="button" @click="bancoActive = !bancoActive"
+        <button type="button" @click="bancoActive = !bancoActive; if(bancoActive){ modules.config.modulos.regalos = true; schedulePreview(); }"
             class="w-full flex items-center gap-3 text-left group">
             <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
                 :class="bancoActive ? 'bg-emerald-100 text-emerald-700' : 'bg-stone-100 text-stone-400'">
@@ -119,22 +130,26 @@
             <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
                 <div>
                     <label class="admin-label">Banco</label>
-                    <input type="text" x-model="modules.regalos.banco.banco" @input="schedulePreview()"
+                    <input type="text" x-model="modules.regalos.banco.banco"
+                        @input="modules.config.modulos.regalos = true; schedulePreview()"
                         class="admin-input" placeholder="Ej. Banco Unión">
                 </div>
                 <div>
                     <label class="admin-label">Titular</label>
-                    <input type="text" x-model="modules.regalos.banco.titular" @input="schedulePreview()"
+                    <input type="text" x-model="modules.regalos.banco.titular"
+                        @input="modules.config.modulos.regalos = true; schedulePreview()"
                         class="admin-input" placeholder="Nombre completo">
                 </div>
                 <div>
                     <label class="admin-label">CI / NIT</label>
-                    <input type="text" x-model="modules.regalos.banco.ci" @input="schedulePreview()"
+                    <input type="text" x-model="modules.regalos.banco.ci"
+                        @input="modules.config.modulos.regalos = true; schedulePreview()"
                         class="admin-input" placeholder="1234567">
                 </div>
                 <div>
                     <label class="admin-label">N° de cuenta</label>
-                    <input type="text" x-model="modules.regalos.banco.cuenta" @input="schedulePreview()"
+                    <input type="text" x-model="modules.regalos.banco.cuenta"
+                        @input="modules.config.modulos.regalos = true; schedulePreview()"
                         class="admin-input" placeholder="0000-0000-0000">
                 </div>
             </div>
@@ -144,6 +159,7 @@
                 'context' => 'qr-banco',
                 'accept' => 'image/jpeg,image/png,image/webp',
                 'previewExpr' => 'modules.regalos.banco.qr_url',
+                'afterExpr' => 'modules.config.modulos.regalos = true; schedulePreview()',
             ])
         </div>
     </section>

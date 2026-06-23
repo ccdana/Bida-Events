@@ -8,6 +8,7 @@
     'context' => 'general',
     'previewExpr',
     'clearExpr' => null,
+    'afterExpr' => 'schedulePreview()',
 ])
 @php $clear = $clearExpr ?? ($previewExpr.' = null'); @endphp
 
@@ -32,7 +33,7 @@
                 <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5-5 5 5M12 5v12" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 <span x-text="mediaUploading ? 'Subiendo archivos...' : 'Elegir archivo'"></span>
                 <input type="file" accept="{{ $accept }}" class="hidden"
-                    @change="pickLocalFileReplace($event, '{{ $type }}', '{{ $context }}', () => {{ $previewExpr }}, url => {{ $previewExpr }} = url)">
+                    @change="pickLocalFileReplace($event, '{{ $type }}', '{{ $context }}', () => {{ $previewExpr }}, url => { {{ $previewExpr }} = url; {{ $afterExpr }} })">
             </label>
             @if($type === 'image')
                 <button type="button"

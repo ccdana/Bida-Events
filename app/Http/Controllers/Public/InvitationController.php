@@ -33,7 +33,7 @@ class InvitationController extends Controller
         if ($token) {
             $guest = Guest::where('invitation_id', $invitation->id)
                 ->where('qr_code_token', $token)
-                ->select('id', 'invitation_id', 'name', 'qr_code_token', 'passes_allocated')
+                ->select('id', 'invitation_id', 'name', 'qr_code_token', 'passes_allocated', 'status', 'passes_confirmed', 'confirmed_at')
                 ->firstOrFail();
         }
 
