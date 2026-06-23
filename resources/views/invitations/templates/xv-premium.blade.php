@@ -54,9 +54,10 @@
 <body class="overflow-x-hidden pb-28" x-data="invitationApp()" x-init="init()">
 
     <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
-        @for($i = 0; $i < 12; $i++)
-            <span class="particle-dot absolute w-1 h-1 rounded-full bg-primary"
-                style="left:{{ rand(5, 95) }}%;top:{{ rand(5, 95) }}%;animation-delay:{{ $i * 0.5 }}s"></span>
+        @php $pSizes = [4,5,6,7,5,4,6,5,4,6,5,7,4,5,6,4,7,5,6,4]; @endphp
+        @for($i = 0; $i < 20; $i++)
+            <span class="particle-dot absolute rounded-full bg-primary"
+                style="left:{{ rand(2, 98) }}%;top:{{ rand(2, 98) }}%;width:{{ $pSizes[$i] }}px;height:{{ $pSizes[$i] }}px;animation-delay:{{ round($i * 0.38, 1) }}s;animation-duration:{{ 5 + ($i % 4) }}s"></span>
         @endfor
     </div>
 
@@ -142,11 +143,11 @@
     @if(!$moduleVisible('cuenta_regresiva') && $moduleVisible('agendar') && !$isPostEvent)
         <section class="invitation-section reveal py-6">
             <div class="section-inner text-center">
-                <a href="{{ $calendarUrl }}" target="_blank" rel="noopener"
+                <button type="button" onclick="openCalendar('{{ $calendarUrl }}')"
                     class="inline-flex items-center gap-2 px-6 py-3 rounded-full inv-card text-sm font-medium text-primary active:scale-[0.98] transition-transform">
                     @include('invitations.partials.icon', ['name' => 'calendar', 'class' => 'w-4 h-4', 'animated' => false])
                     Agendar en Google Calendar
-                </a>
+                </button>
             </div>
         </section>
     @endif
@@ -264,6 +265,102 @@
     </footer>
 
     <script>
+    // ─── Utilidades móviles ───────────────────────────────────────────────────
+
+    /**
+     * Abre Google Calendar con preferencia por la app nativa en móvil.
+     * Android  → intent:// hacia la app de Google Calendar
+     * iOS      → enlace universal de Google Calendar
+     * Desktop  → enlace web estándar
+     */
+    function openCalendar(webUrl) {
+        const ua = navigator.userAgent || '';
+        const isAndroid = /android/i.test(ua);
+        const isIOS = /iphone|ipad|ipod/i.test(ua);
+
+        if (isAndroid) {
+            // Extraer parámetros del URL web para construir el intent
+            const intentUrl = webUrl
+                .replace('https://calendar.google.com/calendar/render', 'intent://calendar.google.com/calendar/render')
+                + '#Intent;scheme=https;package=com.google.android.calendar;S.browser_fallback_url=' + encodeURIComponent(webUrl) + ';end';
+            window.location.href = intentUrl;
+        } else if (isIOS) {
+            // Google Calendar app en iOS usa enlace universal
+            window.location.href = webUrl.replace('https://calendar.google.com', 'https://calendar.google.com');
+            // Fallback automático si la app no está instalada (el SO redirige a Safari)
+        } else {
+            window.open(webUrl, '_blank', 'noopener');
+        }
+    }
+
+    /**
+     * Abre apps de transporte con deeplink nativo y fallback a web/store.
+     * Usa un iframe oculto para disparar el scheme sin error visible en el navegador.
+     */
+    function openRide(app, lat, lng, placeName) {
+        const enc = encodeURIComponent;
+        const schemes = {
+            uber: {
+                deep: `uber://?action=setPickup&pickup%5Blatitude%5D=&pickup%5Blongitude%5D=&dropoff%5Blatitude%5D=${lat}&dropoff%5Blongitude%5D=${lng}&dropoff%5Bnickname%5D=${enc(placeName)}`,
+                android: `intent://uber.com?action=setPickup&dropoff%5Blatitude%5D=${lat}&dropoff%5Blongitude%5D=${lng}#Intent;scheme=https;package=com.ubercab;S.browser_fallback_url=${enc('https://m.uber.com/?action=setPickup&dropoff%5Blatitude%5D=' + lat + '&dropoff%5Blongitude%5D=' + lng)};end`,
+                ios: `uber://?action=setPickup&dropoff%5Blatitude%5D=${lat}&dropoff%5Blongitude%5D=${lng}&dropoff%5Bnickname%5D=${enc(placeName)}`,
+                web: `https://m.uber.com/?action=setPickup&dropoff%5Blatitude%5D=${lat}&dropoff%5Blongitude%5D=${lng}&dropoff%5Bnickname%5D=${enc(placeName)}`,
+                store_android: 'https://play.google.com/store/apps/details?id=com.ubercab',
+                store_ios: 'https://apps.apple.com/app/uber/id368677368',
+            },
+            yango: {
+                deep: `yandex.navi://map?ll=${lng},${lat}&text=${enc(placeName)}`,
+                android: `intent://yango.com/route?end-lat=${lat}&end-lon=${lng}&end-address=${enc(placeName)}#Intent;scheme=https;package=ru.yandex.taxi;S.browser_fallback_url=${enc('https://yango.com/route?end-lat=' + lat + '&end-lon=' + lng)};end`,
+                ios: `yandex.maps://maps.yandex.ru/?rtext=~${lat},${lng}&rtn=1`,
+                web: `https://yango.com/route?end-lat=${lat}&end-lon=${lng}&end-address=${enc(placeName)}`,
+                store_android: 'https://play.google.com/store/apps/details?id=ru.yandex.taxi',
+                store_ios: 'https://apps.apple.com/app/yango/id1437854677',
+            },
+            indrive: {
+                deep: `indrive://open?lat=${lat}&lng=${lng}&address=${enc(placeName)}`,
+                android: `intent://open?lat=${lat}&lng=${lng}&address=${enc(placeName)}#Intent;scheme=indrive;package=sinet.startup.inDriver;S.browser_fallback_url=${enc('https://indrive.com')};end`,
+                ios: `indrive://open?lat=${lat}&lng=${lng}&address=${enc(placeName)}`,
+                web: `https://indrive.com`,
+                store_android: 'https://play.google.com/store/apps/details?id=sinet.startup.inDriver',
+                store_ios: 'https://apps.apple.com/app/indrive/id1440018387',
+            },
+        };
+
+        const cfg = schemes[app];
+        if (!cfg) return;
+
+        const ua = navigator.userAgent || '';
+        const isAndroid = /android/i.test(ua);
+        const isIOS = /iphone|ipad|ipod/i.test(ua);
+        const isMobile = isAndroid || isIOS;
+
+        if (!isMobile) {
+            window.open(cfg.web, '_blank', 'noopener');
+            return;
+        }
+
+        // En Android usamos intent:// que maneja el fallback a la tienda automáticamente
+        if (isAndroid) {
+            window.location.href = cfg.android;
+            return;
+        }
+
+        // En iOS: intentar abrir el scheme nativo, y si falla (app no instalada), redirigir a la Store
+        if (isIOS) {
+            const start = Date.now();
+            const timeout = setTimeout(() => {
+                // Si el navegador no cambió de pestaña en 1.5s, la app no estaba instalada
+                if (Date.now() - start < 2200) {
+                    window.location.href = cfg.store_ios;
+                }
+            }, 1500);
+
+            window.addEventListener('pagehide', () => clearTimeout(timeout), { once: true });
+            window.location.href = cfg.ios;
+        }
+    }
+
+    // ─── App principal ────────────────────────────────────────────────────────
     function invitationApp() {
         return {
             init() {

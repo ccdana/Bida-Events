@@ -45,13 +45,48 @@
 function musicPlayer(src, autoplay) {
     return {
         playing: false, expanded: false, volume: 0.6,
+        _unlockHandler: null,
         init() {
             this.$refs.audio.volume = this.volume;
-            if (autoplay) this.toggle();
+            if (autoplay) {
+                // Intentar reproducir inmediatamente
+                this.$refs.audio.play().then(() => {
+                    this.playing = true;
+                }).catch(() => {
+                    // El navegador bloqueó el autoplay (política de interacción previa).
+                    // Registrar un listener de un solo disparo para iniciar en el primer toque/clic.
+                    this._unlockHandler = () => {
+                        this.$refs.audio.play().then(() => {
+                            this.playing = true;
+                        }).catch(() => {});
+                        // Remover el listener después del primer disparo
+                        ['click','touchstart','keydown','scroll'].forEach(ev =>
+                            document.removeEventListener(ev, this._unlockHandler)
+                        );
+                        this._unlockHandler = null;
+                    };
+                    ['click','touchstart','keydown','scroll'].forEach(ev =>
+                        document.addEventListener(ev, this._unlockHandler, { once: true, passive: true })
+                    );
+                });
+            }
         },
         toggle() {
-            this.playing = !this.playing;
-            this.playing ? this.$refs.audio.play().catch(() => {}) : this.$refs.audio.pause();
+            if (this.playing) {
+                this.$refs.audio.pause();
+                this.playing = false;
+            } else {
+                this.$refs.audio.play().then(() => {
+                    this.playing = true;
+                    // Si había un listener pendiente, ya no es necesario
+                    if (this._unlockHandler) {
+                        ['click','touchstart','keydown','scroll'].forEach(ev =>
+                            document.removeEventListener(ev, this._unlockHandler)
+                        );
+                        this._unlockHandler = null;
+                    }
+                }).catch(() => {});
+            }
         },
         setVolume() { this.$refs.audio.volume = this.volume; }
     };

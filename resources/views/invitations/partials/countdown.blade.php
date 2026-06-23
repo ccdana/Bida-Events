@@ -15,11 +15,11 @@
         </div>
 
         @if($agendar ?? false)
-            <a href="{{ $calendarUrl }}" target="_blank" rel="noopener"
+            <button type="button" onclick="openCalendar('{{ $calendarUrl }}')"
                 class="inline-flex items-center gap-2 px-6 py-3 rounded-full inv-card-soft text-sm font-medium text-primary hover:scale-[1.02] active:scale-[0.98] transition-transform">
                 @include('invitations.partials.icon', ['name' => 'calendar', 'class' => 'w-4 h-4', 'animated' => false])
                 Agendar en Google Calendar
-            </a>
+            </button>
         @endif
     </div>
 </section>
