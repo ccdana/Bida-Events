@@ -31,7 +31,7 @@
                 <input type="text" x-model="modules.bienvenida.nombre_quinceanera" @input="schedulePreview()" class="admin-input" placeholder="Ej. Sofía Valentina">
             </div>
             <div>
-                <label class="admin-label">Subtítulo</label>
+                <label class="admin-label">Subtítulo superior</label>
                 <input type="text" x-model="modules.bienvenida.subtitulo" @input="schedulePreview()" class="admin-input" placeholder="Ej. Celebrando mis XV Años">
             </div>
         </div>

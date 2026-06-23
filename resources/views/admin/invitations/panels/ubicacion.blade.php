@@ -75,7 +75,6 @@
                 <label class="admin-label">Nombre del lugar</label>
                 <input type="text" x-model="modules.ubicacion.nombre_lugar" @input="schedulePreview()"
                     class="admin-input" placeholder="Ej. Salón Imperial, Hacienda Los Olivos">
-                <p class="mt-1.5 text-xs text-stone-500">Se intenta extraer del enlace automáticamente. Puedes editarlo aquí.</p>
             </div>
 
             <div x-data="{ open: true }" class="admin-accordion">
@@ -99,7 +98,7 @@
     <!-- Mapa interactivo -->
     <section class="admin-card p-3 space-y-2">
         <div class="flex items-center justify-between gap-2">
-            <p class="admin-eyebrow mb-0">Mapa interactivo</p>
+            <p class="admin-eyebrow mb-0">Mapa</p>
             <button type="button" @click="syncLocationMarker()" class="text-xs text-stone-500 hover:text-stone-800 font-medium">
                 Centrar marcador
             </button>

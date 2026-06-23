@@ -921,11 +921,25 @@ function invitationForm(config) {
                 if (this.pendingUploads.length) {
                     await this.uploadPendingMedia();
                 }
+
+                // Trigger any pending cloudinary uploads registered via custom event
+                const pending = this.$el.querySelectorAll('[data-pending-upload]');
+                if (pending.length > 0) {
+                    const uploads = Array.from(pending).map(el => {
+                        return new Promise(resolve => {
+                            el.addEventListener('upload-done', resolve, { once: true });
+                            el.dispatchEvent(new CustomEvent('trigger-upload'));
+                        });
+                    });
+                    await Promise.all(uploads);
+                }
+
                 this.syncHiddenInputs();
                 await this.$nextTick();
                 form.submit();
-            } catch (e) {
-                alert(e.message || 'Error al subir archivos. Intenta de nuevo.');
+            } catch (err) {
+                console.error('Error al guardar la invitación:', err);
+                alert(err.message || 'Error al subir archivos. Intenta de nuevo.');
                 this.mediaUploading = false;
             }
         },
@@ -1236,28 +1250,7 @@ function invitationForm(config) {
             list[i][field] = val;
         },
 
-        async handleFormSubmit(event) {
-            if (this.mediaUploading) return; // already submitting
-            this.mediaUploading = true;
-            try {
-                // Trigger any pending cloudinary uploads registered via custom event
-                const pending = this.$el.querySelectorAll('[data-pending-upload]');
-                if (pending.length > 0) {
-                    const uploads = Array.from(pending).map(el => {
-                        return new Promise(resolve => {
-                            el.addEventListener('upload-done', resolve, { once: true });
-                            el.dispatchEvent(new CustomEvent('trigger-upload'));
-                        });
-                    });
-                    await Promise.all(uploads);
-                }
-                // Native form submit (bypass Alpine prevent)
-                event.target.submit();
-            } catch (err) {
-                console.error('Error al guardar la invitación:', err);
-                this.mediaUploading = false;
-            }
-        },
+        // handleFormSubmit consolidado arriba
 
         // Funciones para presets de paletas de colores
         getColorPresets() {

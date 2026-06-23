@@ -4,7 +4,7 @@
 @section('header-title', 'Crear invitación')
 
 @section('header-actions')
-    <button form="invitation-form" type="submit" class="admin-primary-button">Crear invitación</button>
+    <button type="button" onclick="document.getElementById('invitation-form').requestSubmit()" class="admin-primary-button">Crear invitación</button>
 @endsection
 
 @section('content')
