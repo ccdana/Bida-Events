@@ -44,7 +44,7 @@
         </div>
 
         {{-- Estado: DECLINADO --}}
-        <div x-show="currentStatus === 'declined'" x-cloak class="text-center py-12 inv-card rounded-2xl">
+        <div x-show="currentStatus === 'declined'" x-cloak class="text-center py-12 theme-card rounded-2xl">
             <svg class="w-12 h-12 mx-auto text-stone-400 mb-4 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
             </svg>
@@ -53,7 +53,7 @@
         </div>
 
         {{-- Estado: PENDIENTE (formulario) --}}
-        <div x-show="currentStatus === 'pending'" class="inv-card p-8 rounded-2xl max-w-md mx-auto">
+        <div x-show="currentStatus === 'pending'" class="theme-card p-8 rounded-2xl max-w-md mx-auto">
             <div class="text-center mb-8">
                 <svg class="w-12 h-12 text-primary mx-auto mb-4 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
@@ -65,7 +65,7 @@
             <div class="grid grid-cols-2 gap-3 mb-6">
                 <button type="button" @click="attending = true"
                     class="flex flex-col items-center justify-center gap-2 py-4 rounded-xl text-sm font-semibold transition-all duration-200"
-                    :class="attending === true ? 'bg-primary text-white shadow-lg scale-105' : 'inv-card-soft opacity-70 hover:opacity-100'">
+                    :class="attending === true ? 'bg-primary text-white shadow-lg scale-105' : 'theme-card-soft opacity-70 hover:opacity-100'">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                     </svg>
@@ -85,7 +85,7 @@
             <div x-show="attending === true" x-cloak class="mb-6 space-y-4 animate-fadeIn">
                 <div>
                     <label class="block text-sm font-semibold mb-2">¿Cuántas personas asistirán?</label>
-                    <select x-model.number="passes" class="w-full rounded-xl border-2 border-primary/20 px-4 py-3 inv-card-soft text-base font-medium focus:border-primary focus:outline-none transition">
+                    <select x-model.number="passes" class="w-full rounded-xl border-2 border-primary/20 px-4 py-3 theme-card-soft text-base font-medium focus:border-primary focus:outline-none transition">
                         <template x-for="n in maxPasses" :key="n">
                             <option :value="n" x-text="n + (n===1 ? ' persona' : ' personas')"></option>
                         </template>
@@ -94,7 +94,7 @@
                 <div>
                     <label class="block text-sm font-semibold mb-2">Restricciones alimentarias (opcional)</label>
                     <textarea x-model="dietary" placeholder="Ej: Sin gluten, vegetariano..." rows="3"
-                        class="w-full rounded-xl border-2 border-primary/20 px-4 py-3 text-sm inv-card-soft focus:border-primary focus:outline-none transition resize-none"></textarea>
+                        class="w-full rounded-xl border-2 border-primary/20 px-4 py-3 text-sm theme-card-soft focus:border-primary focus:outline-none transition resize-none"></textarea>
                 </div>
             </div>
 

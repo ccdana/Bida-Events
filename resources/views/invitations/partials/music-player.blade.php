@@ -5,7 +5,7 @@
 <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-sm"
     x-data="musicPlayer('{{ $musica['audio_url'] }}', {{ ($musica['autoplay'] ?? false) ? 'true' : 'false' }})"
     x-init="init()">
-    <div class="rounded-2xl border border-primary/20 bg-white/90 backdrop-blur-md shadow-2xl overflow-hidden transition-all duration-300"
+    <div class="theme-card backdrop-blur-md overflow-hidden transition-all duration-300"
         :class="expanded ? 'pb-3' : ''">
         {{-- Barra compacta --}}
         <div class="flex items-center gap-3 px-4 py-3">
@@ -16,8 +16,8 @@
             </button>
 
             <button type="button" @click="expanded = !expanded" class="flex-1 min-w-0 text-left">
-                <p class="text-xs uppercase tracking-wider text-primary/70 truncate">{{ $musica['titulo'] ?? 'Música de fondo' }}</p>
-                <p class="text-sm font-medium truncate opacity-80">{{ $musica['artista'] ?? 'Toca para escuchar' }}</p>
+                <p class="text-xs uppercase tracking-wider text-primary/80 truncate">{{ $musica['titulo'] ?? 'Música de fondo' }}</p>
+                <p class="text-sm font-medium truncate text-secondary">{{ $musica['artista'] ?? 'Toca para escuchar' }}</p>
             </button>
 
             {{-- Visualizador animado --}}
@@ -30,7 +30,7 @@
         </div>
 
         {{-- Controles expandidos --}}
-        <div x-show="expanded" x-cloak class="px-4 pb-1 space-y-3 border-t border-primary/10 pt-3">
+        <div x-show="expanded" x-cloak class="px-4 pb-1 space-y-3 border-t border-primary/15 pt-3">
             <div class="flex items-center gap-3">
                 @include('invitations.partials.icon', ['name' => 'volume', 'class' => 'w-4 h-4 text-primary/60', 'animated' => false])
                 <input type="range" min="0" max="1" step="0.05" x-model="volume" @input="setVolume()"

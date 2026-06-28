@@ -14,12 +14,12 @@
                     $options = $poll['opciones'] ?? [];
                 @endphp
                 <div x-data="pollVoter('{{ $poll['id'] }}', @js($pollResults[$poll['id']] ?? array_fill(0, count($options), 0)), @js($options), '{{ $slug }}', '{{ $guestToken }}', '{{ $pollType }}')"
-                    class="inv-card overflow-hidden">
+                    class="theme-card overflow-hidden">
 
                     <div class="p-6 pb-4">
                         <div class="flex items-start justify-between gap-3">
                             <p class="font-title text-lg leading-snug">{{ $poll['pregunta'] }}</p>
-                            <span class="shrink-0 text-[10px] uppercase tracking-[0.2em] px-2.5 py-1 rounded-full inv-card-soft">
+                            <span class="shrink-0 text-[10px] uppercase tracking-[0.2em] px-2.5 py-1 rounded-full theme-card-soft">
                                 {{ ucfirst($pollType) }}
                             </span>
                         </div>
@@ -40,7 +40,7 @@
                         <div x-show="mode==='list'" class="px-6 pb-6 space-y-2">
                             <template x-for="(opcion, idx) in options" :key="'list-'+idx">
                                 <button type="button" @click="vote(idx)" :disabled="voted"
-                                    class="w-full text-left rounded-xl border px-4 py-3.5 transition-all duration-300 relative overflow-hidden group active:scale-[0.99]"
+                                    class="poll-option-card w-full text-left rounded-xl border px-4 py-3.5 transition-all duration-300 relative overflow-hidden group active:scale-[0.99]"
                                     :class="[
                                         voted && selected === idx ? 'border-primary ring-2 ring-primary/20' : 'border-primary/15 hover:border-primary/40',
                                         voted ? 'cursor-default' : 'cursor-pointer'
@@ -63,9 +63,9 @@
                         <div x-show="mode==='cards'" x-cloak class="px-6 pb-6">
                             <div class="grid grid-cols-2 gap-3">
                                 <template x-for="(opcion, idx) in options" :key="'card-'+idx">
-                                    <button type="button" @click="vote(idx)" :disabled="voted"
-                                        class="relative rounded-2xl border p-4 min-h-[5.5rem] flex flex-col justify-end text-left transition-all duration-300 active:scale-95 overflow-hidden"
-                                        :class="voted && selected === idx ? 'border-primary bg-primary/10 shadow-md' : 'border-primary/15 bg-white/80 hover:border-primary/35'">
+                                <button type="button" @click="vote(idx)" :disabled="voted"
+                                        class="poll-option-card relative rounded-2xl border p-4 min-h-[5.5rem] flex flex-col justify-end text-left transition-all duration-300 active:scale-95 overflow-hidden"
+                                        :class="voted && selected === idx ? 'is-selected border-primary' : 'border-primary/15 theme-card-soft hover:border-primary/35'">
                                         <div x-show="voted" class="absolute top-3 right-3 text-primary font-bold text-sm tabular-nums" x-text="percentages[idx]+'%'" x-cloak></div>
                                         <span class="text-sm font-medium leading-snug relative" x-text="opcion"></span>
                                         <div x-show="voted" class="mt-2 h-1 rounded-full bg-primary/15 overflow-hidden" x-cloak>
@@ -79,9 +79,9 @@
                         <div class="px-6 pb-6">
                             <div class="grid grid-cols-5 gap-2">
                                 <template x-for="(opcion, idx) in options" :key="'rating-'+idx">
-                                    <button type="button" @click="vote(idx)" :disabled="voted"
-                                        class="rounded-2xl border p-4 text-center transition-all duration-300"
-                                        :class="voted && selected === idx ? 'border-primary bg-primary/10 shadow-md' : 'border-primary/15 bg-white/80 hover:border-primary/35'">
+                                <button type="button" @click="vote(idx)" :disabled="voted"
+                                        class="poll-option-card rounded-2xl border p-4 text-center transition-all duration-300"
+                                        :class="voted && selected === idx ? 'is-selected border-primary' : 'border-primary/15 theme-card-soft hover:border-primary/35'">
                                         <span class="block text-lg font-semibold text-secondary" x-text="opcion"></span>
                                     </button>
                                 </template>
@@ -91,8 +91,8 @@
                         <div class="px-6 pb-6 grid gap-3 md:grid-cols-2">
                             <template x-for="(opcion, idx) in options" :key="'yesno-'+idx">
                                 <button type="button" @click="vote(idx)" :disabled="voted"
-                                    class="rounded-2xl border p-4 text-left transition-all duration-300"
-                                    :class="voted && selected === idx ? 'border-primary bg-primary/10 shadow-md' : 'border-primary/15 bg-white/80 hover:border-primary/35'">
+                                    class="poll-option-card rounded-2xl border p-4 text-left transition-all duration-300"
+                                    :class="voted && selected === idx ? 'is-selected border-primary' : 'border-primary/15 theme-card-soft hover:border-primary/35'">
                                     <span class="block text-[10px] uppercase tracking-[0.2em] text-primary/60">Respuesta</span>
                                     <span class="mt-2 block text-sm font-medium" x-text="opcion"></span>
                                 </button>
@@ -102,8 +102,8 @@
                         <div class="px-6 pb-6 grid gap-3 md:grid-cols-2">
                             <template x-for="(opcion, idx) in options" :key="'emoji-'+idx">
                                 <button type="button" @click="vote(idx)" :disabled="voted"
-                                    class="rounded-2xl border p-4 text-center transition-all duration-300 text-2xl"
-                                    :class="voted && selected === idx ? 'border-primary bg-primary/10 shadow-md' : 'border-primary/15 bg-white/80 hover:border-primary/35'">
+                                    class="poll-option-card rounded-2xl border p-4 text-center transition-all duration-300 text-2xl"
+                                    :class="voted && selected === idx ? 'is-selected border-primary' : 'border-primary/15 theme-card-soft hover:border-primary/35'">
                                     <span x-text="opcion"></span>
                                 </button>
                             </template>
