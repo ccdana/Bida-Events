@@ -1,9 +1,10 @@
 @php
     $tag = $hashtag['hashtag'] ?? '#Evento';
     $platform = $hashtag['plataforma'] ?? 'instagram';
+    $cleanTag = trim(ltrim($tag, '#'));
     $searchUrl = $platform === 'tiktok'
-        ? 'https://www.tiktok.com/search?q=' . urlencode($tag)
-        : 'https://www.instagram.com/explore/tags/' . ltrim($tag, '#') . '/';
+        ? 'https://www.tiktok.com/tag/' . rawurlencode($cleanTag)
+        : 'https://www.instagram.com/explore/tags/' . rawurlencode($cleanTag) . '/';
 @endphp
 <section class="invitation-section reveal text-center">
     <div class="section-inner">
