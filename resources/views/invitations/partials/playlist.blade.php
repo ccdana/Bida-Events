@@ -11,11 +11,11 @@
         </header>
 
         <div class="inv-card overflow-hidden">
-            <form @submit.prevent="submit" class="flex gap-2 p-4 border-b border-primary/10">
+            <form @submit.prevent="submit" class="flex flex-col sm:flex-row gap-2 p-4 border-b border-primary/10">
                 <input type="text" x-model="song" placeholder="{{ $playlist['placeholder'] ?? 'Canción o link de YouTube' }}"
-                    class="flex-1 rounded-xl border border-primary/20 px-4 py-3 text-sm inv-card-soft focus:border-primary focus:outline-none">
+                    class="w-full flex-1 rounded-xl border border-primary/20 px-4 py-3 text-sm inv-card-soft focus:border-primary focus:outline-none">
                 <button type="submit" :disabled="submitting"
-                    class="shrink-0 px-4 py-3 rounded-xl bg-primary text-white text-sm font-medium disabled:opacity-50 active:scale-95 transition-transform">
+                    class="w-full sm:w-auto shrink-0 px-4 py-3 rounded-xl bg-primary text-white text-sm font-medium disabled:opacity-50 active:scale-95 transition-transform">
                     <span x-text="submitting ? '...' : 'Agregar'"></span>
                 </button>
             </form>
