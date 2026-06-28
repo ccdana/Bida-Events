@@ -259,10 +259,29 @@ function invitationForm(config) {
             m.hashtag ??= {};
             m.encuestas ??= { preguntas: [] };
             m.encuestas.preguntas ??= [];
-            m.regalos ??= { sobres: {}, banco: {}, titulo: '', opciones: [] };
-            m.regalos.sobres ??= {};
-            m.regalos.banco ??= {};
-            m.regalos.opciones ??= [];
+            m.regalos = {
+                sobres: { titulo: '', direccion: '' },
+                banco: { banco: '', titular: '', ci: '', cuenta: '', qr_url: '' },
+                titulo: '',
+                tienda_url: '',
+                tienda_texto: '',
+                opciones: [],
+                ...this.plainModuleValue(m.regalos),
+            };
+            m.regalos.sobres = {
+                titulo: '',
+                direccion: '',
+                ...this.plainModuleValue(m.regalos.sobres),
+            };
+            m.regalos.banco = {
+                banco: '',
+                titular: '',
+                ci: '',
+                cuenta: '',
+                qr_url: '',
+                ...this.plainModuleValue(m.regalos.banco),
+            };
+            m.regalos.opciones = Array.isArray(m.regalos.opciones) ? m.regalos.opciones : [];
             m.post_evento ??= {};
             m.rsvp ??= {};
             (m.encuestas.preguntas || []).forEach(poll => this.ensurePollDefaults(poll));

@@ -121,7 +121,20 @@ class InvitationDefaults
             'playlist' => (object) [],
             'hashtag' => (object) [],
             'encuestas' => ['preguntas' => []],
-            'regalos' => ['sobres' => [], 'banco' => [], 'titulo' => '', 'opciones' => []],
+            'regalos' => [
+                'sobres' => ['titulo' => '', 'direccion' => ''],
+                'banco' => [
+                    'banco' => '',
+                    'titular' => '',
+                    'ci' => '',
+                    'cuenta' => '',
+                    'qr_url' => '',
+                ],
+                'titulo' => '',
+                'tienda_url' => '',
+                'tienda_texto' => '',
+                'opciones' => [],
+            ],
             'post_evento' => (object) [],
             'rsvp' => (object) [],
         ];

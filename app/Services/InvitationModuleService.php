@@ -14,6 +14,7 @@ class InvitationModuleService
         $rawVisibility = $modules['config']['modulos'] ?? null;
         $normalized = array_replace_recursive(InvitationDefaults::emptyModules(), $modules);
         $normalized = $this->coerceObjectModules($normalized);
+        $normalized['regalos'] = $this->coerceGiftModule($normalized['regalos'] ?? []);
 
         $defaults = InvitationDefaults::moduleVisibilityDefaults();
         foreach ($defaults as $code => $default) {
@@ -105,6 +106,37 @@ class InvitationModuleService
         }
 
         return $modules;
+    }
+
+    protected function coerceGiftModule(mixed $regalos): array
+    {
+        $data = is_array($regalos) ? $regalos : [];
+
+        $data['sobres'] = $this->coerceGiftBlock(
+            $data['sobres'] ?? null,
+            ['titulo' => '', 'direccion' => '']
+        );
+
+        $data['banco'] = $this->coerceGiftBlock(
+            $data['banco'] ?? null,
+            ['banco' => '', 'titular' => '', 'ci' => '', 'cuenta' => '', 'qr_url' => '']
+        );
+
+        $data['opciones'] = is_array($data['opciones'] ?? null) ? array_values($data['opciones']) : [];
+        $data['titulo'] ??= '';
+        $data['tienda_url'] ??= '';
+        $data['tienda_texto'] ??= '';
+
+        return $data;
+    }
+
+    protected function coerceGiftBlock(mixed $value, array $defaults): array
+    {
+        if (! is_array($value) || array_is_list($value)) {
+            return $defaults;
+        }
+
+        return array_replace($defaults, $value);
     }
 
     protected function moduleHasContent(array $modules, string $code): bool
