@@ -11,6 +11,7 @@
     $hasSobres = !empty($sobres['titulo']) || !empty($sobres['direccion']);
     $hasTienda = !empty($regalos['tienda_url']);
     $hasOpciones = count($opciones) > 0;
+    $opcionesGridClass = count($opciones) > 1 ? 'sm:grid-cols-2' : 'sm:grid-cols-1';
     
     $hasAnyGiftContent = $hasBanco || $hasSobres || $hasTienda || $hasOpciones;
 @endphp
@@ -72,9 +73,9 @@
             @if($hasOpciones)
                 <div>
                     <p class="text-[11px] uppercase tracking-[0.2em] text-primary/60 font-semibold mb-3">Otras formas de contribuir</p>
-                    <div class="grid gap-3 sm:grid-cols-2">
+                    <div class="grid gap-3 {{ $opcionesGridClass }}">
                         @foreach($opciones as $gift)
-                            <article class="inv-card p-5 rounded-xl transition-all duration-300 hover:shadow-md hover:scale-[1.01] group">
+                            <article class="inv-card w-full h-full p-5 rounded-xl transition-all duration-300 hover:shadow-md hover:scale-[1.01] group">
                                 @if(!empty($gift['icono']))
                                     @include('invitations.partials.icon', ['name' => $gift['icono'], 'class' => 'w-10 h-10 text-primary mb-3'])
                                 @endif
