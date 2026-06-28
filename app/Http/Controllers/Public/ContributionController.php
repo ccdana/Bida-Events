@@ -111,6 +111,10 @@ class ContributionController extends Controller
             return response()->json(['success' => false, 'message' => 'Fotomural no disponible'], 404);
         }
 
+        if ($invitation->is_post_event) {
+            return response()->json(['success' => false, 'message' => 'El fotomural ya está en modo solo lectura'], 403);
+        }
+
         $validated = $request->validate([
             'photo' => ['required', 'image', 'max:5120'],
             'guest_token' => ['nullable', 'string'],

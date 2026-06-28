@@ -142,6 +142,8 @@ class Invitation extends Model
 
     public function getIsPostEventAttribute(): bool
     {
-        return now()->isAfter($this->event_date);
+        $cutoff = $this->event_date->copy()->addDay()->startOfDay()->addHours(5);
+
+        return now()->greaterThanOrEqualTo($cutoff);
     }
 }

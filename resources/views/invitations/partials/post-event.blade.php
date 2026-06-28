@@ -1,4 +1,4 @@
-<section class="invitation-section reveal" id="post-evento">
+﻿<section class="invitation-section reveal" id="post-evento">
     <div class="section-inner-wide">
         <header class="section-header">
             <span class="section-eyebrow">Recuerdos oficiales</span>
@@ -18,14 +18,16 @@
                     </a>
                 @endforeach
             </div>
-        @elseif(!empty($postEvento['enlace_externo']))
-            <div class="text-center">
+        @endif
+
+        @if(!empty($postEvento['enlace_externo']))
+            <div class="text-center {{ !empty($postEvento['fotos']) ? 'mt-6' : '' }}">
                 <a href="{{ $postEvento['enlace_externo'] }}" target="_blank" rel="noopener"
                     class="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-primary text-white text-sm font-medium shadow-lg active:scale-[0.98] transition-transform">
                     Ver galería completa
                 </a>
             </div>
-        @else
+        @elseif(empty($postEvento['fotos']))
             <div class="py-12 rounded-2xl border-2 border-dashed border-primary/15 text-center">
                 <p class="text-sm opacity-40">Las fotos oficiales se publicarán pronto</p>
             </div>

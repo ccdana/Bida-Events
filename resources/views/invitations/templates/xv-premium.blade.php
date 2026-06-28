@@ -9,7 +9,12 @@
     $guestToken = $guest?->qr_code_token ?? '';
     $heroImage = $bienvenida['imagen_hero'] ?? null;
     $hasHeroImage = !empty($heroImage);
-    $moduleVisible = function (string $key) use ($flags): bool {
+    $postEventVisibleModules = ['musica', 'fotomural', 'galeria', 'hashtag', 'post_evento'];
+    $moduleVisible = function (string $key) use ($flags, $isPostEvent, $postEventVisibleModules): bool {
+        if ($isPostEvent) {
+            return in_array($key, $postEventVisibleModules, true) && (bool) ($flags[$key] ?? false);
+        }
+
         return (bool) ($flags[$key] ?? false);
     };
 @endphp
@@ -74,9 +79,6 @@
 
         <div class="hero-content px-6 py-20 sm:px-8 w-full max-w-lg {{ $hasHeroImage ? 'hero-text-light' : '' }}">
             @if($isPostEvent && $moduleVisible('post_evento'))
-                <p class="font-script text-4xl sm:text-5xl text-primary mb-6 leading-tight max-w-sm mx-auto animate-fade-up {{ $hasHeroImage ? '!text-white' : '' }}">
-                    {{ $bienvenida['mensaje_post_evento'] ?? 'Gracias por acompañarme en mi noche mágica' }}
-                </p>
                 <p class="text-[10px] uppercase tracking-[0.35em] mb-5 animate-fade-up {{ $hasHeroImage ? 'text-white/75' : 'text-secondary' }}">
                     {{ $bienvenida['subtitulo'] ?? 'Mis XV Años' }}
                 </p>
@@ -131,6 +133,16 @@
             @include('invitations.partials.icon', ['name' => 'chevron-down', 'class' => 'w-6 h-6', 'animated' => false])
         </div>
     </header>
+
+    @if($isPostEvent && $moduleVisible('post_evento') && !empty($bienvenida['mensaje_post_evento']))
+        <section class="invitation-section reveal pt-8 pb-2">
+            <div class="section-inner-wide text-center">
+                <p class="font-title text-3xl sm:text-4xl leading-snug max-w-md mx-auto text-primary {{ $hasHeroImage ? '!text-secondary' : '' }}">
+                    {{ $bienvenida['mensaje_post_evento'] }}
+                </p>
+            </div>
+        </section>
+    @endif
 
     @if($moduleVisible('cuenta_regresiva') && !$isPostEvent)
         @include('invitations.partials.countdown', [
@@ -219,10 +231,19 @@
             'slug' => $invitation->slug,
             'guestToken' => $guestToken,
             'photos' => $fotomuralPhotos ?? [],
+            'readOnly' => false,
         ])
     @endif
 
     @if($isPostEvent && $moduleVisible('post_evento'))
+        @if($moduleVisible('fotomural'))
+            @include('invitations.partials.fotomural', [
+                'slug' => $invitation->slug,
+                'guestToken' => $guestToken,
+                'photos' => $fotomuralPhotos ?? [],
+                'readOnly' => true,
+            ])
+        @endif
         @include('invitations.partials.post-event', ['postEvento' => $modulos['post_evento'] ?? []])
     @endif
 
@@ -313,3 +334,4 @@
     </script>
 </body>
 </html>
+
