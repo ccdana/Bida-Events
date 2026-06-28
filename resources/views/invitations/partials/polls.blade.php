@@ -83,7 +83,6 @@
                                         class="rounded-2xl border p-4 text-center transition-all duration-300"
                                         :class="voted && selected === idx ? 'border-primary bg-primary/10 shadow-md' : 'border-primary/15 bg-white/80 hover:border-primary/35'">
                                         <span class="block text-lg font-semibold text-secondary" x-text="opcion"></span>
-                                        <span class="mt-1 block text-[10px] uppercase tracking-[0.18em] text-stone-500">{{ $poll['label'] ?? 'Punto' }}</span>
                                     </button>
                                 </template>
                             </div>
