@@ -17,7 +17,7 @@
 @endphp
 
 @if($hasAnyGiftContent)
-<section class="invitation-section reveal" x-data="{ showBank: false }"
+<section class="invitation-section reveal" id="regalos" x-data="{ showBank: false }"
     x-effect="document.body.style.overflow = showBank ? 'hidden' : ''">
     
     <div class="section-inner-wide">
@@ -75,7 +75,7 @@
                     <p class="text-[11px] uppercase tracking-[0.2em] text-primary/60 font-semibold mb-3">Otras formas de contribuir</p>
                     <div class="grid gap-3 {{ $opcionesGridClass }}">
                         @foreach($opciones as $gift)
-                            <article class="inv-card w-full h-full p-5 rounded-xl transition-all duration-300 hover:shadow-md hover:scale-[1.01] group">
+                            <article class="inv-card w-full h-full p-5 rounded-xl transition-all duration-300 hover:shadow-md hover:scale-[1.01] group text-center flex flex-col items-center">
                                 @if(!empty($gift['icono']))
                                     @include('invitations.partials.icon', ['name' => $gift['icono'], 'class' => 'w-10 h-10 text-primary mb-3'])
                                 @endif
@@ -84,7 +84,7 @@
                                     <p class="mt-2 text-xs opacity-65 leading-relaxed">{{ $gift['descripcion'] }}</p>
                                 @endif
                                 @if(!empty($gift['enlace']))
-                                    <a href="{{ $gift['enlace'] }}" target="_blank" rel="noopener" class="mt-4 inline-flex items-center gap-2 text-xs font-semibold text-primary hover:opacity-70 transition">
+                                    <a href="{{ $gift['enlace'] }}" target="_blank" rel="noopener" class="mt-4 inline-flex items-center justify-center gap-2 text-xs font-semibold text-primary hover:opacity-70 transition">
                                         Acceder
                                         @include('invitations.partials.icon', ['name' => 'arrow-right', 'class' => 'w-3 h-3', 'animated' => false])
                                     </a>

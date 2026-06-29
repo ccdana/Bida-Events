@@ -1,4 +1,4 @@
-<section class="invitation-section reveal" x-data="countdown('{{ $eventDate }}')" x-init="start()">
+<section class="invitation-section reveal" id="cuenta-regresiva" x-data="countdown('{{ $eventDate }}')" x-init="start()">
     <div class="section-inner text-center">
         <header class="section-header">
             <span class="section-eyebrow">El gran día se acerca</span>

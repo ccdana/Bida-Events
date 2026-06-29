@@ -1,4 +1,4 @@
-<section class="invitation-section reveal">
+<section class="invitation-section reveal" id="encuestas">
     <div class="section-inner-wide">
         <header class="section-header">
             @include('invitations.partials.icon', ['name' => 'poll', 'class' => 'w-8 h-8 text-primary mx-auto mb-3'])

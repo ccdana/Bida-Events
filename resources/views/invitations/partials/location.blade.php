@@ -5,7 +5,7 @@
     $mapEmbed = "https://maps.google.com/maps?q={$lat},{$lng}&z=15&output=embed";
     $mapsNavUrl = $ubicacion['maps_url'] ?? "https://www.google.com/maps/dir/?api=1&destination={$lat},{$lng}";
 @endphp
-<section class="invitation-section reveal">
+<section class="invitation-section reveal" id="ubicacion">
     <div class="section-inner-wide">
         <header class="section-header">
             @include('invitations.partials.icon', ['name' => 'map-pin', 'class' => 'w-8 h-8 text-primary mx-auto mb-3'])

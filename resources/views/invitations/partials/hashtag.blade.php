@@ -6,7 +6,7 @@
         ? 'https://www.tiktok.com/tag/' . rawurlencode($cleanTag)
         : 'https://www.instagram.com/explore/tags/' . rawurlencode($cleanTag) . '/';
 @endphp
-<section class="invitation-section reveal text-center">
+<section class="invitation-section reveal text-center" id="hashtag">
     <div class="section-inner">
         <header class="section-header">
             <span class="section-eyebrow">Redes sociales</span>

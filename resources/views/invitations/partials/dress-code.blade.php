@@ -1,4 +1,4 @@
-<section class="invitation-section reveal" x-data="{ tab: 'sugerencias' }">
+<section class="invitation-section reveal" id="dress-code" x-data="{ tab: 'sugerencias' }">
     <div class="section-inner-wide">
         <header class="section-header">
             @include('invitations.partials.icon', ['name' => 'shirt', 'class' => 'w-8 h-8 text-primary mx-auto mb-3'])

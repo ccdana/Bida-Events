@@ -17,6 +17,29 @@
 
         return (bool) ($flags[$key] ?? false);
     };
+    $navItems = [];
+    if (!$isPostEvent && $moduleVisible('cuenta_regresiva')) {
+        $navItems[] = ['id' => 'cuenta-regresiva', 'label' => 'Cuenta regresiva'];
+    }
+    foreach ([
+        'video' => 'Video',
+        'galeria' => 'Galería',
+        'itinerario' => 'Itinerario',
+        'dress_code' => 'Dress code',
+        'destacados' => 'Cortejo',
+        'ubicacion' => 'Ubicación',
+        'hashtag' => 'Hashtag',
+        'encuestas' => 'Encuestas',
+        'playlist' => 'Playlist',
+        'regalos' => 'Regalos',
+        'rsvp' => 'RSVP',
+        'fotomural' => 'Fotomural',
+        'post_evento' => 'Post evento',
+    ] as $moduleKey => $label) {
+        if ($moduleVisible($moduleKey)) {
+            $navItems[] = ['id' => str_replace('_', '-', $moduleKey), 'label' => $label];
+        }
+    }
 @endphp
 <!DOCTYPE html>
 <html lang="es">
@@ -31,6 +54,7 @@
     <link href="https://fonts.googleapis.com/css2?family={{ urlencode($tipografias['titulos'] ?? 'Playfair Display') }}:wght@400;600;700&family={{ urlencode($tipografias['cuerpo'] ?? 'Montserrat') }}:wght@300;400;500;600&family={{ urlencode($tipografias['script'] ?? 'Great Vibes') }}&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Cormorant+Garamond:wght@400;600;700&family=Cinzel:wght@400;600;700&family=Libre+Baskerville:wght@400;700&family=Bodoni+Moda:wght@400;600;700&family=Prata&family=Lora:wght@400;500;600;700&family=Merriweather:wght@300;400;700&family=Montserrat:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Lato:wght@300;400;700&family=Nunito+Sans:wght@300;400;600;700&family=Source+Sans+3:wght@300;400;600;700&family=Poppins:wght@300;400;500;600;700&family=Raleway:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;600;700&family=Great+Vibes&family=Parisienne&family=Alex+Brush&family=Dancing+Script:wght@400;700&family=Sacramento&family=Allura&family=Tangerine:wght@400;700&family=Petit+Formal+Script&display=swap" rel="stylesheet">
     <style>
+        html { scroll-behavior: smooth; }
         :root {
             --primary-color: {{ $colores['primary'] ?? '#C9A96E' }};
             --secondary-color: {{ $colores['secondary'] ?? '#2C1810' }};
@@ -58,6 +82,40 @@
 </head>
 <body class="overflow-x-hidden pb-28" x-data="invitationApp()" x-init="init()">
 
+    <div class="fixed top-4 right-4 z-50" x-data="{ open: false }" @keydown.escape.window="open = false">
+        <button type="button"
+            @click="open = !open"
+            class="inline-flex items-center gap-2 rounded-full border border-white/35 bg-white/80 px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.24em] text-secondary shadow-lg backdrop-blur-xl transition hover:bg-white">
+            <span>Menú</span>
+            <svg class="h-3.5 w-3.5 transition-transform duration-200" :class="open ? 'rotate-180' : ''" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+        </button>
+
+        <div x-show="open"
+            x-cloak
+            @click.outside="open = false"
+            x-transition:enter="transition ease-out duration-150"
+            x-transition:enter-start="opacity-0 translate-y-2 scale-95"
+            x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+            x-transition:leave="transition ease-in duration-100"
+            x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+            x-transition:leave-end="opacity-0 translate-y-2 scale-95"
+            class="absolute right-0 mt-3 w-64 overflow-hidden rounded-3xl border border-white/40 bg-white/95 p-2 shadow-2xl backdrop-blur-xl">
+            <a href="#inicio" @click="open = false"
+                class="flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-medium text-secondary transition hover:bg-primary/5">
+                <span>Inicio</span>
+            </a>
+            @foreach($navItems as $item)
+                <a href="#{{ $item['id'] }}" @click="open = false"
+                    class="flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-medium text-secondary transition hover:bg-primary/5">
+                    <span>{{ $item['label'] }}</span>
+                    <span class="text-[10px] uppercase tracking-[0.2em] text-primary/70">Ir</span>
+                </a>
+            @endforeach
+        </div>
+    </div>
+
     <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
         @php $pSizes = [4,5,6,7,5,4,6,5,4,6,5,7,4,5,6,4,7,5,6,4]; @endphp
         @for($i = 0; $i < 20; $i++)
@@ -69,7 +127,7 @@
     @include('invitations.partials.music-player', ['musica' => $musica, 'flags' => array_merge($flags, ['musica' => $moduleVisible('musica')])])
 
     {{-- HERO --}}
-    <header class="relative min-h-[100dvh] flex flex-col items-center justify-center text-center overflow-hidden">
+    <header id="inicio" class="relative min-h-[100dvh] flex flex-col items-center justify-center text-center overflow-hidden">
         <div class="hero-bg {{ $hasHeroImage ? '' : 'hero-no-image' }}">
             @if($hasHeroImage)
                 <img src="{{ $heroImage }}" alt="" class="hero-ken-burns" loading="eager">
@@ -334,4 +392,3 @@
     </script>
 </body>
 </html>
-

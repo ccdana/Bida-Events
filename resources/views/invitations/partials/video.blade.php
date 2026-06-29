@@ -1,4 +1,4 @@
-<section class="invitation-section reveal">
+<section class="invitation-section reveal" id="video">
     <div class="section-inner-wide">
         <header class="section-header">
             <span class="section-eyebrow">Save the date</span>

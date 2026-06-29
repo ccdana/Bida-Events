@@ -1,4 +1,4 @@
-<section class="invitation-section reveal" x-data="playlistApp('{{ $slug }}', '{{ $guestToken }}', @js($songs ?? []), @js($isPreview ?? false))" x-init="init()">
+<section class="invitation-section reveal" id="playlist" x-data="playlistApp('{{ $slug }}', '{{ $guestToken }}', @js($songs ?? []), @js($isPreview ?? false))" x-init="init()">
     <div class="section-inner-wide">
         <header class="section-header">
             @include('invitations.partials.icon', ['name' => 'music', 'class' => 'w-8 h-8 text-primary mx-auto mb-3'])

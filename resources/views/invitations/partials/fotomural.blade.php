@@ -1,7 +1,7 @@
 @php
     $readOnly = $readOnly ?? false;
 @endphp
-<section class="invitation-section reveal" x-data="fotomural('{{ $slug }}', '{{ $guestToken }}', @js($photos ?? []), @js($isPreview ?? false), @js($readOnly))" x-init="init()">
+<section class="invitation-section reveal" id="fotomural" x-data="fotomural('{{ $slug }}', '{{ $guestToken }}', @js($photos ?? []), @js($isPreview ?? false), @js($readOnly))" x-init="init()">
     <div class="section-inner-wide">
         <header class="section-header">
             <span class="section-eyebrow">Recuerdos en vivo</span>

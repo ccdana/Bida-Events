@@ -1,4 +1,4 @@
-<section class="invitation-section reveal" x-data="galleryCarousel(@js($galeria['fotos']))" x-init="startAutoplay()">
+<section class="invitation-section reveal" id="galeria" x-data="galleryCarousel(@js($galeria['fotos']))" x-init="startAutoplay()">
     <div class="section-inner-wide">
         <header class="section-header">
             <span class="section-eyebrow">Momentos especiales</span>

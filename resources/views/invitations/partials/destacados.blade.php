@@ -1,4 +1,4 @@
-<section class="invitation-section reveal" x-data="{ section: 'cortejo' }">
+<section class="invitation-section reveal" id="destacados" x-data="{ section: 'cortejo' }">
     <div class="section-inner-wide">
         <header class="section-header">
             <span class="section-eyebrow">Quién me acompaña</span>
