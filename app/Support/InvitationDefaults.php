@@ -108,7 +108,7 @@ class InvitationDefaults
                     'script' => 'Great Vibes',
                 ],
                 'modulos' => self::moduleVisibilityDefaults(),
-                'template' => 'invitations.templates.xv-premium',
+                'template' => 'pages.invitations.templates.xv-premium',
             ],
             'bienvenida' => (object) [],
             'ubicacion' => ['lat' => -16.5, 'lng' => -68.15],
@@ -143,7 +143,7 @@ class InvitationDefaults
     public static function templates(): array
     {
         return [
-            'invitations.templates.xv-premium' => 'XV Años Premium',
+            'pages.invitations.templates.xv-premium' => 'XV Años Premium',
         ];
     }
 

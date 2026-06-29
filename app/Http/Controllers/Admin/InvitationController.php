@@ -3,18 +3,19 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\EventType;
+use App\Http\Requests\Admin\Invitation\StoreClientRequest;
+use App\Http\Requests\Admin\Invitation\StoreInvitationRequest;
+use App\Http\Requests\Admin\Invitation\UpdateInvitationRequest;
 use App\Models\Invitation;
 use App\Models\User;
 use App\Support\InvitationDefaults;
 use App\Services\InvitationModuleService;
 use App\Services\InvitationCacheService;
 use App\Services\InvitationPreviewSession;
-use App\Services\MediaUploadService;
+use App\ViewModels\Admin\InvitationEditorViewData;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
 
 class InvitationController extends Controller
 {
@@ -28,15 +29,16 @@ class InvitationController extends Controller
 
         $modulos = InvitationDefaults::emptyModules();
 
-        return view('admin.invitations.create', $this->formData(
+        return view('admin.invitations.create', app(InvitationEditorViewData::class)->make(
             invitation: null,
             modulos: $modulos,
+            isCreate: true,
         ));
     }
 
-    public function store(Request $request)
+    public function store(StoreInvitationRequest $request)
     {
-        $validated = $this->validateInvitation($request);
+        $validated = $request->validated();
 
         if (empty($validated['user_id'])) {
             $validated['user_id'] = null;
@@ -76,15 +78,16 @@ class InvitationController extends Controller
             InvitationPreviewSession::payloadFromInvitation($invitation, $modulos)
         );
 
-        return view('admin.invitations.edit', $this->formData(
+        return view('admin.invitations.edit', app(InvitationEditorViewData::class)->make(
             invitation: $invitation,
             modulos: $modulos,
+            isCreate: false,
         ));
     }
 
-    public function update(Request $request, Invitation $invitation)
+    public function update(UpdateInvitationRequest $request, Invitation $invitation)
     {
-        $validated = $this->validateInvitation($request, $invitation);
+        $validated = $request->validated();
         $previousSlug = $invitation->slug;
 
         if (empty($validated['user_id'])) {
@@ -114,12 +117,9 @@ class InvitationController extends Controller
             ->with('success', 'Invitación actualizada correctamente.');
     }
 
-    public function storeClient(Request $request)
+    public function storeClient(StoreClientRequest $request)
     {
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')],
-        ]);
+        $validated = $request->validated();
 
         $tempPassword = Str::random(16);
         
@@ -143,35 +143,6 @@ class InvitationController extends Controller
                 'tempPassword' => $tempPassword,
             ],
         ], 201);
-    }
-
-    protected function formData(?Invitation $invitation, array $modulos): array
-    {
-        return [
-            'invitation' => $invitation,
-            'modulos' => $modulos,
-            'templates' => InvitationDefaults::templates(),
-            'itineraryIcons' => InvitationDefaults::itineraryIcons(),
-            'eventTypes' => EventType::orderBy('name')->get(),
-            'clients' => User::where('is_admin', false)->orderBy('name')->get(),
-            'cloudinaryConfigured' => app(MediaUploadService::class)->isCloudinaryConfigured(),
-            'moduleCodes' => InvitationDefaults::moduleCodes(),
-            'moduleTabMap' => InvitationDefaults::moduleTabMap(),
-        ];
-    }
-
-    protected function validateInvitation(Request $request, ?Invitation $invitation = null): array
-    {
-        return $request->validate([
-            'title' => ['required', 'string', 'max:255'],
-            'slug' => ['required', 'string', 'max:255', Rule::unique('invitations', 'slug')->ignore($invitation?->id)],
-            'template' => ['required', 'string'],
-            'event_type_id' => ['required', 'exists:event_types,id'],
-            'user_id' => ['nullable', 'exists:users,id'],
-            'event_date' => ['required', 'date'],
-            'status' => ['required', 'in:draft,active,suspended,expired'],
-            'expires_at' => ['required', 'date'],
-        ]);
     }
 
     protected function syncModulesFromRequest(Request $request, Invitation $invitation): void

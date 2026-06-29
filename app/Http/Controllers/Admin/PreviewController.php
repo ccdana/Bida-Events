@@ -56,7 +56,7 @@ class PreviewController extends Controller
             $modulos = $payload['modulos'] ?? [];
             $modulos = $this->moduleService->normalizeModules($modulos);
             $config = $modulos['config'] ?? [];
-            $template = $payload['template'] ?? ($config['template'] ?? 'invitations.templates.xv-premium');
+            $template = $payload['template'] ?? ($config['template'] ?? 'pages.invitations.templates.xv-premium');
 
             $invitation = new Invitation([
                 'title' => $payload['title'] ?? 'Vista previa',

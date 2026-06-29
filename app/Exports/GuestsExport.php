@@ -13,17 +13,19 @@ class GuestsExport implements FromView
         protected array $stats = [],
         protected array $modulos = [],
         protected $guests = null,
+        protected array $guestRows = [],
     ) {}
 
     public function view(): View
     {
         $guests = $this->guests ?? $this->invitation->guests()->orderBy('name')->get();
 
-        return view('client.exports.guests-excel', [
+        return view('pages.client.exports.guests-excel', [
             'invitation' => $this->invitation,
             'guests' => $guests,
             'stats' => $this->stats,
             'modulos' => $this->modulos,
+            'guestRows' => $this->guestRows,
         ]);
     }
 }

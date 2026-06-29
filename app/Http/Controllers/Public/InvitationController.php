@@ -39,7 +39,7 @@ class InvitationController extends Controller
 
         $rawFlags = $modulos['config']['modulos'] ?? [];
         $config = $modulos['config'] ?? [];
-        $template = $invitation->template ?: ($config['template'] ?? 'invitations.templates.xv-premium');
+        $template = $invitation->template ?: ($config['template'] ?? 'pages.invitations.templates.xv-premium');
 
         $pollResults = $this->getPollResults($invitation, $modulos);
 

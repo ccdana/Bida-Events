@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
 use App\Models\Invitation;
+use App\ViewModels\Client\DashboardViewData as ClientDashboardViewData;
+use App\ViewModels\Client\InvitationDetailViewData;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(ClientDashboardViewData $viewData)
     {
         $invitations = auth()->user()
             ->invitations()
@@ -20,10 +22,10 @@ class DashboardController extends Controller
             ->latest()
             ->paginate(15);
 
-        return view('client.dashboard', compact('invitations'));
+        return view('pages.client.dashboard', $viewData->make($invitations));
     }
 
-    public function show(Invitation $invitation)
+    public function show(Invitation $invitation, InvitationDetailViewData $viewData)
     {
         abort_unless(auth()->id() === $invitation->user_id, 403);
 
@@ -34,24 +36,6 @@ class DashboardController extends Controller
             ->orderBy('name')
             ->get();
 
-        $confirmed = $guests->where('status', 'confirmed');
-        $declined = $guests->where('status', 'declined');
-        $pending = $guests->where('status', 'pending');
-        $totalPasses = $guests->sum('passes_confirmed');
-        $totalAllocatedPasses = $guests->sum('passes_allocated');
-        $confirmationRate = $totalAllocatedPasses > 0
-            ? round(($totalPasses / $totalAllocatedPasses) * 100, 1)
-            : 0;
-
-        return view('client.invitation', compact(
-            'invitation',
-            'guests',
-            'confirmed',
-            'declined',
-            'pending',
-            'totalPasses',
-            'totalAllocatedPasses',
-            'confirmationRate'
-        ));
+        return view('pages.client.invitation', $viewData->make($invitation, $guests));
     }
 }

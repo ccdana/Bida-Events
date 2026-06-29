@@ -3,10 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Guest\StoreGuestRequest;
+use App\Http\Requests\Admin\Guest\UpdateGuestRequest;
 use App\Models\Guest;
 use App\Models\Invitation;
 use App\Services\InvitationModuleService;
-use Illuminate\Http\Request;
 
 class GuestController extends Controller
 {
@@ -17,13 +18,9 @@ class GuestController extends Controller
         return view('admin.guests.index', compact('invitation', 'guests'));
     }
 
-    public function store(Request $request, Invitation $invitation)
+    public function store(StoreGuestRequest $request, Invitation $invitation)
     {
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'phone' => ['nullable', 'string', 'max:50'],
-            'passes_allocated' => ['required', 'integer', 'min:1', 'max:20'],
-        ]);
+        $validated = $request->validated();
 
         $invitation->guests()->create([
             ...$validated,
@@ -33,15 +30,11 @@ class GuestController extends Controller
         return back()->with('success', 'Invitado agregado.');
     }
 
-    public function update(Request $request, Invitation $invitation, Guest $guest)
+    public function update(UpdateGuestRequest $request, Invitation $invitation, Guest $guest)
     {
         abort_unless($guest->invitation_id === $invitation->id, 404);
 
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'phone' => ['nullable', 'string', 'max:50'],
-            'passes_allocated' => ['required', 'integer', 'min:1', 'max:20'],
-        ]);
+        $validated = $request->validated();
 
         $guest->update($validated);
 
