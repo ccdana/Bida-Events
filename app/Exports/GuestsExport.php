@@ -3,50 +3,27 @@
 namespace App\Exports;
 
 use App\Models\Invitation;
-use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\WithMapping;
+use Illuminate\Contracts\View\View;
+use Maatwebsite\Excel\Concerns\FromView;
 
-class GuestsExport implements FromCollection, WithHeadings, WithMapping
+class GuestsExport implements FromView
 {
     public function __construct(
-        protected Invitation $invitation
+        protected Invitation $invitation,
+        protected array $stats = [],
+        protected array $modulos = [],
+        protected $guests = null,
     ) {}
 
-    public function collection()
+    public function view(): View
     {
-        return $this->invitation->guests()->orderBy('name')->get();
-    }
+        $guests = $this->guests ?? $this->invitation->guests()->orderBy('name')->get();
 
-    public function headings(): array
-    {
-        return [
-            'Nombre',
-            'Teléfono',
-            'Pases Asignados',
-            'Pases Confirmados',
-            'Estado',
-            'Restricciones Alimentarias',
-            'Mesa',
-            'Confirmado el',
-        ];
-    }
-
-    public function map($guest): array
-    {
-        return [
-            $guest->name,
-            $guest->phone ?? '',
-            $guest->passes_allocated,
-            $guest->passes_confirmed,
-            match ($guest->status) {
-                'confirmed' => 'Confirmado',
-                'declined' => 'No asistirá',
-                default => 'Pendiente',
-            },
-            $guest->dietary_restrictions ?? '',
-            $guest->table_number ?? '',
-            $guest->confirmed_at?->format('d/m/Y H:i') ?? '',
-        ];
+        return view('client.exports.guests-excel', [
+            'invitation' => $this->invitation,
+            'guests' => $guests,
+            'stats' => $this->stats,
+            'modulos' => $this->modulos,
+        ]);
     }
 }
