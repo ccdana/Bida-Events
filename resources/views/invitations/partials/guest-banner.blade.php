@@ -9,7 +9,7 @@
     <div class="section-inner-wide">
         <div class="invitation-guest-banner__frame">
             <div class="invitation-guest-banner__rule" aria-hidden="true"></div>
-            @include('invitations.partials.icon', ['name' => 'heart', 'class' => 'invitation-guest-banner__heart w-4 h-4', 'animated' => false])
+            @include('invitations.partials.icon', ['name' => 'heart', 'class' => 'invitation-guest-banner__heart w-4 h-4', 'animated' => true])
             <div class="invitation-guest-banner__rule" aria-hidden="true"></div>
         </div>
 

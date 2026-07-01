@@ -3,7 +3,7 @@
         <div class="invitation-countdown__frame">
             <p class="invitation-countdown__eyebrow">El gran día se acerca</p>
             <div class="invitation-countdown__headline">
-                @include('invitations.partials.icon', ['name' => 'clock', 'class' => 'w-6 h-6', 'animated' => false])
+                @include('invitations.partials.icon', ['name' => 'clock', 'class' => 'w-6 h-6', 'animated' => true])
                 <h2 class="invitation-countdown__title">Faltan</h2>
             </div>
             <div class="invitation-countdown__rule" aria-hidden="true"></div>
