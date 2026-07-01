@@ -1,26 +1,30 @@
-<section class="invitation-section reveal" id="cuenta-regresiva" x-data="countdown('{{ $eventDate }}')" x-init="start()">
-    <div class="section-inner text-center">
-        <header class="section-header">
-            <span class="section-eyebrow">El gran día se acerca</span>
-            <h2 class="section-title">Faltan</h2>
-            <div class="section-ornament"></div>
-        </header>
-        <div class="grid grid-cols-4 gap-2.5 mb-6">
-            <template x-for="unit in ['days','hours','minutes','seconds']" :key="unit">
-                <div class="rounded-2xl inv-card py-4">
-                    <p class="font-title text-2xl sm:text-3xl tabular-nums" x-text="String(time[unit]).padStart(2,'0')"></p>
-                    <p class="text-[10px] uppercase tracking-wider opacity-50 mt-1" x-text="labels[unit]"></p>
-                </div>
-            </template>
-        </div>
+<section class="invitation-section reveal invitation-countdown" id="cuenta-regresiva" x-data="countdown('{{ $eventDate }}')" x-init="start()">
+    <div class="section-inner-wide">
+        <div class="invitation-countdown__frame">
+            <p class="invitation-countdown__eyebrow">El gran día se acerca</p>
+            <div class="invitation-countdown__headline">
+                @include('invitations.partials.icon', ['name' => 'clock', 'class' => 'w-6 h-6', 'animated' => false])
+                <h2 class="invitation-countdown__title">Faltan</h2>
+            </div>
+            <div class="invitation-countdown__rule" aria-hidden="true"></div>
 
-        @if($agendar ?? false)
-            <button type="button" onclick="openCalendar('{{ $calendarUrl }}')"
-                class="inline-flex items-center gap-2 px-6 py-3 rounded-full inv-card-soft text-sm font-medium text-primary hover:scale-[1.02] active:scale-[0.98] transition-transform">
-                @include('invitations.partials.icon', ['name' => 'calendar', 'class' => 'w-4 h-4', 'animated' => false])
-                Agendar en Google Calendar
-            </button>
-        @endif
+            <div class="invitation-countdown__grid" aria-live="polite">
+                <template x-for="unit in ['days','hours','minutes','seconds']" :key="unit">
+                    <div class="invitation-countdown__unit">
+                        <p class="invitation-countdown__value" x-text="String(time[unit]).padStart(2,'0')"></p>
+                        <p class="invitation-countdown__label" x-text="labels[unit]"></p>
+                    </div>
+                </template>
+            </div>
+
+            @if($agendar ?? false)
+                <button type="button" onclick="openCalendar('{{ $calendarUrl }}')"
+                    class="invitation-countdown__button">
+                    @include('invitations.partials.icon', ['name' => 'calendar', 'class' => 'w-4 h-4', 'animated' => false])
+                    Agendar en Google Calendar
+                </button>
+            @endif
+        </div>
     </div>
 </section>
 <script>
@@ -28,6 +32,7 @@ function countdown(isoDate) {
     return {
         time: { days: 0, hours: 0, minutes: 0, seconds: 0 },
         labels: { days: 'Días', hours: 'Hrs', minutes: 'Min', seconds: 'Seg' },
+        intervalId: null,
         start() {
             const target = new Date(isoDate).getTime();
             const tick = () => {
@@ -40,7 +45,13 @@ function countdown(isoDate) {
                 };
             };
             tick();
-            setInterval(tick, 1000);
+            this.intervalId = setInterval(tick, 1000);
+        },
+        destroy() {
+            if (this.intervalId) {
+                clearInterval(this.intervalId);
+                this.intervalId = null;
+            }
         }
     };
 }

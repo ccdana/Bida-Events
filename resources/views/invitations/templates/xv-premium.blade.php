@@ -106,6 +106,11 @@
                 class="flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-medium text-secondary transition hover:bg-primary/5">
                 <span>Inicio</span>
             </a>
+            <a href="#guest-banner" @click="open = false"
+                class="flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-medium text-secondary transition hover:bg-primary/5">
+                <span>Invitado especial</span>
+                <span class="text-[10px] uppercase tracking-[0.2em] text-primary/70">Ir</span>
+            </a>
             @foreach($navItems as $item)
                 <a href="#{{ $item['id'] }}" @click="open = false"
                     class="flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-medium text-secondary transition hover:bg-primary/5">
@@ -134,6 +139,10 @@
         'hasHeroImage' => $hasHeroImage,
         'isPostEvent' => $isPostEvent,
         'moduleVisible' => $moduleVisible,
+        'guest' => $guest,
+    ])
+
+    @include('invitations.partials.guest-banner', [
         'guest' => $guest,
     ])
 

@@ -52,6 +52,16 @@
             <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/>
         </svg>
         @break
+    @case('heart')
+        <svg class="{{ $class }} {{ $animClass }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <path d="M12 20.5s-6.5-4.3-8.5-8.7C1.8 8.3 3.5 5.5 6.6 5.2c1.8-.2 3.4.7 4.4 2 1-1.3 2.6-2.2 4.4-2 3.1.3 4.8 3.1 3.1 6.6C18.5 16.2 12 20.5 12 20.5z" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        @break
+    @case('clock')
+        <svg class="{{ $class }} {{ $animClass }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        @break
     @case('camera')
         <svg class="{{ $class }} {{ $animClass }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
             <path d="M4 7h3l2-3h6l2 3h3a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V9a2 2 0 012-2z"/><circle cx="12" cy="13" r="3"/>

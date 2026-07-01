@@ -257,39 +257,6 @@
     text-shadow: 0 10px 26px rgb(0 0 0 / 0.22);
 }
 
-.hero-premium__guest {
-    margin-top: 1.8rem;
-    width: min(100%, 24rem);
-    border-radius: 1.35rem;
-    border: 1px solid rgb(255 255 255 / 0.12);
-    background: rgb(11 9 16 / 0.42);
-    padding: 1rem 1.1rem;
-    backdrop-filter: blur(16px);
-    box-shadow: 0 18px 44px rgb(0 0 0 / 0.18);
-}
-
-.hero-premium__guest-label {
-    font-size: 0.68rem;
-    font-weight: 700;
-    letter-spacing: 0.28em;
-    text-transform: uppercase;
-    color: rgb(243 231 214 / 0.58);
-}
-
-.hero-premium__guest-name {
-    margin-top: 0.4rem;
-    font-size: 1.05rem;
-    font-weight: 700;
-    color: #fff5e6;
-}
-
-.hero-premium__guest-meta {
-    margin-top: 0.55rem;
-    font-size: 0.93rem;
-    line-height: 1.6;
-    color: rgb(243 231 214 / 0.82);
-}
-
 .hero-premium__scroll {
     position: absolute;
     left: 50%;
@@ -307,6 +274,198 @@
 @keyframes hero-scroll-bob {
     0%, 100% { transform: translateX(-50%) translateY(0); }
     50% { transform: translateX(-50%) translateY(-4px); }
+}
+
+.invitation-guest-banner {
+    position: relative;
+    padding-top: 2.25rem;
+    padding-bottom: 2rem;
+}
+
+.invitation-guest-banner::before {
+    content: '';
+    position: absolute;
+    inset-inline: 1.25rem;
+    top: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--primary-color) 25%, transparent), transparent);
+    opacity: 0.7;
+}
+
+.invitation-guest-banner__frame {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    justify-content: center;
+    margin-bottom: 1.35rem;
+}
+
+.invitation-guest-banner__rule {
+    width: min(18vw, 11rem);
+    height: 1px;
+    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--primary-color) 24%, transparent), transparent);
+}
+
+.invitation-guest-banner__heart {
+    font-size: 1rem;
+    line-height: 1;
+    color: color-mix(in srgb, var(--primary-color) 84%, white);
+    text-shadow: 0 0 14px rgb(201 169 110 / 0.3);
+}
+
+.invitation-guest-banner__eyebrow {
+    text-align: center;
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.42em;
+    color: color-mix(in srgb, var(--primary-color) 72%, #fff);
+}
+
+.invitation-guest-banner__title {
+    margin-top: 0.75rem;
+    text-align: center;
+    font-family: var(--font-titles);
+    font-size: clamp(2rem, 4.4vw, 3.35rem);
+    line-height: 1.1;
+    color: var(--secondary-color);
+}
+
+.invitation-guest-banner__divider {
+    width: min(22vw, 15rem);
+    height: 1px;
+    margin: 1rem auto 0;
+    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--primary-color) 58%, transparent), transparent);
+}
+
+.invitation-guest-banner__subtitle {
+    margin-top: 1rem;
+    text-align: center;
+    font-size: 0.98rem;
+    line-height: 1.75;
+    color: color-mix(in srgb, var(--secondary-color) 72%, #7a6f63);
+}
+
+.invitation-countdown {
+    position: relative;
+    padding-top: 2rem;
+    padding-bottom: 2.5rem;
+}
+
+.invitation-countdown::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+        radial-gradient(circle at 50% 18%, rgb(201 169 110 / 0.06), transparent 42%),
+        radial-gradient(circle at 20% 70%, rgb(255 186 155 / 0.04), transparent 30%);
+}
+
+.invitation-countdown__frame {
+    position: relative;
+    max-width: 54rem;
+    margin-inline: auto;
+    text-align: center;
+    padding: 1.1rem 1rem 1.5rem;
+}
+
+.invitation-countdown__eyebrow {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.42em;
+    color: color-mix(in srgb, var(--primary-color) 75%, #fff);
+}
+
+.invitation-countdown__headline {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 0.8rem;
+    color: color-mix(in srgb, var(--primary-color) 80%, #fff);
+}
+
+.invitation-countdown__title {
+    font-family: var(--font-titles);
+    font-size: clamp(3rem, 8vw, 5.1rem);
+    line-height: 0.95;
+    color: #f6ead7;
+    text-shadow: 0 12px 28px rgb(0 0 0 / 0.24);
+}
+
+.invitation-countdown__rule {
+    width: 3rem;
+    height: 1px;
+    margin: 0.95rem auto 0;
+    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--primary-color) 78%, white), transparent);
+}
+
+.invitation-countdown__grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.9rem;
+    margin-top: 1.55rem;
+}
+
+.invitation-countdown__unit {
+    position: relative;
+    padding: 0.65rem 0.25rem 0.45rem;
+}
+
+.invitation-countdown__value {
+    font-family: var(--font-titles);
+    font-size: clamp(2.6rem, 6.2vw, 4.6rem);
+    line-height: 1;
+    color: #f6ead7;
+    letter-spacing: -0.04em;
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 10px 24px rgb(0 0 0 / 0.18);
+}
+
+.invitation-countdown__label {
+    margin-top: 0.4rem;
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.38em;
+    color: color-mix(in srgb, var(--primary-color) 80%, white);
+}
+
+.invitation-countdown__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    margin-top: 2rem;
+    min-height: 2.95rem;
+    border-radius: 0;
+    border: 1px solid color-mix(in srgb, var(--primary-color) 26%, transparent);
+    padding: 0.8rem 1.65rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--primary-color) 90%, #fff);
+    background: linear-gradient(180deg, rgb(10 9 14 / 0.06), rgb(10 9 14 / 0.02));
+    box-shadow: 0 18px 32px rgb(0 0 0 / 0.08);
+}
+
+.invitation-countdown__button:hover {
+    transform: translateY(-1px);
+}
+
+@media (max-width: 640px) {
+    .invitation-guest-banner__rule {
+        width: 18vw;
+    }
+
+    .invitation-countdown__grid {
+        gap: 0.4rem;
+    }
+
+    .invitation-countdown__button {
+        width: 100%;
+        letter-spacing: 0.2em;
+    }
 }
 
 @keyframes fade-up {

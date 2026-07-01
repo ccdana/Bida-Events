@@ -3,7 +3,6 @@
     $heroEyebrow = $bienvenida['subtitulo'] ?? 'Mis XV Años';
     $heroMessage = $bienvenida['mensaje'] ?? '';
     $heroDate = $bienvenida['fecha_texto'] ?? $invitation->event_date->format('d \\d\\e F, Y');
-    $showGuestCard = isset($guest) && $guest;
 @endphp
 
 <header id="inicio" class="hero-premium relative min-h-[100svh] overflow-hidden">
@@ -49,18 +48,6 @@
             {{ $heroDate }}
         </p>
 
-        @if($showGuestCard)
-            <div class="hero-premium__guest animate-fade-up animate-fade-up-delay-4">
-                <p class="hero-premium__guest-label">Invitación personal</p>
-                <p class="hero-premium__guest-name">{{ $guest->name }}</p>
-                @if($guest->status === 'pending')
-                    <p class="hero-premium__guest-meta">
-                        Tienes <strong>{{ $guest->passes_allocated }}</strong>
-                        {{ $guest->passes_allocated === 1 ? 'pase disponible' : 'pases disponibles' }}
-                    </p>
-                @endif
-            </div>
-        @endif
     </div>
 
     <div class="hero-premium__scroll {{ $hasHeroImage ? 'text-white/60' : 'text-primary/50' }}" aria-hidden="true">
