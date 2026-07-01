@@ -53,12 +53,12 @@
         </svg>
         @break
     @case('heart')
-        <svg class="{{ $class }} {{ $animClass }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <svg class="{{ $class }} {{ $animClass }} icon-pulse-press" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
             <path d="M12 20.5s-6.5-4.3-8.5-8.7C1.8 8.3 3.5 5.5 6.6 5.2c1.8-.2 3.4.7 4.4 2 1-1.3 2.6-2.2 4.4-2 3.1.3 4.8 3.1 3.1 6.6C18.5 16.2 12 20.5 12 20.5z" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
         @break
     @case('clock')
-        <svg class="{{ $class }} {{ $animClass }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <svg class="{{ $class }} {{ $animClass }} icon-sway" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
             <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
         @break

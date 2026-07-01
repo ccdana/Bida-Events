@@ -81,8 +81,14 @@
 }
 
 @keyframes sway {
-    0%, 100% { transform: rotate(-3deg); }
-    50% { transform: rotate(3deg); }
+    0%, 100% { transform: rotate(-4deg) scale(1); }
+    50% { transform: rotate(8deg) scale(1.08); }
+}
+
+@keyframes pulse-press {
+    0%, 100% { transform: scale(1); }
+    40% { transform: scale(1.08); }
+    60% { transform: scale(0.96); }
 }
 
 @keyframes float-soft {
@@ -109,7 +115,8 @@
 
 .animate-eq { animation: eq 0.8s ease-in-out infinite; transform-origin: bottom; }
 .icon-flicker { animation: flicker 2s ease-in-out infinite; transform-origin: center bottom; }
-.icon-sway { animation: sway 3s ease-in-out infinite; transform-origin: center bottom; }
+.icon-sway { animation: swing 3s ease-in-out infinite; transform-origin: center bottom; }
+.icon-pulse-press { animation: pulse-press 2.4s ease-in-out infinite; transform-origin: center center; }
 .icon-float-soft { animation: float-soft 3s ease-in-out infinite; }
 .icon-spin-slow { animation: spin-slow 12s linear infinite; }
 .icon-bounce-soft { animation: bounce-soft 2s ease-in-out infinite; }
@@ -174,9 +181,9 @@
     pointer-events: none;
     background: linear-gradient(180deg,
         rgba(255,255,255,0) 0%,
-        rgba(255,255,255,0) 70%,
-        rgba(255,255,255,0.08) 82%,
-        rgba(255,255,255,0.18) 88%,
+        rgba(255,255,255,0) 74%,
+        color-mix(in srgb, var(--bg-color) 25%, transparent) 84%,
+        color-mix(in srgb, var(--bg-color) 40%, transparent) 92%,
         var(--bg-color) 100%
     );
 }
@@ -339,9 +346,11 @@
 .invitation-guest-banner {
     position: relative;
     margin-top: 0;
-    padding-top: 6.5rem;
+    padding-top: 4.5rem;
     padding-bottom: 2.75rem;
     background: transparent;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
     transition: opacity 0.35s ease, transform 0.35s ease;
 }
 
@@ -376,16 +385,18 @@
 }
 
 .invitation-guest-banner__rule {
-    width: min(18vw, 11rem);
+    width: min(14vw, 8rem);
     height: 1px;
-    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--primary-color) 24%, transparent), transparent);
+    border-radius: 999px;
+    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent-color) 66%, var(--bg-color) 34%), transparent);
+    opacity: 0.88;
 }
 
 .invitation-guest-banner__heart {
     font-size: 1rem;
     line-height: 1;
     color: color-mix(in srgb, var(--primary-color) 84%, white);
-    text-shadow: 0 0 14px rgb(201 169 110 / 0.3);
+    text-shadow: 0 0 16px rgba(255,255,255,0.18);
 }
 
 .invitation-guest-banner__eyebrow {
@@ -407,10 +418,12 @@
 }
 
 .invitation-guest-banner__divider {
-    width: min(22vw, 15rem);
+    width: min(18vw, 10rem);
     height: 1px;
     margin: 1rem auto 0;
-    background: linear-gradient(90deg, transparent, var(--accent-color), transparent);
+    border-radius: 999px;
+    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent-color) 78%, var(--bg-color) 22%), transparent);
+    opacity: 0.88;
 }
 
 .invitation-guest-banner__subtitle {
@@ -428,6 +441,8 @@
     padding-top: 4.5rem;
     padding-bottom: 3rem;
     background: transparent;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
 }
 
 .invitation-countdown::before,
@@ -468,10 +483,12 @@
 }
 
 .invitation-countdown__rule {
-    width: 3rem;
+    width: 4.5rem;
     height: 1px;
     margin: 0.95rem auto 0;
-    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--primary-color) 72%, var(--secondary-color)), transparent);
+    border-radius: 999px;
+    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--primary-color) 78%, var(--secondary-color)), transparent);
+    opacity: 0.88;
 }
 
 .invitation-countdown__grid {
@@ -511,13 +528,13 @@
     margin-top: 2rem;
     min-height: 2.6rem;
     border-radius: 0.25rem;
-    border: none;
+    border: 1px solid color-mix(in srgb, var(--accent-color) 90%, var(--bg-color));
     padding: 0.6rem 1.25rem;
     font-size: 0.72rem;
     font-weight: 600;
     letter-spacing: 0.16em;
     text-transform: uppercase;
-    color: var(--accent-color);
+    color: var(--text-color);
     background: transparent;
     box-shadow: none;
 }
