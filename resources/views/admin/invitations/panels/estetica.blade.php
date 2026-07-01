@@ -32,13 +32,14 @@
         <div class="grid grid-cols-2 gap-1.5">
             <template x-for="preset in getColorPresets()" :key="preset.name">
                 <button type="button" @click="applyColorPreset(preset.name)"
-                    class="relative p-2 rounded-lg border-2 transition-all" :class="isCurrentPreset(preset.name) ? 'border-stone-900 bg-white ring-1 ring-stone-900/20' : 'border-stone-200 bg-stone-50 hover:border-stone-300'">
+                    class="relative p-2 rounded-lg border-2 transition-all"
+                    :class="isCurrentPreset(preset.name) ? (isPresetDark(preset) ? 'border-stone-900 bg-stone-900 text-white ring-1 ring-stone-900/30' : 'border-stone-900 bg-white ring-1 ring-stone-900/20') : 'border-stone-200 bg-stone-50 hover:border-stone-300'">
                     <div class="flex gap-0.5 mb-1.5 h-3">
                         <div class="flex-1 rounded-sm" :style="`background:${preset.colors.primary}`"></div>
                         <div class="flex-1 rounded-sm" :style="`background:${preset.colors.secondary}`"></div>
                         <div class="flex-1 rounded-sm" :style="`background:${preset.colors.accent}`"></div>
                     </div>
-                    <p class="text-xs font-semibold text-stone-700 truncate" x-text="preset.name"></p>
+                    <p :class="isPresetDark(preset) ? 'text-white' : 'text-stone-700'" class="text-xs font-semibold truncate" x-text="preset.name"></p>
                 </button>
             </template>
         </div>

@@ -1299,6 +1299,26 @@ function invitationForm(config) {
                     description: 'Tonos cálidos',
                     colors: { primary: '#FF6B5B', secondary: '#B82C1F', accent: '#FFD4CC', text: '#2A1A16', background: '#FFF5F3' }
                 },
+                {
+                    name: 'Midnight',
+                    description: 'Fondo oscuro con acentos azules',
+                    colors: { primary: '#66B2FF', secondary: '#0F1B2B', accent: '#7C5CFF', text: '#DDE9FF', background: '#071126' }
+                },
+                {
+                    name: 'Graphite',
+                    description: 'Negro suave y neutro',
+                    colors: { primary: '#9AA5B1', secondary: '#121216', accent: '#4DD0E1', text: '#E6E9EE', background: '#0B0D10' }
+                },
+                {
+                    name: 'Rose Dark',
+                    description: 'Rosa oscuro elegante',
+                    colors: { primary: '#FF92C9', secondary: '#21121A', accent: '#FF7AA2', text: '#FFDFEF', background: '#13040F' }
+                },
+                {
+                    name: 'Emerald Night',
+                    description: 'Verde profundo y nocturno',
+                    colors: { primary: '#66D19E', secondary: '#0B2218', accent: '#2BD18B', text: '#DFF7EE', background: '#04120B' }
+                },
             ];
         },
 
@@ -1320,6 +1340,17 @@ function invitationForm(config) {
             return Object.keys(preset.colors).every(key => 
                 (currentColors[key] || '').toUpperCase() === (preset.colors[key] || '').toUpperCase()
             );
+        },
+
+        isPresetDark(preset) {
+            const bg = (preset?.colors?.background || '').replace('#','');
+            if (!bg || bg.length !== 6) return false;
+            const r = parseInt(bg.slice(0,2),16);
+            const g = parseInt(bg.slice(2,4),16);
+            const b = parseInt(bg.slice(4,6),16);
+            // luminance approximation
+            const lum = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+            return lum < 100; // dark when luminance is low
         },
 
         // Función para calcular ratio de contraste WCAG
