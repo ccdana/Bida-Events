@@ -158,7 +158,7 @@
 
     @if($moduleVisible('cuenta_regresiva') && !$isPostEvent)
         @include('invitations.partials.countdown', [
-            'eventDate' => $invitation->event_date->toIso8601String(),
+            'eventDate' => $invitation->event_date->copy()->timezone(config('app.timezone'))->toIso8601String(),
             'calendarUrl' => $calendarUrl,
             'agendar' => $moduleVisible('agendar'),
         ])
