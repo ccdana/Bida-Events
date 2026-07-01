@@ -50,7 +50,7 @@
 
     </div>
 
-    <div class="hero-premium__scroll {{ $hasHeroImage ? 'text-white/60' : 'text-primary/50' }}" aria-hidden="true">
+    <div class="hero-premium__scroll" aria-hidden="true">
         @include('invitations.partials.icon', ['name' => 'chevron-down', 'class' => 'w-6 h-6', 'animated' => false])
     </div>
 </header>

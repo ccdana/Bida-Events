@@ -32,5 +32,6 @@
                 La experiencia está pensada para una persona muy especial
             </p>
         @endif
+
     </div>
 </section>

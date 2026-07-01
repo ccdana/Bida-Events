@@ -106,11 +106,13 @@
                 class="flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-medium text-secondary transition hover:bg-primary/5">
                 <span>Inicio</span>
             </a>
-            <a href="#guest-banner" @click="open = false"
-                class="flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-medium text-secondary transition hover:bg-primary/5">
-                <span>Invitado especial</span>
-                <span class="text-[10px] uppercase tracking-[0.2em] text-primary/70">Ir</span>
-            </a>
+            @if($moduleVisible('rsvp') && $guest)
+                <a href="#guest-banner" @click="open = false"
+                    class="flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-medium text-secondary transition hover:bg-primary/5">
+                    <span>Invitado especial</span>
+                    <span class="text-[10px] uppercase tracking-[0.2em] text-primary/70">Ir</span>
+                </a>
+            @endif
             @foreach($navItems as $item)
                 <a href="#{{ $item['id'] }}" @click="open = false"
                     class="flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-medium text-secondary transition hover:bg-primary/5">
@@ -142,9 +144,11 @@
         'guest' => $guest,
     ])
 
-    @include('invitations.partials.guest-banner', [
-        'guest' => $guest,
-    ])
+    @if($moduleVisible('rsvp') && $guest)
+        @include('invitations.partials.guest-banner', [
+            'guest' => $guest,
+        ])
+    @endif
 
     @if($isPostEvent && $moduleVisible('post_evento') && !empty($bienvenida['mensaje_post_evento']))
         <section class="invitation-section reveal pt-8 pb-2">
