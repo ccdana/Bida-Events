@@ -123,9 +123,19 @@
     82% { transform: rotate(-2deg) scale(1.03); }
 }
 
+@keyframes play-pulse {
+    0%, 100% { transform: rotate(0deg) scale(1); }
+    16% { transform: rotate(-8deg) scale(1.08); }
+    36% { transform: rotate(10deg) scale(1.16); }
+    56% { transform: rotate(-6deg) scale(1.12); }
+    76% { transform: rotate(6deg) scale(1.08); }
+    90% { transform: rotate(-2deg) scale(1.04); }
+}
+
 .icon-animated { transform-origin: center center; }
 .icon-lucide-heart { animation: heart-lift 3.2s cubic-bezier(.54,.04,.27,1.04) infinite; transform-origin: center center; }
 .icon-lucide-clock { animation: clock-sweep 4s cubic-bezier(.3,.8,.5,1.05) infinite; transform-origin: center center; }
+.invitation-video__title-icon { animation: play-pulse 4s cubic-bezier(.3,.8,.4,1.02) infinite; transform-origin: center center; }
 
 @keyframes particle-drift {
     0%   { transform: translate(0, 0) scale(1);      opacity: 0.25; }
@@ -222,19 +232,26 @@
     background: var(--bg-color);
 }
 
-.invitation-video__overlay {
-    position: absolute;
-    inset: 0;
-    display: flex;
+.invitation-video__title-row {
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    pointer-events: none;
-    background: radial-gradient(circle at center, color-mix(in srgb, var(--accent-color) 30%, rgba(0,0,0,0.15)) 0%, transparent 55%);
+    gap: 0.85rem;
 }
 
-.invitation-video__icon {
+.invitation-video__title-icon {
     color: var(--primary-color);
-    filter: drop-shadow(0 0 16px rgba(102, 178, 255, 0.22));
+    filter: drop-shadow(0 0 18px rgba(102, 178, 255, 0.22));
+    transform-origin: center center;
+}
+
+.invitation-video__rule {
+    width: 4.5rem;
+    height: 1px;
+    margin: 1rem auto 0;
+    border-radius: 999px;
+    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent-color) 78%, var(--bg-color) 22%), transparent);
+    opacity: 0.88;
 }
 
 .invitation-video__empty {
