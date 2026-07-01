@@ -127,70 +127,15 @@
     @include('invitations.partials.music-player', ['musica' => $musica, 'flags' => array_merge($flags, ['musica' => $moduleVisible('musica')])])
 
     {{-- HERO --}}
-    <header id="inicio" class="relative min-h-[100dvh] flex flex-col items-center justify-center text-center overflow-hidden">
-        <div class="hero-bg {{ $hasHeroImage ? '' : 'hero-no-image' }}">
-            @if($hasHeroImage)
-                <img src="{{ $heroImage }}" alt="" class="hero-ken-burns" loading="eager">
-                <div class="hero-overlay"></div>
-            @endif
-        </div>
-
-        <div class="hero-content px-6 py-20 sm:px-8 w-full max-w-lg {{ $hasHeroImage ? 'hero-text-light' : '' }}">
-            @if($isPostEvent && $moduleVisible('post_evento'))
-                <p class="text-[10px] uppercase tracking-[0.35em] mb-5 animate-fade-up {{ $hasHeroImage ? 'text-white/75' : 'text-secondary' }}">
-                    {{ $bienvenida['subtitulo'] ?? 'Mis XV Años' }}
-                </p>
-                <h1 class="font-script text-6xl sm:text-[5.5rem] leading-none mb-6 animate-fade-up animate-fade-up-delay-1 {{ $hasHeroImage ? 'text-white drop-shadow-lg' : 'text-primary' }}">
-                    {{ $bienvenida['nombre_quinceanera'] ?? 'Quinceañera' }}
-                </h1>
-                @if(!empty($bienvenida['mensaje']))
-                    <p class="font-title text-base sm:text-lg max-w-sm mx-auto leading-relaxed animate-fade-up animate-fade-up-delay-2 {{ $hasHeroImage ? 'text-white/85' : 'text-secondary/90' }}">
-                        {{ $bienvenida['mensaje'] }}
-                    </p>
-                @endif
-                <div class="mt-8 animate-fade-up animate-fade-up-delay-3">
-                    <div class="section-ornament {{ $hasHeroImage ? 'bg-white/40' : '' }}" style="{{ $hasHeroImage ? 'background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent)' : '' }}"></div>
-                    <p class="mt-4 text-xs tracking-[0.25em] uppercase py-3 px-6 inline-block {{ $hasHeroImage ? 'text-white/90 border border-white/25 rounded-full' : 'border-t border-b border-primary/25' }}">
-                        {{ $bienvenida['fecha_texto'] ?? $invitation->event_date->format('d \d\e F, Y') }}
-                    </p>
-                </div>
-            @else
-                <p class="text-[10px] uppercase tracking-[0.35em] mb-5 animate-fade-up {{ $hasHeroImage ? 'text-white/75' : 'text-secondary' }}">
-                    {{ $bienvenida['subtitulo'] ?? 'Mis XV Años' }}
-                </p>
-                <h1 class="font-script text-6xl sm:text-[5.5rem] leading-none mb-6 animate-fade-up animate-fade-up-delay-1 {{ $hasHeroImage ? 'text-white drop-shadow-lg' : 'text-primary' }}">
-                    {{ $bienvenida['nombre_quinceanera'] ?? 'Quinceañera' }}
-                </h1>
-                @if(!empty($bienvenida['mensaje']))
-                    <p class="font-title text-base sm:text-lg max-w-sm mx-auto leading-relaxed animate-fade-up animate-fade-up-delay-2 {{ $hasHeroImage ? 'text-white/85' : 'text-secondary/90' }}">
-                        {{ $bienvenida['mensaje'] }}
-                    </p>
-                @endif
-                <div class="mt-8 animate-fade-up animate-fade-up-delay-3">
-                    <div class="section-ornament {{ $hasHeroImage ? 'bg-white/40' : '' }}" style="{{ $hasHeroImage ? 'background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent)' : '' }}"></div>
-                    <p class="mt-4 text-xs tracking-[0.25em] uppercase py-3 px-6 inline-block {{ $hasHeroImage ? 'text-white/90 border border-white/25 rounded-full' : 'border-t border-b border-primary/25' }}">
-                        {{ $bienvenida['fecha_texto'] ?? $invitation->event_date->format('d \d\e F, Y') }}
-                    </p>
-                </div>
-            @endif
-
-            @if($guest)
-                <div class="mt-10 mx-auto px-6 py-5 rounded-2xl glass-card max-w-sm w-full animate-fade-up animate-fade-up-delay-4 {{ $hasHeroImage ? '!bg-white/15 !border-white/25 !text-white backdrop-blur-md' : '' }}">
-                    <p class="text-[10px] uppercase tracking-widest opacity-60">Invitación personal</p>
-                    <p class="font-title text-xl mt-2">{{ $guest->name }}</p>
-                    @if($guest->status === 'pending')
-                        <p class="text-sm mt-3 {{ $hasHeroImage ? 'text-white/80' : 'text-primary' }}">
-                            Tienes <strong>{{ $guest->passes_allocated }}</strong> {{ $guest->passes_allocated === 1 ? 'pase disponible' : 'pases disponibles' }}
-                        </p>
-                    @endif
-                </div>
-            @endif
-        </div>
-
-        <div class="absolute bottom-8 left-1/2 -translate-x-1/2 hero-scroll {{ $hasHeroImage ? 'text-white/50' : 'text-primary/40' }}">
-            @include('invitations.partials.icon', ['name' => 'chevron-down', 'class' => 'w-6 h-6', 'animated' => false])
-        </div>
-    </header>
+    @include('invitations.partials.hero', [
+        'invitation' => $invitation,
+        'bienvenida' => $bienvenida,
+        'heroImage' => $heroImage,
+        'hasHeroImage' => $hasHeroImage,
+        'isPostEvent' => $isPostEvent,
+        'moduleVisible' => $moduleVisible,
+        'guest' => $guest,
+    ])
 
     @if($isPostEvent && $moduleVisible('post_evento') && !empty($bienvenida['mensaje_post_evento']))
         <section class="invitation-section reveal pt-8 pb-2">
