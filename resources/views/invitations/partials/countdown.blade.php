@@ -1,11 +1,9 @@
 <section class="invitation-section reveal invitation-countdown" id="cuenta-regresiva" x-data="countdown('{{ $eventDate }}')" x-init="start()">
     <div class="section-inner-wide">
         <div class="invitation-countdown__frame">
+            @include('invitations.partials.lottie-framed-icon', ['name' => 'clock'])
             <p class="invitation-countdown__eyebrow">El gran día se acerca</p>
-            <div class="invitation-countdown__headline">
-                @include('invitations.partials.icon', ['name' => 'clock', 'class' => 'w-6 h-6', 'animated' => true])
-                <h2 class="invitation-countdown__title">Faltan</h2>
-            </div>
+            <h2 class="invitation-countdown__title">Faltan</h2>
             <div class="invitation-countdown__rule" aria-hidden="true"></div>
 
             <div class="invitation-countdown__grid" aria-live="polite">
@@ -20,7 +18,7 @@
             @if($agendar ?? false)
                 <button type="button" onclick="openCalendar('{{ $calendarUrl }}')"
                     class="invitation-countdown__button">
-                    @include('invitations.partials.icon', ['name' => 'calendar', 'class' => 'w-4 h-4', 'animated' => false])
+                    @include('invitations.partials.lottie-icon', ['name' => 'calendar', 'class' => 'invitation-countdown__button-lottie'])
                     Agendar en Google Calendar
                 </button>
             @endif

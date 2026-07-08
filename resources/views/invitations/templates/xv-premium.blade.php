@@ -173,7 +173,7 @@
             <div class="section-inner text-center">
                 <button type="button" onclick="openCalendar('{{ $calendarUrl }}')"
                     class="inline-flex items-center gap-2 px-6 py-3 rounded-full inv-card text-sm font-medium text-primary active:scale-[0.98] transition-transform">
-                    @include('invitations.partials.icon', ['name' => 'calendar', 'class' => 'w-4 h-4', 'animated' => false])
+                    @include('invitations.partials.lottie-icon', ['name' => 'calendar', 'class' => 'invitation-countdown__button-lottie'])
                     Agendar en Google Calendar
                 </button>
             </div>

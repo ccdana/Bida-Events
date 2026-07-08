@@ -173,10 +173,38 @@
     background: linear-gradient(90deg, transparent, var(--primary-color), var(--secondary-color), transparent);
 }
 
+.invitation-lottie-framed {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.9rem;
+    margin-bottom: 1.35rem;
+    position: relative;
+    z-index: 6;
+}
+
+.invitation-lottie-framed__rule {
+    width: min(14vw, 8rem);
+    height: 1px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent-color) 66%, var(--bg-color) 34%), transparent);
+    opacity: 0.88;
+}
+
+.invitation-lottie-framed__icon {
+    width: 3rem;
+    height: 3rem;
+    flex-shrink: 0;
+}
+
 .invitation-video {
     position: relative;
-    padding-top: 2.5rem;
-    padding-bottom: 2.5rem;
+    margin-top: 0;
+    padding-top: 4.5rem;
+    padding-bottom: 3rem;
+    background: transparent;
+    border-top: 1px solid color-mix(in srgb, var(--accent-color) 28%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, var(--accent-color) 28%, transparent);
 }
 
 .invitation-video .section-inner-wide {
@@ -185,48 +213,50 @@
 
 .invitation-video::before,
 .invitation-video::after {
-    content: '';
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    width: min(56rem, 94%);
-    height: 1px;
-    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--primary-color) 55%, var(--bg-color) 45%), transparent);
-    opacity: 0.45;
+    content: none;
 }
 
-.invitation-video::before { top: 0; }
-.invitation-video::after { bottom: 0; }
-
-.invitation-video__header {
-    max-width: 48rem;
+.invitation-video__shell {
+    position: relative;
+    max-width: 54rem;
     margin-inline: auto;
-    margin-bottom: 2.5rem;
+    text-align: center;
+    padding: 1.1rem 1rem 0;
+    z-index: 6;
 }
 
 .invitation-video__eyebrow {
-    font-family: var(--font-titles);
-    font-size: 0.6875rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
     letter-spacing: 0.42em;
-    color: color-mix(in srgb, var(--primary-color) 88%, var(--secondary-color) 12%);
-    opacity: 0.92;
+    color: color-mix(in srgb, var(--primary-color) 82%, var(--secondary-color));
 }
 
 .invitation-video__title {
-    margin-top: 0.85rem;
+    margin-top: 0.75rem;
     font-family: var(--font-titles);
-    font-size: clamp(1.85rem, 4.8vw, 2.75rem);
+    font-size: clamp(2.35rem, 6.5vw, 4.25rem);
     font-weight: 400;
-    line-height: 1.15;
-    color: color-mix(in srgb, var(--secondary-color) 72%, var(--primary-color) 28%);
+    line-height: 0.98;
+    color: var(--text-color, var(--secondary-color));
+}
+
+.invitation-video__rule {
+    width: 4.5rem;
+    height: 1px;
+    margin: 0.95rem auto 0;
+    border-radius: 999px;
+    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--primary-color) 78%, var(--secondary-color)), transparent);
+    opacity: 0.88;
 }
 
 .invitation-video__player {
     max-width: 58rem;
-    margin: 0 auto;
+    margin: 2rem auto 0;
 }
 
-.invitation-video__frame {
+.invitation-video__player-frame {
     position: relative;
     display: grid;
     grid-template-columns: 1fr;
@@ -234,14 +264,15 @@
     place-items: stretch;
     border-radius: 0.35rem;
     overflow: hidden;
-    background: color-mix(in srgb, var(--bg-color) 88%, var(--secondary-color) 12%);
-    box-shadow: 0 28px 64px -36px color-mix(in srgb, var(--bg-color) 35%, black);
+    background: color-mix(in srgb, var(--accent-color) 14%, var(--bg-color));
+    border: 1px solid color-mix(in srgb, var(--accent-color) 42%, var(--bg-color));
+    box-shadow: 0 28px 64px -36px color-mix(in srgb, var(--primary-color) 20%, transparent);
     aspect-ratio: 16 / 9;
     width: 100%;
 }
 
-.invitation-video__frame > video,
-.invitation-video__frame > .video-js,
+.invitation-video__player-frame > video,
+.invitation-video__player-frame > .video-js,
 .invitation-video__poster {
     grid-area: 1 / 1;
     width: 100%;
@@ -261,7 +292,7 @@
     transition: opacity 320ms ease;
 }
 
-.invitation-video__frame.is-playing .invitation-video__poster {
+.invitation-video__player-frame.is-playing .invitation-video__poster {
     opacity: 0;
 }
 
@@ -278,7 +309,7 @@
     transition: opacity 180ms ease, visibility 180ms ease;
 }
 
-.invitation-video__frame.is-idle .invitation-video__media {
+.invitation-video__player-frame.is-idle .invitation-video__media {
     opacity: 0;
     visibility: hidden;
 }
@@ -303,14 +334,14 @@
     z-index: 4;
     width: 4.75rem;
     height: 4.75rem;
-    border: 1px solid color-mix(in srgb, var(--primary-color) 28%, transparent);
+    border: 1px solid color-mix(in srgb, var(--accent-color) 72%, var(--primary-color) 28%);
     border-radius: 999px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: color-mix(in srgb, var(--bg-color) 62%, rgba(0, 0, 0, 0.72));
+    background: color-mix(in srgb, var(--bg-color) 58%, var(--secondary-color) 42%);
     color: var(--primary-color);
-    box-shadow: 0 18px 42px color-mix(in srgb, var(--bg-color) 25%, rgba(0, 0, 0, 0.45));
+    box-shadow: 0 18px 42px color-mix(in srgb, var(--secondary-color) 35%, transparent);
     backdrop-filter: blur(8px);
     opacity: 0;
     pointer-events: none;
@@ -319,7 +350,7 @@
     transition: opacity 320ms ease;
 }
 
-.invitation-video__frame.is-idle .invitation-video__play-toggle,
+.invitation-video__player-frame.is-idle .invitation-video__play-toggle,
 .invitation-video__play-toggle.is-visible,
 .invitation-video__play-toggle.is-pinned {
     opacity: 1;
@@ -356,22 +387,13 @@
     transform: translate(-62%, -50%);
 }
 
-.invitation-video__rule {
-    width: 4.5rem;
-    height: 1px;
-    margin: 1.15rem auto 0;
-    border-radius: 999px;
-    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--primary-color) 72%, var(--bg-color) 28%), transparent);
-    opacity: 0.88;
-}
-
 .invitation-video__empty {
     max-width: 46rem;
-    margin: 0 auto;
+    margin: 2rem auto 0;
     padding: 2rem 1.5rem;
     border-radius: 1.75rem;
-    border: 1px dashed color-mix(in srgb, var(--primary-color) 40%, var(--bg-color));
-    background: color-mix(in srgb, var(--bg-color) 85%, var(--secondary-color) 10%);
+    border: 1px dashed color-mix(in srgb, var(--accent-color) 55%, var(--primary-color) 45%);
+    background: color-mix(in srgb, var(--accent-color) 16%, var(--bg-color));
     color: color-mix(in srgb, var(--text-color, var(--secondary-color)) 88%, var(--bg-color));
     text-align: center;
     font-size: 0.95rem;
@@ -380,17 +402,16 @@
 
 @media (max-width: 768px) {
     .invitation-video {
-        padding-top: 2rem;
-        padding-bottom: 2rem;
+        padding-top: 3rem;
+        padding-bottom: 2.5rem;
     }
 
-    .invitation-video__header {
-        margin-bottom: 2rem;
+    .invitation-video__title {
+        font-size: clamp(1.9rem, 8vw, 2.75rem);
     }
 
-    .invitation-video__eyebrow {
-        font-size: 0.625rem;
-        letter-spacing: 0.36em;
+    .invitation-video__player {
+        margin-top: 1.65rem;
     }
 
     .invitation-video__play-toggle {
@@ -749,36 +770,11 @@
     content: none;
 }
 
-.invitation-guest-banner__frame {
-    display: flex;
-    align-items: center;
-    gap: 0.9rem;
-    justify-content: center;
-    margin-bottom: 1.35rem;
-}
-
-.invitation-guest-banner__frame,
 .invitation-guest-banner__title,
 .invitation-guest-banner__eyebrow,
-.invitation-guest-banner__subtitle,
-.invitation-guest-banner__rule {
+.invitation-guest-banner__subtitle {
     position: relative;
     z-index: 6; /* ensure content sits above pseudo-backdrop */
-}
-
-.invitation-guest-banner__rule {
-    width: min(14vw, 8rem);
-    height: 1px;
-    border-radius: 999px;
-    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent-color) 66%, var(--bg-color) 34%), transparent);
-    opacity: 0.88;
-}
-
-.invitation-guest-banner__heart {
-    font-size: 1rem;
-    line-height: 1;
-    color: color-mix(in srgb, var(--primary-color) 84%, white);
-    text-shadow: 0 0 16px rgba(255,255,255,0.18);
 }
 
 .invitation-guest-banner__eyebrow {
@@ -849,15 +845,28 @@
     color: color-mix(in srgb, var(--primary-color) 82%, var(--secondary-color));
 }
 
-.invitation-countdown__headline {
+.invitation-countdown__button-lottie {
+    width: 1.35rem;
+    height: 1.35rem;
+    flex-shrink: 0;
+}
+
+.invitation-lottie {
     display: inline-flex;
     align-items: center;
-    gap: 0.75rem;
-    margin-top: 0.8rem;
-    color: color-mix(in srgb, var(--primary-color) 78%, var(--secondary-color));
+    justify-content: center;
+    line-height: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.invitation-lottie svg {
+    width: 100% !important;
+    height: 100% !important;
 }
 
 .invitation-countdown__title {
+    margin-top: 0.75rem;
     font-family: var(--font-titles);
     font-size: clamp(3rem, 8vw, 5.1rem);
     line-height: 0.95;
@@ -926,7 +935,7 @@
 }
 
 @media (max-width: 640px) {
-    .invitation-guest-banner__rule {
+    .invitation-lottie-framed__rule {
         width: 18vw;
     }
 

@@ -1,14 +1,15 @@
 <section class="invitation-section reveal invitation-video" id="video">
     <div class="section-inner-wide">
-        <header class="section-header invitation-video__header">
-            <span class="section-eyebrow invitation-video__eyebrow">Save the date</span>
-            <h2 class="section-title invitation-video__title">{{ $video['titulo'] ?? 'Nuestro video' }}</h2>
+        <div class="invitation-video__shell">
+            @include('invitations.partials.lottie-framed-icon', ['name' => 'video'])
+            <p class="invitation-video__eyebrow">Save the date</p>
+            <h2 class="invitation-video__title">{{ $video['titulo'] ?? 'Nuestro video' }}</h2>
             <div class="invitation-video__rule" aria-hidden="true"></div>
-        </header>
+
         @if(!empty($video['video_url'] ?? null))
             @php $videoPlayerId = 'invitation-video-' . uniqid(); @endphp
             <div class="invitation-video__player">
-                <div class="invitation-video__frame is-idle" data-video-frame="true">
+                <div class="invitation-video__player-frame is-idle" data-video-frame="true">
                     @if(!empty($video['poster'] ?? null))
                         <img
                             class="invitation-video__poster"
@@ -45,5 +46,6 @@
                 El video aún no tiene una URL configurada.
             </div>
         @endif
+        </div>
     </div>
 </section>

@@ -7,11 +7,7 @@
 
 <section class="invitation-section reveal invitation-guest-banner" id="guest-banner">
     <div class="section-inner-wide">
-        <div class="invitation-guest-banner__frame">
-            <div class="invitation-guest-banner__rule" aria-hidden="true"></div>
-            @include('invitations.partials.icon', ['name' => 'heart', 'class' => 'invitation-guest-banner__heart w-4 h-4', 'animated' => true])
-            <div class="invitation-guest-banner__rule" aria-hidden="true"></div>
-        </div>
+        @include('invitations.partials.lottie-framed-icon', ['name' => 'invitation'])
 
         <p class="invitation-guest-banner__eyebrow">
             Esta invitación es para

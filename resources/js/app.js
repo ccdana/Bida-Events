@@ -2,6 +2,7 @@ import './bootstrap';
 import Alpine from 'alpinejs';
 import 'video.js/dist/video-js.css';
 import videojs from 'video.js';
+import { initLottieIcons } from './lottie-icons';
 
 window.Alpine = Alpine;
 window.videojs = videojs;
@@ -147,5 +148,11 @@ const initVideoPlayers = () => {
     });
 };
 
-document.addEventListener('DOMContentLoaded', initVideoPlayers);
-window.addEventListener('load', initVideoPlayers);
+document.addEventListener('DOMContentLoaded', () => {
+    initVideoPlayers();
+    initLottieIcons();
+});
+window.addEventListener('load', () => {
+    initVideoPlayers();
+    initLottieIcons();
+});

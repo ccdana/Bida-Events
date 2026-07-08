@@ -16,6 +16,7 @@
     },
     "dependencies": {
         "alpinejs": "^3.15.12",
+        "lottie-web": "^5.13.0",
         "video.js": "^8.23.1"
     }
 }
