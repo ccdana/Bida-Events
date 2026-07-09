@@ -1190,10 +1190,10 @@
 
 .invitation-gallery__stack {
     position: relative;
-    width: min(16.5rem, 74vw);
-    height: min(21.5rem, 96vw);
+    width: min(17.5rem, 78vw);
+    height: min(22.75rem, 101vw);
     margin-inline: auto;
-    perspective: 1400px;
+    perspective: 1600px;
     transform-style: preserve-3d;
 }
 
@@ -1210,12 +1210,18 @@
     touch-action: none;
     user-select: none;
     will-change: transform, opacity;
-    transition: transform 0.5s cubic-bezier(0.34, 1.1, 0.64, 1), opacity 0.35s ease;
+    transition:
+        transform 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+        box-shadow 0.45s ease;
+    backface-visibility: hidden;
 }
 
 .invitation-gallery__card.is-top {
     cursor: grab;
-    transition: opacity 0.35s ease;
+    transition:
+        opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+        box-shadow 0.45s ease;
 }
 
 .invitation-gallery__card.is-top.is-dragging {
@@ -1306,6 +1312,24 @@
     color: color-mix(in srgb, var(--text-color, var(--secondary-color)) 88%, var(--bg-color));
     font-size: 0.95rem;
     line-height: 1.75;
+}
+
+@media (min-width: 768px) {
+    .invitation-gallery__stack {
+        width: min(22rem, 42vw);
+        height: min(28.5rem, 54vw);
+    }
+}
+
+@media (min-width: 1024px) {
+    .invitation-gallery__stack {
+        width: min(26rem, 30vw);
+        height: min(33.5rem, 38.5vw);
+    }
+
+    .invitation-gallery__stage {
+        margin-top: 2.35rem;
+    }
 }
 
 @media (max-width: 640px) {

@@ -50,7 +50,7 @@ export function galleryStack(initialPhotos = []) {
             const zIndex = this.order.length - depth;
 
             if (depth === 0) {
-                const rotate = this.dragX * 0.045;
+                const rotate = this.dragX * 0.035;
                 const opacity = this.topOpacity;
 
                 return `transform: translate3d(${this.dragX}px, ${preset.y}px, 0) rotate(${rotate}deg) scale(1); z-index: ${zIndex}; opacity: ${opacity};`;
@@ -109,8 +109,10 @@ export function galleryStack(initialPhotos = []) {
             const state = { x: this.dragX };
 
             await animate(state, { x: 0 }, {
-                duration: 0.3,
-                easing: [0.34, 1.2, 0.64, 1],
+                type: 'spring',
+                stiffness: 280,
+                damping: 30,
+                mass: 0.85,
                 onUpdate: () => {
                     this.dragX = state.x;
                 },
@@ -128,12 +130,12 @@ export function galleryStack(initialPhotos = []) {
             this.isAnimating = true;
             const topIndex = this.order[0];
             const startX = this.dragX;
-            const targetX = startX + (direction * Math.max(window.innerWidth * 0.9, 320));
+            const targetX = startX + (direction * Math.max(window.innerWidth * 0.95, 360));
             const state = { x: startX, opacity: this.topOpacity };
 
-            await animate(state, { x: targetX, opacity: 0.15 }, {
-                duration: 0.4,
-                easing: [0.32, 0.72, 0, 1],
+            await animate(state, { x: targetX, opacity: 0 }, {
+                duration: 0.55,
+                easing: [0.22, 1, 0.36, 1],
                 onUpdate: () => {
                     this.dragX = state.x;
                     this.topOpacity = state.opacity;
@@ -148,10 +150,13 @@ export function galleryStack(initialPhotos = []) {
 
             await this.$nextTick();
 
-            requestAnimationFrame(() => {
+            window.setTimeout(() => {
                 this.resettingIndex = null;
+            }, 40);
+
+            window.setTimeout(() => {
                 this.isAnimating = false;
-            });
+            }, 760);
         },
 
         swipePrev() {
