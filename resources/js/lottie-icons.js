@@ -4,6 +4,7 @@ import clockLoopIcon from '../lottie-icons/clock-loop-icon.json';
 import calendarLoopIcon from '../lottie-icons/calendar-loop-icon.json';
 import videoLoopIcon from '../lottie-icons/video-loop-icon.json';
 import eyeImageLoopIcon from '../lottie-icons/eye-image-loop-icon.json';
+import itinerarPeopleLoopIcon from '../lottie-icons/itinerar-people-loop-icon.json';
 
 const ICONS = {
     invitation: invitationLoopIcon,
@@ -11,6 +12,7 @@ const ICONS = {
     calendar: calendarLoopIcon,
     video: videoLoopIcon,
     'eye-image': eyeImageLoopIcon,
+    'itinerar-people': itinerarPeopleLoopIcon,
 };
 
 const instances = new WeakMap();

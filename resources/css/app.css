@@ -1401,6 +1401,332 @@
     background: linear-gradient(to bottom, var(--primary-color), color-mix(in srgb, var(--primary-color) 40%, transparent));
 }
 
+/* Itinerario — espina con scroll progresivo */
+.invitation-itinerary {
+    position: relative;
+    margin-top: 0;
+    padding-top: 4.5rem;
+    padding-bottom: 3.5rem;
+    background: transparent;
+    border-top: 1px solid color-mix(in srgb, var(--accent-color) 28%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, var(--accent-color) 28%, transparent);
+}
+
+.invitation-itinerary .section-inner-wide {
+    max-width: min(58rem, 94vw);
+}
+
+.invitation-itinerary__shell {
+    position: relative;
+    max-width: 54rem;
+    margin-inline: auto;
+    text-align: center;
+    padding: 1.1rem 1rem 0;
+    z-index: 6;
+}
+
+.invitation-itinerary__eyebrow {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.42em;
+    color: color-mix(in srgb, var(--primary-color) 82%, var(--secondary-color));
+}
+
+.invitation-itinerary__title-row {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.65rem;
+    margin-top: 0.75rem;
+}
+
+.invitation-itinerary__title-icon {
+    color: var(--primary-color);
+    flex-shrink: 0;
+}
+
+.invitation-itinerary__title {
+    margin: 0;
+    font-family: var(--font-titles);
+    font-size: clamp(2.35rem, 6.5vw, 4.25rem);
+    font-weight: 400;
+    line-height: 0.98;
+    color: var(--text-color, var(--secondary-color));
+}
+
+.invitation-itinerary__rule {
+    width: 4.5rem;
+    height: 1px;
+    margin: 0.95rem auto 0;
+    border-radius: 999px;
+    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--primary-color) 78%, var(--secondary-color)), transparent);
+    opacity: 0.88;
+}
+
+.invitation-itinerary__track {
+    position: relative;
+    margin-top: 2.75rem;
+    padding-bottom: 1rem;
+}
+
+.invitation-itinerary__spine {
+    position: absolute;
+    top: 0.5rem;
+    bottom: 0.5rem;
+    left: 33px;
+    width: 2px;
+    transform: translateX(-50%);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.invitation-itinerary__spine-base,
+.invitation-itinerary__spine-progress {
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    transform-origin: top center;
+}
+
+.invitation-itinerary__spine-base {
+    background: color-mix(in srgb, var(--accent-color) 42%, var(--bg-color));
+    opacity: 0.55;
+}
+
+.invitation-itinerary__spine-progress {
+    transform: scaleY(0);
+    background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--primary-color) 88%, white),
+        var(--primary-color),
+        color-mix(in srgb, var(--primary-color) 55%, var(--accent-color))
+    );
+    box-shadow: 0 0 18px color-mix(in srgb, var(--primary-color) 45%, transparent);
+    will-change: transform;
+}
+
+.invitation-itinerary__spine-light {
+    position: absolute;
+    left: 50%;
+    width: 0.82rem;
+    height: 0.82rem;
+    border-radius: 999px;
+    transform: translate(-50%, -50%);
+    background: color-mix(in srgb, var(--primary-color) 80%, white);
+    box-shadow:
+        0 0 0 7px color-mix(in srgb, var(--primary-color) 28%, transparent),
+        0 0 28px color-mix(in srgb, var(--primary-color) 75%, transparent),
+        0 0 52px color-mix(in srgb, var(--accent-color) 42%, transparent);
+    will-change: top;
+    z-index: 3;
+}
+
+.invitation-itinerary__item {
+    position: relative;
+    display: grid;
+    grid-template-columns: 66px 1fr;
+    gap: 0 1.15rem;
+    align-items: center;
+    min-height: 8.5rem;
+    padding-block: 1.35rem;
+    z-index: 2;
+}
+
+.invitation-itinerary__panel {
+    grid-column: 2;
+    text-align: left;
+    --node-activation: 0;
+    opacity: calc(0.42 + (var(--node-activation, 0) * 0.58));
+    transform: translateY(calc((1 - var(--node-activation, 0)) * 12px));
+    transition: opacity 0.45s ease, transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.invitation-itinerary__node {
+    grid-column: 1;
+    grid-row: 1;
+    position: relative;
+    width: 4.15rem;
+    height: 4.15rem;
+    justify-self: center;
+    --node-activation: 0;
+}
+
+.invitation-itinerary__node-halo {
+    position: absolute;
+    inset: -0.55rem;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--primary-color) 24%, transparent);
+    opacity: 0;
+    transform: scale(0.88);
+}
+
+.invitation-itinerary__node-halo.is-looping {
+    opacity: calc(0.25 + (var(--node-activation, 0) * 0.55));
+    animation: itinerary-halo-pulse 2.8s ease-in-out infinite;
+}
+
+.invitation-itinerary__node-ring {
+    position: absolute;
+    inset: 0.2rem;
+    border-radius: 999px;
+    border: 1.5px solid color-mix(in srgb, var(--primary-color) calc(22% + (var(--node-activation, 0) * 58%)), var(--accent-color));
+    background: color-mix(in srgb, var(--accent-color) calc(var(--node-activation, 0) * 18%), transparent);
+    box-shadow:
+        0 0 0 calc(3px * var(--node-activation, 0)) color-mix(in srgb, var(--primary-color) calc(var(--node-activation, 0) * 20%), transparent),
+        0 0 calc(24px * var(--node-activation, 0)) color-mix(in srgb, var(--primary-color) calc(var(--node-activation, 0) * 35%), transparent);
+    transition: border-color 0.45s ease, background-color 0.45s ease, box-shadow 0.45s ease;
+}
+
+.invitation-itinerary__node-core {
+    position: absolute;
+    inset: 0.72rem;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: color-mix(in srgb, var(--bg-color) calc(72% - (var(--node-activation, 0) * 18%)), var(--secondary-color));
+    border: 1px solid color-mix(in srgb, var(--accent-color) 55%, var(--bg-color));
+    color: var(--primary-color);
+    transition: background-color 0.45s ease, border-color 0.45s ease;
+}
+
+.invitation-itinerary__node-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transform-origin: center center;
+    will-change: transform;
+}
+
+.invitation-itinerary__lottie {
+    width: 1.65rem;
+    height: 1.65rem;
+}
+
+.invitation-itinerary__time {
+    display: block;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.34em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--primary-color) 78%, var(--secondary-color));
+}
+
+.invitation-itinerary__index {
+    display: block;
+    margin-top: 0.35rem;
+    font-family: var(--font-titles);
+    font-size: clamp(2.4rem, 7vw, 3.4rem);
+    line-height: 0.9;
+    font-style: italic;
+    color: color-mix(in srgb, var(--text-color, var(--secondary-color)) 14%, transparent);
+    pointer-events: none;
+    user-select: none;
+}
+
+.invitation-itinerary__event-title {
+    margin-top: 0.15rem;
+    font-family: var(--font-titles);
+    font-size: clamp(1.35rem, 3.8vw, 1.85rem);
+    line-height: 1.15;
+    color: var(--text-color, var(--secondary-color));
+}
+
+.invitation-itinerary__description {
+    margin-top: 0.55rem;
+    font-size: 0.86rem;
+    line-height: 1.7;
+    color: color-mix(in srgb, var(--text-color, var(--secondary-color)) 62%, var(--accent-color));
+}
+
+.invitation-itinerary__spacer {
+    display: none;
+}
+
+.invitation-itinerary__empty {
+    margin-top: 2rem;
+    padding: 2rem 1.5rem;
+    border-radius: 1.25rem;
+    border: 1px dashed color-mix(in srgb, var(--accent-color) 55%, var(--primary-color) 45%);
+    background: color-mix(in srgb, var(--accent-color) 16%, var(--bg-color));
+    color: color-mix(in srgb, var(--text-color, var(--secondary-color)) 88%, var(--bg-color));
+    font-size: 0.95rem;
+    line-height: 1.75;
+}
+
+@keyframes itinerary-halo-pulse {
+    0%, 100% {
+        transform: scale(0.9);
+        opacity: calc(0.2 + (var(--node-activation, 0) * 0.45));
+    }
+
+    50% {
+        transform: scale(1.08);
+        opacity: calc(0.35 + (var(--node-activation, 0) * 0.65));
+    }
+}
+
+@media (min-width: 768px) {
+    .invitation-itinerary__spine {
+        left: 50%;
+    }
+
+    .invitation-itinerary__item {
+        grid-template-columns: 1fr 80px 1fr;
+        gap: 0 2rem;
+        min-height: 10rem;
+        padding-block: 1.75rem;
+    }
+
+    .invitation-itinerary__node {
+        grid-column: 2;
+        width: 4.65rem;
+        height: 4.65rem;
+    }
+
+    .invitation-itinerary__spacer {
+        display: block;
+        grid-column: 3;
+    }
+
+    .invitation-itinerary__item.is-left .invitation-itinerary__panel {
+        grid-column: 1;
+        text-align: right;
+        padding-right: 0.5rem;
+    }
+
+    .invitation-itinerary__item.is-right .invitation-itinerary__panel {
+        grid-column: 3;
+        text-align: left;
+        padding-left: 0.5rem;
+    }
+
+    .invitation-itinerary__item.is-left .invitation-itinerary__spacer {
+        grid-column: 3;
+    }
+
+    .invitation-itinerary__item.is-right .invitation-itinerary__spacer {
+        grid-column: 1;
+    }
+}
+
+@media (max-width: 640px) {
+    .invitation-itinerary {
+        padding-top: 3rem;
+        padding-bottom: 2.75rem;
+    }
+
+    .invitation-itinerary__title {
+        font-size: clamp(1.9rem, 8vw, 2.75rem);
+    }
+
+    .invitation-itinerary__item {
+        gap: 0 0.95rem;
+        min-height: 7.5rem;
+    }
+}
+
 .timeline-step {
     transition: opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1), transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
 }

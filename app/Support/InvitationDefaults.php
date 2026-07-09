@@ -149,6 +149,6 @@ class InvitationDefaults
 
     public static function itineraryIcons(): array
     {
-        return ['glass', 'candle', 'dance', 'dinner', 'music', 'star'];
+        return ['users', 'glass', 'candle', 'dance', 'dinner', 'music', 'star'];
     }
 }

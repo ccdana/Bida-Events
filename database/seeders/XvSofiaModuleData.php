@@ -79,7 +79,7 @@ class XvSofiaModuleData
             'itinerario' => [
                 'titulo' => 'Itinerario de la Noche',
                 'eventos' => [
-                    ['hora' => '18:00', 'titulo' => 'Recepcion de Invitados', 'icono' => 'glass', 'descripcion' => 'Coctel de bienvenida en el salon principal'],
+                    ['hora' => '18:00', 'titulo' => 'Recepcion de Invitados', 'icono' => 'users', 'descripcion' => 'Coctel de bienvenida en el salon principal'],
                     ['hora' => '19:00', 'titulo' => 'Ceremonia de Velas', 'icono' => 'candle', 'descripcion' => 'Momento especial con la familia'],
                     ['hora' => '19:30', 'titulo' => 'Vals con Papa', 'icono' => 'dance', 'descripcion' => 'El primer vals de la quinceanera'],
                     ['hora' => '20:00', 'titulo' => 'Cena y Brindis', 'icono' => 'dinner', 'descripcion' => 'Menu gourmet de tres tiempos'],
