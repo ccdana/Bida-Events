@@ -3,12 +3,14 @@ import invitationLoopIcon from '../lottie-icons/invitation-loop-icon.json';
 import clockLoopIcon from '../lottie-icons/clock-loop-icon.json';
 import calendarLoopIcon from '../lottie-icons/calendar-loop-icon.json';
 import videoLoopIcon from '../lottie-icons/video-loop-icon.json';
+import eyeImageLoopIcon from '../lottie-icons/eye-image-loop-icon.json';
 
 const ICONS = {
     invitation: invitationLoopIcon,
     clock: clockLoopIcon,
     calendar: calendarLoopIcon,
     video: videoLoopIcon,
+    'eye-image': eyeImageLoopIcon,
 };
 
 const instances = new WeakMap();

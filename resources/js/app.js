@@ -3,6 +3,7 @@ import Alpine from 'alpinejs';
 import 'video.js/dist/video-js.css';
 import videojs from 'video.js';
 import { initLottieIcons } from './lottie-icons';
+import './gallery-stack';
 
 window.Alpine = Alpine;
 window.videojs = videojs;

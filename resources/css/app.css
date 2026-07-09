@@ -1125,24 +1125,203 @@
     flex-shrink: 0;
 }
 
-/* Galería carrusel suave */
-.gallery-carousel {
+/* Galería — stack físico con swipe */
+.invitation-gallery {
     position: relative;
-    overflow: hidden;
-    border-radius: 1.25rem;
-    box-shadow: 0 12px 40px color-mix(in srgb, var(--primary-color) 12%, transparent);
-    border: 3px solid color-mix(in srgb, var(--accent-color) 80%, white);
+    margin-top: 0;
+    padding-top: 4.5rem;
+    padding-bottom: 3rem;
+    background: transparent;
+    border-top: 1px solid color-mix(in srgb, var(--accent-color) 28%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, var(--accent-color) 28%, transparent);
 }
-.gallery-slide {
+
+.invitation-gallery .section-inner-wide {
+    max-width: min(54rem, 94vw);
+}
+
+.invitation-gallery__shell {
+    position: relative;
+    max-width: 54rem;
+    margin-inline: auto;
+    text-align: center;
+    padding: 1.1rem 1rem 0;
+    z-index: 6;
+}
+
+.invitation-gallery__eyebrow {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.42em;
+    color: color-mix(in srgb, var(--primary-color) 82%, var(--secondary-color));
+}
+
+.invitation-gallery__title {
+    margin-top: 0.75rem;
+    font-family: var(--font-titles);
+    font-size: clamp(2.35rem, 6.5vw, 4.25rem);
+    font-weight: 400;
+    line-height: 0.98;
+    color: var(--text-color, var(--secondary-color));
+}
+
+.invitation-gallery__rule {
+    width: 4.5rem;
+    height: 1px;
+    margin: 0.95rem auto 0;
+    border-radius: 999px;
+    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--primary-color) 78%, var(--secondary-color)), transparent);
+    opacity: 0.88;
+}
+
+.invitation-gallery__hint {
+    margin-top: 1rem;
+    font-size: 0.62rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.38em;
+    color: color-mix(in srgb, var(--text-color, var(--secondary-color)) 52%, var(--accent-color) 48%);
+}
+
+.invitation-gallery__stage {
+    margin-top: 2rem;
+}
+
+.invitation-gallery__stack {
+    position: relative;
+    width: min(16.5rem, 74vw);
+    height: min(21.5rem, 96vw);
+    margin-inline: auto;
+    perspective: 1400px;
+    transform-style: preserve-3d;
+}
+
+.invitation-gallery__card {
     position: absolute;
     inset: 0;
-    transition: opacity 0.65s cubic-bezier(0.4, 0, 0.2, 1), transform 0.65s cubic-bezier(0.4, 0, 0.2, 1);
-    will-change: opacity, transform;
+    overflow: hidden;
+    border-radius: 0.3rem;
+    border: 2px solid color-mix(in srgb, var(--accent-color) 62%, var(--bg-color));
+    background: color-mix(in srgb, var(--accent-color) 10%, var(--bg-color));
+    box-shadow:
+        0 26px 54px color-mix(in srgb, var(--secondary-color) 30%, transparent),
+        inset 0 0 0 1px color-mix(in srgb, var(--primary-color) 12%, transparent);
+    touch-action: none;
+    user-select: none;
+    will-change: transform, opacity;
+    transition: transform 0.5s cubic-bezier(0.34, 1.1, 0.64, 1), opacity 0.35s ease;
 }
-.gallery-slide.is-active { opacity: 1; transform: translateX(0) scale(1); z-index: 2; }
-.gallery-slide.is-prev { opacity: 0; transform: translateX(-18%) scale(0.96); z-index: 1; }
-.gallery-slide.is-next { opacity: 0; transform: translateX(18%) scale(0.96); z-index: 1; }
-.gallery-slide.is-hidden { opacity: 0; transform: scale(0.94); z-index: 0; pointer-events: none; }
+
+.invitation-gallery__card.is-top {
+    cursor: grab;
+    transition: opacity 0.35s ease;
+}
+
+.invitation-gallery__card.is-top.is-dragging {
+    cursor: grabbing;
+    transition: none;
+}
+
+.invitation-gallery__card.is-resetting {
+    transition: none !important;
+}
+
+.invitation-gallery__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+}
+
+.invitation-gallery__image-shade {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    height: 28%;
+    background: linear-gradient(to top, color-mix(in srgb, var(--secondary-color) 42%, transparent), transparent);
+    pointer-events: none;
+}
+
+.invitation-gallery__nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-top: 2rem;
+    padding-inline: 0.25rem;
+}
+
+.invitation-gallery__nav-label {
+    font-size: 0.62rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.28em;
+    color: color-mix(in srgb, var(--text-color, var(--secondary-color)) 48%, var(--accent-color) 52%);
+    background: transparent;
+    border: 0;
+    padding: 0.35rem 0;
+    cursor: pointer;
+    transition: color 180ms ease, opacity 180ms ease;
+}
+
+.invitation-gallery__nav-label:hover:not(:disabled) {
+    color: var(--primary-color);
+}
+
+.invitation-gallery__nav-label:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.invitation-gallery__dots {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    min-height: 0.5rem;
+}
+
+.invitation-gallery__dot {
+    width: 0.35rem;
+    height: 0.35rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--text-color, var(--secondary-color)) 28%, var(--accent-color) 72%);
+    opacity: 0.45;
+    transition: width 0.35s ease, opacity 0.35s ease, background-color 0.35s ease;
+}
+
+.invitation-gallery__dot.is-active {
+    width: 1.35rem;
+    opacity: 1;
+    background: var(--primary-color);
+}
+
+.invitation-gallery__empty {
+    margin-top: 2rem;
+    padding: 2rem 1.5rem;
+    border-radius: 1.25rem;
+    border: 1px dashed color-mix(in srgb, var(--accent-color) 55%, var(--primary-color) 45%);
+    background: color-mix(in srgb, var(--accent-color) 16%, var(--bg-color));
+    color: color-mix(in srgb, var(--text-color, var(--secondary-color)) 88%, var(--bg-color));
+    font-size: 0.95rem;
+    line-height: 1.75;
+}
+
+@media (max-width: 640px) {
+    .invitation-gallery {
+        padding-top: 3rem;
+        padding-bottom: 2.5rem;
+    }
+
+    .invitation-gallery__title {
+        font-size: clamp(1.9rem, 8vw, 2.75rem);
+    }
+
+    .invitation-gallery__nav-label {
+        letter-spacing: 0.2em;
+    }
+}
 
 /* VIP / QR */
 .vip-pass {
