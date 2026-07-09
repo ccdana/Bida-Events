@@ -334,20 +334,34 @@
     z-index: 4;
     width: 4.75rem;
     height: 4.75rem;
-    border: 1px solid color-mix(in srgb, var(--accent-color) 72%, var(--primary-color) 28%);
+    border: 1px solid color-mix(in srgb, var(--primary-color) 38%, var(--accent-color) 62%);
     border-radius: 999px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: color-mix(in srgb, var(--bg-color) 58%, var(--secondary-color) 42%);
+    background: color-mix(in srgb, var(--secondary-color) 66%, transparent);
     color: var(--primary-color);
-    box-shadow: 0 18px 42px color-mix(in srgb, var(--secondary-color) 35%, transparent);
-    backdrop-filter: blur(8px);
+    box-shadow:
+        0 18px 42px color-mix(in srgb, var(--bg-color) 22%, var(--secondary-color) 78%),
+        inset 0 1px 0 color-mix(in srgb, var(--accent-color) 42%, transparent);
+    backdrop-filter: blur(10px);
     opacity: 0;
     pointer-events: none;
     cursor: pointer;
     touch-action: manipulation;
-    transition: opacity 320ms ease;
+    transition: opacity 320ms ease, border-color 220ms ease, box-shadow 220ms ease, background-color 220ms ease;
+}
+
+.invitation-video__play-toggle.is-paused {
+    background: color-mix(in srgb, var(--secondary-color) 66%, transparent);
+    border-color: color-mix(in srgb, var(--primary-color) 42%, var(--accent-color) 58%);
+    color: var(--primary-color);
+}
+
+.invitation-video__play-toggle:not(.is-paused) {
+    background: color-mix(in srgb, var(--secondary-color) 54%, var(--bg-color) 46%);
+    border-color: color-mix(in srgb, var(--accent-color) 58%, var(--primary-color) 42%);
+    color: var(--primary-color);
 }
 
 .invitation-video__player-frame.is-idle .invitation-video__play-toggle,
@@ -374,7 +388,7 @@
     height: 0;
     border-top: 0.55rem solid transparent;
     border-bottom: 0.55rem solid transparent;
-    border-left: 0.9rem solid currentColor;
+    border-left: 0.9rem solid var(--primary-color);
     transform: translate(-38%, -50%);
 }
 
@@ -382,8 +396,8 @@
     width: 0.28rem;
     height: 1rem;
     border: 0;
-    background: currentColor;
-    box-shadow: 0.42rem 0 0 currentColor;
+    background: var(--primary-color);
+    box-shadow: 0.42rem 0 0 var(--primary-color);
     transform: translate(-62%, -50%);
 }
 

@@ -1274,52 +1274,137 @@ function invitationForm(config) {
         // Funciones para presets de paletas de colores
         getColorPresets() {
             return [
+                // Modo claro
                 {
-                    name: 'Elegancia Clásica',
-                    description: 'Neutro elegante',
-                    colors: { primary: '#C9A96E', secondary: '#2C1810', accent: '#F5E6D3', text: '#1A1A1A', background: '#FFFAF5' }
+                    mode: 'light',
+                    name: 'Champagne Marfil',
+                    description: 'Dorado clásico sobre marfil',
+                    colors: {
+                        primary: '#B8956B',
+                        secondary: '#3D3228',
+                        accent: '#F3E8D8',
+                        text: '#2A241E',
+                        background: '#FBF7F0',
+                    },
                 },
                 {
-                    name: 'Rosa Romántico',
-                    description: 'Tonos rosados',
-                    colors: { primary: '#E75B8C', secondary: '#7B2D5C', accent: '#FFD4E5', text: '#2A1A2A', background: '#FFF5F9' }
+                    mode: 'light',
+                    name: 'Rosa Jardín',
+                    description: 'Rosa polvoriento y crema',
+                    colors: {
+                        primary: '#C97B84',
+                        secondary: '#5C3D42',
+                        accent: '#F8E4E6',
+                        text: '#3A2828',
+                        background: '#FFF8F8',
+                    },
                 },
                 {
-                    name: 'Azul Profundo',
-                    description: 'Tonos azules',
-                    colors: { primary: '#2C5AA0', secondary: '#0F2847', accent: '#B8D4F1', text: '#0A1428', background: '#F0F4F9' }
+                    mode: 'light',
+                    name: 'Salvia Serena',
+                    description: 'Verde natural y elegante',
+                    colors: {
+                        primary: '#6B8F71',
+                        secondary: '#2F4535',
+                        accent: '#E2EDE4',
+                        text: '#1E2E24',
+                        background: '#F6FAF7',
+                    },
                 },
                 {
-                    name: 'Verde Naturaleza',
-                    description: 'Tonos verdes',
-                    colors: { primary: '#2D7A4A', secondary: '#1A4D2E', accent: '#C1E4D0', text: '#0D3B1C', background: '#F0F9F5' }
+                    mode: 'light',
+                    name: 'Perla Costera',
+                    description: 'Azul grisáceo sofisticado',
+                    colors: {
+                        primary: '#5B7C99',
+                        secondary: '#2C3E50',
+                        accent: '#DCE8F0',
+                        text: '#1A2832',
+                        background: '#F4F8FB',
+                    },
                 },
                 {
-                    name: 'Coral Vibrante',
-                    description: 'Tonos cálidos',
-                    colors: { primary: '#FF6B5B', secondary: '#B82C1F', accent: '#FFD4CC', text: '#2A1A16', background: '#FFF5F3' }
+                    mode: 'light',
+                    name: 'Terracota Luxe',
+                    description: 'Cálido mediterráneo',
+                    colors: {
+                        primary: '#C17A5C',
+                        secondary: '#5C3A2E',
+                        accent: '#F5E6DC',
+                        text: '#342520',
+                        background: '#FDF8F5',
+                    },
+                },
+                // Modo noche
+                {
+                    mode: 'night',
+                    name: 'Noir Dorado',
+                    description: 'Negro y oro de gala',
+                    colors: {
+                        primary: '#D4AF37',
+                        secondary: '#1A1814',
+                        accent: '#3D3528',
+                        text: '#F5F0E6',
+                        background: '#0D0C0A',
+                    },
                 },
                 {
-                    name: 'Midnight',
-                    description: 'Fondo oscuro con acentos azules',
-                    colors: { primary: '#66B2FF', secondary: '#0F1B2B', accent: '#7C5CFF', text: '#DDE9FF', background: '#071126' }
+                    mode: 'night',
+                    name: 'Rosa Terciopelo',
+                    description: 'Noche romántica profunda',
+                    colors: {
+                        primary: '#E8A0B4',
+                        secondary: '#2A1520',
+                        accent: '#4A2A38',
+                        text: '#FCE8EE',
+                        background: '#140A10',
+                    },
                 },
                 {
-                    name: 'Graphite',
-                    description: 'Negro suave y neutro',
-                    colors: { primary: '#9AA5B1', secondary: '#121216', accent: '#4DD0E1', text: '#E6E9EE', background: '#0B0D10' }
+                    mode: 'night',
+                    name: 'Zafiro Medianoche',
+                    description: 'Azul noche refinado',
+                    colors: {
+                        primary: '#7EB8DA',
+                        secondary: '#0E1A2B',
+                        accent: '#1E3A5F',
+                        text: '#E3EEF8',
+                        background: '#060D18',
+                    },
                 },
                 {
-                    name: 'Rose Dark',
-                    description: 'Rosa oscuro elegante',
-                    colors: { primary: '#FF92C9', secondary: '#21121A', accent: '#FF7AA2', text: '#FFDFEF', background: '#13040F' }
+                    mode: 'night',
+                    name: 'Esmeralda Soirée',
+                    description: 'Verde gala nocturno',
+                    colors: {
+                        primary: '#7EC9A0',
+                        secondary: '#0F1F18',
+                        accent: '#1A3D2E',
+                        text: '#E0F2E9',
+                        background: '#051510',
+                    },
                 },
                 {
-                    name: 'Emerald Night',
-                    description: 'Verde profundo y nocturno',
-                    colors: { primary: '#66D19E', secondary: '#0B2218', accent: '#2BD18B', text: '#DFF7EE', background: '#04120B' }
+                    mode: 'night',
+                    name: 'Gala Amatista',
+                    description: 'Púrpura lujoso',
+                    colors: {
+                        primary: '#B8A0D8',
+                        secondary: '#1A1428',
+                        accent: '#352850',
+                        text: '#EDE6F8',
+                        background: '#0A0812',
+                    },
                 },
             ];
+        },
+
+        getLightColorPresets() {
+            return this.getColorPresets().filter((preset) => preset.mode === 'light');
+        },
+
+        getNightColorPresets() {
+            return this.getColorPresets().filter((preset) => preset.mode === 'night');
         },
 
         applyColorPreset(presetName) {
