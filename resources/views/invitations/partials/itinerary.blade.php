@@ -12,9 +12,9 @@
 >
     <div class="section-inner-wide">
         <div class="invitation-itinerary__shell">
+            @include('invitations.partials.lottie-framed-icon', ['name' => 'itinerar-people'])
             <p class="invitation-itinerary__eyebrow">El recorrido de la noche</p>
             <div class="invitation-itinerary__title-row">
-                @include('invitations.partials.icon', ['name' => 'sparkle', 'class' => 'invitation-itinerary__title-icon w-5 h-5'])
                 <h2 class="invitation-itinerary__title">{{ $itinerario['titulo'] ?? 'Itinerario' }}</h2>
             </div>
             <div class="invitation-itinerary__rule" aria-hidden="true"></div>

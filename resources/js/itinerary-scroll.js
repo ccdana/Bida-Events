@@ -1,80 +1,155 @@
 const MOBILE_BREAKPOINT = 768;
 
 export function scrollItinerary(totalSteps = 0) {
+
+    // ═══════════════════════════════════════════════════════════════════════
+    //  CLOSURE STATE  — completely outside Alpine's reactive system.
+    //
+    //  Alpine proxies every property on `this`, including DOM nodes, which
+    //  breaks native DOM APIs (.style, .getBoundingClientRect, etc.).
+    //  Storing everything here keeps DOM refs as real, unwrapped objects.
+    //
+    //  Additionally, $refs and other Alpine magic properties are ONLY valid
+    //  inside Alpine's synchronous reactive context.  RAF / scroll callbacks
+    //  run outside that context, so they must never call `this.$refs.*`.
+    // ═══════════════════════════════════════════════════════════════════════
+    let _trackEl     = null;   // .invitation-itinerary__track
+    let _lightEl     = null;   // .invitation-itinerary__spine-light
+    let _spineEl     = null;   // .invitation-itinerary__spine
+    let _rafId       = null;
+    let _proxy       = null;   // Alpine reactive proxy — used ONLY to set scrollProgress
+
+    // ── Pure scroll math — never references `this` ──────────────────────────
+    const computeProgress = () => {
+        if (!_trackEl) return 0;
+        const vh      = window.innerHeight;
+        const rect    = _trackEl.getBoundingClientRect();
+        const start   = vh * 0.22;
+        const end     = vh * 0.78;
+        const range   = Math.max(rect.height - (end - start), 1);
+        const traveled = Math.min(Math.max(start - rect.top, 0), range);
+        return Math.min(Math.max(traveled / range, 0), 1);
+    };
+
+    // ── Direct DOM write — no Alpine involvement ─────────────────────────────
+    const moveDot = (progress) => {
+        if (!_lightEl || !_spineEl) return;
+        const spineH = _spineEl.getBoundingClientRect().height;
+        const half   = (_lightEl.offsetHeight || 12) / 2;
+        _lightEl.style.top = `${Math.round(progress * spineH - half)}px`;
+    };
+
+    // ── RAF tick — runs outside Alpine context ────────────────────────────────
+    const tick = () => {
+        _rafId = null;
+        const p = computeProgress();
+        moveDot(p);
+        // The ONLY Alpine touch: update the reactive scrollProgress so that
+        // node activation, panel fade and class bindings keep working.
+        if (_proxy) _proxy.scrollProgress = p;
+    };
+
+    // ── Throttle: at most 1 pending frame per scroll burst ───────────────────
+    const schedule = () => {
+        if (_rafId) return;
+        _rafId = requestAnimationFrame(tick);
+    };
+
+    // ── Listeners ─────────────────────────────────────────────────────────────
+    let _resizeCb = null;
+
+    // Guaranteed polling loop — runs every frame regardless of events.
+    // Detects scroll changes by comparing pageYOffset against the last seen value.
+    // This is the most reliable cross-device approach: no event routing issues.
+    let _lastY     = -1;
+    let _loopId    = null;
+
+    const loop = () => {
+        const y = window.pageYOffset;
+        if (y !== _lastY) {
+            _lastY = y;
+            tick();
+        }
+        _loopId = requestAnimationFrame(loop);
+    };
+
+    const attachListeners = (alpineInstance) => {
+        _resizeCb = () => {
+            alpineInstance.updateLayout();
+            tick();
+        };
+        // Events as secondary triggers (belt + suspenders)
+        window.addEventListener('scroll',                schedule, { passive: true });
+        document.documentElement.addEventListener('scroll', schedule, { passive: true });
+        window.addEventListener('touchmove',            schedule, { passive: true });
+        window.addEventListener('resize',               _resizeCb, { passive: true });
+        // Primary: polling loop — always fires, zero dependency on scroll events
+        _loopId = requestAnimationFrame(loop);
+    };
+
+    const detachListeners = () => {
+        window.removeEventListener('scroll',    schedule);
+        document.documentElement.removeEventListener('scroll', schedule);
+        window.removeEventListener('touchmove', schedule);
+        if (_resizeCb) window.removeEventListener('resize', _resizeCb);
+        if (_rafId)    cancelAnimationFrame(_rafId);
+        if (_loopId)   cancelAnimationFrame(_loopId);
+        _rafId = _loopId = null;
+    };
+
+    // ═══════════════════════════════════════════════════════════════════════
+    //  ALPINE DATA OBJECT
+    // ═══════════════════════════════════════════════════════════════════════
     return {
-        total: Math.max(Number(totalSteps) || 0, 0),
+        total:          Math.max(Number(totalSteps) || 0, 0),
         scrollProgress: 0,
-        isMobile: true,
-        visibleNodes: {},
-        _scrollHandler: null,
-        _resizeHandler: null,
-        _observers: [],
+        isMobile:       true,
+        visibleNodes:   {},
+        _observers:     [],
 
         init() {
+            // Capture the Alpine proxy once — safe here because init() is
+            // called synchronously by Alpine inside its reactive context.
+            _proxy = this;
+
             this.updateLayout();
-            this.bindScroll();
+            attachListeners(this);
             this.observeNodes();
-            this.updateProgress();
-            this.$nextTick(() => window.initLottieIcons?.());
 
-            return () => this.destroy();
-        },
+            // $nextTick: Alpine has rendered the template, DOM is ready.
+            // $root is valid here (we're still inside Alpine context).
+            this.$nextTick(() => {
+                const root = this.$root;
+                _trackEl = root.querySelector('.invitation-itinerary__track');
+                _lightEl = root.querySelector('.invitation-itinerary__spine-light');
+                _spineEl = root.querySelector('.invitation-itinerary__spine');
 
-        destroy() {
-            if (this._scrollHandler) {
-                window.removeEventListener('scroll', this._scrollHandler, { passive: true });
-            }
+                // Set initial dot position before the user scrolls
+                tick();
 
-            if (this._resizeHandler) {
-                window.removeEventListener('resize', this._resizeHandler);
-            }
+                window.initLottieIcons?.();
+            });
 
-            this._observers.forEach((observer) => observer.disconnect());
-            this._observers = [];
-        },
-
-        bindScroll() {
-            this._scrollHandler = () => this.updateProgress();
-            this._resizeHandler = () => {
-                this.updateLayout();
-                this.updateProgress();
+            // Alpine calls the returned function on component teardown
+            return () => {
+                detachListeners();
+                this._observers.forEach((o) => o.disconnect());
+                this._observers = [];
+                _proxy = null;
             };
-
-            window.addEventListener('scroll', this._scrollHandler, { passive: true });
-            window.addEventListener('resize', this._resizeHandler, { passive: true });
         },
 
         updateLayout() {
             this.isMobile = window.innerWidth < MOBILE_BREAKPOINT;
         },
 
-        updateProgress() {
-            const track = this.$refs.track;
-
-            if (!track) {
-                return;
-            }
-
-            const viewport = window.innerHeight;
-            const rect = track.getBoundingClientRect();
-            const startLine = viewport * 0.22;
-            const endLine = viewport * 0.78;
-            const scrollRange = Math.max(rect.height - (endLine - startLine), 1);
-            const traveled = Math.min(Math.max(startLine - rect.top, 0), scrollRange);
-
-            this.scrollProgress = Math.min(Math.max(traveled / scrollRange, 0), 1);
-        },
-
         observeNodes() {
             const nodes = this.$root.querySelectorAll('[data-itinerary-node]');
-
             nodes.forEach((node) => {
                 const index = Number(node.dataset.itineraryNode);
                 const observer = new IntersectionObserver((entries) => {
-                    entries.forEach((entry) => {
-                        if (entry.isIntersecting) {
-                            this.visibleNodes[index] = true;
-                        }
+                    entries.forEach((e) => {
+                        if (e.isIntersecting) this.visibleNodes[index] = true;
                     });
                 }, { threshold: 0.35, rootMargin: '-5% 0px -10% 0px' });
 
@@ -83,36 +158,25 @@ export function scrollItinerary(totalSteps = 0) {
             });
         },
 
-        nodeMid(index) {
-            if (this.total <= 0) {
-                return 0;
-            }
+        // ── Node state helpers (all read this.scrollProgress reactively) ────
 
+        nodeMid(index) {
+            if (this.total <= 0) return 0;
             return (index + 0.5) / this.total;
         },
 
         nodeActivation(index) {
-            if (this.total <= 0) {
-                return 0;
-            }
-
-            const start = index / this.total;
-            const mid = this.nodeMid(index);
+            if (this.total <= 0) return 0;
+            const start    = index / this.total;
+            const mid      = this.nodeMid(index);
             const progress = this.scrollProgress;
-
-            if (progress >= mid) {
-                return 1;
-            }
-
-            if (progress <= start) {
-                return 0;
-            }
-
+            if (progress >= mid)   return 1;
+            if (progress <= start) return 0;
             return (progress - start) / (mid - start);
         },
 
         iconScale(index) {
-            return 0.82 + (this.nodeActivation(index) * 0.18);
+            return 0.88 + (this.nodeActivation(index) * 0.12);
         },
 
         nodeInView(index) {
@@ -120,42 +184,34 @@ export function scrollItinerary(totalSteps = 0) {
         },
 
         nodeHaloClass(index) {
-            return this.nodeInView(index) ? 'is-looping' : '';
+            const activation = this.nodeActivation(index);
+            if (!this.nodeInView(index) && activation < 0.1) return '';
+            return 'is-looping';
         },
 
         nodeRingStyle(index) {
-            const activation = this.nodeActivation(index);
-
-            return `--node-activation:${activation};`;
+            return `--node-activation:${this.nodeActivation(index).toFixed(3)};`;
         },
 
-        panelStyle(index) {
-            return this.nodeRingStyle(index);
-        },
+        panelStyle(index)  { return this.nodeRingStyle(index); },
 
         nodeIconStyle(index) {
-            const scale = this.iconScale(index);
-
-            return `transform: scale(${scale});`;
+            return `transform: scale(${this.iconScale(index)});`;
         },
 
         panelClass(index) {
-            if (this.isMobile) {
-                return 'is-mobile';
-            }
-
+            if (this.isMobile) return 'is-mobile';
             return index % 2 === 0 ? 'is-left' : 'is-right';
         },
 
         itemClass(index) {
-            const activation = this.nodeActivation(index);
-
+            const a = this.nodeActivation(index);
             return {
-                'is-active': activation >= 0.55,
-                'is-done': activation >= 1,
-                'is-pending': activation < 0.2,
-                'is-left': !this.isMobile && index % 2 === 0,
-                'is-right': !this.isMobile && index % 2 === 1,
+                'is-active':  a >= 0.55,
+                'is-done':    a >= 1,
+                'is-pending': a < 0.2,
+                'is-left':    !this.isMobile && index % 2 === 0,
+                'is-right':   !this.isMobile && index % 2 === 1,
             };
         },
 
@@ -163,9 +219,8 @@ export function scrollItinerary(totalSteps = 0) {
             return `transform: scaleY(${this.scrollProgress});`;
         },
 
-        lightStyle() {
-            return `top: calc(${this.scrollProgress * 100}% - 0.35rem);`;
-        },
+        // Kept so the :style binding in the template stays valid (no-op).
+        lightStyle() { return ''; },
 
         formattedIndex(index) {
             return String(index + 1).padStart(2, '0');
