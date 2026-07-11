@@ -398,7 +398,7 @@
     border: 0;
     background: var(--primary-color);
     box-shadow: 0.42rem 0 0 var(--primary-color);
-    transform: translate(-62%, -50%);
+    transform: translate(calc(-50% - 0.21rem), -50%);
 }
 
 .invitation-video__empty {
@@ -426,6 +426,13 @@
 
     .invitation-video__player {
         margin-top: 1.65rem;
+        width: min(100%, calc(100vw - 1.5rem));
+        max-width: none;
+    }
+
+    .invitation-video__player-frame {
+        min-height: 18rem;
+        width: 100%;
     }
 
     .invitation-video__play-toggle {
