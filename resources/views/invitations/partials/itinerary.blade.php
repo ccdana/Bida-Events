@@ -51,7 +51,7 @@
                                 data-itinerary-node="{{ $index }}"
                                 :style="nodeRingStyle({{ $index }})"
                             >
-                                <div class="invitation-itinerary__node-halo" :class="nodeHaloClass({{ $index }})" aria-hidden="true"></div>
+                                <div class="invitation-itinerary__node-halo" data-halo-index="{{ $index }}" :class="nodeHaloClass({{ $index }})" aria-hidden="true"></div>
                                 <div class="invitation-itinerary__node-ring" aria-hidden="true"></div>
                                 <div class="invitation-itinerary__node-core">
                                     <div class="invitation-itinerary__node-icon" :style="nodeIconStyle({{ $index }})">

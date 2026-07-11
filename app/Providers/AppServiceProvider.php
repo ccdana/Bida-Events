@@ -12,7 +12,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->register(BladeServiceProvider::class);
+        //$this->app->register(BladeServiceProvider::class);
     }
 
     /**
@@ -20,8 +20,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Si la URL del .env contiene 'ngrok-free.app', fuerza el esquema HTTPS
-        if (str_contains(config('app.url'), 'ngrok-free.app')) {
+        // Si la petición web incluye la palabra "ngrok", fuerza las URLs internas a HTTPS
+        if (str_contains(request()->getHost(), 'ngrok-free.dev')) {
             URL::forceScheme('https');
         }
     }

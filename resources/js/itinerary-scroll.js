@@ -13,11 +13,62 @@ export function scrollItinerary(totalSteps = 0) {
     //  inside Alpine's synchronous reactive context.  RAF / scroll callbacks
     //  run outside that context, so they must never call `this.$refs.*`.
     // ═══════════════════════════════════════════════════════════════════════
-    let _trackEl     = null;   // .invitation-itinerary__track
-    let _lightEl     = null;   // .invitation-itinerary__spine-light
-    let _spineEl     = null;   // .invitation-itinerary__spine
-    let _rafId       = null;
-    let _proxy       = null;   // Alpine reactive proxy — used ONLY to set scrollProgress
+    let _trackEl         = null;   // .invitation-itinerary__track
+    let _lightEl         = null;   // .invitation-itinerary__spine-light
+    let _spineEl         = null;   // .invitation-itinerary__spine
+    let _spineProgressEl = null;   // .invitation-itinerary__spine-progress
+    let _rafId           = null;
+    let _proxy           = null;   // Alpine reactive proxy — used ONLY to set scrollProgress
+    const total          = Math.max(Number(totalSteps) || 0, 0);
+
+    const computeNodeActivation = (index, progress) => {
+        if (total <= 0) return 0;
+        const start = index / total;
+        const mid = (index + 0.5) / total;
+        if (progress >= mid) return 1;
+        if (progress <= start) return 0;
+        return (progress - start) / (mid - start);
+    };
+
+    const updateHalos = (progress) => {
+        if (!_trackEl || !_spineProgressEl || total <= 0) return;
+
+        const halos = _trackEl.querySelectorAll('[data-halo-index]');
+        halos.forEach((el) => {
+            const index = Number(el.dataset.haloIndex);
+            if (!Number.isFinite(index)) return;
+
+            const activation = computeNodeActivation(index, progress);
+            const activationValue = activation.toFixed(3);
+
+            el.style.setProperty('--node-activation', activationValue);
+            el.classList.toggle('is-looping', activation > 0.1);
+
+            const node = el.closest('[data-itinerary-node]');
+            if (!node) return;
+
+            node.style.setProperty('--node-activation', activationValue);
+
+            const panel = node.previousElementSibling;
+            if (panel?.classList.contains('invitation-itinerary__panel')) {
+                panel.style.setProperty('--node-activation', activationValue);
+            }
+
+            const icon = node.querySelector('.invitation-itinerary__node-icon');
+            if (icon) {
+                icon.style.transform = `scale(${0.88 + (activation * 0.12)})`;
+            }
+
+            const item = node.closest('.invitation-itinerary__item');
+            if (item) {
+                item.classList.toggle('is-active', activation >= 0.55);
+                item.classList.toggle('is-done', activation >= 1);
+                item.classList.toggle('is-pending', activation < 0.2);
+            }
+        });
+
+        _spineProgressEl.style.transform = `scaleY(${progress})`;
+    };
 
     // ── Pure scroll math — never references `this` ──────────────────────────
     const computeProgress = () => {
@@ -44,6 +95,7 @@ export function scrollItinerary(totalSteps = 0) {
         _rafId = null;
         const p = computeProgress();
         moveDot(p);
+        updateHalos(p);
         // The ONLY Alpine touch: update the reactive scrollProgress so that
         // node activation, panel fade and class bindings keep working.
         if (_proxy) _proxy.scrollProgress = p;
@@ -58,18 +110,13 @@ export function scrollItinerary(totalSteps = 0) {
     // ── Listeners ─────────────────────────────────────────────────────────────
     let _resizeCb = null;
 
-    // Guaranteed polling loop — runs every frame regardless of events.
-    // Detects scroll changes by comparing pageYOffset against the last seen value.
-    // This is the most reliable cross-device approach: no event routing issues.
-    let _lastY     = -1;
-    let _loopId    = null;
+    // Guaranteed polling loop — runs everyframe regardless of events.
+    // This ensures the itinerary is updated even when scroll events are not
+    // dispatched or when layout changes are driven by transforms.
+    let _loopId = null;
 
     const loop = () => {
-        const y = window.pageYOffset;
-        if (y !== _lastY) {
-            _lastY = y;
-            tick();
-        }
+        tick();
         _loopId = requestAnimationFrame(loop);
     };
 
@@ -79,10 +126,12 @@ export function scrollItinerary(totalSteps = 0) {
             tick();
         };
         // Events as secondary triggers (belt + suspenders)
-        window.addEventListener('scroll',                schedule, { passive: true });
-        document.documentElement.addEventListener('scroll', schedule, { passive: true });
-        window.addEventListener('touchmove',            schedule, { passive: true });
+        window.addEventListener('scroll',                tick,     { passive: true });
+        document.documentElement.addEventListener('scroll', tick,     { passive: true });
+        window.addEventListener('touchmove',            tick,     { passive: true });
+        window.addEventListener('pointermove',          tick,     { passive: true });
         window.addEventListener('resize',               _resizeCb, { passive: true });
+        window.addEventListener('orientationchange',    tick,     { passive: true });
         // Primary: polling loop — always fires, zero dependency on scroll events
         _loopId = requestAnimationFrame(loop);
     };
@@ -123,6 +172,7 @@ export function scrollItinerary(totalSteps = 0) {
                 _trackEl = root.querySelector('.invitation-itinerary__track');
                 _lightEl = root.querySelector('.invitation-itinerary__spine-light');
                 _spineEl = root.querySelector('.invitation-itinerary__spine');
+                _spineProgressEl = root.querySelector('.invitation-itinerary__spine-progress');
 
                 // Set initial dot position before the user scrolls
                 tick();
