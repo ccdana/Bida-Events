@@ -246,7 +246,13 @@ function invitationForm(config) {
             m.ubicacion.nota ??= '';
             this.updateLocationStatusMessage();
             m.itinerario ??= { titulo: 'Itinerario', eventos: [] };
-            m.dress_code ??= { sugerencias: [], colores_permitidos: [], colores_prohibidos: [] };
+            m.dress_code ??= { sugerencias: [], colores_permitidos: [], evitar: [] };
+            m.dress_code.evitar ??= [];
+            // Migrar datos legacy: colores_prohibidos → evitar
+            if (m.dress_code.colores_prohibidos && !m.dress_code.evitar.length) {
+                m.dress_code.evitar = m.dress_code.colores_prohibidos.map(c => typeof c === 'string' ? c : (c.motivo || c.nombre || ''));
+                delete m.dress_code.colores_prohibidos;
+            }
             m.destacados ??= { chambelanes: [], damitas: [], padrinos: [] };
             m.destacados.chambelanes ??= [];
             m.destacados.damitas ??= [];
@@ -1230,7 +1236,8 @@ function invitationForm(config) {
         addSugerencia() { this.modules.dress_code.sugerencias.push({ para: '', titulo: '', descripcion: '', ejemplos: [] }); },
         removeSugerencia(i) { this.modules.dress_code.sugerencias.splice(i, 1); },
         addColorPermitido() { this.modules.dress_code.colores_permitidos.push({ nombre: '', hex: '#C9A96E' }); },
-        addColorProhibido() { this.modules.dress_code.colores_prohibidos.push({ nombre: '', hex: '#FFFFFF', motivo: '' }); },
+        addEvitar() { this.modules.dress_code.evitar.push(''); },
+        removeEvitar(i) { this.modules.dress_code.evitar.splice(i, 1); },
         addChambelan() { this.modules.destacados.chambelanes.push({ nombre: '', iniciales: '', detalle: '' }); },
         addDamita() { this.modules.destacados.damitas.push({ nombre: '', iniciales: '', detalle: '' }); },
         addPadrino() { this.modules.destacados.padrinos.push({ rol: '', nombres: '', mensaje: '' }); },

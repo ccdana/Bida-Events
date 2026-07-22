@@ -113,7 +113,7 @@ class InvitationDefaults
             'bienvenida' => (object) [],
             'ubicacion' => ['lat' => -16.5, 'lng' => -68.15],
             'itinerario' => ['titulo' => 'Itinerario', 'eventos' => []],
-            'dress_code' => ['sugerencias' => [], 'colores_permitidos' => [], 'colores_prohibidos' => []],
+            'dress_code' => ['sugerencias' => [], 'colores_permitidos' => [], 'evitar' => []],
             'destacados' => ['chambelanes' => [], 'damitas' => [], 'padrinos' => []],
             'galeria' => ['fotos' => []],
             'musica' => (object) [],

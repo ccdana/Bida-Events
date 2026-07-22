@@ -117,9 +117,11 @@ class XvSofiaModuleData
                     ['nombre' => 'Negro', 'hex' => '#1A1A1A'],
                     ['nombre' => 'Champagne', 'hex' => '#F7E7CE'],
                 ],
-                'colores_prohibidos' => [
-                    ['nombre' => 'Blanco', 'hex' => '#FFFFFF', 'motivo' => 'Reservado para la quinceanera'],
-                    ['nombre' => 'Rosa fuerte', 'hex' => '#FF69B4', 'motivo' => 'Color exclusivo del evento'],
+                'evitar' => [
+                    'Ropa informal o casual',
+                    'Zapatillas o tenis',
+                    'Jeans y camisas sin corbata',
+                    'Colores muy llamativos o neones',
                 ],
             ],
             'destacados' => [

@@ -1,112 +1,97 @@
-<section class="invitation-section reveal" id="dress-code" x-data="{ tab: 'sugerencias' }">
+<section class="invitation-section reveal invitation-dress-code" id="dress-code" x-data="{ tab: 'sugerencias' }">
     <div class="section-inner-wide">
-        <header class="section-header">
-            @include('invitations.partials.icon', ['name' => 'shirt', 'class' => 'w-8 h-8 text-primary mx-auto mb-3'])
-            <span class="section-eyebrow">Vestimenta</span>
-            <h2 class="section-title">{{ $dressCode['titulo'] ?? 'Dress Code' }}</h2>
-            <div class="section-ornament"></div>
-            <div class="mt-4 mx-auto max-w-lg rounded-[1.5rem] p-4 text-left inv-card">
-                <div class="flex items-center justify-between gap-3">
-                    <div>
-                        @if(!empty($dressCode['estilo']))
-                            <p class="font-title text-base text-secondary">{{ $dressCode['estilo'] }}</p>
-                        @endif
-                        @if(!empty($dressCode['descripcion']))
-                            <p class="mt-1 text-sm opacity-65 leading-relaxed">{{ $dressCode['descripcion'] }}</p>
-                        @endif
-                    </div>
-                    <div class="flex -space-x-2">
-                        <span class="w-8 h-8 rounded-full border-2 border-white" style="background: var(--primary-color)"></span>
-                        <span class="w-8 h-8 rounded-full border-2 border-white" style="background: var(--secondary-color)"></span>
-                        <span class="w-8 h-8 rounded-full border-2 border-white" style="background: var(--accent-color)"></span>
-                    </div>
-                </div>
-            </div>
-        </header>
+        <div class="invitation-dress-code__shell">
+            @include('invitations.partials.icon', ['name' => 'shirt', 'class' => 'w-7 h-7 invitation-dress-code__icon'])
+            <p class="invitation-dress-code__eyebrow">Vestimenta</p>
+            <h2 class="invitation-dress-code__title">{{ $dressCode['titulo'] ?? 'Dress Code' }}</h2>
+            <div class="invitation-dress-code__rule" aria-hidden="true"></div>
 
-        <div class="flex justify-center gap-1 mb-8 p-1 rounded-full inv-card-soft max-w-md mx-auto">
+            @if(!empty($dressCode['descripcion']))
+                <p class="invitation-dress-code__description">{{ $dressCode['descripcion'] }}</p>
+            @endif
+        </div>
+
+        {{-- Tabs --}}
+        <nav class="invitation-dress-code__tabs" role="tablist">
             @foreach(['sugerencias' => 'Sugerencias', 'colores' => 'Colores', 'evitar' => 'Evitar'] as $key => $label)
-                <button type="button" @click="tab='{{ $key }}'"
-                    class="flex-1 px-3 py-2 rounded-full text-xs uppercase tracking-wider transition-all duration-300"
-                    :class="tab === '{{ $key }}' ? 'bg-primary text-white shadow-sm' : 'opacity-50 hover:opacity-80'">
+                <button type="button" role="tab" @click="tab='{{ $key }}'"
+                    class="invitation-dress-code__tab"
+                    :class="tab === '{{ $key }}' ? 'is-active' : ''"
+                    :aria-selected="tab === '{{ $key }}'">
                     {{ $label }}
                 </button>
             @endforeach
-        </div>
+        </nav>
 
-        <div x-show="tab === 'sugerencias'" x-cloak class="space-y-4">
+        {{-- Tab: Sugerencias --}}
+        <div x-show="tab === 'sugerencias'" x-cloak class="invitation-dress-code__panel">
             @forelse($dressCode['sugerencias'] ?? [] as $i => $sug)
-                <article class="inv-card overflow-hidden transition hover:border-primary/30"
-                    x-data="{ open: {{ $i === 0 ? 'true' : 'false' }} }">
-                    <div class="flex">
+                <article class="invitation-dress-code__suggestion">
+                    <div class="invitation-dress-code__suggestion-media">
                         @if(!empty($sug['imagen']))
-                            <div class="w-28 shrink-0 bg-cover bg-center min-h-[9rem]" style="background-image:url('{{ $sug['imagen'] }}')"></div>
+                            <img src="{{ $sug['imagen'] }}" alt="{{ $sug['titulo'] ?? 'Vestimenta' }}" loading="lazy">
                         @else
-                            <div class="w-28 shrink-0 flex items-center justify-center min-h-[9rem]" style="background: color-mix(in srgb, var(--primary-color) 10%, var(--accent-color))">
-                                @include('invitations.partials.icon', ['name' => 'shirt', 'class' => 'w-9 h-9 text-primary/60'])
+                            <div class="invitation-dress-code__suggestion-media-placeholder">
+                                @include('invitations.partials.icon', ['name' => 'shirt', 'class' => 'w-10 h-10'])
                             </div>
                         @endif
-                        <div class="flex-1 p-4">
-                            <button type="button" @click="open = !open" class="w-full text-left flex items-center justify-between gap-3">
-                                <div>
-                                    <p class="text-[10px] uppercase tracking-wider text-primary/70">{{ $sug['para'] ?? 'Invitados' }}</p>
-                                    <h3 class="font-title text-lg mt-0.5">{{ $sug['titulo'] }}</h3>
-                                </div>
-                                <span class="shrink-0 w-7 h-7 rounded-full border border-primary/20 flex items-center justify-center transition-transform duration-300"
-                                    :class="open ? 'rotate-180 bg-primary/10' : ''">
-                                    @include('invitations.partials.icon', ['name' => 'chevron-down', 'class' => 'w-3 h-3', 'animated' => false])
-                                </span>
-                            </button>
-                            <div x-show="open" x-cloak class="mt-3 pt-3 border-t border-primary/10">
-                                <p class="text-sm opacity-70 leading-relaxed">{{ $sug['descripcion'] }}</p>
-                                @if(!empty($sug['ejemplos']))
-                                    <ul class="mt-3 flex flex-wrap gap-2">
-                                        @foreach($sug['ejemplos'] as $ej)
-                                            <li class="text-[11px] px-3 py-1 rounded-full border border-primary/20 inv-card-soft">{{ $ej }}</li>
-                                        @endforeach
-                                    </ul>
-                                @endif
-                            </div>
-                        </div>
+                    </div>
+                    <div class="invitation-dress-code__suggestion-body">
+                        @if(!empty($sug['para']))
+                            <p class="invitation-dress-code__suggestion-label">{{ $sug['para'] }}</p>
+                        @endif
+                        <h3 class="invitation-dress-code__suggestion-title">{{ $sug['titulo'] }}</h3>
+                        @if(!empty($sug['descripcion']))
+                            <p class="invitation-dress-code__suggestion-text">{{ $sug['descripcion'] }}</p>
+                        @endif
+                        @if(!empty($sug['ejemplos']))
+                            <ul class="invitation-dress-code__suggestion-list">
+                                @foreach($sug['ejemplos'] as $ej)
+                                    <li>{{ $ej }}</li>
+                                @endforeach
+                            </ul>
+                        @endif
                     </div>
                 </article>
             @empty
-                <p class="text-center text-sm opacity-50 py-8">Consulta con los anfitriones sobre la vestimenta ideal.</p>
+                <p class="invitation-dress-code__empty">Consulta con los anfitriones sobre la vestimenta ideal.</p>
             @endforelse
         </div>
 
-        <div x-show="tab === 'colores'" x-cloak>
-            <div class="grid grid-cols-2 gap-4">
-                @foreach($dressCode['colores_permitidos'] ?? [] as $color)
-                    <div class="inv-card p-4 text-center hover:scale-[1.02] transition-transform">
-                        <div class="w-16 h-16 rounded-full mx-auto shadow-inner border-2 border-white ring-2 ring-primary/15" style="background: {{ $color['hex'] }}"></div>
-                        <p class="text-sm font-medium mt-3">{{ $color['nombre'] }}</p>
-                    </div>
-                @endforeach
-            </div>
+        {{-- Tab: Colores --}}
+        <div x-show="tab === 'colores'" x-cloak class="invitation-dress-code__panel">
+            @if(!empty($dressCode['colores_permitidos']))
+                <p class="invitation-dress-code__palette-hint">Paleta recomendada para la noche</p>
+                <div class="invitation-dress-code__palette">
+                    @foreach($dressCode['colores_permitidos'] ?? [] as $color)
+                        <div class="invitation-dress-code__color">
+                            <span class="invitation-dress-code__color-circle" style="background: {{ $color['hex'] }};"></span>
+                            <span class="invitation-dress-code__color-name">{{ $color['nombre'] }}</span>
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                <p class="invitation-dress-code__empty">Aún no hay colores definidos.</p>
+            @endif
         </div>
 
-        <div x-show="tab === 'evitar'" x-cloak>
-            <div class="space-y-3">
-                @forelse($dressCode['colores_prohibidos'] ?? [] as $color)
-                    <div class="inv-card flex items-center gap-4 p-4">
-                        <div class="relative w-14 h-14 rounded-full shrink-0 border-2 border-primary/20 overflow-hidden" style="background: {{ $color['hex'] }}">
-                            <span class="absolute inset-0 flex items-center justify-center">
-                                <span class="block w-full h-0.5 bg-primary rotate-45 absolute"></span>
-                            </span>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="font-title text-sm">{{ $color['nombre'] }}</p>
-                            @if(!empty($color['motivo']))
-                                <p class="text-xs opacity-50 mt-0.5">{{ $color['motivo'] }}</p>
-                            @endif
-                        </div>
-                        <span class="shrink-0 text-[10px] uppercase tracking-wider text-primary/50 px-2 py-1 rounded-full inv-card-soft">Evitar</span>
-                    </div>
-                @empty
-                    <p class="text-center text-sm opacity-50 py-6">No hay colores restringidos</p>
-                @endforelse
-            </div>
+        {{-- Tab: Evitar --}}
+        <div x-show="tab === 'evitar'" x-cloak class="invitation-dress-code__panel">
+            @if(!empty($dressCode['evitar']))
+                <div class="invitation-dress-code__avoid-list">
+                    @foreach($dressCode['evitar'] ?? [] as $i => $item)
+                        @php $text = is_string($item) ? $item : ($item['motivo'] ?? $item['nombre'] ?? ''); @endphp
+                        @if(!empty($text))
+                            <div class="invitation-dress-code__avoid-item">
+                                <span class="invitation-dress-code__avoid-number">{{ str_pad((string) ($i + 1), 2, '0', STR_PAD_LEFT) }}.</span>
+                                <span class="invitation-dress-code__avoid-text">{{ $text }}</span>
+                            </div>
+                        @endif
+                    @endforeach
+                </div>
+            @else
+                <p class="invitation-dress-code__empty">No hay restricciones de vestimenta.</p>
+            @endif
         </div>
     </div>
 </section>

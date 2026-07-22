@@ -142,27 +142,26 @@
         </template>
     </section>
 
-    <!-- Colores a evitar -->
+    <!-- Qué evitar -->
     <section class="admin-card p-3 space-y-2">
         <div class="flex items-center justify-between gap-2">
             <div class="min-w-0">
-                <p class="admin-eyebrow mb-0">Colores a evitar</p>
-                <p class="text-xs text-stone-500 mt-1">Solo lo que realmente choque con el evento.</p>
+                <p class="admin-eyebrow mb-0">Qué evitar</p>
+                <p class="text-xs text-stone-500 mt-1">Prendas, estilos o accesorios que no van con el evento.</p>
             </div>
-            <button type="button" @click="addColorProhibido()" class="admin-link-button text-xs shrink-0">+ Color</button>
+            <button type="button" @click="addEvitar()" class="admin-link-button text-xs shrink-0">+ Agregar</button>
         </div>
 
-        <template x-if="modules.dress_code.colores_prohibidos.length === 0">
-            <p class="text-xs text-stone-500 rounded-lg border border-dashed border-stone-200 bg-stone-50 py-4 text-center">Sin restricciones de color</p>
+        <template x-if="modules.dress_code.evitar.length === 0">
+            <p class="text-xs text-stone-500 rounded-lg border border-dashed border-stone-200 bg-stone-50 py-4 text-center">Sin restricciones definidas</p>
         </template>
 
-        <template x-for="(c, i) in modules.dress_code.colores_prohibidos" :key="'x'+i">
-            <div class="grid gap-2 rounded-lg border border-stone-200 bg-stone-50 p-2.5 sm:grid-cols-[auto,1fr,1fr,auto] sm:items-center">
-                <input type="color" x-model="c.hex" @input="schedulePreview()" class="w-10 h-10 rounded-lg border border-stone-200 bg-white cursor-pointer">
-                <input type="text" x-model="c.nombre" @input="schedulePreview()" class="admin-input" placeholder="Nombre">
-                <input type="text" x-model="c.motivo" @input="schedulePreview()" class="admin-input" placeholder="Motivo">
-                <button type="button" @click="modules.dress_code.colores_prohibidos.splice(i, 1); schedulePreview()"
-                    class="text-xs text-red-600 hover:text-red-700 sm:justify-self-end">×</button>
+        <template x-for="(item, i) in modules.dress_code.evitar" :key="'ev'+i">
+            <div class="flex items-center gap-2 rounded-lg border border-stone-200 bg-stone-50 p-2.5">
+                <span class="text-xs font-medium text-stone-400 shrink-0 w-6 text-center" x-text="String(i + 1).padStart(2, '0')"></span>
+                <input type="text" x-model="modules.dress_code.evitar[i]" @input="schedulePreview()" class="admin-input flex-1" placeholder="Ej. Ropa informal o casual">
+                <button type="button" @click="removeEvitar(i); schedulePreview()"
+                    class="text-xs text-red-600 hover:text-red-700 shrink-0 px-1">×</button>
             </div>
         </template>
     </section>

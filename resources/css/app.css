@@ -256,6 +256,321 @@
     margin: 2rem auto 0;
 }
 
+/* ── Dress Code ────────────────────────────────────────────── */
+
+.invitation-dress-code {
+    position: relative;
+    margin-top: 0;
+    padding-top: 4.5rem;
+    padding-bottom: 3rem;
+    background: transparent;
+    border-top: 1px solid color-mix(in srgb, var(--accent-color) 28%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, var(--accent-color) 28%, transparent);
+}
+
+.invitation-dress-code .section-inner-wide {
+    max-width: min(58rem, 94vw);
+}
+
+.invitation-dress-code::before,
+.invitation-dress-code::after {
+    content: none;
+}
+
+.invitation-dress-code__shell {
+    position: relative;
+    max-width: 54rem;
+    margin-inline: auto;
+    text-align: center;
+    padding: 1.1rem 1rem 0;
+    z-index: 6;
+}
+
+.invitation-dress-code__icon {
+    color: color-mix(in srgb, var(--primary-color) 82%, var(--secondary-color));
+    margin-inline: auto;
+    margin-bottom: 0.75rem;
+    display: block;
+}
+
+.invitation-dress-code__eyebrow {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.42em;
+    color: color-mix(in srgb, var(--primary-color) 82%, var(--secondary-color));
+}
+
+.invitation-dress-code__title {
+    margin-top: 0.75rem;
+    font-family: var(--font-titles);
+    font-size: clamp(2.35rem, 6.5vw, 4.25rem);
+    font-weight: 400;
+    line-height: 0.98;
+    color: var(--text-color, var(--secondary-color));
+}
+
+.invitation-dress-code__rule {
+    width: 4.5rem;
+    height: 1px;
+    margin: 0.95rem auto 0;
+    border-radius: 999px;
+    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--primary-color) 78%, var(--secondary-color)), transparent);
+    opacity: 0.88;
+}
+
+.invitation-dress-code__description {
+    max-width: 36rem;
+    margin: 1.25rem auto 0;
+    font-size: 0.92rem;
+    line-height: 1.7;
+    opacity: 0.7;
+    text-align: center;
+}
+
+/* Tabs */
+.invitation-dress-code__tabs {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 2.5rem;
+    margin-bottom: 2.5rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--accent-color) 22%, transparent);
+    padding-bottom: 0;
+}
+
+.invitation-dress-code__tab {
+    position: relative;
+    padding: 0.65rem 0.25rem;
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.35em;
+    color: color-mix(in srgb, var(--text-color, var(--secondary-color)) 45%, transparent);
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color 300ms ease;
+}
+
+.invitation-dress-code__tab::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--primary-color);
+    transform: scaleX(0);
+    transition: transform 300ms ease;
+}
+
+.invitation-dress-code__tab:hover {
+    color: color-mix(in srgb, var(--text-color, var(--secondary-color)) 75%, transparent);
+}
+
+.invitation-dress-code__tab.is-active {
+    color: var(--text-color, var(--secondary-color));
+}
+
+.invitation-dress-code__tab.is-active::after {
+    transform: scaleX(1);
+}
+
+/* Panels */
+.invitation-dress-code__panel {
+    max-width: 54rem;
+    margin-inline: auto;
+}
+
+/* Suggestions */
+.invitation-dress-code__panel > .invitation-dress-code__suggestion:first-child {
+    margin-top: 0;
+}
+
+.invitation-dress-code__suggestion {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+}
+
+@media (min-width: 640px) {
+    .invitation-dress-code__panel {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2rem;
+    }
+    .invitation-dress-code__panel > .invitation-dress-code__empty,
+    .invitation-dress-code__panel > .invitation-dress-code__palette-hint,
+    .invitation-dress-code__panel > .invitation-dress-code__palette,
+    .invitation-dress-code__panel > .invitation-dress-code__avoid-list {
+        grid-column: 1 / -1;
+    }
+}
+
+.invitation-dress-code__suggestion-media {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    border-radius: 0.25rem;
+}
+
+.invitation-dress-code__suggestion-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.invitation-dress-code__suggestion-media-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: color-mix(in srgb, var(--accent-color) 15%, var(--bg-color));
+    color: color-mix(in srgb, var(--primary-color) 40%, transparent);
+}
+
+.invitation-dress-code__suggestion-body {
+    padding-top: 1.15rem;
+    padding-bottom: 1.5rem;
+}
+
+.invitation-dress-code__suggestion-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.35em;
+    color: color-mix(in srgb, var(--primary-color) 82%, var(--secondary-color));
+    margin-bottom: 0.35rem;
+}
+
+.invitation-dress-code__suggestion-title {
+    font-family: var(--font-titles);
+    font-size: 1.35rem;
+    font-weight: 400;
+    line-height: 1.15;
+    color: var(--text-color, var(--secondary-color));
+    margin: 0;
+}
+
+.invitation-dress-code__suggestion-text {
+    margin-top: 0.65rem;
+    font-size: 0.85rem;
+    line-height: 1.7;
+    opacity: 0.65;
+}
+
+.invitation-dress-code__suggestion-list {
+    margin-top: 0.85rem;
+    padding-left: 0;
+    list-style: none;
+}
+
+.invitation-dress-code__suggestion-list li {
+    position: relative;
+    padding-left: 1rem;
+    font-size: 0.82rem;
+    line-height: 1.85;
+    opacity: 0.6;
+}
+
+.invitation-dress-code__suggestion-list li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+/* Colors palette */
+.invitation-dress-code__palette-hint {
+    text-align: center;
+    font-size: 0.82rem;
+    opacity: 0.55;
+    letter-spacing: 0.02em;
+    margin-bottom: 2rem;
+}
+
+.invitation-dress-code__palette {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2rem;
+}
+
+.invitation-dress-code__color {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.invitation-dress-code__color-circle {
+    width: 4.5rem;
+    height: 4.5rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,.12);
+    box-shadow: 0 8px 28px -12px rgba(0,0,0,.35);
+    transition: transform 400ms ease, box-shadow 400ms ease;
+}
+
+.invitation-dress-code__color-circle:hover {
+    transform: scale(1.08);
+    box-shadow: 0 12px 36px -10px rgba(0,0,0,.45);
+}
+
+.invitation-dress-code__color-name {
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+    opacity: 0.6;
+}
+
+/* Avoid list */
+.invitation-dress-code__avoid-list {
+    max-width: 36rem;
+    margin-inline: auto;
+}
+
+.invitation-dress-code__avoid-item {
+    display: flex;
+    align-items: baseline;
+    gap: 1.25rem;
+    padding: 1.35rem 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--accent-color) 20%, transparent);
+}
+
+.invitation-dress-code__avoid-item:last-child {
+    border-bottom: none;
+}
+
+.invitation-dress-code__avoid-number {
+    font-family: var(--font-titles);
+    font-size: 1.1rem;
+    font-style: italic;
+    opacity: 0.35;
+    color: var(--primary-color);
+    flex-shrink: 0;
+    min-width: 2rem;
+}
+
+.invitation-dress-code__avoid-text {
+    font-size: 0.88rem;
+    line-height: 1.6;
+    opacity: 0.7;
+}
+
+/* Empty state */
+.invitation-dress-code__empty {
+    text-align: center;
+    font-size: 0.85rem;
+    opacity: 0.45;
+    padding: 2.5rem 0;
+    grid-column: 1 / -1;
+}
+
 .invitation-video__player-frame {
     position: relative;
     display: grid;
