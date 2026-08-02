@@ -80,47 +80,66 @@
         .scrollbar-hide::-webkit-scrollbar { display: none; }
     </style>
 </head>
-<body class="overflow-x-hidden pb-28" x-data="invitationApp()" x-init="init()">
+<body class="overflow-x-hidden pb-16" x-data="invitationApp()" x-init="init()">
 
-    <div class="fixed top-4 right-4 z-50" x-data="{ open: false }" @keydown.escape.window="open = false">
+    {{-- ═══ MENÚ LATERAL ═══ --}}
+    <div class="invitation-nav" x-data="{ open: false }" @keydown.escape.window="open = false">
+        {{-- Botón toggle --}}
         <button type="button"
             @click="open = !open"
-            class="inline-flex items-center gap-2 rounded-full border border-white/35 bg-white/80 px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.24em] text-secondary shadow-lg backdrop-blur-xl transition hover:bg-white">
-            <span>Menú</span>
-            <svg class="h-3.5 w-3.5 transition-transform duration-200" :class="open ? 'rotate-180' : ''" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"></path>
-            </svg>
+            class="invitation-nav__toggle"
+            :class="open ? 'is-open' : ''"
+            aria-label="Abrir menú de navegación">
+            <span class="invitation-nav__toggle-label" x-text="open ? 'Cerrar' : 'Menú'"></span>
+            <span class="invitation-nav__toggle-icon" :class="open ? 'is-open' : ''">
+                <span></span><span></span>
+            </span>
         </button>
 
-        <div x-show="open"
-            x-cloak
-            @click.outside="open = false"
-            x-transition:enter="transition ease-out duration-150"
-            x-transition:enter-start="opacity-0 translate-y-2 scale-95"
-            x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-            x-transition:leave="transition ease-in duration-100"
-            x-transition:leave-start="opacity-100 translate-y-0 scale-100"
-            x-transition:leave-end="opacity-0 translate-y-2 scale-95"
-            class="absolute right-0 mt-3 w-64 overflow-hidden rounded-3xl border border-white/40 bg-white/95 p-2 shadow-2xl backdrop-blur-xl">
-            <a href="#inicio" @click="open = false"
-                class="flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-medium text-secondary transition hover:bg-primary/5">
-                <span>Inicio</span>
-            </a>
-            @if($moduleVisible('rsvp') && $guest)
-                <a href="#guest-banner" @click="open = false"
-                    class="flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-medium text-secondary transition hover:bg-primary/5">
-                    <span>Invitado especial</span>
-                    <span class="text-[10px] uppercase tracking-[0.2em] text-primary/70">Ir</span>
-                </a>
-            @endif
-            @foreach($navItems as $item)
-                <a href="#{{ $item['id'] }}" @click="open = false"
-                    class="flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-medium text-secondary transition hover:bg-primary/5">
-                    <span>{{ $item['label'] }}</span>
-                    <span class="text-[10px] uppercase tracking-[0.2em] text-primary/70">Ir</span>
-                </a>
-            @endforeach
+        {{-- Backdrop oscuro --}}
+        <div class="invitation-nav__backdrop"
+            x-show="open" x-cloak
+            @click="open = false"
+            x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100"
+            x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0">
         </div>
+
+        {{-- Panel lateral --}}
+        <nav class="invitation-nav__panel"
+            x-show="open" x-cloak
+            x-transition:enter="transition ease-out duration-350"
+            x-transition:enter-start="translate-x-full"
+            x-transition:enter-end="translate-x-0"
+            x-transition:leave="transition ease-in duration-250"
+            x-transition:leave-start="translate-x-0"
+            x-transition:leave-end="translate-x-full"
+            role="navigation" aria-label="Navegación de la invitación">
+
+            <div class="invitation-nav__links">
+                <a href="#inicio" @click="open = false" class="invitation-nav__link">
+                    <span>Inicio</span>
+                </a>
+                @if($moduleVisible('rsvp') && $guest)
+                    <a href="#guest-banner" @click="open = false" class="invitation-nav__link">
+                        <span>Invitado</span>
+                    </a>
+                @endif
+                @foreach($navItems as $item)
+                    <a href="#{{ $item['id'] }}" @click="open = false" class="invitation-nav__link">
+                        <span>{{ $item['label'] }}</span>
+                    </a>
+                @endforeach
+            </div>
+
+            {{-- Decoración inferior del panel --}}
+            <div class="invitation-nav__footer">
+                <div class="invitation-nav__rule"></div>
+            </div>
+        </nav>
     </div>
 
     <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">

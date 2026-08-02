@@ -2,43 +2,45 @@
     $showMusicPlayer = ($flags['musica'] ?? false) && !empty($musica['audio_url'] ?? null);
 @endphp
 @if($showMusicPlayer && !empty($musica['audio_url']))
-<div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-sm"
+<div class="invitation-player"
     x-data="musicPlayer('{{ $musica['audio_url'] }}', {{ ($musica['autoplay'] ?? false) ? 'true' : 'false' }})"
     x-init="init()">
-    <div class="theme-card backdrop-blur-md overflow-hidden transition-all duration-300"
-        :class="expanded ? 'pb-3' : ''">
-        {{-- Barra compacta --}}
-        <div class="flex items-center gap-3 px-4 py-3">
-            <button type="button" @click="toggle()" aria-label="Reproducir o pausar"
-                class="shrink-0 w-11 h-11 rounded-full bg-primary text-white flex items-center justify-center shadow-md transition-transform active:scale-95">
-                <span x-show="!playing">@include('invitations.partials.icon', ['name' => 'play', 'class' => 'w-5 h-5', 'animated' => false])</span>
-                <span x-show="playing" x-cloak>@include('invitations.partials.icon', ['name' => 'pause', 'class' => 'w-5 h-5', 'animated' => false])</span>
-            </button>
 
-            <button type="button" @click="expanded = !expanded" class="flex-1 min-w-0 text-left">
-                <p class="text-xs uppercase tracking-wider text-primary/80 truncate">{{ $musica['titulo'] ?? 'Música de fondo' }}</p>
-                <p class="text-sm font-medium truncate text-secondary">{{ $musica['artista'] ?? 'Toca para escuchar' }}</p>
-            </button>
+    {{-- Botón play/pause --}}
+    <button type="button" @click="toggle()" aria-label="Reproducir o pausar"
+        class="invitation-player__btn"
+        :class="playing ? 'is-playing' : ''">
+        <span x-show="!playing">@include('invitations.partials.icon', ['name' => 'play', 'class' => 'w-4 h-4', 'animated' => false])</span>
+        <span x-show="playing" x-cloak>@include('invitations.partials.icon', ['name' => 'pause', 'class' => 'w-4 h-4', 'animated' => false])</span>
+    </button>
 
-            {{-- Visualizador animado --}}
-            <div class="flex items-end gap-0.5 h-5 shrink-0" x-show="playing" x-cloak aria-hidden="true">
-                <span class="w-0.5 bg-primary rounded-full animate-eq" style="animation-delay:0ms;height:60%"></span>
-                <span class="w-0.5 bg-primary rounded-full animate-eq" style="animation-delay:150ms;height:100%"></span>
-                <span class="w-0.5 bg-primary rounded-full animate-eq" style="animation-delay:300ms;height:40%"></span>
-                <span class="w-0.5 bg-primary rounded-full animate-eq" style="animation-delay:450ms;height:80%"></span>
-            </div>
-        </div>
-
-        {{-- Controles expandidos --}}
-        <div x-show="expanded" x-cloak class="px-4 pb-1 space-y-3 border-t border-primary/15 pt-3">
-            <div class="flex items-center gap-3">
-                @include('invitations.partials.icon', ['name' => 'volume', 'class' => 'w-4 h-4 text-primary/60', 'animated' => false])
-                <input type="range" min="0" max="1" step="0.05" x-model="volume" @input="setVolume()"
-                    class="flex-1 h-1 accent-[var(--primary-color)] rounded-full">
-            </div>
-            <p class="text-[10px] text-center opacity-40 tracking-wide">La música continúa en segundo plano mientras navegas</p>
-        </div>
+    {{-- Info de la canción --}}
+    <div class="invitation-player__info" @click="expanded = !expanded">
+        <span class="invitation-player__title">{{ $musica['titulo'] ?? 'Música de fondo' }}</span>
+        <span class="invitation-player__artist">{{ $musica['artista'] ?? '' }}</span>
     </div>
+
+    {{-- Ecualizador visual --}}
+    <div class="invitation-player__eq" x-show="playing" x-cloak aria-hidden="true">
+        <span style="animation-delay:0ms"></span>
+        <span style="animation-delay:150ms"></span>
+        <span style="animation-delay:300ms"></span>
+        <span style="animation-delay:450ms"></span>
+    </div>
+
+    {{-- Panel de volumen expandible --}}
+    <div class="invitation-player__volume" x-show="expanded" x-cloak
+        x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0 translate-y-2"
+        x-transition:enter-end="opacity-100 translate-y-0"
+        x-transition:leave="transition ease-in duration-150"
+        x-transition:leave-start="opacity-100 translate-y-0"
+        x-transition:leave-end="opacity-0 translate-y-2">
+        @include('invitations.partials.icon', ['name' => 'volume', 'class' => 'w-3.5 h-3.5 invitation-player__vol-icon', 'animated' => false])
+        <input type="range" min="0" max="1" step="0.05" x-model="volume" @input="setVolume()"
+            class="invitation-player__slider">
+    </div>
+
     <audio x-ref="audio" src="{{ $musica['audio_url'] }}" loop preload="metadata"></audio>
 </div>
 <script>
