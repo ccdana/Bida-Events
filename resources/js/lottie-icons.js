@@ -143,5 +143,5 @@ export const refreshLottieIconColors = () => {
     });
 };
 
-window.initLottieIcons = initLottieIcons;
-window.refreshLottieIconColors = refreshLottieIconColors;
+// Window globals are set by app.js after the dynamic import resolves
+// to avoid race conditions with components that call window.initLottieIcons().

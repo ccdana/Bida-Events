@@ -15,4 +15,17 @@ export default defineConfig({
             ignored: ['**/storage/framework/views/**'],
         },
     },
+    build: {
+        rollupOptions: {
+            output: {
+                manualChunks(id) {
+                    // Aislar vendors pesados en chunks separados y predecibles
+                    if (id.includes('node_modules/video.js'))   return 'vendor-videojs';
+                    if (id.includes('node_modules/lottie-web')) return 'vendor-lottie';
+                    if (id.includes('node_modules/motion'))     return 'vendor-motion';
+                },
+            },
+        },
+    },
 });
+
