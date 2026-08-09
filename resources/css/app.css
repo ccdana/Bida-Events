@@ -381,31 +381,59 @@
 .invitation-dress-code__panel {
     max-width: 54rem;
     margin-inline: auto;
-}
-
-/* Suggestions */
-.invitation-dress-code__panel > .invitation-dress-code__suggestion:first-child {
-    margin-top: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: stretch;
+    gap: 2.5rem;
 }
 
 .invitation-dress-code__suggestion {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 0;
+    flex: 1 1 18rem;
+    max-width: 24rem;
+    width: 100%;
+    box-sizing: border-box;
 }
 
-@media (min-width: 640px) {
-    .invitation-dress-code__panel {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 2rem;
-    }
-    .invitation-dress-code__panel > .invitation-dress-code__empty,
-    .invitation-dress-code__panel > .invitation-dress-code__palette-hint,
-    .invitation-dress-code__panel > .invitation-dress-code__palette,
-    .invitation-dress-code__panel > .invitation-dress-code__avoid-list {
-        grid-column: 1 / -1;
-    }
+.invitation-dress-code__empty,
+.invitation-dress-code__palette-hint,
+.invitation-dress-code__palette,
+.invitation-dress-code__avoid-list {
+    width: 100%;
+}
+
+/* Mobile Accordion Styles */
+.invitation-dress-code__accordion {
+    border-radius: 0.375rem;
+    border: 1px solid color-mix(in srgb, var(--primary-color) 18%, transparent);
+    background: color-mix(in srgb, var(--accent-color) 15%, var(--bg-color));
+    overflow: hidden;
+    transition: border-color 0.25s ease, background 0.25s ease;
+}
+
+.invitation-dress-code__accordion-trigger {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    background: transparent;
+    border: none;
+    color: var(--text-color, var(--secondary-color));
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.invitation-dress-code__accordion-trigger.is-active {
+    background: color-mix(in srgb, var(--primary-color) 12%, transparent);
+    color: var(--primary-color);
+}
+
+.invitation-dress-code__accordion-body {
+    padding: 1.25rem 1rem 1.5rem;
+    border-top: 1px solid color-mix(in srgb, var(--primary-color) 12%, transparent);
+    background: color-mix(in srgb, var(--bg-color) 92%, var(--accent-color));
 }
 
 .invitation-dress-code__suggestion-media {
@@ -1666,6 +1694,276 @@
 
     .invitation-gallery__nav-label {
         letter-spacing: 0.2em;
+    }
+}
+
+/* Ubicación ─────────────────────────────────────────────── */
+.invitation-location {
+    position: relative;
+    margin-top: 0;
+    padding-top: 4.5rem;
+    padding-bottom: 3rem;
+    background: transparent;
+    border-top: 1px solid color-mix(in srgb, var(--accent-color) 28%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, var(--accent-color) 28%, transparent);
+}
+
+.invitation-location .section-inner-wide {
+    max-width: min(58rem, 100%);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.invitation-location__shell {
+    position: relative;
+    max-width: 100%;
+    margin-inline: auto;
+    text-align: center;
+    padding: 1.1rem 1rem 0;
+    z-index: 6;
+    box-sizing: border-box;
+}
+
+.invitation-location__eyebrow {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.42em;
+    color: color-mix(in srgb, var(--primary-color) 82%, var(--secondary-color));
+}
+
+.invitation-location__title {
+    margin-top: 0.75rem;
+    font-family: var(--font-titles);
+    font-size: clamp(2.35rem, 6.5vw, 4.25rem);
+    font-weight: 400;
+    line-height: 0.98;
+    color: var(--text-color, var(--secondary-color));
+}
+
+.invitation-location__rule {
+    width: 4.5rem;
+    height: 1px;
+    margin: 0.95rem auto 0;
+    border-radius: 999px;
+    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--primary-color) 78%, var(--secondary-color)), transparent);
+    opacity: 0.88;
+}
+
+.invitation-location__place {
+    margin-top: 1.1rem;
+    font-family: var(--font-titles);
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: var(--text-color, var(--secondary-color));
+}
+
+.invitation-location__address {
+    margin-top: 0.4rem;
+    font-size: 0.82rem;
+    line-height: 1.55;
+    color: color-mix(in srgb, var(--text-color, var(--secondary-color)) 58%, transparent);
+    max-width: 22rem;
+    margin-inline: auto;
+}
+
+/* Stage — stacked on mobile, side-by-side on desktop */
+.invitation-location__stage {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 2rem;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Photo card */
+.invitation-location__photo {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.invitation-location__photo-frame {
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+    border-radius: 0.375rem;
+    overflow: hidden;
+    aspect-ratio: 16 / 7;
+    min-height: 180px;
+    border: 1px solid color-mix(in srgb, var(--primary-color) 15%, transparent);
+    box-shadow: 0 8px 28px color-mix(in srgb, var(--secondary-color) 10%, transparent);
+    box-sizing: border-box;
+}
+
+.invitation-location__photo-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.55s ease;
+}
+
+.invitation-location__photo-frame:hover .invitation-location__photo-img {
+    transform: scale(1.035);
+}
+
+.invitation-location__photo-caption {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    padding: 1.15rem 1rem 0.9rem;
+    background: linear-gradient(to top, color-mix(in srgb, var(--secondary-color) 72%, transparent), transparent);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    box-sizing: border-box;
+}
+
+.invitation-location__photo-label {
+    font-size: 0.6rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.38em;
+    color: color-mix(in srgb, #fff 72%, var(--primary-color));
+}
+
+.invitation-location__photo-name {
+    font-family: var(--font-titles);
+    font-size: 1.1rem;
+    font-weight: 400;
+    color: var(--text-color, #fff);
+    line-height: 1.15;
+    margin-top: 0.2rem;
+}
+
+/* Map card */
+.invitation-location__map {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.invitation-location__map--full {
+    width: 100%;
+    max-width: 100%;
+}
+
+.invitation-location__map-frame {
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+    border-radius: 0.375rem;
+    overflow: hidden;
+    aspect-ratio: 16 / 10;
+    min-height: 280px;
+    border: 1px solid color-mix(in srgb, var(--primary-color) 15%, transparent);
+    box-shadow: 0 8px 28px color-mix(in srgb, var(--secondary-color) 10%, transparent);
+    background: color-mix(in srgb, var(--accent-color) 30%, var(--bg-color));
+    box-sizing: border-box;
+}
+
+.invitation-location__iframe {
+    width: 100%;
+    height: 100%;
+    min-height: 280px;
+    display: block;
+    border: 0;
+}
+
+/* Badge link on map */
+.invitation-location__map-link {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    z-index: 10;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 0.25rem;
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.32em;
+    color: var(--primary-color);
+    background: color-mix(in srgb, var(--bg-color) 88%, var(--accent-color));
+    border: 1px solid color-mix(in srgb, var(--primary-color) 22%, transparent);
+    backdrop-filter: blur(6px);
+    text-decoration: none;
+    transition: background 0.2s, box-shadow 0.2s;
+    white-space: nowrap;
+    max-width: calc(100% - 1.5rem);
+    box-sizing: border-box;
+}
+
+.invitation-location__map-link:hover {
+    background: var(--primary-color);
+    color: #fff;
+    box-shadow: 0 4px 14px color-mix(in srgb, var(--primary-color) 28%, transparent);
+}
+
+/* Additional note */
+.invitation-location__nota {
+    margin-top: 1.25rem;
+    font-size: 0.72rem;
+    text-align: center;
+    line-height: 1.65;
+    color: color-mix(in srgb, var(--text-color, var(--secondary-color)) 45%, transparent);
+    max-width: 28rem;
+    margin-inline: auto;
+}
+
+/* Desktop — photo (1/3) + map (2/3) side by side */
+@media (min-width: 600px) {
+    .invitation-location__stage {
+        flex-direction: row;
+        gap: 1.25rem;
+    }
+
+    .invitation-location__photo {
+        flex: 1 1 33.333%;
+        max-width: 33.333%;
+    }
+
+    .invitation-location__map {
+        flex: 2 2 66.667%;
+        max-width: 66.667%;
+    }
+
+    .invitation-location__map--full {
+        flex: 1 1 100%;
+        max-width: 100%;
+    }
+
+    .invitation-location__map-frame,
+    .invitation-location__photo-frame {
+        aspect-ratio: auto;
+        height: 100%;
+        min-height: 440px;
+    }
+}
+
+@media (max-width: 640px) {
+    .invitation-location {
+        padding-top: 3rem;
+        padding-bottom: 2.5rem;
+        overflow-x: hidden;
+    }
+
+    .invitation-location__title {
+        font-size: clamp(1.9rem, 8vw, 2.75rem);
+    }
+
+    .invitation-location__photo-frame {
+        min-height: 180px;
+        aspect-ratio: 16 / 7;
+    }
+
+    .invitation-location__map-frame {
+        min-height: 280px;
     }
 }
 

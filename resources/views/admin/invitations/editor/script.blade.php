@@ -1027,6 +1027,26 @@ function invitationForm(config) {
             return this.modules.ubicacion.maps_url?.trim() || this.buildMapsUrl(lat, lng);
         },
 
+        googleMapsEmbedUrl() {
+            if (this.hasLocationCoordinates()) {
+                const lat = this.modules.ubicacion.lat;
+                const lng = this.modules.ubicacion.lng;
+                return `https://maps.google.com/maps?q=${lat},${lng}&z=15&output=embed`;
+            }
+            const mapsUrl = this.modules.ubicacion?.maps_url?.trim();
+            if (mapsUrl) {
+                const coords = this.parseMapsLink(mapsUrl);
+                if (coords) {
+                    return `https://maps.google.com/maps?q=${coords.lat},${coords.lng}&z=15&output=embed`;
+                }
+            }
+            const q = this.modules.ubicacion?.direccion?.trim() || this.modules.ubicacion?.nombre_lugar?.trim() || '';
+            if (q) {
+                return `https://maps.google.com/maps?q=${encodeURIComponent(q)}&z=15&output=embed`;
+            }
+            return '';
+        },
+
         buildMapsUrl(lat, lng) {
             return `https://www.google.com/maps?q=${lat},${lng}`;
         },
@@ -1057,30 +1077,68 @@ function invitationForm(config) {
         parseMapsLink(link) {
             if (!link?.trim()) return null;
             const s = link.trim();
-            const patterns = [
-                /@(-?\d+\.?\d*),(-?\d+\.?\d*)/,
-                /[?&]q=(-?\d+\.?\d*),(-?\d+\.?\d*)/,
-                /[?&]query=(-?\d+\.?\d*),(-?\d+\.?\d*)/,
-                /[?&]ll=(-?\d+\.?\d*),(-?\d+\.?\d*)/,
-                /!3d(-?\d+\.?\d*)!4d(-?\d+\.?\d*)/,
-                /place\/[^/]+\/@(-?\d+\.?\d*),(-?\d+\.?\d*)/,
+
+            // 1. Coordenadas exactas del marcador del lugar (!3d<lat>!4d<lng>)
+            const exactPinMatch = s.match(/!3d(-?\d+\.?\d*)!4d(-?\d+\.?\d*)/);
+            if (exactPinMatch) {
+                const lat = parseFloat(exactPinMatch[1]);
+                const lng = parseFloat(exactPinMatch[2]);
+                if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180 && !(lat === 0 && lng === 0)) {
+                    return { lat, lng };
+                }
+            }
+
+            // 2. Parámetros de consulta directos: q=lat,lng, query=lat,lng, ll=lat,lng
+            const queryPatterns = [
+                /[?&]q=(-?\d+\.?\d*)[\s,]+(-?\d+\.?\d*)/,
+                /[?&]query=(-?\d+\.?\d*)[\s,]+(-?\d+\.?\d*)/,
+                /[?&]ll=(-?\d+\.?\d*)[\s,]+(-?\d+\.?\d*)/,
             ];
-            for (const pattern of patterns) {
+            for (const pattern of queryPatterns) {
                 const m = s.match(pattern);
                 if (m) {
                     const lat = parseFloat(m[1]);
                     const lng = parseFloat(m[2]);
-                    if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+                    if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180 && !(lat === 0 && lng === 0)) {
                         return { lat, lng };
                     }
                 }
             }
+
+            // 3. Coordenadas directas en texto plano: "-17.3955837, -66.1638894"
+            const rawMatch = s.match(/^(-?\d+\.?\d*)[\s,]+(-?\d+\.?\d*)$/);
+            if (rawMatch) {
+                const lat = parseFloat(rawMatch[1]);
+                const lng = parseFloat(rawMatch[2]);
+                if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180 && !(lat === 0 && lng === 0)) {
+                    return { lat, lng };
+                }
+            }
+
+            // 4. Último recurso: centro de la cámara del mapa @lat,lng
+            const viewportPatterns = [
+                /@(-?\d+\.?\d*),(-?\d+\.?\d*)/,
+                /place\/[^/]+\/@(-?\d+\.?\d*),(-?\d+\.?\d*)/,
+                /\/maps\/(?:search|place)\/[^/]+\/@(-?\d+\.?\d*),(-?\d+\.?\d*)/,
+                /\/(-?\d{1,2}\.\d+),(-?\d{1,3}\.\d+)\/?(?:\?|$)/,
+            ];
+            for (const pattern of viewportPatterns) {
+                const m = s.match(pattern);
+                if (m) {
+                    const lat = parseFloat(m[1]);
+                    const lng = parseFloat(m[2]);
+                    if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180 && !(lat === 0 && lng === 0)) {
+                        return { lat, lng };
+                    }
+                }
+            }
+
             return null;
         },
 
         looksLikeMapsLink(value) {
             const text = String(value || '').trim();
-            return /(google\.[a-z.]+\/maps|maps\.app\.goo\.gl|goo\.gl\/maps)/i.test(text);
+            return /(-?\d+\.\d+[\s,]+-?\d+\.\d+|google\.[a-z.]+\/maps|maps\.app\.goo\.gl|goo\.gl\/maps)/i.test(text);
         },
 
         async onMapsLinkPaste(event) {

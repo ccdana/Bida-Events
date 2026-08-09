@@ -15,18 +15,47 @@ class MapsLinkParser
 
         $haystack = trim(html_entity_decode($link));
 
-        $patterns = [
+        // 1. Coordenadas exactas del pin del lugar en Google Maps (!3d<lat>!4d<lng>)
+        if (preg_match('/!3d(-?\d+\.?\d*)!4d(-?\d+\.?\d*)/', $haystack, $matches)) {
+            $coords = self::normalize((float) $matches[1], (float) $matches[2]);
+            if ($coords) {
+                return $coords;
+            }
+        }
+
+        // 2. Parámetros de consulta explícitos: q=lat,lng o query=lat,lng o ll=lat,lng (soporta espacios opcionales)
+        $queryPatterns = [
+            '/[?&]q=(-?\d+\.?\d*)[\s,]+(-?\d+\.?\d*)/',
+            '/[?&]query=(-?\d+\.?\d*)[\s,]+(-?\d+\.?\d*)/',
+            '/[?&]ll=(-?\d+\.?\d*)[\s,]+(-?\d+\.?\d*)/',
+        ];
+
+        foreach ($queryPatterns as $pattern) {
+            if (preg_match($pattern, $haystack, $matches)) {
+                $coords = self::normalize((float) $matches[1], (float) $matches[2]);
+                if ($coords) {
+                    return $coords;
+                }
+            }
+        }
+
+        // 3. Coordenadas directas en texto plano: "-17.3955837, -66.1638894"
+        if (preg_match('/^(-?\d+\.?\d*)[\s,]+(-?\d+\.?\d*)$/', $haystack, $matches)) {
+            $coords = self::normalize((float) $matches[1], (float) $matches[2]);
+            if ($coords) {
+                return $coords;
+            }
+        }
+
+        // 4. Último recurso: centro de cámara de pantalla @lat,lng
+        $viewportPatterns = [
             '/@(-?\d+\.?\d*),(-?\d+\.?\d*)/',
-            '/[?&]q=(-?\d+\.?\d*),(-?\d+\.?\d*)/',
-            '/[?&]query=(-?\d+\.?\d*),(-?\d+\.?\d*)/',
-            '/[?&]ll=(-?\d+\.?\d*),(-?\d+\.?\d*)/',
-            '/!3d(-?\d+\.?\d*)!4d(-?\d+\.?\d*)/',
             '/place\/[^\/]+\/@(-?\d+\.?\d*),(-?\d+\.?\d*)/',
             '/\/maps\/(?:search|place)\/[^\/]+\/@(-?\d+\.?\d*),(-?\d+\.?\d*)/',
             '/\/(-?\d{1,2}\.\d+),(-?\d{1,3}\.\d+)\/?(?:\?|$)/',
         ];
 
-        foreach ($patterns as $pattern) {
+        foreach ($viewportPatterns as $pattern) {
             if (preg_match($pattern, $haystack, $matches)) {
                 $coords = self::normalize((float) $matches[1], (float) $matches[2]);
                 if ($coords) {
