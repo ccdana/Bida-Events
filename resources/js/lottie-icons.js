@@ -91,6 +91,33 @@ const applyPrimaryColorToLottie = (animationData, colorValue) => {
     return data;
 };
 
+// Las animaciones fuera de pantalla se pausan para ahorrar CPU y batería en móviles
+let visibilityObserver = null;
+
+const getVisibilityObserver = () => {
+    if (visibilityObserver || typeof IntersectionObserver === 'undefined') {
+        return visibilityObserver;
+    }
+
+    visibilityObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+            const animation = instances.get(entry.target);
+
+            if (!animation) {
+                return;
+            }
+
+            if (entry.isIntersecting) {
+                animation.play();
+            } else {
+                animation.pause();
+            }
+        });
+    }, { rootMargin: '100px 0px' });
+
+    return visibilityObserver;
+};
+
 const destroyLottie = (element) => {
     const instance = instances.get(element);
 
@@ -98,6 +125,7 @@ const destroyLottie = (element) => {
         return;
     }
 
+    visibilityObserver?.unobserve(element);
     instance.destroy();
     instances.delete(element);
     element.replaceChildren();

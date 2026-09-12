@@ -10,9 +10,11 @@ const DEPTH_PRESETS = [
 const SWIPE_DISTANCE_THRESHOLD = 85;
 const SWIPE_VELOCITY_THRESHOLD = 550;
 
-export function galleryStack(initialPhotos = []) {
+export function galleryStack(initialPhotos = [], initialSrcsets = []) {
     return {
         photos: Array.isArray(initialPhotos) ? initialPhotos.filter(Boolean) : [],
+        // srcset por foto (mismo índice que photos); null cuando la imagen no está en Cloudinary
+        srcsets: Array.isArray(initialSrcsets) ? initialSrcsets : [],
         order: [],
         dragX: 0,
         topOpacity: 1,

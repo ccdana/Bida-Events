@@ -26,9 +26,24 @@ class InvitationCacheService
             Cache::forget("invitation.{$slug}.modules");
         }
 
-        Cache::forget("invitation.{$invitation->id}.polls");
-        Cache::forget("invitation.{$invitation->id}.playlist");
-        Cache::forget("invitation.{$invitation->id}.fotomural");
+        self::forgetPolls($invitation->id);
+        self::forgetPlaylist($invitation->id);
+        self::forgetFotomural($invitation->id);
+    }
+
+    public static function forgetPolls(int $invitationId): void
+    {
+        Cache::forget("invitation.{$invitationId}.polls");
+    }
+
+    public static function forgetPlaylist(int $invitationId): void
+    {
+        Cache::forget("invitation.{$invitationId}.playlist");
+    }
+
+    public static function forgetFotomural(int $invitationId): void
+    {
+        Cache::forget("invitation.{$invitationId}.fotomural");
     }
 
     /**
@@ -40,11 +55,9 @@ class InvitationCacheService
             return;
         }
 
-        $invitation->loadMissing('modulesData');
         $invitation->clearModulesCache();
 
-        $moduleService = app(InvitationModuleService::class);
-        $modules = $moduleService->normalizeModules($invitation->modules);
+        $modules = app(InvitationModuleService::class)->resolveModules($invitation);
 
         Cache::put(
             "invitation.{$invitation->slug}.modules",

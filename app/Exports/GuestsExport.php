@@ -20,7 +20,7 @@ class GuestsExport implements FromView
     {
         $guests = $this->guests ?? $this->invitation->guests()->orderBy('name')->get();
 
-        return view('pages.client.exports.guests-excel', [
+        return view('client.exports.guests-excel', [
             'invitation' => $this->invitation,
             'guests' => $guests,
             'stats' => $this->stats,

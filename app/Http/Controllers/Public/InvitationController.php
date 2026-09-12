@@ -20,7 +20,7 @@ class InvitationController extends Controller
     public function show(string $slug, ?string $token = null)
     {
         $invitation = Invitation::query()
-            ->with(['eventType', 'user', 'modulesData'])
+            ->with(['eventType', 'user'])
             ->where('slug', $slug)
             ->published()
             ->firstOrFail();
@@ -39,7 +39,7 @@ class InvitationController extends Controller
 
         $rawFlags = $modulos['config']['modulos'] ?? [];
         $config = $modulos['config'] ?? [];
-        $template = $invitation->template ?: ($config['template'] ?? 'pages.invitations.templates.xv-premium');
+        $template = InvitationDefaults::resolveTemplate($invitation->template ?: ($config['template'] ?? null));
 
         $pollResults = $this->getPollResults($invitation, $modulos);
 
@@ -121,16 +121,12 @@ class InvitationController extends Controller
 
     private function buildPollResults(Invitation $invitation, array $modulos): array
     {
-        $results = [];
+        $optionCounts = [];
         foreach ($modulos['encuestas']['preguntas'] as $poll) {
-            $results[$poll['id']] = $this->moduleService->pollResults(
-                $invitation,
-                $poll['id'],
-                count($poll['opciones'])
-            );
+            $optionCounts[(string) $poll['id']] = count($poll['opciones'] ?? []);
         }
 
-        return $results;
+        return $this->moduleService->pollResultsFor($invitation, $optionCounts);
     }
 
     private function getPlaylistSongs(Invitation $invitation): array
@@ -184,7 +180,7 @@ class InvitationController extends Controller
             ->get()
             ->map(fn ($c) => [
                 'id' => $c->id,
-                'url' => $c->file_path,
+                'url' => \App\Support\CloudinaryImage::url($c->file_path, 800),
                 'guest' => $c->guest?->name,
                 'at' => $c->created_at?->diffForHumans(),
             ])

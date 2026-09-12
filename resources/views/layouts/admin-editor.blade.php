@@ -45,6 +45,17 @@
         <div class="shrink-0 bg-emerald-50 border-b border-emerald-200 text-emerald-800 px-4 py-2 text-sm text-center">{{ session('success') }}</div>
     @endif
 
+    @if($errors->any())
+        <div class="shrink-0 bg-red-50 border-b border-red-200 text-red-800 px-4 py-2 text-sm" role="alert">
+            <p class="font-medium text-center">No se guardaron los cambios. Revisa lo siguiente:</p>
+            <ul class="mt-1 max-h-24 overflow-y-auto list-disc list-inside">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <div class="flex-1 min-h-0">
         @yield('content')
     </div>

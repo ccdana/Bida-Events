@@ -8,8 +8,10 @@
 <header id="inicio" class="hero-premium relative min-h-[100svh] overflow-hidden">
     <div class="hero-premium__backdrop {{ $hasHeroImage ? '' : 'hero-premium__backdrop--fallback' }}" aria-hidden="true">
         @if($hasHeroImage)
+            @php($heroSrcset = \App\Support\CloudinaryImage::srcset($heroImage, [768, 1280, 1920]))
             <img
-                src="{{ $heroImage }}"
+                src="{{ \App\Support\CloudinaryImage::url($heroImage, 1920) }}"
+                @if($heroSrcset) srcset="{{ $heroSrcset }}" sizes="100vw" @endif
                 alt=""
                 class="hero-premium__image"
                 loading="eager"

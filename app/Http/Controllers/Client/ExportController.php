@@ -5,13 +5,14 @@ namespace App\Http\Controllers\Client;
 use App\Exports\GuestsExport;
 use App\Http\Controllers\Controller;
 use App\Models\Invitation;
+use App\Services\InvitationModuleService;
 use App\ViewModels\Client\InvitationExportViewData;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ExportController extends Controller
 {
-    public function guestsExcel(Invitation $invitation, InvitationExportViewData $viewData)
+    public function guestsExcel(Invitation $invitation, InvitationExportViewData $viewData, InvitationModuleService $moduleService)
     {
         abort_unless($invitation->user_id === auth()->id(), 403);
 
@@ -21,7 +22,7 @@ class ExportController extends Controller
             ->get();
 
         $stats = $viewData->buildGuestStats($guests);
-        $modulos = $invitation->modulesData->pluck('json_data', 'feature_code')->toArray();
+        $modulos = $moduleService->storedModules($invitation);
 
         return Excel::download(
             new GuestsExport($invitation, $stats, $modulos, $guests, $viewData->buildGuestRows($guests)),
@@ -41,7 +42,7 @@ class ExportController extends Controller
         $stats = $viewData->buildGuestStats($guests);
         $summary = $viewData->buildSummaryInsights($guests, $stats);
 
-        $pdf = Pdf::loadView('pages.client.exports.guests-pdf', [
+        $pdf = Pdf::loadView('client.exports.guests-pdf', [
             'invitation' => $invitation,
             'guests' => $guests,
             'stats' => $stats,
@@ -52,15 +53,14 @@ class ExportController extends Controller
         return $pdf->download("confirmados-{$invitation->slug}.pdf");
     }
 
-    public function invitationPdf(Invitation $invitation, InvitationExportViewData $viewData)
+    public function invitationPdf(Invitation $invitation, InvitationExportViewData $viewData, InvitationModuleService $moduleService)
     {
         abort_unless($invitation->user_id === auth()->id(), 403);
 
-        $invitation->loadMissing(['modulesData']);
-        $modulos = $invitation->modulesData->pluck('json_data', 'feature_code')->toArray();
+        $modulos = $moduleService->storedModules($invitation);
         $guests = $invitation->guests()->select('id', 'invitation_id', 'status', 'passes_allocated', 'passes_confirmed')->get();
         $stats = $viewData->buildGuestStats($guests);
-        $pdf = Pdf::loadView('pages.client.exports.invitation-pdf', array_merge(
+        $pdf = Pdf::loadView('client.exports.invitation-pdf', array_merge(
             $viewData->buildInvitationPdfViewData($invitation, $modulos, $stats),
             [
                 'guestRows' => $viewData->buildGuestRows($guests),

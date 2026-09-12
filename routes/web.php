@@ -35,7 +35,7 @@ Route::get('/dashboard', function (Request $request) {
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
-    Route::post('/login', [LoginController::class, 'login']);
+    Route::post('/login', [LoginController::class, 'login'])->middleware('throttle:login');
     Route::get('/client/login', fn () => redirect()->route('login'))->name('client.login');
 });
 
@@ -45,12 +45,12 @@ Route::post('/logout', [LoginController::class, 'logout'])->middleware('auth')->
 Route::prefix('p')->name('invitation.')->middleware('cache.public.invitations')->group(function () {
     Route::get('/{slug}', [PublicInvitationController::class, 'show'])->name('show');
     Route::get('/{slug}/i/{token}', [PublicInvitationController::class, 'show'])->name('guest');
-    Route::post('/{slug}/i/{token}/confirm', [RsvpController::class, 'confirm'])->name('rsvp');
+    Route::post('/{slug}/i/{token}/confirm', [RsvpController::class, 'confirm'])->middleware('throttle:invitation-rsvp')->name('rsvp');
     Route::get('/{slug}/playlist', [ContributionController::class, 'listSongs'])->name('playlist.list');
-    Route::post('/{slug}/playlist', [ContributionController::class, 'storeSong'])->name('playlist');
+    Route::post('/{slug}/playlist', [ContributionController::class, 'storeSong'])->middleware('throttle:invitation-songs')->name('playlist');
     Route::get('/{slug}/fotomural', [ContributionController::class, 'listPhotos'])->name('fotomural.list');
-    Route::post('/{slug}/fotomural', [ContributionController::class, 'storePhoto'])->name('fotomural');
-    Route::post('/{slug}/polls/{pollId}/vote', [ContributionController::class, 'votePoll'])->name('poll.vote');
+    Route::post('/{slug}/fotomural', [ContributionController::class, 'storePhoto'])->middleware('throttle:invitation-photos')->name('fotomural');
+    Route::post('/{slug}/polls/{pollId}/vote', [ContributionController::class, 'votePoll'])->middleware('throttle:invitation-votes')->name('poll.vote');
 });
 
 // Panel administrativo
@@ -64,19 +64,26 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::post('/media/upload', [MediaUploadController::class, 'store'])->name('media.upload');
     Route::get('/maps/search', [MapsController::class, 'search'])->name('maps.search');
     Route::post('/maps/resolve', [MapsController::class, 'resolve'])->name('maps.resolve');
-    Route::get('/invitations/{invitation}/edit', [AdminInvitationController::class, 'edit'])->name('invitations.edit');
-    Route::put('/invitations/{invitation}', [AdminInvitationController::class, 'update'])->name('invitations.update');
-    Route::get('/invitations/{invitation}/guests', [AdminGuestController::class, 'index'])->name('guests.index');
-    Route::post('/invitations/{invitation}/guests', [AdminGuestController::class, 'store'])->name('guests.store');
-    Route::put('/invitations/{invitation}/guests/{guest}', [AdminGuestController::class, 'update'])->name('guests.update');
-    Route::delete('/invitations/{invitation}/guests/{guest}', [AdminGuestController::class, 'destroy'])->name('guests.destroy');
+    Route::get('/invitations/{invitation}/edit', [AdminInvitationController::class, 'edit'])->can('update', 'invitation')->name('invitations.edit');
+    Route::put('/invitations/{invitation}', [AdminInvitationController::class, 'update'])->can('update', 'invitation')->name('invitations.update');
+
+    // scopeBindings: el invitado debe pertenecer a la invitación de la URL (404 si no)
+    Route::scopeBindings()->middleware('can:manageGuests,invitation')->group(function () {
+        Route::get('/invitations/{invitation}/guests', [AdminGuestController::class, 'index'])->name('guests.index');
+        Route::post('/invitations/{invitation}/guests', [AdminGuestController::class, 'store'])->name('guests.store');
+        Route::put('/invitations/{invitation}/guests/{guest}', [AdminGuestController::class, 'update'])->name('guests.update');
+        Route::delete('/invitations/{invitation}/guests/{guest}', [AdminGuestController::class, 'destroy'])->name('guests.destroy');
+    });
 });
 
 // Portal cliente
 Route::prefix('client')->name('client.')->middleware(['auth', 'client'])->group(function () {
     Route::get('/', [ClientDashboardController::class, 'index'])->name('dashboard');
-    Route::get('/invitations/{invitation}', [ClientDashboardController::class, 'show'])->name('invitation.show');
-    Route::get('/invitations/{invitation}/export/excel', [ExportController::class, 'guestsExcel'])->name('export.excel');
-    Route::get('/invitations/{invitation}/export/pdf', [ExportController::class, 'guestsPdf'])->name('export.pdf');
-    Route::get('/invitations/{invitation}/export/invitation-pdf', [ExportController::class, 'invitationPdf'])->name('export.invitation-pdf');
+    Route::get('/invitations/{invitation}', [ClientDashboardController::class, 'show'])->can('view', 'invitation')->name('invitation.show');
+
+    Route::middleware('can:export,invitation')->group(function () {
+        Route::get('/invitations/{invitation}/export/excel', [ExportController::class, 'guestsExcel'])->name('export.excel');
+        Route::get('/invitations/{invitation}/export/pdf', [ExportController::class, 'guestsPdf'])->name('export.pdf');
+        Route::get('/invitations/{invitation}/export/invitation-pdf', [ExportController::class, 'invitationPdf'])->name('export.invitation-pdf');
+    });
 });

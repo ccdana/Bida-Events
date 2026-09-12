@@ -36,8 +36,10 @@
             @if($imageUrl)
                 <div class="invitation-location__photo">
                     <div class="invitation-location__photo-frame">
+                        @php($locationSrcset = \App\Support\CloudinaryImage::srcset($imageUrl))
                         <img
-                            src="{{ $imageUrl }}"
+                            src="{{ \App\Support\CloudinaryImage::url($imageUrl, 1200) }}"
+                            @if($locationSrcset) srcset="{{ $locationSrcset }}" sizes="(min-width: 1024px) 50vw, 100vw" @endif
                             alt="{{ $placeName ?? 'Lugar del evento' }}"
                             class="invitation-location__photo-img"
                             loading="lazy"

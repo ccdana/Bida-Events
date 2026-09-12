@@ -2,11 +2,16 @@
 
 namespace App\Http\Requests\Admin\Invitation;
 
+use App\Http\Requests\Admin\Invitation\Concerns\ValidatesInvitationModules;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class StoreInvitationRequest extends FormRequest
 {
+    use ValidatesInvitationModules;
+
+    protected $dontFlash = ['password', 'password_confirmation', 'modulos_data'];
+
     public function authorize(): bool
     {
         return true;
@@ -23,6 +28,7 @@ class StoreInvitationRequest extends FormRequest
             'event_date' => ['required', 'date'],
             'status' => ['required', 'in:draft,active,suspended,expired'],
             'expires_at' => ['required', 'date'],
+            ...$this->moduleRules(),
         ];
     }
 }

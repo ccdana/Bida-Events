@@ -1,7 +1,16 @@
+@php
+    $galleryPhotos = collect($galeria['fotos'] ?? [])
+        ->map(fn ($foto) => is_array($foto) ? ($foto['url'] ?? null) : $foto)
+        ->filter(fn ($url) => is_string($url) && $url !== '')
+        ->values();
+    $galleryUrls = $galleryPhotos->map(fn ($url) => \App\Support\CloudinaryImage::url($url, 1200))->all();
+    $gallerySrcsets = $galleryPhotos->map(fn ($url) => \App\Support\CloudinaryImage::srcset($url))->all();
+@endphp
+
 <section
     class="invitation-section reveal invitation-gallery"
     id="galeria"
-    x-data="galleryStack(@js($galeria['fotos'] ?? []))"
+    x-data="galleryStack(@js($galleryUrls), @js($gallerySrcsets))"
     x-init="init()"
     @pointermove.window="onPointerMove($event)"
     @pointerup.window="onPointerUp($event)"
@@ -32,6 +41,8 @@
                             >
                                 <img
                                     :src="photos[photoIndex]"
+                                    :srcset="srcsets[photoIndex] || null"
+                                    sizes="(min-width: 768px) 480px, 90vw"
                                     :alt="'Foto ' + (photoIndex + 1)"
                                     class="invitation-gallery__image"
                                     loading="lazy"

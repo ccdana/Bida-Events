@@ -12,7 +12,7 @@ class RsvpController extends Controller
 {
     public function confirm(Request $request, string $slug, string $token)
     {
-        $invitation = Invitation::where('slug', $slug)->where('status', 'active')->firstOrFail();
+        $invitation = Invitation::where('slug', $slug)->published()->firstOrFail();
 
         $guest = Guest::where('invitation_id', $invitation->id)
             ->where('qr_code_token', $token)

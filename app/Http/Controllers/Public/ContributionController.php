@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers\Public;
 
+use App\Events\GuestContributionSubmitted;
+use App\Events\PollVoteSubmitted;
 use App\Http\Controllers\Controller;
 use App\Models\Guest;
 use App\Models\GuestContribution;
 use App\Models\Invitation;
 use App\Models\PollVote;
+use App\Services\InvitationModuleService;
 use App\Services\MediaUploadService;
+use App\Support\CloudinaryImage;
 use App\Support\YouTubeHelper;
 use Illuminate\Http\Request;
 
@@ -62,13 +66,15 @@ class ContributionController extends Controller
             $guestId = $guest?->id;
         }
 
-        GuestContribution::create([
+        $contribution = GuestContribution::create([
             'invitation_id' => $invitation->id,
             'guest_id' => $guestId,
             'type' => 'song_request',
             'content_text' => $validated['content_text'],
             'created_at' => now(),
         ]);
+
+        GuestContributionSubmitted::dispatch($contribution);
 
         return response()->json(['success' => true, 'message' => '¡Canción agregada a la playlist!']);
     }
@@ -92,7 +98,7 @@ class ContributionController extends Controller
             ->get()
             ->map(fn ($c) => [
                 'id' => $c->id,
-                'url' => $c->file_path,
+                'url' => CloudinaryImage::url($c->file_path, 800),
                 'guest' => $c->guest?->name,
                 'at' => $c->created_at?->diffForHumans(),
             ]);
@@ -137,13 +143,15 @@ class ContributionController extends Controller
             'fotomural'
         );
 
-        GuestContribution::create([
+        $contribution = GuestContribution::create([
             'invitation_id' => $invitation->id,
             'guest_id' => $guestId,
             'type' => 'live_photo',
             'file_path' => $upload['url'],
             'created_at' => now(),
         ]);
+
+        GuestContributionSubmitted::dispatch($contribution);
 
         return response()->json(['success' => true, 'message' => '¡Foto compartida al fotomural!']);
     }
@@ -179,22 +187,22 @@ class ContributionController extends Controller
             $guestId = $guest?->id;
         }
 
-        PollVote::create([
+        $moduleService = app(InvitationModuleService::class);
+        $poll = $moduleService->pollReference($invitation, $pollId);
+
+        $vote = PollVote::create([
             'invitation_id' => $invitation->id,
             'poll_id' => $pollId,
+            'invitation_poll_id' => $poll['id'] ?? null,
             'option_index' => $validated['option_index'],
             'guest_id' => $guestId,
             'voter_key' => $voterKey,
             'created_at' => now(),
         ]);
 
-        $modulos = $invitation->modulesData()->where('feature_code', 'encuestas')->first();
-        $poll = collect($modulos?->json_data['preguntas'] ?? [])->firstWhere('id', $pollId);
-        $percentages = app(\App\Services\InvitationModuleService::class)->pollResults(
-            $invitation,
-            $pollId,
-            count($poll['opciones'] ?? [])
-        );
+        PollVoteSubmitted::dispatch($vote);
+
+        $percentages = $moduleService->pollResults($invitation, $pollId, $poll['options_count'] ?? 0);
 
         return response()->json(['success' => true, 'percentages' => $percentages]);
     }

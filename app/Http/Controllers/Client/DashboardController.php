@@ -22,13 +22,11 @@ class DashboardController extends Controller
             ->latest()
             ->paginate(15);
 
-        return view('pages.client.dashboard', $viewData->make($invitations));
+        return view('client.dashboard', $viewData->make($invitations));
     }
 
     public function show(Invitation $invitation, InvitationDetailViewData $viewData)
     {
-        abort_unless(auth()->id() === $invitation->user_id, 403);
-
         $invitation->loadMissing(['eventType', 'modulesData']);
 
         $guests = $invitation->guests()
@@ -36,6 +34,6 @@ class DashboardController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('pages.client.invitation', $viewData->make($invitation, $guests));
+        return view('client.invitation', $viewData->make($invitation, $guests));
     }
 }

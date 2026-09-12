@@ -21,6 +21,20 @@ return [
         ],
     ],
 
+    'structured_modules' => [
+        // Registra en el log las invitaciones que todavía se leen desde invitation_data.json_data
+        'log_json_fallback' => env('LOG_JSON_MODULE_FALLBACK', true),
+    ],
+
+    'rate_limits' => [
+        // Peticiones por minuto; los endpoints públicos se limitan por IP e invitación
+        'login' => env('RATE_LIMIT_LOGIN', 5),
+        'rsvp' => env('RATE_LIMIT_RSVP', 10),
+        'songs' => env('RATE_LIMIT_SONGS', 10),
+        'photos' => env('RATE_LIMIT_PHOTOS', 10),
+        'votes' => env('RATE_LIMIT_VOTES', 30),
+    ],
+
     'database' => [
         // Lazy loading: cargar relaciones solo cuando sea necesario
         'lazy_loading' => env('DB_LAZY_LOADING', false),

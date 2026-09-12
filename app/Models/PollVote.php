@@ -12,6 +12,7 @@ class PollVote extends Model
     protected $fillable = [
         'invitation_id',
         'poll_id',
+        'invitation_poll_id',
         'option_index',
         'guest_id',
         'voter_key',
@@ -26,6 +27,11 @@ class PollVote extends Model
     public function invitation(): BelongsTo
     {
         return $this->belongsTo(Invitation::class);
+    }
+
+    public function poll(): BelongsTo
+    {
+        return $this->belongsTo(InvitationPoll::class, 'invitation_poll_id');
     }
 
     public function guest(): BelongsTo

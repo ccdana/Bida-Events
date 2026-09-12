@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Events\InvitationUpdated;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Invitation\StoreClientRequest;
 use App\Http\Requests\Admin\Invitation\StoreInvitationRequest;
@@ -10,10 +11,9 @@ use App\Models\Invitation;
 use App\Models\User;
 use App\Support\InvitationDefaults;
 use App\Services\InvitationModuleService;
-use App\Services\InvitationCacheService;
 use App\Services\InvitationPreviewSession;
 use App\ViewModels\Admin\InvitationEditorViewData;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
@@ -27,7 +27,7 @@ class InvitationController extends Controller
     {
         InvitationPreviewSession::forgetDraft();
 
-        $modulos = InvitationDefaults::emptyModules();
+        $modulos = $this->modulesFromOldInput() ?? InvitationDefaults::emptyModules();
 
         return view('admin.invitations.create', app(InvitationEditorViewData::class)->make(
             invitation: null,
@@ -38,29 +38,32 @@ class InvitationController extends Controller
 
     public function store(StoreInvitationRequest $request)
     {
-        $validated = $request->validated();
+        $validated = $request->safe()->except('modulos_data');
 
         if (empty($validated['user_id'])) {
             $validated['user_id'] = null;
         }
 
-        $invitation = Invitation::create([
-            ...$validated,
-            'slug' => Str::slug($validated['slug']),
-        ]);
+        $invitation = DB::transaction(function () use ($request, $validated) {
+            $invitation = Invitation::create([
+                ...$validated,
+                'slug' => Str::slug($validated['slug']),
+            ]);
 
-        $this->syncModulesFromRequest($request, $invitation);
+            $this->syncModules($invitation, $request->modulesData());
+
+            return $invitation;
+        });
 
         $invitation->load('modulesData');
         $invitation->clearModulesCache();
-        $modulos = $this->moduleService->normalizeModules($invitation->modules);
+        $modulos = $this->moduleService->resolveModules($invitation);
 
-        InvitationCacheService::invalidate($invitation);
         InvitationPreviewSession::seed(
             $invitation,
             InvitationPreviewSession::payloadFromInvitation($invitation, $modulos)
         );
-        InvitationCacheService::warmup($invitation);
+        InvitationUpdated::dispatch($invitation);
 
         return redirect()
             ->route('admin.invitations.edit', $invitation)
@@ -71,7 +74,7 @@ class InvitationController extends Controller
     {
         $invitation->loadMissing('modulesData', 'eventType', 'user');
         $invitation->clearModulesCache();
-        $modulos = $this->moduleService->normalizeModules($invitation->modules);
+        $modulos = $this->modulesFromOldInput() ?? $this->moduleService->resolveModules($invitation);
 
         InvitationPreviewSession::seed(
             $invitation,
@@ -87,30 +90,31 @@ class InvitationController extends Controller
 
     public function update(UpdateInvitationRequest $request, Invitation $invitation)
     {
-        $validated = $request->validated();
+        $validated = $request->safe()->except('modulos_data');
         $previousSlug = $invitation->slug;
 
         if (empty($validated['user_id'])) {
             $validated['user_id'] = null;
         }
 
-        $invitation->update([
-            ...$validated,
-            'slug' => Str::slug($validated['slug']),
-        ]);
+        DB::transaction(function () use ($request, $invitation, $validated) {
+            $invitation->update([
+                ...$validated,
+                'slug' => Str::slug($validated['slug']),
+            ]);
 
-        $this->syncModulesFromRequest($request, $invitation);
+            $this->syncModules($invitation, $request->modulesData());
+        });
 
         $invitation->refresh();
         $invitation->load('modulesData');
-        $modulos = $this->moduleService->normalizeModules($invitation->modules);
+        $modulos = $this->moduleService->resolveModules($invitation);
 
-        InvitationCacheService::invalidate($invitation, $previousSlug);
         InvitationPreviewSession::seed(
             $invitation,
             InvitationPreviewSession::payloadFromInvitation($invitation, $modulos)
         );
-        InvitationCacheService::warmup($invitation);
+        InvitationUpdated::dispatch($invitation, $previousSlug);
 
         return redirect()
             ->route('admin.invitations.edit', $invitation)
@@ -122,7 +126,7 @@ class InvitationController extends Controller
         $validated = $request->validated();
 
         $tempPassword = Str::random(16);
-        
+
         $client = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
@@ -145,23 +149,39 @@ class InvitationController extends Controller
         ], 201);
     }
 
-    protected function syncModulesFromRequest(Request $request, Invitation $invitation): void
+    protected function syncModules(Invitation $invitation, array $modulesData): void
     {
-        $moduleCodes = InvitationDefaults::moduleCodes();
         $modules = InvitationDefaults::emptyModules();
 
-        foreach ($moduleCodes as $code) {
-            $raw = $request->input("modulos.{$code}", '{}');
-            $data = is_string($raw) ? json_decode($raw, true) : $raw;
-
-            if (! is_array($data) || (is_string($raw) && json_last_error() !== JSON_ERROR_NONE)) {
-                $data = [];
-            }
-
-            $modules[$code] = $data;
+        foreach (InvitationDefaults::moduleCodes() as $code) {
+            $modules[$code] = is_array($modulesData[$code] ?? null) ? $modulesData[$code] : [];
         }
 
         $this->moduleService->syncAllModules($invitation, $modules);
         $invitation->touch();
+    }
+
+    /**
+     * Si el último guardado no pasó la validación, el editor se reabre con lo que el usuario había enviado.
+     */
+    protected function modulesFromOldInput(): ?array
+    {
+        $old = session()->getOldInput('modulos');
+
+        if (! is_array($old)) {
+            return null;
+        }
+
+        $modules = InvitationDefaults::emptyModules();
+
+        foreach (InvitationDefaults::moduleCodes() as $code) {
+            $decoded = is_string($old[$code] ?? null) ? json_decode($old[$code], true) : null;
+
+            if (is_array($decoded)) {
+                $modules[$code] = $decoded;
+            }
+        }
+
+        return $this->moduleService->normalizeModules($modules);
     }
 }

@@ -14,6 +14,6 @@ class DashboardController extends Controller
             ->latest()
             ->get();
 
-        return view('pages.admin.dashboard', $viewData->make($invitations));
+        return view('admin.dashboard', $viewData->make($invitations));
     }
 }

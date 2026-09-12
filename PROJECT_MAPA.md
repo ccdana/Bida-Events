@@ -410,7 +410,108 @@ Los archivos en `resources/views/invitations/modules/` actúan como wrappers liv
 
 ---
 
-## Recomendaciones de escalabilidad, arquitectura y rendimiento
+## Recomendaciones principales: reestructuración de base de datos
+
+> **Prioridad 0:** Antes de optimizar frontend, caché o índices aislados, conviene corregir la forma en que se almacenan los módulos. La tabla `invitation_data` concentra en `json_data` configuraciones pequeñas junto con listas que deberían ser registros relacionados. Esta estructura obliga a leer, deserializar y guardar bloques completos para modificar un solo elemento, dificulta los índices y aumenta el riesgo de sobrescribir cambios.
+
+### 1. Adoptar un modelo híbrido y reducir el uso de JSON
+- **Decisión recomendada**: No eliminar todo el JSON de inmediato. Mantenerlo únicamente para configuración flexible, experimental o específica de una plantilla, y trasladar a tablas normales los datos que se listan, ordenan, filtran, paginan o actualizan individualmente.
+- **Debe salir de `invitation_data.json_data`**: itinerario, galería, personas destacadas, código de vestimenta, encuestas, opciones de regalos y medios multimedia.
+- **Puede permanecer temporalmente en JSON**: colores, tipografías, visibilidad de módulos, textos simples del hero, hashtag, mensajes RSVP y configuraciones que no tengan una estructura estable.
+- **Beneficio**: Menos memoria y transferencia, consultas parciales, relaciones claras, actualizaciones pequeñas, mejores índices y menor riesgo de perder cambios concurrentes.
+- **Prioridad**: Crítica. Es la decisión arquitectónica que condiciona las optimizaciones posteriores.
+
+### 2. Crear tablas normalizadas por responsabilidad
+La estructura objetivo debería partir de `invitations` y separar configuración, contenido administrable y actividad pública:
+
+```text
+invitations
+├── invitation_settings
+├── invitation_locations
+├── invitation_itinerary_items
+├── invitation_gallery_images
+├── invitation_featured_people
+├── invitation_dress_code_items
+├── invitation_polls
+│   └── invitation_poll_options
+├── invitation_gift_options
+└── invitation_media
+```
+
+Tablas recomendadas:
+
+| Tabla | Datos que debe contener | Relación principal |
+| --- | --- | --- |
+| `invitation_settings` | Colores, tipografías, plantilla y visibilidad de módulos. | `invitations hasOne invitationSettings` |
+| `invitation_locations` | Lugar, dirección, coordenadas, enlaces de mapas y notas. | `invitations hasMany invitationLocations` |
+| `invitation_itinerary_items` | Hora, título, icono, descripción y `sort_order`. | `invitations hasMany itineraryItems` |
+| `invitation_gallery_images` | URL, tipo, texto alternativo, portada, estado y `sort_order`. | `invitations hasMany galleryImages` |
+| `invitation_featured_people` | Grupo, nombre, iniciales, rol, detalle, mensaje y `sort_order`. | `invitations hasMany featuredPeople` |
+| `invitation_dress_code_items` | Tipo de elemento, título, descripción, ejemplo, color y `sort_order`. | `invitations hasMany dressCodeItems` |
+| `invitation_polls` | Identificador estable, pregunta, tipo, estado y orden. | `invitations hasMany polls` |
+| `invitation_poll_options` | Texto de opción, valor y `sort_order`. | `polls hasMany options` |
+| `invitation_gift_options` | Título, descripción, enlace, categoría y orden. | `invitations hasMany giftOptions` |
+| `invitation_media` | Tipo (`audio`, `video`, `poster`, `hero`), URL, proveedor y metadatos. | `invitations hasMany media` |
+
+Las tablas públicas existentes deben continuar separadas porque representan actividad y no configuración:
+
+- `guests` pertenece a `invitations`.
+- `guest_contributions` pertenece a `invitations` y opcionalmente a `guests`.
+- `poll_votes` pertenece a `invitations`, `invitation_polls` y opcionalmente a `guests`.
+
+### 3. Definir correctamente las relaciones y claves foráneas
+- Todas las tablas nuevas deben tener `invitation_id` con `foreignId()->constrained('invitations')->cascadeOnDelete()`.
+- Los elementos hijos deben tener `sort_order` y un índice `(invitation_id, sort_order, id)` para devolverlos ordenados sin ordenar grandes colecciones en PHP.
+- `invitation_poll_options` debe tener `poll_id` con eliminación en cascada; `poll_votes` debe referenciar `poll_id` en vez de guardar únicamente un `poll_id` textual.
+- Las relaciones opcionales con `guests` deben usar `nullOnDelete()` para conservar el registro de la interacción aunque se elimine el invitado.
+- Usar nombres de relaciones consistentes en los modelos: `settings`, `locations`, `itineraryItems`, `galleryImages`, `featuredPeople`, `dressCodeItems`, `polls`, `giftOptions` y `media`.
+- Definir restricciones únicas donde corresponda: `(invitation_id, code)` para opciones estables y `(poll_id, sort_order)` para el orden de opciones.
+- **No** usar `cascadeOnDelete()` sobre datos históricos que deban conservarse por auditoría; en ese caso agregar `deleted_at` y aplicar Soft Deletes.
+
+### 4. Índices que deben acompañar el nuevo diseño
+- `invitation_settings`: `unique(invitation_id)`.
+- `invitation_locations`: `(invitation_id, sort_order)` y, si se buscan sedes por nombre, `(invitation_id, name)`.
+- `invitation_itinerary_items`, `invitation_gallery_images`, `invitation_featured_people`, `invitation_dress_code_items` y `invitation_gift_options`: `(invitation_id, sort_order, id)`.
+- `invitation_polls`: `unique(invitation_id, poll_key)` e índice `(invitation_id, is_enabled, sort_order)`.
+- `invitation_poll_options`: `(poll_id, sort_order, id)`.
+- `invitation_media`: `(invitation_id, type, sort_order)`.
+- Mantener los índices de `guests`, `guest_contributions` y `poll_votes` sólo después de verificar sus planes con `EXPLAIN`; evitar duplicar índices ya creados por claves únicas o claves foráneas.
+
+### 5. Migrar sin romper el sistema actual
+La migración debe ser gradual y reversible:
+
+1. Crear las tablas nuevas, modelos, relaciones y migraciones sin eliminar `invitation_data`.
+2. Crear un comando Artisan, por ejemplo `invitations:migrate-json`, que lea cada módulo, valide su estructura y copie sus elementos a las tablas correspondientes.
+3. Ejecutar el comando en modo simulación y generar un reporte por invitación: filas detectadas, filas creadas, errores y elementos omitidos.
+4. Comparar conteos y contenido entre JSON y tablas, incluyendo orden, URLs, identificadores de encuestas y relaciones con invitados.
+5. Cambiar `InvitationModuleService` para leer primero de las relaciones y usar JSON sólo como fallback temporal.
+6. Actualizar editor, preview, plantilla pública y exportaciones para utilizar los modelos relacionados.
+7. Mantener el fallback durante un periodo de verificación; registrar cualquier lectura que todavía dependa del JSON.
+8. Crear una migración de limpieza únicamente después de validar producción. No modificar migraciones históricas ya ejecutadas.
+
+### 6. Reestructurar también los modelos y servicios
+- `Invitation` debe exponer relaciones dedicadas en lugar de resolver todos los módulos mediante el accessor `modules`.
+- `InvitationModuleService` debe dividirse por responsabilidad o utilizar repositorios/servicios específicos para guardar settings, itinerario, galería, encuestas y medios.
+- El guardado del editor debe usar transacciones: actualizar el módulo y sus hijos en una sola operación consistente.
+- Para listas completas usar `upsert()` cuando sea seguro; para cambios individuales usar `update()`/`delete()` sobre el registro correspondiente.
+- La vista pública debe cargar sólo las relaciones de los módulos habilitados y seleccionar únicamente las columnas necesarias.
+- `pollResults()` debe agrupar votos por `poll_id` y `option_id` en SQL, sin traer todos los votos a PHP.
+
+### 7. Qué no conviene normalizar todavía
+No es necesario crear una tabla para cada texto simple. Colores, tipografías, toggles, textos del hero o mensajes RSVP pueden vivir en `invitation_settings` como columnas explícitas si son estables, o en un JSON pequeño dentro de esa tabla si son específicos de la plantilla. La regla debe ser: **tabla para datos repetibles y consultables; JSON para configuración flexible y poco consultada**.
+
+### 8. Orden de prioridad para esta reestructuración
+1. Crear `invitation_settings`, `invitation_itinerary_items`, `invitation_gallery_images`, `invitation_polls` y `invitation_poll_options`.
+2. Migrar y verificar los datos actuales de `itinerario`, `galeria` y `encuestas`.
+3. Crear relaciones Eloquent, claves foráneas, restricciones únicas e índices.
+4. Cambiar la lectura pública y el editor para utilizar las nuevas tablas.
+5. Migrar `destacados`, `dress_code`, `regalos`, `ubicacion` y `media`.
+6. Mantener JSON sólo como fallback y retirarlo cuando no existan lecturas activas.
+7. Después de lo anterior, optimizar caché, paginación, colas y frontend.
+
+---
+
+## Recomendaciones complementarias de escalabilidad, arquitectura y rendimiento
 
 ### 1. Frontend y Carga Dinámica de Chunks (Code-Splitting)
 - **Logro actual**: `resources/js/app.js` implementa un excelente patrón de empaquetado donde el bundle inicial es liviano (~30 kB) y las librerías pesadas (`video.js`, `lottie-web`, Motion One, scripts de itinerario) se descargan de manera asíncrona mediante `import()` condicional según los elementos detectados en el DOM.
@@ -451,3 +552,5 @@ Los archivos en `resources/views/invitations/modules/` actúan como wrappers liv
 ### 10. Cobertura de Pruebas Automatizadas e Integración
 - **Estado actual**: Se cuenta con la infraestructura inicial de PHPUnit/Pest.
 - **Recomendación**: Ampliar la cobertura de pruebas de integración (`Feature Tests`) enfocándose en los flujos críticos de negocio: inicio de sesión, guardado de módulos en el editor, flujo completo de confirmación RSVP, sugerencias de playlist y generación de reportes en PDF/Excel.
+
+---

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
 
 /**
@@ -97,6 +98,29 @@ class Invitation extends Model
     public function pollVotes(): HasMany
     {
         return $this->hasMany(PollVote::class);
+    }
+
+    /**
+     * Configuración visual y visibilidad de módulos. Si existe, los módulos normalizados se leen desde tablas.
+     */
+    public function settings(): HasOne
+    {
+        return $this->hasOne(InvitationSetting::class);
+    }
+
+    public function itineraryItems(): HasMany
+    {
+        return $this->hasMany(InvitationItineraryItem::class)->orderBy('sort_order')->orderBy('id');
+    }
+
+    public function galleryImages(): HasMany
+    {
+        return $this->hasMany(InvitationGalleryImage::class)->orderBy('sort_order')->orderBy('id');
+    }
+
+    public function polls(): HasMany
+    {
+        return $this->hasMany(InvitationPoll::class)->orderBy('sort_order')->orderBy('id');
     }
 
     /**

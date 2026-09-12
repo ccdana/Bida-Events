@@ -108,7 +108,7 @@ class InvitationDefaults
                     'script' => 'Great Vibes',
                 ],
                 'modulos' => self::moduleVisibilityDefaults(),
-                'template' => 'pages.invitations.templates.xv-premium',
+                'template' => 'invitations.templates.xv-premium',
             ],
             'bienvenida' => (object) [],
             'ubicacion' => ['lat' => -16.5, 'lng' => -68.15],
@@ -143,8 +143,24 @@ class InvitationDefaults
     public static function templates(): array
     {
         return [
-            'pages.invitations.templates.xv-premium' => 'XV Años Premium',
+            'invitations.templates.xv-premium' => 'XV Años Premium',
         ];
+    }
+
+    /**
+     * Nombre de vista de la plantilla. Acepta los nombres antiguos con prefijo "pages." (JSON o sesión)
+     * y cae en la plantilla por defecto si la vista no existe.
+     */
+    public static function resolveTemplate(?string $template): string
+    {
+        $default = 'invitations.templates.xv-premium';
+        $template = $template ?: $default;
+
+        if (str_starts_with($template, 'pages.')) {
+            $template = substr($template, strlen('pages.'));
+        }
+
+        return view()->exists($template) ? $template : $default;
     }
 
     public static function itineraryIcons(): array

@@ -68,6 +68,8 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
+        app(\App\Services\InvitationStructuredDataService::class)->sync($invitation, XvSofiaModuleData::all());
+
         $guests = [
             ['name' => 'Familia Mamani', 'phone' => '70123456', 'passes_allocated' => 4],
             ['name' => 'Carlos Pereyra', 'phone' => '71234567', 'passes_allocated' => 1],

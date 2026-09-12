@@ -9,6 +9,9 @@ use App\Models\Guest;
 use App\Models\Invitation;
 use App\Services\InvitationModuleService;
 
+/**
+ * La pertenencia del invitado a la invitación la garantiza scopeBindings() en routes/web.php.
+ */
 class GuestController extends Controller
 {
     public function index(Invitation $invitation)
@@ -32,18 +35,13 @@ class GuestController extends Controller
 
     public function update(UpdateGuestRequest $request, Invitation $invitation, Guest $guest)
     {
-        abort_unless($guest->invitation_id === $invitation->id, 404);
-
-        $validated = $request->validated();
-
-        $guest->update($validated);
+        $guest->update($request->validated());
 
         return back()->with('success', 'Invitado actualizado.');
     }
 
     public function destroy(Invitation $invitation, Guest $guest)
     {
-        abort_unless($guest->invitation_id === $invitation->id, 404);
         $guest->delete();
 
         return back()->with('success', 'Invitado eliminado.');

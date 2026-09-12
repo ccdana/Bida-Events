@@ -14,7 +14,7 @@
                 @foreach($postEvento['fotos'] as $i => $foto)
                     <a href="{{ $foto }}" target="_blank" rel="noopener"
                         class="photo-grid-item block {{ $i % 5 === 4 ? 'col-span-2' : '' }}">
-                        <img src="{{ $foto }}" alt="Foto oficial {{ $i + 1 }}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500" loading="lazy">
+                        <img src="{{ \App\Support\CloudinaryImage::url($foto, 600) }}" alt="Foto oficial {{ $i + 1 }}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500" loading="lazy">
                     </a>
                 @endforeach
             </div>
