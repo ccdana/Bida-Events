@@ -1,4 +1,4 @@
-﻿@extends('layouts.client')
+@extends('layouts.client')
 
 @section('title', 'Mis Eventos')
 
@@ -9,27 +9,8 @@
 </div>
 
 <div class="space-y-4">
-    @forelse($invitations as $invitation)
-        @php
-            $confirmed = $invitation->guests->where('status', 'confirmed')->count();
-            $pending = $invitation->guests->where('status', 'pending')->count();
-            $declined = $invitation->guests->where('status', 'declined')->count();
-            $status = strtolower($invitation->status);
-            $statusLabel = match ($status) {
-                'draft' => 'Borrador',
-                'active' => 'Activa',
-                'suspended' => 'Suspendida',
-                'expired' => 'Expirada',
-                default => $invitation->status,
-            };
-            $statusClass = match ($status) {
-                'active' => 'is-success',
-                'draft' => 'is-warning',
-                'suspended', 'expired' => 'is-danger',
-                default => 'is-primary',
-            };
-        @endphp
-
+    @forelse($items as $row)
+        @php $invitation = $row['invitation']; @endphp
         <article class="client-card p-6 transition hover:-translate-y-0.5 hover:shadow-lg">
             <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between mb-5">
                 <div class="flex-1 min-w-0">
@@ -41,22 +22,22 @@
                         <span>{{ $invitation->event_date->format('d \d\e F, Y') }} a las {{ $invitation->event_date->format('H:i') }}</span>
                     </p>
                 </div>
-                <span class="client-pill {{ $statusClass }} self-start">
-                    {{ $statusLabel }}
+                <span class="client-pill {{ $row['statusClass'] }} self-start">
+                    {{ $row['statusLabel'] }}
                 </span>
             </div>
 
             <div class="grid gap-3 sm:grid-cols-3 mb-6">
                 <div class="client-stat-card p-4 text-center">
-                    <p class="client-stat-value text-3xl font-semibold">{{ $confirmed }}</p>
+                    <p class="client-stat-value text-3xl font-semibold">{{ $row['confirmed'] }}</p>
                     <p class="client-stat-label text-sm mt-1">Confirmados</p>
                 </div>
                 <div class="client-stat-card p-4 text-center">
-                    <p class="client-stat-value text-3xl font-semibold">{{ $pending }}</p>
+                    <p class="client-stat-value text-3xl font-semibold">{{ $row['pending'] }}</p>
                     <p class="client-stat-label text-sm mt-1">Pendientes</p>
                 </div>
                 <div class="client-stat-card p-4 text-center">
-                    <p class="client-stat-value text-3xl font-semibold">{{ $declined }}</p>
+                    <p class="client-stat-value text-3xl font-semibold">{{ $row['declined'] }}</p>
                     <p class="client-stat-label text-sm mt-1">Declinados</p>
                 </div>
             </div>

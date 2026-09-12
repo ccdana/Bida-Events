@@ -3,13 +3,6 @@
 @section('title', 'Dashboard')
 
 @section('content')
-@php
-    $total = $invitations->count();
-    $active = $invitations->where('status', 'activo')->count();
-    $draft = $invitations->where('status', 'borrador')->count();
-    $guests = $invitations->sum(fn ($invitation) => $invitation->guests->count());
-@endphp
-
 <div class="space-y-6">
     <section class="admin-card overflow-hidden">
         <div class="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
@@ -24,19 +17,19 @@
     <section class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <div class="admin-card admin-metric-card py-4">
             <p class="admin-metric-label">Total</p>
-            <p class="admin-metric-value">{{ $total }}</p>
+            <p class="admin-metric-value">{{ $metrics['total'] }}</p>
         </div>
         <div class="admin-card admin-metric-card py-4">
             <p class="admin-metric-label">Activas</p>
-            <p class="admin-metric-value">{{ $active }}</p>
+            <p class="admin-metric-value">{{ $metrics['active'] }}</p>
         </div>
         <div class="admin-card admin-metric-card py-4">
             <p class="admin-metric-label">Borradores</p>
-            <p class="admin-metric-value">{{ $draft }}</p>
+            <p class="admin-metric-value">{{ $metrics['draft'] }}</p>
         </div>
         <div class="admin-card admin-metric-card py-4">
             <p class="admin-metric-label">Invitados</p>
-            <p class="admin-metric-value">{{ $guests }}</p>
+            <p class="admin-metric-value">{{ $metrics['guests'] }}</p>
         </div>
     </section>
 
@@ -46,23 +39,23 @@
                 <p class="admin-label mb-1">Listado</p>
                 <h2 class="font-serif text-xl text-stone-950">Últimas invitaciones</h2>
             </div>
-            <span class="text-xs uppercase tracking-widest text-stone-400">{{ $total }} registros</span>
+            <span class="text-xs uppercase tracking-widest text-stone-400">{{ $metrics['total'] }} registros</span>
         </div>
 
         <div class="divide-y divide-stone-200">
-            @forelse($invitations as $invitation)
+            @forelse($items as $row)
+                @php $invitation = $row['invitation']; @endphp
                 <article class="px-5 py-4 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                     <div class="min-w-0">
                         <div class="flex items-center gap-3 flex-wrap">
                             <h3 class="text-lg font-medium text-stone-950 truncate">{{ $invitation->title }}</h3>
-                            <span class="admin-status-badge
-                                {{ $invitation->status === 'activo' ? 'is-active' : ($invitation->status === 'borrador' ? 'is-draft' : 'is-suspended') }}">
+                            <span class="admin-status-badge {{ $row['statusClass'] }}">
                                 <span class="admin-status-dot"></span>
                                 {{ $invitation->status }}
                             </span>
                         </div>
-                        <p class="mt-1 text-sm text-stone-500">{{ $invitation->eventType->name }} · {{ $invitation->event_date->format('d/m/Y H:i') }}</p>
-                        <p class="mt-2 text-xs text-stone-400 font-mono">/p/{{ $invitation->slug }} · {{ $invitation->guests->count() }} invitados</p>
+                        <p class="mt-1 text-sm text-stone-500">{{ $row['eventTypeName'] }} · {{ $row['eventDateLabel'] }}</p>
+                        <p class="mt-2 text-xs text-stone-400 font-mono">/p/{{ $invitation->slug }} · {{ $row['guestCount'] }} invitados</p>
                     </div>
                     <div class="flex flex-wrap gap-2">
                         <a href="{{ route('invitation.show', $invitation->slug) }}" target="_blank" class="admin-link-button">Ver</a>

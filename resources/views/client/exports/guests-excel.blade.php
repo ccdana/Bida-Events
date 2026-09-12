@@ -4,152 +4,30 @@
     <meta charset="utf-8">
     <title>Reporte invitados</title>
     <style>
-        body {
-            margin: 0;
-            padding: 24px;
-            font-family: DejaVu Sans, sans-serif;
-            color: #2c1810;
-            background: #fffaf5;
-        }
-        .sheet {
-            border: 1px solid #e7e5e4;
-            border-radius: 18px;
-            background: #fff;
-            padding: 22px;
-        }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            gap: 18px;
-            align-items: flex-start;
-            margin-bottom: 18px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid #e7e5e4;
-        }
-        .eyebrow {
-            display: inline-block;
-            font-size: 10px;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            color: #78716c;
-            margin-bottom: 6px;
-        }
-        h1 {
-            margin: 0;
-            font-family: serif;
-            font-size: 24px;
-            line-height: 1.15;
-        }
-        .meta {
-            margin-top: 8px;
-            font-size: 11px;
-            color: #78716c;
-            line-height: 1.6;
-        }
-        .brand {
-            font-family: serif;
-            font-size: 24px;
-            font-weight: 700;
-            line-height: 1;
-        }
+        body { margin: 0; padding: 24px; font-family: DejaVu Sans, sans-serif; color: #2c1810; background: #fffaf5; }
+        .sheet { border: 1px solid #e7e5e4; border-radius: 18px; background: #fff; padding: 22px; }
+        .header { display: flex; justify-content: space-between; gap: 18px; align-items: flex-start; margin-bottom: 18px; padding-bottom: 16px; border-bottom: 1px solid #e7e5e4; }
+        .eyebrow { display: inline-block; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: #78716c; margin-bottom: 6px; }
+        h1 { margin: 0; font-family: serif; font-size: 24px; line-height: 1.15; }
+        .meta { margin-top: 8px; font-size: 11px; color: #78716c; line-height: 1.6; }
+        .brand { font-family: serif; font-size: 24px; font-weight: 700; line-height: 1; }
         .brand span { color: #c9a96e; }
-        .summary {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 8px;
-            margin-bottom: 12px;
-        }
-        .metric {
-            width: 20%;
-            border: 1px solid #e7e5e4;
-            border-radius: 14px;
-            padding: 12px 10px;
-            background: linear-gradient(180deg, #fff 0%, #fcf8f3 100%);
-            vertical-align: top;
-        }
-        .metric-value {
-            font-family: serif;
-            font-size: 22px;
-            font-weight: 700;
-            line-height: 1;
-        }
-        .metric-label {
-            margin-top: 6px;
-            font-size: 10px;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: #78716c;
-        }
-        .insights {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 8px;
-            margin-bottom: 14px;
-        }
-        .panel {
-            width: 50%;
-            vertical-align: top;
-            border: 1px solid #e7e5e4;
-            border-radius: 14px;
-            padding: 14px;
-            background: #fff;
-        }
-        .section-title {
-            margin: 0 0 10px;
-            font-family: serif;
-            font-size: 18px;
-        }
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            gap: 12px;
-            padding: 8px 0;
-            border-bottom: 1px solid #f2efec;
-            font-size: 12px;
-        }
+        .summary { width: 100%; border-collapse: separate; border-spacing: 8px; margin-bottom: 12px; }
+        .metric { width: 20%; border: 1px solid #e7e5e4; border-radius: 14px; padding: 12px 10px; background: linear-gradient(180deg, #fff 0%, #fcf8f3 100%); vertical-align: top; }
+        .metric-value { font-family: serif; font-size: 22px; font-weight: 700; line-height: 1; }
+        .metric-label { margin-top: 6px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: #78716c; }
+        .insights { width: 100%; border-collapse: separate; border-spacing: 8px; margin-bottom: 14px; }
+        .panel { width: 50%; vertical-align: top; border: 1px solid #e7e5e4; border-radius: 14px; padding: 14px; background: #fff; }
+        .section-title { margin: 0 0 10px; font-family: serif; font-size: 18px; }
+        .info-row { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid #f2efec; font-size: 12px; }
         .info-row:last-child { border-bottom: 0; }
         .info-label { color: #78716c; }
         .info-value { font-weight: 700; text-align: right; }
-        .badge {
-            display: inline-block;
-            margin: 0 6px 6px 0;
-            padding: 5px 9px;
-            border-radius: 999px;
-            background: #faf7f2;
-            border: 1px solid #e7e5e4;
-            font-size: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-        }
-        table.data {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 11px;
-            margin-top: 10px;
-        }
-        table.data th,
-        table.data td {
-            border: 1px solid #e7e5e4;
-            padding: 7px 6px;
-            text-align: left;
-            vertical-align: top;
-        }
-        table.data th {
-            background: #f7f3ee;
-            color: #78716c;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            font-size: 9px;
-        }
-        .footer {
-            margin-top: 14px;
-            padding-top: 10px;
-            border-top: 1px solid #e7e5e4;
-            color: #78716c;
-            font-size: 10px;
-            text-align: right;
-        }
+        .badge { display: inline-block; margin: 0 6px 6px 0; padding: 5px 9px; border-radius: 999px; background: #faf7f2; border: 1px solid #e7e5e4; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
+        table.data { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 10px; }
+        table.data th, table.data td { border: 1px solid #e7e5e4; padding: 7px 6px; text-align: left; vertical-align: top; }
+        table.data th { background: #f7f3ee; color: #78716c; text-transform: uppercase; letter-spacing: 0.08em; font-size: 9px; }
+        .footer { margin-top: 14px; padding-top: 10px; border-top: 1px solid #e7e5e4; color: #78716c; font-size: 10px; text-align: right; }
     </style>
 </head>
 <body>
@@ -223,23 +101,17 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($guests as $guest)
-                    @php
-                        $remaining = max(0, (int) $guest->passes_allocated - (int) $guest->passes_confirmed);
-                        $coverage = (int) $guest->passes_allocated > 0
-                            ? round(((int) $guest->passes_confirmed / (int) $guest->passes_allocated) * 100, 1)
-                            : 0;
-                    @endphp
+                @foreach($guestRows as $row)
                     <tr>
-                        <td>{{ $guest->name }}</td>
-                        <td>{{ $guest->phone ?? '' }}</td>
-                        <td>{{ (int) $guest->passes_allocated }}</td>
-                        <td>{{ (int) $guest->passes_confirmed }}</td>
-                        <td>{{ $remaining }}</td>
-                        <td>{{ $coverage }}%</td>
-                        <td>{{ match ($guest->status) { 'confirmed' => 'Confirmado', 'declined' => 'No asistirá', default => 'Pendiente' } }}</td>
-                        <td>{{ $guest->table_number ?? '' }}</td>
-                        <td>{{ $guest->dietary_restrictions ?? '' }}</td>
+                        <td>{{ $row['guest']->name }}</td>
+                        <td>{{ $row['guest']->phone ?? '' }}</td>
+                        <td>{{ $row['allocated'] }}</td>
+                        <td>{{ $row['confirmed'] }}</td>
+                        <td>{{ $row['remaining'] }}</td>
+                        <td>{{ $row['coverage'] }}%</td>
+                        <td>{{ $row['statusLabel'] }}</td>
+                        <td>{{ $row['guest']->table_number ?? '' }}</td>
+                        <td>{{ $row['guest']->dietary_restrictions ?? '' }}</td>
                     </tr>
                 @endforeach
             </tbody>

@@ -1,4 +1,4 @@
-﻿@extends('layouts.client')
+@extends('layouts.client')
 
 @section('title', $invitation->title)
 
@@ -48,12 +48,12 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($guests as $guest)
+                @foreach($rows as $row)
                     <tr class="client-table-row">
-                        <td class="px-4 py-3 font-medium text-stone-900">{{ $guest->name }}</td>
-                        <td class="px-4 py-3 text-stone-600">{{ ucfirst($guest->status) }}</td>
-                        <td class="px-4 py-3 text-stone-600">{{ $guest->passes_confirmed }}/{{ $guest->passes_allocated }}</td>
-                        <td class="px-4 py-3 text-stone-500">{{ $guest->dietary_restrictions ?? '—' }}</td>
+                        <td class="px-4 py-3 font-medium text-stone-900">{{ $row['guest']->name }}</td>
+                        <td class="px-4 py-3 text-stone-600">{{ $row['statusLabel'] }}</td>
+                        <td class="px-4 py-3 text-stone-600">{{ $row['passesLabel'] }}</td>
+                        <td class="px-4 py-3 text-stone-500">{{ $row['dietaryRestrictions'] }}</td>
                     </tr>
                 @endforeach
             </tbody>
