@@ -94,6 +94,8 @@ El proyecto es una aplicación Laravel 12 enfocada en:
 | Archivo | Qué hace | Sugerencia |
 | --- | --- | --- |
 | `app/Support/InvitationDefaults.php` | Define estructuras JSON por defecto para cada módulo y valores predeterminados de UI. | Mover configuraciones complejas a archivos de configuración si el catálogo crece. |
+| `app/Support/InvitationTemplates.php` | Catálogo de plantillas públicas (XV Premium y Boda Jardín): nombre, descripción, tipo de evento, orden de secciones y textos que difieren de XV. | Para sumar una plantilla: agregarla aquí y crear su vista en `invitations/templates`. |
+| `app/Support/InvitationPage.php` | Datos comunes de la invitación pública para cualquier plantilla: paleta, fuentes, módulos visibles, menú, nombres de la pareja e iniciales. | — |
 | `app/Support/MapsLinkParser.php` | Parsea enlaces o texto de mapas (Google Maps / Waze) para extraer coordenadas lat/lng. | Incluir pruebas unitarias con diversos formatos de URLs de navegación. |
 | `app/Support/SiteImage.php` | Resuelve las fotos del sitio público definidas en `config/bida.php` (`images`): ruta (`public/images/site/*.webp`, o un marcador de picsum si falta el archivo), tamaño y texto alternativo. | Para cambiar una foto basta con reemplazar el archivo indicado en `path` y actualizar `alt`. |
 | `app/Support/Pdf/PdfAssets.php` | Recursos embebidos para DomPDF: fotos recortadas a JPEG, QR en SVG, fuentes de Google Fonts en TTF y logo. Todo se cachea en `storage/app/pdf-cache`. | Las fuentes variables no tienen versión TTF estática: el PDF usa una serif en su lugar. |
@@ -179,6 +181,7 @@ El proyecto es una aplicación Laravel 12 enfocada en:
 | Archivo | Qué hace | Sugerencia |
 | --- | --- | --- |
 | `database/seeders/DatabaseSeeder.php` | Seeder principal que puebla la base de datos con usuarios admin/cliente e invitación de prueba. | Separar datos iniciales maestros de datos demo de desarrollo. |
+| `database/seeders/BodaJardinDemoSeeder.php` | Invitación de ejemplo `boda-ana-luis` con la plantilla Boda Jardín; idempotente (`php artisan db:seed --class=BodaJardinDemoSeeder`). | Reemplazar las fotos de la galería por fotos reales de boda. |
 | `database/seeders/XvSofiaModuleData.php` | Payload demo completo con todos los módulos y contenidos para la invitación `xv-sofia`. | Mantener como referencia de estructura JSON para todos los módulos. |
 
 ### `database/migrations`
@@ -249,6 +252,7 @@ El frontend del proyecto utiliza **Alpine.js** y una arquitectura de **Code-Spli
 | `resources/css/invitation/modules.css` | Pestañas, video, dress code, cortejo, ubicación, hashtag, encuestas, playlist, regalos, RSVP y fotomural. | — |
 | `resources/css/invitation/nav-player.css` | Menú de secciones numerado y reproductor de música fijo. | — |
 | `resources/css/invitation/ambient.css` | Ambiente de la invitación: partículas de fondo en movimiento (menos en celular, apagadas con movimiento reducido), desvanecido inferior de la portada hacia la sección siguiente y ocultar la barra de scroll cuando la invitación está dentro de un iframe. | El color del desvanecido lo fija el script de la plantilla en --inv-hero-fade. |
+| `resources/css/invitation/themes/boda.css` | Tema de la plantilla Boda Jardín (todo dentro de `.inv-boda`): sobre de apertura, portada con foto en arco y ramas que crecen, pétalos, títulos caligráficos, ornamentos entre secciones y controles redondeados. | Los ornamentos son máscaras SVG y toman el color primario del evento. |
 | `resources/css/site/site.css` | Tokens del sitio con paleta neutra y el dorado del logo como acento, en claro/oscuro (sistema o botón con `data-theme`), botón de tema con transición de colores, fuente Outfit, botones, campos, rotador, marquesina, animaciones de scroll y fallbacks de movimiento reducido. | Reutilizar las utilidades `site-*` en nuevas páginas públicas. |
 | `resources/css/site/brand.css` | Estilos del isotipo y el logo (global): color dorado `--brand-logo`, grosor `--brand-stroke`, animación de trazo al cargar y solapa que baja al pasar el cursor. | Subir `--brand-stroke` si el logo se usa muy pequeño. |
 | `resources/css/admin/admin.css` | Paneles (admin, editor y portal del cliente) con el sistema de la home: botones píldora, tarjetas 16px, campos 12px, estados, tablas, interruptores del editor y recorte de imágenes. Remapea `stone-*`/`amber-*` de Tailwind a los neutros y al acento del sitio, y los invierte en oscuro. | El tema se controla con `data-admin-theme` en `<html>`; sin atributo sigue al sistema. |
@@ -261,9 +265,9 @@ Animaciones vectoriales Lottie en formato JSON utilizadas en los módulos del ev
 | --- | --- | --- |
 | `resources/lottie-icons/calendar-loop-icon.json` | **[NUEVO]** Animación de calendario en bucle para el módulo de fecha y agendado. | Optimizado para inyección dinámica de color primario. |
 | `resources/lottie-icons/clock-loop-icon.json` | **[NUEVO]** Animación de reloj en bucle para la cuenta regresiva e itinerario. | Mantener tamaños de vector reducidos. |
-| `resources/lottie-icons/eye-image-loop-icon.json` | **[NUEVO]** Animación de ojo/fotografía para el fotomural y galería fotográfica. | Utilizado en encabezados de módulos visuales. |
+| `resources/lottie-icons/gallery-loop-icon.json` | Ícono propio de la galería: fotos apiladas que se inclinan como al barajarlas (generado por `scripts/lottie/build-icons.mjs`). | Encabezado de la galería. |
 | `resources/lottie-icons/invitation-loop-icon.json` | **[NUEVO]** Animación de sobre de invitación para el banner de bienvenida y sección de RSVP. | Icono principal de bienvenida al invitado. |
-| `resources/lottie-icons/itinerar-people-loop-icon.json` | **[NUEVO]** Animación de personas/evento en bucle para la cronología del itinerario. | Utilizado en la cabecera de la sección de itinerario. |
+| `resources/lottie-icons/itinerary-loop-icon.json` | Ícono propio del itinerario: línea de tiempo con tres momentos que un punto recorre (generado por `scripts/lottie/build-icons.mjs`). | Encabezado del itinerario. |
 | `resources/lottie-icons/video-loop-icon.json` | **[NUEVO]** Animación de claustro/cámara de video para el reproductor de video / Save The Date. | Icono representativo del módulo multimedia. |
 | `resources/lottie-icons/{location,crown,dress,hashtag,poll,music,gift,rsvp,camera,heart}-loop-icon.json` | Íconos propios (ubicación, cortejo, dress code, hashtag, encuestas, playlist, regalos, RSVP, fotomural y post-evento) con la misma estructura Lordicon: capa `control` para color/grosor y loop que cierra en la misma pose. | No editarlos a mano: se generan con `scripts/lottie/build-icons.mjs`. |
 
@@ -372,6 +376,9 @@ Animaciones vectoriales Lottie en formato JSON utilizadas en los módulos del ev
 | Archivo | Qué hace | Sugerencia |
 | --- | --- | --- |
 | `resources/views/invitations/templates/xv-premium.blade.php` | Variante o plantilla directa de la invitación XV Premium. | Consolidar con la versión en `pages/invitations/templates/` para mantener una única fuente. |
+| `resources/views/invitations/templates/boda-jardin.blade.php` | Plantilla pública de boda: usa los mismos módulos que XV con su propio diseño, orden y textos; incluye el sobre de apertura (se omite en la vista previa, en iframes y tras abrirlo en la visita). | — |
+| `resources/views/invitations/partials/shell/` | Piezas comunes de las plantillas: `head` (metadatos, fuentes y paleta), `nav` (menú), `modules` (secciones en el orden de la plantilla) y `scripts` (calendario, copiar, apariciones y menú activo). | — |
+| `resources/views/invitations/partials/boda/` | Parciales de la plantilla de boda: `hero` (foto en arco y nombres), `branch` (rama SVG animada), `ambient` (manchas de color y pétalos) y `cover` (sobre de apertura). | — |
 | `resources/views/invitations/partials/countdown.blade.php` | Parcial que renderiza el temporizador de cuenta regresiva. | Ejecuta cálculo de tiempo en cliente con Alpine.js. |
 | `resources/views/invitations/partials/destacados.blade.php` | Parcial que presenta las tarjetas de personas destacadas. | Diseño adaptable según el número de integrantes. |
 | `resources/views/invitations/partials/dress-code.blade.php` | Parcial con los detalles del código de vestimenta y paleta de colores. | Incluye render defensivo ante campos vacíos. |

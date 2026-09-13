@@ -3,8 +3,8 @@
         ? ['nombre' => $persona['nombre'] ?? '', 'detalle' => $persona['detalle'] ?? null]
         : ['nombre' => (string) $persona, 'detalle' => null];
     $groups = array_filter([
-        'Chambelanes' => array_values(array_filter(array_map($normalizePerson, $destacados['chambelanes'] ?? []), fn ($p) => $p['nombre'] !== '')),
-        'Damitas' => array_values(array_filter(array_map($normalizePerson, $destacados['damitas'] ?? []), fn ($p) => $p['nombre'] !== '')),
+        ($invCopy['court_men'] ?? 'Chambelanes') => array_values(array_filter(array_map($normalizePerson, $destacados['chambelanes'] ?? []), fn ($p) => $p['nombre'] !== '')),
+        ($invCopy['court_women'] ?? 'Damitas') => array_values(array_filter(array_map($normalizePerson, $destacados['damitas'] ?? []), fn ($p) => $p['nombre'] !== '')),
     ]);
     $padrinos = array_values(array_filter($destacados['padrinos'] ?? [], fn ($p) => !empty($p['nombres'] ?? null)));
     $tabs = array_filter([
@@ -16,10 +16,10 @@
 <section class="inv-section reveal inv-court" id="destacados" x-data="{ tab: @js(array_key_first($tabs) ?? '') }">
     <div class="inv-wrap">
         @include('invitations.partials.section-header', [
-            'lottie' => 'crown',
-            'eyebrow' => 'Quienes me acompañan',
-            'title' => 'Mi cortejo',
-            'intro' => 'Personas muy especiales que estarán a mi lado esta noche.',
+            'lottie' => $invCopy['court_lottie'] ?? 'crown',
+            'eyebrow' => $invCopy['court_eyebrow'] ?? 'Quienes me acompañan',
+            'title' => $invCopy['court_title'] ?? 'Mi cortejo',
+            'intro' => $invCopy['court_intro'] ?? 'Personas muy especiales que estarán a mi lado esta noche.',
         ])
 
         @if(count($tabs) > 1)
@@ -95,7 +95,7 @@
         @endif
 
         @if(empty($tabs))
-            <p class="inv-empty">Pronto presentaremos a quienes me acompañan.</p>
+            <p class="inv-empty">{{ $invCopy['court_empty'] ?? 'Pronto presentaremos a quienes me acompañan.' }}</p>
         @endif
     </div>
 </section>

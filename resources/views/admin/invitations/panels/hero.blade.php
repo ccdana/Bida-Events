@@ -13,12 +13,13 @@
 
         <div class="grid gap-2">
             <div>
-                <label class="admin-label">Nombre de la protagonista</label>
-                <input type="text" x-model="modules.bienvenida.nombre_quinceanera" @input="schedulePreview()" class="admin-input" placeholder="Ej. Sofía Valentina">
+                <label class="admin-label" x-text="isWeddingTemplate() ? 'Nombres de los novios' : 'Nombre de la protagonista'">Nombre de la protagonista</label>
+                <input type="text" x-model="modules.bienvenida.nombre_quinceanera" @input="schedulePreview()" class="admin-input" :placeholder="isWeddingTemplate() ? 'Ej. Ana & Luis' : 'Ej. Sofía Valentina'">
+                <p x-show="isWeddingTemplate()" x-cloak class="mt-1 text-xs text-site-muted">Sepáralos con «&» o «y»: la portada los muestra con un ampersand caligráfico.</p>
             </div>
             <div>
                 <label class="admin-label">Subtítulo superior</label>
-                <input type="text" x-model="modules.bienvenida.subtitulo" @input="schedulePreview()" class="admin-input" placeholder="Ej. Celebrando mis XV Años">
+                <input type="text" x-model="modules.bienvenida.subtitulo" @input="schedulePreview()" class="admin-input" :placeholder="isWeddingTemplate() ? 'Ej. Nos casamos' : 'Ej. Celebrando mis XV Años'">
             </div>
         </div>
     </section>

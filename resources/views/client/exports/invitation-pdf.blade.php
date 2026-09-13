@@ -216,10 +216,10 @@
                     </table>
                 @endif
                 @if($honor['chambelanes'])
-                    <p style="margin-top: 3mm;"><span class="strong">Chambelanes:</span> {{ implode(', ', $honor['chambelanes']) }}</p>
+                    <p style="margin-top: 3mm;"><span class="strong">{{ $copy['court_men'] ?? 'Chambelanes' }}:</span> {{ implode(', ', $honor['chambelanes']) }}</p>
                 @endif
                 @if($honor['damitas'])
-                    <p><span class="strong">Damitas:</span> {{ implode(', ', $honor['damitas']) }}</p>
+                    <p><span class="strong">{{ $copy['court_women'] ?? 'Damitas' }}:</span> {{ implode(', ', $honor['damitas']) }}</p>
                 @endif
             </div>
         @endif

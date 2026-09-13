@@ -5,8 +5,8 @@
 <section class="inv-section reveal inv-itinerary" id="itinerario" x-data="scrollItinerary()" x-init="init()">
     <div class="inv-wrap inv-wrap--wide">
         @include('invitations.partials.section-header', [
-            'lottie' => 'itinerar-people',
-            'eyebrow' => 'El recorrido de la noche',
+            'lottie' => 'itinerary',
+            'eyebrow' => $invCopy['itinerary_eyebrow'] ?? 'El recorrido de la noche',
             'title' => $itinerario['titulo'] ?? 'Itinerario',
         ])
 
@@ -45,7 +45,7 @@
                 </ol>
             </div>
         @else
-            <p class="inv-empty">Muy pronto compartiremos el orden de la noche.</p>
+            <p class="inv-empty">{{ $invCopy['itinerary_empty'] ?? 'Muy pronto compartiremos el orden de la noche.' }}</p>
         @endif
     </div>
 </section>

@@ -104,5 +104,7 @@ class DatabaseSeeder extends Seeder
                 'created_at' => now()->subMinutes(rand(10, 120)),
             ]);
         }
+
+        $this->call(BodaJardinDemoSeeder::class);
     }
 }

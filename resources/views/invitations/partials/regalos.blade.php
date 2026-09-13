@@ -23,7 +23,7 @@
             'lottie' => 'gift',
             'eyebrow' => 'Detalles especiales',
             'title' => $regalos['titulo'] ?? 'Regalos',
-            'intro' => 'Tu presencia es mi mejor regalo. Si deseas tener un detalle, aquí tienes algunas opciones.',
+            'intro' => $invCopy['gifts_intro'] ?? 'Tu presencia es mi mejor regalo. Si deseas tener un detalle, aquí tienes algunas opciones.',
         ])
 
         <ul class="inv-list">

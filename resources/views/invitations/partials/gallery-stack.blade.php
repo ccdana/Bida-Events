@@ -16,8 +16,8 @@
 >
     <div class="inv-wrap inv-wrap--wide">
         @include('invitations.partials.section-header', [
-            'lottie' => 'eye-image',
-            'eyebrow' => 'Momentos especiales',
+            'lottie' => 'gallery',
+            'eyebrow' => $invCopy['gallery_eyebrow'] ?? 'Momentos especiales',
             'title' => $galeria['titulo'] ?? 'Galería',
         ])
 

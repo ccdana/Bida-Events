@@ -82,7 +82,7 @@
 
         @if(isset($tabs['colores']))
             <div x-show="tab === 'colores'" x-cloak role="tabpanel">
-                <p class="inv-help inv-dress__hint">Tonos sugeridos para la noche</p>
+                <p class="inv-help inv-dress__hint">{{ $invCopy['dress_hint'] ?? 'Tonos sugeridos para la noche' }}</p>
                 <ul class="inv-dress__palette">
                     @foreach($colores as $color)
                         <li>
@@ -106,7 +106,7 @@
         @endif
 
         @if(empty($tabs))
-            <p class="inv-empty">Viste elegante y cómodo para disfrutar toda la noche.</p>
+            <p class="inv-empty">{{ $invCopy['dress_empty'] ?? 'Viste elegante y cómodo para disfrutar toda la noche.' }}</p>
         @endif
     </div>
 </section>

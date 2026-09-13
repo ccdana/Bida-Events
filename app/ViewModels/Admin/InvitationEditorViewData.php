@@ -75,6 +75,8 @@ class InvitationEditorViewData
             'templateOptions' => $templates->map(fn ($label, $value) => [
                 'value' => $value,
                 'label' => $label,
+                'description' => \App\Support\InvitationTemplates::get($value)['description'],
+                'event' => \App\Support\InvitationTemplates::get($value)['event'],
             ])->values(),
             // Solo el administrador abre el editor: por eso puede ver la contraseña de cada cliente
             'clients' => $clientList->map(fn ($client) => [

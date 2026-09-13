@@ -29,7 +29,7 @@
         @if($status === 'pending')
             <div class="inv-actions">
                 <a href="#rsvp" class="inv-btn inv-btn--block">Confirmar asistencia</a>
-                <p class="inv-help">Te toma menos de un minuto y nos ayuda a organizar la noche.</p>
+                <p class="inv-help">{{ $invCopy['guest_help'] ?? 'Te toma menos de un minuto y nos ayuda a organizar la noche.' }}</p>
             </div>
         @endif
     </div>

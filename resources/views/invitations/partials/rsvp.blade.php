@@ -46,7 +46,7 @@
                 'lottie' => 'rsvp',
                 'eyebrow' => 'Respuesta enviada',
                 'title' => $rsvp['texto_declinado'] ?? 'Gracias por avisarnos',
-                'intro' => 'Si cambias de planes, comunícate con la familia para actualizar tu respuesta.',
+                'intro' => $invCopy['rsvp_declined_intro'] ?? 'Si cambias de planes, comunícate con la familia para actualizar tu respuesta.',
             ])
         </div>
 

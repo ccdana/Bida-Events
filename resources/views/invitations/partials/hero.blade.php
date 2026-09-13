@@ -1,6 +1,6 @@
 @php
     $heroTitle = $bienvenida['nombre_quinceanera'] ?? $invitation->title;
-    $heroEyebrow = $bienvenida['subtitulo'] ?? 'Mis XV Años';
+    $heroEyebrow = $bienvenida['subtitulo'] ?? ($invCopy['hero_eyebrow'] ?? 'Mis XV Años');
     $heroMessage = $bienvenida['mensaje'] ?? '';
     $heroDate = $bienvenida['fecha_texto'] ?? $invitation->event_date->locale('es')->translatedFormat('j \d\e F, Y');
 @endphp

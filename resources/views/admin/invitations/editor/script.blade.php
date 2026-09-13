@@ -277,7 +277,7 @@ function invitationForm(config) {
 
         fontSample(roleKey) {
             if (roleKey === 'script') {
-                return this.modules.bienvenida?.nombre_quinceanera || 'Sofía Valentina';
+                return this.modules.bienvenida?.nombre_quinceanera || (this.isWeddingTemplate() ? 'Ana & Luis' : 'Sofía Valentina');
             }
             return roleKey === 'titulos' ? 'Itinerario' : 'Te esperamos a las 18:00';
         },
@@ -778,6 +778,12 @@ function invitationForm(config) {
         getTemplateLabel() {
             const value = String(this.meta.template ?? '');
             return this.templateOptions.find(option => option.value === value)?.label ?? 'Seleccionar plantilla';
+        },
+
+        // Plantilla de boda: el editor habla de novios, damas y caballeros de honor
+        isWeddingTemplate() {
+            const value = String(this.meta.template ?? '');
+            return this.templateOptions.find(option => option.value === value)?.event === 'boda';
         },
 
         getStatusLabel() {

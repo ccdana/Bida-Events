@@ -372,6 +372,29 @@ const barPath = (x, top, width = 26, bottom = 150, r = 6) => svg(
     + `L${x + width} ${bottom}`,
 )[0];
 
+/** Rectángulo de esquinas redondeadas como trazado cerrado. */
+const roundRect = (x, y, w, h, r) => svg(
+    `M${x + r} ${y} L${x + w - r} ${y} C${x + w - r * 0.45} ${y} ${x + w} ${y + r * 0.45} ${x + w} ${y + r} `
+    + `L${x + w} ${y + h - r} C${x + w} ${y + h - r * 0.45} ${x + w - r * 0.45} ${y + h} ${x + w - r} ${y + h} `
+    + `L${x + r} ${y + h} C${x + r * 0.45} ${y + h} ${x} ${y + h - r * 0.45} ${x} ${y + h - r} `
+    + `L${x} ${y + r} C${x} ${y + r * 0.45} ${x + r * 0.45} ${y} ${x + r} ${y} Z`,
+);
+
+/** Falda acampanada con borde ondulado; `d` desplaza el ruedo para simular la tela que sigue al balanceo. */
+const dressSkirt = (d) => svg(
+    `M85 96 C77 118 ${62 + d * 0.4} 140 ${42 + d} 162 `
+    + `C${54 + d} 170 ${64 + d} 162 ${75 + d} 168 `
+    + `C${86 + d} 174 ${96 + d} 164 ${107 + d} 170 `
+    + `C${118 + d} 176 ${130 + d} 164 ${150 + d} 162 `
+    + `C${132 + d * 0.4} 140 115 118 107 96`,
+);
+
+/** Pliegues de la falda, desde la cintura hasta los valles del ruedo. */
+const dressFolds = (d) => svg(
+    `M93 104 C${89 + d * 0.2} 124 ${83 + d * 0.5} 146 ${78 + d} 165 `
+    + `M100 104 C${104 + d * 0.2} 124 ${110 + d * 0.5} 146 ${116 + d} 167`,
+);
+
 const ICONS = [
     {
         slug: 'location',
@@ -455,27 +478,46 @@ const ICONS = [
         ],
     },
     {
+        // Vestido de gala en su percha: tirantes, escote corazón, cintura y falda que ondea con el balanceo
         slug: 'dress',
         loop: 'loop-sway',
         parts: [
             {
-                nm: 'hook',
-                anchor: [96, 46],
-                paths: svg('M96 54 L96 44 C96 38 106 36 106 28 C106 20 100 16 93 16 C86 16 82 21 82 27'),
-            },
-            {
-                nm: 'dress',
-                anchor: [96, 50],
-                paths: [
-                    ...svg('M82 66 L96 54 L110 66'),
-                    ...svg('M82 66 L74 100 C64 122 52 142 42 160 C78 168 114 168 150 160 C140 142 128 122 118 100 L110 66'),
-                    ...svg('M74 100 C88 108 104 108 118 100'),
-                    ...svg('M88 126 L80 150 M104 126 L112 150'),
-                ],
+                nm: 'folds',
+                parent: 'rig',
+                paths: dressFolds(-4),
                 loop: {
-                    rotation: [[0, 0], [30, 7], [60, 0], [90, -7], [120, 0]],
+                    morph: [[0, dressFolds(-4)], [40, dressFolds(5)], [100, dressFolds(-5)], [120, dressFolds(-4)]],
                 },
             },
+            {
+                nm: 'skirt',
+                parent: 'rig',
+                paths: dressSkirt(-4),
+                loop: {
+                    morph: [[0, dressSkirt(-4)], [40, dressSkirt(5)], [100, dressSkirt(-5)], [120, dressSkirt(-4)]],
+                },
+            },
+            {
+                nm: 'bodice',
+                parent: 'rig',
+                paths: svg(
+                    'M80 37 L81 62 M112 37 L111 62 '
+                    + 'M78 66 C82 58 90 58 96 67 C102 58 110 58 114 66 '
+                    + 'M78 66 C77 76 80 86 85 94 M114 66 C115 76 112 86 107 94 '
+                    + 'M85 94 C92 98 100 98 107 94',
+                ),
+            },
+            { nm: 'hanger', parent: 'rig', paths: svg('M58 46 L96 30 L134 46') },
+            {
+                nm: 'rig',
+                null: true,
+                anchor: [96, 30],
+                loop: {
+                    rotation: [[0, 0], [30, 6], [60, 0], [90, -6], [120, 0]],
+                },
+            },
+            { nm: 'hook', paths: svg('M96 30 L96 24 C96 19 102 17 102 12 C102 7 98 4 94 4 C90 4 87 7 87 10') },
         ],
     },
     {
@@ -703,6 +745,114 @@ const ICONS = [
                     scale: [[0, [100, 100], 'out'], [10, [112, 112], 'in'], [20, [100, 100], 'out'], [30, [108, 108], 'in'], [46, [100, 100]], [120, [100, 100]]],
                 },
             },
+        ],
+    },
+    {
+        slug: 'rings',
+        loop: 'loop-clink',
+        parts: [
+            {
+                nm: 'sparkle',
+                anchor: [150, 38],
+                paths: svg('M150 24 L150 52 M136 38 L164 38'),
+                loop: {
+                    opacity: [[0, 0], [48, 0], [56, 100], [82, 100], [96, 0], [120, 0]],
+                    scale: [[0, [60, 60]], [48, [60, 60], 'out'], [64, [110, 110]], [96, [100, 100]], [97, [60, 60]], [120, [60, 60]]],
+                },
+            },
+            {
+                nm: 'ring right',
+                anchor: [118, 110],
+                paths: [...circle(118, 110, 38), ...svg('M106 64 L118 52 L130 64 L118 74 Z')],
+                loop: {
+                    position: [[0, [0, 0]], [30, [8, 0]], [54, [-3, 0], 'out'], [68, [0, 0]], [120, [0, 0]]],
+                    rotation: [[0, 0], [30, 9], [54, -3, 'out'], [68, 0], [120, 0]],
+                },
+            },
+            {
+                nm: 'ring left',
+                anchor: [74, 120],
+                paths: circle(74, 120, 38),
+                loop: {
+                    position: [[0, [0, 0]], [30, [-8, 0]], [54, [3, 0], 'out'], [68, [0, 0]], [120, [0, 0]]],
+                },
+            },
+        ],
+    },
+    {
+        // Galería: fotos apiladas; la de adelante se inclina como al barajarlas y la de atrás asoma
+        slug: 'gallery',
+        loop: 'loop-shuffle',
+        parts: [
+            {
+                nm: 'sun',
+                parent: 'front photo',
+                anchor: [116, 80],
+                paths: circle(116, 80, 9),
+                loop: {
+                    scale: [[0, [100, 100]], [34, [100, 100], 'out'], [50, [128, 128]], [74, [100, 100]], [120, [100, 100]]],
+                },
+            },
+            { nm: 'mountains', parent: 'front photo', paths: svg('M50 138 L78 108 L96 126 L112 112 L130 138') },
+            {
+                nm: 'front photo',
+                anchor: [90, 152],
+                paths: roundRect(40, 52, 100, 100, 9),
+                loop: {
+                    rotation: [[0, 0, 'out'], [26, -7], [52, 2], [68, 0], [120, 0]],
+                    position: [[0, [0, 0], 'out'], [26, [-4, -6]], [52, [0, 1]], [68, [0, 0]], [120, [0, 0]]],
+                },
+            },
+            {
+                nm: 'back photo',
+                anchor: [108, 88],
+                paths: svg('M58 52 L58 47 C58 42 62 38 67 38 L149 38 C154 38 158 42 158 47 L158 129 C158 134 154 138 149 138 L140 138'),
+                loop: {
+                    position: [[0, [0, 0], 'out'], [26, [7, -4]], [52, [-1, 1]], [68, [0, 0]], [120, [0, 0]]],
+                },
+            },
+        ],
+    },
+    {
+        // Itinerario: línea de tiempo con tres momentos; un punto la recorre y cada momento se destaca al llegar
+        slug: 'itinerary',
+        loop: 'loop-travel',
+        parts: [
+            {
+                nm: 'traveler',
+                anchor: [62, 48],
+                paths: circle(62, 48, 3),
+                loop: {
+                    position: [[0, [0, 0]], [14, [0, 0]], [36, [0, 48]], [56, [0, 48]], [78, [0, 96]], [102, [0, 96]], [103, [0, 0]], [120, [0, 0]]],
+                    opacity: [[0, 100], [96, 100], [102, 0], [110, 0], [118, 100], [120, 100]],
+                },
+            },
+            {
+                nm: 'moment 1',
+                anchor: [90, 49],
+                paths: svg('M90 44 L150 44 M90 55 L126 55'),
+                loop: {
+                    scale: [[0, [100, 100]], [4, [108, 100], 'out'], [16, [100, 100]], [120, [100, 100]]],
+                },
+            },
+            {
+                nm: 'moment 2',
+                anchor: [90, 97],
+                paths: svg('M90 92 L156 92 M90 103 L134 103'),
+                loop: {
+                    scale: [[0, [100, 100]], [34, [100, 100], 'out'], [42, [110, 100]], [58, [100, 100]], [120, [100, 100]]],
+                },
+            },
+            {
+                nm: 'moment 3',
+                anchor: [90, 145],
+                paths: svg('M90 140 L146 140 M90 151 L120 151'),
+                loop: {
+                    scale: [[0, [100, 100]], [76, [100, 100], 'out'], [84, [110, 100]], [100, [100, 100]], [120, [100, 100]]],
+                },
+            },
+            { nm: 'nodes', paths: [...circle(62, 48, 11), ...circle(62, 96, 11), ...circle(62, 144, 11)] },
+            { nm: 'spine', paths: svg('M62 24 L62 37 M62 59 L62 85 M62 107 L62 133 M62 155 L62 168') },
         ],
     },
 ];

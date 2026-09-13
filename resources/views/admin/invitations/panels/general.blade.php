@@ -51,7 +51,10 @@
                     <template x-for="option in templateOptions" :key="option.value">
                         <button type="button" @click="meta.template = option.value; open = false"
                             class="admin-accordion-option" :class="meta.template === option.value ? 'is-selected' : ''">
-                            <span x-text="option.label"></span>
+                            <span class="min-w-0 text-left">
+                                <span class="block" x-text="option.label"></span>
+                                <span class="block text-xs font-normal text-site-muted" x-text="option.description"></span>
+                            </span>
                         </button>
                     </template>
                 </div>

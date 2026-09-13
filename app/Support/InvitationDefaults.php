@@ -142,9 +142,7 @@ class InvitationDefaults
 
     public static function templates(): array
     {
-        return [
-            'invitations.templates.xv-premium' => 'XV Años Premium',
-        ];
+        return InvitationTemplates::labels();
     }
 
     /**
@@ -153,7 +151,7 @@ class InvitationDefaults
      */
     public static function resolveTemplate(?string $template): string
     {
-        $default = 'invitations.templates.xv-premium';
+        $default = InvitationTemplates::DEFAULT;
         $template = $template ?: $default;
 
         if (str_starts_with($template, 'pages.')) {
