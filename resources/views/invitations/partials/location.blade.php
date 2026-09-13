@@ -4,7 +4,6 @@
     $hasCoords = is_numeric($lat) && is_numeric($lng);
     $mapEmbed = $hasCoords ? "https://maps.google.com/maps?q={$lat},{$lng}&z=15&output=embed" : null;
     $mapsNavUrl = $ubicacion['maps_url'] ?? ($hasCoords ? "https://www.google.com/maps/dir/?api=1&destination={$lat},{$lng}" : null);
-    $wazeUrl = $hasCoords ? "https://waze.com/ul?ll={$lat},{$lng}&navigate=yes" : null;
     $imageUrl = $ubicacion['imagen_lugar'] ?? null;
     $placeName = $ubicacion['nombre_lugar'] ?? null;
     $address = $ubicacion['direccion'] ?? null;
@@ -49,22 +48,9 @@
             </div>
         @endif
 
-        @if($mapsNavUrl || $wazeUrl)
-            <div class="inv-actions inv-actions--split">
-                @if($mapsNavUrl)
-                    <a href="{{ $mapsNavUrl }}" target="_blank" rel="noopener" class="inv-btn">Cómo llegar</a>
-                @endif
-                @if($wazeUrl)
-                    <a href="{{ $wazeUrl }}" target="_blank" rel="noopener" class="inv-btn inv-btn--ghost">Abrir en Waze</a>
-                @endif
-            </div>
-        @endif
-
-        @if($agendar ?? false)
-            <div class="inv-location__calendar">
-                <button type="button" class="inv-link" data-url="{{ $calendarUrl }}" onclick="openCalendar(this.dataset.url)">
-                    Agregar la fecha a mi calendario
-                </button>
+        @if($mapsNavUrl)
+            <div class="inv-actions">
+                <a href="{{ $mapsNavUrl }}" target="_blank" rel="noopener" class="inv-btn inv-btn--block">Cómo llegar</a>
             </div>
         @endif
 

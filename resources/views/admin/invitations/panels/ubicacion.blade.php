@@ -2,8 +2,8 @@
     @include('admin.partials.panel-intro', [
         'eyebrow' => 'Ubicación',
         'title' => 'Dónde es el evento',
-        'description' => 'el nombre del lugar como título, la dirección, la foto y el mapa, con botones «Cómo llegar» (Google Maps) y «Abrir en Waze».',
-        'tip' => 'Cuando aparezca el mapa aquí abajo, los botones de navegación ya funcionan en la invitación.',
+        'description' => 'el nombre del lugar como título, la dirección, la foto, el mapa y un botón «Cómo llegar» que abre Google Maps.',
+        'tip' => 'Cuando aparezca el mapa aquí abajo, el botón «Cómo llegar» ya funciona en la invitación.',
         'moduleKey' => 'ubicacion',
     ])
 

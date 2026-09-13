@@ -79,12 +79,12 @@ class XvSofiaModuleData
             'itinerario' => [
                 'titulo' => 'Itinerario de la Noche',
                 'eventos' => [
-                    ['hora' => '18:00', 'titulo' => 'Recepcion de Invitados', 'icono' => 'users', 'descripcion' => 'Coctel de bienvenida en el salon principal'],
-                    ['hora' => '19:00', 'titulo' => 'Ceremonia de Velas', 'icono' => 'candle', 'descripcion' => 'Momento especial con la familia'],
-                    ['hora' => '19:30', 'titulo' => 'Vals con Papa', 'icono' => 'dance', 'descripcion' => 'El primer vals de la quinceanera'],
-                    ['hora' => '20:00', 'titulo' => 'Cena y Brindis', 'icono' => 'dinner', 'descripcion' => 'Menu gourmet de tres tiempos'],
-                    ['hora' => '21:00', 'titulo' => 'Fiesta y DJ', 'icono' => 'music', 'descripcion' => 'A bailar hasta el amanecer'],
-                    ['hora' => '00:00', 'titulo' => 'Sorpresa Final', 'icono' => 'star', 'descripcion' => 'Un momento que no olvidaras'],
+                    ['hora' => '18:00', 'titulo' => 'Recepcion de Invitados', 'icono' => 'recepcion', 'descripcion' => 'Coctel de bienvenida en el salon principal'],
+                    ['hora' => '19:00', 'titulo' => 'Ceremonia de Velas', 'icono' => 'velas', 'descripcion' => 'Momento especial con la familia'],
+                    ['hora' => '19:30', 'titulo' => 'Vals con Papa', 'icono' => 'vals', 'descripcion' => 'El primer vals de la quinceanera'],
+                    ['hora' => '20:00', 'titulo' => 'Cena y Brindis', 'icono' => 'cena', 'descripcion' => 'Menu gourmet de tres tiempos'],
+                    ['hora' => '21:00', 'titulo' => 'Fiesta y DJ', 'icono' => 'fiesta', 'descripcion' => 'A bailar hasta el amanecer'],
+                    ['hora' => '00:00', 'titulo' => 'Sorpresa Final', 'icono' => 'sorpresa', 'descripcion' => 'Un momento que no olvidaras'],
                 ],
             ],
             'dress_code' => [

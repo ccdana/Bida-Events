@@ -214,11 +214,7 @@
         @endif
 
         @if($moduleVisible('ubicacion'))
-            @include('invitations.partials.location', [
-                'ubicacion' => $modulos['ubicacion'] ?? [],
-                'agendar' => $moduleVisible('agendar') && !$isPostEvent,
-                'calendarUrl' => $calendarUrl,
-            ])
+            @include('invitations.partials.location', ['ubicacion' => $modulos['ubicacion'] ?? []])
         @endif
 
         @if($moduleVisible('hashtag'))

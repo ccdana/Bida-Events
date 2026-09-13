@@ -93,6 +93,7 @@ El proyecto es una aplicación Laravel 12 enfocada en:
 | --- | --- | --- |
 | `app/Support/InvitationDefaults.php` | Define estructuras JSON por defecto para cada módulo y valores predeterminados de UI. | Mover configuraciones complejas a archivos de configuración si el catálogo crece. |
 | `app/Support/MapsLinkParser.php` | Parsea enlaces o texto de mapas (Google Maps / Waze) para extraer coordenadas lat/lng. | Incluir pruebas unitarias con diversos formatos de URLs de navegación. |
+| `app/Support/ItineraryIcons.php` | Catálogo de íconos del itinerario de XV (claves, nombres en español, etapas) y alias para las claves antiguas (`users`, `dance`, `candle`…). | Agregar momentos nuevos aquí y en `itinerary-icon.blade.php`. |
 | `app/Support/YouTubeHelper.php` | Parsea URLs de YouTube, extrae IDs de video y obtiene datos mediante oEmbed. | Utilizar la caché integrada para evitar llamadas repetidas a la API externa. |
 
 ### `app/ViewModels`
@@ -314,6 +315,7 @@ Animaciones vectoriales Lottie en formato JSON utilizadas en los módulos del ev
 | Archivo | Qué hace | Sugerencia |
 | --- | --- | --- |
 | `resources/views/admin/partials/cloudinary-upload.blade.php` | Componente reutilizable para la carga de archivos multimedia a Cloudinary. | Mantener desacoplado para ser usado en cualquier panel del editor. |
+| `resources/views/admin/partials/itinerary-icon-picker.blade.php` | Selector de íconos del itinerario agrupado por etapa, con dibujo y nombre de cada momento. | Reconoce las claves antiguas mediante los alias del catálogo. |
 | `resources/views/admin/partials/panel-intro.blade.php` | Encabezado de cada panel del editor: qué es el módulo, qué ve el invitado, consejo y estado visible/oculto. | Describir siempre el resultado que verá el invitado, no el campo técnico. |
 | `resources/views/admin/partials/icon-picker.blade.php` | Selector visual de iconos vectoriales para itinerarios y módulos. | Renderizar lista de iconos de manera diferida para acelerar la interfaz. |
 
@@ -354,7 +356,8 @@ Animaciones vectoriales Lottie en formato JSON utilizadas en los módulos del ev
 | `resources/views/invitations/partials/hero.blade.php` | **[NUEVO]** Encabezado principal/hero con imagen de fondo, velo de brillo, partículas flotantes y tipografía animada. | Diseñado con la directiva `fetchpriority="high"` en la imagen de portada. |
 | `resources/views/invitations/partials/icon.blade.php` | Renderizador centralizado de iconos SVG inline de la aplicación. | Garantizar que los nombres de iconos coincidan con los SVGs definidos. |
 | `resources/views/invitations/partials/itinerary.blade.php` | Parcial de la cronología/itinerario interactivo con animación por scroll. | Vinculado con `scrollItinerary()` e iconos Lottie. |
-| `resources/views/invitations/partials/location.blade.php` | Parcial con direcciones, horarios, botón de agendado y enlaces a Waze/Google Maps. | Renderiza mapas y accesos rápidos a GPS. |
+| `resources/views/invitations/partials/location.blade.php` | Lugar, dirección, foto, mapa embebido y botón «Cómo llegar» (Google Maps). | Mantener una sola acción de navegación para no saturar la sección. |
+| `resources/views/invitations/partials/itinerary-icon.blade.php` | Dibujos SVG de los momentos del itinerario (misma grilla y trazo). | Cada clave nueva de `ItineraryIcons` necesita su `@case`; el test `ItineraryIconsTest` lo verifica. |
 | `resources/views/invitations/partials/lottie-framed-icon.blade.php` | **[NUEVO]** Envoltorio ornamental con líneas divisorias que encuadra un icono Lottie animado. | Componente decorativo elegante para separar secciones. |
 | `resources/views/invitations/partials/lottie-icon.blade.php` | **[NUEVO]** Parcial base para renderizar elementos de icono Lottie (`span[data-lottie-icon]`). | Leído automáticamente por la librería de inicialización Lottie. |
 | `resources/views/invitations/partials/music-player.blade.php` | Reproductor flotante o integrado de música de fondo con botón mute/play. | Respetar las políticas de reproducción automática (autoplay) del navegador. |

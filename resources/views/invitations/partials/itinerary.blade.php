@@ -23,16 +23,11 @@
 
                 <ol class="inv-itinerary__list">
                     @foreach($eventos as $index => $evento)
-                        @php($iconName = $evento['icono'] ?? 'star')
                         <li class="inv-itinerary__item {{ $index % 2 === 0 ? 'is-left' : 'is-right' }}" data-itinerary-item>
                             <div class="inv-itinerary__node" data-itinerary-node aria-hidden="true">
                                 <span class="inv-itinerary__node-glow"></span>
                                 <span class="inv-itinerary__node-dot">
-                                    @if(in_array($iconName, ['users', 'people'], true))
-                                        @include('invitations.partials.lottie-icon', ['name' => 'itinerar-people', 'class' => 'inv-itinerary__lottie'])
-                                    @else
-                                        @include('invitations.partials.icon', ['name' => $iconName, 'class' => 'inv-itinerary__icon', 'animated' => false])
-                                    @endif
+                                    @include('invitations.partials.itinerary-icon', ['name' => $evento['icono'] ?? null, 'class' => 'inv-itinerary__icon'])
                                 </span>
                             </div>
 

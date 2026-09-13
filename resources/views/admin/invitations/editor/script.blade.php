@@ -1289,7 +1289,7 @@ function invitationForm(config) {
             this.updateLocationStatusMessage();
         },
 
-        addEvento() { this.modules.itinerario.eventos.push({ hora: '20:00', titulo: '', icono: 'star', descripcion: '' }); },
+        addEvento() { this.modules.itinerario.eventos.push({ hora: '20:00', titulo: '', icono: 'especial', descripcion: '' }); },
         removeEvento(i) { this.modules.itinerario.eventos.splice(i, 1); },
         addSugerencia() { this.modules.dress_code.sugerencias.push({ para: '', titulo: '', descripcion: '', ejemplos: [] }); },
         removeSugerencia(i) { this.modules.dress_code.sugerencias.splice(i, 1); },
