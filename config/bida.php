@@ -135,6 +135,7 @@ return [
             'key' => 'premium',
             'name' => 'Premium',
             'price' => 700,
+            'premium' => true,
             'summary' => 'Para que tus invitados participen antes, durante y después del evento.',
             'features' => [
                 'Todo lo del paquete Estándar',
