@@ -1,25 +1,11 @@
 <div x-show="activeTab === 'hero'" x-cloak class="space-y-2">
-    <!-- Resumen del banner -->
-    <section class="admin-card p-3 space-y-3">
-        <div class="flex items-center justify-between gap-2">
-            <div class="min-w-0">
-                <p class="admin-eyebrow mb-0.5">Banner principal</p>
-                <p class="text-xs text-stone-600 truncate">Primera impresión visual del evento</p>
-            </div>
-            <span class="inline-flex items-center gap-1 px-2 py-1 rounded-md border text-xs font-semibold shrink-0"
-                :class="modules.config.modulos.bienvenida
-                    ? 'text-green-700 bg-green-50 border-green-200'
-                    : 'text-stone-500 bg-stone-50 border-stone-200'">
-                <span class="inline-block w-1.5 h-1.5 rounded-full"
-                    :class="modules.config.modulos.bienvenida ? 'bg-green-500' : 'bg-stone-400'"></span>
-                <span x-text="modules.config.modulos.bienvenida ? 'Activo' : 'Inactivo'"></span>
-            </span>
-        </div>
-
-        <p class="text-xs text-stone-500 leading-relaxed">
-            Configura la portada que verán tus invitados al abrir la invitación. Activa o desactiva el módulo desde el menú lateral.
-        </p>
-    </section>
+    @include('admin.partials.panel-intro', [
+        'eyebrow' => 'Banner principal',
+        'title' => 'Portada de la invitación',
+        'description' => 'es lo primero que aparece al abrir el enlace: subtítulo, nombre en letra manuscrita, mensaje y fecha sobre la foto de fondo.',
+        'tip' => 'Usa una foto vertical con el rostro en la parte superior: el texto se ubica al centro y la imagen se oscurece un poco para que se lea bien.',
+        'moduleKey' => 'bienvenida',
+    ])
 
     <!-- Identidad -->
     <section class="admin-card p-3 space-y-2">

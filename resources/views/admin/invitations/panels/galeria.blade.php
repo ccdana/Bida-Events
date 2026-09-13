@@ -1,30 +1,12 @@
 <div x-show="activeTab === 'galeria'" x-cloak class="space-y-2">
-    <!-- Resumen -->
-    <section class="admin-card p-3 space-y-3">
-        <div class="flex items-center justify-between gap-2">
-            <div class="min-w-0">
-                <p class="admin-eyebrow mb-0.5">Galería</p>
-                <p class="text-xs text-stone-600 truncate">Galería principal de fotos</p>
-            </div>
-            <div class="flex items-center gap-1.5 shrink-0">
-                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-white border border-stone-200 text-xs font-semibold text-stone-600">
-                    <span x-text="`${(modules.galeria.fotos || []).length} fotos`"></span>
-                </span>
-                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-md border text-xs font-semibold"
-                    :class="modules.config.modulos.galeria
-                        ? 'text-green-700 bg-green-50 border-green-200'
-                        : 'text-stone-500 bg-stone-50 border-stone-200'">
-                    <span class="inline-block w-1.5 h-1.5 rounded-full"
-                        :class="modules.config.modulos.galeria ? 'bg-green-500' : 'bg-stone-400'"></span>
-                    <span x-text="modules.config.modulos.galeria ? 'Activo' : 'Inactivo'"></span>
-                </span>
-            </div>
-        </div>
-
-        <p class="text-xs text-stone-500 leading-relaxed">
-            Sube las fotos que se mostrarán en el carrusel principal de la invitación. Activa o desactiva el módulo desde el menú lateral.
-        </p>
-    </section>
+    @include('admin.partials.panel-intro', [
+        'eyebrow' => 'Galería',
+        'title' => 'Fotos en pila',
+        'description' => 'las fotos aparecen apiladas como cartas; el invitado las desliza con el dedo o usa las flechas para ver la siguiente.',
+        'tip' => 'Entre 5 y 15 fotos verticales (formato 4:5) se ven mejor. El orden de esta cuadrícula es el orden de la pila.',
+        'moduleKey' => 'galeria',
+        'countExpr' => '`${(modules.galeria.fotos || []).length} fotos`',
+    ])
 
     <!-- Título -->
     <section class="admin-card p-3 space-y-2">

@@ -1,160 +1,159 @@
 @php
     $regalos = $regalos ?? [];
-    
-    // Safely extract arrays
     $banco = is_array($regalos['banco'] ?? null) ? $regalos['banco'] : [];
     $sobres = is_array($regalos['sobres'] ?? null) ? $regalos['sobres'] : [];
-    $opciones = is_array($regalos['opciones'] ?? null) ? $regalos['opciones'] : [];
-    
-    // Evaluate active status
-    $hasBanco = !empty($banco['banco']) || !empty($banco['titular']) || !empty($banco['cuenta']) || !empty($banco['qr_url']) || !empty($banco['ci']);
+    $opciones = array_values(array_filter(is_array($regalos['opciones'] ?? null) ? $regalos['opciones'] : [], fn ($gift) => !empty($gift['titulo'] ?? null)));
+
+    $bankFields = array_filter(
+        ['banco' => 'Banco', 'titular' => 'Titular', 'ci' => 'Documento de identidad', 'cuenta' => 'Número de cuenta'],
+        fn ($label, $key) => !empty($banco[$key] ?? null),
+        ARRAY_FILTER_USE_BOTH
+    );
+    $hasBanco = count($bankFields) > 0 || !empty($banco['qr_url']);
     $hasSobres = !empty($sobres['titulo']) || !empty($sobres['direccion']);
     $hasTienda = !empty($regalos['tienda_url']);
-    $hasOpciones = count($opciones) > 0;
-    $opcionesGridClass = count($opciones) > 1 ? 'sm:grid-cols-2' : 'sm:grid-cols-1';
-    
-    $hasAnyGiftContent = $hasBanco || $hasSobres || $hasTienda || $hasOpciones;
+    $hasAnyGiftContent = $hasBanco || $hasSobres || $hasTienda || count($opciones) > 0;
 @endphp
 
 @if($hasAnyGiftContent)
-<section class="invitation-section reveal" id="regalos" x-data="{ showBank: false }"
-    x-effect="document.body.style.overflow = showBank ? 'hidden' : ''">
-    
-    <div class="section-inner-wide">
-        <header class="section-header">
-            @include('invitations.partials.icon', ['name' => 'gift', 'class' => 'w-8 h-8 text-primary mx-auto mb-3'])
-            <span class="section-eyebrow">Detalles especiales</span>
-            <h2 class="section-title">{{ $regalos['titulo'] ?? 'Regalos' }}</h2>
-            <div class="section-ornament"></div>
-        </header>
+<section class="inv-section reveal inv-gifts" id="regalos" x-data="{ showBank: false }"
+    x-effect="document.documentElement.classList.toggle('inv-lock', showBank)">
+    <div class="inv-wrap">
+        @include('invitations.partials.section-header', [
+            'lottie' => 'gift',
+            'eyebrow' => 'Detalles especiales',
+            'title' => $regalos['titulo'] ?? 'Regalos',
+            'intro' => 'Tu presencia es mi mejor regalo. Si deseas tener un detalle, aquí tienes algunas opciones.',
+        ])
 
-        <div class="space-y-4">
-            <!-- Principales: Banco y Tienda -->
-            @if($hasBanco || $hasTienda)
-            <div class="grid gap-4 {{ ($hasBanco && $hasTienda) ? 'sm:grid-cols-2' : 'sm:grid-cols-1 max-w-sm mx-auto' }}">
-                <!-- Banco/Transferencia -->
-                @if($hasBanco)
-                <button type="button" @click="showBank=true" class="inv-card rounded-2xl p-6 text-left transition-all duration-300 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] group">
-                    <div class="flex items-start justify-between mb-3">
-                        <svg class="w-8 h-8 text-primary/60 group-hover:text-primary transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
-                        </svg>
-                        <svg class="w-5 h-5 text-primary/40 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                        </svg>
-                    </div>
-                    <p class="text-[11px] uppercase tracking-[0.2em] text-primary/60 font-semibold">Transferencia</p>
-                    <p class="mt-2 font-title text-lg text-primary">Datos Bancarios</p>
-                    <p class="mt-1 text-sm opacity-60">Realiza tu transferencia</p>
-                </button>
-                @endif
+        <ul class="inv-list">
+            @if($hasBanco)
+                <li>
+                    <button type="button" class="inv-gift" @click="showBank = true">
+                        <span class="inv-gift__icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 10l9-6 9 6M5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 20h18" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </span>
+                        <span class="inv-gift__body">
+                            <span class="inv-gift__title">Transferencia bancaria</span>
+                            <span class="inv-gift__text">Ver datos de la cuenta{{ !empty($banco['qr_url']) ? ' y código QR' : '' }}</span>
+                        </span>
+                        <span class="inv-gift__chevron" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </span>
+                    </button>
+                </li>
+            @endif
 
-                <!-- Tienda de Regalos -->
-                @if($hasTienda)
-                    <a href="{{ $regalos['tienda_url'] }}" target="_blank" rel="noopener"
-                        class="inv-card rounded-2xl p-6 text-left transition-all duration-300 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] group">
-                        <div class="flex items-start justify-between mb-3">
-                            <svg class="w-8 h-8 text-primary/60 group-hover:text-primary transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-                            </svg>
-                            <svg class="w-5 h-5 text-primary/40 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                            </svg>
-                        </div>
-                        <p class="text-[11px] uppercase tracking-[0.2em] text-primary/60 font-semibold">Online</p>
-                        <p class="mt-2 font-title text-lg text-primary">{{ $regalos['tienda_texto'] ?? 'Tienda de Regalos' }}</p>
-                        <p class="mt-1 text-sm opacity-60">Elige el regalo perfecto</p>
+            @if($hasTienda)
+                <li>
+                    <a href="{{ $regalos['tienda_url'] }}" target="_blank" rel="noopener" class="inv-gift">
+                        <span class="inv-gift__icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 8h12l-1 12H7L6 8zM9 8a3 3 0 016 0" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </span>
+                        <span class="inv-gift__body">
+                            <span class="inv-gift__title">{{ $regalos['tienda_texto'] ?? 'Mesa de regalos' }}</span>
+                            <span class="inv-gift__text">Se abre en una pestaña nueva</span>
+                        </span>
+                        <span class="inv-gift__chevron" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 16L16 8M9 8h7v7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </span>
                     </a>
-                @endif
-            </div>
+                </li>
             @endif
 
-            <!-- Opciones adicionales -->
-            @if($hasOpciones)
-                <div>
-                    <p class="text-[11px] uppercase tracking-[0.2em] text-primary/60 font-semibold mb-3">Otras formas de contribuir</p>
-                    <div class="grid gap-3 {{ $opcionesGridClass }}">
-                        @foreach($opciones as $gift)
-                            <article class="inv-card w-full h-full p-5 rounded-xl transition-all duration-300 hover:shadow-md hover:scale-[1.01] group text-center flex flex-col items-center">
-                                @if(!empty($gift['icono']))
-                                    @include('invitations.partials.icon', ['name' => $gift['icono'], 'class' => 'w-10 h-10 text-primary mb-3'])
-                                @endif
-                                <h3 class="font-title text-base text-primary font-semibold">{{ $gift['titulo'] ?? 'Opción' }}</h3>
-                                @if(!empty($gift['descripcion']))
-                                    <p class="mt-2 text-xs opacity-65 leading-relaxed">{{ $gift['descripcion'] }}</p>
-                                @endif
-                                @if(!empty($gift['enlace']))
-                                    <a href="{{ $gift['enlace'] }}" target="_blank" rel="noopener" class="mt-4 inline-flex items-center justify-center gap-2 text-xs font-semibold text-primary hover:opacity-70 transition">
-                                        Acceder
-                                        @include('invitations.partials.icon', ['name' => 'arrow-right', 'class' => 'w-3 h-3', 'animated' => false])
-                                    </a>
-                                @endif
-                            </article>
-                        @endforeach
-                    </div>
-                </div>
-            @endif
+            @foreach($opciones as $gift)
+                <li>
+                    @if(!empty($gift['enlace']))
+                        <a href="{{ $gift['enlace'] }}" target="_blank" rel="noopener" class="inv-gift">
+                    @else
+                        <div class="inv-gift">
+                    @endif
+                        <span class="inv-gift__icon" aria-hidden="true">
+                            @include('invitations.partials.icon', ['name' => $gift['icono'] ?? 'gift', 'animated' => false])
+                        </span>
+                        <span class="inv-gift__body">
+                            <span class="inv-gift__title">{{ $gift['titulo'] }}</span>
+                            @if(!empty($gift['descripcion']))
+                                <span class="inv-gift__text">{{ $gift['descripcion'] }}</span>
+                            @endif
+                        </span>
+                    @if(!empty($gift['enlace']))
+                            <span class="inv-gift__chevron" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 16L16 8M9 8h7v7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </span>
+                        </a>
+                    @else
+                        </div>
+                    @endif
+                </li>
+            @endforeach
 
-            <!-- Lluvia de Sobres -->
             @if($hasSobres)
-            <div class="inv-card rounded-2xl p-6 text-center bg-gradient-to-br from-primary/5 to-primary/0 border border-primary/10">
-                <svg class="w-8 h-8 text-primary mx-auto mb-3 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                </svg>
-                <p class="font-title text-lg text-primary font-semibold">{{ $sobres['titulo'] ?? 'Lluvia de Sobres' }}</p>
-                @if(!empty($sobres['direccion']))
-                    <p class="text-sm opacity-70 mt-3 leading-relaxed">{{ $sobres['direccion'] }}</p>
-                @endif
-            </div>
+                <li>
+                    <div class="inv-gift">
+                        <span class="inv-gift__icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 6h16v12H4zM4 7l8 6 8-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </span>
+                        <span class="inv-gift__body">
+                            <span class="inv-gift__title">{{ $sobres['titulo'] ?? 'Lluvia de sobres' }}</span>
+                            @if(!empty($sobres['direccion']))
+                                <span class="inv-gift__text">{{ $sobres['direccion'] }}</span>
+                            @endif
+                        </span>
+                    </div>
+                </li>
             @endif
-        </div>
+        </ul>
     </div>
 
-    <!-- Modal de Banco -->
     @if($hasBanco)
     <template x-teleport="body">
-        <div x-show="showBank" x-cloak
-            x-transition:enter="transition ease-out duration-200"
-            x-transition:enter-start="opacity-0 scale-95"
-            x-transition:enter-end="opacity-100 scale-100"
-            x-transition:leave="transition ease-in duration-150"
-            x-transition:leave-start="opacity-100 scale-100"
-            x-transition:leave-end="opacity-0 scale-95"
-            class="invitation-modal-backdrop"
-            @click.self="showBank=false"
-            @keydown.escape.window="showBank=false">
-            <div class="invitation-modal-panel" @click.stop>
-                <div class="flex items-center justify-between mb-6">
-                    <div class="flex items-center gap-3">
-                        <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
-                        </svg>
-                        <h3 class="font-title text-xl text-primary font-semibold">Transferencia Bancaria</h3>
-                    </div>
-                    <button type="button" @click="showBank=false" class="w-8 h-8 rounded-full border border-stone-200 flex items-center justify-center text-stone-400 hover:text-stone-700 transition">
-                        @include('invitations.partials.icon', ['name' => 'close', 'class' => 'w-4 h-4', 'animated' => false])
+        <div class="inv-page inv-sheet-backdrop" x-show="showBank" x-cloak
+            x-transition.opacity.duration.250ms
+            @click.self="showBank = false"
+            @keydown.escape.window="showBank = false">
+            <div class="inv-sheet" role="dialog" aria-modal="true" aria-labelledby="bank-sheet-title"
+                x-data="copyButton()"
+                x-show="showBank"
+                x-transition:enter="inv-sheet-anim"
+                x-transition:enter-start="inv-sheet-hidden"
+                x-transition:enter-end="inv-sheet-shown"
+                x-transition:leave="inv-sheet-anim"
+                x-transition:leave-start="inv-sheet-shown"
+                x-transition:leave-end="inv-sheet-hidden">
+                <div class="inv-sheet__grip" aria-hidden="true"></div>
+                <div class="inv-sheet__header">
+                    <h3 id="bank-sheet-title" class="inv-sheet__title">Transferencia bancaria</h3>
+                    <button type="button" class="inv-sheet__close" @click="showBank = false" aria-label="Cerrar">
+                        @include('invitations.partials.icon', ['name' => 'close', 'animated' => false])
                     </button>
                 </div>
-                <div class="space-y-2 text-sm mb-6">
-                    @foreach(['banco' => 'Banco', 'titular' => 'Titular', 'ci' => 'Cédula', 'cuenta' => 'Cuenta'] as $key => $label)
-                        @if(!empty($banco[$key]))
-                            <div class="flex justify-between items-center gap-4 p-3 rounded-lg bg-stone-50 dark:bg-stone-800">
-                                <span class="text-stone-600 dark:text-stone-400 text-sm font-medium">{{ $label }}</span>
-                                <span class="font-mono font-semibold text-right text-primary break-all">{{ $banco[$key] }}</span>
+                <p class="inv-sheet__intro">Toca «Copiar» y pega el dato en la app de tu banco.</p>
+
+                @if(count($bankFields))
+                    <dl class="inv-bank">
+                        @foreach($bankFields as $key => $label)
+                            <div class="inv-bank__row">
+                                <div class="inv-bank__data">
+                                    <dt class="inv-label">{{ $label }}</dt>
+                                    <dd class="inv-bank__value">{{ $banco[$key] }}</dd>
+                                </div>
+                                <button type="button" class="inv-link" @click="copy(@js((string) $banco[$key]), @js($key))">
+                                    <span x-text="copied === '{{ $key }}' ? 'Copiado' : 'Copiar'">Copiar</span>
+                                </button>
                             </div>
-                        @endif
-                    @endforeach
-                </div>
-                @if(!empty($banco['qr_url']))
-                    <div class="mb-6 p-4 rounded-2xl bg-white border-2 border-primary/20 flex justify-center">
-                        <img src="{{ $banco['qr_url'] }}" alt="QR Transferencia" class="w-52 h-52 object-contain">
-                    </div>
-                    <p class="text-[11px] text-center text-stone-500 uppercase tracking-widest mb-4">Escanea para transferir</p>
+                        @endforeach
+                    </dl>
                 @endif
-                <button type="button" @click="showBank=false"
-                    class="w-full py-3 rounded-xl bg-primary text-white text-sm font-semibold active:scale-[0.98] transition-transform hover:shadow-lg">
-                    Listo
-                </button>
+
+                @if(!empty($banco['qr_url']))
+                    <figure class="inv-bank__qr">
+                        <img src="{{ $banco['qr_url'] }}" alt="Código QR para transferir" loading="lazy">
+                        <figcaption class="inv-help">Escanea el código desde la app de tu banco</figcaption>
+                    </figure>
+                @endif
+
+                <button type="button" class="inv-btn inv-btn--block inv-sheet__done" @click="showBank = false">Listo</button>
             </div>
         </div>
     </template>

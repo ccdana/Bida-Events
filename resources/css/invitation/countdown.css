@@ -1,0 +1,89 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   INVITACIÓN — Cuenta regresiva y banner del invitado
+   ════════════════════════════════════════════════════════════════════════════ */
+
+.inv-countdown__grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    border-block: 1px solid var(--inv-line);
+}
+
+.inv-countdown__unit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.2rem 0 1rem;
+}
+
+.inv-countdown__unit + .inv-countdown__unit {
+    border-left: 1px solid var(--inv-line);
+}
+
+.inv-countdown__value {
+    font-family: var(--font-titles);
+    font-size: clamp(2.2rem, 11vw, 4.4rem);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--inv-accent-ink);
+    font-variant-numeric: tabular-nums;
+}
+
+.inv-countdown__label {
+    margin-top: 0.55rem;
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--inv-soft);
+}
+
+.inv-countdown__date {
+    margin-top: 1.25rem;
+    font-size: 0.9rem;
+    color: var(--inv-muted);
+    text-align: center;
+}
+
+.inv-countdown__actions {
+    justify-items: center;
+}
+
+.inv-countdown__actions .inv-btn {
+    width: 100%;
+}
+
+.inv-countdown__lottie {
+    width: 1.35rem;
+    height: 1.35rem;
+    flex-shrink: 0;
+}
+
+@media (min-width: 480px) {
+    .inv-countdown__actions .inv-btn {
+        width: auto;
+    }
+}
+
+/* Banner del invitado */
+.inv-guest__facts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin: 0;
+    border-block: 1px solid var(--inv-line);
+}
+
+.inv-guest__facts > div {
+    padding: 1.1rem 0.5rem;
+    text-align: center;
+}
+
+.inv-guest__facts > div + div {
+    border-left: 1px solid var(--inv-line);
+}
+
+.inv-guest__facts dd {
+    margin: 0.4rem 0 0;
+    font-family: var(--font-titles);
+    font-size: 1.3rem;
+    line-height: 1.2;
+}

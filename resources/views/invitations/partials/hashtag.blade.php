@@ -1,22 +1,29 @@
 @php
     $tag = $hashtag['hashtag'] ?? '#Evento';
-    $platform = $hashtag['plataforma'] ?? 'instagram';
+    $isTiktok = ($hashtag['plataforma'] ?? 'instagram') === 'tiktok';
     $cleanTag = trim(ltrim($tag, '#'));
-    $searchUrl = $platform === 'tiktok'
+    $platformLabel = $isTiktok ? 'TikTok' : 'Instagram';
+    $searchUrl = $isTiktok
         ? 'https://www.tiktok.com/tag/' . rawurlencode($cleanTag)
         : 'https://www.instagram.com/explore/tags/' . rawurlencode($cleanTag) . '/';
 @endphp
-<section class="invitation-section reveal text-center" id="hashtag">
-    <div class="section-inner">
-        <header class="section-header">
-            <span class="section-eyebrow">Redes sociales</span>
-            <h2 class="section-title">Comparte el momento</h2>
-            <div class="section-ornament"></div>
-        </header>
-        <a href="{{ $searchUrl }}" target="_blank" rel="noopener"
-            class="inline-block px-10 py-5 rounded-2xl glass-card hover:scale-[1.02] active:scale-[0.98] transition-transform">
-            <p class="text-[10px] uppercase tracking-widest opacity-50 mb-2">{{ $hashtag['texto_boton'] ?? 'Usa nuestro hashtag' }}</p>
-            <p class="font-title text-2xl text-primary">{{ $tag }}</p>
-        </a>
+
+<section class="inv-section reveal inv-hashtag" id="hashtag" x-data="copyButton()">
+    <div class="inv-wrap">
+        @include('invitations.partials.section-header', [
+            'lottie' => 'hashtag',
+            'eyebrow' => 'Redes sociales',
+            'title' => $hashtag['texto_boton'] ?? 'Usa nuestro hashtag',
+            'intro' => "Publica tus fotos y videos en {$platformLabel} con esta etiqueta para verlos todos juntos.",
+        ])
+
+        <p class="inv-hashtag__tag">{{ $tag }}</p>
+
+        <div class="inv-actions inv-actions--split">
+            <button type="button" class="inv-btn" @click="copy(@js($tag))">
+                <span x-text="copied ? '¡Copiado!' : 'Copiar hashtag'">Copiar hashtag</span>
+            </button>
+            <a href="{{ $searchUrl }}" target="_blank" rel="noopener" class="inv-btn inv-btn--ghost">Ver en {{ $platformLabel }}</a>
+        </div>
     </div>
 </section>

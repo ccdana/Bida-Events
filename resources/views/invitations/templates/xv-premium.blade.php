@@ -17,7 +17,34 @@
 
         return (bool) ($flags[$key] ?? false);
     };
-    $navItems = [];
+    $hasPlayer = $moduleVisible('musica') && !empty($musica['audio_url'] ?? null);
+    $eventDate = $invitation->event_date->copy()->timezone(config('app.timezone'));
+    $eventLabel = \Illuminate\Support\Str::ucfirst($eventDate->locale('es')->translatedFormat('l j \d\e F · H:i \h'));
+    $guestName = $bienvenida['nombre_quinceanera'] ?? $invitation->title;
+
+    // Pesos publicados en Google Fonts: pedir uno inexistente invalida toda la hoja de estilos
+    $fontWeights = [
+        'Playfair Display' => '400;600;700', 'Cormorant Garamond' => '400;600;700', 'Cinzel' => '400;600;700',
+        'Libre Baskerville' => '400;700', 'Bodoni Moda' => '400;600;700', 'Lora' => '400;500;600;700',
+        'Merriweather' => '300;400;700', 'Montserrat' => '300;400;500;600;700', 'Inter' => '300;400;500;600;700',
+        'Lato' => '300;400;700', 'Nunito Sans' => '300;400;600;700', 'Source Sans 3' => '300;400;600;700',
+        'Poppins' => '300;400;500;600;700', 'Raleway' => '300;400;500;600;700', 'Open Sans' => '300;400;600;700',
+        'Dancing Script' => '400;700', 'Tangerine' => '400;700',
+    ];
+    $fontQuery = collect([
+        $tipografias['titulos'] ?? 'Playfair Display',
+        $tipografias['cuerpo'] ?? 'Montserrat',
+        $tipografias['script'] ?? 'Great Vibes',
+    ])
+        ->filter()
+        ->unique()
+        ->map(fn ($family) => 'family=' . urlencode($family) . (isset($fontWeights[$family]) ? ':wght@' . $fontWeights[$family] : ''))
+        ->implode('&');
+
+    $navItems = [['id' => 'inicio', 'label' => 'Inicio']];
+    if ($moduleVisible('rsvp') && $guest) {
+        $navItems[] = ['id' => 'guest-banner', 'label' => 'Tu invitación'];
+    }
     if (!$isPostEvent && $moduleVisible('cuenta_regresiva')) {
         $navItems[] = ['id' => 'cuenta-regresiva', 'label' => 'Cuenta regresiva'];
     }
@@ -32,27 +59,29 @@
         'encuestas' => 'Encuestas',
         'playlist' => 'Playlist',
         'regalos' => 'Regalos',
-        'rsvp' => 'RSVP',
+        'rsvp' => 'Confirmar asistencia',
         'fotomural' => 'Fotomural',
-        'post_evento' => 'Post evento',
+        'post_evento' => 'Fotos oficiales',
     ] as $moduleKey => $label) {
-        if ($moduleVisible($moduleKey)) {
-            $navItems[] = ['id' => str_replace('_', '-', $moduleKey), 'label' => $label];
+        if (!$moduleVisible($moduleKey) || ($moduleKey === 'rsvp' && !$guest)) {
+            continue;
         }
+
+        $navItems[] = ['id' => str_replace('_', '-', $moduleKey), 'label' => $label];
     }
 @endphp
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $bienvenida['nombre_quinceanera'] ?? $invitation->title }}</title>
+    <meta name="theme-color" content="{{ $colores['background'] ?? '#FFFAF5' }}">
+    <title>{{ $guestName }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family={{ urlencode($tipografias['titulos'] ?? 'Playfair Display') }}:wght@400;600;700&family={{ urlencode($tipografias['cuerpo'] ?? 'Montserrat') }}:wght@300;400;500;600&family={{ urlencode($tipografias['script'] ?? 'Great Vibes') }}&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Cormorant+Garamond:wght@400;600;700&family=Cinzel:wght@400;600;700&family=Libre+Baskerville:wght@400;700&family=Bodoni+Moda:wght@400;600;700&family=Prata&family=Lora:wght@400;500;600;700&family=Merriweather:wght@300;400;700&family=Montserrat:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Lato:wght@300;400;700&family=Nunito+Sans:wght@300;400;600;700&family=Source+Sans+3:wght@300;400;600;700&family=Poppins:wght@300;400;500;600;700&family=Raleway:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;600;700&family=Great+Vibes&family=Parisienne&family=Alex+Brush&family=Dancing+Script:wght@400;700&family=Sacramento&family=Allura&family=Tangerine:wght@400;700&family=Petit+Formal+Script&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?{{ $fontQuery }}&display=swap" rel="stylesheet">
     <style>
         html { scroll-behavior: smooth; }
         :root {
@@ -62,308 +91,284 @@
             --text-color: {{ $colores['text'] ?? '#1A1A1A' }};
             --bg-color: {{ $colores['background'] ?? '#FFFAF5' }};
             --surface-color: color-mix(in srgb, var(--accent-color) 32%, var(--bg-color));
-            --surface-soft: color-mix(in srgb, var(--accent-color) 18%, var(--bg-color));
             --font-titles: '{{ $tipografias['titulos'] ?? 'Playfair Display' }}', serif;
             --font-body: '{{ $tipografias['cuerpo'] ?? 'Montserrat' }}', sans-serif;
             --font-script: '{{ $tipografias['script'] ?? 'Great Vibes' }}', cursive;
         }
-        body { font-family: var(--font-body); color: var(--text-color); background: var(--bg-color); }
-        .font-title { font-family: var(--font-titles); }
-        .font-script { font-family: var(--font-script); }
-        .text-primary { color: var(--primary-color); }
-        .text-secondary { color: var(--secondary-color); }
-        .bg-primary { background-color: var(--primary-color); }
-        .bg-secondary { background-color: var(--secondary-color); }
-        .border-primary { border-color: var(--primary-color); }
-        .border-secondary { border-color: var(--secondary-color); }
-        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
     </style>
 </head>
-<body class="overflow-x-hidden pb-16" x-data="invitationApp()" x-init="init()">
+<body class="inv-page overflow-x-hidden {{ $hasPlayer ? 'has-player' : '' }}" x-data="invitationApp()" x-init="init()">
 
-    {{-- ═══ MENÚ LATERAL ═══ --}}
-    <div class="invitation-nav" x-data="{ open: false }" @keydown.escape.window="open = false">
-        {{-- Botón toggle --}}
+    {{-- ═══ MENÚ DE SECCIONES ═══ --}}
+    <div x-data="invitationNav(@js(array_column($navItems, 'id')))"
+        @keydown.escape.window="open = false"
+        x-effect="document.documentElement.classList.toggle('inv-lock', open)">
         <button type="button"
+            class="inv-nav__toggle"
+            :class="{ 'is-open': open }"
             @click="open = !open"
-            class="invitation-nav__toggle"
-            :class="open ? 'is-open' : ''"
-            aria-label="Abrir menú de navegación">
-            <span class="invitation-nav__toggle-label" x-text="open ? 'Cerrar' : 'Menú'"></span>
-            <span class="invitation-nav__toggle-icon" :class="open ? 'is-open' : ''">
-                <span></span><span></span>
-            </span>
+            :aria-expanded="open.toString()"
+            aria-controls="inv-nav-panel">
+            <span x-text="open ? 'Cerrar' : 'Menú'">Menú</span>
+            <span class="inv-nav__bars" aria-hidden="true"><span></span><span></span></span>
         </button>
 
-        {{-- Backdrop oscuro --}}
-        <div class="invitation-nav__backdrop"
-            x-show="open" x-cloak
-            @click="open = false"
-            x-transition:enter="transition ease-out duration-300"
-            x-transition:enter-start="opacity-0"
-            x-transition:enter-end="opacity-100"
-            x-transition:leave="transition ease-in duration-200"
-            x-transition:leave-start="opacity-100"
-            x-transition:leave-end="opacity-0">
-        </div>
+        <div class="inv-nav__backdrop" x-show="open" x-cloak x-transition.opacity @click="open = false"></div>
 
-        {{-- Panel lateral --}}
-        <nav class="invitation-nav__panel"
+        <nav id="inv-nav-panel"
+            class="inv-nav__panel"
             x-show="open" x-cloak
-            x-transition:enter="transition ease-out duration-350"
-            x-transition:enter-start="translate-x-full"
-            x-transition:enter-end="translate-x-0"
-            x-transition:leave="transition ease-in duration-250"
-            x-transition:leave-start="translate-x-0"
-            x-transition:leave-end="translate-x-full"
-            role="navigation" aria-label="Navegación de la invitación">
+            x-transition:enter="inv-nav-anim"
+            x-transition:enter-start="inv-nav-hidden"
+            x-transition:enter-end="inv-nav-shown"
+            x-transition:leave="inv-nav-anim"
+            x-transition:leave-start="inv-nav-shown"
+            x-transition:leave-end="inv-nav-hidden"
+            aria-label="Secciones de la invitación">
+            <p class="inv-label">Invitación de</p>
+            <p class="inv-nav__heading">{{ $guestName }}</p>
 
-            <div class="invitation-nav__links">
-                <a href="#inicio" @click="open = false" class="invitation-nav__link">
-                    <span>Inicio</span>
-                </a>
-                @if($moduleVisible('rsvp') && $guest)
-                    <a href="#guest-banner" @click="open = false" class="invitation-nav__link">
-                        <span>Invitado</span>
-                    </a>
-                @endif
-                @foreach($navItems as $item)
-                    <a href="#{{ $item['id'] }}" @click="open = false" class="invitation-nav__link">
-                        <span>{{ $item['label'] }}</span>
-                    </a>
+            <ol class="inv-nav__list">
+                @foreach($navItems as $index => $item)
+                    <li>
+                        <a href="#{{ $item['id'] }}"
+                            class="inv-nav__link"
+                            :class="{ 'is-active': active === '{{ $item['id'] }}' }"
+                            @click="open = false">
+                            <span class="inv-nav__num">{{ str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) }}</span>
+                            {{ $item['label'] }}
+                        </a>
+                    </li>
                 @endforeach
-            </div>
-
-            {{-- Decoración inferior del panel --}}
-            <div class="invitation-nav__footer">
-                <div class="invitation-nav__rule"></div>
-            </div>
+            </ol>
         </nav>
-    </div>
-
-    <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
-        @php $pSizes = [4,5,6,7,5,4,6,5,4,6,5,7,4,5,6,4,7,5,6,4]; @endphp
-        @for($i = 0; $i < 20; $i++)
-            <span class="particle-dot absolute rounded-full bg-primary"
-                style="left:{{ rand(2, 98) }}%;top:{{ rand(2, 98) }}%;width:{{ $pSizes[$i] }}px;height:{{ $pSizes[$i] }}px;animation-delay:{{ round($i * 0.38, 1) }}s;animation-duration:{{ 5 + ($i % 4) }}s"></span>
-        @endfor
     </div>
 
     @include('invitations.partials.music-player', ['musica' => $musica, 'flags' => array_merge($flags, ['musica' => $moduleVisible('musica')])])
 
-    {{-- HERO --}}
     @include('invitations.partials.hero', [
         'invitation' => $invitation,
         'bienvenida' => $bienvenida,
         'heroImage' => $heroImage,
         'hasHeroImage' => $hasHeroImage,
-        'isPostEvent' => $isPostEvent,
-        'moduleVisible' => $moduleVisible,
-        'guest' => $guest,
     ])
 
-    @if($moduleVisible('rsvp') && $guest)
-        @include('invitations.partials.guest-banner', [
-            'guest' => $guest,
-        ])
-    @endif
+    <main id="contenido">
+        @if($moduleVisible('rsvp') && $guest)
+            @include('invitations.partials.guest-banner', ['guest' => $guest])
+        @endif
 
-    @if($isPostEvent && $moduleVisible('post_evento') && !empty($bienvenida['mensaje_post_evento']))
-        <section class="invitation-section reveal pt-8 pb-2">
-            <div class="section-inner-wide text-center">
-                <p class="font-title text-3xl sm:text-4xl leading-snug max-w-md mx-auto text-primary {{ $hasHeroImage ? '!text-secondary' : '' }}">
-                    {{ $bienvenida['mensaje_post_evento'] }}
-                </p>
-            </div>
-        </section>
-    @endif
+        @if($isPostEvent && $moduleVisible('post_evento') && !empty($bienvenida['mensaje_post_evento']))
+            <section class="inv-section reveal">
+                <div class="inv-wrap">
+                    <p class="inv-thanks__text">{{ $bienvenida['mensaje_post_evento'] }}</p>
+                </div>
+            </section>
+        @endif
 
-    @if($moduleVisible('cuenta_regresiva') && !$isPostEvent)
-        @include('invitations.partials.countdown', [
-            'eventDate' => $invitation->event_date->copy()->timezone(config('app.timezone'))->toIso8601String(),
-            'calendarUrl' => $calendarUrl,
-            'agendar' => $moduleVisible('agendar'),
-        ])
-    @endif
+        @if($moduleVisible('cuenta_regresiva') && !$isPostEvent)
+            @include('invitations.partials.countdown', [
+                'eventDate' => $eventDate->toIso8601String(),
+                'eventLabel' => $eventLabel,
+                'calendarUrl' => $calendarUrl,
+                'agendar' => $moduleVisible('agendar'),
+            ])
+        @endif
 
-    @if(!$moduleVisible('cuenta_regresiva') && $moduleVisible('agendar') && !$isPostEvent)
-        <section class="invitation-section reveal py-6">
-            <div class="section-inner text-center">
-                <button type="button" onclick="openCalendar('{{ $calendarUrl }}')"
-                    class="inline-flex items-center gap-2 px-6 py-3 rounded-full inv-card text-sm font-medium text-primary active:scale-[0.98] transition-transform">
-                    @include('invitations.partials.lottie-icon', ['name' => 'calendar', 'class' => 'invitation-countdown__button-lottie'])
-                    Agendar en Google Calendar
-                </button>
-            </div>
-        </section>
-    @endif
+        @if(!$moduleVisible('cuenta_regresiva') && $moduleVisible('agendar') && !$isPostEvent)
+            <section class="inv-section reveal" id="agendar">
+                <div class="inv-wrap">
+                    @include('invitations.partials.section-header', [
+                        'lottie' => 'calendar',
+                        'eyebrow' => 'Guarda la fecha',
+                        'title' => 'Agéndalo',
+                        'intro' => $eventLabel,
+                    ])
+                    <div class="inv-actions">
+                        <button type="button" class="inv-btn inv-btn--block" data-url="{{ $calendarUrl }}" onclick="openCalendar(this.dataset.url)">
+                            Agregar a Google Calendar
+                        </button>
+                    </div>
+                </div>
+            </section>
+        @endif
 
-    @if($moduleVisible('video'))
-        @include('invitations.partials.video', ['video' => $modulos['video']])
-    @endif
+        @if($moduleVisible('video'))
+            @include('invitations.partials.video', ['video' => $modulos['video']])
+        @endif
 
-    @if($moduleVisible('galeria'))
-        @include('invitations.partials.gallery-stack', ['galeria' => $modulos['galeria']])
-    @endif
+        @if($moduleVisible('galeria'))
+            @include('invitations.partials.gallery-stack', ['galeria' => $modulos['galeria']])
+        @endif
 
-    @if($moduleVisible('itinerario'))
-        @include('invitations.partials.itinerary', ['itinerario' => $modulos['itinerario'] ?? []])
-    @endif
+        @if($moduleVisible('itinerario'))
+            @include('invitations.partials.itinerary', ['itinerario' => $modulos['itinerario'] ?? []])
+        @endif
 
-    @if($moduleVisible('dress_code'))
-        @include('invitations.partials.dress-code', ['dressCode' => $modulos['dress_code'] ?? []])
-    @endif
+        @if($moduleVisible('dress_code'))
+            @include('invitations.partials.dress-code', ['dressCode' => $modulos['dress_code'] ?? []])
+        @endif
 
-    @if($moduleVisible('destacados'))
-        @include('invitations.partials.destacados', ['destacados' => $modulos['destacados'] ?? []])
-    @endif
+        @if($moduleVisible('destacados'))
+            @include('invitations.partials.destacados', ['destacados' => $modulos['destacados'] ?? []])
+        @endif
 
-    @if($moduleVisible('ubicacion'))
-        @include('invitations.partials.location', [
-            'ubicacion' => $modulos['ubicacion'] ?? [],
-            'agendar' => $moduleVisible('agendar'),
-            'calendarUrl' => $calendarUrl,
-        ])
-    @endif
+        @if($moduleVisible('ubicacion'))
+            @include('invitations.partials.location', [
+                'ubicacion' => $modulos['ubicacion'] ?? [],
+                'agendar' => $moduleVisible('agendar') && !$isPostEvent,
+                'calendarUrl' => $calendarUrl,
+            ])
+        @endif
 
-    @if($moduleVisible('hashtag'))
-        @include('invitations.partials.hashtag', ['hashtag' => $modulos['hashtag'] ?? []])
-    @endif
+        @if($moduleVisible('hashtag'))
+            @include('invitations.partials.hashtag', ['hashtag' => $modulos['hashtag'] ?? []])
+        @endif
 
-    @if($moduleVisible('encuestas'))
-        @include('invitations.partials.polls', [
-            'encuestas' => $modulos['encuestas'] ?? [],
-            'pollResults' => $pollResults,
-            'slug' => $invitation->slug,
-            'guestToken' => $guestToken,
-        ])
-    @endif
+        @if($moduleVisible('encuestas'))
+            @include('invitations.partials.polls', [
+                'encuestas' => $modulos['encuestas'] ?? [],
+                'pollResults' => $pollResults,
+                'slug' => $invitation->slug,
+                'guestToken' => $guestToken,
+            ])
+        @endif
 
-    @if($moduleVisible('playlist'))
-        @include('invitations.partials.playlist', [
-            'playlist' => $modulos['playlist'] ?? [],
-            'slug' => $invitation->slug,
-            'guestToken' => $guestToken,
-            'songs' => $playlistSongs ?? [],
-        ])
-    @endif
+        @if($moduleVisible('playlist'))
+            @include('invitations.partials.playlist', [
+                'playlist' => $modulos['playlist'] ?? [],
+                'slug' => $invitation->slug,
+                'guestToken' => $guestToken,
+                'songs' => $playlistSongs ?? [],
+            ])
+        @endif
 
-    @if($moduleVisible('regalos'))
-        @include('invitations.partials.regalos', ['regalos' => $modulos['regalos'] ?? []])
-    @endif
+        @if($moduleVisible('regalos'))
+            @include('invitations.partials.regalos', ['regalos' => $modulos['regalos'] ?? []])
+        @endif
 
-    @if($moduleVisible('rsvp') && $guest)
-        @include('invitations.partials.rsvp', [
-            'rsvp' => $modulos['rsvp'] ?? [],
-            'guest' => $guest,
-            'slug' => $invitation->slug,
-        ])
-    @endif
+        @if($moduleVisible('rsvp') && $guest)
+            @include('invitations.partials.rsvp', [
+                'rsvp' => $modulos['rsvp'] ?? [],
+                'guest' => $guest,
+                'slug' => $invitation->slug,
+            ])
+        @endif
 
-    @if($moduleVisible('fotomural') && !$isPostEvent)
-        @include('invitations.partials.fotomural', [
-            'slug' => $invitation->slug,
-            'guestToken' => $guestToken,
-            'photos' => $fotomuralPhotos ?? [],
-            'readOnly' => false,
-        ])
-    @endif
-
-    @if($isPostEvent && $moduleVisible('post_evento'))
         @if($moduleVisible('fotomural'))
             @include('invitations.partials.fotomural', [
                 'slug' => $invitation->slug,
                 'guestToken' => $guestToken,
                 'photos' => $fotomuralPhotos ?? [],
-                'readOnly' => true,
+                'readOnly' => $isPostEvent,
             ])
         @endif
-        @include('invitations.partials.post-event', ['postEvento' => $modulos['post_evento'] ?? []])
-    @endif
 
-    <footer class="py-12 text-center relative overflow-hidden">
-        <!-- Gradient separator -->
-        <div class="mb-8 h-px bg-gradient-to-r from-transparent via-primary to-transparent opacity-20"></div>
-        
-        <!-- Footer content wrapper with subtle background -->
-        <div class="relative px-6">
-            <div class="absolute inset-0 bg-gradient-to-b from-transparent via-accent to-transparent opacity-[0.02] pointer-events-none"></div>
-            
-            <div class="relative z-10 flex flex-col items-center gap-3">
-                <!-- Decorative dots -->
-                <div class="flex items-center gap-2">
-                    <div class="w-1.5 h-1.5 rounded-full bg-primary opacity-30"></div>
-                    <div class="w-1.5 h-1.5 rounded-full bg-primary opacity-50"></div>
-                    <div class="w-1.5 h-1.5 rounded-full bg-primary opacity-30"></div>
-                </div>
-                
-                <!-- Brand text -->
-                <p class="text-[11px] tracking-[0.25em] uppercase font-light text-text-color opacity-40">
-                    Creado con amor por
-                </p>
-                <p class="text-sm font-semibold tracking-[0.1em] text-primary">
-                    Bida-Events
-                </p>
-                
-                <!-- Decorative dots -->
-                <div class="flex items-center gap-2">
-                    <div class="w-1.5 h-1.5 rounded-full bg-primary opacity-30"></div>
-                    <div class="w-1.5 h-1.5 rounded-full bg-primary opacity-50"></div>
-                    <div class="w-1.5 h-1.5 rounded-full bg-primary opacity-30"></div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Bottom gradient accent -->
-        <div class="mt-8 h-px bg-gradient-to-r from-transparent via-primary to-transparent opacity-15"></div>
+        @if($isPostEvent && $moduleVisible('post_evento'))
+            @include('invitations.partials.post-event', ['postEvento' => $modulos['post_evento'] ?? []])
+        @endif
+    </main>
+
+    <footer class="inv-footer">
+        <p class="inv-footer__text">Hecho con cariño por <span class="inv-footer__brand">Bida Events</span></p>
     </footer>
 
     <script>
-    // ─── Utilidades móviles ───────────────────────────────────────────────────
-
     /**
-     * Abre Google Calendar con preferencia por la app nativa en móvil.
-     * Android  → intent:// hacia la app de Google Calendar
-     * iOS      → enlace universal de Google Calendar
-     * Desktop  → enlace web estándar
+     * Abre Google Calendar priorizando la app nativa en Android;
+     * en iOS y escritorio el enlace universal resuelve solo.
      */
     function openCalendar(webUrl) {
-        const ua = navigator.userAgent || '';
-        const isAndroid = /android/i.test(ua);
-        const isIOS = /iphone|ipad|ipod/i.test(ua);
-
-        if (isAndroid) {
-            // Extraer parámetros del URL web para construir el intent
-            const intentUrl = webUrl
-                .replace('https://calendar.google.com/calendar/render', 'intent://calendar.google.com/calendar/render')
+        if (/android/i.test(navigator.userAgent || '')) {
+            window.location.href = webUrl.replace('https://calendar.google.com/calendar/render', 'intent://calendar.google.com/calendar/render')
                 + '#Intent;scheme=https;package=com.google.android.calendar;S.browser_fallback_url=' + encodeURIComponent(webUrl) + ';end';
-            window.location.href = intentUrl;
-        } else if (isIOS) {
-            // Google Calendar app en iOS usa enlace universal
-            window.location.href = webUrl.replace('https://calendar.google.com', 'https://calendar.google.com');
-            // Fallback automático si la app no está instalada (el SO redirige a Safari)
-        } else {
-            window.open(webUrl, '_blank', 'noopener');
+            return;
+        }
+
+        window.open(webUrl, '_blank', 'noopener');
+    }
+
+    async function copyToClipboard(text) {
+        try {
+            await navigator.clipboard.writeText(text);
+
+            return true;
+        } catch (error) {
+            // Respaldo para navegadores sin Clipboard API o contextos no seguros
+            const field = document.createElement('textarea');
+            field.value = text;
+            field.setAttribute('readonly', '');
+            field.style.position = 'fixed';
+            field.style.opacity = '0';
+            document.body.appendChild(field);
+            field.select();
+            const copied = document.execCommand('copy');
+            field.remove();
+
+            return copied;
         }
     }
 
+    // Botón "Copiar" con confirmación temporal; `key` distingue varios botones en un mismo bloque
+    function copyButton() {
+        return {
+            copied: null,
+            timer: null,
+            async copy(text, key = 'default') {
+                if (!(await copyToClipboard(text))) {
+                    return;
+                }
 
-    // ─── App principal ────────────────────────────────────────────────────────
+                this.copied = key;
+                clearTimeout(this.timer);
+                this.timer = setTimeout(() => { this.copied = null; }, 1800);
+            },
+        };
+    }
+
     function invitationApp() {
         return {
             init() {
                 const observer = new IntersectionObserver((entries) => {
-                    entries.forEach(e => {
-                        if (e.isIntersecting) {
-                            e.target.classList.add('is-visible');
-                            observer.unobserve(e.target);
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('is-visible');
+                            observer.unobserve(entry.target);
                         }
                     });
-                }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+                }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
 
-                document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+                document.querySelectorAll('.reveal').forEach((element) => observer.observe(element));
             }
+        };
+    }
+
+    // Menú: resalta la sección que ocupa el centro de la pantalla
+    function invitationNav(sectionIds) {
+        return {
+            open: false,
+            active: sectionIds[0] ?? 'inicio',
+            init() {
+                if (!('IntersectionObserver' in window)) {
+                    return;
+                }
+
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting) {
+                            this.active = entry.target.id;
+                        }
+                    });
+                }, { rootMargin: '-45% 0px -50% 0px' });
+
+                sectionIds.forEach((id) => {
+                    const section = document.getElementById(id);
+
+                    if (section) {
+                        observer.observe(section);
+                    }
+                });
+            },
         };
     }
     </script>

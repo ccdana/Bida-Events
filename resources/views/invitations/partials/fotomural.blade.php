@@ -1,59 +1,45 @@
 @php
     $readOnly = $readOnly ?? false;
 @endphp
-<section class="invitation-section reveal" id="fotomural" x-data="fotomural('{{ $slug }}', '{{ $guestToken }}', @js($photos ?? []), @js($isPreview ?? false), @js($readOnly))" x-init="init()">
-    <div class="section-inner-wide">
-        <header class="section-header">
-            <span class="section-eyebrow">Recuerdos en vivo</span>
-            <h2 class="section-title">Fotomural</h2>
-            <div class="section-ornament"></div>
-            <p class="text-sm opacity-60 mt-3 max-w-xs mx-auto">Comparte tus fotos del evento y míralas aquí al instante</p>
-        </header>
+<section class="inv-section reveal inv-mural-section" id="fotomural" x-data="fotomural(@js($slug), @js($guestToken), @js($photos ?? []), @js($isPreview ?? false), @js($readOnly))" x-init="init()">
+    <div class="inv-wrap inv-wrap--wide">
+        @include('invitations.partials.section-header', [
+            'lottie' => 'camera',
+            'eyebrow' => 'Recuerdos en vivo',
+            'title' => 'Fotomural',
+            'intro' => $readOnly
+                ? 'Las fotos que compartieron los invitados durante la fiesta.'
+                : 'Toma o sube una foto durante la fiesta y aparecerá aquí para todos.',
+        ])
 
-        <div class="flex justify-center mb-8">
-            <button type="button" @click="$refs.fileInput.click()" :disabled="uploading || readOnly"
-                x-show="!readOnly"
-                class="inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-primary text-white shadow-lg active:scale-[0.98] transition-all disabled:opacity-60">
-                @include('invitations.partials.icon', ['name' => 'camera', 'class' => 'w-5 h-5', 'animated' => false])
-                <span class="text-sm tracking-wide font-medium" x-text="uploading ? 'Subiendo...' : 'Compartir foto'"></span>
-            </button>
-            <input type="file" x-ref="fileInput" accept="image/*" capture="environment" class="hidden" @change="upload" x-show="!readOnly">
+        @unless($readOnly)
+            <div class="inv-actions inv-mural__actions">
+                <button type="button" class="inv-btn inv-btn--block" @click="$refs.fileInput.click()" :disabled="uploading">
+                    @include('invitations.partials.icon', ['name' => 'camera', 'class' => 'inv-btn__icon', 'animated' => false])
+                    <span x-text="uploading ? 'Subiendo foto…' : 'Compartir una foto'">Compartir una foto</span>
+                </button>
+                <input type="file" x-ref="fileInput" accept="image/*" class="sr-only" tabindex="-1" @change="upload">
+                <p class="inv-help">Puedes usar la cámara o elegir una foto de tu galería.</p>
+            </div>
+        @endunless
+
+        <p class="inv-status" :class="{ 'is-error': error }" x-text="message" aria-live="polite"></p>
+
+        <div x-show="photos.length" x-cloak>
+            <p class="inv-label inv-mural__count" x-text="photos.length === 1 ? '1 foto compartida' : photos.length + ' fotos compartidas'"></p>
+            <div class="inv-mural">
+                <template x-for="photo in photos" :key="photo.id">
+                    <figure class="inv-mural__item">
+                        <img :src="photo.url" :alt="photo.guest ? 'Foto de ' + photo.guest : 'Foto del evento'" loading="lazy" decoding="async">
+                        <figcaption x-show="photo.guest" x-text="photo.guest"></figcaption>
+                    </figure>
+                </template>
+            </div>
         </div>
 
-        <p x-show="message" x-text="message" x-transition
-            class="text-sm text-center text-primary mb-6 px-4 py-2 rounded-xl bg-primary/5 border border-primary/10" x-cloak></p>
-
-        <template x-if="photos.length > 0">
-            <div>
-                <p class="text-[10px] uppercase tracking-widest text-center opacity-40 mb-4">
-                    <span x-text="photos.length"></span> <span x-text="photos.length === 1 ? 'foto compartida' : 'fotos compartidas'"></span>
-                </p>
-                <div class="photo-masonry">
-                    <template x-for="(photo, i) in photos" :key="photo.id">
-                        <div class="photo-masonry-item" :style="`animation-delay: ${Math.min(i * 0.05, 0.4)}s`">
-                            <img :src="photo.url" :alt="photo.guest ? 'Foto de ' + photo.guest : 'Foto del evento'" loading="lazy">
-                            <div x-show="photo.guest" class="absolute bottom-0 inset-x-0 px-3 py-2 bg-gradient-to-t from-black/60 to-transparent" x-cloak>
-                                <p class="text-[10px] text-white/90 truncate" x-text="photo.guest"></p>
-                            </div>
-                        </div>
-                    </template>
-                </div>
-            </div>
-        </template>
-
-        <template x-if="readOnly && photos.length === 0 && !loading">
-            <div class="text-center py-10 rounded-2xl border-2 border-dashed border-primary/15">
-                @include('invitations.partials.icon', ['name' => 'camera', 'class' => 'w-10 h-10 text-primary/30 mx-auto mb-3', 'animated' => false])
-                <p class="text-sm opacity-40">Las fotos compartidas aparecerán aquí</p>
-            </div>
-        </template>
-
-        <template x-if="!readOnly && photos.length === 0 && !loading">
-            <div class="text-center py-10 rounded-2xl border-2 border-dashed border-primary/15">
-                @include('invitations.partials.icon', ['name' => 'camera', 'class' => 'w-10 h-10 text-primary/30 mx-auto mb-3', 'animated' => false])
-                <p class="text-sm opacity-40">Sé el primero en compartir una foto</p>
-            </div>
-        </template>
+        <p class="inv-empty" x-show="!photos.length && !loading" x-cloak>
+            {{ $readOnly ? 'No se compartieron fotos en el fotomural.' : 'Aún no hay fotos. ¡Comparte la primera!' }}
+        </p>
     </div>
 </section>
 <script>
@@ -61,6 +47,7 @@ function fotomural(slug, guestToken, initialPhotos, isPreview, readOnly) {
     return {
         photos: initialPhotos,
         message: '',
+        error: false,
         uploading: false,
         loading: false,
         readOnly: !!readOnly,
@@ -68,6 +55,10 @@ function fotomural(slug, guestToken, initialPhotos, isPreview, readOnly) {
             if (!isPreview) {
                 this.refresh();
             }
+        },
+        notify(message, isError = false) {
+            this.message = message;
+            this.error = isError;
         },
         async refresh() {
             if (isPreview) return;
@@ -78,26 +69,25 @@ function fotomural(slug, guestToken, initialPhotos, isPreview, readOnly) {
                 });
                 const data = await res.json();
                 if (data.photos) this.photos = data.photos;
-                if (!res.ok && data.message) this.message = data.message;
+                if (!res.ok && data.message) this.notify(data.message, true);
             } catch (e) {
-                this.message = 'No se pudo cargar el fotomural';
+                this.notify('No se pudo cargar el fotomural.', true);
             } finally {
                 this.loading = false;
             }
         },
         async upload(e) {
-            if (isPreview) {
-                this.message = 'El fotomural no está disponible en vista previa';
-                return;
-            }
-            if (this.readOnly) {
-                this.message = 'El fotomural solo está disponible para ver fotos compartidas';
-                return;
-            }
             const file = e.target.files[0];
             if (!file) return;
+
+            if (isPreview || this.readOnly) {
+                this.notify(isPreview ? 'El fotomural no está disponible en la vista previa.' : 'El fotomural ya no recibe fotos.', true);
+                e.target.value = '';
+                return;
+            }
+
             this.uploading = true;
-            this.message = '';
+            this.notify('');
             const fd = new FormData();
             fd.append('photo', file);
             if (guestToken) fd.append('guest_token', guestToken);
@@ -110,11 +100,15 @@ function fotomural(slug, guestToken, initialPhotos, isPreview, readOnly) {
                     },
                     body: fd
                 });
-                const data = await res.json();
-                this.message = data.message || '¡Foto compartida!';
-                if (data.success) await this.refresh();
+                const data = await res.json().catch(() => ({}));
+                if (data.success) {
+                    this.notify(data.message || '¡Gracias! Tu foto ya está en el mural.');
+                    await this.refresh();
+                } else {
+                    this.notify(data.message || 'No se pudo subir la foto. Prueba con una imagen más liviana.', true);
+                }
             } catch (err) {
-                this.message = 'No se pudo subir la foto';
+                this.notify('Revisa tu conexión e intenta de nuevo.', true);
             } finally {
                 this.uploading = false;
                 e.target.value = '';

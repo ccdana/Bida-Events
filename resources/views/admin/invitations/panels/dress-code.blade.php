@@ -1,30 +1,12 @@
 <div x-show="activeTab === 'dress'" x-cloak class="space-y-2">
-    <!-- Resumen -->
-    <section class="admin-card p-3 space-y-3">
-        <div class="flex items-center justify-between gap-2">
-            <div class="min-w-0">
-                <p class="admin-eyebrow mb-0.5">Dress code</p>
-                <p class="text-xs text-stone-600 truncate">Código de vestimenta</p>
-            </div>
-            <div class="flex items-center gap-1.5 shrink-0">
-                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-white border border-stone-200 text-xs font-semibold text-stone-600">
-                    <span x-text="`${modules.dress_code.sugerencias.length} sugerencias`"></span>
-                </span>
-                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-md border text-xs font-semibold"
-                    :class="modules.config.modulos.dress_code
-                        ? 'text-green-700 bg-green-50 border-green-200'
-                        : 'text-stone-500 bg-stone-50 border-stone-200'">
-                    <span class="inline-block w-1.5 h-1.5 rounded-full"
-                        :class="modules.config.modulos.dress_code ? 'bg-green-500' : 'bg-stone-400'"></span>
-                    <span x-text="modules.config.modulos.dress_code ? 'Activo' : 'Inactivo'"></span>
-                </span>
-            </div>
-        </div>
-
-        <p class="text-xs text-stone-500 leading-relaxed">
-            Explica qué vestir de forma clara y elegante. Activa o desactiva el módulo desde el menú lateral.
-        </p>
-    </section>
+    @include('admin.partials.panel-intro', [
+        'eyebrow' => 'Dress code',
+        'title' => 'Qué vestir',
+        'description' => 'el título, el estilo y la descripción, y debajo pestañas «Qué usar», «Colores» y «Evitar». Solo aparecen las pestañas que tengan contenido.',
+        'tip' => 'Una sugerencia por grupo (damas, caballeros, niños) es suficiente. Agrega una foto de referencia para que se entienda de un vistazo.',
+        'moduleKey' => 'dress_code',
+        'countExpr' => '`${modules.dress_code.sugerencias.length} sugerencias`',
+    ])
 
     <!-- Información general -->
     <section class="admin-card p-3 space-y-2">
@@ -101,7 +83,8 @@
                 <input type="text"
                     :value="(sug.ejemplos || []).join(', ')"
                     @input="sug.ejemplos = $event.target.value.split(',').map(s => s.trim()).filter(Boolean); schedulePreview()"
-                    class="admin-input" placeholder="Separados por coma">
+                    class="admin-input" placeholder="Ej. Vestido satinado, Jumpsuit elegante">
+                <p class="mt-1 text-[11px] text-stone-400">Sepáralos con comas. Se muestran como «Ideas» debajo de la descripción.</p>
             </div>
 
             <div class="flex flex-col gap-2 rounded-lg border border-stone-200 bg-stone-50 p-2.5 sm:flex-row sm:items-center">

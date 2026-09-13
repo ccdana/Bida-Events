@@ -1,0 +1,258 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   INVITACIÓN — Itinerario con luz que recorre la línea de tiempo
+
+   itinerary-scroll.js escribe por frame:
+   · en la luz:   transform, --glow (0–1), --trail (px), --dir (1 | -1)
+   · en cada ítem: --a (activación 0–1) y --glow (destello al paso de la luz)
+   · en el track: --spine-top, --spine-height y --progress
+   ════════════════════════════════════════════════════════════════════════════ */
+
+.inv-itinerary__track {
+    --node-size: 2.75rem;
+    position: relative;
+    margin-top: 0.5rem;
+}
+
+.inv-itinerary__spine {
+    position: absolute;
+    top: var(--spine-top, 2.5rem);
+    left: calc(var(--node-size) / 2);
+    width: 1px;
+    height: var(--spine-height, calc(100% - 5rem));
+    background: var(--inv-line-strong);
+    transform: translateX(-50%);
+    pointer-events: none;
+}
+
+.inv-itinerary__spine-fill {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        to bottom,
+        color-mix(in srgb, var(--primary-color) 55%, var(--bg-color)),
+        var(--primary-color)
+    );
+    transform: scaleY(var(--progress, 0));
+    transform-origin: top;
+}
+
+/* ── Luz ────────────────────────────────────────────────────────────────── */
+
+.inv-itinerary__light {
+    --glow: 0.6;
+    --trail: 0;
+    --dir: 1;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    z-index: 2;
+    width: 0;
+    height: 0;
+    will-change: transform;
+}
+
+.inv-itinerary__light > span {
+    position: absolute;
+    display: block;
+    pointer-events: none;
+}
+
+/* Halo: una sola fuente con caída suave (aprox. inverso del cuadrado) */
+.inv-itinerary__bloom {
+    top: -44px;
+    left: -44px;
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    background: radial-gradient(
+        circle closest-side,
+        color-mix(in srgb, var(--primary-color) 70%, #fff) 0%,
+        color-mix(in srgb, var(--primary-color) 48%, transparent) 9%,
+        color-mix(in srgb, var(--primary-color) 26%, transparent) 20%,
+        color-mix(in srgb, var(--primary-color) 12%, transparent) 36%,
+        color-mix(in srgb, var(--primary-color) 5%, transparent) 56%,
+        color-mix(in srgb, var(--primary-color) 1.5%, transparent) 78%,
+        transparent 100%
+    );
+    opacity: var(--glow);
+}
+
+/* Núcleo caliente: casi blanco en el centro, teñido hacia el borde */
+.inv-itinerary__core {
+    top: -4.5px;
+    left: -4.5px;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: radial-gradient(
+        circle closest-side,
+        #fff 0%,
+        #fff 30%,
+        color-mix(in srgb, var(--primary-color) 55%, #fff) 62%,
+        color-mix(in srgb, var(--primary-color) 60%, transparent) 100%
+    );
+}
+
+/* Estela: su largo depende de la velocidad del scroll y apunta hacia atrás */
+.inv-itinerary__trail {
+    bottom: 0;
+    left: -1.5px;
+    width: 3px;
+    height: calc(var(--trail) * 1px);
+    border-radius: 3px;
+    background: linear-gradient(
+        to top,
+        color-mix(in srgb, var(--primary-color) 45%, #fff) 0%,
+        color-mix(in srgb, var(--primary-color) 55%, transparent) 30%,
+        transparent 100%
+    );
+    filter: blur(0.6px);
+    opacity: calc(0.3 + var(--glow) * 0.6);
+    transform: scaleY(var(--dir));
+    transform-origin: bottom;
+}
+
+/* Sobre fondos oscuros la luz se suma, como una fuente real */
+.inv-itinerary__track[data-light="additive"] .inv-itinerary__bloom,
+.inv-itinerary__track[data-light="additive"] .inv-itinerary__trail {
+    mix-blend-mode: screen;
+    mix-blend-mode: plus-lighter;
+}
+
+/* ── Momentos ───────────────────────────────────────────────────────────── */
+
+.inv-itinerary__list {
+    position: relative;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.inv-itinerary__item {
+    --a: 0;
+    --glow: 0;
+    display: grid;
+    grid-template-columns: var(--node-size) minmax(0, 1fr);
+    column-gap: 1.1rem;
+    align-items: start;
+    padding-block: 1.1rem;
+}
+
+.inv-itinerary__node {
+    position: relative;
+    grid-column: 1;
+    grid-row: 1;
+    display: grid;
+    place-items: center;
+    width: var(--node-size);
+    height: var(--node-size);
+}
+
+/* Destello del nodo al paso de la luz; queda un resplandor residual tenue */
+.inv-itinerary__node-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 7.5rem;
+    height: 7.5rem;
+    margin: -3.75rem 0 0 -3.75rem;
+    border-radius: 50%;
+    background: radial-gradient(
+        circle closest-side,
+        color-mix(in srgb, var(--primary-color) 30%, transparent) 0%,
+        color-mix(in srgb, var(--primary-color) 16%, transparent) 26%,
+        color-mix(in srgb, var(--primary-color) 6%, transparent) 52%,
+        color-mix(in srgb, var(--primary-color) 1.5%, transparent) 78%,
+        transparent 100%
+    );
+    opacity: var(--glow);
+    transform: scale(calc(0.75 + var(--glow) * 0.25));
+    pointer-events: none;
+}
+
+.inv-itinerary__node-dot {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    border: 1px solid color-mix(in srgb, var(--primary-color) calc(var(--a) * 85%), var(--inv-line-strong));
+    border-radius: 50%;
+    background: var(--bg-color);
+    color: color-mix(in srgb, var(--primary-color) calc(35% + var(--a) * 65%), var(--inv-soft));
+}
+
+.inv-itinerary__icon {
+    width: 1.2rem;
+    height: 1.2rem;
+}
+
+.inv-itinerary__lottie {
+    width: 1.7rem;
+    height: 1.7rem;
+}
+
+.inv-itinerary__body {
+    grid-column: 2;
+    grid-row: 1;
+    padding-top: 0.15rem;
+    opacity: calc(0.42 + var(--a) * 0.58);
+    transform: translateY(calc((1 - var(--a)) * 8px));
+}
+
+.inv-itinerary__time {
+    display: block;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    color: var(--inv-accent-ink);
+    font-variant-numeric: tabular-nums;
+}
+
+.inv-itinerary__title {
+    margin-top: 0.3rem;
+    font-family: var(--font-titles);
+    font-size: 1.35rem;
+    font-weight: 400;
+    line-height: 1.2;
+}
+
+.inv-itinerary__text {
+    margin-top: 0.4rem;
+    font-size: 0.88rem;
+    line-height: 1.65;
+    color: var(--inv-muted);
+}
+
+@media (min-width: 768px) {
+    .inv-itinerary__track {
+        --node-size: 3.25rem;
+    }
+
+    .inv-itinerary__spine {
+        left: 50%;
+    }
+
+    .inv-itinerary__item {
+        grid-template-columns: minmax(0, 1fr) var(--node-size) minmax(0, 1fr);
+        column-gap: 2rem;
+        padding-block: 1.6rem;
+    }
+
+    .inv-itinerary__node {
+        grid-column: 2;
+    }
+
+    .inv-itinerary__item.is-left .inv-itinerary__body {
+        grid-column: 1;
+        text-align: right;
+    }
+
+    .inv-itinerary__item.is-right .inv-itinerary__body {
+        grid-column: 3;
+    }
+
+    .inv-itinerary__title {
+        font-size: 1.6rem;
+    }
+}

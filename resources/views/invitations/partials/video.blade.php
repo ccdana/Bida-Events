@@ -1,51 +1,46 @@
-<section class="invitation-section reveal invitation-video" id="video">
-    <div class="section-inner-wide">
-        <div class="invitation-video__shell">
-            @include('invitations.partials.lottie-framed-icon', ['name' => 'video'])
-            <p class="invitation-video__eyebrow">Save the date</p>
-            <h2 class="invitation-video__title">{{ $video['titulo'] ?? 'Nuestro video' }}</h2>
-            <div class="invitation-video__rule" aria-hidden="true"></div>
+<section class="inv-section reveal inv-video" id="video">
+    <div class="inv-wrap inv-wrap--wide">
+        @include('invitations.partials.section-header', [
+            'lottie' => 'video',
+            'eyebrow' => 'Save the date',
+            'title' => $video['titulo'] ?? 'Nuestro video',
+        ])
 
         @if(!empty($video['video_url'] ?? null))
-            @php $videoPlayerId = 'invitation-video-' . uniqid(); @endphp
-            <div class="invitation-video__player">
-                <div class="invitation-video__player-frame is-idle" data-video-frame="true">
-                    @if(!empty($video['poster'] ?? null))
-                        <img
-                            class="invitation-video__poster"
-                            data-video-poster="true"
-                            src="{{ $video['poster'] }}"
-                            alt=""
-                            loading="eager"
-                            decoding="sync"
-                            draggable="false"
-                        >
-                    @endif
-                    <video
-                        id="{{ $videoPlayerId }}"
-                        class="invitation-video__media"
-                        playsinline
-                        preload="none"
-                        data-video-player="true"
+            @php($videoPlayerId = 'invitation-video-' . substr(md5($video['video_url']), 0, 10))
+            <figure class="inv-video__frame is-idle" data-video-frame="true">
+                @if(!empty($video['poster'] ?? null))
+                    <img
+                        class="inv-video__poster"
+                        src="{{ $video['poster'] }}"
+                        alt=""
+                        loading="lazy"
+                        decoding="async"
+                        draggable="false"
                     >
-                        <source src="{{ $video['video_url'] ?? '' }}" type="video/mp4">
-                    </video>
-                    <button
-                        type="button"
-                        class="invitation-video__play-toggle is-paused is-pinned is-visible"
-                        data-video-toggle="true"
-                        aria-label="Reproducir video"
-                        title="Reproducir video"
-                    >
-                        <span class="invitation-video__play-toggle-icon" aria-hidden="true"></span>
-                    </button>
-                </div>
-            </div>
+                @endif
+                <video
+                    id="{{ $videoPlayerId }}"
+                    class="inv-video__media"
+                    playsinline
+                    preload="{{ empty($video['poster'] ?? null) ? 'metadata' : 'none' }}"
+                    data-video-player="true"
+                >
+                    <source src="{{ $video['video_url'] }}" type="video/mp4">
+                </video>
+                <button
+                    type="button"
+                    class="inv-video__toggle is-paused is-pinned is-visible"
+                    data-video-toggle="true"
+                    aria-label="Reproducir video"
+                    title="Reproducir video"
+                >
+                    <span class="inv-video__toggle-icon" aria-hidden="true"></span>
+                </button>
+            </figure>
+            <p class="inv-help inv-video__help">Toca el video para reproducirlo y sube el volumen de tu teléfono.</p>
         @else
-            <div class="invitation-video__empty">
-                El video aún no tiene una URL configurada.
-            </div>
+            <p class="inv-empty">Muy pronto compartiremos el video.</p>
         @endif
-        </div>
     </div>
 </section>

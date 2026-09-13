@@ -1,0 +1,434 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   INVITACIÓN — Base compartida (mobile-first)
+
+   Lenguaje editorial: jerarquía por tipografía, espacio y filetes de 1px.
+   Sin tarjetas decorativas, sin brillos. Todas las piezas leen la paleta del
+   evento desde las variables que define la plantilla (--primary-color, etc.).
+   ════════════════════════════════════════════════════════════════════════════ */
+
+.inv-page {
+    --inv-muted: color-mix(in srgb, var(--text-color) 64%, var(--bg-color));
+    --inv-soft: color-mix(in srgb, var(--text-color) 46%, var(--bg-color));
+    --inv-line: color-mix(in srgb, var(--text-color) 11%, var(--bg-color));
+    --inv-line-strong: color-mix(in srgb, var(--text-color) 22%, var(--bg-color));
+    --inv-tint: color-mix(in srgb, var(--accent-color) 20%, var(--bg-color));
+    --inv-accent-ink: color-mix(in srgb, var(--primary-color) 80%, var(--text-color));
+    --inv-radius: 6px;
+    --inv-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+    font-family: var(--font-body);
+    color: var(--text-color);
+    background: var(--bg-color);
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+    text-rendering: optimizeLegibility;
+}
+
+/* ── Sección y contenedores ─────────────────────────────────────────────── */
+
+.inv-section {
+    position: relative;
+    padding-block: 4rem 3.5rem;
+    border-top: 1px solid var(--inv-line);
+    scroll-margin-top: 0.5rem;
+}
+
+.inv-wrap {
+    width: 100%;
+    max-width: 30rem;
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+}
+
+.inv-wrap--wide {
+    max-width: 40rem;
+}
+
+@media (min-width: 640px) {
+    .inv-section {
+        padding-block: 5.5rem 5rem;
+    }
+
+    .inv-wrap {
+        padding-inline: 2rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .inv-wrap--wide {
+        max-width: 56rem;
+    }
+}
+
+/* ── Encabezado de sección ──────────────────────────────────────────────── */
+
+.inv-head {
+    margin-bottom: 2.25rem;
+    text-align: center;
+}
+
+.inv-head__eyebrow {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.34em;
+    text-transform: uppercase;
+    color: var(--inv-accent-ink);
+}
+
+.inv-head__title {
+    margin-top: 0.6rem;
+    font-family: var(--font-titles);
+    font-size: clamp(2.1rem, 9vw, 3.6rem);
+    font-weight: 400;
+    line-height: 1.04;
+    color: var(--text-color);
+    text-wrap: balance;
+}
+
+.inv-head__rule {
+    width: 3.5rem;
+    height: 1px;
+    margin: 1rem auto 0;
+    background: var(--primary-color);
+    opacity: 0.65;
+}
+
+.inv-head__intro {
+    max-width: 24rem;
+    margin: 1rem auto 0;
+    font-size: 0.93rem;
+    line-height: 1.7;
+    color: var(--inv-muted);
+    text-wrap: pretty;
+}
+
+/* Lottie enmarcado entre dos filetes */
+.invitation-lottie-framed {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.9rem;
+    margin-bottom: 1.1rem;
+}
+
+.invitation-lottie-framed__rule {
+    width: min(16vw, 5rem);
+    height: 1px;
+    background: var(--inv-line-strong);
+}
+
+.invitation-lottie-framed__icon {
+    width: 3rem;
+    height: 3rem;
+    flex-shrink: 0;
+}
+
+.invitation-lottie {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.invitation-lottie svg {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* ── Tipografía utilitaria ──────────────────────────────────────────────── */
+
+.inv-label {
+    display: block;
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: var(--inv-soft);
+}
+
+.inv-help {
+    font-size: 0.8rem;
+    line-height: 1.6;
+    color: var(--inv-soft);
+    text-align: center;
+}
+
+.inv-status {
+    min-height: 1.3rem;
+    margin-top: 0.75rem;
+    font-size: 0.84rem;
+    line-height: 1.5;
+    color: var(--inv-accent-ink);
+    text-align: center;
+}
+
+.inv-status.is-error {
+    color: color-mix(in srgb, #b3261e 75%, var(--text-color));
+}
+
+.inv-empty {
+    padding: 2.5rem 1rem;
+    border-block: 1px solid var(--inv-line);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--inv-soft);
+    text-align: center;
+}
+
+/* ── Botones y enlaces ──────────────────────────────────────────────────── */
+
+.inv-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    min-height: 3rem;
+    padding: 0.7rem 1.4rem;
+    border: 1px solid var(--text-color);
+    border-radius: var(--inv-radius);
+    background: var(--text-color);
+    color: var(--bg-color);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+}
+
+.inv-btn:active {
+    opacity: 0.82;
+}
+
+.inv-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.inv-btn--ghost {
+    border-color: var(--inv-line-strong);
+    background: transparent;
+    color: var(--text-color);
+}
+
+.inv-btn--block {
+    width: 100%;
+}
+
+.inv-btn__icon {
+    width: 1.1rem;
+    height: 1.1rem;
+    flex-shrink: 0;
+}
+
+.inv-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 2.75rem;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--inv-accent-ink);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.inv-actions {
+    display: grid;
+    gap: 0.6rem;
+    margin-top: 1.75rem;
+}
+
+@media (min-width: 480px) {
+    .inv-actions--split {
+        grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+    }
+}
+
+@media (hover: hover) {
+    .inv-btn:hover:not(:disabled) {
+        background: color-mix(in srgb, var(--text-color) 86%, var(--bg-color));
+    }
+
+    .inv-btn--ghost:hover:not(:disabled) {
+        border-color: var(--text-color);
+        background: transparent;
+    }
+
+    .inv-link:hover {
+        color: var(--text-color);
+    }
+}
+
+.inv-page :is(a, button, input, select, textarea, [tabindex]):focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 3px;
+}
+
+/* ── Listas con filete ──────────────────────────────────────────────────── */
+
+.inv-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--inv-line);
+}
+
+.inv-list > li {
+    padding-block: 1.15rem;
+    border-bottom: 1px solid var(--inv-line);
+}
+
+/* ── Campos de formulario ───────────────────────────────────────────────── */
+
+.inv-input {
+    width: 100%;
+    min-height: 3rem;
+    padding: 0.7rem 0;
+    border: 0;
+    border-bottom: 1px solid var(--inv-line-strong);
+    border-radius: 0;
+    background: transparent;
+    color: var(--text-color);
+    font: inherit;
+    font-size: 1rem; /* 16px evita el zoom automático de iOS */
+    transition: border-color 0.2s ease;
+}
+
+.inv-input::placeholder {
+    color: var(--inv-soft);
+}
+
+.inv-input:focus {
+    outline: none;
+    border-bottom-color: var(--primary-color);
+}
+
+textarea.inv-input {
+    min-height: 5.5rem;
+    resize: vertical;
+}
+
+/* ── Hoja inferior (modales) ────────────────────────────────────────────── */
+
+.inv-sheet-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    background: rgb(0 0 0 / 0.45);
+}
+
+.inv-sheet {
+    width: 100%;
+    max-width: 30rem;
+    max-height: 88dvh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 0.75rem 1.5rem calc(1.5rem + env(safe-area-inset-bottom));
+    border-radius: 14px 14px 0 0;
+    background: var(--bg-color);
+    color: var(--text-color);
+}
+
+.inv-sheet__grip {
+    width: 2.5rem;
+    height: 4px;
+    margin: 0 auto 1.25rem;
+    border-radius: 999px;
+    background: var(--inv-line-strong);
+}
+
+.inv-sheet__title {
+    font-family: var(--font-titles);
+    font-size: 1.6rem;
+    font-weight: 400;
+    line-height: 1.15;
+}
+
+@media (min-width: 640px) {
+    .inv-sheet-backdrop {
+        align-items: center;
+        padding: 1.5rem;
+    }
+
+    .inv-sheet {
+        border-radius: 10px;
+    }
+
+    .inv-sheet__grip {
+        display: none;
+    }
+}
+
+/* ── Aparición al hacer scroll ──────────────────────────────────────────── */
+
+.reveal {
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity 0.8s var(--inv-ease), transform 0.8s var(--inv-ease);
+}
+
+.reveal.is-visible {
+    opacity: 1;
+    transform: none;
+}
+
+@keyframes inv-fade-up {
+    from { opacity: 0; transform: translateY(22px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.inv-fade-up {
+    animation: inv-fade-up 1s var(--inv-ease) both;
+}
+
+.inv-fade-up--1 { animation-delay: 0.12s; }
+.inv-fade-up--2 { animation-delay: 0.24s; }
+.inv-fade-up--3 { animation-delay: 0.36s; }
+
+/* ── Footer ─────────────────────────────────────────────────────────────── */
+
+.inv-footer {
+    padding: 3rem 1.25rem 3.5rem;
+    border-top: 1px solid var(--inv-line);
+    text-align: center;
+}
+
+.inv-footer__text {
+    font-size: 0.66rem;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: var(--inv-soft);
+}
+
+.inv-footer__brand {
+    color: var(--text-color);
+    font-weight: 600;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .inv-page .reveal {
+        opacity: 1;
+        transform: none;
+        transition: none;
+    }
+
+    .inv-page *,
+    .inv-page *::before,
+    .inv-page *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+    }
+}

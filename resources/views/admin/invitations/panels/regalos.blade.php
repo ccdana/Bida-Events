@@ -5,11 +5,18 @@
         opcionesActive: (modules.regalos?.opciones?.length > 0),
     }">
 
+    @include('admin.partials.panel-intro', [
+        'eyebrow' => 'Regalos',
+        'title' => 'Opciones de regalo',
+        'description' => 'una lista con cada opción configurada. «Transferencia bancaria» abre una hoja con los datos, un botón para copiar cada uno y el QR.',
+        'tip' => 'Solo se muestran las opciones que tengan datos. Si no completas ninguna, la sección no aparece.',
+    ])
+
     <section class="admin-card p-3 space-y-3">
         <div class="flex items-center justify-between gap-2">
             <div class="min-w-0">
-                <p class="admin-eyebrow mb-0.5">Regalos</p>
-                <p class="text-xs text-stone-600 truncate">Mesa de regalos e información bancaria</p>
+                <p class="admin-eyebrow mb-0.5">Visibilidad</p>
+                <p class="text-xs text-stone-600 truncate">Mostrar la sección de regalos</p>
             </div>
             {{-- Toggle real --}}
             <label class="relative inline-flex items-center gap-2 cursor-pointer select-none">
@@ -52,10 +59,10 @@
                     class="admin-input" placeholder="https://...">
             </div>
             <div>
-                <label class="admin-label">Texto del botón</label>
+                <label class="admin-label">Nombre visible</label>
                 <input type="text" x-model="modules.regalos.tienda_texto"
                     @input="modules.config.modulos.regalos = true; schedulePreview()"
-                    class="admin-input" placeholder="Ej. Ver lista de regalos">
+                    class="admin-input" placeholder="Ej. Lista de regalos en Falabella">
             </div>
         </div>
     </section>

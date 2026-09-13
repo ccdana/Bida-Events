@@ -1,135 +1,96 @@
-<section class="invitation-section reveal" id="encuestas">
-    <div class="section-inner-wide">
-        <header class="section-header">
-            @include('invitations.partials.icon', ['name' => 'poll', 'class' => 'w-8 h-8 text-primary mx-auto mb-3'])
-            <span class="section-eyebrow">Tu opinión cuenta</span>
-            <h2 class="section-title">{{ $encuestas['titulo'] ?? 'Encuestas' }}</h2>
-            <div class="section-ornament"></div>
-        </header>
+@php
+    $preguntas = array_values(array_filter($encuestas['preguntas'] ?? [], fn ($poll) => !empty($poll['id'] ?? null) && !empty($poll['opciones'] ?? [])));
+    $totalPreguntas = count($preguntas);
+@endphp
 
-        <div class="space-y-5">
-            @foreach($encuestas['preguntas'] ?? [] as $poll)
-                @php
-                    $pollType = $poll['tipo'] ?? 'single';
-                    $options = $poll['opciones'] ?? [];
-                @endphp
-                <div x-data="pollVoter('{{ $poll['id'] }}', @js($pollResults[$poll['id']] ?? array_fill(0, count($options), 0)), @js($options), '{{ $slug }}', '{{ $guestToken }}', '{{ $pollType }}')"
-                    class="theme-card overflow-hidden">
+<section class="inv-section reveal inv-polls" id="encuestas">
+    <div class="inv-wrap">
+        @include('invitations.partials.section-header', [
+            'lottie' => 'poll',
+            'eyebrow' => 'Tu opinión cuenta',
+            'title' => $encuestas['titulo'] ?? 'Encuestas',
+            'intro' => 'Toca una opción para votar. Verás los resultados al instante.',
+        ])
 
-                    <div class="p-6 pb-4">
-                        <div class="flex items-start justify-between gap-3">
-                            <p class="font-title text-lg leading-snug">{{ $poll['pregunta'] }}</p>
-                            <span class="shrink-0 text-[10px] uppercase tracking-[0.2em] px-2.5 py-1 rounded-full theme-card-soft">
-                                {{ ucfirst($pollType) }}
-                            </span>
-                        </div>
-                        @if($pollType === 'single')
-                            <div class="flex items-center justify-between mt-4">
-                                <div class="flex gap-1 p-0.5 rounded-full bg-primary/5 border border-primary/10">
-                                    <button type="button" @click="mode='list'" class="px-3 py-1 rounded-full text-[10px] uppercase tracking-wider transition"
-                                        :class="mode==='list' ? 'bg-primary text-white' : 'opacity-50'">Lista</button>
-                                    <button type="button" @click="mode='cards'" class="px-3 py-1 rounded-full text-[10px] uppercase tracking-wider transition"
-                                        :class="mode==='cards' ? 'bg-primary text-white' : 'opacity-50'">Tarjetas</button>
-                                </div>
-                                <span class="text-[10px] uppercase tracking-wider opacity-40" x-show="voted" x-cloak>Voto registrado</span>
-                            </div>
-                        @endif
-                    </div>
+        @forelse($preguntas as $number => $poll)
+            @php
+                $pollType = $poll['tipo'] ?? 'single';
+                $options = array_values($poll['opciones']);
+                $isGrid = in_array($pollType, ['rating', 'emoji'], true);
+            @endphp
+            <div class="inv-poll"
+                x-data="pollVoter(@js($poll['id']), @js($pollResults[$poll['id']] ?? array_fill(0, count($options), 0)), @js($options), @js($slug), @js($guestToken), @js($pollType))">
+                @if($totalPreguntas > 1)
+                    <span class="inv-label">Pregunta {{ $number + 1 }} de {{ $totalPreguntas }}</span>
+                @endif
+                <h3 class="inv-poll__question">{{ $poll['pregunta'] ?? '' }}</h3>
 
-                    @if($pollType === 'single')
-                        <div x-show="mode==='list'" class="px-6 pb-6 space-y-2">
-                            <template x-for="(opcion, idx) in options" :key="'list-'+idx">
-                                <button type="button" @click="vote(idx)" :disabled="voted"
-                                    class="poll-option-card w-full text-left rounded-xl border px-4 py-3.5 transition-all duration-300 relative overflow-hidden group active:scale-[0.99]"
-                                    :class="[
-                                        voted && selected === idx ? 'border-primary ring-2 ring-primary/20' : 'border-primary/15 hover:border-primary/40',
-                                        voted ? 'cursor-default' : 'cursor-pointer'
-                                    ]">
-                                    <div class="absolute inset-y-0 left-0 bg-primary/12 transition-all duration-700 ease-out" :style="`width:${percentages[idx]}%`"></div>
-                                    <span class="relative flex items-center justify-between gap-3 text-sm">
-                                        <span class="flex items-center gap-3">
-                                            <span class="w-6 h-6 rounded-full border flex items-center justify-center shrink-0 transition-all duration-300"
-                                                :class="voted && selected === idx ? 'bg-primary border-primary text-white scale-110' : 'border-primary/30'">
-                                                <span x-show="voted && selected === idx" x-cloak>@include('invitations.partials.icon', ['name' => 'check', 'class' => 'w-3 h-3', 'animated' => false])</span>
-                                            </span>
-                                            <span x-text="opcion"></span>
-                                        </span>
-                                        <span x-show="voted" x-text="percentages[idx]+'%'" class="text-primary font-semibold tabular-nums" x-cloak></span>
-                                    </span>
-                                </button>
-                            </template>
-                        </div>
+                <ul class="inv-poll__options {{ $isGrid ? 'inv-poll__options--grid' : '' }}" :aria-busy="loading.toString()">
+                    @foreach($options as $index => $option)
+                        <li>
+                            <button type="button" class="inv-poll__option"
+                                :class="{ 'is-selected': selected === {{ $index }}, 'is-voted': voted }"
+                                :style="voted ? '--pct:' + (percentages[{{ $index }}] / 100) : ''"
+                                :aria-pressed="(selected === {{ $index }}).toString()"
+                                :disabled="voted || loading"
+                                @click="vote({{ $index }})">
+                                <span class="inv-poll__bar" aria-hidden="true"></span>
+                                <span class="inv-poll__mark" aria-hidden="true"></span>
+                                <span class="inv-poll__text">{{ $option }}</span>
+                                <span class="inv-poll__pct" x-show="voted" x-cloak x-text="percentages[{{ $index }}] + '%'"></span>
+                            </button>
+                        </li>
+                    @endforeach
+                </ul>
 
-                        <div x-show="mode==='cards'" x-cloak class="px-6 pb-6">
-                            <div class="grid grid-cols-2 gap-3">
-                                <template x-for="(opcion, idx) in options" :key="'card-'+idx">
-                                <button type="button" @click="vote(idx)" :disabled="voted"
-                                        class="poll-option-card relative rounded-2xl border p-4 min-h-[5.5rem] flex flex-col justify-end text-left transition-all duration-300 active:scale-95 overflow-hidden"
-                                        :class="voted && selected === idx ? 'is-selected border-primary' : 'border-primary/15 theme-card-soft hover:border-primary/35'">
-                                        <div x-show="voted" class="absolute top-3 right-3 text-primary font-bold text-sm tabular-nums" x-text="percentages[idx]+'%'" x-cloak></div>
-                                        <span class="text-sm font-medium leading-snug relative" x-text="opcion"></span>
-                                        <div x-show="voted" class="mt-2 h-1 rounded-full bg-primary/15 overflow-hidden" x-cloak>
-                                            <div class="h-full bg-primary rounded-full transition-all duration-700" :style="`width:${percentages[idx]}%`"></div>
-                                        </div>
-                                    </button>
-                                </template>
-                            </div>
-                        </div>
-                    @elseif($pollType === 'rating')
-                        <div class="px-6 pb-6">
-                            <div class="grid grid-cols-5 gap-2">
-                                <template x-for="(opcion, idx) in options" :key="'rating-'+idx">
-                                <button type="button" @click="vote(idx)" :disabled="voted"
-                                        class="poll-option-card rounded-2xl border p-4 text-center transition-all duration-300"
-                                        :class="voted && selected === idx ? 'is-selected border-primary' : 'border-primary/15 theme-card-soft hover:border-primary/35'">
-                                        <span class="block text-lg font-semibold text-secondary" x-text="opcion"></span>
-                                    </button>
-                                </template>
-                            </div>
-                        </div>
-                    @elseif($pollType === 'yesno')
-                        <div class="px-6 pb-6 grid gap-3 md:grid-cols-2">
-                            <template x-for="(opcion, idx) in options" :key="'yesno-'+idx">
-                                <button type="button" @click="vote(idx)" :disabled="voted"
-                                    class="poll-option-card rounded-2xl border p-4 text-left transition-all duration-300"
-                                    :class="voted && selected === idx ? 'is-selected border-primary' : 'border-primary/15 theme-card-soft hover:border-primary/35'">
-                                    <span class="block text-[10px] uppercase tracking-[0.2em] text-primary/60">Respuesta</span>
-                                    <span class="mt-2 block text-sm font-medium" x-text="opcion"></span>
-                                </button>
-                            </template>
-                        </div>
-                    @else
-                        <div class="px-6 pb-6 grid gap-3 md:grid-cols-2">
-                            <template x-for="(opcion, idx) in options" :key="'emoji-'+idx">
-                                <button type="button" @click="vote(idx)" :disabled="voted"
-                                    class="poll-option-card rounded-2xl border p-4 text-center transition-all duration-300 text-2xl"
-                                    :class="voted && selected === idx ? 'is-selected border-primary' : 'border-primary/15 theme-card-soft hover:border-primary/35'">
-                                    <span x-text="opcion"></span>
-                                </button>
-                            </template>
-                        </div>
-                    @endif
-                </div>
-            @endforeach
-        </div>
+                <p class="inv-status" :class="{ 'is-error': error }" x-text="message" aria-live="polite"></p>
+            </div>
+        @empty
+            <p class="inv-empty">Pronto habrá preguntas para votar.</p>
+        @endforelse
     </div>
 </section>
 <script>
 function pollVoter(pollId, initialPct, options, slug, guestToken, pollType) {
     return {
-        pollId, options, percentages: initialPct, voted: false, selected: null, mode: 'list', pollType,
+        pollId,
+        options,
+        pollType,
+        percentages: initialPct,
+        voted: false,
+        selected: null,
+        loading: false,
+        message: '',
+        error: false,
         async vote(idx) {
-            if (this.voted) return;
-            const res = await fetch(`/p/${slug}/polls/${pollId}/vote`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content, 'Accept': 'application/json' },
-                body: JSON.stringify({ option_index: idx, guest_token: guestToken || null })
-            });
-            const data = await res.json();
-            if (data.success) {
+            if (this.voted || this.loading) return;
+
+            this.loading = true;
+            this.selected = idx;
+            this.message = '';
+            this.error = false;
+
+            try {
+                const res = await fetch(`/p/${slug}/polls/${pollId}/vote`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content, 'Accept': 'application/json' },
+                    body: JSON.stringify({ option_index: idx, guest_token: guestToken || null })
+                });
+                const data = await res.json().catch(() => ({}));
+
+                if (!res.ok || !data.success) {
+                    throw new Error(data.message || 'No pudimos registrar tu voto. Intenta de nuevo.');
+                }
+
                 this.percentages = data.percentages;
-                this.selected = idx;
                 this.voted = true;
+                this.message = 'Gracias, tu voto quedó registrado.';
+            } catch (e) {
+                this.selected = null;
+                this.error = true;
+                this.message = e instanceof TypeError ? 'Revisa tu conexión e intenta de nuevo.' : e.message;
+            } finally {
+                this.loading = false;
             }
         }
     };

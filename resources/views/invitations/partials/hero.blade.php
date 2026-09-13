@@ -2,57 +2,42 @@
     $heroTitle = $bienvenida['nombre_quinceanera'] ?? $invitation->title;
     $heroEyebrow = $bienvenida['subtitulo'] ?? 'Mis XV Años';
     $heroMessage = $bienvenida['mensaje'] ?? '';
-    $heroDate = $bienvenida['fecha_texto'] ?? $invitation->event_date->format('d \\d\\e F, Y');
+    $heroDate = $bienvenida['fecha_texto'] ?? $invitation->event_date->locale('es')->translatedFormat('j \d\e F, Y');
 @endphp
 
-<header id="inicio" class="hero-premium relative min-h-[100svh] overflow-hidden">
-    <div class="hero-premium__backdrop {{ $hasHeroImage ? '' : 'hero-premium__backdrop--fallback' }}" aria-hidden="true">
-        @if($hasHeroImage)
-            @php($heroSrcset = \App\Support\CloudinaryImage::srcset($heroImage, [768, 1280, 1920]))
+<header id="inicio" class="inv-hero {{ $hasHeroImage ? 'inv-hero--image' : 'inv-hero--plain' }}">
+    @if($hasHeroImage)
+        @php($heroSrcset = \App\Support\CloudinaryImage::srcset($heroImage, [768, 1280, 1920]))
+        <div class="inv-hero__media" aria-hidden="true">
             <img
                 src="{{ \App\Support\CloudinaryImage::url($heroImage, 1920) }}"
                 @if($heroSrcset) srcset="{{ $heroSrcset }}" sizes="100vw" @endif
                 alt=""
-                class="hero-premium__image"
+                class="inv-hero__image"
                 loading="eager"
                 fetchpriority="high"
                 decoding="async"
             >
-        @endif
-    </div>
+        </div>
+        <div class="inv-hero__veil" aria-hidden="true"></div>
+    @endif
 
-    <div class="hero-premium__veil" aria-hidden="true"></div>
-    <div class="hero-premium__glow hero-premium__glow--left" aria-hidden="true"></div>
-    <div class="hero-premium__glow hero-premium__glow--right" aria-hidden="true"></div>
+    <div class="inv-hero__content">
+        <p class="inv-hero__eyebrow inv-fade-up">{{ $heroEyebrow }}</p>
 
-    <div class="hero-premium__particles" aria-hidden="true">
-        <span></span><span></span><span></span><span></span><span></span>
-    </div>
+        <h1 class="inv-hero__title inv-fade-up inv-fade-up--1">{{ $heroTitle }}</h1>
 
-    <div class="hero-premium__content mx-auto flex min-h-[100svh] w-full max-w-6xl flex-col items-center justify-center px-6 py-16 text-center sm:px-8 lg:px-12">
-        <p class="hero-premium__eyebrow animate-fade-up">
-            {{ $heroEyebrow }}
-        </p>
-
-        <h1 class="hero-premium__title animate-fade-up animate-fade-up-delay-1">
-            {{ $heroTitle }}
-        </h1>
-
-        <div class="hero-premium__rule animate-fade-up animate-fade-up-delay-2" aria-hidden="true"></div>
+        <div class="inv-hero__rule inv-fade-up inv-fade-up--2" aria-hidden="true"></div>
 
         @if(!empty($heroMessage))
-            <p class="hero-premium__message animate-fade-up animate-fade-up-delay-2">
-                {{ $heroMessage }}
-            </p>
+            <p class="inv-hero__message inv-fade-up inv-fade-up--2">{{ $heroMessage }}</p>
         @endif
 
-        <p class="hero-premium__date animate-fade-up animate-fade-up-delay-3">
-            {{ $heroDate }}
-        </p>
-
+        <p class="inv-hero__date inv-fade-up inv-fade-up--3">{{ $heroDate }}</p>
     </div>
 
-    <div class="hero-premium__scroll" aria-hidden="true">
-        @include('invitations.partials.icon', ['name' => 'chevron-down', 'class' => 'w-6 h-6', 'animated' => false])
-    </div>
+    <a href="#contenido" class="inv-hero__scroll">
+        Desliza
+        <span class="inv-hero__scroll-line" aria-hidden="true"></span>
+    </a>
 </header>

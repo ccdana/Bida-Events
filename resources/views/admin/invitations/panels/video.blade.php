@@ -1,25 +1,11 @@
 <div x-show="activeTab === 'video'" x-cloak class="space-y-2">
-    <!-- Resumen -->
-    <section class="admin-card p-3 space-y-3">
-        <div class="flex items-center justify-between gap-2">
-            <div class="min-w-0">
-                <p class="admin-eyebrow mb-0.5">Video</p>
-                <p class="text-xs text-stone-600 truncate">Save the date principal</p>
-            </div>
-            <span class="inline-flex items-center gap-1 px-2 py-1 rounded-md border text-xs font-semibold shrink-0"
-                :class="modules.config.modulos.video
-                    ? 'text-green-700 bg-green-50 border-green-200'
-                    : 'text-stone-500 bg-stone-50 border-stone-200'">
-                <span class="inline-block w-1.5 h-1.5 rounded-full"
-                    :class="modules.config.modulos.video ? 'bg-green-500' : 'bg-stone-400'"></span>
-                <span x-text="modules.config.modulos.video ? 'Activo' : 'Inactivo'"></span>
-            </span>
-        </div>
-
-        <p class="text-xs text-stone-500 leading-relaxed">
-            Panel dedicado al video principal del evento y su miniatura. Activa o desactiva el módulo desde el menú lateral.
-        </p>
-    </section>
+    @include('admin.partials.panel-intro', [
+        'eyebrow' => 'Video',
+        'title' => 'Save the date',
+        'description' => 'un reproductor con la miniatura como portada y un botón de play al centro; el video empieza al tocarlo.',
+        'tip' => 'Sube siempre una miniatura: es lo que se ve mientras el video no se reproduce y hace que la sección cargue más rápido.',
+        'moduleKey' => 'video',
+    ])
 
     <!-- Información general -->
     <section class="admin-card p-3 space-y-2">
@@ -34,7 +20,7 @@
     <section class="admin-card p-3 space-y-2">
         <p class="admin-eyebrow mb-1">Video principal</p>
         @include('admin.partials.cloudinary-upload', [
-            'label' => 'Video vertical',
+            'label' => 'Archivo de video (MP4)',
             'type' => 'video',
             'context' => 'video',
             'accept' => 'video/mp4,video/webm,video/quicktime',

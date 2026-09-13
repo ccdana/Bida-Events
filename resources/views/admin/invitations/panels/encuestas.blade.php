@@ -1,19 +1,14 @@
 <div x-show="activeTab === 'encuestas'" x-cloak class="space-y-2">
+    @include('admin.partials.panel-intro', [
+        'eyebrow' => 'Encuestas',
+        'title' => 'Preguntas para votar',
+        'description' => 'cada pregunta con sus opciones como botones. Al tocar una, el voto se guarda y aparecen los porcentajes de todos. Opción única y Sí/No se ven en lista; Escala y Emoji, en fila.',
+        'tip' => 'No cambies el «ID único» de una pregunta después de publicar: los votos ya recibidos están asociados a ese ID.',
+        'moduleKey' => 'encuestas',
+        'countExpr' => '`${modules.encuestas.preguntas.length} preguntas`',
+    ])
+
     <section class="admin-card p-3 space-y-3">
-        <div class="flex items-center justify-between gap-2">
-            <div class="min-w-0">
-                <p class="admin-eyebrow mb-0.5">Encuestas</p>
-                <p class="text-xs text-stone-600 truncate">Preguntas interactivas para tus invitados</p>
-            </div>
-            <span class="inline-flex items-center gap-1 px-2 py-1 rounded-md border text-xs font-semibold shrink-0"
-                :class="modules.config.modulos.encuestas
-                    ? 'text-green-700 bg-green-50 border-green-200'
-                    : 'text-stone-500 bg-stone-50 border-stone-200'">
-                <span class="inline-block w-1.5 h-1.5 rounded-full"
-                    :class="modules.config.modulos.encuestas ? 'bg-green-500' : 'bg-stone-400'"></span>
-                <span x-text="modules.config.modulos.encuestas ? 'Activo' : 'Inactivo'"></span>
-            </span>
-        </div>
 
         <div>
             <label class="admin-label">Título de la sección</label>

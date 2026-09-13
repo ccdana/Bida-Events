@@ -1,30 +1,12 @@
 <div x-show="activeTab === 'destacados'" x-cloak class="space-y-2">
-    <!-- Resumen -->
-    <section class="admin-card p-3 space-y-3">
-        <div class="flex items-center justify-between gap-2">
-            <div class="min-w-0">
-                <p class="admin-eyebrow mb-0.5">Invitados de honor</p>
-                <p class="text-xs text-stone-600 truncate">Chambelanes, damitas y padrinos</p>
-            </div>
-            <div class="flex items-center gap-1.5 shrink-0">
-                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-white border border-stone-200 text-xs font-semibold text-stone-600">
-                    <span x-text="`${(modules.destacados.chambelanes?.length || 0) + (modules.destacados.damitas?.length || 0) + (modules.destacados.padrinos?.length || 0)} personas`"></span>
-                </span>
-                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-md border text-xs font-semibold"
-                    :class="modules.config.modulos.destacados
-                        ? 'text-green-700 bg-green-50 border-green-200'
-                        : 'text-stone-500 bg-stone-50 border-stone-200'">
-                    <span class="inline-block w-1.5 h-1.5 rounded-full"
-                        :class="modules.config.modulos.destacados ? 'bg-green-500' : 'bg-stone-400'"></span>
-                    <span x-text="modules.config.modulos.destacados ? 'Activo' : 'Inactivo'"></span>
-                </span>
-            </div>
-        </div>
-
-        <p class="text-xs text-stone-500 leading-relaxed">
-            Destaca a quienes acompañan el evento con nombre, iniciales y una breve descripción. Activa o desactiva el módulo desde el menú lateral.
-        </p>
-    </section>
+    @include('admin.partials.panel-intro', [
+        'eyebrow' => 'Invitados de honor',
+        'title' => 'Cortejo y padrinos',
+        'description' => 'dos pestañas: «Cortejo», con chambelanes y damitas en lista, y «Padrinos», con su rol, nombres y mensaje. Los grupos vacíos no se muestran.',
+        'tip' => 'La descripción es opcional y aparece en letra pequeña debajo del nombre (ej. «Primo y confidente»).',
+        'moduleKey' => 'destacados',
+        'countExpr' => '`${(modules.destacados.chambelanes?.length || 0) + (modules.destacados.damitas?.length || 0) + (modules.destacados.padrinos?.length || 0)} personas`',
+    ])
 
     <!-- Chambelanes -->
     <section class="admin-card p-3 space-y-2">
@@ -48,19 +30,11 @@
                     class="text-xs font-medium text-red-600 hover:text-red-700">Eliminar</button>
             </div>
 
-            <div class="grid gap-2 grid-cols-[1fr_auto]">
-                <div>
-                    <label class="admin-label">Nombre</label>
-                    <input type="text" :value="typeof p === 'string' ? p : p.nombre"
-                        @input="normalizePerson(modules.destacados.chambelanes, i, 'nombre', $event.target.value); schedulePreview()"
-                        class="admin-input" placeholder="Nombre completo">
-                </div>
-                <div class="w-20">
-                    <label class="admin-label">Iniciales</label>
-                    <input type="text" :value="typeof p === 'object' ? p.iniciales : ''"
-                        @input="normalizePerson(modules.destacados.chambelanes, i, 'iniciales', $event.target.value); schedulePreview()"
-                        class="admin-input text-center font-mono uppercase" placeholder="SV" maxlength="3">
-                </div>
+            <div>
+                <label class="admin-label">Nombre</label>
+                <input type="text" :value="typeof p === 'string' ? p : p.nombre"
+                    @input="normalizePerson(modules.destacados.chambelanes, i, 'nombre', $event.target.value); schedulePreview()"
+                    class="admin-input" placeholder="Ej. Mateo Rodríguez">
             </div>
 
             <div x-data="{ open: false }" class="admin-accordion">
@@ -104,19 +78,11 @@
                     class="text-xs font-medium text-red-600 hover:text-red-700">Eliminar</button>
             </div>
 
-            <div class="grid gap-2 grid-cols-[1fr_auto]">
-                <div>
-                    <label class="admin-label">Nombre</label>
-                    <input type="text" :value="typeof p === 'string' ? p : p.nombre"
-                        @input="normalizePerson(modules.destacados.damitas, i, 'nombre', $event.target.value); schedulePreview()"
-                        class="admin-input" placeholder="Nombre completo">
-                </div>
-                <div class="w-20">
-                    <label class="admin-label">Iniciales</label>
-                    <input type="text" :value="typeof p === 'object' ? p.iniciales : ''"
-                        @input="normalizePerson(modules.destacados.damitas, i, 'iniciales', $event.target.value); schedulePreview()"
-                        class="admin-input text-center font-mono uppercase" placeholder="SV" maxlength="3">
-                </div>
+            <div>
+                <label class="admin-label">Nombre</label>
+                <input type="text" :value="typeof p === 'string' ? p : p.nombre"
+                    @input="normalizePerson(modules.destacados.damitas, i, 'nombre', $event.target.value); schedulePreview()"
+                    class="admin-input" placeholder="Ej. Valentina Castro">
             </div>
 
             <div x-data="{ open: false }" class="admin-accordion">

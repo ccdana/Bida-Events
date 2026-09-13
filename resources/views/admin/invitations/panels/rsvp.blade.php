@@ -1,37 +1,32 @@
 <div x-show="activeTab === 'rsvp'" x-cloak class="space-y-2">
-    <section class="admin-card p-3 space-y-3">
-        <div class="flex items-center justify-between gap-2">
-            <div class="min-w-0">
-                <p class="admin-eyebrow mb-0.5">RSVP</p>
-                <p class="text-xs text-stone-600 truncate">Confirmación de asistencia de invitados</p>
-            </div>
-            <span class="inline-flex items-center gap-1 px-2 py-1 rounded-md border text-xs font-semibold shrink-0"
-                :class="modules.config.modulos.rsvp
-                    ? 'text-green-700 bg-green-50 border-green-200'
-                    : 'text-stone-500 bg-stone-50 border-stone-200'">
-                <span class="inline-block w-1.5 h-1.5 rounded-full"
-                    :class="modules.config.modulos.rsvp ? 'bg-green-500' : 'bg-stone-400'"></span>
-                <span x-text="modules.config.modulos.rsvp ? 'Activo' : 'Inactivo'"></span>
-            </span>
-        </div>
+    @include('admin.partials.panel-intro', [
+        'eyebrow' => 'RSVP',
+        'title' => 'Confirmación de asistencia',
+        'description' => 'solo aparece al abrir el enlace personal de cada invitado. Responde en pasos (¿asistirás?, ¿cuántas personas?) y, al confirmar, recibe un pase con código QR.',
+        'tip' => 'La vista previa no muestra este formulario porque no hay un invitado seleccionado. Revísalo abriendo el enlace de un invitado desde «Invitados».',
+        'moduleKey' => 'rsvp',
+    ])
 
+    <section class="admin-card p-3 space-y-3">
         <div class="grid gap-2">
             <div>
-                <label class="admin-label">Título de confirmación</label>
-                <input type="text" x-model="modules.rsvp.titulo_confirmacion" @input="schedulePreview()" class="admin-input" placeholder="Ej. Confirmación de asistencia">
+                <label class="admin-label">Título del formulario</label>
+                <input type="text" x-model="modules.rsvp.titulo_confirmacion" @input="schedulePreview()" class="admin-input" placeholder="Ej. ¿Nos acompañas?">
             </div>
             <div>
-                <label class="admin-label">Mensaje personalizado</label>
-                <textarea x-model="modules.rsvp.mensaje_personalizado" @input="schedulePreview()" rows="2" class="admin-input" placeholder="Ej. Por favor confirma tu asistencia antes del 10 de Julio."></textarea>
+                <label class="admin-label">Mensaje debajo del título</label>
+                <textarea x-model="modules.rsvp.mensaje_personalizado" @input="schedulePreview()" rows="2" class="admin-input" placeholder="Ej. Por favor confirma antes del 10 de noviembre."></textarea>
             </div>
             <div class="grid grid-cols-2 gap-2">
                 <div>
-                    <label class="admin-label">Texto al confirmar</label>
-                    <input type="text" x-model="modules.rsvp.texto_confirmado" @input="schedulePreview()" class="admin-input" placeholder="Ej. ¡Sí, asistiré!">
+                    <label class="admin-label">Mensaje en el pase</label>
+                    <input type="text" x-model="modules.rsvp.texto_confirmado" @input="schedulePreview()" class="admin-input" placeholder="Ej. Presenta este pase en la entrada">
+                    <p class="mt-1 text-[11px] text-stone-400">Se ve cuando el invitado confirma.</p>
                 </div>
                 <div>
-                    <label class="admin-label">Texto al declinar</label>
-                    <input type="text" x-model="modules.rsvp.texto_declinado" @input="schedulePreview()" class="admin-input" placeholder="Ej. No podré asistir">
+                    <label class="admin-label">Título si no asistirá</label>
+                    <input type="text" x-model="modules.rsvp.texto_declinado" @input="schedulePreview()" class="admin-input" placeholder="Ej. Gracias por avisarnos">
+                    <p class="mt-1 text-[11px] text-stone-400">Se ve cuando el invitado responde que no irá.</p>
                 </div>
             </div>
         </div>

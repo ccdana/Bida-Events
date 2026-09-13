@@ -217,16 +217,23 @@ El frontend del proyecto utiliza **Alpine.js** y una arquitectura de **Code-Spli
 | --- | --- | --- |
 | `resources/js/app.js` | Entry point principal. Carga Alpine.js y Axios; detecta elementos en el DOM para realizar `import()` dinámico de scripts pesados (`video-player`, `lottie-icons`, `gallery-stack`, `itinerary-scroll`) y gestiona la barra de progreso de carga. | Excelente arquitectura de rendimiento; mantener los imports dinámicos encapsulados y sin dependencias cruzadas. |
 | `resources/js/bootstrap.js` | Inicializa Axios y configura cabeceras HTTP automáticas (CSRF-TOKEN y X-Requested-With). | Añadir interceptores globales si se requiere un manejo centralizado de errores HTTP. |
-| `resources/js/gallery-stack.js` | **[NUEVO]** Componente Alpine.js que utiliza Motion (`motion`) para la galería interactiva en formato stack/baraja. Soporta gestos táctiles y de ratón (drag, swipe, fling, snap back), rotaciones aleatorias por profundidad y refresco de Lottie. | Cargar dinámicamente sólo si existe `x-data*="galleryStack"`. Mantener optimizado el uso de memoria en dispositivos móviles. |
-| `resources/js/itinerary-scroll.js` | **[NUEVO]** Componente Alpine.js para la animación del itinerario impulsada por scroll. Gestiona el seguimiento de la luz sobre la línea temporal, activación de nodos en pantalla mediante `IntersectionObserver` y bucle de renderizado optimizado con `requestAnimationFrame`. | Mantiene las referencias de nodos DOM en un closure fuera de la reactividad de Alpine para prevenir sobrecostos de proxys. |
-| `resources/js/lottie-icons.js` | **[NUEVO]** Módulo dinámico para la animación de iconos vectoriales Lottie (`lottie-web`). Lee variables CSS del sistema (`--primary-color`) e inyecta dinámicamente el color primario en la estructura de capas del JSON de Lottie. | Destruye e inicializa animaciones mediante `WeakMap` para evitar fugas de memoria al cambiar de estado. |
+| `resources/js/gallery-stack.js` | Galería en pila con física de gesto: escribe las transformaciones directo en el DOM, mide la velocidad real del dedo, rota según el punto de agarre, adelanta las cartas de atrás en proporción al arrastre y lanza/devuelve cartas con resortes de Motion que heredan la velocidad. Soporta flechas, teclado y movimiento reducido. | Cargar dinámicamente sólo si existe `x-data*="galleryStack"`. Mantener las cartas renderizadas en Blade: el JS solo las anima. |
+| `resources/js/itinerary-scroll.js` | Luz del itinerario: sigue la línea de lectura con un resorte críticamente amortiguado, deriva la velocidad para la estela y enciende cada nodo con un destello gaussiano que deja un resplandor residual. El bucle `requestAnimationFrame` solo corre mientras la sección es visible y la luz no se asentó. | Escribe variables CSS (`--a`, `--glow`, `--trail`) directo en el DOM; no reintroducir bindings reactivos por frame. |
+| `resources/js/lottie-icons.js` | Carga cada ícono Lottie bajo demanda (`import.meta.glob`, un chunk por JSON), escribe el color primario y el grosor opcional (`data-lottie-stroke`) en la capa `control`, pausa las animaciones fuera de pantalla y respeta `prefers-reduced-motion`. | Todo ícono nuevo debe llamarse `<nombre>-loop-icon.json` y tener la capa `control`. |
 | `resources/js/video-player.js` | **[NUEVO]** Chunk dinámico para reproductores de video (`video.js`). Agrega controles de reproducción personalizados, desvanecimiento automático por inactividad del cursor y estado idle. | Se descarga sólo en páginas que contienen el atributo `[data-video-player]`. |
 
 ### `resources/css`
 
 | Archivo | Qué hace | Sugerencia |
 | --- | --- | --- |
-| `resources/css/app.css` | Estilos CSS globales, diseño del editor admin, temas de invitación, animaciones keyframes, variables HSL de color y estilos de componentes. | Organizar las secciones con comentarios o separar utilidades específicas si el archivo crece. |
+| `resources/css/app.css` | Entrada de Tailwind: importa los estilos de la invitación y contiene login, editor admin, portal cliente, animaciones de íconos SVG y microinteracciones globales (limitadas a fuera de `.inv-page`). | Mantener aquí solo estilos de admin/cliente; lo público va en `resources/css/invitation/`. |
+| `resources/css/invitation/base.css` | Tokens y piezas comunes de la invitación mobile-first: sección, encabezado, botones, listas con filete, campos, hoja inferior, aparición al scroll y footer. | Reutilizar `.inv-*` antes de crear estilos nuevos por módulo. |
+| `resources/css/invitation/hero.css` | Portada con foto, velo de legibilidad e indicador de scroll. | — |
+| `resources/css/invitation/countdown.css` | Cuenta regresiva y banner del invitado. | — |
+| `resources/css/invitation/gallery.css` | Pila de fotos (las transformaciones las escribe `gallery-stack.js`). | — |
+| `resources/css/invitation/itinerary.css` | Línea de tiempo con luz de caída suave, estela y bloom por nodo, controlados por variables CSS. | — |
+| `resources/css/invitation/modules.css` | Pestañas, video, dress code, cortejo, ubicación, hashtag, encuestas, playlist, regalos, RSVP y fotomural. | — |
+| `resources/css/invitation/nav-player.css` | Menú de secciones numerado y reproductor de música fijo. | — |
 
 ### `resources/lottie-icons`
 
@@ -240,6 +247,7 @@ Animaciones vectoriales Lottie en formato JSON utilizadas en los módulos del ev
 | `resources/lottie-icons/invitation-loop-icon.json` | **[NUEVO]** Animación de sobre de invitación para el banner de bienvenida y sección de RSVP. | Icono principal de bienvenida al invitado. |
 | `resources/lottie-icons/itinerar-people-loop-icon.json` | **[NUEVO]** Animación de personas/evento en bucle para la cronología del itinerario. | Utilizado en la cabecera de la sección de itinerario. |
 | `resources/lottie-icons/video-loop-icon.json` | **[NUEVO]** Animación de claustro/cámara de video para el reproductor de video / Save The Date. | Icono representativo del módulo multimedia. |
+| `resources/lottie-icons/{location,crown,dress,hashtag,poll,music,gift,rsvp,camera,heart}-loop-icon.json` | Íconos propios (ubicación, cortejo, dress code, hashtag, encuestas, playlist, regalos, RSVP, fotomural y post-evento) con la misma estructura Lordicon: capa `control` para color/grosor y loop que cierra en la misma pose. | No editarlos a mano: se generan con `scripts/lottie/build-icons.mjs`. |
 
 ### `resources/views`
 
@@ -306,6 +314,7 @@ Animaciones vectoriales Lottie en formato JSON utilizadas en los módulos del ev
 | Archivo | Qué hace | Sugerencia |
 | --- | --- | --- |
 | `resources/views/admin/partials/cloudinary-upload.blade.php` | Componente reutilizable para la carga de archivos multimedia a Cloudinary. | Mantener desacoplado para ser usado en cualquier panel del editor. |
+| `resources/views/admin/partials/panel-intro.blade.php` | Encabezado de cada panel del editor: qué es el módulo, qué ve el invitado, consejo y estado visible/oculto. | Describir siempre el resultado que verá el invitado, no el campo técnico. |
 | `resources/views/admin/partials/icon-picker.blade.php` | Selector visual de iconos vectoriales para itinerarios y módulos. | Renderizar lista de iconos de manera diferida para acelerar la interfaz. |
 
 #### Portal Cliente
@@ -353,6 +362,7 @@ Animaciones vectoriales Lottie en formato JSON utilizadas en los módulos del ev
 | `resources/views/invitations/partials/polls.blade.php` | Parcial de encuestas interactivas con votación en tiempo real. | Muestra porcentajes de resultados tras emitir el voto. |
 | `resources/views/invitations/partials/post-event.blade.php` | Parcial con mensaje especial desplegado al finalizar el evento. | Estático y altamente optimizable en caché. |
 | `resources/views/invitations/partials/regalos.blade.php` | Parcial para visualizar datos bancarios, sobres o enlaces a tiendas de regalos. | Incluye modal/acordeón para ocultar datos sensibles. |
+| `resources/views/invitations/partials/section-header.blade.php` | Encabezado común de sección: lottie enmarcado, eyebrow, título, filete y texto de ayuda. | Usarlo en todo módulo nuevo para mantener la jerarquía visual. |
 | `resources/views/invitations/partials/rsvp.blade.php` | Formulario interactivo de confirmación de asistencia (RSVP) con pase y acompañantes. | Procesa el envío mediante AJAX o submit estándar con validación. |
 | `resources/views/invitations/partials/video.blade.php` | Bloque de reproductor de video / Save The Date con carátula y Video.js. | Vinculado con el chunk JS dinámico de video. |
 
@@ -378,6 +388,14 @@ Los archivos en `resources/views/invitations/modules/` actúan como wrappers liv
 | `resources/views/invitations/modules/regalos.blade.php` | Wrapper del módulo de mesas de regalos. | Evalúa si hay métodos de regalo configurados. |
 | `resources/views/invitations/modules/rsvp.blade.php` | Wrapper del módulo de RSVP. | Garantiza la estructura del formulario de confirmación. |
 | `resources/views/invitations/modules/video.blade.php` | Wrapper del módulo de video / Save The Date. | Incluye el reproductor si existe URL de video. |
+
+---
+
+## `scripts/`
+
+| Archivo | Qué hace | Sugerencia |
+| --- | --- | --- |
+| `scripts/lottie/build-icons.mjs` | Genera los íconos Lottie propios desde primitivas (paths SVG, arcos) y valida todos los JSON de `resources/lottie-icons` con `--check` (capa control, expresiones y cierre del loop). | Ejecutar con Node: `node scripts/lottie/build-icons.mjs` y luego `--check`. |
 
 ---
 

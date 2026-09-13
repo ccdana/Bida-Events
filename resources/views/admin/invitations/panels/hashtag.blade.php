@@ -1,24 +1,17 @@
 <div x-show="activeTab === 'hashtag'" x-cloak class="space-y-2">
-    <section class="admin-card p-3 space-y-3">
-        <div class="flex items-center justify-between gap-2">
-            <div class="min-w-0">
-                <p class="admin-eyebrow mb-0.5">Hashtag</p>
-                <p class="text-xs text-stone-600 truncate">Etiqueta oficial para redes sociales</p>
-            </div>
-            <span class="inline-flex items-center gap-1 px-2 py-1 rounded-md border text-xs font-semibold shrink-0"
-                :class="modules.config.modulos.hashtag
-                    ? 'text-green-700 bg-green-50 border-green-200'
-                    : 'text-stone-500 bg-stone-50 border-stone-200'">
-                <span class="inline-block w-1.5 h-1.5 rounded-full"
-                    :class="modules.config.modulos.hashtag ? 'bg-green-500' : 'bg-stone-400'"></span>
-                <span x-text="modules.config.modulos.hashtag ? 'Activo' : 'Inactivo'"></span>
-            </span>
-        </div>
+    @include('admin.partials.panel-intro', [
+        'eyebrow' => 'Hashtag',
+        'title' => 'Etiqueta para redes',
+        'description' => 'el hashtag en grande con un botón para copiarlo y otro para ver las publicaciones en la red elegida.',
+        'moduleKey' => 'hashtag',
+    ])
 
+    <section class="admin-card p-3 space-y-3">
         <div class="grid gap-2">
             <div>
                 <label class="admin-label">Hashtag del evento</label>
-                <input type="text" x-model="modules.hashtag.hashtag" @input="schedulePreview()" class="admin-input" placeholder="#MiEvento2026">
+                <input type="text" x-model="modules.hashtag.hashtag" @input="schedulePreview()" class="admin-input" placeholder="#SofiaXV2026">
+                <p class="mt-1 text-[11px] text-stone-400">Incluye el símbolo # y no uses espacios ni tildes para que la búsqueda funcione.</p>
             </div>
             <div class="space-y-3">
                 <div x-data="{ open: false }" class="admin-accordion">
@@ -47,8 +40,8 @@
                     </div>
                 </div>
                 <div>
-                    <label class="admin-label">Texto del botón</label>
-                    <input type="text" x-model="modules.hashtag.texto_boton" @input="schedulePreview()" class="admin-input" placeholder="Ej. Ver en Instagram">
+                    <label class="admin-label">Título de la sección</label>
+                    <input type="text" x-model="modules.hashtag.texto_boton" @input="schedulePreview()" class="admin-input" placeholder="Ej. Usa nuestro hashtag">
                 </div>
             </div>
         </div>

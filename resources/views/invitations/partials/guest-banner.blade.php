@@ -1,33 +1,36 @@
 @php
-    $guestTitle = $guest?->name ?? 'Invitado Especial';
-    $guestSubtitle = $guest?->status === 'pending'
-        ? 'Tu asistencia todavía está pendiente'
-        : ($guest?->status === 'confirmed' ? 'Tu asistencia fue confirmada' : 'Celebremos juntos este día');
+    $passes = (int) ($guest?->passes_allocated ?? 1);
+    $status = $guest?->status ?: 'pending';
+    $statusLabel = [
+        'confirmed' => 'Confirmada',
+        'declined' => 'No asistirá',
+    ][$status] ?? 'Pendiente';
 @endphp
 
-<section class="invitation-section reveal invitation-guest-banner" id="guest-banner">
-    <div class="section-inner-wide">
-        @include('invitations.partials.lottie-framed-icon', ['name' => 'invitation'])
+<section class="inv-section reveal inv-guest" id="guest-banner">
+    <div class="inv-wrap">
+        @include('invitations.partials.section-header', [
+            'lottie' => 'invitation',
+            'eyebrow' => 'Esta invitación es para',
+            'title' => $guest?->name ?? 'Invitado especial',
+        ])
 
-        <p class="invitation-guest-banner__eyebrow">
-            Esta invitación es para
-        </p>
+        <dl class="inv-guest__facts">
+            <div>
+                <dt class="inv-label">Pases</dt>
+                <dd>{{ $passes }} {{ $passes === 1 ? 'persona' : 'personas' }}</dd>
+            </div>
+            <div>
+                <dt class="inv-label">Asistencia</dt>
+                <dd>{{ $statusLabel }}</dd>
+            </div>
+        </dl>
 
-        <h2 class="invitation-guest-banner__title">
-            {{ $guestTitle }}
-        </h2>
-
-        <div class="invitation-guest-banner__divider" aria-hidden="true"></div>
-
-        @if($guest)
-            <p class="invitation-guest-banner__subtitle">
-                {{ $guestSubtitle }}
-            </p>
-        @else
-            <p class="invitation-guest-banner__subtitle">
-                La experiencia está pensada para una persona muy especial
-            </p>
+        @if($status === 'pending')
+            <div class="inv-actions">
+                <a href="#rsvp" class="inv-btn inv-btn--block">Confirmar asistencia</a>
+                <p class="inv-help">Te toma menos de un minuto y nos ayuda a organizar la noche.</p>
+            </div>
         @endif
-
     </div>
 </section>

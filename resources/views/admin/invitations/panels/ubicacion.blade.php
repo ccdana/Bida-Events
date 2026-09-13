@@ -1,4 +1,11 @@
 <div x-show="activeTab === 'ubicacion'" x-cloak class="space-y-3">
+    @include('admin.partials.panel-intro', [
+        'eyebrow' => 'Ubicación',
+        'title' => 'Dónde es el evento',
+        'description' => 'el nombre del lugar como título, la dirección, la foto y el mapa, con botones «Cómo llegar» (Google Maps) y «Abrir en Waze».',
+        'tip' => 'Cuando aparezca el mapa aquí abajo, los botones de navegación ya funcionan en la invitación.',
+        'moduleKey' => 'ubicacion',
+    ])
 
     <!-- 1. Selección de mapa de Google -->
     <section class="admin-card p-3 space-y-3">
@@ -18,7 +25,7 @@
                 </button>
             </div>
             <p class="mt-1.5 text-xs leading-relaxed text-stone-500">
-                Pega las coordinadas de Google Maps para fijar la ubicación automáticamente.
+                En Google Maps mantén presionado el lugar, copia las coordenadas que aparecen y pégalas aquí. También puedes pegar el enlace de «Compartir».
             </p>
         </div>
 

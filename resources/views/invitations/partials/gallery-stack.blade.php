@@ -5,90 +5,71 @@
         ->values();
     $galleryUrls = $galleryPhotos->map(fn ($url) => \App\Support\CloudinaryImage::url($url, 1200))->all();
     $gallerySrcsets = $galleryPhotos->map(fn ($url) => \App\Support\CloudinaryImage::srcset($url))->all();
+    $galleryCount = count($galleryUrls);
 @endphp
 
 <section
-    class="invitation-section reveal invitation-gallery"
+    class="inv-section reveal inv-gallery"
     id="galeria"
     x-data="galleryStack(@js($galleryUrls), @js($gallerySrcsets))"
     x-init="init()"
-    @pointermove.window="onPointerMove($event)"
-    @pointerup.window="onPointerUp($event)"
-    @pointercancel.window="onPointerUp($event)"
 >
-    <div class="section-inner-wide">
-        <div class="invitation-gallery__shell">
-            @include('invitations.partials.lottie-framed-icon', ['name' => 'eye-image'])
-            <p class="invitation-gallery__eyebrow">Momentos especiales</p>
-            <h2 class="invitation-gallery__title">{{ $galeria['titulo'] ?? 'Galería' }}</h2>
-            <div class="invitation-gallery__rule" aria-hidden="true"></div>
-            <p class="invitation-gallery__hint">Desliza para descubrir</p>
+    <div class="inv-wrap inv-wrap--wide">
+        @include('invitations.partials.section-header', [
+            'lottie' => 'eye-image',
+            'eyebrow' => 'Momentos especiales',
+            'title' => $galeria['titulo'] ?? 'Galería',
+        ])
 
-            <template x-if="photos.length > 0">
-                <div class="invitation-gallery__stage">
-                    <div class="invitation-gallery__stack" x-ref="stack" aria-live="polite">
-                        <template x-for="photoIndex in order" :key="`gallery-card-${photoIndex}`">
-                            <article
-                                class="invitation-gallery__card"
-                                :class="{
-                                    'is-top': isTopCard(photoIndex),
-                                    'is-dragging': isTopCard(photoIndex) && isDragging,
-                                    'is-resetting': resettingIndex === photoIndex,
-                                }"
-                                :data-photo-index="photoIndex"
-                                :style="cardStyle(photoIndex)"
-                                @pointerdown="onPointerDown($event, photoIndex)"
+        @if($galleryCount > 0)
+            <div class="inv-gallery__stage">
+                <div
+                    class="inv-gallery__stack"
+                    x-ref="stack"
+                    tabindex="0"
+                    role="group"
+                    aria-roledescription="carrusel"
+                    aria-label="Galería de fotos. Desliza o usa las flechas para cambiar de foto."
+                    @keydown.arrow-left.prevent="swipePrev()"
+                    @keydown.arrow-right.prevent="swipeNext()"
+                >
+                    @foreach($galleryUrls as $index => $url)
+                        <figure
+                            class="inv-gallery__card {{ $index === 0 ? 'is-top' : '' }}"
+                            data-gallery-card="{{ $index }}"
+                            style="z-index: {{ $galleryCount - $index }}"
+                        >
+                            <img
+                                src="{{ $url }}"
+                                @if(!empty($gallerySrcsets[$index])) srcset="{{ $gallerySrcsets[$index] }}" sizes="(min-width: 1024px) 25rem, (min-width: 768px) 22rem, 80vw" @endif
+                                alt="Foto {{ $index + 1 }} de {{ $galleryCount }}"
+                                class="inv-gallery__image"
+                                loading="{{ $index < 3 ? 'eager' : 'lazy' }}"
+                                decoding="async"
+                                draggable="false"
                             >
-                                <img
-                                    :src="photos[photoIndex]"
-                                    :srcset="srcsets[photoIndex] || null"
-                                    sizes="(min-width: 768px) 480px, 90vw"
-                                    :alt="'Foto ' + (photoIndex + 1)"
-                                    class="invitation-gallery__image"
-                                    loading="lazy"
-                                    draggable="false"
-                                >
-                                <div class="invitation-gallery__image-shade" aria-hidden="true"></div>
-                            </article>
-                        </template>
-                    </div>
-
-                    <div class="invitation-gallery__nav">
-                        <button
-                            type="button"
-                            class="invitation-gallery__nav-label"
-                            @click="swipePrev()"
-                            :disabled="photos.length <= 1 || isAnimating"
-                        >
-                            &lt; Desliza
-                        </button>
-
-                        <div class="invitation-gallery__dots" role="tablist" aria-label="Fotos de la galería">
-                            <template x-for="(_, index) in photos" :key="`gallery-dot-${index}`">
-                                <span
-                                    class="invitation-gallery__dot"
-                                    :class="{ 'is-active': currentTopIndex() === index }"
-                                    role="tab"
-                                    :aria-selected="currentTopIndex() === index"
-                                ></span>
-                            </template>
-                        </div>
-
-                        <button
-                            type="button"
-                            class="invitation-gallery__nav-label"
-                            @click="swipeNext()"
-                            :disabled="photos.length <= 1 || isAnimating"
-                        >
-                            Desliza &gt;
-                        </button>
-                    </div>
+                        </figure>
+                    @endforeach
                 </div>
-            </template>
 
-            <template x-if="photos.length === 0">
-                <p class="invitation-gallery__empty">Aún no hay fotos en esta galería.</p>
-            </template>
-        </div>
+                @if($galleryCount > 1)
+                    <p class="inv-gallery__hint" :class="{ 'is-hidden': interacted }">Desliza la foto hacia un lado para ver la siguiente</p>
+
+                    <div class="inv-gallery__nav">
+                        <button type="button" class="inv-gallery__arrow" @click="swipePrev()" aria-label="Foto anterior">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </button>
+                        <p class="inv-gallery__counter" aria-live="polite">
+                            <span x-text="current + 1">1</span> / {{ $galleryCount }}
+                        </p>
+                        <button type="button" class="inv-gallery__arrow" @click="swipeNext()" aria-label="Foto siguiente">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </button>
+                    </div>
+                @endif
+            </div>
+        @else
+            <p class="inv-empty">Pronto compartiremos aquí las fotos.</p>
+        @endif
     </div>
 </section>

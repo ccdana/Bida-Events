@@ -1,21 +1,25 @@
 import lottie from 'lottie-web';
-import invitationLoopIcon from '../lottie-icons/invitation-loop-icon.json';
-import clockLoopIcon from '../lottie-icons/clock-loop-icon.json';
-import calendarLoopIcon from '../lottie-icons/calendar-loop-icon.json';
-import videoLoopIcon from '../lottie-icons/video-loop-icon.json';
-import eyeImageLoopIcon from '../lottie-icons/eye-image-loop-icon.json';
-import itinerarPeopleLoopIcon from '../lottie-icons/itinerar-people-loop-icon.json';
 
-const ICONS = {
-    invitation: invitationLoopIcon,
-    clock: clockLoopIcon,
-    calendar: calendarLoopIcon,
-    video: videoLoopIcon,
-    'eye-image': eyeImageLoopIcon,
-    'itinerar-people': itinerarPeopleLoopIcon,
+// Cada ícono se importa bajo demanda: la página solo descarga los JSON que usa.
+// La clave es el nombre sin sufijo, p. ej. 'clock' para clock-loop-icon.json.
+const ICON_LOADERS = Object.fromEntries(
+    Object.entries(import.meta.glob('../lottie-icons/*-loop-icon.json', { import: 'default' }))
+        .map(([path, loader]) => [path.match(/([^/]+)-loop-icon\.json$/)[1], loader]),
+);
+
+const sources = new Map();
+const instances = new WeakMap();
+const loadTokens = new WeakMap();
+
+const loadIcon = (name) => {
+    if (!sources.has(name)) {
+        sources.set(name, ICON_LOADERS[name]());
+    }
+
+    return sources.get(name);
 };
 
-const instances = new WeakMap();
+const prefersReducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 
 const hexToLottieRgb = (hex) => {
     let normalized = hex.replace('#', '').trim();
@@ -61,9 +65,14 @@ const getPrimaryColor = () => getComputedStyle(document.documentElement)
     .getPropertyValue('--primary-color')
     .trim() || '#C9A96E';
 
-const applyPrimaryColorToLottie = (animationData, colorValue) => {
+/**
+ * Escribe el color primario (y opcionalmente el grosor de trazo 1–3) en la capa
+ * `control`. Todas las formas leen esos valores por expresión.
+ */
+const applyControlValues = (animationData, colorValue, strokeWeight) => {
     const data = structuredClone(animationData);
     const rgb = parseCssColor(colorValue);
+    const stroke = Number(strokeWeight);
 
     const walkLayers = (layers) => {
         if (!Array.isArray(layers)) {
@@ -75,11 +84,16 @@ const applyPrimaryColorToLottie = (animationData, colorValue) => {
                 return;
             }
 
-            const primaryEffect = layer.ef.find((effect) => effect.nm === 'primary');
-            const colorEffect = primaryEffect?.ef?.find((effect) => effect.nm === 'Color');
+            const colorEffect = layer.ef.find((effect) => effect.nm === 'primary')?.ef?.find((effect) => effect.nm === 'Color');
 
             if (colorEffect?.v) {
                 colorEffect.v.k = rgb;
+            }
+
+            const strokeEffect = layer.ef.find((effect) => effect.nm === 'stroke')?.ef?.find((effect) => effect.nm === 'Menu');
+
+            if (strokeEffect?.v && stroke >= 1 && stroke <= 3) {
+                strokeEffect.v.k = stroke;
             }
         });
     };
@@ -103,7 +117,7 @@ const getVisibilityObserver = () => {
         entries.forEach((entry) => {
             const animation = instances.get(entry.target);
 
-            if (!animation) {
+            if (!animation || prefersReducedMotion()) {
                 return;
             }
 
@@ -131,27 +145,52 @@ const destroyLottie = (element) => {
     element.replaceChildren();
 };
 
-const initLottieElement = (element) => {
+const initLottieElement = async (element) => {
     const iconName = element.dataset.lottieIcon;
-    const source = ICONS[iconName];
 
-    if (!source) {
+    if (!ICON_LOADERS[iconName]) {
+        return;
+    }
+
+    // Un token por carga evita que una respuesta tardía pise a una más reciente
+    const token = Symbol(iconName);
+    loadTokens.set(element, token);
+    element.dataset.lottieInitialized = 'true';
+
+    const source = await loadIcon(iconName);
+
+    if (loadTokens.get(element) !== token || !element.isConnected) {
         return;
     }
 
     destroyLottie(element);
 
+    const color = getPrimaryColor();
+    const reducedMotion = prefersReducedMotion();
     const animation = lottie.loadAnimation({
         container: element,
         renderer: 'svg',
-        loop: true,
-        autoplay: true,
-        animationData: applyPrimaryColorToLottie(source, getPrimaryColor()),
+        loop: !reducedMotion,
+        autoplay: false,
+        animationData: applyControlValues(source, color, element.dataset.lottieStroke),
     });
 
     instances.set(element, animation);
-    element.dataset.lottieInitialized = 'true';
-    element.dataset.lottieColor = getPrimaryColor();
+    element.dataset.lottieColor = color;
+
+    if (reducedMotion) {
+        animation.addEventListener('DOMLoaded', () => animation.goToAndStop(0, true));
+
+        return;
+    }
+
+    const observer = getVisibilityObserver();
+
+    if (observer) {
+        observer.observe(element);
+    } else {
+        animation.play();
+    }
 };
 
 export const initLottieIcons = () => {

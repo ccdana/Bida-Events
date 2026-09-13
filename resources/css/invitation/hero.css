@@ -1,0 +1,161 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   INVITACIÓN — Portada
+   ════════════════════════════════════════════════════════════════════════════ */
+
+.inv-hero {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    place-items: center;
+    min-height: 100svh;
+    overflow: hidden;
+    text-align: center;
+}
+
+.inv-hero--image {
+    color: #fff;
+    background: #111;
+}
+
+.inv-hero--plain {
+    color: var(--text-color);
+    background: var(--inv-tint);
+}
+
+.inv-hero__media {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+}
+
+.inv-hero__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 30%;
+    animation: inv-hero-settle 2.6s var(--inv-ease) both;
+}
+
+/* Velo para legibilidad: más denso arriba (menú) y abajo (indicador y transición) */
+.inv-hero__veil {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(
+        180deg,
+        rgb(0 0 0 / 0.4) 0%,
+        rgb(0 0 0 / 0.16) 34%,
+        rgb(0 0 0 / 0.28) 62%,
+        rgb(0 0 0 / 0.68) 100%
+    );
+}
+
+.inv-hero__content {
+    width: 100%;
+    max-width: 40rem;
+    padding: 6rem 1.5rem 8rem;
+}
+
+.inv-hero__eyebrow {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.36em;
+    text-transform: uppercase;
+    opacity: 0.92;
+}
+
+.inv-hero__title {
+    margin-top: 1.1rem;
+    font-family: var(--font-script);
+    font-size: clamp(3.4rem, 17vw, 7.5rem);
+    font-weight: 400;
+    line-height: 0.98;
+    text-wrap: balance;
+}
+
+.inv-hero--image .inv-hero__title {
+    text-shadow: 0 2px 24px rgb(0 0 0 / 0.22);
+}
+
+.inv-hero__rule {
+    width: 3.5rem;
+    height: 1px;
+    margin: 1.6rem auto 0;
+    background: currentColor;
+    opacity: 0.55;
+}
+
+.inv-hero__message {
+    max-width: 26rem;
+    margin: 1.4rem auto 0;
+    font-size: 1rem;
+    line-height: 1.75;
+    opacity: 0.92;
+    text-wrap: pretty;
+}
+
+.inv-hero__date {
+    margin-top: 1.5rem;
+    font-size: 0.76rem;
+    font-weight: 600;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+}
+
+.inv-hero__scroll {
+    position: absolute;
+    left: 50%;
+    bottom: calc(1.5rem + env(safe-area-inset-bottom));
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+    color: inherit;
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.3em;
+    text-decoration: none;
+    text-transform: uppercase;
+    opacity: 0.85;
+    transform: translateX(-50%);
+}
+
+.has-player .inv-hero__scroll {
+    bottom: calc(5.25rem + env(safe-area-inset-bottom));
+}
+
+.inv-hero__scroll-line {
+    width: 1px;
+    height: 2.5rem;
+    background: linear-gradient(currentColor, transparent);
+    transform-origin: top;
+    animation: inv-hero-scroll 2.4s var(--inv-ease) infinite;
+}
+
+@keyframes inv-hero-settle {
+    from { transform: scale(1.06); }
+    to { transform: scale(1); }
+}
+
+@keyframes inv-hero-scroll {
+    0% { transform: scaleY(0); opacity: 1; }
+    60% { transform: scaleY(1); opacity: 1; }
+    100% { transform: scaleY(1); opacity: 0; }
+}
+
+@media (min-width: 640px) {
+    .inv-hero__message {
+        font-size: 1.1rem;
+    }
+}
+
+/* Mensaje de agradecimiento post-evento */
+.inv-thanks__text {
+    max-width: 26rem;
+    margin-inline: auto;
+    font-family: var(--font-titles);
+    font-size: clamp(1.6rem, 6.5vw, 2.4rem);
+    line-height: 1.3;
+    text-align: center;
+    text-wrap: balance;
+}
