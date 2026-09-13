@@ -104,6 +104,11 @@ if (document.querySelector('[x-data*="scrollItinerary"]')) {
     loaders.push(import('./itinerary-scroll.js'));
 }
 
+// ── Sitio público (home y login) — animaciones; no retrasa a Alpine ────
+if (document.body.classList.contains('site')) {
+    import('./site.js').catch((error) => console.error('[Bida Events] Error al cargar site.js:', error));
+}
+
 // ═══════════════════════════════════════════════════════════════════════════
 //  BOOTSTRAP  —  Esperar chunks y luego iniciar Alpine
 //

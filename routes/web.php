@@ -9,17 +9,14 @@ use App\Http\Controllers\Admin\InvitationController as AdminInvitationController
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Client\DashboardController as ClientDashboardController;
 use App\Http\Controllers\Client\ExportController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Public\ContributionController;
 use App\Http\Controllers\Public\InvitationController as PublicInvitationController;
 use App\Http\Controllers\Public\RsvpController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function (Request $request) {
-    return $request->user()
-        ? redirect()->route('dashboard')
-        : redirect()->route('login');
-});
+Route::get('/', HomeController::class)->name('home');
 
 Route::get('/dashboard', function (Request $request) {
     $user = $request->user();

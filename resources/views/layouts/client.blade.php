@@ -4,13 +4,14 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', 'Mi Evento') - Bida Events</title>
+    <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen client-shell antialiased transition-colors">
     <nav class="client-header">
         <div class="mx-auto max-w-5xl px-4 py-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div class="flex items-center gap-3">
-                <div class="client-brand-mark">BE</div>
+                <x-brand.mark class="size-10" style="color: var(--client-secondary)" />
                 <div>
                     <a href="{{ route('client.dashboard') }}" class="client-brand-title block">
                         <span>Bida</span>Events

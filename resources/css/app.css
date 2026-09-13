@@ -6,6 +6,8 @@
 @import './invitation/itinerary.css';
 @import './invitation/modules.css';
 @import './invitation/nav-player.css';
+@import './site/brand.css';
+@import './site/site.css';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
@@ -85,133 +87,6 @@
 .icon-float-soft { animation: float-soft 3s ease-in-out infinite; }
 .icon-spin-slow { animation: spin-slow 12s linear infinite; }
 .icon-bounce-soft { animation: bounce-soft 2s ease-in-out infinite; }
-
-/* Login (split) specific styles */
-.auth-split { min-height: 100vh; }
-.auth-split .auth-left { position: relative; overflow: hidden; }
-.auth-split .auth-right { position: relative; min-height: 100vh; }
-
-.auth-split .big-watermark { display: none; }
-
-.auth-split .auth-left .font-serif { color: inherit; }
-.auth-split .auth-left p, .auth-split .auth-left h2 { color: rgba(255,255,255,0.9); }
-
-.auth-split .auth-right { color: #1f1a17; }
-.auth-split .auth-right h1 { color: #15120f; }
-
-.auth-split input[type="email"],
-.auth-split input[type="password"] {
-    background: transparent;
-    border: 0;
-    border-bottom: 1px solid rgba(15, 15, 15, 0.08);
-    padding: 0.75rem 0;
-    outline: none;
-}
-.auth-split input::placeholder { color: rgba(0,0,0,0.32); }
-
-.auth-split button[type="submit"] {
-    background: #0f0c0a;
-    color: #fff;
-    border-radius: 0;
-}
-
-/* Position big watermark so only its top half is visible from bottom */
-.auth-left { position: relative; overflow: hidden; }
-/* watermark positioned relative to caption */
-.auth-left .auth-caption { position: relative; }
-.auth-left .auth-caption { display: block; position: relative; }
-.auth-left .auth-caption .big-watermark { display: none; }
-/* ensure caption text sits above watermark */
-.auth-left .auth-caption p, .auth-left .auth-caption .italic { position: relative; z-index: 2; }
-
-/* ensure left text sits above watermark */
-.auth-left > div, .auth-left .max-w-\[60\%\] {
-    position: relative;
-    z-index: 2;
-}
-
-/* Elegant eye icon */
-.eye-toggle { background: transparent; border: none; padding: 0.35rem; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; color: rgba(15,12,10,0.6); z-index: 40; width: 2.8rem; height: 2.8rem; }
-.eye-toggle svg { width: 1.25rem; height: 1.25rem; display: block; }
-.eye-toggle:focus { outline: 2px solid rgba(15,12,10,0.08); border-radius: 0.25rem; }
-.relative .eye-toggle { right: 0; top: 50%; transform: translateY(-50%); position: absolute; }
-.relative { overflow: visible; }
-
-/* Custom checkbox */
-.custom-checkbox {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 1rem;
-    height: 1rem;
-    border: 1px solid rgba(15,15,15,0.12);
-    background: #fff;
-    display: inline-block;
-    vertical-align: middle;
-    border-radius: 0.25rem;
-    position: relative;
-    cursor: pointer;
-}
-.custom-checkbox:checked {
-    background-color: #0f0c0a;
-    border-color: #0f0c0a;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='20 6 9 17 4 12'/></svg>");
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: 0.65rem 0.65rem;
-}
-.custom-checkbox:focus { outline: 2px solid rgba(15,12,10,0.08); }
-
-
-/* Responsividad */
-@media (max-width: 768px) {
-    .auth-split { display: block; }
-    .auth-split .auth-left { display: none; }
-    .auth-split .auth-right { width: 100%; padding-top: 4rem; padding-bottom: 4rem; }
-    .auth-split .auth-right h1 { font-size: 2rem; }
-}
-
-/* Medium screens: scale down watermark and text to prevent overlap */
-@media (min-width: 769px) and (max-width: 1200px) {
-    .auth-left .max-w-\[60\%\] { max-width: 70%; }
-    .auth-left p.italic, .auth-left h2 { font-size: 1.6rem; }
-}
-
-@media (max-width: 480px) {
-    .auth-right h1 { font-size: 1.6rem; }
-    .auth-right .w-full.max-w-lg { padding-left: 1rem; padding-right: 1rem; }
-}
-
-@media (min-width: 769px) {
-    .auth-split .auth-left { min-height: 100vh; }
-    .auth-split .auth-right { min-height: 100vh; }
-}
-
-/* Desktop: nudge left panel to the left and tweak watermark placement */
-@media (min-width: 1024px) {
-    .auth-left { transform: translateX(-30%); }
-    /* reduce width visually */
-    .auth-left { width: 42%; }
-}
-
-/* Adjust caption and watermark alignment */
-.auth-left .auth-caption { max-width: 60%; }
-.auth-left .auth-caption p, .auth-left .auth-caption .italic { line-height: 1.05; }
-
-/* Improve responsive: hide left panel earlier to avoid overlap on tablets */
-@media (max-width: 1024px) {
-    .auth-split { display: block; }
-    .auth-left { display: none !important; }
-    .auth-right { width: 100%; padding: 3rem 1.25rem; }
-    .auth-right h1 { font-size: 1.8rem; }
-}
-
-/* Further small-screen adjustments */
-@media (max-width: 480px) {
-    .auth-right h1 { font-size: 1.4rem; }
-    .auth-right .w-full.max-w-lg { padding-left: 1rem; padding-right: 1rem; }
-    .auth-left .auth-caption .big-watermark { display: none; }
-    .auth-right { padding-top: 3.5rem; padding-bottom: 3.5rem; min-height: 100vh; }
-}
 
 /* Admin editor */
 :root {
@@ -1217,43 +1092,43 @@ body.client-shell {
 }
 
 /* Microinteracciones globales del panel admin y del portal cliente.
-   La invitación pública (.inv-page) define las suyas en resources/css/invitation. */
-body:not(.inv-page) :is(button, a[role="button"], [type="button"], [type="submit"], [type="reset"]) {
+   La invitación pública (.inv-page) y el sitio (.site) definen las suyas en resources/css. */
+body:not(.inv-page):not(.site) :is(button, a[role="button"], [type="button"], [type="submit"], [type="reset"]) {
     transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease, opacity 0.15s ease;
 }
 
-body:not(.inv-page) :is(button, a[role="button"], [type="button"], [type="submit"], [type="reset"]):not(:disabled):hover {
+body:not(.inv-page):not(.site) :is(button, a[role="button"], [type="button"], [type="submit"], [type="reset"]):not(:disabled):hover {
     transform: scale(1.02);
 }
 
-body:not(.inv-page) :is(button, a[role="button"], [type="button"], [type="submit"], [type="reset"]):not(:disabled):active {
+body:not(.inv-page):not(.site) :is(button, a[role="button"], [type="button"], [type="submit"], [type="reset"]):not(:disabled):active {
     transform: scale(0.98);
 }
 
-body:not(.inv-page) a:not([role="button"]) {
+body:not(.inv-page):not(.site) a:not([role="button"]) {
     transition: color 0.2s ease, opacity 0.2s ease, text-decoration-color 0.2s ease;
 }
 
-body:not(.inv-page) a:not([role="button"]):hover {
+body:not(.inv-page):not(.site) a:not([role="button"]):hover {
     opacity: 0.8;
 }
 
-body:not(.inv-page) :is(input:not([type="hidden"]), textarea, select) {
+body:not(.inv-page):not(.site) :is(input:not([type="hidden"]), textarea, select) {
     transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
 }
 
-body:not(.inv-page) :is(input:not([type="hidden"]), textarea, select):focus {
+body:not(.inv-page):not(.site) :is(input:not([type="hidden"]), textarea, select):focus {
     border-color: color-mix(in srgb, var(--primary-color) 60%, transparent);
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 15%, transparent);
 }
 
 @media (prefers-reduced-motion: reduce) {
-    body:not(.inv-page) :is(button, a[role="button"], [type="button"], [type="submit"], [type="reset"]),
-    body:not(.inv-page) :is(input:not([type="hidden"]), textarea, select) {
+    body:not(.inv-page):not(.site) :is(button, a[role="button"], [type="button"], [type="submit"], [type="reset"]),
+    body:not(.inv-page):not(.site) :is(input:not([type="hidden"]), textarea, select) {
         transition: none;
     }
 
-    body:not(.inv-page) :is(button, a[role="button"], [type="button"], [type="submit"], [type="reset"]):not(:disabled):hover {
+    body:not(.inv-page):not(.site) :is(button, a[role="button"], [type="button"], [type="submit"], [type="reset"]):not(:disabled):hover {
         transform: none;
     }
 }

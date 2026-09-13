@@ -6,8 +6,8 @@ use Tests\TestCase;
 
 class ExampleTest extends TestCase
 {
-    public function test_home_redirects_guests_to_login(): void
+    public function test_home_page_is_public(): void
     {
-        $this->get('/')->assertRedirect(route('login'));
+        $this->get('/')->assertOk();
     }
 }

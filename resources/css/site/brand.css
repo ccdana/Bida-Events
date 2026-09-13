@@ -1,0 +1,75 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   MARCA — Isotipo y logo de Bida Events (components/brand/*)
+
+   Se usa en el sitio público y en los paneles, por eso vive fuera de .site.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+.brand-mark {
+    display: block;
+    flex-shrink: 0;
+    overflow: visible;
+}
+
+.brand-mark__dot {
+    fill: var(--brand-accent, #4a6b5b);
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.brand-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: 'Outfit Variable', ui-sans-serif, system-ui, sans-serif;
+    line-height: 1;
+    letter-spacing: -0.02em;
+}
+
+.brand-logo__strong {
+    font-weight: 600;
+}
+
+.brand-logo__soft {
+    font-weight: 400;
+    opacity: 0.62;
+}
+
+/* El punto de luz reacciona al pasar el cursor por el enlace del logo */
+@media (hover: hover) {
+    a:hover > .brand-logo .brand-mark__dot,
+    a.brand-logo:hover .brand-mark__dot {
+        transform: scale(1.35);
+    }
+}
+
+/* Entrada: el arco se levanta desde la base y luego se enciende la luz */
+@keyframes brand-rise {
+    from { clip-path: inset(100% 0 0 0); }
+    to { clip-path: inset(0 0 0 0); }
+}
+
+@keyframes brand-light {
+    0% { transform: scale(0); opacity: 0; }
+    60% { opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.brand-mark--animated .brand-mark__shape {
+    animation: brand-rise 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+}
+
+.brand-mark--animated .brand-mark__dot {
+    animation: brand-light 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.75s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .brand-mark--animated .brand-mark__shape,
+    .brand-mark--animated .brand-mark__dot {
+        animation: none;
+    }
+
+    .brand-mark__dot {
+        transition: none;
+    }
+}

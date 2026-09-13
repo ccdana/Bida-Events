@@ -23,6 +23,7 @@ El proyecto es una aplicación Laravel 12 enfocada en:
 | `.env.example` | Plantilla base de variables de entorno. | Incluir cualquier variable nueva usada por `config/optimizations.php` o servicios de terceros. |
 | `.gitattributes` | Reglas de Git para encriptación, fin de línea (LF/CRLF) y exportaciones. | Asegurar consistencia entre desarrolladores Windows y Linux. |
 | `.gitignore` | Exclusiones de Git (logs, caches, builds, uploads locales). | Garantizar que cubra compilados de Vite, logs y sesiones temporales. |
+| `.claude/skills/taste-skill/` | Skill `design-taste-frontend` (MIT, github.com/Leonxlnx/taste-skill) que guía el diseño de la home y el login: lectura del brief, diales de diseño y checklist anti-plantilla. | Consultarla antes de crear o rediseñar páginas públicas. |
 | `artisan` | Interfaz de línea de comandos (CLI) de Laravel. | Punto de entrada para ejecutar migraciones, seeders, limpiadores de caché y tareas diferidas. |
 | `composer.json` | Dependencias PHP, scripts y autoloader PSR-4. | Mantener paquetes actualizados y separar comandos de mantenimiento. |
 | `composer.lock` | Registro de versiones exactas de dependencias PHP. | Sincronizar siempre en el repositorio para despliegues reproducibles. |
@@ -42,6 +43,7 @@ El proyecto es una aplicación Laravel 12 enfocada en:
 | Archivo | Qué hace | Sugerencia |
 | --- | --- | --- |
 | `app/Http/Controllers/Controller.php` | Controlador base de Laravel. | Mantenerlo ligero; abstraer lógica compartida hacia traits, servicios o ViewModels. |
+| `app/Http/Controllers/HomeController.php` | Página de inicio pública: arma los enlaces de WhatsApp por paquete desde `config/bida.php` y decide si mostrar la invitación demo dentro del teléfono de la portada. | Si la demo no existe o la base no responde, se muestra una imagen. |
 | `app/Http/Controllers/Admin/DashboardController.php` | Carga el resumen de invitaciones y métricas para el panel administrativo. | Utilizar paginación y consultas eficientes si la lista de eventos crece. |
 | `app/Http/Controllers/Admin/GuestController.php` | CRUD completo de invitados dentro de una invitación (alta, edición, eliminación, estado). | Validar pertenencia por Policies y soportar importación/operaciones masivas. |
 | `app/Http/Controllers/Admin/InvitationController.php` | Crear, editar y sincronizar invitaciones y sus módulos configurables. | Delegar la normalización y guardado de módulos a `InvitationModuleService`. |
@@ -93,6 +95,7 @@ El proyecto es una aplicación Laravel 12 enfocada en:
 | --- | --- | --- |
 | `app/Support/InvitationDefaults.php` | Define estructuras JSON por defecto para cada módulo y valores predeterminados de UI. | Mover configuraciones complejas a archivos de configuración si el catálogo crece. |
 | `app/Support/MapsLinkParser.php` | Parsea enlaces o texto de mapas (Google Maps / Waze) para extraer coordenadas lat/lng. | Incluir pruebas unitarias con diversos formatos de URLs de navegación. |
+| `app/Support/SiteImage.php` | Resuelve las fotos del sitio público definidas en `config/bida.php` (`images`): ruta (`public/images/site/*.webp`, o un marcador de picsum si falta el archivo), tamaño y texto alternativo. | Para cambiar una foto basta con reemplazar el archivo indicado en `path` y actualizar `alt`. |
 | `app/Support/ItineraryIcons.php` | Catálogo de íconos del itinerario de XV (claves, nombres en español, etapas) y alias para las claves antiguas (`users`, `dance`, `candle`…). | Agregar momentos nuevos aquí y en `itinerary-icon.blade.php`. |
 | `app/Support/YouTubeHelper.php` | Parsea URLs de YouTube, extrae IDs de video y obtiene datos mediante oEmbed. | Utilizar la caché integrada para evitar llamadas repetidas a la API externa. |
 
@@ -144,6 +147,7 @@ El proyecto es una aplicación Laravel 12 enfocada en:
 | Archivo | Qué hace | Sugerencia |
 | --- | --- | --- |
 | `config/app.php` | Configuración general de la aplicación (nombre, entorno, zona horaria, idioma, clave de cifrado). | Verificar `timezone` (`America/Argentina/Buenos_Aires` o local) y `locale`. |
+| `config/bida.php` | Datos públicos de la marca: contacto (vía `BIDA_*` en `.env`), invitación demo, eventos que rotan en la portada (`showcase`), franja de tipos de evento, fotos del sitio (ruta, tamaño, ID de Adobe Stock y texto alternativo) y paquetes de 200, 400 y 700 Bs. | Agregar eventos o paquetes aquí; las vistas se actualizan solas. |
 | `config/auth.php` | Definición de guards de autenticación, providers de usuarios y reinicio de contraseñas. | Ajustar si se agregan nuevos guards o proveedores de identidad. |
 | `config/cache.php` | Configuración de drivers de almacenamiento en caché (file, database, redis). | En entornos de producción con alto tráfico, cambiar el driver a Redis. |
 | `config/cloudinary.php` | Variables de credenciales y configuración del SDK de Cloudinary. | Validar la existencia de claves en los chequeos de salud de despliegue. |
@@ -203,7 +207,9 @@ El proyecto es una aplicación Laravel 12 enfocada en:
 | `public/index.php` | Front controller y punto de entrada HTTP de Laravel. | No modificar; gestiona el arranque del framework. |
 | `public/.htaccess` | Reglas de reescritura del servidor Apache. | Mantener si se despliega en servidores Apache/LiteSpeed. |
 | `public/robots.txt` | Instrucciones de indexación para motores de búsqueda. | Configurar para evitar la indexación no deseada de paneles administrativos. |
-| `public/favicon.ico` | Icono representativo del sitio web. | Reemplazar por el favicon oficial de la marca. |
+| `public/favicon.ico` | Icono heredado para navegadores sin soporte de SVG. | Regenerarlo a partir de `favicon.svg` si se necesita. |
+| `public/favicon.svg` | Favicon con el isotipo de Bida Events (arco + punto de luz); cambia de color en modo oscuro. | Mantener la misma geometría que `components/brand/mark.blade.php`. |
+| `public/images/site/` | Fotos del sitio público en WebP, recortadas a su medida: boda, bautizo, cumpleaños y XV años (portada y login), nosotros, invitación en el celular y fotomural. Licencia gratuita de Adobe Stock (ID en `config/bida.php`). | Nombres, tamaños y textos alternativos en `config/bida.php` → `images`. |
 | `public/storage/` | Enlace simbólico hacia `storage/app/public`. | Requerido para servir archivos multimedia locales subidos. |
 
 ---
@@ -216,11 +222,12 @@ El frontend del proyecto utiliza **Alpine.js** y una arquitectura de **Code-Spli
 
 | Archivo | Qué hace | Sugerencia |
 | --- | --- | --- |
-| `resources/js/app.js` | Entry point principal. Carga Alpine.js y Axios; detecta elementos en el DOM para realizar `import()` dinámico de scripts pesados (`video-player`, `lottie-icons`, `gallery-stack`, `itinerary-scroll`) y gestiona la barra de progreso de carga. | Excelente arquitectura de rendimiento; mantener los imports dinámicos encapsulados y sin dependencias cruzadas. |
+| `resources/js/app.js` | Entry point principal. Carga Alpine.js y Axios; detecta elementos en el DOM para realizar `import()` dinámico de scripts pesados (`video-player`, `lottie-icons`, `gallery-stack`, `itinerary-scroll`, `site`) y gestiona la barra de progreso de carga. | Mantener los imports dinámicos encapsulados; `site.js` no bloquea el arranque de Alpine. |
 | `resources/js/bootstrap.js` | Inicializa Axios y configura cabeceras HTTP automáticas (CSRF-TOKEN y X-Requested-With). | Añadir interceptores globales si se requiere un manejo centralizado de errores HTTP. |
 | `resources/js/gallery-stack.js` | Galería en pila con física de gesto: escribe las transformaciones directo en el DOM, mide la velocidad real del dedo, rota según el punto de agarre, adelanta las cartas de atrás en proporción al arrastre y lanza/devuelve cartas con resortes de Motion que heredan la velocidad. Soporta flechas, teclado y movimiento reducido. | Cargar dinámicamente sólo si existe `x-data*="galleryStack"`. Mantener las cartas renderizadas en Blade: el JS solo las anima. |
 | `resources/js/itinerary-scroll.js` | Luz del itinerario: sigue la línea de lectura con un resorte críticamente amortiguado, deriva la velocidad para la estela y enciende cada nodo con un destello gaussiano que deja un resplandor residual. El bucle `requestAnimationFrame` solo corre mientras la sección es visible y la luz no se asentó. | Escribe variables CSS (`--a`, `--glow`, `--trail`) directo en el DOM; no reintroducir bindings reactivos por frame. |
 | `resources/js/lottie-icons.js` | Carga cada ícono Lottie bajo demanda (`import.meta.glob`, un chunk por JSON), escribe el color primario y el grosor opcional (`data-lottie-stroke`) en la capa `control`, pausa las animaciones fuera de pantalla y respeta `prefers-reduced-motion`. | Todo ícono nuevo debe llamarse `<nombre>-loop-icon.json` y tener la capa `control`. |
+| `resources/js/site.js` | Animaciones del sitio público (home y login): revelado con IntersectionObserver, rotador que sincroniza la palabra del evento con su foto, botones magnéticos con resortes de Motion y cabecera translúcida al hacer scroll. Sin listeners de scroll. | Marcar elementos con `data-reveal`, `data-rotator`/`data-rotator-group` y `data-magnetic`. |
 | `resources/js/video-player.js` | **[NUEVO]** Chunk dinámico para reproductores de video (`video.js`). Agrega controles de reproducción personalizados, desvanecimiento automático por inactividad del cursor y estado idle. | Se descarga sólo en páginas que contienen el atributo `[data-video-player]`. |
 
 ### `resources/css`
@@ -235,6 +242,8 @@ El frontend del proyecto utiliza **Alpine.js** y una arquitectura de **Code-Spli
 | `resources/css/invitation/itinerary.css` | Línea de tiempo con luz de caída suave, estela y bloom por nodo, controlados por variables CSS. | — |
 | `resources/css/invitation/modules.css` | Pestañas, video, dress code, cortejo, ubicación, hashtag, encuestas, playlist, regalos, RSVP y fotomural. | — |
 | `resources/css/invitation/nav-player.css` | Menú de secciones numerado y reproductor de música fijo. | — |
+| `resources/css/site/site.css` | Tokens del sitio público con paleta neutra (grafito, piedra y acento eucalipto) en claro/oscuro, bloque invertido `.site-invert`, fuente Outfit, botones, campos con ícono, rotador, escenario de fotos, marquesina, texto y línea de proceso animados con scroll (`animation-timeline`), acordeón animado y fallbacks de movimiento reducido. | Reutilizar las utilidades `site-*` en nuevas páginas públicas. |
+| `resources/css/site/brand.css` | Estilos del isotipo y el logo (global, también en paneles): punto de luz con el acento de marca, reacción al hover y animación de entrada. | Cambiar el acento con la variable `--brand-accent`. |
 
 ### `resources/lottie-icons`
 
@@ -257,7 +266,12 @@ Animaciones vectoriales Lottie en formato JSON utilizadas en los módulos del ev
 | Archivo | Qué hace | Sugerencia |
 | --- | --- | --- |
 | `resources/views/welcome.blade.php` | Vista de bienvenida por defecto. | Personalizar o redirigir al login si no se usa como landing page pública. |
-| `resources/views/auth/login.blade.php` | Formulario de autenticación para administradores y clientes. | Mantener diseño limpio y responsivo. |
+| `resources/views/auth/login.blade.php` | Login con el layout del sitio: logo animado, frase del evento que rota junto a las fotos del panel derecho, campos con ícono, aviso de Bloq Mayús, mostrar contraseña, envío con barra de luz y sacudida al fallar. Credenciales demo solo en local. | Mantener los nombres de campo `email`, `password` y `remember`. |
+| `resources/views/home.blade.php` | Página de inicio para eventos en general: portada con evento rotativo y vista previa real, franja de tipos de evento, nosotros con texto animado, servicios, proceso con línea de scroll, precios (200, 400 y 700 Bs), preguntas y contacto por WhatsApp. | Fotos en `config/bida.php` → `images`; hasta tener las reales se muestran marcadores. |
+| `resources/views/layouts/site.blade.php` | Layout compartido por la home y el login (`body.site`), con favicon SVG y un respaldo que muestra el contenido si `site.js` no carga. | — |
+| `resources/views/components/brand/mark.blade.php` | Isotipo de Bida Events: una "b" como arco de entrada con un punto de luz (`<x-brand.mark />`, prop `animated`). | Usar en lugar de monogramas de texto. |
+| `resources/views/components/brand/logo.blade.php` | Logo completo: isotipo + nombre desde `config('bida.brand')` (`<x-brand.logo />`). Se usa en home, login, paneles admin y cliente. | — |
+| `resources/views/components/site/image.blade.php` | `<x-site.image key="..." />`: imagen del sitio con tamaño reservado, carga diferida y ruta resuelta por `SiteImage`. | — |
 
 #### Layouts
 

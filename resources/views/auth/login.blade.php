@@ -1,111 +1,108 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Iniciar sesión — Bida Events</title>
-    @vite(['resources/css/app.css'])
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
-</head>
-</body>
-<body class="min-h-screen font-sans text-stone-900" style="font-family: 'Montserrat', sans-serif;">
-    <div class="min-h-screen flex flex-col md:flex-row auth-split">
-        <!-- Left panel -->
-        <div class="relative w-full md:w-5/12 bg-stone-950 text-stone-50 overflow-hidden auth-left">
-            <div class="p-8 md:p-12">
-                <h1 class="text-3xl md:text-4xl font-serif text-amber-200" style="font-family: 'Playfair Display', serif;">Bida Events</h1>
-                <p class="text-stone-400 text-xs mt-2 tracking-widest uppercase">Invitaciones de lujo</p>
-            </div>
+@extends('layouts.site')
 
-            <div class="absolute left-0 bottom-0 p-8 md:p-12 max-w-[60%] auth-caption">
-                <p class="font-serif text-2xl md:text-3xl opacity-90 text-stone-200">Cada evento, <span class="italic text-3xl md:text-4xl text-stone-100">una obra única.</span></p>
-                <p class="text-stone-500 text-sm mt-4 max-w-xs">Crea, personaliza y gestiona invitaciones digitales de alta calidad para eventos que merecen ser recordados.</p>
-            </div>
-        </div>
+@section('title', 'Ingresar | '.config('bida.brand'))
 
-        <!-- Right panel -->
-        <div class="w-full md:w-7/12 bg-[#f3efe8] flex items-center justify-center px-6 py-12 auth-right">
-            <div class="w-full max-w-lg">
-                <p class="text-xs text-stone-500 uppercase tracking-widest mb-4">Panel administrativo</p>
-                <h1 class="text-4xl font-serif mb-6" style="font-family: 'Playfair Display', serif;">Iniciar sesión</h1>
+@section('content')
+    @php($showcase = config('bida.showcase'))
 
-                <form method="POST" action="{{ route('login') }}" class="space-y-6 text-stone-700">
+    {{-- El rotador sincroniza la frase del subtítulo con las fotos del panel derecho --}}
+    <main data-rotator data-rotator-interval="3600" class="grid min-h-[100dvh] lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
+        <div class="flex flex-col px-5 py-6 sm:px-10 lg:px-16">
+            <a href="{{ route('home') }}" class="self-start text-lg">
+                <x-brand.logo animated />
+            </a>
+
+            <div class="mx-auto my-auto w-full max-w-sm py-14 lg:mx-0">
+                <h1 class="site-enter text-3xl font-semibold tracking-tight sm:text-4xl" style="--enter-index: 1">Ingresa a tu cuenta</h1>
+                <p class="site-enter mt-3 leading-relaxed text-site-muted" style="--enter-index: 2">
+                    <span class="sr-only">Administra tu invitación y las confirmaciones de tu evento.</span>
+                    <span aria-hidden="true">
+                        Administra tu invitación y las confirmaciones de
+                        <span class="site-rotator font-medium text-site-ink" data-rotator-group>
+                            @foreach($showcase as $index => $event)
+                                <span @class(['is-active' => $index === 0])>{{ $event['phrase'] }}</span>
+                            @endforeach
+                        </span>
+                    </span>
+                </p>
+
+                <form method="POST" action="{{ route('login') }}" @class(['mt-10 grid gap-6', 'site-shake' => $errors->any()])
+                    x-data="{ showPassword: false, submitting: false, capsLock: false }" @submit="submitting = true">
                     @csrf
-                    <div>
-                        <label class="block text-xs uppercase tracking-wider text-stone-500 mb-2">Email</label>
-                        <input type="email" name="email" value="{{ old('email') }}" required autofocus
-                            class="w-full bg-transparent border-b border-stone-300 px-0 py-3 text-stone-800 focus:outline-none focus:border-stone-500">
-                        @error('email')<p class="text-red-600 text-xs mt-1">{{ $message }}</p>@enderror
+
+                    <div class="site-enter grid gap-2" style="--enter-index: 3">
+                        <label for="email" class="text-[0.95rem] font-medium">Correo electrónico</label>
+                        <div class="site-field">
+                            <x-phosphor-envelope-simple-light class="site-field__icon" aria-hidden="true" />
+                            <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus
+                                autocomplete="username" inputmode="email"
+                                @class(['site-input', 'is-invalid' => $errors->has('email')])
+                                @error('email') aria-invalid="true" aria-describedby="email-error" @enderror>
+                        </div>
+                        @error('email')
+                            <p id="email-error" class="site-enter text-sm text-site-danger">{{ $message }}</p>
+                        @enderror
                     </div>
 
-                    <div>
-                        <label class="block text-xs uppercase tracking-wider text-stone-500 mb-2">Contraseña</label>
-                        <div class="relative">
-                            <input id="password" type="password" name="password" required
-                                class="w-full bg-transparent border-b border-stone-300 px-0 py-3 text-stone-800 focus:outline-none focus:border-stone-500">
-                            <!-- eye icon (elegante SVG) -->
-                            <button type="button" class="absolute right-0 text-stone-400 eye-toggle" aria-hidden="true" tabindex="-1" data-target="#password">
-                                <!-- eye (visible) -->
-                                <svg class="eye-visible" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                    <path d="M2.03 12.29C3.5 7.5 7.5 4 12 4c4.52 0 8.52 3.5 9.97 8.29a1 1 0 010 .42C20.52 18.5 16.52 22 12 22c-4.5 0-8.5-3.5-9.97-8.29a1 1 0 010-.42z"></path>
-                                    <circle cx="12" cy="12" r="3"></circle>
-                                </svg>
-                                <!-- eye-off (hidden by default) - improved path to avoid clipping -->
-                                <svg class="eye-hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:none">
-                                    <path d="M2.03 12.29C3.5 7.5 7.5 4 12 4c4.52 0 8.52 3.5 9.97 8.29a1 1 0 010 .42C20.52 18.5 16.52 22 12 22c-4.5 0-8.5-3.5-9.97-8.29a1 1 0 010-.42z"></path>
-                                    <circle cx="12" cy="12" r="3"></circle>
-                                    <path d="M3 3l18 18" />
-                                </svg>
+                    <div class="site-enter grid gap-2" style="--enter-index: 4">
+                        <label for="password" class="text-[0.95rem] font-medium">Contraseña</label>
+                        <div class="site-field">
+                            <x-phosphor-lock-simple-light class="site-field__icon" aria-hidden="true" />
+                            <input id="password" type="password" :type="showPassword ? 'text' : 'password'" name="password" required
+                                autocomplete="current-password"
+                                @keydown="capsLock = $event.getModifierState('CapsLock')" @keyup="capsLock = $event.getModifierState('CapsLock')"
+                                @class(['site-input pr-12', 'is-invalid' => $errors->has('password')])
+                                @error('password') aria-invalid="true" aria-describedby="password-error" @enderror>
+                            <button type="button" class="absolute inset-y-0 right-0 grid w-12 place-items-center rounded-r-[12px] text-site-muted transition-colors hover:text-site-ink"
+                                @click="showPassword = !showPassword" aria-controls="password"
+                                :aria-label="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'" aria-label="Mostrar contraseña">
+                                <x-phosphor-eye class="site-swap is-on" x-bind:class="{ 'is-on': !showPassword }" aria-hidden="true" />
+                                <x-phosphor-eye-slash class="site-swap" x-bind:class="{ 'is-on': showPassword }" aria-hidden="true" />
                             </button>
                         </div>
-                        @error('password')<p class="text-red-600 text-xs mt-1">{{ $message }}</p>@enderror
+                        <p class="flex items-center gap-2 text-sm text-site-muted" x-show="capsLock" x-cloak x-transition.opacity aria-live="polite">
+                            <x-phosphor-arrow-fat-line-up-light class="size-4" aria-hidden="true" />
+                            Bloq Mayús está activado
+                        </p>
+                        @error('password')
+                            <p id="password-error" class="site-enter text-sm text-site-danger">{{ $message }}</p>
+                        @enderror
                     </div>
 
-                    <div class="flex items-center justify-between text-sm text-stone-600">
-                        <label class="flex items-center gap-2">
-                            <input type="checkbox" name="remember" class="custom-checkbox">
-                            Recordarme
-                        </label>
-                        {{-- Enlace deshabilitado: la ruta `password.request` no está definida actualmente
-                            <a href="{{ route('password.request') }}" class="text-stone-600 hover:underline">¿Olvidaste tu contraseña?</a>
-                        --}}
-                    </div>
+                    <label class="site-enter flex cursor-pointer items-center gap-3 text-[0.95rem]" style="--enter-index: 5">
+                        <input type="checkbox" name="remember" value="1" class="site-checkbox" @checked(old('remember'))>
+                        Mantener la sesión iniciada
+                    </label>
 
-                    <button type="submit" class="w-full py-3 bg-stone-900 text-white font-medium tracking-wide flex items-center justify-center gap-2">
-                        Entrar <span class="ml-2">→</span>
-                    </button>
+                    <div class="site-enter mt-2" style="--enter-index: 6">
+                        <button type="submit" class="site-btn site-btn--lg w-full justify-center" :class="{ 'is-loading': submitting }" :disabled="submitting">
+                            <span x-text="submitting ? 'Ingresando' : 'Ingresar'">Ingresar</span>
+                            <x-phosphor-arrow-right class="site-btn__arrow" x-show="!submitting" aria-hidden="true" />
+                        </button>
+                    </div>
                 </form>
 
-                <p class="text-xs text-stone-500 mt-6">Demo — admin@test.com / password · cliente@test.com / password</p>
+                <p class="site-enter mt-8 text-[0.95rem] text-site-muted" style="--enter-index: 7">
+                    ¿Todavía no tienes tu invitación?
+                    <a href="{{ route('home') }}#precios" class="font-medium text-site-ink underline underline-offset-4 transition-colors hover:text-site-accent">Ver paquetes</a>
+                </p>
+
+                @if(app()->environment('local'))
+                    <p class="mt-8 rounded-[12px] border border-dashed border-site-line px-4 py-3 text-sm text-site-muted">
+                        Solo en local: admin@test.com o cliente@test.com, contraseña «password».
+                    </p>
+                @endif
+            </div>
+
+            <p class="text-sm text-site-muted">© {{ now()->year }} {{ config('bida.brand') }}</p>
+        </div>
+
+        <div class="hidden p-4 lg:flex" aria-hidden="true">
+            <div class="site-stage size-full" data-rotator-group>
+                @foreach($showcase as $index => $event)
+                    <x-site.image :key="$event['image']" :priority="$index === 0" :class="$index === 0 ? 'is-active' : ''" />
+                @endforeach
             </div>
         </div>
-    </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            var toggle = document.querySelector('.eye-toggle');
-            if (!toggle) return;
-            var targetSelector = toggle.getAttribute('data-target');
-            var input = document.querySelector(targetSelector);
-            var eyeVisible = toggle.querySelector('.eye-visible');
-            var eyeHidden = toggle.querySelector('.eye-hidden');
-            // initial visibility
-            if (eyeVisible) eyeVisible.style.display = 'block';
-            if (eyeHidden) eyeHidden.style.display = 'none';
-            toggle.addEventListener('click', function (e) {
-                e.preventDefault();
-                if (!input) return;
-                if (input.type === 'password') {
-                    input.type = 'text';
-                    if (eyeVisible) eyeVisible.style.display = 'none';
-                    if (eyeHidden) eyeHidden.style.display = 'block';
-                } else {
-                    input.type = 'password';
-                    if (eyeVisible) eyeVisible.style.display = 'block';
-                    if (eyeHidden) eyeHidden.style.display = 'none';
-                }
-            });
-        });
-    </script>
-</body>
-</html>
+    </main>
+@endsection

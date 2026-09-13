@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <style>
+    .shape { fill: #1d1e20; }
+    .dot { fill: #4a6b5b; }
+    @media (prefers-color-scheme: dark) {
+      .shape { fill: #ececea; }
+      .dot { fill: #9cbcac; }
+    }
+  </style>
+  <path class="shape" fill-rule="evenodd" d="M6 29V5.5a2.5 2.5 0 0 1 5 0v4.06A10.5 10.5 0 0 1 27 18.5V29H6Zm5-5h11v-5.5a5.5 5.5 0 0 0-11 0V24Z"/>
+  <circle class="dot" cx="16.5" cy="18.5" r="2.25"/>
+</svg>

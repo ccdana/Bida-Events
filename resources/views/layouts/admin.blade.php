@@ -4,7 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Panel') â€” Bida Events</title>
+    <title>@yield('title', 'Panel') | Bida Events</title>
+    <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Cormorant+Garamond:wght@400;600;700&family=Cinzel:wght@400;600;700&family=Libre+Baskerville:wght@400;700&family=Bodoni+Moda:wght@400;600;700&family=Prata&family=Lora:wght@400;500;600;700&family=Merriweather:wght@300;400;700&family=Montserrat:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Lato:wght@300;400;700&family=Nunito+Sans:wght@300;400;600;700&family=Source+Sans+3:wght@300;400;600;700&family=Poppins:wght@300;400;500;600;700&family=Raleway:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;600;700&family=Great+Vibes&family=Parisienne&family=Alex+Brush&family=Dancing+Script:wght@400;700&family=Sacramento&family=Allura&family=Tangerine:wght@400;700&family=Petit+Formal+Script&display=swap" rel="stylesheet">
     <script>
@@ -23,7 +24,7 @@
     <nav class="sticky top-0 z-50 border-b border-stone-200/80 bg-white/90 backdrop-blur">
         <div class="mx-auto max-w-6xl px-4 py-3.5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div class="flex items-center gap-3">
-                <a href="{{ route('admin.dashboard') }}" class="font-serif text-xl tracking-wide text-stone-900">Bida <span class="text-amber-700">Events</span></a>
+                <a href="{{ route('admin.dashboard') }}" class="text-xl text-stone-900"><x-brand.logo /></a>
                 <span class="hidden text-stone-300 sm:inline">|</span>
                 <div class="min-w-0">
                     <p class="text-[10px] uppercase tracking-widest text-stone-400">Panel administrativo</p>
