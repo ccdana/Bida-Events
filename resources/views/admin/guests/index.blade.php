@@ -2,74 +2,133 @@
 
 @section('title', 'Invitados')
 
+@php
+    $statuses = [
+        'confirmed' => ['Confirmado', 'is-confirmed'],
+        'declined' => ['No asiste', 'is-declined'],
+        'pending' => ['Pendiente', 'is-pending'],
+    ];
+@endphp
+
 @section('content')
-<div class="mb-8">
-    <a href="{{ route('admin.dashboard') }}" class="text-xs uppercase tracking-wider text-stone-500 hover:text-stone-800">Dashboard</a>
-    <h1 class="text-2xl font-serif text-stone-900 mt-2">{{ $invitation->title }}</h1>
-    <p class="text-sm text-stone-500 mt-1 font-mono">Enlaces: /p/{{ $invitation->slug }}/i/{token}</p>
-</div>
+    <div class="grid gap-10">
+        <header class="site-enter">
+            <a href="{{ route('admin.dashboard') }}" class="inline-flex items-center gap-2 text-sm text-site-muted transition-colors hover:text-site-ink">
+                <x-phosphor-arrow-left class="size-4" aria-hidden="true" />
+                Invitaciones
+            </a>
+            <div class="mt-4 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+                <div class="min-w-0">
+                    <h1 class="truncate text-3xl font-semibold tracking-tight md:text-4xl">{{ $invitation->title }}</h1>
+                    <p class="mt-2 text-site-muted">{{ $guests->count() }} invitados. Cada uno recibe su propio enlace para confirmar.</p>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <a href="{{ route('invitation.show', $invitation->slug) }}" target="_blank" rel="noopener" class="admin-link-button">
+                        <x-phosphor-arrow-square-out aria-hidden="true" />
+                        Ver invitación
+                    </a>
+                    <a href="{{ route('admin.invitations.edit', $invitation) }}" class="admin-link-button">
+                        <x-phosphor-pencil-simple aria-hidden="true" />
+                        Editar
+                    </a>
+                </div>
+            </div>
+        </header>
 
-<div class="grid lg:grid-cols-3 gap-6">
-    <div class="lg:col-span-2 admin-card !p-0 overflow-hidden">
-        <table class="w-full text-sm">
-            <thead class="bg-stone-50 text-stone-500 text-xs uppercase tracking-wider">
-                <tr>
-                    <th class="text-left px-5 py-3">Nombre</th>
-                    <th class="text-left px-5 py-3">Pases</th>
-                    <th class="text-left px-5 py-3">Estado</th>
-                    <th class="text-left px-5 py-3">Enlace</th>
-                    <th class="px-5 py-3"></th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-stone-100">
-                @forelse($guests as $guest)
-                    <tr class="hover:bg-stone-50/50">
-                        <td class="px-5 py-3.5 font-medium">{{ $guest->name }}</td>
-                        <td class="px-5 py-3.5 tabular-nums">{{ $guest->passes_confirmed }}/{{ $guest->passes_allocated }}</td>
-                        <td class="px-5 py-3.5">
-                            <span class="admin-status-badge
-                                @if($guest->status === 'confirmed') is-confirmed
-                                @elseif($guest->status === 'declined') is-declined
-                                @else is-pending @endif">
-                                <span class="admin-status-dot"></span>
-                                {{ $guest->status }}
-                            </span>
-                        </td>
-                        <td class="px-5 py-3.5">
-                            <a href="{{ route('invitation.guest', [$invitation->slug, $guest->qr_code_token]) }}" target="_blank" class="text-xs text-amber-800 hover:underline">Abrir</a>
-                        </td>
-                        <td class="px-5 py-3.5 text-right">
-                            <form method="POST" action="{{ route('admin.guests.destroy', [$invitation, $guest]) }}" onsubmit="return confirm('Eliminar invitado?')">
-                                @csrf @method('DELETE')
-                                <button class="text-xs text-red-600 hover:text-red-800">Eliminar</button>
-                            </form>
-                        </td>
-                    </tr>
-                @empty
-                    <tr><td colspan="5" class="px-5 py-12 text-center text-stone-400">Sin invitados aún</td></tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
+        <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_21rem] lg:items-start">
+            <section class="site-enter overflow-hidden rounded-[16px] border border-site-line bg-site-surface" style="--enter-index: 1">
+                <div class="overflow-x-auto">
+                    <table class="adm-table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Nombre</th>
+                                <th scope="col">Pases</th>
+                                <th scope="col">Estado</th>
+                                <th scope="col"><span class="sr-only">Acciones</span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($guests as $guest)
+                                @php([$statusLabel, $statusClass] = $statuses[$guest->status] ?? [ucfirst((string) $guest->status), 'is-pending'])
+                                <tr>
+                                    <td class="font-medium">
+                                        {{ $guest->name }}
+                                        @if($guest->phone)
+                                            <span class="mt-0.5 block text-sm font-normal text-site-muted">{{ $guest->phone }}</span>
+                                        @endif
+                                    </td>
+                                    <td class="tabular-nums">{{ $guest->passes_confirmed }}/{{ $guest->passes_allocated }}</td>
+                                    <td>
+                                        <span class="admin-status-badge {{ $statusClass }}">
+                                            <span class="admin-status-dot"></span>
+                                            {{ $statusLabel }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="flex justify-end gap-1">
+                                            <a href="{{ route('invitation.guest', [$invitation->slug, $guest->qr_code_token]) }}" target="_blank" rel="noopener"
+                                                class="admin-icon-button" aria-label="Abrir el enlace de {{ $guest->name }}" title="Abrir enlace personal">
+                                                <x-phosphor-link-simple aria-hidden="true" />
+                                            </a>
+                                            <form method="POST" action="{{ route('admin.guests.destroy', [$invitation, $guest]) }}" onsubmit="return confirm('¿Eliminar a {{ e($guest->name) }}?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="admin-icon-button is-danger" aria-label="Eliminar a {{ $guest->name }}" title="Eliminar">
+                                                    <x-phosphor-trash aria-hidden="true" />
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4">
+                                        <div class="flex flex-col items-center py-12 text-center">
+                                            <x-phosphor-users-three-light class="size-12 text-site-accent" aria-hidden="true" />
+                                            <p class="mt-4 font-medium">Todavía no hay invitados</p>
+                                            <p class="mt-1 text-site-muted">Agrega el primero con el formulario.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </section>
 
-    <div class="admin-card h-fit">
-        <h2 class="font-medium text-stone-900 mb-4">Agregar invitado</h2>
-        <form method="POST" action="{{ route('admin.guests.store', $invitation) }}" class="space-y-3">
-            @csrf
-            <div>
-                <label class="admin-label">Nombre o familia</label>
-                <input type="text" name="name" required class="admin-input">
-            </div>
-            <div>
-                <label class="admin-label">Teléfono</label>
-                <input type="text" name="phone" class="admin-input">
-            </div>
-            <div>
-                <label class="admin-label">Pases asignados</label>
-                <input type="number" name="passes_allocated" value="1" min="1" max="20" class="admin-input">
-            </div>
-            <button type="submit" class="w-full py-2.5 bg-stone-900 text-white text-sm rounded-xl hover:bg-stone-800 transition">Agregar</button>
-        </form>
+            <aside class="site-enter admin-card p-6 lg:sticky lg:top-24" style="--enter-index: 2">
+                <h2 class="text-lg font-semibold tracking-tight">Agregar invitado</h2>
+                <p class="mt-1 text-sm text-site-muted">Recibirá un enlace personal con sus pases.</p>
+
+                <form method="POST" action="{{ route('admin.guests.store', $invitation) }}" class="mt-6 grid gap-4">
+                    @csrf
+                    <div>
+                        <label for="guest-name" class="admin-label">Nombre o familia</label>
+                        <input id="guest-name" type="text" name="name" value="{{ old('name') }}" required class="admin-input" placeholder="Familia Quispe">
+                        @error('name')
+                            <p class="mt-1.5 text-sm text-site-danger">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div>
+                        <label for="guest-phone" class="admin-label">Teléfono <span class="font-normal text-site-muted">(opcional)</span></label>
+                        <input id="guest-phone" type="tel" name="phone" value="{{ old('phone') }}" inputmode="tel" class="admin-input" placeholder="71234567">
+                        @error('phone')
+                            <p class="mt-1.5 text-sm text-site-danger">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div>
+                        <label for="guest-passes" class="admin-label">Pases asignados</label>
+                        <input id="guest-passes" type="number" name="passes_allocated" value="{{ old('passes_allocated', 1) }}" min="1" max="20" class="admin-input">
+                        @error('passes_allocated')
+                            <p class="mt-1.5 text-sm text-site-danger">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <button type="submit" class="admin-primary-button mt-2 min-h-11 w-full">
+                        <x-phosphor-user-plus aria-hidden="true" />
+                        Agregar invitado
+                    </button>
+                </form>
+            </aside>
+        </div>
     </div>
-</div>
 @endsection

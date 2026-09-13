@@ -20,8 +20,10 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'username',
         'email',
         'password',
+        'access_password',
         'is_admin',
     ];
 
@@ -32,6 +34,7 @@ class User extends Authenticatable
      */
     protected $hidden = [
         'password',
+        'access_password',
         'remember_token',
     ];
 
@@ -45,6 +48,8 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            // Copia legible de la contraseña generada, cifrada con APP_KEY; solo la ve el administrador
+            'access_password' => 'encrypted',
             'is_admin' => 'boolean',
         ];
     }

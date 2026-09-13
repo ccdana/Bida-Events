@@ -1,75 +1,95 @@
 @extends('layouts.admin')
 
-@section('title', 'Dashboard')
+@section('title', 'Invitaciones')
 
 @section('content')
-<div class="space-y-6">
-    <section class="admin-card overflow-hidden">
-        <div class="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-            <div class="max-w-2xl">
-                <p class="admin-eyebrow">Resumen</p>
-                <h1 class="font-serif text-4xl text-stone-950">Invitaciones</h1>
-                <p class="mt-2 text-sm leading-relaxed text-stone-500">Gestión limpia, sin paneles pesados. Revisa el estado de cada evento y entra directo al editor.</p>
-            </div>
-        </div>
-    </section>
+    <div class="grid gap-10">
+        <header class="site-enter">
+            <h1 class="text-3xl font-semibold tracking-tight md:text-4xl">Invitaciones</h1>
+            <p class="mt-2 max-w-[52ch] text-site-muted">Revisa el estado de cada evento y entra directo al editor.</p>
+        </header>
 
-    <section class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <div class="admin-card admin-metric-card py-4">
-            <p class="admin-metric-label">Total</p>
-            <p class="admin-metric-value">{{ $metrics['total'] }}</p>
-        </div>
-        <div class="admin-card admin-metric-card py-4">
-            <p class="admin-metric-label">Activas</p>
-            <p class="admin-metric-value">{{ $metrics['active'] }}</p>
-        </div>
-        <div class="admin-card admin-metric-card py-4">
-            <p class="admin-metric-label">Borradores</p>
-            <p class="admin-metric-value">{{ $metrics['draft'] }}</p>
-        </div>
-        <div class="admin-card admin-metric-card py-4">
-            <p class="admin-metric-label">Invitados</p>
-            <p class="admin-metric-value">{{ $metrics['guests'] }}</p>
-        </div>
-    </section>
-
-    <section class="admin-card p-0 overflow-hidden">
-        <div class="flex items-center justify-between px-5 py-4 border-b border-stone-200">
-            <div>
-                <p class="admin-label mb-1">Listado</p>
-                <h2 class="font-serif text-xl text-stone-950">Últimas invitaciones</h2>
-            </div>
-            <span class="text-xs uppercase tracking-widest text-stone-400">{{ $metrics['total'] }} registros</span>
-        </div>
-
-        <div class="divide-y divide-stone-200">
-            @forelse($items as $row)
-                @php $invitation = $row['invitation']; @endphp
-                <article class="px-5 py-4 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                    <div class="min-w-0">
-                        <div class="flex items-center gap-3 flex-wrap">
-                            <h3 class="text-lg font-medium text-stone-950 truncate">{{ $invitation->title }}</h3>
-                            <span class="admin-status-badge {{ $row['statusClass'] }}">
-                                <span class="admin-status-dot"></span>
-                                {{ $invitation->status }}
-                            </span>
-                        </div>
-                        <p class="mt-1 text-sm text-stone-500">{{ $row['eventTypeName'] }} · {{ $row['eventDateLabel'] }}</p>
-                        <p class="mt-2 text-xs text-stone-400 font-mono">/p/{{ $invitation->slug }} · {{ $row['guestCount'] }} invitados</p>
-                    </div>
-                    <div class="flex flex-wrap gap-2">
-                        <a href="{{ route('invitation.show', $invitation->slug) }}" target="_blank" class="admin-link-button">Ver</a>
-                        <a href="{{ route('admin.invitations.edit', $invitation) }}" class="admin-primary-button">Editar</a>
-                        <a href="{{ route('admin.guests.index', $invitation) }}" class="admin-link-button">Invitados</a>
-                    </div>
-                </article>
-            @empty
-                <div class="px-5 py-16 text-center">
-                    <p class="text-stone-500">Aún no hay invitaciones creadas.</p>
-                    <a href="{{ route('admin.invitations.create') }}" class="mt-4 inline-flex text-amber-800 font-medium hover:underline">Crear la primera invitación</a>
+        <dl class="site-enter grid grid-cols-2 gap-y-6 border-y border-site-line py-6 lg:grid-cols-4" style="--enter-index: 1">
+            @foreach([
+                ['label' => 'Invitaciones', 'key' => 'total', 'icon' => 'envelope-simple'],
+                ['label' => 'Activas', 'key' => 'active', 'icon' => 'check-circle'],
+                ['label' => 'Inactivas', 'key' => 'inactive', 'icon' => 'eye-slash'],
+                ['label' => 'Invitados', 'key' => 'guests', 'icon' => 'users-three'],
+            ] as $metric)
+                <div class="lg:border-l lg:border-site-line lg:px-6 lg:first:border-l-0 lg:first:pl-0">
+                    <dt class="admin-metric-label flex items-center gap-2">
+                        <x-dynamic-component :component="'phosphor-'.$metric['icon']" class="size-4" aria-hidden="true" />
+                        {{ $metric['label'] }}
+                    </dt>
+                    <dd class="admin-metric-value">{{ $metrics[$metric['key']] }}</dd>
                 </div>
-            @endforelse
-        </div>
-    </section>
-</div>
+            @endforeach
+        </dl>
+
+        <section class="site-enter" style="--enter-index: 2">
+            <div class="flex items-baseline justify-between gap-4">
+                <h2 class="text-xl font-semibold tracking-tight">Últimas invitaciones</h2>
+                <p class="text-sm text-site-muted">{{ $metrics['total'] }} en total</p>
+            </div>
+
+            <ul class="mt-5 divide-y divide-site-line overflow-hidden rounded-[16px] border border-site-line bg-site-surface">
+                @forelse($items as $row)
+                    @php($invitation = $row['invitation'])
+                    <li class="adm-row flex flex-col gap-4 p-5 lg:flex-row lg:items-center lg:justify-between lg:px-6">
+                        <div class="min-w-0">
+                            <div class="flex flex-wrap items-center gap-3">
+                                <h3 class="truncate text-lg font-medium">{{ $invitation->title }}</h3>
+                                <span class="admin-status-badge {{ $row['statusClass'] }}">
+                                    <span class="admin-status-dot"></span>
+                                    {{ $row['statusLabel'] }}
+                                </span>
+                            </div>
+                            <p class="mt-2 flex flex-wrap items-center gap-x-5 gap-y-1.5 text-sm text-site-muted">
+                                <span class="inline-flex items-center gap-1.5">
+                                    <x-phosphor-confetti class="size-4" aria-hidden="true" />
+                                    {{ $row['eventTypeName'] }}
+                                </span>
+                                @if($row['eventDateLabel'])
+                                    <span class="inline-flex items-center gap-1.5">
+                                        <x-phosphor-calendar-blank class="size-4" aria-hidden="true" />
+                                        {{ $row['eventDateLabel'] }}
+                                    </span>
+                                @endif
+                                <span class="inline-flex items-center gap-1.5">
+                                    <x-phosphor-users class="size-4" aria-hidden="true" />
+                                    {{ $row['guestCount'] }} invitados
+                                </span>
+                                <span class="font-mono text-xs">/p/{{ $invitation->slug }}</span>
+                            </p>
+                        </div>
+
+                        <div class="flex flex-wrap gap-2">
+                            <a href="{{ route('invitation.show', $invitation->slug) }}" target="_blank" rel="noopener" class="admin-link-button">
+                                <x-phosphor-arrow-square-out aria-hidden="true" />
+                                Ver
+                            </a>
+                            <a href="{{ route('admin.guests.index', $invitation) }}" class="admin-link-button">
+                                <x-phosphor-users aria-hidden="true" />
+                                Invitados
+                            </a>
+                            <a href="{{ route('admin.invitations.edit', $invitation) }}" class="admin-primary-button">
+                                <x-phosphor-pencil-simple aria-hidden="true" />
+                                Editar
+                            </a>
+                        </div>
+                    </li>
+                @empty
+                    <li class="flex flex-col items-center px-6 py-16 text-center">
+                        <x-phosphor-envelope-simple-open-light class="size-12 text-site-accent" aria-hidden="true" />
+                        <h3 class="mt-4 text-lg font-medium">Todavía no hay invitaciones</h3>
+                        <p class="mt-1 max-w-[40ch] text-site-muted">Crea la primera, asígnale un cliente y compártela cuando esté lista.</p>
+                        <a href="{{ route('admin.invitations.create') }}" class="admin-primary-button mt-6">
+                            <x-phosphor-plus-bold aria-hidden="true" />
+                            Nueva invitación
+                        </a>
+                    </li>
+                @endforelse
+            </ul>
+        </section>
+    </div>
 @endsection

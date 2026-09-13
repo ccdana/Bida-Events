@@ -1,89 +1,124 @@
-<div x-show="activeTab === 'estetica'" x-cloak class="space-y-2">
-    <!-- Resumen rápido -->
-    <section class="admin-card p-3 space-y-3">
-        <div class="flex items-center justify-between gap-2">
-            <div class="min-w-0">
-                <p class="admin-eyebrow mb-0.5">Diseño Visual</p>
-                <p class="text-xs text-stone-600 truncate">Paleta y tipografía</p>
+{{-- Colores y tipografías: cada opción explica dónde se usa y se resalta en la muestra al pasar el cursor --}}
+<div x-show="activeTab === 'estetica'" x-cloak class="space-y-4"
+    x-data="{
+        focus: null,
+        spot(key) { return this.focus === key ? 'outline-2 outline-dashed outline-offset-4 outline-site-accent' : ''; },
+    }">
+    @include('admin.partials.panel-intro', [
+        'eyebrow' => 'Estética',
+        'title' => 'Colores y tipografías',
+        'description' => 'los colores y las letras de toda la invitación.',
+        'tip' => 'Pasa el cursor por un color o una tipografía: en la muestra se marca dónde se usa.',
+    ])
+
+    {{-- Muestra que acompaña al elegir --}}
+    <section class="admin-card sticky top-0 z-10 overflow-hidden p-0">
+        <div class="px-5 pb-5 pt-6 text-center transition-colors"
+            :class="focus === 'background' ? 'outline-2 outline-dashed -outline-offset-8 outline-site-accent' : ''"
+            :style="`background:${modules.config.colores.background};color:${modules.config.colores.text};font-family:'${modules.config.tipografias.cuerpo}', sans-serif`">
+            <p class="inline-block text-[10px] uppercase tracking-[0.3em]" :class="spot('text')"
+                x-text="modules.bienvenida?.subtitulo || 'Celebrando mis XV años'"></p>
+            <p class="mx-auto mt-1 block w-fit px-2 text-4xl leading-tight" :class="spot('script')"
+                :style="`font-family:'${modules.config.tipografias.script}', cursive`"
+                x-text="modules.bienvenida?.nombre_quinceanera || 'Sofía Valentina'"></p>
+            <div class="mx-auto mt-3 h-px w-16" :class="spot('primary')" :style="`background:${modules.config.colores.primary}`"></div>
+
+            <div class="mt-4 rounded-md px-4 py-3" :class="spot('accent')"
+                :style="`background:color-mix(in srgb, ${modules.config.colores.accent} 35%, ${modules.config.colores.background})`">
+                <p class="mx-auto w-fit px-1 text-lg" :class="spot('titulos')" :style="`font-family:'${modules.config.tipografias.titulos}', serif`">Itinerario</p>
+                <p class="mx-auto mt-1 w-fit px-1 text-xs" :class="spot('cuerpo')">Recepción de invitados, 18:00</p>
             </div>
-            <span class="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-white border border-stone-200 text-xs font-semibold shrink-0" :class="{ 'text-green-700 bg-green-50 border-green-200': getContrastRatio() >= 4.5, 'text-amber-700 bg-amber-50 border-amber-200': getContrastRatio() >= 3 && getContrastRatio() < 4.5, 'text-red-700 bg-red-50 border-red-200': getContrastRatio() < 3 }">
-                <span class="inline-block w-1.5 h-1.5 rounded-full" :class="{ 'bg-green-500': getContrastRatio() >= 4.5, 'bg-amber-500': getContrastRatio() >= 3 && getContrastRatio() < 4.5, 'bg-red-500': getContrastRatio() < 3 }"></span>
-                <span x-text="getContrastRatio() >= 4.5 ? 'AAA' : getContrastRatio() >= 3 ? 'AA' : 'Bajo'"></span>
+
+            <span class="mt-4 inline-block rounded-md px-3 py-1.5 text-xs font-semibold" :class="spot('primary')"
+                :style="`background:${modules.config.colores.primary};color:${modules.config.colores.background}`">Confirmar asistencia</span>
+        </div>
+        <div class="flex items-center justify-between gap-3 border-t border-site-line px-4 py-2.5 text-xs">
+            <span class="text-site-muted">Legibilidad del texto sobre el fondo</span>
+            <span class="admin-status-badge" :class="getContrastRatio() >= 4.5 ? 'is-active' : (getContrastRatio() >= 3 ? '' : 'is-declined')">
+                <span class="admin-status-dot"></span>
+                <span x-text="getContrastRatio() >= 4.5 ? 'Buena' : (getContrastRatio() >= 3 ? 'Justa' : 'Difícil de leer')"></span>
             </span>
         </div>
-        
-        <!-- Swatches compactos -->
-        <div class="grid grid-cols-5 gap-1.5">
-            <template x-for="(color, key) in modules.config.colores" :key="key">
-                <div class="flex flex-col items-center gap-1">
-                    <div class="w-full aspect-square rounded-lg border border-stone-200 shadow-sm transition-all hover:shadow-md" :style="`background:${color}`" :title="colorLabels[key]"></div>
-                    <span class="text-xs text-center leading-tight font-medium text-stone-600 truncate w-full" x-text="colorLabels[key]"></span>
+    </section>
+
+    {{-- Paletas completas --}}
+    <section class="admin-card space-y-3 p-4">
+        <div>
+            <h3 class="text-sm font-semibold">Paletas listas</h3>
+            <p class="mt-0.5 text-xs text-site-muted">Aplica una combinación completa y después ajusta el color que quieras.</p>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+            <template x-for="preset in getColorPresets()" :key="preset.name">
+                <button type="button" @click="applyColorPreset(preset.name)"
+                    class="rounded-[12px] border p-2.5 text-left transition-colors"
+                    :class="isCurrentPreset(preset.name) ? 'border-site-ink bg-site-bg' : 'border-site-line hover:bg-site-bg'"
+                    :aria-pressed="isCurrentPreset(preset.name).toString()">
+                    <span class="flex h-9 items-center gap-1.5 overflow-hidden rounded-md border border-site-line px-1.5" :style="`background:${preset.colors.background}`">
+                        <span class="h-5 flex-1 rounded-sm" :style="`background:${preset.colors.accent}`"></span>
+                        <span class="size-3 shrink-0 rounded-full" :style="`background:${preset.colors.primary}`"></span>
+                        <span class="h-1.5 w-6 shrink-0 rounded-full" :style="`background:${preset.colors.text}`"></span>
+                    </span>
+                    <span class="mt-2 flex items-center justify-between gap-1">
+                        <span class="truncate text-xs font-semibold" x-text="preset.name"></span>
+                        <x-phosphor-check-circle-fill class="size-4 shrink-0 text-site-accent" x-show="isCurrentPreset(preset.name)" aria-hidden="true" />
+                    </span>
+                    <span class="block truncate text-[11px] text-site-muted" x-text="preset.description || ''"></span>
+                </button>
+            </template>
+        </div>
+    </section>
+
+    {{-- Colores con su uso --}}
+    <section class="admin-card space-y-3 p-4">
+        <div>
+            <h3 class="text-sm font-semibold">Colores</h3>
+            <p class="mt-0.5 text-xs text-site-muted">Cada color tiene una función en la invitación.</p>
+        </div>
+        <div class="space-y-2">
+            <template x-for="role in colorRoles" :key="role.key">
+                <div class="flex items-center gap-3 rounded-[12px] border p-2.5 transition-colors"
+                    :class="focus === role.key ? 'border-site-ink bg-site-bg' : 'border-site-line'"
+                    @mouseenter="focus = role.key" @mouseleave="focus = null" @focusin="focus = role.key" @focusout="focus = null">
+                    <label class="relative size-10 shrink-0 cursor-pointer overflow-hidden rounded-full border border-site-line"
+                        :style="`background:${modules.config.colores[role.key]}`" :title="`Elegir color: ${role.label}`">
+                        <input type="color" x-model="modules.config.colores[role.key]" class="absolute inset-0 size-full cursor-pointer opacity-0"
+                            :aria-label="`Elegir color: ${role.label}`">
+                    </label>
+                    <div class="min-w-0 flex-1" :class="role.unused ? 'opacity-60' : ''">
+                        <p class="text-sm font-semibold" x-text="role.label"></p>
+                        <p class="text-xs leading-snug text-site-muted" x-text="role.usage"></p>
+                    </div>
+                    <input type="text" x-model="modules.config.colores[role.key]" @change="validateHexColor(role.key)" maxlength="7"
+                        class="admin-hex-input shrink-0" :aria-label="`Código del color ${role.label}`">
                 </div>
             </template>
         </div>
     </section>
 
-    <!-- Presets -->
-    <section class="admin-card p-3 space-y-2">
-        <div class="flex items-center justify-between gap-2">
-            <p class="admin-eyebrow mb-0">Presets</p>
-            <button type="button" @click="applyColorPreset('Elegancia Clásica')" class="text-xs px-2 py-1 rounded border border-stone-200 bg-white hover:bg-stone-50 transition-colors font-medium">↻</button>
+    {{-- Tipografías con muestra de texto real --}}
+    <section class="admin-card space-y-5 p-4">
+        <div>
+            <h3 class="text-sm font-semibold">Tipografías</h3>
+            <p class="mt-0.5 text-xs text-site-muted">Cada opción se muestra con el texto donde se va a usar.</p>
         </div>
-        <div class="grid grid-cols-2 gap-1.5">
-            <template x-for="preset in getColorPresets()" :key="preset.name">
-                <button type="button" @click="applyColorPreset(preset.name)"
-                    class="relative p-2 rounded-lg border-2 transition-all"
-                    :class="isCurrentPreset(preset.name) ? (isPresetDark(preset) ? 'border-stone-900 bg-stone-900 text-white ring-1 ring-stone-900/30' : 'border-stone-900 bg-white ring-1 ring-stone-900/20') : 'border-stone-200 bg-stone-50 hover:border-stone-300'">
-                    <div class="flex gap-0.5 mb-1.5 h-3">
-                        <div class="flex-1 rounded-sm" :style="`background:${preset.colors.primary}`"></div>
-                        <div class="flex-1 rounded-sm" :style="`background:${preset.colors.secondary}`"></div>
-                        <div class="flex-1 rounded-sm" :style="`background:${preset.colors.accent}`"></div>
-                    </div>
-                    <p :class="isPresetDark(preset) ? 'text-white' : 'text-stone-700'" class="text-xs font-semibold truncate" x-text="preset.name"></p>
-                </button>
-            </template>
-        </div>
-    </section>
-
-    <!-- Editor de colores individuales -->
-    <section class="admin-card p-3 space-y-2">
-        <p class="admin-eyebrow mb-1">Colores</p>
-        <div class="grid gap-2">
-            <template x-for="(color, key) in modules.config.colores" :key="key">
-                <label class="flex items-center gap-2 p-2 rounded-lg border border-stone-200 bg-stone-50 hover:bg-white transition-colors cursor-pointer">
-                    <input type="color" x-model="modules.config.colores[key]" class="w-9 h-9 rounded cursor-pointer flex-shrink-0 border border-stone-300">
-                    <span class="min-w-0 flex-1">
-                        <span class="block text-sm font-semibold text-stone-900 truncate" x-text="colorLabels[key] || key"></span>
-                    </span>
-                    <input type="text" x-model="modules.config.colores[key]" class="w-16 h-8 text-xs font-mono uppercase rounded border border-stone-200 bg-white px-1.5 py-1 text-center flex-shrink-0" maxlength="7" @change="validateHexColor(key)">
-                </label>
-            </template>
-        </div>
-    </section>
-
-    <!-- Tipografías en acordeón -->
-    <section class="admin-card p-3 space-y-2">
-        <p class="admin-eyebrow mb-1">Tipografías</p>
-        
-        <template x-for="(fontType, typeKey) in { titulos: 'Títulos', cuerpo: 'Cuerpo', script: 'Script' }" :key="typeKey">
-            <div x-data="{ open: false }" class="admin-accordion">
-                <button type="button" @click="open = !open" class="admin-accordion-trigger">
+        <template x-for="role in fontRoles" :key="role.key">
+            <div class="space-y-2" @mouseenter="focus = role.key" @mouseleave="focus = null" @focusin="focus = role.key" @focusout="focus = null">
+                <div class="flex items-baseline justify-between gap-3">
                     <div class="min-w-0">
-                        <p class="text-sm font-semibold text-stone-900 text-left" x-text="fontType"></p>
-                        <p class="text-xs text-stone-500 text-left truncate" x-text="`Actual: ${modules.config.tipografias[typeKey]}`"></p>
+                        <p class="text-sm font-semibold" x-text="role.label"></p>
+                        <p class="text-xs leading-snug text-site-muted" x-text="role.usage"></p>
                     </div>
-                    <svg class="w-4 h-4 flex-shrink-0 transition-transform text-stone-500" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
-                    </svg>
-                </button>
-                
-                <div x-show="open" class="admin-accordion-panel space-y-1">
-                    <template x-for="font in fontOptions[typeKey]" :key="font">
-                        <button type="button"
-                            @click="modules.config.tipografias[typeKey] = font; open = false"
-                            class="admin-accordion-option"
-                            :class="modules.config.tipografias[typeKey] === font ? 'is-selected' : ''">
-                            <span class="block font-semibold" :style="`font-family:'${font}', ${typeKey === 'script' ? 'cursive' : typeKey === 'titulos' ? 'serif' : 'sans-serif'}`" x-text="font"></span>
+                    <span class="shrink-0 text-xs text-site-muted" x-text="modules.config.tipografias[role.key]"></span>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <template x-for="font in fontOptions[role.key]" :key="font">
+                        <button type="button" @click="modules.config.tipografias[role.key] = font"
+                            class="min-w-0 rounded-[10px] border px-3 py-2 text-left transition-colors"
+                            :class="modules.config.tipografias[role.key] === font ? 'border-site-ink bg-site-bg' : 'border-site-line hover:bg-site-bg'"
+                            :aria-pressed="(modules.config.tipografias[role.key] === font).toString()">
+                            <span class="block truncate leading-snug" :class="role.size"
+                                :style="`font-family:'${font}', ${role.fallback}`" x-text="fontSample(role.key)"></span>
+                            <span class="mt-0.5 block truncate text-[11px] text-site-muted" x-text="font"></span>
                         </button>
                     </template>
                 </div>

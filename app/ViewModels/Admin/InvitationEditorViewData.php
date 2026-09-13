@@ -31,10 +31,6 @@ class InvitationEditorViewData
             }
         }
 
-        $assignedClientPassword = $invitation?->user_id
-            ? (session('client_temp_passwords', [])[$invitation->user_id] ?? null)
-            : null;
-
         return [
             'invitation' => $invitation,
             'modulos' => $modulos,
@@ -52,7 +48,6 @@ class InvitationEditorViewData
                 templates: $templates,
                 eventTypes: $eventTypes,
                 clientList: $clientList,
-                assignedClientPassword: $assignedClientPassword,
                 itineraryIcons: $itineraryIcons,
             ),
             'isCreate' => $isCreate,
@@ -66,12 +61,10 @@ class InvitationEditorViewData
         Collection $templates,
         Collection $eventTypes,
         Collection $clientList,
-        ?string $assignedClientPassword,
         array $itineraryIcons,
     ): array {
         $defaultEventDate = $invitation?->event_date?->format('Y-m-d\TH:i') ?? now()->addMonths(3)->format('Y-m-d\TH:i');
         $defaultExpires = $invitation?->expires_at?->format('Y-m-d') ?? now()->addMonths(9)->format('Y-m-d');
-        $clientPasswords = session('client_temp_passwords', []);
 
         return [
             'modules' => $modulos,
@@ -83,13 +76,13 @@ class InvitationEditorViewData
                 'value' => $value,
                 'label' => $label,
             ])->values(),
+            // Solo el administrador abre el editor: por eso puede ver la contraseña de cada cliente
             'clients' => $clientList->map(fn ($client) => [
                 'id' => (string) $client->id,
                 'name' => $client->name,
-                'email' => $client->email,
+                'username' => $client->username,
+                'password' => $client->access_password,
             ])->values(),
-            'clientPasswords' => $clientPasswords,
-            'assignedClientPassword' => $assignedClientPassword,
             'meta' => [
                 'title' => $invitation?->title ?? '',
                 'slug' => $invitation?->slug ?? '',
@@ -98,7 +91,7 @@ class InvitationEditorViewData
                 'user_id' => $invitation?->user_id ? (string) $invitation->user_id : '',
                 'event_date' => $defaultEventDate,
                 'expires_at' => $defaultExpires,
-                'status' => $invitation?->status ?? 'draft',
+                'status' => $invitation?->status === 'active' ? 'active' : 'inactive',
             ],
             'isCreate' => $isCreate,
             'slugManual' => ! $isCreate,

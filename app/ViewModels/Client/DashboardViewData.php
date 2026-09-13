@@ -14,34 +14,13 @@ class DashboardViewData
             'confirmed' => $invitation->guests->where('status', 'confirmed')->count(),
             'pending' => $invitation->guests->where('status', 'pending')->count(),
             'declined' => $invitation->guests->where('status', 'declined')->count(),
-            'statusLabel' => $this->statusLabel($invitation->status),
-            'statusClass' => $this->statusClass($invitation->status),
+            'statusLabel' => $invitation->status === 'active' ? 'Activa' : 'Inactiva',
+            'statusClass' => $invitation->status === 'active' ? 'is-success' : 'is-primary',
         ])->values();
 
         return [
             'invitations' => $invitations,
             'items' => $items,
         ];
-    }
-
-    protected function statusLabel(string $status): string
-    {
-        return match (strtolower($status)) {
-            'draft', 'borrador' => 'Borrador',
-            'active', 'activa' => 'Activa',
-            'suspended' => 'Suspendida',
-            'expired' => 'Expirada',
-            default => $status,
-        };
-    }
-
-    protected function statusClass(string $status): string
-    {
-        return match (strtolower($status)) {
-            'active', 'activa' => 'is-success',
-            'draft', 'borrador' => 'is-warning',
-            'suspended', 'expired' => 'is-danger',
-            default => 'is-primary',
-        };
     }
 }

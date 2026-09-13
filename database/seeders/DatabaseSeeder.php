@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
     {
         $admin = User::create([
             'name' => 'Administrador Bida',
+            'username' => 'admin',
             'email' => 'admin@test.com',
             'password' => Hash::make('password'),
             'is_admin' => true,
@@ -26,8 +27,10 @@ class DatabaseSeeder extends Seeder
 
         $client = User::create([
             'name' => 'María Valenzuela',
+            'username' => 'cliente',
             'email' => 'cliente@test.com',
             'password' => Hash::make('password'),
+            'access_password' => 'password',
             'is_admin' => false,
         ]);
 

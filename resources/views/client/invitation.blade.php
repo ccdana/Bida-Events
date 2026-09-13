@@ -3,61 +3,85 @@
 @section('title', $invitation->title)
 
 @section('content')
-<div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-    <div class="min-w-0">
-        <a href="{{ route('client.dashboard') }}" class="text-sm font-medium client-muted hover:text-stone-900 transition">Mis eventos</a>
-        <h1 class="mt-2 text-3xl font-bold client-page-title truncate">{{ $invitation->title }}</h1>
-        <p class="mt-2 client-muted">
-            {{ $invitation->event_date->format('d \d\e F, Y') }} a las {{ $invitation->event_date->format('H:i') }}
-        </p>
-    </div>
-    <div class="flex flex-wrap gap-2">
-        <a href="{{ route('client.export.excel', $invitation) }}" class="client-button-secondary">Descargar Excel</a>
-        <a href="{{ route('client.export.pdf', $invitation) }}" class="client-button-secondary">Descargar PDF</a>
-    </div>
-</div>
+    <header class="site-enter">
+        <a href="{{ route('client.dashboard') }}" class="inline-flex items-center gap-2 text-sm text-site-muted transition-colors hover:text-site-ink">
+            <x-phosphor-arrow-left class="size-4" aria-hidden="true" />
+            Mis eventos
+        </a>
+        <div class="mt-4 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+            <div class="min-w-0">
+                <h1 class="truncate text-3xl font-semibold tracking-tight md:text-4xl">{{ $invitation->title }}</h1>
+                @if($invitation->event_date)
+                    <p class="mt-2 inline-flex items-center gap-2 text-site-muted">
+                        <x-phosphor-calendar-blank class="size-5 shrink-0" aria-hidden="true" />
+                        {{ $invitation->event_date->locale('es')->translatedFormat('j \d\e F \d\e Y') }}, {{ $invitation->event_date->format('H:i') }}
+                    </p>
+                @endif
+            </div>
+            <div class="flex flex-wrap gap-2">
+                <a href="{{ route('client.export.excel', $invitation) }}" class="admin-link-button">
+                    <x-phosphor-file-xls aria-hidden="true" />
+                    Descargar Excel
+                </a>
+                <a href="{{ route('client.export.pdf', $invitation) }}" class="admin-link-button">
+                    <x-phosphor-file-pdf aria-hidden="true" />
+                    Descargar PDF
+                </a>
+            </div>
+        </div>
+    </header>
 
-<div class="grid gap-4 sm:grid-cols-4 mb-8">
-    <div class="client-stat-card p-4 text-center">
-        <p class="client-stat-value text-3xl font-semibold">{{ $confirmed->count() }}</p>
-        <p class="client-stat-label text-sm mt-1">Confirmados</p>
-    </div>
-    <div class="client-stat-card p-4 text-center">
-        <p class="client-stat-value text-3xl font-semibold">{{ $totalPasses }}</p>
-        <p class="client-stat-label text-sm mt-1">Pases confirmados</p>
-    </div>
-    <div class="client-stat-card p-4 text-center">
-        <p class="client-stat-value text-3xl font-semibold">{{ $pending->count() }}</p>
-        <p class="client-stat-label text-sm mt-1">Pendientes</p>
-    </div>
-    <div class="client-stat-card p-4 text-center">
-        <p class="client-stat-value text-3xl font-semibold">{{ $confirmationRate }}%</p>
-        <p class="client-stat-label text-sm mt-1">Cobertura</p>
-    </div>
-</div>
+    <dl class="site-enter mt-10 grid grid-cols-2 gap-y-6 border-y border-site-line py-6 lg:grid-cols-4" style="--enter-index: 1">
+        @foreach([
+            'Confirmados' => $confirmed->count(),
+            'Pases confirmados' => $totalPasses,
+            'Pendientes' => $pending->count(),
+            'Pases cubiertos' => $confirmationRate.'%',
+        ] as $label => $value)
+            <div class="lg:border-l lg:border-site-line lg:px-6 lg:first:border-l-0 lg:first:pl-0">
+                <dt class="admin-metric-label">{{ $label }}</dt>
+                <dd class="admin-metric-value">{{ $value }}</dd>
+            </div>
+        @endforeach
+    </dl>
 
-<div class="client-table-shell">
-    <div class="overflow-x-auto">
-        <table class="w-full text-sm">
-            <thead class="client-table-head text-left text-xs uppercase tracking-wide text-stone-500">
-                <tr>
-                    <th class="px-4 py-3 font-semibold">Invitado</th>
-                    <th class="px-4 py-3 font-semibold">Estado</th>
-                    <th class="px-4 py-3 font-semibold">Pases</th>
-                    <th class="px-4 py-3 font-semibold">Alimentación</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($rows as $row)
-                    <tr class="client-table-row">
-                        <td class="px-4 py-3 font-medium text-stone-900">{{ $row['guest']->name }}</td>
-                        <td class="px-4 py-3 text-stone-600">{{ $row['statusLabel'] }}</td>
-                        <td class="px-4 py-3 text-stone-600">{{ $row['passesLabel'] }}</td>
-                        <td class="px-4 py-3 text-stone-500">{{ $row['dietaryRestrictions'] }}</td>
+    <section class="site-enter mt-10 overflow-hidden rounded-[16px] border border-site-line bg-site-surface" style="--enter-index: 2">
+        <div class="overflow-x-auto">
+            <table class="adm-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Invitado</th>
+                        <th scope="col">Estado</th>
+                        <th scope="col">Pases</th>
+                        <th scope="col">Alimentación</th>
                     </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
-</div>
+                </thead>
+                <tbody>
+                    @forelse($rows as $row)
+                        <tr>
+                            <td class="font-medium">{{ $row['guest']->name }}</td>
+                            <td>
+                                <span class="admin-status-badge {{ $row['statusClass'] }}">
+                                    <span class="admin-status-dot"></span>
+                                    {{ $row['statusLabel'] }}
+                                </span>
+                            </td>
+                            <td class="tabular-nums">{{ $row['passesLabel'] }}</td>
+                            <td class="text-site-muted">{{ $row['dietaryRestrictions'] }}</td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="4">
+                                <div class="flex flex-col items-center py-12 text-center">
+                                    <x-phosphor-users-three-light class="size-12 text-site-accent" aria-hidden="true" />
+                                    <p class="mt-4 font-medium">Todavía no hay invitados</p>
+                                    <p class="mt-1 text-site-muted">Cuando el equipo los agregue, verás aquí sus confirmaciones.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </section>
 @endsection

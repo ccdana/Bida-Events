@@ -54,12 +54,22 @@ class AccessControlTest extends TestCase
     public function test_login_attempts_are_throttled(): void
     {
         config(['optimizations.rate_limits.login' => 2]);
-        $credentials = ['email' => 'nadie@test.com', 'password' => 'incorrecta'];
+        $credentials = ['username' => 'nadie', 'password' => 'incorrecta'];
 
-        $this->post('/login', $credentials)->assertSessionHasErrors('email');
-        $this->post('/login', $credentials)->assertSessionHasErrors('email');
+        $this->post('/login', $credentials)->assertSessionHasErrors('username');
+        $this->post('/login', $credentials)->assertSessionHasErrors('username');
 
         $this->post('/login', $credentials)
-            ->assertSessionHasErrors(['email' => 'Demasiados intentos. Espera un momento e inténtalo de nuevo.']);
+            ->assertSessionHasErrors(['username' => 'Demasiados intentos. Espera un momento e inténtalo de nuevo.']);
+    }
+
+    public function test_users_sign_in_with_their_username(): void
+    {
+        $client = User::factory()->create(['username' => 'maria.valenzuela', 'password' => 'k7mq-2hxa']);
+
+        $this->post('/login', ['username' => 'Maria.Valenzuela ', 'password' => 'k7mq-2hxa'])
+            ->assertRedirect(route('client.dashboard'));
+
+        $this->assertAuthenticatedAs($client);
     }
 }

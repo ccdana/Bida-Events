@@ -35,7 +35,7 @@ class UpdateInvitationRequest extends FormRequest
             'event_type_id' => ['required', 'exists:event_types,id'],
             'user_id' => ['nullable', 'exists:users,id'],
             'event_date' => ['required', 'date'],
-            'status' => ['required', 'in:draft,active,suspended,expired'],
+            'status' => ['required', 'in:active,inactive'],
             'expires_at' => ['required', 'date'],
             ...$this->moduleRules(),
         ];

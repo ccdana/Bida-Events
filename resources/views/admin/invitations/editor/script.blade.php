@@ -1,4 +1,140 @@
 <script>
+/**
+ * Campo de fecha en formato DD-MM-AAAA. Se enlaza con x-model a un valor ISO (AAAA-MM-DD):
+ * se puede escribir con máscara o elegir en el calendario nativo.
+ */
+function dateField() {
+    return {
+        value: '',
+        text: '',
+        error: '',
+
+        init() {
+            this.$nextTick(() => { this.text = this.toDisplay(this.value); });
+            this.$watch('value', (iso) => {
+                if (this.toIso(this.text) !== iso) {
+                    this.text = this.toDisplay(iso);
+                    this.error = '';
+                }
+            });
+        },
+
+        get readable() {
+            const iso = this.toIso(this.text);
+            if (!iso) {
+                return 'Formato DD-MM-AAAA';
+            }
+            return new Date(`${iso}T12:00:00`).toLocaleDateString('es-BO', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+        },
+
+        toDisplay(iso) {
+            const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || '');
+            return match ? `${match[3]}-${match[2]}-${match[1]}` : '';
+        },
+
+        toIso(text) {
+            const match = /^(\d{2})-(\d{2})-(\d{4})$/.exec(text || '');
+            if (!match) {
+                return null;
+            }
+            const [, day, month, year] = match;
+            const date = new Date(Number(year), Number(month) - 1, Number(day));
+            const valid = date.getFullYear() === Number(year) && date.getMonth() === Number(month) - 1 && date.getDate() === Number(day);
+            return valid ? `${year}-${month}-${day}` : null;
+        },
+
+        onInput(event) {
+            const digits = event.target.value.replace(/\D/g, '').slice(0, 8);
+            let masked = digits.slice(0, 2);
+            if (digits.length > 2) masked += `-${digits.slice(2, 4)}`;
+            if (digits.length > 4) masked += `-${digits.slice(4)}`;
+            this.text = masked;
+            event.target.value = masked;
+
+            if (digits.length < 8) {
+                this.error = '';
+                return;
+            }
+            const iso = this.toIso(masked);
+            this.error = iso ? '' : 'Esa fecha no existe';
+            if (iso) {
+                this.value = iso;
+            }
+        },
+
+        onBlur() {
+            if (this.text && !this.toIso(this.text)) {
+                this.error = 'Escribe la fecha como DD-MM-AAAA';
+            }
+        },
+
+        openPicker() {
+            const picker = this.$refs.picker;
+            picker.value = this.value || '';
+            try {
+                picker.showPicker();
+            } catch (error) {
+                picker.click();
+            }
+        },
+
+        onPick(event) {
+            if (event.target.value) {
+                this.value = event.target.value;
+                this.text = this.toDisplay(event.target.value);
+                this.error = '';
+            }
+        },
+    };
+}
+
+window.dateField = dateField;
+
+/** Hora en formato de 24 horas (HH:MM), con la misma máscara que la fecha. */
+function timeField() {
+    return {
+        value: '',
+        text: '',
+        error: '',
+
+        init() {
+            this.$nextTick(() => { this.text = this.value || ''; });
+            this.$watch('value', (time) => {
+                if (this.text !== time) {
+                    this.text = time || '';
+                    this.error = '';
+                }
+            });
+        },
+
+        onInput(event) {
+            const digits = event.target.value.replace(/\D/g, '').slice(0, 4);
+            const masked = digits.length > 2 ? `${digits.slice(0, 2)}:${digits.slice(2)}` : digits;
+            this.text = masked;
+            event.target.value = masked;
+
+            if (digits.length < 4) {
+                this.error = '';
+                return;
+            }
+            const hours = Number(digits.slice(0, 2));
+            const minutes = Number(digits.slice(2));
+            this.error = hours > 23 || minutes > 59 ? 'Esa hora no existe' : '';
+            if (!this.error) {
+                this.value = masked;
+            }
+        },
+
+        onBlur() {
+            if (this.text && !/^([01]\d|2[0-3]):[0-5]\d$/.test(this.text)) {
+                this.error = 'Escribe la hora como HH:MM';
+            }
+        },
+    };
+}
+
+window.timeField = timeField;
+
 function invitationForm(config) {
     return {
         modules: config.modules,
@@ -7,10 +143,8 @@ function invitationForm(config) {
         eventTypes: config.eventTypes ?? [],
         templateOptions: config.templateOptions ?? [],
         statusLabels: {
-            draft: 'Borrador',
             active: 'Activa',
-            suspended: 'Suspendida',
-            expired: 'Expirada',
+            inactive: 'Inactiva',
         },
         eventDatePart: '',
         eventTimePart: '',
@@ -32,9 +166,8 @@ function invitationForm(config) {
         previewDebounceMs: 280,
         mediaUploading: false,
         clientCreating: false,
-        newClient: { name: '', email: '' },
-        clientPasswords: config.clientPasswords ?? {},
-        assignedClientPassword: config.assignedClientPassword ?? null,
+        newClient: { name: '' },
+        clientError: '',
         locationStatusMessage: '',
         mapsLinkLoading: false,
         mapsResolveUrl: config.mapsResolveUrl,
@@ -128,6 +261,26 @@ function invitationForm(config) {
             text: 'Texto',
             background: 'Fondo',
         },
+        // Dónde usa cada color la plantilla (resources/css/invitation); en el orden en que conviene elegirlos
+        colorRoles: [
+            { key: 'background', label: 'Fondo', usage: 'Color de fondo de toda la invitación.' },
+            { key: 'text', label: 'Texto', usage: 'Títulos, párrafos y horarios. Tiene que leerse bien sobre el fondo.' },
+            { key: 'primary', label: 'Principal', usage: 'Botones, líneas decorativas, íconos animados y la luz del itinerario.' },
+            { key: 'accent', label: 'Acento', usage: 'Tono suave de las zonas destacadas: portada, galería y recuadros.' },
+            { key: 'secondary', label: 'Secundario', usage: 'Esta plantilla todavía no lo usa. Se guarda para otras plantillas.', unused: true },
+        ],
+        fontRoles: [
+            { key: 'script', label: 'Nombre del festejado', usage: 'Letra decorativa del nombre en la portada y en el menú.', fallback: 'cursive', size: 'text-2xl' },
+            { key: 'titulos', label: 'Títulos de secciones', usage: 'Títulos como Itinerario o Ubicación y los números de la cuenta regresiva.', fallback: 'serif', size: 'text-lg' },
+            { key: 'cuerpo', label: 'Textos', usage: 'Párrafos, horarios, botones y formularios.', fallback: 'sans-serif', size: 'text-base' },
+        ],
+
+        fontSample(roleKey) {
+            if (roleKey === 'script') {
+                return this.modules.bienvenida?.nombre_quinceanera || 'Sofía Valentina';
+            }
+            return roleKey === 'titulos' ? 'Itinerario' : 'Te esperamos a las 18:00';
+        },
         fontOptions: {
             titulos: [
                 'Playfair Display', 'Cormorant Garamond', 'Cinzel', 'Libre Baskerville',
@@ -160,7 +313,6 @@ function invitationForm(config) {
             this.ensureStructure();
             this.normalizeMetaSelects();
             this.initEventDateFields();
-            this.syncAssignedClientPassword();
             this.syncActiveGroup();
             this.$watch('meta.template', v => { if (this.modules.config) this.modules.config.template = v; });
             this.$watch('modules', () => this.schedulePreview(), { deep: true });
@@ -542,8 +694,9 @@ function invitationForm(config) {
         },
 
         async createClient() {
-            if (!this.newClient.name?.trim() || !this.newClient.email?.trim()) {
-                alert('Completa nombre y email del cliente.');
+            this.clientError = '';
+            if (!this.newClient.name?.trim()) {
+                this.clientError = 'Escribe el nombre del cliente.';
                 return;
             }
             this.clientCreating = true;
@@ -568,11 +721,9 @@ function invitationForm(config) {
                 };
                 this.clients.push(client);
                 this.meta.user_id = client.id;
-                this.clientPasswords[client.id] = data.client.tempPassword;
-                this.assignedClientPassword = data.client.tempPassword;
-                this.newClient = { name: '', email: '' };
+                this.newClient = { name: '' };
             } catch (error) {
-                alert(error.message || 'No se pudo crear el cliente.');
+                this.clientError = error.message || 'No se pudo crear el cliente.';
             } finally {
                 this.clientCreating = false;
             }
@@ -589,22 +740,18 @@ function invitationForm(config) {
                 ...client,
                 id: String(client.id),
             }));
-            this.clientPasswords = Object.fromEntries(
-                Object.entries(this.clientPasswords ?? {}).map(([id, password]) => [String(id), password])
-            );
         },
 
-        syncAssignedClientPassword() {
-            if (!this.meta.user_id) {
-                this.assignedClientPassword = null;
-                return;
+        /** Mensaje listo para enviar al cliente por WhatsApp con sus datos de acceso. */
+        clientAccessMessage(client) {
+            const lines = [
+                `Hola ${client.name}, estos son tus datos para ingresar a ${window.location.origin}/login`,
+                `Usuario: ${client.username}`,
+            ];
+            if (client.password) {
+                lines.push(`Contraseña: ${client.password}`);
             }
-            const id = String(this.meta.user_id);
-            this.assignedClientPassword = this.clientPasswords[id] ?? null;
-        },
-
-        onClientChange() {
-            this.syncAssignedClientPassword();
+            return lines.join('\n');
         },
 
         initEventDateFields() {

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class LoginController extends Controller
 {
@@ -15,10 +16,19 @@ class LoginController extends Controller
 
     public function login(Request $request)
     {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required'],
+        $request->validate([
+            'username' => ['required', 'string', 'max:60'],
+            'password' => ['required', 'string'],
+        ], [
+            'username.required' => 'Escribe tu usuario.',
+            'password.required' => 'Escribe tu contraseña.',
         ]);
+
+        // Los usuarios se guardan en minúsculas: "Maria.Valenzuela" también funciona
+        $credentials = [
+            'username' => Str::lower(trim((string) $request->input('username'))),
+            'password' => (string) $request->input('password'),
+        ];
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
@@ -45,8 +55,8 @@ class LoginController extends Controller
         }
 
         return back()->withErrors([
-            'email' => 'Las credenciales no coinciden con nuestros registros.',
-        ])->onlyInput('email');
+            'username' => 'El usuario o la contraseña no son correctos.',
+        ])->onlyInput('username');
     }
 
     public function logout(Request $request)

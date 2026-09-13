@@ -62,8 +62,8 @@ return [
         'event-boda' => [
             'path' => 'images/site/event-boda.webp',
             'size' => [1200, 1500],
-            'stock' => 332036900,
-            'alt' => 'Novios tomados de la mano en una escalinata el día de su boda',
+            'stock' => 238291944,
+            'alt' => 'Novios abrazados frente con frente al atardecer el día de su boda',
         ],
         'event-bautizo' => [
             'path' => 'images/site/event-bautizo.webp',

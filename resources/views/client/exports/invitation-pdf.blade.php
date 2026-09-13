@@ -1,250 +1,308 @@
+@php
+    $c = $colors;
+    $fontPath = fn (?string $path) => $path ? str_replace('\\', '/', $path) : null;
+    $titleFont = ($fonts['titles'] ? "'InvTitles', " : '')."'DejaVu Serif', serif";
+    $scriptFont = ($fonts['script'] ? "'InvScript', " : ($fonts['titles'] ? "'InvTitles', " : ''))."'DejaVu Serif', serif";
+    $hasDetails = $location || $itinerary || $dressCode || $honor || $gifts;
+@endphp
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8">
-    <title>{{ $invitation->title }}</title>
+    <title>{{ $hero['name'] }}</title>
     <style>
-        :root {
-            --primary: {{ $themeColors['primary'] }};
-            --secondary: {{ $themeColors['secondary'] }};
-            --accent: {{ $themeColors['accent'] }};
-            --text: {{ $themeColors['text'] }};
-            --bg: {{ $themeColors['background'] }};
-            --muted: #78716c;
-            --line: #e7e5e4;
-        }
-        * { box-sizing: border-box; }
-        body { margin: 0; padding: 24px; font-family: DejaVu Sans, sans-serif; color: var(--text); background: var(--bg); }
-        .page { border: 1px solid var(--line); border-radius: 20px; background: #fff; overflow: hidden; }
-        .hero { padding: 26px; background: linear-gradient(135deg, #fff 0%, #fcf7ef 58%, #f5ead9 100%); border-bottom: 1px solid var(--line); }
-        .hero-top { display: flex; justify-content: space-between; gap: 18px; align-items: flex-start; margin-bottom: 14px; }
-        .brand { font-family: serif; font-size: 24px; line-height: 1; font-weight: 700; color: var(--secondary); }
-        .brand span { color: var(--primary); }
-        .eyebrow { display: inline-block; margin-bottom: 6px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--muted); }
-        h1 { margin: 0; font-family: serif; font-size: 28px; line-height: 1.1; color: var(--secondary); }
-        .subtitle { margin-top: 8px; font-size: 12px; line-height: 1.7; color: var(--muted); max-width: 430px; }
-        .hero-message { margin-top: 16px; padding: 14px 16px; border-radius: 16px; background: rgba(255,255,255,0.8); border: 1px solid rgba(201,169,110,0.22); font-family: serif; font-size: 17px; line-height: 1.55; color: var(--secondary); }
-        .section { padding: 24px 26px 0; }
-        .section-title { margin: 0 0 10px; font-family: serif; font-size: 19px; color: var(--secondary); }
-        .stats { width: 100%; border-collapse: separate; border-spacing: 8px; margin-top: 8px; }
-        .metric { width: 20%; border: 1px solid var(--line); border-radius: 14px; padding: 12px 10px; background: linear-gradient(180deg, #fff 0%, #fcf8f3 100%); vertical-align: top; }
-        .metric-value { font-family: serif; font-size: 22px; font-weight: 700; line-height: 1; color: var(--secondary); }
-        .metric-label { margin-top: 6px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
-        .grid { width: 100%; border-collapse: separate; border-spacing: 8px; margin-top: 8px; }
-        .panel { width: 50%; vertical-align: top; border: 1px solid var(--line); border-radius: 16px; padding: 14px; background: #fff; }
-        .info-row { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid #f2efec; font-size: 12px; }
-        .info-row:last-child { border-bottom: 0; }
-        .info-label { color: var(--muted); }
-        .info-value { font-weight: 700; text-align: right; }
-        .badge { display: inline-block; margin: 0 6px 6px 0; padding: 5px 9px; border-radius: 999px; border: 1px solid var(--line); background: #faf7f2; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--secondary); }
-        .block { border: 1px solid var(--line); border-radius: 16px; padding: 14px; background: #fff; margin-top: 12px; }
-        .block-soft { background: linear-gradient(180deg, #fff 0%, #fffaf5 100%); }
-        .link-box { margin-top: 10px; padding: 12px; border-radius: 14px; border: 1px solid var(--line); background: #fffaf5; font-size: 11px; line-height: 1.6; color: var(--muted); word-break: break-word; }
-        .location { display: table; width: 100%; border-spacing: 8px; border-collapse: separate; }
-        .location-main { display: table-cell; width: 60%; vertical-align: top; }
-        .location-side { display: table-cell; width: 40%; vertical-align: top; }
-        .photo { width: 100%; border-radius: 16px; overflow: hidden; border: 1px solid var(--line); margin-top: 10px; }
-        .photo img { display: block; width: 100%; height: auto; }
-        table.data { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 10px; }
-        table.data th, table.data td { border: 1px solid var(--line); padding: 7px 6px; text-align: left; vertical-align: top; }
-        table.data th { background: #f7f3ee; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; font-size: 9px; }
-        .footer { padding: 18px 26px 24px; color: var(--muted); font-size: 10px; text-align: right; }
+        @if($fonts['titles'])
+            @font-face { font-family: 'InvTitles'; font-style: normal; font-weight: normal; src: url('{{ $fontPath($fonts['titles']) }}') format('truetype'); }
+        @endif
+        @if($fonts['script'])
+            @font-face { font-family: 'InvScript'; font-style: normal; font-weight: normal; src: url('{{ $fontPath($fonts['script']) }}') format('truetype'); }
+        @endif
+        @page { margin: 14mm 15mm 18mm; }
+        body { margin: 0; font-family: 'DejaVu Sans', sans-serif; font-size: 9.5pt; line-height: 1.55; color: {{ $c['body'] }}; }
+        p { margin: 0 0 1.5mm; }
+        footer { position: fixed; bottom: -12mm; left: 0; right: 0; text-align: center; font-size: 7.5pt; color: {{ $c['muted'] }}; }
+        footer img { height: 4.5mm; margin-right: 1.5mm; vertical-align: middle; }
+        .titles { font-family: {!! $titleFont !!}; font-weight: normal; }
+
+        .cover { background: {{ $c['paper'] }}; border: 0.6pt solid {{ $c['line'] }}; }
+        .cover-photo { display: block; width: 100%; }
+        .cover-body { padding: 9mm 12mm 8mm; text-align: center; }
+        .kicker { margin: 0; font-size: 8.5pt; letter-spacing: 2.5pt; text-transform: uppercase; color: {{ $c['accent'] }}; }
+        .name { margin: 2mm 0 0; font-family: {!! $scriptFont !!}; font-weight: normal; @unless($fonts['script']) font-style: italic; @endunless font-size: 38pt; line-height: 1.2; color: {{ $c['ink'] }}; }
+        .ornament { width: 56mm; margin: 4mm auto 5mm; border-collapse: collapse; }
+        .ornament td { padding: 0; }
+        .ornament .rule { height: 1.2mm; border-bottom: 0.8pt solid {{ $c['primary'] }}; }
+        .ornament .center { width: 7mm; text-align: center; }
+        .ornament .dot { display: inline-block; width: 2mm; height: 2mm; border-radius: 1mm; background: {{ $c['primary'] }}; }
+        .message { width: 132mm; margin: 0 auto; font-family: {!! $titleFont !!}; font-size: 12pt; line-height: 1.6; color: {{ $c['body'] }}; }
+        .when { width: 100%; margin-top: 7mm; border-collapse: collapse; border-top: 0.6pt solid {{ $c['line'] }}; border-bottom: 0.6pt solid {{ $c['line'] }}; }
+        .when td { padding: 4mm 3mm; text-align: center; vertical-align: top; }
+        .when td.sep { border-left: 0.6pt solid {{ $c['line'] }}; }
+        .label { margin: 0; font-size: 7.5pt; letter-spacing: 1.5pt; text-transform: uppercase; color: {{ $c['muted'] }}; }
+        .value { margin: 1mm 0 0; font-family: {!! $titleFont !!}; font-size: 12pt; line-height: 1.35; color: {{ $c['ink'] }}; }
+
+        .strip { width: 100%; margin-top: 5mm; border-collapse: collapse; background: {{ $c['soft'] }}; }
+        .strip td { padding: 4mm 5mm; vertical-align: middle; }
+        .strip .qr-cell { width: 34mm; }
+        .qr { width: 28mm; height: 28mm; }
+        .strip-title { margin: 0 0 1mm; font-family: {!! $titleFont !!}; font-size: 13pt; color: {{ $c['ink'] }}; }
+        .url { margin: 1.5mm 0 0; font-size: 8pt; color: {{ $c['accent'] }}; }
+
+        .page-break { page-break-before: always; }
+        .details-title { margin: 1mm 0 6mm; font-family: {!! $titleFont !!}; font-size: 20pt; font-weight: normal; color: {{ $c['ink'] }}; }
+        /* Los bloques pueden seguir en la hoja siguiente para no dejar espacios vacíos; títulos y filas no se cortan */
+        .block { margin-bottom: 7mm; }
+        .block-title { margin: 0 0 3mm; padding-bottom: 2mm; border-bottom: 0.8pt solid {{ $c['primary'] }}; font-family: {!! $titleFont !!}; font-size: 13pt; font-weight: normal; color: {{ $c['ink'] }}; page-break-after: avoid; }
+        tr, .hashtag { page-break-inside: avoid; }
+        .strong { font-weight: bold; color: {{ $c['ink'] }}; }
+        .muted { color: {{ $c['muted'] }}; }
+        .lead { font-family: {!! $titleFont !!}; font-size: 12pt; color: {{ $c['ink'] }}; }
+        .note { margin-top: 2mm; padding: 2mm 3mm; background: {{ $c['soft'] }}; }
+        .split { width: 100%; border-collapse: collapse; }
+        .split td { vertical-align: top; }
+        .qr-side { width: 36mm; padding-left: 6mm; text-align: center; }
+        .qr-small { width: 28mm; height: 28mm; }
+        .caption { margin-top: 1.5mm; font-size: 7.5pt; color: {{ $c['muted'] }}; }
+        .timeline { width: 100%; border-collapse: collapse; }
+        .timeline td { padding: 1.6mm 0; border-bottom: 0.5pt solid {{ $c['line'] }}; vertical-align: top; }
+        .timeline p { margin: 0; }
+        .timeline .time { width: 20mm; font-weight: bold; color: {{ $c['accent'] }}; }
+        .swatches { margin-top: 2mm; border-collapse: collapse; }
+        .swatches td { padding: 1mm 5mm 1mm 0; font-size: 8.5pt; }
+        .swatch { display: inline-block; width: 5mm; height: 5mm; margin-right: 1.5mm; border: 0.5pt solid {{ $c['line'] }}; border-radius: 2.5mm; vertical-align: middle; }
+        .cols { width: 100%; margin-top: 3mm; border-collapse: collapse; }
+        .cols td { width: 33.33%; padding: 0 5mm 3mm 0; vertical-align: top; }
+        .pairs { width: 100%; border-collapse: collapse; }
+        .pairs td { padding: 1.6mm 0; border-bottom: 0.5pt solid {{ $c['line'] }}; vertical-align: top; }
+        .pairs .pair-label { width: 42mm; color: {{ $c['muted'] }}; }
+        .hashtag { padding: 5mm; background: {{ $c['soft'] }}; text-align: center; }
+        .hashtag-text { margin: 1mm 0 0; font-family: {!! $titleFont !!}; font-size: 20pt; color: {{ $c['accent'] }}; }
     </style>
 </head>
 <body>
-    <div class="page">
-        <div class="hero">
-            <div class="hero-top">
-                <div>
-                    <div class="eyebrow">Invitación</div>
-                    <h1>{{ $modulos['bienvenida']['nombre_quinceanera'] ?? $invitation->title }}</h1>
-                    <div class="subtitle">
-                        {{ $modulos['bienvenida']['subtitulo'] ?? '' }}
-                        <br>{{ $modulos['bienvenida']['fecha_texto'] ?? $invitation->event_date->format('d/m/Y') }}
-                    </div>
-                </div>
-                <div class="brand"><span>Bida</span>Events</div>
-            </div>
+    <footer><img src="{{ $logo }}" alt="">Invitación creada con {{ config('bida.brand') }}</footer>
 
-            @if(!empty($modulos['bienvenida']['mensaje']))
-                <div class="hero-message">{{ $modulos['bienvenida']['mensaje'] }}</div>
+    {{-- Página 1: la invitación --}}
+    <div class="cover">
+        @if($hero['photo'])
+            <img class="cover-photo" src="{{ $hero['photo'] }}" alt="">
+        @endif
+        <div class="cover-body">
+            @if($hero['subtitle'])
+                <p class="kicker">{{ $hero['subtitle'] }}</p>
             @endif
-        </div>
-
-        <div class="section">
-            <div class="section-title">Resumen del evento</div>
-            <table class="stats">
+            <h1 class="name">{{ $hero['name'] }}</h1>
+            <table class="ornament">
                 <tr>
-                    <td class="metric"><div class="metric-value">{{ $stats['confirmedGuests'] }}</div><div class="metric-label">Confirmados</div></td>
-                    <td class="metric"><div class="metric-value">{{ $stats['pendingGuests'] }}</div><div class="metric-label">Pendientes</div></td>
-                    <td class="metric"><div class="metric-value">{{ $stats['declinedGuests'] }}</div><div class="metric-label">Declinados</div></td>
-                    <td class="metric"><div class="metric-value">{{ $stats['confirmedPasses'] }}</div><div class="metric-label">Pases confirmados</div></td>
-                    <td class="metric"><div class="metric-value">{{ $stats['confirmationRate'] }}%</div><div class="metric-label">Cobertura</div></td>
+                    <td class="rule"></td>
+                    <td class="center"><span class="dot"></span></td>
+                    <td class="rule"></td>
+                </tr>
+            </table>
+            @if($hero['message'])
+                <p class="message">{{ $hero['message'] }}</p>
+            @endif
+
+            <table class="when">
+                <tr>
+                    @if($hero['date'])
+                        <td>
+                            <p class="label">Fecha</p>
+                            <p class="value">{{ $hero['date'] }}</p>
+                        </td>
+                    @endif
+                    @if($hero['time'])
+                        <td @class(['sep' => $hero['date']])>
+                            <p class="label">Hora</p>
+                            <p class="value">{{ $hero['time'] }}</p>
+                        </td>
+                    @endif
+                    @if($location)
+                        <td class="sep">
+                            <p class="label">Lugar</p>
+                            <p class="value">{{ $location['name'] ?? $location['address'] }}</p>
+                        </td>
+                    @endif
                 </tr>
             </table>
         </div>
+    </div>
 
-        <div class="section">
-            <div class="grid">
-                <table>
+    <table class="strip">
+        <tr>
+            @if($rsvp['qr'])
+                <td class="qr-cell"><img class="qr" src="{{ $rsvp['qr'] }}" alt=""></td>
+            @endif
+            <td>
+                <p class="strip-title">{{ $rsvp['title'] }}</p>
+                @if($rsvp['message'])
+                    <p>{{ $rsvp['message'] }}</p>
+                @endif
+                <p class="muted">Escanea el código para ver la invitación digital{{ $rsvp['enabled'] ? ' y confirmar tu asistencia' : '' }}.</p>
+                <p class="url">{{ $rsvp['url'] }}</p>
+                @if($hashtag)
+                    <p class="muted" style="margin-top: 2mm;">Comparte tus fotos con <span class="strong">{{ $hashtag }}</span></p>
+                @endif
+            </td>
+        </tr>
+    </table>
+
+    {{-- Página 2: detalles para los invitados --}}
+    @if($hasDetails)
+        <div class="page-break"></div>
+        @if($hero['subtitle'])
+            <p class="kicker">{{ $hero['subtitle'] }}</p>
+        @endif
+        <h2 class="details-title">Detalles del evento</h2>
+
+        @if($location)
+            <div class="block">
+                <h3 class="block-title">Ubicación</h3>
+                <table class="split">
                     <tr>
-                        <td class="panel">
-                            <div class="section-title">Datos clave</div>
-                            <div class="info-row"><span class="info-label">Fecha</span><span class="info-value">{{ $invitation->event_date->format('d/m/Y H:i') }}</span></div>
-                            <div class="info-row"><span class="info-label">Total invitados</span><span class="info-value">{{ $stats['totalGuests'] }}</span></div>
-                            <div class="info-row"><span class="info-label">Pases asignados</span><span class="info-value">{{ $stats['allocatedPasses'] }}</span></div>
-                            <div class="info-row"><span class="info-label">Pases restantes</span><span class="info-value">{{ $stats['remainingPasses'] }}</span></div>
+                        <td>
+                            @if($location['name'])
+                                <p class="lead">{{ $location['name'] }}</p>
+                            @endif
+                            @if($location['address'])
+                                <p>{{ $location['address'] }}</p>
+                            @endif
+                            @if($location['note'])
+                                <p class="note">{{ $location['note'] }}</p>
+                            @endif
                         </td>
-                        <td class="panel">
-                            <div class="section-title">Módulos activos</div>
-                            <div class="badge-list">
-                                @foreach(array_keys($modulos) as $featureCode)
-                                    <span class="badge">{{ ucfirst(str_replace('_', ' ', $featureCode)) }}</span>
-                                @endforeach
-                            </div>
-                            <div class="info-row"><span class="info-label">Cobertura</span><span class="info-value">{{ $stats['confirmationRate'] }}%</span></div>
-                            <div class="info-row"><span class="info-label">Confirmados</span><span class="info-value">{{ $stats['confirmedGuests'] }}</span></div>
-                        </td>
+                        @if($location['qr'])
+                            <td class="qr-side">
+                                <img class="qr-small" src="{{ $location['qr'] }}" alt="">
+                                <p class="caption">Escanea para llegar</p>
+                            </td>
+                        @endif
                     </tr>
                 </table>
             </div>
-        </div>
+        @endif
 
-        <div class="section">
-            <div class="section-title">Ubicación</div>
-            <table class="location">
-                <tr>
-                    <td class="location-main">
-                        <div class="block block-soft">
-                            <div class="info-row"><span class="info-label">Lugar</span><span class="info-value">{{ $location['nombre_lugar'] ?? 'Sin nombre' }}</span></div>
-                            <div class="info-row"><span class="info-label">Dirección</span><span class="info-value">{{ $location['direccion'] ?? 'Sin dirección' }}</span></div>
-                            <div class="info-row"><span class="info-label">Mapa</span><span class="info-value">{{ $location['maps_url'] ?? 'No configurado' }}</span></div>
-                            @if(!empty($location['nota']))
-                                <div class="link-box">{{ $location['nota'] }}</div>
+        @if($itinerary)
+            <div class="block">
+                <h3 class="block-title">Itinerario</h3>
+                <table class="timeline">
+                    @foreach($itinerary as $item)
+                        <tr>
+                            <td class="time">{{ $item['time'] }}</td>
+                            <td>
+                                <p class="strong">{{ $item['title'] }}</p>
+                                @if($item['description'])
+                                    <p class="muted">{{ $item['description'] }}</p>
+                                @endif
+                            </td>
+                        </tr>
+                    @endforeach
+                </table>
+            </div>
+        @endif
+
+        {{-- Los bloques se ordenan para llenar las hojas: padrinos junto al itinerario, vestimenta y regalos en la siguiente --}}
+        @if($honor)
+            <div class="block">
+                <h3 class="block-title">Padrinos y cortejo</h3>
+                @if($honor['godparents'])
+                    <table class="pairs">
+                        @foreach($honor['godparents'] as $godparent)
+                            <tr>
+                                <td class="pair-label">{{ $godparent['role'] ?? 'Padrinos' }}</td>
+                                <td class="strong">{{ $godparent['names'] }}</td>
+                            </tr>
+                        @endforeach
+                    </table>
+                @endif
+                @if($honor['chambelanes'])
+                    <p style="margin-top: 3mm;"><span class="strong">Chambelanes:</span> {{ implode(', ', $honor['chambelanes']) }}</p>
+                @endif
+                @if($honor['damitas'])
+                    <p><span class="strong">Damitas:</span> {{ implode(', ', $honor['damitas']) }}</p>
+                @endif
+            </div>
+        @endif
+
+        @if($dressCode)
+            <div class="block">
+                <h3 class="block-title">Código de vestimenta</h3>
+                @if($dressCode['style'])
+                    <p class="lead">{{ $dressCode['style'] }}</p>
+                @endif
+                @if($dressCode['description'])
+                    <p>{{ $dressCode['description'] }}</p>
+                @endif
+                @foreach(array_chunk($dressCode['colors'], 5) as $colorRow)
+                    <table class="swatches">
+                        <tr>
+                            @foreach($colorRow as $color)
+                                <td><span class="swatch" style="background: {{ $color['hex'] }};"></span>{{ $color['name'] }}</td>
+                            @endforeach
+                        </tr>
+                    </table>
+                @endforeach
+                @foreach(array_chunk($dressCode['suggestions'], 3) as $suggestionRow)
+                    <table class="cols">
+                        <tr>
+                            @foreach($suggestionRow as $suggestion)
+                                <td>
+                                    @if($suggestion['for'])
+                                        <p class="label">{{ $suggestion['for'] }}</p>
+                                    @endif
+                                    <p class="strong">{{ $suggestion['title'] }}</p>
+                                    @if($suggestion['description'])
+                                        <p class="muted">{{ $suggestion['description'] }}</p>
+                                    @endif
+                                </td>
+                            @endforeach
+                        </tr>
+                    </table>
+                @endforeach
+                @if($dressCode['avoid'])
+                    <p><span class="strong">Evitar:</span> {{ implode(', ', $dressCode['avoid']) }}.</p>
+                @endif
+            </div>
+        @endif
+
+        @if($gifts)
+            <div class="block">
+                <h3 class="block-title">{{ $gifts['title'] }}</h3>
+                <table class="split">
+                    <tr>
+                        <td>
+                            @if($gifts['envelopes'])
+                                <p class="strong">{{ $gifts['envelopes']['title'] }}</p>
+                                <p>{{ $gifts['envelopes']['address'] }}</p>
                             @endif
-                        </div>
-                        @if(!empty($location['imagen_lugar']))
-                            <div class="photo"><img src="{{ $location['imagen_lugar'] }}" alt="{{ $location['nombre_lugar'] ?? 'Lugar del evento' }}"></div>
+                            @if($gifts['bank'])
+                                <p class="strong" style="margin-top: 3mm;">Transferencia bancaria</p>
+                                <table class="pairs">
+                                    @foreach($gifts['bank'] as $label => $value)
+                                        <tr>
+                                            <td class="pair-label">{{ $label }}</td>
+                                            <td>{{ $value }}</td>
+                                        </tr>
+                                    @endforeach
+                                </table>
+                            @endif
+                            @if($gifts['store'])
+                                <p style="margin-top: 3mm;"><span class="strong">{{ $gifts['store']['label'] }}:</span> {{ $gifts['store']['url'] }}</p>
+                            @endif
+                            @foreach($gifts['options'] as $option)
+                                <p><span class="strong">{{ $option['title'] }}</span>@if($option['description']): {{ $option['description'] }}@endif</p>
+                            @endforeach
+                        </td>
+                        @if($gifts['bankQr'])
+                            <td class="qr-side">
+                                <img class="qr-small" src="{{ $gifts['bankQr'] }}" alt="">
+                                <p class="caption">QR para transferencias</p>
+                            </td>
                         @endif
-                    </td>
-                    <td class="location-side">
-                        <div class="block">
-                            <div class="section-title">Accesos rápidos</div>
-                            <div class="info-row"><span class="info-label">Hashtag</span><span class="info-value">{{ $hashtag['hashtag'] ?? 'No configurado' }}</span></div>
-                            <div class="info-row"><span class="info-label">Música</span><span class="info-value">{{ $music['titulo'] ?? 'Sin título' }}</span></div>
-                            <div class="info-row"><span class="info-label">RSVP</span><span class="info-value">{{ $rsvp['titulo_confirmacion'] ?? 'Confirmación' }}</span></div>
-                            <div class="info-row"><span class="info-label">Regalos</span><span class="info-value">{{ $giftData['titulo'] ?? 'Regalos' }}</span></div>
-                        </div>
-                    </td>
-                </tr>
-            </table>
-        </div>
-
-        @if(!empty($itinerary) && is_array($itinerary))
-            <div class="section">
-                <div class="section-title">Itinerario</div>
-                <table class="data">
-                    <thead>
-                        <tr>
-                            <th>Hora</th>
-                            <th>Título</th>
-                            <th>Descripción</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($itinerary as $item)
-                            <tr>
-                                <td>{{ $item['hora'] ?? '' }}</td>
-                                <td>{{ $item['titulo'] ?? '' }}</td>
-                                <td>{{ $item['descripcion'] ?? '' }}</td>
-                            </tr>
-                        @endforeach
-                    </tbody>
+                    </tr>
                 </table>
             </div>
         @endif
-
-        @if(!empty($dressCode))
-            <div class="section">
-                <div class="section-title">Vestimenta</div>
-                <div class="block">
-                    <div class="info-row"><span class="info-label">Estilo</span><span class="info-value">{{ $dressCode['estilo'] ?? 'Sin estilo' }}</span></div>
-                    <div class="info-row"><span class="info-label">Descripción</span><span class="info-value">{{ $dressCode['descripcion'] ?? 'Sin descripción' }}</span></div>
-                </div>
-            </div>
-        @endif
-
-        @if(!empty($giftData['opciones']) && is_array($giftData['opciones']))
-            <div class="section">
-                <div class="section-title">Opciones de regalo</div>
-                <table class="data">
-                    <thead>
-                        <tr>
-                            <th>Título</th>
-                            <th>Descripción</th>
-                            <th>Enlace</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($giftData['opciones'] as $gift)
-                            <tr>
-                                <td>{{ $gift['titulo'] ?? 'Opción' }}</td>
-                                <td>{{ $gift['descripcion'] ?? '' }}</td>
-                                <td>{{ $gift['enlace'] ?? '' }}</td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        @endif
-
-        @if(!empty($destacados['padrinos'] ?? []) || !empty($destacados['chambelanes'] ?? []))
-            <div class="section">
-                <div class="section-title">Acompañantes</div>
-                <div class="block">
-                    @foreach(($destacados['chambelanes'] ?? []) as $persona)
-                        <span class="badge">{{ is_array($persona) ? ($persona['nombre'] ?? 'Chambelán') : $persona }}</span>
-                    @endforeach
-                    @foreach(($destacados['damitas'] ?? []) as $persona)
-                        <span class="badge">{{ is_array($persona) ? ($persona['nombre'] ?? 'Damita') : $persona }}</span>
-                    @endforeach
-                    @foreach(($destacados['padrinos'] ?? []) as $persona)
-                        <span class="badge">{{ is_array($persona) ? ($persona['nombres'] ?? 'Padrino') : $persona }}</span>
-                    @endforeach
-                </div>
-            </div>
-        @endif
-
-        <div class="section">
-            <div class="section-title">Música y RSVP</div>
-            <table class="grid">
-                <tr>
-                    <td class="panel">
-                        <div class="info-row"><span class="info-label">Título</span><span class="info-value">{{ $music['titulo'] ?? 'Sin título' }}</span></div>
-                        <div class="info-row"><span class="info-label">Artista</span><span class="info-value">{{ $music['artista'] ?? 'Sin artista' }}</span></div>
-                        <div class="info-row"><span class="info-label">Autoplay</span><span class="info-value">{{ !empty($music['autoplay']) ? 'Sí' : 'No' }}</span></div>
-                    </td>
-                    <td class="panel">
-                        <div class="info-row"><span class="info-label">Texto confirmado</span><span class="info-value">{{ $rsvp['texto_confirmado'] ?? 'Sin texto' }}</span></div>
-                        <div class="info-row"><span class="info-label">Texto declinado</span><span class="info-value">{{ $rsvp['texto_declinado'] ?? 'Sin texto' }}</span></div>
-                        <div class="info-row"><span class="info-label">Botón</span><span class="info-value">{{ $rsvp['titulo_confirmacion'] ?? 'Confirmar asistencia' }}</span></div>
-                    </td>
-                </tr>
-            </table>
-        </div>
-
-        @if(!empty($postEvent))
-            <div class="section">
-                <div class="section-title">Post evento</div>
-                <div class="block block-soft">
-                    <div class="info-row"><span class="info-label">Título</span><span class="info-value">{{ $postEvent['titulo'] ?? 'Galería' }}</span></div>
-                    <div class="info-row"><span class="info-label">Mensaje</span><span class="info-value">{{ $postEvent['mensaje'] ?? 'Sin mensaje' }}</span></div>
-                    <div class="info-row"><span class="info-label">Enlace externo</span><span class="info-value">{{ $postEvent['enlace_externo'] ?? 'Sin enlace' }}</span></div>
-                </div>
-            </div>
-        @endif
-
-        <div class="footer">Generado por Bida-Events</div>
-    </div>
+    @endif
 </body>
 </html>

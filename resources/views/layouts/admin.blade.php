@@ -1,55 +1,46 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Panel') | Bida Events</title>
-    <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Cormorant+Garamond:wght@400;600;700&family=Cinzel:wght@400;600;700&family=Libre+Baskerville:wght@400;700&family=Bodoni+Moda:wght@400;600;700&family=Prata&family=Lora:wght@400;500;600;700&family=Merriweather:wght@300;400;700&family=Montserrat:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Lato:wght@300;400;700&family=Nunito+Sans:wght@300;400;600;700&family=Source+Sans+3:wght@300;400;600;700&family=Poppins:wght@300;400;500;600;700&family=Raleway:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;600;700&family=Great+Vibes&family=Parisienne&family=Alex+Brush&family=Dancing+Script:wght@400;700&family=Sacramento&family=Allura&family=Tangerine:wght@400;700&family=Petit+Formal+Script&display=swap" rel="stylesheet">
-    <script>
-        (function () {
-            const theme = localStorage.getItem('admin-theme') || 'light';
-            document.documentElement.dataset.adminTheme = theme;
-        })();
-        function toggleAdminTheme() {
-            const next = document.documentElement.dataset.adminTheme === 'dark' ? 'light' : 'dark';
-            document.documentElement.dataset.adminTheme = next;
-            localStorage.setItem('admin-theme', next);
-        }
-    </script>
+    @include('layouts.partials.panel-head')
+    <title>@yield('title', 'Panel') | {{ config('bida.brand') }}</title>
 </head>
-<body class="min-h-screen admin-shell antialiased">
-    <nav class="sticky top-0 z-50 border-b border-stone-200/80 bg-white/90 backdrop-blur">
-        <div class="mx-auto max-w-6xl px-4 py-3.5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-            <div class="flex items-center gap-3">
-                <a href="{{ route('admin.dashboard') }}" class="text-xl text-stone-900"><x-brand.logo /></a>
-                <span class="hidden text-stone-300 sm:inline">|</span>
-                <div class="min-w-0">
-                    <p class="text-[10px] uppercase tracking-widest text-stone-400">Panel administrativo</p>
-                    <p class="truncate text-sm text-stone-600">@yield('title', 'Panel')</p>
-                </div>
+<body class="site admin-shell min-h-[100dvh]">
+    <header class="site-header is-scrolled sticky top-0 z-40">
+        <div class="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-5 lg:px-8">
+            <div class="flex min-w-0 items-center gap-8">
+                <a href="{{ route('admin.dashboard') }}" class="shrink-0 text-lg">
+                    <x-brand.logo />
+                </a>
+                <nav class="hidden items-center gap-6 text-[0.95rem] md:flex" aria-label="Panel">
+                    <a href="{{ route('admin.dashboard') }}" @class([
+                        'site-nav-link',
+                        'font-medium text-site-ink' => request()->routeIs('admin.dashboard'),
+                        'text-site-muted hover:text-site-ink' => ! request()->routeIs('admin.dashboard'),
+                    ])>Invitaciones</a>
+                </nav>
             </div>
-            <div class="flex flex-wrap items-center gap-3 text-sm">
-                <button type="button" onclick="toggleAdminTheme()" class="admin-link-button">Tema</button>
-                <a href="{{ route('admin.invitations.create') }}" class="admin-primary-button">+ Nueva invitación</a>
-                <span class="text-stone-400 hidden sm:inline">{{ auth()->user()->name }}</span>
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button type="submit" class="text-xs uppercase tracking-wider text-stone-500 hover:text-stone-800">Salir</button>
-                </form>
+
+            <div class="flex items-center gap-1.5">
+                <a href="{{ route('admin.invitations.create') }}" class="admin-primary-button mr-2">
+                    <x-phosphor-plus-bold aria-hidden="true" />
+                    <span class="sr-only sm:not-sr-only">Nueva invitación</span>
+                </a>
+                <span class="mr-1 hidden text-sm text-site-muted lg:inline">{{ auth()->user()->name }}</span>
+                @include('layouts.partials.panel-actions')
             </div>
         </div>
-    </nav>
+    </header>
 
     @if(session('success'))
-        <div class="max-w-6xl mx-auto px-4 pt-4">
-            <div class="rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 text-sm">{{ session('success') }}</div>
+        <div class="mx-auto max-w-7xl px-5 pt-6 lg:px-8">
+            <p class="adm-flash site-enter" role="status">
+                <x-phosphor-check-circle class="size-5 shrink-0" aria-hidden="true" />
+                {{ session('success') }}
+            </p>
         </div>
     @endif
 
-    <main class="max-w-6xl mx-auto px-4 py-8">
+    <main class="mx-auto max-w-7xl px-5 py-8 lg:px-8 lg:py-12">
         @yield('content')
     </main>
 </body>

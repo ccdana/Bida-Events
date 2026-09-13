@@ -6,39 +6,33 @@
         'moduleKey' => 'galeria', 'countExpr' => '`${modules.galeria.fotos.length} fotos`',
     ])
 --}}
-<section class="admin-card p-3 space-y-2">
-    <div class="flex items-start justify-between gap-2">
+<section class="admin-card space-y-3 p-4">
+    <div class="flex items-start justify-between gap-3">
         <div class="min-w-0">
-            <p class="admin-eyebrow mb-0.5">{{ $eyebrow }}</p>
-            <p class="text-sm font-semibold text-stone-900">{{ $title }}</p>
+            <p class="admin-eyebrow">{{ $eyebrow }}</p>
+            <h2 class="text-base font-semibold tracking-tight">{{ $title }}</h2>
         </div>
-        <div class="flex items-center gap-1.5 shrink-0">
+        <div class="flex shrink-0 items-center gap-1.5">
             @if(!empty($countExpr))
-                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-white border border-stone-200 text-xs font-semibold text-stone-600"
-                    x-text="{{ $countExpr }}"></span>
+                <span class="admin-status-badge" x-text="{{ $countExpr }}"></span>
             @endif
             @if(!empty($moduleKey))
-                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-md border text-xs font-semibold"
-                    :class="modules.config.modulos.{{ $moduleKey }}
-                        ? 'text-green-700 bg-green-50 border-green-200'
-                        : 'text-stone-500 bg-stone-50 border-stone-200'">
-                    <span class="inline-block w-1.5 h-1.5 rounded-full"
-                        :class="modules.config.modulos.{{ $moduleKey }} ? 'bg-green-500' : 'bg-stone-400'"></span>
+                <span class="admin-status-badge" :class="modules.config.modulos.{{ $moduleKey }} ? 'is-active' : ''">
+                    <x-phosphor-eye class="size-3.5" x-show="modules.config.modulos.{{ $moduleKey }}" aria-hidden="true" />
+                    <x-phosphor-eye-slash class="size-3.5" x-show="!modules.config.modulos.{{ $moduleKey }}" aria-hidden="true" />
                     <span x-text="modules.config.modulos.{{ $moduleKey }} ? 'Visible' : 'Oculto'"></span>
                 </span>
             @endif
         </div>
     </div>
 
-    <p class="text-xs text-stone-500 leading-relaxed">
-        <span class="font-semibold text-stone-600">Qué ve el invitado:</span> {{ $description }}
+    <p class="text-sm leading-relaxed text-site-muted">
+        <span class="font-medium text-site-ink">Qué ve el invitado:</span> {{ $description }}
     </p>
 
     @if(!empty($tip))
-        <p class="flex gap-2 rounded-lg border border-amber-100 bg-amber-50 px-2.5 py-2 text-xs leading-relaxed text-amber-800">
-            <svg class="mt-0.5 h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 18v-5m0-4h.01M12 3a9 9 0 110 18 9 9 0 010-18z"/>
-            </svg>
+        <p class="flex gap-2.5 rounded-[12px] bg-site-tint px-3 py-2.5 text-sm leading-relaxed">
+            <x-phosphor-lightbulb class="mt-0.5 size-4 shrink-0 text-site-accent" aria-hidden="true" />
             <span>{{ $tip }}</span>
         </p>
     @endif

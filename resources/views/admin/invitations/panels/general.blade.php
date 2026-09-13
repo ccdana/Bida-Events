@@ -1,53 +1,38 @@
-<div x-show="activeTab === 'general'" x-cloak class="space-y-2">
-    <!-- Identidad de la invitación -->
-    <section class="admin-card p-3 space-y-3">
-        <div class="flex items-center justify-between gap-2">
-            <div class="min-w-0">
-                <p class="admin-eyebrow mb-0.5">Información General</p>
-                <p class="text-xs text-stone-600 truncate">Datos básicos del evento</p>
+<div x-show="activeTab === 'general'" x-cloak class="space-y-4">
+    @include('admin.partials.panel-intro', [
+        'eyebrow' => 'General',
+        'title' => 'Datos del evento',
+        'description' => 'el título, la fecha y la hora que aparecen en la invitación y en la cuenta regresiva.',
+    ])
+
+    {{-- Identidad --}}
+    <section class="admin-card space-y-4 p-4">
+        <div>
+            <label for="invitation-title" class="admin-label">Título del evento</label>
+            <input id="invitation-title" type="text" x-model="meta.title" @input="onTitleInput()" class="admin-input" placeholder="Boda de Ana y Luis" required>
+        </div>
+        <div>
+            <label for="invitation-slug" class="admin-label">Dirección de la invitación</label>
+            <div class="flex items-center gap-2">
+                <span class="shrink-0 font-mono text-sm text-site-muted">/p/</span>
+                <input id="invitation-slug" type="text" x-model="meta.slug" @input="slugManual = true" class="admin-input font-mono" required>
             </div>
-            <span class="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-white border border-stone-200 text-xs font-semibold shrink-0 text-blue-700 bg-blue-50 border-blue-200">
-                <span class="inline-block w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-                <span x-text="`${activeModulesCount} módulos`"></span>
-            </span>
+            <p class="mt-1.5 text-xs text-site-muted">Es el enlace que vas a compartir. Usa minúsculas y guiones.</p>
         </div>
 
-        <div class="grid gap-2">
-            <div>
-                <label class="admin-label">Título del evento</label>
-                <input type="text" x-model="meta.title" @input="onTitleInput()" class="admin-input" placeholder="Boda de Ana y Luis" required>
-            </div>
-            <div>
-                <label class="admin-label">URL pública (slug)</label>
-                <div class="flex items-center gap-1.5">
-                    <span class="text-xs text-stone-400 shrink-0">/p/</span>
-                    <input type="text" x-model="meta.slug" @input="slugManual = true" class="admin-input" required>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Configuración del evento -->
-    <section class="admin-card p-3 space-y-2">
-        <p class="admin-eyebrow mb-1">Configuración</p>
-
-        <div class="grid gap-2">
+        <div class="grid gap-3 sm:grid-cols-2">
             <div x-data="{ open: false }" class="admin-accordion">
                 <button type="button" @click="open = !open" class="admin-accordion-trigger">
-                    <div class="min-w-0">
-                        <p class="text-sm font-semibold text-stone-900 text-left">Tipo de evento</p>
-                        <p class="text-xs text-stone-500 text-left truncate" x-text="getEventTypeName()"></p>
-                    </div>
-                    <svg class="w-4 h-4 flex-shrink-0 transition-transform text-stone-500" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
-                    </svg>
+                    <span class="min-w-0 text-left">
+                        <span class="block text-xs text-site-muted">Tipo de evento</span>
+                        <span class="block truncate text-sm font-semibold" x-text="getEventTypeName()"></span>
+                    </span>
+                    <x-phosphor-caret-down class="size-4 shrink-0 text-site-muted" x-bind:class="{ 'rotate-180': open }" aria-hidden="true" />
                 </button>
-                <div x-show="open" class="admin-accordion-panel space-y-1">
+                <div x-show="open" x-cloak class="admin-accordion-panel">
                     <template x-for="type in eventTypes" :key="type.id">
-                        <button type="button"
-                            @click="meta.event_type_id = type.id; open = false"
-                            class="admin-accordion-option"
-                            :class="String(meta.event_type_id) === String(type.id) ? 'is-selected' : ''">
+                        <button type="button" @click="meta.event_type_id = type.id; open = false"
+                            class="admin-accordion-option" :class="String(meta.event_type_id) === String(type.id) ? 'is-selected' : ''">
                             <span x-text="type.name"></span>
                         </button>
                     </template>
@@ -56,20 +41,16 @@
 
             <div x-data="{ open: false }" class="admin-accordion">
                 <button type="button" @click="open = !open" class="admin-accordion-trigger">
-                    <div class="min-w-0">
-                        <p class="text-sm font-semibold text-stone-900 text-left">Plantilla</p>
-                        <p class="text-xs text-stone-500 text-left truncate" x-text="getTemplateLabel()"></p>
-                    </div>
-                    <svg class="w-4 h-4 flex-shrink-0 transition-transform text-stone-500" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
-                    </svg>
+                    <span class="min-w-0 text-left">
+                        <span class="block text-xs text-site-muted">Plantilla</span>
+                        <span class="block truncate text-sm font-semibold" x-text="getTemplateLabel()"></span>
+                    </span>
+                    <x-phosphor-caret-down class="size-4 shrink-0 text-site-muted" x-bind:class="{ 'rotate-180': open }" aria-hidden="true" />
                 </button>
-                <div x-show="open" class="admin-accordion-panel space-y-1">
+                <div x-show="open" x-cloak class="admin-accordion-panel">
                     <template x-for="option in templateOptions" :key="option.value">
-                        <button type="button"
-                            @click="meta.template = option.value; open = false"
-                            class="admin-accordion-option"
-                            :class="meta.template === option.value ? 'is-selected' : ''">
+                        <button type="button" @click="meta.template = option.value; open = false"
+                            class="admin-accordion-option" :class="meta.template === option.value ? 'is-selected' : ''">
                             <span x-text="option.label"></span>
                         </button>
                     </template>
@@ -78,127 +59,140 @@
         </div>
     </section>
 
-    <!-- Fechas importantes -->
-    <section class="admin-card p-3 space-y-2">
-        <p class="admin-eyebrow mb-1">Fechas</p>
-
-        <div class="grid gap-2">
-            <div class="admin-date-field">
-                <label class="admin-label">Día del evento</label>
-                <input type="date" x-model="eventDatePart" class="admin-input admin-input-native-date" required>
-            </div>
-            <div class="admin-date-field">
-                <label class="admin-label">Hora del evento</label>
-                <input type="time" x-model="eventTimePart" class="admin-input admin-input-native-date" required>
-            </div>
-            <div class="admin-date-field">
-                <label class="admin-label">La invitación expira el</label>
-                <input type="date" x-model="meta.expires_at" class="admin-input admin-input-native-date" required>
+    {{-- Fecha y hora --}}
+    <section class="admin-card space-y-4 p-4">
+        <h3 class="text-sm font-semibold">Fecha y hora</h3>
+        <div class="grid gap-4 sm:grid-cols-[minmax(0,1fr)_9rem]">
+            @include('admin.partials.date-field', ['id' => 'event-date', 'label' => 'Día del evento', 'model' => 'eventDatePart'])
+            <div class="admin-date-field" x-data="timeField()" x-modelable="value" x-model="eventTimePart">
+                <label for="event-time" class="admin-label">Hora</label>
+                <input id="event-time" type="text" inputmode="numeric" placeholder="HH:MM" maxlength="5" autocomplete="off" required
+                    class="admin-input font-mono tracking-wide"
+                    :style="error ? 'border-color: var(--site-danger)' : ''"
+                    :aria-invalid="error ? 'true' : 'false'" aria-describedby="event-time-help"
+                    :value="text" @input="onInput($event)" @blur="onBlur()">
+                <p id="event-time-help" class="text-xs" :class="error ? 'text-site-danger' : 'text-site-muted'"
+                    x-text="error || 'En 24 horas, por ejemplo 18:30'">En 24 horas, por ejemplo 18:30</p>
             </div>
         </div>
+        @include('admin.partials.date-field', ['id' => 'expires-at', 'label' => 'El enlace deja de funcionar el', 'model' => 'meta.expires_at'])
     </section>
 
-    <!-- Cliente asignado -->
-    <section class="admin-card p-3 space-y-2">
-        <p class="admin-eyebrow mb-1">Cliente Asignado</p>
+    {{-- Cliente --}}
+    <section class="admin-card space-y-4 p-4">
+        <div>
+            <h3 class="text-sm font-semibold">Cliente</h3>
+            <p class="mt-0.5 text-xs text-site-muted">Con su usuario y contraseña ve las confirmaciones y descarga sus reportes.</p>
+        </div>
 
         <div x-data="{ open: false }" class="admin-accordion">
             <button type="button" @click="open = !open" class="admin-accordion-trigger">
-                <div class="min-w-0">
-                    <p class="text-sm font-semibold text-stone-900 text-left" x-text="getAssignedClient()?.name ?? 'Sin cliente asignado'"></p>
-                    <p class="text-xs text-stone-500 text-left truncate" x-text="getAssignedClient()?.email ?? 'Selecciona un cliente del listado'"></p>
-                </div>
-                <svg class="w-4 h-4 flex-shrink-0 transition-transform text-stone-500" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
-                </svg>
+                <span class="min-w-0 text-left">
+                    <span class="block truncate text-sm font-semibold" x-text="getAssignedClient()?.name ?? 'Sin cliente asignado'"></span>
+                    <span class="block truncate text-xs text-site-muted" x-text="getAssignedClient() ? `Usuario: ${getAssignedClient().username}` : 'Elige un cliente o crea uno nuevo abajo'"></span>
+                </span>
+                <x-phosphor-caret-down class="size-4 shrink-0 text-site-muted" x-bind:class="{ 'rotate-180': open }" aria-hidden="true" />
             </button>
-            <div x-show="open" class="admin-accordion-panel space-y-1">
-                <button type="button"
-                    @click="meta.user_id = ''; onClientChange(); open = false"
-                    class="admin-accordion-option"
-                    :class="!meta.user_id ? 'is-selected' : ''">
+            <div x-show="open" x-cloak class="admin-accordion-panel">
+                <button type="button" @click="meta.user_id = ''; open = false" class="admin-accordion-option" :class="!meta.user_id ? 'is-selected' : ''">
                     Sin cliente asignado
                 </button>
                 <template x-for="client in clients" :key="client.id">
-                    <button type="button"
-                        @click="meta.user_id = client.id; onClientChange(); open = false"
-                        class="admin-accordion-option"
-                        :class="String(meta.user_id) === String(client.id) ? 'is-selected' : ''">
+                    <button type="button" @click="meta.user_id = client.id; open = false"
+                        class="admin-accordion-option" :class="String(meta.user_id) === String(client.id) ? 'is-selected' : ''">
                         <span class="block font-medium" x-text="client.name"></span>
-                        <span class="block text-xs text-stone-500 font-normal" x-text="client.email"></span>
+                        <span class="block text-xs font-normal text-site-muted" x-text="`Usuario: ${client.username}`"></span>
                     </button>
                 </template>
             </div>
         </div>
 
-        <template x-if="meta.user_id && getAssignedClient()">
-            <div class="mt-2 p-2.5 rounded-lg border border-emerald-200 bg-emerald-50 space-y-1">
-                <p class="text-sm font-semibold text-emerald-950" x-text="getAssignedClient().name"></p>
-                <p class="text-xs text-emerald-700" x-text="getAssignedClient().email"></p>
-
-                <template x-if="assignedClientPassword">
-                    <div class="mt-2 pt-2 border-t border-emerald-200 space-y-1.5">
-                        <p class="text-xs text-emerald-700 font-medium">Contraseña temporal:</p>
-                        <div class="flex items-center gap-1.5">
-                            <code class="text-xs font-mono bg-emerald-100 px-2 py-1 rounded flex-1 text-emerald-900 break-all" x-text="assignedClientPassword"></code>
-                            <button type="button" @click="copyToClipboard(assignedClientPassword)" class="px-2.5 py-1 rounded bg-emerald-600 text-white text-xs hover:bg-emerald-700 flex-shrink-0 font-semibold">
-                                Copiar
+        {{-- Datos de acceso del cliente asignado (solo los ve el administrador) --}}
+        <template x-if="getAssignedClient()">
+            <div class="rounded-[12px] bg-site-tint p-3" x-data="{ showPassword: false, copied: false }">
+                <p class="flex items-center gap-1.5 text-xs font-medium text-site-muted">
+                    <x-phosphor-key class="size-4" aria-hidden="true" />
+                    Datos de acceso
+                </p>
+                <dl class="mt-2 divide-y divide-site-line">
+                    <div class="flex items-center justify-between gap-3 py-1.5">
+                        <dt class="text-sm text-site-muted">Usuario</dt>
+                        <dd class="flex min-w-0 items-center gap-1">
+                            <code class="truncate font-mono text-sm font-semibold" x-text="getAssignedClient().username"></code>
+                            <button type="button" class="admin-icon-button" @click="copyToClipboard(getAssignedClient().username)" aria-label="Copiar usuario" title="Copiar usuario">
+                                <x-phosphor-copy aria-hidden="true" />
                             </button>
-                        </div>
-                        <p class="text-[11px] text-emerald-600">Debe cambiarla al primer inicio de sesión.</p>
+                        </dd>
                     </div>
-                </template>
+                    <div class="flex items-center justify-between gap-3 py-1.5">
+                        <dt class="text-sm text-site-muted">Contraseña</dt>
+                        <dd class="flex min-w-0 items-center gap-1">
+                            <template x-if="getAssignedClient().password">
+                                <span class="flex items-center gap-1">
+                                    <code class="font-mono text-sm font-semibold" x-text="showPassword ? getAssignedClient().password : '••••-••••'"></code>
+                                    <button type="button" class="admin-icon-button" @click="showPassword = !showPassword"
+                                        :aria-label="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'" :title="showPassword ? 'Ocultar' : 'Mostrar'">
+                                        <x-phosphor-eye x-show="!showPassword" aria-hidden="true" />
+                                        <x-phosphor-eye-slash x-show="showPassword" x-cloak aria-hidden="true" />
+                                    </button>
+                                    <button type="button" class="admin-icon-button" @click="copyToClipboard(getAssignedClient().password)" aria-label="Copiar contraseña" title="Copiar contraseña">
+                                        <x-phosphor-copy aria-hidden="true" />
+                                    </button>
+                                </span>
+                            </template>
+                            <template x-if="!getAssignedClient().password">
+                                <span class="text-right text-xs text-site-muted">No disponible: la cuenta se creó antes de este cambio</span>
+                            </template>
+                        </dd>
+                    </div>
+                </dl>
+                <button type="button" class="admin-link-button mt-3 w-full"
+                    @click="copyToClipboard(clientAccessMessage(getAssignedClient())); copied = true; setTimeout(() => copied = false, 2000)">
+                    <x-phosphor-check x-show="copied" x-cloak aria-hidden="true" />
+                    <x-phosphor-whatsapp-logo x-show="!copied" aria-hidden="true" />
+                    <span x-text="copied ? 'Mensaje copiado' : 'Copiar mensaje para enviar'">Copiar mensaje para enviar</span>
+                </button>
             </div>
         </template>
+
+        {{-- Alta rápida: solo el nombre --}}
+        <div class="border-t border-site-line pt-4">
+            <label for="new-client-name" class="admin-label">Crear cliente nuevo</label>
+            <div class="flex gap-2">
+                <input id="new-client-name" type="text" x-model="newClient.name" @keydown.enter.prevent="createClient()"
+                    class="admin-input" placeholder="Nombre y apellido" autocomplete="off">
+                <button type="button" @click="createClient()" class="admin-primary-button shrink-0" :disabled="clientCreating">
+                    <x-phosphor-user-plus aria-hidden="true" />
+                    <span x-text="clientCreating ? 'Creando' : 'Crear'">Crear</span>
+                </button>
+            </div>
+            <p class="mt-1.5 text-xs" :class="clientError ? 'text-site-danger' : 'text-site-muted'"
+                x-text="clientError || 'Generamos su usuario y contraseña, y queda asignado a esta invitación.'"></p>
+        </div>
     </section>
 
-    <!-- Alta rápida de cliente -->
-    <section class="admin-card p-3 space-y-2">
-        <div class="flex items-center justify-between gap-2 mb-1">
-            <p class="admin-eyebrow mb-0">Crear Cliente</p>
-            <span class="text-[11px] uppercase tracking-wider text-stone-400">Opcional</span>
-        </div>
-
-        <div class="grid gap-2 grid-cols-2">
-            <div>
-                <label class="admin-label">Nombre</label>
-                <input type="text" x-model="newClient.name" class="admin-input" placeholder="Nombre">
-            </div>
-            <div>
-                <label class="admin-label">Email</label>
-                <input type="email" x-model="newClient.email" class="admin-input" placeholder="correo@email.com">
-            </div>
-        </div>
-
-        <button type="button" @click="createClient()" class="admin-link-button text-xs" :disabled="clientCreating">
-            <span x-text="clientCreating ? 'Creando...' : '+ Crear y asignar'"></span>
-        </button>
-    </section>
-
-    <!-- Estado de la invitación -->
-    <section class="admin-card p-3 space-y-2">
-        <p class="admin-eyebrow mb-1">Estado</p>
-
-        <div x-data="{ open: false }" class="admin-accordion">
-            <button type="button" @click="open = !open" class="admin-accordion-trigger">
-                <div class="min-w-0">
-                    <p class="text-sm font-semibold text-stone-900 text-left">Estado de publicación</p>
-                    <p class="text-xs text-stone-500 text-left truncate" x-text="getStatusLabel()"></p>
-                </div>
-                <svg class="w-4 h-4 flex-shrink-0 transition-transform text-stone-500" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
-                </svg>
+    {{-- Publicación --}}
+    <section class="admin-card space-y-3 p-4">
+        <h3 class="text-sm font-semibold">Publicación</h3>
+        <div class="grid grid-cols-2 gap-2" role="radiogroup" aria-label="Estado de la invitación">
+            <button type="button" role="radio" @click="meta.status = 'active'" :aria-checked="(meta.status === 'active').toString()"
+                class="rounded-[12px] border p-3 text-left transition-colors"
+                :class="meta.status === 'active' ? 'border-site-ink bg-site-bg' : 'border-site-line hover:bg-site-bg'">
+                <span class="flex items-center gap-2 text-sm font-semibold">
+                    <x-phosphor-globe-simple class="size-4 text-site-accent" aria-hidden="true" />
+                    Activa
+                </span>
+                <span class="mt-1 block text-xs text-site-muted">Los invitados pueden abrir el enlace.</span>
             </button>
-            <div x-show="open" class="admin-accordion-panel space-y-1">
-                <template x-for="(label, value) in statusLabels" :key="value">
-                    <button type="button"
-                        @click="meta.status = value; open = false"
-                        class="admin-accordion-option"
-                        :class="meta.status === value ? 'is-selected' : ''">
-                        <span x-text="label"></span>
-                    </button>
-                </template>
-            </div>
+            <button type="button" role="radio" @click="meta.status = 'inactive'" :aria-checked="(meta.status === 'inactive').toString()"
+                class="rounded-[12px] border p-3 text-left transition-colors"
+                :class="meta.status === 'inactive' ? 'border-site-ink bg-site-bg' : 'border-site-line hover:bg-site-bg'">
+                <span class="flex items-center gap-2 text-sm font-semibold">
+                    <x-phosphor-eye-slash class="size-4 text-site-muted" aria-hidden="true" />
+                    Inactiva
+                </span>
+                <span class="mt-1 block text-xs text-site-muted">El enlace no se muestra. Puedes seguir editándola.</span>
+            </button>
         </div>
     </section>
 </div>

@@ -11,30 +11,20 @@ class DashboardViewData
     {
         $items = $invitations->map(fn (Invitation $invitation) => [
             'invitation' => $invitation,
-            'statusClass' => $this->statusClass($invitation->status),
+            'statusClass' => $invitation->status === 'active' ? 'is-active' : 'is-draft',
+            'statusLabel' => $invitation->status === 'active' ? 'Activa' : 'Inactiva',
             'guestCount' => $invitation->guests?->count() ?? 0,
             'eventTypeName' => $invitation->eventType?->name ?? 'Sin tipo',
-            'eventDateLabel' => $invitation->event_date?->format('d/m/Y H:i') ?? '',
+            'eventDateLabel' => $invitation->event_date?->format('d-m-Y H:i') ?? '',
         ])->values();
 
         $metrics = [
             'total' => $items->count(),
-            'active' => $invitations->where('status', 'activo')->count(),
-            'draft' => $invitations->where('status', 'borrador')->count(),
+            'active' => $invitations->where('status', 'active')->count(),
+            'inactive' => $invitations->where('status', '!=', 'active')->count(),
             'guests' => $items->sum('guestCount'),
         ];
 
         return compact('items', 'metrics');
-    }
-
-    protected function statusClass(string $status): string
-    {
-        return match ($status) {
-            'activo', 'active' => 'is-active',
-            'borrador', 'draft' => 'is-draft',
-            'suspended' => 'is-suspended',
-            'expired' => 'is-expired',
-            default => 'is-draft',
-        };
     }
 }

@@ -1,0 +1,874 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   PANELES — Admin, editor de invitaciones y portal del cliente
+
+   Usan el mismo sistema que la home: los layouts ponen body.site + .admin-shell
+   o .client-shell, así heredan los tokens --site-*, la fuente Outfit, los
+   botones site-btn y las animaciones site-enter.
+   Tema: data-theme="light|dark" en <html>; sin atributo sigue al sistema (ver site.css).
+   Formas: botones en píldora, tarjetas 16px, campos 12px.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* ── Paleta de Tailwind dentro de los paneles ───────────────────────────────
+   Las vistas del editor usan clases stone-* y amber-*: aquí se remapean a los
+   neutros y al dorado del sitio, y en oscuro se invierten. */
+
+body.admin-shell,
+body.client-shell {
+    color-scheme: light;
+    --font-serif: var(--font-display);
+    --color-white: #fdfdfc;
+    --color-stone-50: #f7f7f5;
+    --color-stone-100: #efefec;
+    --color-stone-200: #e3e4e0;
+    --color-stone-300: #cfd0cc;
+    --color-stone-400: #9c9ea2;
+    --color-stone-500: #6c6e73;
+    --color-stone-600: #55575c;
+    --color-stone-700: #3f4145;
+    --color-stone-800: #2c2e31;
+    --color-stone-900: #1d1e20;
+    --color-stone-950: #151617;
+    --color-amber-50: #faf6ec;
+    --color-amber-100: #f3ead4;
+    --color-amber-200: #e8d7ad;
+    --color-amber-300: #d6bb7a;
+    --color-amber-400: #c29f4e;
+    --color-amber-500: #a8852f;
+    --color-amber-600: #8a6a1c;
+    --color-amber-700: #735817;
+    --color-amber-800: #5c4613;
+    --color-amber-900: #47370f;
+    --color-emerald-50: #faf6ec;
+    --color-emerald-100: #f3ead4;
+    --color-emerald-200: #e8d7ad;
+    --color-emerald-400: #c29f4e;
+    --color-emerald-500: #a8852f;
+    --color-emerald-600: #8a6a1c;
+    --color-emerald-700: #735817;
+    --color-emerald-800: #5c4613;
+    --color-emerald-900: #47370f;
+    --color-emerald-950: #2f250b;
+    --color-green-50: #faf6ec;
+    --color-green-200: #e8d7ad;
+    --color-green-500: #a8852f;
+    --color-green-700: #735817;
+}
+
+@media (prefers-color-scheme: dark) {
+    html:not([data-theme='light']) body.admin-shell,
+    html:not([data-theme='light']) body.client-shell {
+        color-scheme: dark;
+        --color-white: #1f2020;
+        --color-stone-50: #1f2020;
+        --color-stone-100: #252727;
+        --color-stone-200: #2f3131;
+        --color-stone-300: #3d3f3f;
+        --color-stone-400: #707275;
+        --color-stone-500: #9a9c9f;
+        --color-stone-600: #b1b3b5;
+        --color-stone-700: #c9cacb;
+        --color-stone-800: #dddddb;
+        --color-stone-900: #ebebe8;
+        --color-stone-950: #f4f4f2;
+        --color-amber-50: #262015;
+        --color-amber-100: #2f2818;
+        --color-amber-200: #43391f;
+        --color-amber-300: #5e4f28;
+        --color-amber-400: #9c8448;
+        --color-amber-500: #c4a456;
+        --color-amber-600: #c9a553;
+        --color-amber-700: #e6c987;
+        --color-amber-800: #eed9a8;
+        --color-amber-900: #f5e8c9;
+        --color-emerald-50: #262015;
+        --color-emerald-100: #2f2818;
+        --color-emerald-200: #43391f;
+        --color-emerald-400: #9c8448;
+        --color-emerald-500: #c4a456;
+        --color-emerald-600: #c9a553;
+        --color-emerald-700: #e6c987;
+        --color-emerald-800: #eed9a8;
+        --color-emerald-900: #f5e8c9;
+        --color-emerald-950: #faf1dc;
+        --color-green-50: #262015;
+        --color-green-200: #43391f;
+        --color-green-500: #c4a456;
+        --color-green-700: #e6c987;
+        --color-red-50: #2b1715;
+        --color-red-100: #3a1d1a;
+        --color-red-200: #4d2622;
+        --color-red-500: #e0736a;
+        --color-red-600: #c9554c;
+        --color-red-700: #f2a39c;
+        --color-red-800: #f6bcb6;
+        --color-blue-50: #16202b;
+        --color-blue-200: #243548;
+        --color-blue-500: #5b8fd6;
+        --color-blue-700: #9dc0ee;
+        --color-violet-100: #251d33;
+        --color-violet-700: #c4b0ee;
+        --color-pink-100: #331d29;
+        --color-pink-700: #eeb0cf;
+        --color-yellow-100: #2e2913;
+        --color-yellow-700: #e6d37a;
+    }
+}
+
+html[data-theme='dark'] body.admin-shell,
+html[data-theme='dark'] body.client-shell {
+    color-scheme: dark;
+    --color-white: #1f2020;
+    --color-stone-50: #1f2020;
+    --color-stone-100: #252727;
+    --color-stone-200: #2f3131;
+    --color-stone-300: #3d3f3f;
+    --color-stone-400: #707275;
+    --color-stone-500: #9a9c9f;
+    --color-stone-600: #b1b3b5;
+    --color-stone-700: #c9cacb;
+    --color-stone-800: #dddddb;
+    --color-stone-900: #ebebe8;
+    --color-stone-950: #f4f4f2;
+    --color-amber-50: #262015;
+    --color-amber-100: #2f2818;
+    --color-amber-200: #43391f;
+    --color-amber-300: #5e4f28;
+    --color-amber-400: #9c8448;
+    --color-amber-500: #c4a456;
+    --color-amber-600: #c9a553;
+    --color-amber-700: #e6c987;
+    --color-amber-800: #eed9a8;
+    --color-amber-900: #f5e8c9;
+    --color-emerald-50: #262015;
+    --color-emerald-100: #2f2818;
+    --color-emerald-200: #43391f;
+    --color-emerald-400: #9c8448;
+    --color-emerald-500: #c4a456;
+    --color-emerald-600: #c9a553;
+    --color-emerald-700: #e6c987;
+    --color-emerald-800: #eed9a8;
+    --color-emerald-900: #f5e8c9;
+    --color-emerald-950: #faf1dc;
+    --color-green-50: #262015;
+    --color-green-200: #43391f;
+    --color-green-500: #c4a456;
+    --color-green-700: #e6c987;
+    --color-red-50: #2b1715;
+    --color-red-100: #3a1d1a;
+    --color-red-200: #4d2622;
+    --color-red-500: #e0736a;
+    --color-red-600: #c9554c;
+    --color-red-700: #f2a39c;
+    --color-red-800: #f6bcb6;
+    --color-blue-50: #16202b;
+    --color-blue-200: #243548;
+    --color-blue-500: #5b8fd6;
+    --color-blue-700: #9dc0ee;
+    --color-violet-100: #251d33;
+    --color-violet-700: #c4b0ee;
+    --color-pink-100: #331d29;
+    --color-pink-700: #eeb0cf;
+    --color-yellow-100: #2e2913;
+    --color-yellow-700: #e6d37a;
+}
+
+/* ── Superficies y tipografía ───────────────────────────────────────────── */
+
+.admin-editor-shell {
+    background: var(--site-bg);
+}
+
+.admin-panel-shell {
+    background: var(--site-surface);
+    color: var(--site-ink);
+}
+
+.admin-panel-soft {
+    background: color-mix(in srgb, var(--site-surface) 55%, var(--site-bg));
+}
+
+.admin-card {
+    border: 1px solid var(--site-line);
+    border-radius: 16px;
+    background: var(--site-surface);
+    padding: 1.25rem;
+}
+
+.admin-eyebrow {
+    margin-bottom: 0.25rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--site-accent);
+}
+
+.admin-label {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: color-mix(in srgb, var(--site-ink) 80%, var(--site-muted));
+}
+
+.admin-metric-card {
+    position: relative;
+}
+
+.admin-metric-label {
+    font-size: 0.875rem;
+    color: var(--site-muted);
+}
+
+.admin-metric-value {
+    margin-top: 0.4rem;
+    font-size: 2.25rem;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+    color: var(--site-ink);
+}
+
+.adm-flash {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    border-radius: 12px;
+    background: var(--site-tint);
+    padding: 0.85rem 1rem;
+    font-size: 0.9375rem;
+    color: var(--site-ink);
+}
+
+.adm-flash svg {
+    color: var(--site-accent);
+}
+
+/* ── Campos ─────────────────────────────────────────────────────────────── */
+
+.admin-input {
+    width: 100%;
+    min-height: 2.75rem;
+    padding: 0.6rem 0.9rem;
+    border: 1px solid var(--site-line);
+    border-radius: 12px;
+    background: var(--site-bg);
+    color: var(--site-ink);
+    font: inherit;
+    font-size: 1rem;
+    transition: border-color 0.2s ease, box-shadow 0.3s var(--site-ease), background-color 0.2s ease;
+}
+
+@media (min-width: 640px) {
+    .admin-input {
+        font-size: 0.9375rem;
+    }
+}
+
+.admin-input::placeholder {
+    color: color-mix(in srgb, var(--site-muted) 80%, transparent);
+}
+
+.admin-input:hover {
+    border-color: color-mix(in srgb, var(--site-ink) 25%, var(--site-line));
+}
+
+.admin-input:focus {
+    outline: none;
+    border-color: var(--site-accent);
+    background: var(--site-surface);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--site-accent) 18%, transparent);
+}
+
+textarea.admin-input {
+    min-height: 5.5rem;
+    line-height: 1.5;
+}
+
+.admin-input-native-date::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 0.6;
+}
+
+.admin-date-field {
+    display: grid;
+    gap: 0.4rem;
+}
+
+.admin-date-field .admin-label {
+    margin-bottom: 0;
+}
+
+.adm-range {
+    accent-color: var(--site-ink);
+    cursor: pointer;
+}
+
+/* ── Botones ────────────────────────────────────────────────────────────── */
+
+.admin-primary-button,
+.admin-link-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color 0.25s ease, box-shadow 0.25s ease, color 0.2s ease, scale 0.2s var(--site-ease);
+}
+
+.admin-primary-button svg,
+.admin-link-button svg {
+    width: 1.05rem;
+    height: 1.05rem;
+    flex-shrink: 0;
+}
+
+.admin-primary-button {
+    min-height: 2.5rem;
+    padding: 0 1.1rem;
+    background: var(--site-ink);
+    color: var(--site-bg);
+}
+
+.admin-primary-button:hover {
+    background: color-mix(in srgb, var(--site-ink) 84%, var(--site-accent));
+}
+
+.admin-link-button {
+    min-height: 2.25rem;
+    padding: 0 0.95rem;
+    background: transparent;
+    color: var(--site-ink);
+    box-shadow: inset 0 0 0 1px var(--site-line);
+}
+
+.admin-link-button:hover {
+    background: var(--site-surface);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--site-ink) 30%, var(--site-line));
+}
+
+.admin-primary-button:active,
+.admin-link-button:active {
+    scale: 0.98;
+}
+
+.admin-primary-button:disabled,
+.admin-link-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+
+.admin-icon-button {
+    display: inline-grid;
+    flex-shrink: 0;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 999px;
+    color: var(--site-muted);
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease, scale 0.2s var(--site-ease);
+}
+
+.admin-icon-button svg {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.admin-icon-button:hover {
+    background: color-mix(in srgb, var(--site-ink) 7%, transparent);
+    color: var(--site-ink);
+}
+
+.admin-icon-button:active {
+    scale: 0.94;
+}
+
+.admin-icon-button.is-danger:hover {
+    background: color-mix(in srgb, var(--site-danger) 12%, transparent);
+    color: var(--site-danger);
+}
+
+.admin-toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    padding: 0.6rem 0.75rem;
+    font-size: 0.9375rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.admin-toggle-row:hover {
+    border-color: var(--site-line);
+    background: var(--site-bg);
+}
+
+.admin-tab-active {
+    background: var(--site-ink);
+    color: var(--site-bg);
+}
+
+/* ── Estados ────────────────────────────────────────────────────────────── */
+
+.admin-status-badge,
+.admin-context-badge,
+.admin-editor-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border-radius: 999px;
+    padding: 0.25rem 0.65rem;
+    background: color-mix(in srgb, var(--site-ink) 7%, transparent);
+    color: var(--site-muted);
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1.3;
+    white-space: nowrap;
+}
+
+.admin-status-badge.is-active,
+.admin-status-badge.is-confirmed,
+.admin-status-badge.is-success,
+.admin-status-badge.is-live,
+.admin-context-badge.is-live,
+.admin-context-badge.is-primary {
+    background: var(--site-tint);
+    color: var(--site-accent);
+}
+
+.admin-status-badge.is-declined,
+.admin-status-badge.is-suspended,
+.admin-status-badge.is-expired,
+.admin-status-badge.is-danger {
+    background: color-mix(in srgb, var(--site-danger) 12%, transparent);
+    color: var(--site-danger);
+}
+
+.admin-status-dot {
+    width: 0.4rem;
+    height: 0.4rem;
+    flex-shrink: 0;
+    border-radius: 999px;
+    background: currentColor;
+}
+
+/* ── Listas y tablas ────────────────────────────────────────────────────── */
+
+.adm-row {
+    transition: background-color 0.2s ease;
+}
+
+.adm-row:hover {
+    background: color-mix(in srgb, var(--site-ink) 2.5%, transparent);
+}
+
+.adm-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9375rem;
+}
+
+.adm-table th {
+    padding: 0.8rem 1.25rem;
+    border-bottom: 1px solid var(--site-line);
+    color: var(--site-muted);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.adm-table td {
+    padding: 0.85rem 1.25rem;
+    border-bottom: 1px solid var(--site-line);
+    vertical-align: middle;
+}
+
+.adm-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.adm-table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.adm-table tbody tr:hover {
+    background: color-mix(in srgb, var(--site-ink) 2.5%, transparent);
+}
+
+/* ── Selectores tipo acordeón ───────────────────────────────────────────── */
+
+.admin-accordion {
+    overflow: hidden;
+    border: 1px solid var(--site-line);
+    border-radius: 12px;
+    background: var(--site-bg);
+}
+
+.admin-accordion-trigger {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.7rem 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.admin-accordion-trigger:hover {
+    background: color-mix(in srgb, var(--site-ink) 4%, transparent);
+}
+
+.admin-accordion-trigger svg {
+    transition: rotate 0.3s var(--site-ease), transform 0.3s var(--site-ease);
+}
+
+.admin-accordion-panel {
+    max-height: 14rem;
+    overflow-y: auto;
+    padding: 0.4rem;
+    border-top: 1px solid var(--site-line);
+    background: var(--site-surface);
+}
+
+.admin-accordion-option {
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    font-size: 0.9375rem;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.admin-accordion-option + .admin-accordion-option {
+    margin-top: 0.25rem;
+}
+
+.admin-accordion-option:hover {
+    background: var(--site-bg);
+}
+
+.admin-accordion-option.is-selected {
+    border-color: var(--site-ink);
+    background: var(--site-bg);
+    font-weight: 600;
+}
+
+/* ── Editor: navegación lateral ─────────────────────────────────────────── */
+
+.admin-editor-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--site-ink) 18%, transparent) transparent;
+}
+
+.admin-editor-scroll::-webkit-scrollbar {
+    width: 0.5rem;
+}
+
+.admin-editor-scroll::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--site-ink) 18%, transparent);
+}
+
+.admin-editor-group-btn {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    border-radius: 10px;
+    padding: 0.55rem 0.7rem;
+    color: var(--site-muted);
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.admin-editor-group-btn:hover {
+    background: color-mix(in srgb, var(--site-ink) 5%, transparent);
+    color: var(--site-ink);
+}
+
+.admin-editor-group-btn.is-active {
+    background: var(--site-ink);
+    color: var(--site-bg);
+}
+
+.admin-editor-group-count {
+    flex-shrink: 0;
+    font-size: 0.75rem;
+    font-variant-numeric: tabular-nums;
+    opacity: 0.7;
+}
+
+.admin-editor-feature-row {
+    position: relative;
+    display: flex;
+    align-items: center;
+    border-radius: 12px;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-editor-feature-row:hover {
+    background: color-mix(in srgb, var(--site-ink) 4%, transparent);
+}
+
+.admin-editor-feature-row.is-active {
+    background: var(--site-surface);
+    box-shadow: inset 0 0 0 1px var(--site-line);
+}
+
+.admin-editor-feature-row.is-active::before {
+    content: '';
+    position: absolute;
+    top: 0.7rem;
+    bottom: 0.7rem;
+    left: 0;
+    width: 2px;
+    border-radius: 999px;
+    background: var(--site-accent);
+}
+
+.admin-editor-feature-btn {
+    flex: 1;
+    min-width: 0;
+    padding: 0.6rem 0.7rem;
+    text-align: left;
+    cursor: pointer;
+}
+
+.adm-switch {
+    position: relative;
+    flex-shrink: 0;
+    width: 2.25rem;
+    height: 1.35rem;
+    margin-right: 0.55rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--site-ink) 18%, transparent);
+    cursor: pointer;
+    transition: background-color 0.25s ease;
+}
+
+.adm-switch::after {
+    content: '';
+    position: absolute;
+    top: 0.175rem;
+    left: 0.175rem;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 999px;
+    background: var(--site-surface);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.25);
+    transition: translate 0.35s var(--site-spring);
+}
+
+.adm-switch.is-on {
+    background: var(--site-accent);
+}
+
+.adm-switch.is-on::after {
+    translate: 0.9rem 0;
+}
+
+/* Paleta de la invitación editada (usa las variables --admin-* del editor) */
+.admin-editor-swatch {
+    display: inline-block;
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 999px;
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.6);
+}
+
+.admin-color-row {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    overflow: hidden;
+    border: 1px solid var(--site-line);
+    border-radius: 12px;
+    background: var(--site-bg);
+    padding: 0.7rem;
+}
+
+.admin-color-input {
+    width: 2.5rem;
+    height: 2.5rem;
+    flex-shrink: 0;
+    padding: 0.15rem;
+    border: 1px solid var(--site-line);
+    border-radius: 10px;
+    background: var(--site-surface);
+    cursor: pointer;
+    transition: scale 0.2s var(--site-ease);
+}
+
+.admin-color-input:hover {
+    scale: 1.05;
+}
+
+.admin-hex-input {
+    width: 5.75rem;
+    padding: 0.5rem;
+    border: 1px solid var(--site-line);
+    border-radius: 10px;
+    background: var(--site-surface);
+    color: var(--site-ink);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+}
+
+.admin-hex-input:focus {
+    outline: none;
+    border-color: var(--site-accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--site-accent) 18%, transparent);
+}
+
+.admin-color-preset-btn,
+.admin-font-selector {
+    transition: translate 0.3s var(--site-ease), box-shadow 0.3s ease;
+}
+
+.admin-color-preset-btn:hover,
+.admin-font-selector:hover {
+    translate: 0 -2px;
+    box-shadow: var(--site-shadow);
+}
+
+/* ── Editor: vista previa, mapa y recorte ───────────────────────────────── */
+
+.adm-device {
+    padding: 0.55rem;
+    border-radius: 2.1rem;
+    background: #1d1e20;
+    box-shadow: var(--site-shadow);
+}
+
+html[data-theme='dark'] .adm-device {
+    background: #2a2c2d;
+}
+
+@media (prefers-color-scheme: dark) {
+    html:not([data-theme='light']) .adm-device {
+        background: #2a2c2d;
+    }
+}
+
+.admin-location-map {
+    z-index: 0;
+    width: 100%;
+    height: 16rem;
+    overflow: hidden;
+    border: 1px solid var(--site-line);
+    border-radius: 16px;
+    background: var(--site-bg);
+}
+
+.admin-location-map .leaflet-container {
+    z-index: 0;
+    font-family: inherit;
+}
+
+.admin-location-results {
+    position: absolute;
+    top: calc(100% + 0.35rem);
+    right: 0;
+    left: 0;
+    z-index: 30;
+    max-height: 14rem;
+    overflow-y: auto;
+    border: 1px solid var(--site-line);
+    border-radius: 12px;
+    background: var(--site-surface);
+    box-shadow: var(--site-shadow);
+}
+
+.admin-location-result {
+    display: block;
+    width: 100%;
+    padding: 0.75rem 0.9rem;
+    border-bottom: 1px solid var(--site-line);
+    text-align: left;
+    transition: background-color 0.15s ease;
+}
+
+.admin-location-result:last-child {
+    border-bottom: 0;
+}
+
+.admin-location-result:hover {
+    background: var(--site-bg);
+}
+
+.admin-crop-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 70;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    background: rgb(12 12 13 / 0.6);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+}
+
+.admin-crop-panel {
+    width: 100%;
+    max-width: 32rem;
+    border: 1px solid var(--site-line);
+    border-radius: 20px;
+    background: var(--site-surface);
+    padding: 1.5rem;
+    box-shadow: var(--site-shadow);
+}
+
+.admin-crop-frame {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    border-radius: 12px;
+    background: #0e0e0f;
+}
+
+.admin-crop-image {
+    position: absolute;
+    user-select: none;
+    -webkit-user-drag: none;
+    will-change: transform;
+}
+
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .admin-primary-button,
+    .admin-link-button,
+    .admin-icon-button,
+    .admin-input,
+    .adm-switch,
+    .adm-switch::after,
+    .admin-accordion-trigger svg,
+    .admin-color-preset-btn,
+    .admin-font-selector {
+        transition: none;
+    }
+}

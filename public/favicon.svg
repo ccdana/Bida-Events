@@ -1,12 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="144 128 966 966">
   <style>
-    .shape { fill: #1d1e20; }
-    .dot { fill: #4a6b5b; }
+    .line { stroke: #b8902e; }
     @media (prefers-color-scheme: dark) {
-      .shape { fill: #ececea; }
-      .dot { fill: #9cbcac; }
+      .line { stroke: #dcb866; }
     }
   </style>
-  <path class="shape" fill-rule="evenodd" d="M6 29V5.5a2.5 2.5 0 0 1 5 0v4.06A10.5 10.5 0 0 1 27 18.5V29H6Zm5-5h11v-5.5a5.5 5.5 0 0 0-11 0V24Z"/>
-  <circle class="dot" cx="16.5" cy="18.5" r="2.25"/>
+  <mask id="gap" maskUnits="userSpaceOnUse" x="144" y="128" width="966" height="966">
+    <rect x="144" y="128" width="966" height="966" fill="#fff"/>
+    <path d="M380 322.5 627 541l247-218.5" stroke="#000" stroke-width="112" fill="none"/>
+  </mask>
+  <g class="line" fill="none" stroke-width="64" stroke-linecap="round" stroke-linejoin="round">
+    <path mask="url(#gap)" d="M419 357v635a78 78 0 0 0 78 78h260a78 78 0 0 0 78-78V357"/>
+    <path d="M419 357V230a78 78 0 0 1 78-78h260a78 78 0 0 1 78 78v127L627 541Z"/>
+    <path d="M581 216h93"/>
+  </g>
 </svg>

@@ -1,5 +1,5 @@
 {{-- Logo completo: isotipo + nombre de la marca (la primera palabra en negrita). --}}
-@props(['animated' => false, 'markClass' => 'size-8'])
+@props(['animated' => false, 'markClass' => 'h-9 w-auto'])
 
 @php([$first, $rest] = array_pad(explode(' ', (string) config('bida.brand'), 2), 2, ''))
 

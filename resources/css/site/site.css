@@ -2,7 +2,7 @@
    SITIO PÚBLICO — Home y login
 
    Diseño guiado por .claude/skills/taste-skill (design-taste-frontend).
-   Paleta neutra (grafito y piedra) con un único acento eucalipto, pensada
+   Paleta neutra (grafito y piedra) con el dorado del logo como único acento, pensada
    para cualquier tipo de evento. Modo claro/oscuro según el sistema.
    Regla de formas: botones en píldora, medios y paneles 20px, campos 12px.
    Las animaciones que necesitan JS viven en resources/js/site.js.
@@ -29,9 +29,9 @@
     --site-ink: #1d1e20;
     --site-muted: #5f6166;
     --site-line: #dcddd9;
-    --site-accent: #4a6b5b;
+    --site-accent: #8a6a1c;
     --site-on-accent: #f4f4f2;
-    --site-tint: #e5eae6;
+    --site-tint: #f2ead8;
     --site-danger: #b3261e;
     --site-shadow: 0 1px 2px rgb(29 30 32 / 0.05), 0 22px 48px -24px rgb(29 30 32 / 0.3);
     --site-ease: cubic-bezier(0.16, 1, 0.3, 1);
@@ -44,8 +44,8 @@
     --site-inv-ink: #f1f1ee;
     --site-inv-muted: #b4b6b8;
     --site-inv-line: #3a3c3e;
-    --site-inv-accent: #a9c6b7;
-    --site-inv-on-accent: #122019;
+    --site-inv-accent: #dcb866;
+    --site-inv-on-accent: #1d1606;
 
     interpolate-size: allow-keywords;
     background: var(--site-bg);
@@ -55,16 +55,17 @@
     -webkit-tap-highlight-color: transparent;
 }
 
+/* En oscuro según el sistema, salvo que el botón de tema haya elegido el claro */
 @media (prefers-color-scheme: dark) {
-    .site {
+    html:not([data-theme='light']) .site {
         --site-bg: #131414;
         --site-surface: #1b1c1c;
         --site-ink: #ebebe8;
         --site-muted: #a2a4a6;
         --site-line: #2d2f2e;
-        --site-accent: #9cbcac;
-        --site-on-accent: #122019;
-        --site-tint: #1b2420;
+        --site-accent: #dcb866;
+        --site-on-accent: #1d1606;
+        --site-tint: #262015;
         --site-danger: #f2a39c;
         --site-shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 22px 48px -24px rgb(0 0 0 / 0.75);
 
@@ -73,9 +74,31 @@
         --site-inv-ink: #1d1e20;
         --site-inv-muted: #54575b;
         --site-inv-line: #cbcdc8;
-        --site-inv-accent: #3f5d4f;
+        --site-inv-accent: #8a6a1c;
         --site-inv-on-accent: #f4f4f2;
     }
+}
+
+/* Tema oscuro elegido con el botón: tiene prioridad sobre el sistema */
+html[data-theme='dark'] .site {
+    --site-bg: #131414;
+    --site-surface: #1b1c1c;
+    --site-ink: #ebebe8;
+    --site-muted: #a2a4a6;
+    --site-line: #2d2f2e;
+    --site-accent: #dcb866;
+    --site-on-accent: #1d1606;
+    --site-tint: #262015;
+    --site-danger: #f2a39c;
+    --site-shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 22px 48px -24px rgb(0 0 0 / 0.75);
+
+    --site-inv-bg: #e9eae6;
+    --site-inv-surface: #dfe1dc;
+    --site-inv-ink: #1d1e20;
+    --site-inv-muted: #54575b;
+    --site-inv-line: #cbcdc8;
+    --site-inv-accent: #8a6a1c;
+    --site-inv-on-accent: #f4f4f2;
 }
 
 .site-invert {
@@ -403,11 +426,7 @@
     animation: site-rise 1.1s var(--site-spring) 0.7s both;
 }
 
-@media (prefers-color-scheme: dark) {
-    .site-phone {
-        background: #2a2c2d;
-    }
-}
+
 
 .site-phone__screen {
     position: relative;
@@ -599,6 +618,73 @@
 
 .site-faq[open]::details-content {
     block-size: auto;
+}
+
+/* ── Cambio de tema claro/oscuro ────────────────────────────────────────── */
+
+.theme-toggle {
+    position: relative;
+}
+
+.theme-toggle .theme-toggle__icon {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    transition: opacity 0.25s ease, rotate 0.5s var(--site-spring), scale 0.5s var(--site-spring);
+}
+
+.theme-toggle__icon--sun {
+    opacity: 0;
+    rotate: -90deg;
+    scale: 0.5;
+}
+
+html[data-theme='dark'] .theme-toggle__icon--moon {
+    opacity: 0;
+    rotate: 90deg;
+    scale: 0.5;
+}
+
+html[data-theme='dark'] .theme-toggle__icon--sun {
+    opacity: 1;
+    rotate: 0deg;
+    scale: 1;
+}
+
+html[data-theme='dark'] .site-phone {
+    background: #2a2c2d;
+}
+
+@media (prefers-color-scheme: dark) {
+    html:not([data-theme='light']) .theme-toggle__icon--moon {
+        opacity: 0;
+        rotate: 90deg;
+        scale: 0.5;
+    }
+
+    html:not([data-theme='light']) .theme-toggle__icon--sun {
+        opacity: 1;
+        rotate: 0deg;
+        scale: 1;
+    }
+
+    html:not([data-theme='light']) .site-phone {
+        background: #2a2c2d;
+    }
+}
+
+/* Mientras cambia el tema, los colores se funden en lugar de saltar */
+html.theme-changing,
+html.theme-changing *:not(.theme-toggle__icon) {
+    transition: background-color 0.4s ease, border-color 0.4s ease, color 0.4s ease, fill 0.4s ease, stroke 0.4s ease !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .theme-toggle .theme-toggle__icon,
+    html.theme-changing,
+    html.theme-changing * {
+        transition: none !important;
+    }
 }
 
 /* ── Entradas ───────────────────────────────────────────────────────────── */

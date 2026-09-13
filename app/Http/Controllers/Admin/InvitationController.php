@@ -9,6 +9,7 @@ use App\Http\Requests\Admin\Invitation\StoreInvitationRequest;
 use App\Http\Requests\Admin\Invitation\UpdateInvitationRequest;
 use App\Models\Invitation;
 use App\Models\User;
+use App\Support\ClientCredentials;
 use App\Support\InvitationDefaults;
 use App\Services\InvitationModuleService;
 use App\Services\InvitationPreviewSession;
@@ -121,30 +122,27 @@ class InvitationController extends Controller
             ->with('success', 'Invitación actualizada correctamente.');
     }
 
-    public function storeClient(StoreClientRequest $request)
+    /** Crea un cliente solo con su nombre: el usuario y la contraseña se generan aquí. */
+    public function storeClient(StoreClientRequest $request, ClientCredentials $credentials)
     {
-        $validated = $request->validated();
-
-        $tempPassword = Str::random(16);
+        $name = trim($request->validated('name'));
+        $password = $credentials->password();
 
         $client = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => Hash::make($tempPassword),
+            'name' => $name,
+            'username' => $credentials->username($name),
+            'password' => Hash::make($password),
+            'access_password' => $password,
             'is_admin' => false,
         ]);
-
-        $passwords = session('client_temp_passwords', []);
-        $passwords[$client->id] = $tempPassword;
-        session(['client_temp_passwords' => $passwords]);
 
         return response()->json([
             'success' => true,
             'client' => [
                 'id' => $client->id,
                 'name' => $client->name,
-                'email' => $client->email,
-                'tempPassword' => $tempPassword,
+                'username' => $client->username,
+                'password' => $password,
             ],
         ], 201);
     }

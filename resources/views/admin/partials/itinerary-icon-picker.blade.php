@@ -35,11 +35,7 @@
             <span class="block truncate text-sm text-stone-800" x-text="labels[resolve({{ $model }})]"></span>
             <span class="block text-[11px] text-stone-400">Toca para cambiar el ícono</span>
         </span>
-        <svg class="w-4 h-4 text-stone-400 shrink-0 transition-transform duration-200"
-            :class="open ? 'rotate-180' : ''"
-            fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
-        </svg>
+        <x-phosphor-caret-down class="w-4 h-4 text-stone-400 shrink-0 transition-transform duration-200" x-bind:class="open ? 'rotate-180' : ''" aria-hidden="true" />
     </button>
 
     <div x-show="open" x-cloak

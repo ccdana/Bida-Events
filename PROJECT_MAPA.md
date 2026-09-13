@@ -50,9 +50,9 @@ El proyecto es una aplicación Laravel 12 enfocada en:
 | `app/Http/Controllers/Admin/MapsController.php` | Busca y resuelve direcciones/coordenadas usando APIs de geocodificación (Nominatim/Google Maps). | Cachear respuestas geográficas para evitar límites de tasa (rate limits). |
 | `app/Http/Controllers/Admin/MediaUploadController.php` | Recibe archivos multimedia y los transfiere a `MediaUploadService`. | Procesar archivos pesados o videos de forma asíncrona si el volumen aumenta. |
 | `app/Http/Controllers/Admin/PreviewController.php` | Guarda temporalmente y renderiza la vista previa del editor en tiempo real. | Gestionar el estado de preview en caché de sesión para evitar colisiones. |
-| `app/Http/Controllers/Auth/LoginController.php` | Controla la autenticación (login y logout) de administradores y clientes. | Implementar protección contra fuerza bruta (rate limiting/throttling) en el login. |
+| `app/Http/Controllers/Auth/LoginController.php` | Inicio de sesión con usuario (sin distinguir mayúsculas) y contraseña; redirige al panel de admin o de cliente. | El límite de intentos agrupa por usuario e IP (`AppServiceProvider`). |
 | `app/Http/Controllers/Client/DashboardController.php` | Dashboard del cliente con el estado de sus invitaciones y resumen de invitados. | Continuar utilizando `withCount` y ViewModels dedicados (`DashboardViewData`). |
-| `app/Http/Controllers/Client/ExportController.php` | Genera y descarga exportaciones de invitados a PDF y Excel. | Procesar reportes pesados en cola asíncrona si las listas superan cientos de invitados. |
+| `app/Http/Controllers/Client/ExportController.php` | Descargas del cliente: Excel de invitados (varias hojas), PDF para planificar el evento e invitación lista para imprimir. Solo el dueño de la invitación puede descargar. | Los PDF usan subconjunto de fuentes para pesar poco. |
 | `app/Http/Controllers/Public/ContributionController.php` | Recibe sugerencias de canciones, fotos para el fotomural y votos de encuestas públicas. | Aplicar throttling por IP e invitación para evitar spam o abusos. |
 | `app/Http/Controllers/Public/InvitationController.php` | Renderiza la invitación pública resolviendo el slug, metadatos HTTP y caché. | Aprovechar `InvitationCacheService` y headers de caché HTTP para máxima velocidad. |
 | `app/Http/Controllers/Public/RsvpController.php` | Procesa la confirmación/rechazo de asistencia de invitados y genera tokens QR. | Encapsular la confirmación en transacciones de DB y enviar notificaciones. |
@@ -61,7 +61,7 @@ El proyecto es una aplicación Laravel 12 enfocada en:
 
 | Archivo | Qué hace | Sugerencia |
 | --- | --- | --- |
-| `app/Models/User.php` | Modelo de usuario (administrador o cliente) con autenticación y relaciones. | Definir scopes útiles como `scopeAdmins()` y `scopeClients()`. |
+| `app/Models/User.php` | Usuario con `username` para iniciar sesión y `access_password` cifrada con APP_KEY para que el administrador vea la contraseña generada. | `access_password` está oculta al serializar. |
 | `app/Models/Invitation.php` | Modelo central de la invitación: almacena fechas, slug, estado, tema y relaciones. | Mantener mutadores/accesorios limpios y evitar consultas `N+1` en relaciones. |
 | `app/Models/InvitationData.php` | Guarda la configuración en formato JSON por módulo (`feature_code`) de una invitación. | Garantizar clave única `(invitation_id, feature_code)` y validar esquemas JSON. |
 | `app/Models/Guest.php` | Modelo de invitado: pase, acompañantes, estado RSVP, teléfono y token/QR. | Mantener índices en `invitation_id` y `status` para búsquedas rápidas. |
@@ -96,8 +96,10 @@ El proyecto es una aplicación Laravel 12 enfocada en:
 | `app/Support/InvitationDefaults.php` | Define estructuras JSON por defecto para cada módulo y valores predeterminados de UI. | Mover configuraciones complejas a archivos de configuración si el catálogo crece. |
 | `app/Support/MapsLinkParser.php` | Parsea enlaces o texto de mapas (Google Maps / Waze) para extraer coordenadas lat/lng. | Incluir pruebas unitarias con diversos formatos de URLs de navegación. |
 | `app/Support/SiteImage.php` | Resuelve las fotos del sitio público definidas en `config/bida.php` (`images`): ruta (`public/images/site/*.webp`, o un marcador de picsum si falta el archivo), tamaño y texto alternativo. | Para cambiar una foto basta con reemplazar el archivo indicado en `path` y actualizar `alt`. |
+| `app/Support/Pdf/PdfAssets.php` | Recursos embebidos para DomPDF: fotos recortadas a JPEG, QR en SVG, fuentes de Google Fonts en TTF y logo. Todo se cachea en `storage/app/pdf-cache`. | Las fuentes variables no tienen versión TTF estática: el PDF usa una serif en su lugar. |
 | `app/Support/ItineraryIcons.php` | Catálogo de íconos del itinerario de XV (claves, nombres en español, etapas) y alias para las claves antiguas (`users`, `dance`, `candle`…). | Agregar momentos nuevos aquí y en `itinerary-icon.blade.php`. |
 | `app/Support/YouTubeHelper.php` | Parsea URLs de YouTube, extrae IDs de video y obtiene datos mediante oEmbed. | Utilizar la caché integrada para evitar llamadas repetidas a la API externa. |
+| `app/Support/ClientCredentials.php` | Genera el usuario de un cliente a partir de su nombre (`maria.valenzuela`, con número si ya existe) y una contraseña fácil de dictar (`k7mq-2hxa`). | Lo usa `storeClient` del editor. |
 
 ### `app/ViewModels`
 
@@ -107,13 +109,15 @@ El proyecto es una aplicación Laravel 12 enfocada en:
 | `app/ViewModels/Admin/InvitationEditorViewData.php` | Estructura la configuración masiva y catálogo de módulos para el editor. | Separar datos por pestaña para reducir el peso de la respuesta si es necesario. |
 | `app/ViewModels/Client/DashboardViewData.php` | Organiza la vista del cliente con tarjetas de resumen de eventos e invitados. | Utilizar conteos optimizados `withCount()` para agilizar el render. |
 | `app/ViewModels/Client/InvitationDetailViewData.php` | Prepara los detalles de la invitación y la lista de invitados para la vista cliente. | Paginar la lista de invitados si el volumen por evento supera los cientos. |
-| `app/ViewModels/Client/InvitationExportViewData.php` | Construye las filas, métricas y formato requeridos para las exportaciones PDF/Excel. | Mantener desacoplada la preparación de datos del generador de archivos. |
+| `app/ViewModels/Client/GuestReportData.php` | Datos del reporte de invitados: personas confirmadas, rango para planificar, pases libres, días al evento, grupos por estado, mesas, alimentación y recomendaciones en lenguaje simple. | Lo usan el Excel y el PDF de invitados. |
+| `app/ViewModels/Client/InvitationPrintData.php` | Datos de la invitación imprimible: módulos activos de la plantilla, colores ajustados para papel, tipografías, foto de portada y QR de confirmación y ubicación. | Si se agrega un módulo a la plantilla, sumarlo aquí y en `invitation-pdf`. |
 
 ### `app/Exports`
 
 | Archivo | Qué hace | Sugerencia |
 | --- | --- | --- |
-| `app/Exports/GuestsExport.php` | Exporta la lista de invitados a Excel utilizando una vista Blade formateada. | Para miles de registros, considerar exportación por fragmentos (chunking). |
+| `app/Exports/GuestReportExport.php` | Excel de invitados con hojas Resumen (cifras explicadas, qué hacer ahora, mesas), Invitados (filtros y enlaces), Por contactar (WhatsApp) y Alimentación. | Las hojas se agregan solo si tienen datos. |
+| `app/Exports/Sheets/` | Hojas del Excel (`SummarySheet`, `GuestListSheet`, `PendingGuestsSheet`, `DietarySheet`) y `ReportSheet` con los colores de la marca. | Mantener los estilos en `ReportSheet`. |
 
 ### `app/Providers`
 
@@ -197,6 +201,8 @@ El proyecto es una aplicación Laravel 12 enfocada en:
 | `database/migrations/2026_06_12_000000_remove_plans_from_system.php` | Elimina las tablas y referencias obsoletas del sistema de planes. | Migración de limpieza del esquema. |
 | `database/migrations/2026_06_12_000001_add_performance_indexes.php` | Añade índices de rendimiento para optimizar las consultas frecuentes. | Verificar periódicamente con `EXPLAIN` en consultas lentas. |
 | `database/migrations/2026_06_23_000000_remove_transporte_from_invitation_data.php` | Limpia datos obsoletos del módulo de transporte descontinuado. | Migración de mantenimiento de datos. |
+| `database/migrations/2026_09_13_000001_add_username_and_access_password_to_users_table.php` | Agrega `username` (único) y `access_password` (cifrada) a los usuarios, vuelve opcional el correo y asigna usuario a las cuentas existentes a partir de su correo. | El login usa `username`. |
+| `database/migrations/2026_09_13_000002_simplify_invitation_status.php` | Deja el estado de publicación en `active` o `inactive` (quita el enum y pasa borradores, suspendidas y expiradas a inactive). | La invitación pública solo se muestra si está activa y no venció `expires_at`. |
 
 ---
 
@@ -208,7 +214,7 @@ El proyecto es una aplicación Laravel 12 enfocada en:
 | `public/.htaccess` | Reglas de reescritura del servidor Apache. | Mantener si se despliega en servidores Apache/LiteSpeed. |
 | `public/robots.txt` | Instrucciones de indexación para motores de búsqueda. | Configurar para evitar la indexación no deseada de paneles administrativos. |
 | `public/favicon.ico` | Icono heredado para navegadores sin soporte de SVG. | Regenerarlo a partir de `favicon.svg` si se necesita. |
-| `public/favicon.svg` | Favicon con el isotipo de Bida Events (arco + punto de luz); cambia de color en modo oscuro. | Mantener la misma geometría que `components/brand/mark.blade.php`. |
+| `public/favicon.svg` | Favicon con el isotipo (celular con solapa de sobre) en dorado, con trazo más grueso para tamaños pequeños y versión clara en modo oscuro. | Mantener la geometría de `components/brand/mark.blade.php`. |
 | `public/images/site/` | Fotos del sitio público en WebP, recortadas a su medida: boda, bautizo, cumpleaños y XV años (portada y login), nosotros, invitación en el celular y fotomural. Licencia gratuita de Adobe Stock (ID en `config/bida.php`). | Nombres, tamaños y textos alternativos en `config/bida.php` → `images`. |
 | `public/storage/` | Enlace simbólico hacia `storage/app/public`. | Requerido para servir archivos multimedia locales subidos. |
 
@@ -234,7 +240,7 @@ El frontend del proyecto utiliza **Alpine.js** y una arquitectura de **Code-Spli
 
 | Archivo | Qué hace | Sugerencia |
 | --- | --- | --- |
-| `resources/css/app.css` | Entrada de Tailwind: importa los estilos de la invitación y contiene login, editor admin, portal cliente, animaciones de íconos SVG y microinteracciones globales (limitadas a fuera de `.inv-page`). | Mantener aquí solo estilos de admin/cliente; lo público va en `resources/css/invitation/`. |
+| `resources/css/app.css` | Entrada de Tailwind: importa los estilos de la invitación (`invitation/`), del sitio (`site/`) y de los paneles (`admin/`), más las animaciones de los íconos SVG de la invitación. | Los estilos nuevos van en su archivo por área, no aquí. |
 | `resources/css/invitation/base.css` | Tokens y piezas comunes de la invitación mobile-first: sección, encabezado, botones, listas con filete, campos, hoja inferior, aparición al scroll y footer. | Reutilizar `.inv-*` antes de crear estilos nuevos por módulo. |
 | `resources/css/invitation/hero.css` | Portada con foto, velo de legibilidad e indicador de scroll. | — |
 | `resources/css/invitation/countdown.css` | Cuenta regresiva y banner del invitado. | — |
@@ -242,8 +248,9 @@ El frontend del proyecto utiliza **Alpine.js** y una arquitectura de **Code-Spli
 | `resources/css/invitation/itinerary.css` | Línea de tiempo con luz de caída suave, estela y bloom por nodo, controlados por variables CSS. | — |
 | `resources/css/invitation/modules.css` | Pestañas, video, dress code, cortejo, ubicación, hashtag, encuestas, playlist, regalos, RSVP y fotomural. | — |
 | `resources/css/invitation/nav-player.css` | Menú de secciones numerado y reproductor de música fijo. | — |
-| `resources/css/site/site.css` | Tokens del sitio público con paleta neutra (grafito, piedra y acento eucalipto) en claro/oscuro, bloque invertido `.site-invert`, fuente Outfit, botones, campos con ícono, rotador, escenario de fotos, marquesina, texto y línea de proceso animados con scroll (`animation-timeline`), acordeón animado y fallbacks de movimiento reducido. | Reutilizar las utilidades `site-*` en nuevas páginas públicas. |
-| `resources/css/site/brand.css` | Estilos del isotipo y el logo (global, también en paneles): punto de luz con el acento de marca, reacción al hover y animación de entrada. | Cambiar el acento con la variable `--brand-accent`. |
+| `resources/css/site/site.css` | Tokens del sitio con paleta neutra y el dorado del logo como acento, en claro/oscuro (sistema o botón con `data-theme`), botón de tema con transición de colores, fuente Outfit, botones, campos, rotador, marquesina, animaciones de scroll y fallbacks de movimiento reducido. | Reutilizar las utilidades `site-*` en nuevas páginas públicas. |
+| `resources/css/site/brand.css` | Estilos del isotipo y el logo (global): color dorado `--brand-logo`, grosor `--brand-stroke`, animación de trazo al cargar y solapa que baja al pasar el cursor. | Subir `--brand-stroke` si el logo se usa muy pequeño. |
+| `resources/css/admin/admin.css` | Paneles (admin, editor y portal del cliente) con el sistema de la home: botones píldora, tarjetas 16px, campos 12px, estados, tablas, interruptores del editor y recorte de imágenes. Remapea `stone-*`/`amber-*` de Tailwind a los neutros y al acento del sitio, y los invierte en oscuro. | El tema se controla con `data-admin-theme` en `<html>`; sin atributo sigue al sistema. |
 
 ### `resources/lottie-icons`
 
@@ -269,7 +276,7 @@ Animaciones vectoriales Lottie en formato JSON utilizadas en los módulos del ev
 | `resources/views/auth/login.blade.php` | Login con el layout del sitio: logo animado, frase del evento que rota junto a las fotos del panel derecho, campos con ícono, aviso de Bloq Mayús, mostrar contraseña, envío con barra de luz y sacudida al fallar. Credenciales demo solo en local. | Mantener los nombres de campo `email`, `password` y `remember`. |
 | `resources/views/home.blade.php` | Página de inicio para eventos en general: portada con evento rotativo y vista previa real, franja de tipos de evento, nosotros con texto animado, servicios, proceso con línea de scroll, precios (200, 400 y 700 Bs), preguntas y contacto por WhatsApp. | Fotos en `config/bida.php` → `images`; hasta tener las reales se muestran marcadores. |
 | `resources/views/layouts/site.blade.php` | Layout compartido por la home y el login (`body.site`), con favicon SVG y un respaldo que muestra el contenido si `site.js` no carga. | — |
-| `resources/views/components/brand/mark.blade.php` | Isotipo de Bida Events: una "b" como arco de entrada con un punto de luz (`<x-brand.mark />`, prop `animated`). | Usar en lugar de monogramas de texto. |
+| `resources/views/components/brand/mark.blade.php` | Isotipo de Bida Events vectorizado del logo original: celular cuya pantalla se cierra como la solapa de un sobre (`<x-brand.mark />`, prop `animated`). | Usar con alto fijo y ancho automático (`h-8 w-auto`). |
 | `resources/views/components/brand/logo.blade.php` | Logo completo: isotipo + nombre desde `config('bida.brand')` (`<x-brand.logo />`). Se usa en home, login, paneles admin y cliente. | — |
 | `resources/views/components/site/image.blade.php` | `<x-site.image key="..." />`: imagen del sitio con tamaño reservado, carga diferida y ruta resuelta por `SiteImage`. | — |
 
@@ -277,9 +284,13 @@ Animaciones vectoriales Lottie en formato JSON utilizadas en los módulos del ev
 
 | Archivo | Qué hace | Sugerencia |
 | --- | --- | --- |
-| `resources/views/layouts/admin.blade.php` | Layout principal del panel administrativo con barra de navegación y contenedores. | Desacoplar alertas y encabezados en componentes reutilizables. |
-| `resources/views/layouts/admin-editor.blade.php` | Layout a pantalla completa específico para el editor interactivo de invitaciones. | Optimizado para trabajar con el panel lateral y el área de vista previa. |
-| `resources/views/layouts/client.blade.php` | Layout del portal de cliente con cabecera y tarjetas de gestión. | Mantener liviano para una carga rápida en teléfonos móviles. |
+| `resources/views/layouts/admin.blade.php` | Layout del panel admin con el estilo de la home: cabecera con logo, navegación, botón de nueva invitación, tema y cierre de sesión. | — |
+| `resources/views/layouts/admin-editor.blade.php` | Layout de pantalla completa del editor: cabecera compacta con acciones, avisos de guardado/errores y las fuentes que se pueden elegir para la invitación. | — |
+| `resources/views/layouts/client.blade.php` | Layout del portal del cliente con el mismo sistema que el admin. | — |
+| `resources/views/layouts/partials/panel-head.blade.php` | `<head>` común de los paneles: metas, favicon, script del tema (claro/oscuro/sistema) y Vite. | — |
+| `resources/views/layouts/partials/panel-actions.blade.php` | Botones de cambiar tema y cerrar sesión de las cabeceras de los paneles. | — |
+| `resources/views/layouts/partials/theme-script.blade.php` | Script del tema claro/oscuro compartido por el sitio y los paneles (`data-theme`, preferencia en `localStorage`). | Incluirlo en el `<head>` antes de Vite. |
+| `resources/views/layouts/partials/theme-toggle.blade.php` | Botón de sol y luna para cambiar el tema; se usa en la home, el login y los paneles. | — |
 
 #### Páginas admin
 
@@ -309,10 +320,10 @@ Animaciones vectoriales Lottie en formato JSON utilizadas en los módulos del ev
 | `resources/views/admin/invitations/panels/destacados.blade.php` | Configuración de la lista de personas destacadas (padrinos, honor). | Soportar ordenamiento dinámico de tarjetas. |
 | `resources/views/admin/invitations/panels/dress-code.blade.php` | Configuración de vestimenta sugerida, colores y recomendaciones. | Incluir selectores visuales de paleta de color. |
 | `resources/views/admin/invitations/panels/encuestas.blade.php` | Editor de preguntas y opciones para las encuestas interactivas. | Validar que cada pregunta tenga al menos dos opciones. |
-| `resources/views/admin/invitations/panels/estetica.blade.php` | Ajuste de tipografías, esquema de colores primarios y estilo visual. | Ofrecer vistas previas rápidas de la paleta. |
+| `resources/views/admin/invitations/panels/estetica.blade.php` | Colores y tipografías: muestra fija que marca dónde se usa cada opción al pasar el cursor, paletas listas, colores con su función y tipografías con el texto real donde se aplican. | Las funciones de cada color y letra están en `colorRoles` y `fontRoles` del script del editor. |
 | `resources/views/admin/invitations/panels/fotomural.blade.php` | Controles de moderación y activación del fotomural colaborativo. | Permitir aprobar o eliminar fotos subidas por invitados. |
 | `resources/views/admin/invitations/panels/galeria.blade.php` | Administración de las imágenes de la galería interactiva en stack. | Soportar subida múltiple e integración con Cloudinary. |
-| `resources/views/admin/invitations/panels/general.blade.php` | Ajustes generales de la invitación (título, slug, tipo de evento). | Validar unicidad del slug en tiempo real. |
+| `resources/views/admin/invitations/panels/general.blade.php` | Datos del evento: título, dirección, tipo y plantilla, fecha y hora (DD-MM-AAAA y 24 horas), cliente con sus datos de acceso visibles y copiables, alta de cliente solo con nombre y publicación Activa/Inactiva. | — |
 | `resources/views/admin/invitations/panels/hashtag.blade.php` | Configuración del hashtag oficial para redes sociales. | Limpiar caracteres especiales automáticamente. |
 | `resources/views/admin/invitations/panels/hero.blade.php` | Configuración del header principal (imagen de fondo, frase de bienvenida). | Recomendar tamaños óptimos de imagen de portada. |
 | `resources/views/admin/invitations/panels/itinerario.blade.php` | Editor del cronograma de eventos del día con horas, títulos e iconos. | Permitir añadir/quitar hitos dinámicamente. |
@@ -331,6 +342,7 @@ Animaciones vectoriales Lottie en formato JSON utilizadas en los módulos del ev
 | `resources/views/admin/partials/cloudinary-upload.blade.php` | Componente reutilizable para la carga de archivos multimedia a Cloudinary. | Mantener desacoplado para ser usado en cualquier panel del editor. |
 | `resources/views/admin/partials/itinerary-icon-picker.blade.php` | Selector de íconos del itinerario agrupado por etapa, con dibujo y nombre de cada momento. | Reconoce las claves antiguas mediante los alias del catálogo. |
 | `resources/views/admin/partials/panel-intro.blade.php` | Encabezado de cada panel del editor: qué es el módulo, qué ve el invitado, consejo y estado visible/oculto. | Describir siempre el resultado que verá el invitado, no el campo técnico. |
+| `resources/views/admin/partials/date-field.blade.php` | Campo de fecha DD-MM-AAAA con máscara, validación, calendario nativo y fecha escrita en palabras; guarda el valor en ISO. | La hora usa `timeField()` (HH:MM en 24 horas) del script del editor. |
 | `resources/views/admin/partials/icon-picker.blade.php` | Selector visual de iconos vectoriales para itinerarios y módulos. | Renderizar lista de iconos de manera diferida para acelerar la interfaz. |
 
 #### Portal Cliente
@@ -339,9 +351,8 @@ Animaciones vectoriales Lottie en formato JSON utilizadas en los módulos del ev
 | --- | --- | --- |
 | `resources/views/client/dashboard.blade.php` | Dashboard principal del cliente (alternativa o vista directa). | Consolidar con `resources/views/pages/client/dashboard.blade.php`. |
 | `resources/views/client/invitation.blade.php` | Detalle y métricas de una invitación para el cliente. | Consolidar con `resources/views/pages/client/invitation.blade.php`. |
-| `resources/views/client/exports/guests-excel.blade.php` | Vista HTML procesada por Maatwebsite/Excel para la exportación de invitados. | Mantener estilos en celdas simples sin CSS complejo. |
-| `resources/views/client/exports/guests-pdf.blade.php` | Plantilla Blade renderizada a PDF con la lista de invitados y sus pases. | Evitar propiedades CSS3 no soportadas por DomPDF. |
-| `resources/views/client/exports/invitation-pdf.blade.php` | Plantilla PDF con el resumen completo de la configuración del evento. | Mantener fuentes integradas y diseño compacto. |
+| `resources/views/client/exports/guests-pdf.blade.php` | PDF A4 de invitados: cifras clave, barra de respuestas, qué hacer ahora y listas de por contactar, confirmados, no asistirán y mesas. | Solo CSS compatible con DomPDF (tablas, sin flex ni grid). |
+| `resources/views/client/exports/invitation-pdf.blade.php` | Invitación A4 para imprimir con el diseño de la plantilla: portada con foto, nombre, fecha, hora y lugar, QR para confirmar y hashtag, y hojas de detalles (ubicación, itinerario, padrinos, vestimenta y regalos) ordenadas para ocupar pocas hojas. | Solo CSS compatible con DomPDF. |
 
 #### Páginas utilizadas por controladores (Estructura `pages/`)
 

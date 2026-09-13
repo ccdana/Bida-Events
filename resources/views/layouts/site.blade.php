@@ -9,6 +9,7 @@
     <meta name="theme-color" content="#131414" media="(prefers-color-scheme: dark)">
     <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
     <link rel="alternate icon" href="{{ asset('favicon.ico') }}">
+    @include('layouts.partials.theme-script')
     <script>
         document.documentElement.classList.add('js');
         // Si site.js no llega a cargar, se muestra todo el contenido igual

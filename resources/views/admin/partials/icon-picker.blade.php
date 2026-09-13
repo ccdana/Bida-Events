@@ -30,17 +30,11 @@
         {{-- Fallback: si no hay coincidencia --}}
         <span x-show="!{{ $model }} || !['{{ implode("','", $icons) }}'].includes({{ $model }})"
             class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-stone-100 border border-stone-200 text-stone-400">
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                <circle cx="12" cy="12" r="9"/>
-            </svg>
+            <x-phosphor-circle-dashed class="w-4 h-4" aria-hidden="true" />
         </span>
 
         <span class="flex-1 text-sm text-stone-600" x-text="{{ $model }} || 'Seleccionar ícono'"></span>
-        <svg class="w-4 h-4 text-stone-400 shrink-0 transition-transform duration-200"
-            :class="open ? 'rotate-180' : ''"
-            fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
-        </svg>
+        <x-phosphor-caret-down class="w-4 h-4 text-stone-400 shrink-0 transition-transform duration-200" x-bind:class="open ? 'rotate-180' : ''" aria-hidden="true" />
     </button>
 
     {{-- Dropdown grid de iconos --}}

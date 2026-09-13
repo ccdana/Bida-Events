@@ -1,40 +1,26 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('title', 'Mi Evento') - Bida Events</title>
-    <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @include('layouts.partials.panel-head')
+    <title>@yield('title', 'Mis eventos') | {{ config('bida.brand') }}</title>
 </head>
-<body class="min-h-screen client-shell antialiased transition-colors">
-    <nav class="client-header">
-        <div class="mx-auto max-w-5xl px-4 py-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div class="flex items-center gap-3">
-                <x-brand.mark class="size-10" style="color: var(--client-secondary)" />
-                <div>
-                    <a href="{{ route('client.dashboard') }}" class="client-brand-title block">
-                        <span>Bida</span>Events
-                    </a>
-                    <p class="client-kicker">Panel del cliente</p>
-                </div>
-            </div>
-            <div class="flex items-center gap-4">
-                <a href="{{ auth()->user()?->is_admin ? route('admin.dashboard') : '#' }}"
-                   @if(!auth()->user()?->is_admin) style="display: none;" @endif
-                   class="text-sm font-medium text-stone-600 hover:text-stone-900 transition">
-                    Panel Admin
-                </a>
-                <form method="POST" action="{{ route('logout') }}" class="inline">
-                    @csrf
-                    <button type="submit" class="text-sm font-medium text-stone-600 hover:text-stone-900 transition">
-                        Cerrar sesión
-                    </button>
-                </form>
+<body class="site client-shell min-h-[100dvh]">
+    <header class="site-header is-scrolled sticky top-0 z-40">
+        <div class="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-5 lg:px-8">
+            <a href="{{ route('client.dashboard') }}" class="shrink-0 text-lg">
+                <x-brand.logo />
+            </a>
+            <div class="flex items-center gap-1.5">
+                @if(auth()->user()?->is_admin)
+                    <a href="{{ route('admin.dashboard') }}" class="admin-link-button mr-2">Panel admin</a>
+                @endif
+                <span class="mr-1 hidden text-sm text-site-muted sm:inline">{{ auth()->user()?->name }}</span>
+                @include('layouts.partials.panel-actions')
             </div>
         </div>
-    </nav>
-    <main class="client-shell-main mx-auto max-w-5xl px-4 py-8">
+    </header>
+
+    <main class="mx-auto max-w-6xl px-5 py-8 lg:px-8 lg:py-12">
         @yield('content')
     </main>
 </body>

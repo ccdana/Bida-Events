@@ -1,14 +1,26 @@
 {{--
-    Isotipo de Bida Events: una "b" minúscula dibujada como un arco de entrada
-    (el umbral de un salón, una capilla o un jardín) con un punto de luz en el
-    centro del arco, que representa el momento que se celebra.
-    La forma usa currentColor y el punto el color de acento de la marca.
+    Isotipo de Bida Events: un celular cuya pantalla se cierra como la solapa
+    de un sobre (la invitación que llega al teléfono). Vectorizado a partir del
+    logo original; los trazos usan currentColor y el grosor se ajusta con la
+    variable --brand-stroke para que se lea bien en tamaños pequeños.
 --}}
 @props(['animated' => false])
 
-<svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"
+@php($maskId = 'brand-mask-'.\Illuminate\Support\Str::random(6))
+
+<svg viewBox="355 128 544 966" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"
     {{ $attributes->class(['brand-mark', 'brand-mark--animated' => $animated]) }}>
-    <path class="brand-mark__shape" fill="currentColor" fill-rule="evenodd"
-        d="M6 29V5.5a2.5 2.5 0 0 1 5 0v4.06A10.5 10.5 0 0 1 27 18.5V29H6Zm5-5h11v-5.5a5.5 5.5 0 0 0-11 0V24Z" />
-    <circle class="brand-mark__dot" cx="16.5" cy="18.5" r="2.25" />
+    <mask id="{{ $maskId }}" maskUnits="userSpaceOnUse" x="355" y="128" width="544" height="966">
+        <rect x="355" y="128" width="544" height="966" fill="#fff" />
+        {{-- Separación entre la solapa y el cuerpo del celular --}}
+        <path class="brand-mark__gap" d="M380 322.5 627 541l247-218.5" stroke="#000" />
+    </mask>
+    <g stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <path class="brand-mark__line" style="--i: 0" pathLength="1" mask="url(#{{ $maskId }})"
+            d="M419 357v635a78 78 0 0 0 78 78h260a78 78 0 0 0 78-78V357" />
+        <path class="brand-mark__line brand-mark__flap" style="--i: 2" pathLength="1"
+            d="M419 357V230a78 78 0 0 1 78-78h260a78 78 0 0 1 78 78v127L627 541Z" />
+        <path class="brand-mark__line" style="--i: 4" pathLength="1" d="M581 216h93" />
+        <path class="brand-mark__line" style="--i: 5" pathLength="1" d="M377 460v154M877 460v84" />
+    </g>
 </svg>

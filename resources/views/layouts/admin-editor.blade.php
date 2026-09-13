@@ -1,55 +1,44 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Editor') | Bida Events</title>
-    <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @include('layouts.partials.panel-head')
+    <title>@yield('title', 'Editor') | {{ config('bida.brand') }}</title>
+    {{-- Fuentes que se pueden elegir para la invitación (vista previa del panel Estética) --}}
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Cormorant+Garamond:wght@400;600;700&family=Cinzel:wght@400;600;700&family=Libre+Baskerville:wght@400;700&family=Bodoni+Moda:wght@400;600;700&family=Prata&family=Lora:wght@400;500;600;700&family=Merriweather:wght@300;400;700&family=Montserrat:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Lato:wght@300;400;700&family=Nunito+Sans:wght@300;400;600;700&family=Source+Sans+3:wght@300;400;600;700&family=Poppins:wght@300;400;500;600;700&family=Raleway:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;600;700&family=Great+Vibes&family=Parisienne&family=Alex+Brush&family=Dancing+Script:wght@400;700&family=Sacramento&family=Allura&family=Tangerine:wght@400;700&family=Petit+Formal+Script&display=swap" rel="stylesheet">
-    <script>
-        (function () {
-            const theme = localStorage.getItem('admin-theme') || 'light';
-            document.documentElement.dataset.adminTheme = theme;
-        })();
-        function toggleAdminTheme() {
-            const next = document.documentElement.dataset.adminTheme === 'dark' ? 'light' : 'dark';
-            document.documentElement.dataset.adminTheme = next;
-            localStorage.setItem('admin-theme', next);
-        }
-    </script>
-    <style>[x-cloak] { display: none !important; }</style>
 </head>
-<body class="h-screen overflow-hidden admin-shell antialiased flex flex-col">
-    <header class="shrink-0 border-b border-stone-200 bg-white/95 backdrop-blur flex flex-col gap-3 px-4 py-3 z-50 sm:h-16 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:py-0 relative overflow-hidden">
-        <div class="absolute inset-x-0 bottom-0 h-px" style="background: linear-gradient(90deg, transparent, rgba(44,24,16,.42), rgba(201,169,110,.55), transparent);"></div>
-        <div class="min-w-0 flex items-center gap-3">
-            <a href="{{ route('admin.dashboard') }}" class="shrink-0 text-lg text-stone-900"><x-brand.logo mark-class="size-7" /></a>
-            <span class="hidden text-stone-300 sm:inline">|</span>
+<body class="site admin-shell flex h-[100dvh] flex-col overflow-hidden">
+    <header class="relative z-40 flex shrink-0 flex-col gap-3 border-b border-site-line bg-site-bg px-4 py-3 sm:h-16 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:py-0 lg:px-6">
+        <div class="flex min-w-0 items-center gap-4">
+            <a href="{{ route('admin.dashboard') }}" class="shrink-0 text-lg">
+                <x-brand.logo mark-class="h-8 w-auto" />
+            </a>
+            <span class="hidden h-7 w-px bg-site-line sm:block" aria-hidden="true"></span>
             <div class="min-w-0">
-                <p class="text-[10px] uppercase tracking-widest text-stone-400">Editor de invitaciones</p>
-                <p class="truncate text-sm font-medium text-stone-700">@yield('header-title', 'Editor')</p>
+                <p class="text-xs text-site-muted">Editor de invitaciones</p>
+                <p class="truncate text-sm font-medium">@yield('header-title', 'Editor')</p>
             </div>
         </div>
-        <div class="flex flex-wrap items-center justify-end gap-3">
-            <button type="button" onclick="toggleAdminTheme()" class="admin-link-button">Tema</button>
+        <div class="flex flex-wrap items-center justify-end gap-2">
             @yield('header-actions')
-            <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <button type="submit" class="text-xs text-stone-500 hover:text-stone-800 uppercase tracking-wider">Salir</button>
-            </form>
+            <span class="mx-1 hidden h-7 w-px bg-site-line sm:block" aria-hidden="true"></span>
+            @include('layouts.partials.panel-actions')
         </div>
     </header>
 
     @if(session('success'))
-        <div class="shrink-0 bg-emerald-50 border-b border-emerald-200 text-emerald-800 px-4 py-2 text-sm text-center">{{ session('success') }}</div>
+        <p class="flex shrink-0 items-center justify-center gap-2 border-b border-site-line bg-site-tint px-4 py-2.5 text-sm" role="status">
+            <x-phosphor-check-circle class="size-5 shrink-0 text-site-accent" aria-hidden="true" />
+            {{ session('success') }}
+        </p>
     @endif
 
     @if($errors->any())
-        <div class="shrink-0 bg-red-50 border-b border-red-200 text-red-800 px-4 py-2 text-sm" role="alert">
-            <p class="font-medium text-center">No se guardaron los cambios. Revisa lo siguiente:</p>
-            <ul class="mt-1 max-h-24 overflow-y-auto list-disc list-inside">
+        <div class="shrink-0 border-b border-site-line bg-site-surface px-4 py-3 text-sm" role="alert">
+            <p class="flex items-center justify-center gap-2 font-medium text-site-danger">
+                <x-phosphor-warning-circle class="size-5 shrink-0" aria-hidden="true" />
+                No se guardaron los cambios. Revisa lo siguiente:
+            </p>
+            <ul class="mx-auto mt-1.5 max-h-24 max-w-3xl list-inside list-disc overflow-y-auto text-site-muted">
                 @foreach($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach
@@ -57,7 +46,7 @@
         </div>
     @endif
 
-    <div class="flex-1 min-h-0">
+    <div class="min-h-0 flex-1">
         @yield('content')
     </div>
 </body>

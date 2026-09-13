@@ -43,9 +43,7 @@
                         <p class="text-sm font-semibold text-stone-900 text-left">Descripción</p>
                         <p class="text-xs text-stone-500 text-left truncate" x-text="(typeof p === 'object' ? p.detalle : '') || 'Opcional · rol o detalle breve'"></p>
                     </div>
-                    <svg class="w-4 h-4 flex-shrink-0 transition-transform text-stone-500" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
-                    </svg>
+                    <x-phosphor-caret-down class="w-4 h-4 flex-shrink-0 transition-transform text-stone-500" x-bind:class="{ 'rotate-180': open }" aria-hidden="true" />
                 </button>
                 <div x-show="open" class="admin-accordion-panel">
                     <input type="text" :value="typeof p === 'object' ? (p.detalle || '') : ''"
@@ -91,9 +89,7 @@
                         <p class="text-sm font-semibold text-stone-900 text-left">Descripción</p>
                         <p class="text-xs text-stone-500 text-left truncate" x-text="(typeof p === 'object' ? p.detalle : '') || 'Opcional · rol o detalle breve'"></p>
                     </div>
-                    <svg class="w-4 h-4 flex-shrink-0 transition-transform text-stone-500" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
-                    </svg>
+                    <x-phosphor-caret-down class="w-4 h-4 flex-shrink-0 transition-transform text-stone-500" x-bind:class="{ 'rotate-180': open }" aria-hidden="true" />
                 </button>
                 <div x-show="open" class="admin-accordion-panel">
                     <input type="text" :value="typeof p === 'object' ? (p.detalle || '') : ''"
@@ -143,9 +139,7 @@
                         <p class="text-sm font-semibold text-stone-900 text-left">Mensaje</p>
                         <p class="text-xs text-stone-500 text-left truncate" x-text="pad.mensaje || 'Opcional · dedicatoria o agradecimiento'"></p>
                     </div>
-                    <svg class="w-4 h-4 flex-shrink-0 transition-transform text-stone-500" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
-                    </svg>
+                    <x-phosphor-caret-down class="w-4 h-4 flex-shrink-0 transition-transform text-stone-500" x-bind:class="{ 'rotate-180': open }" aria-hidden="true" />
                 </button>
                 <div x-show="open" class="admin-accordion-panel">
                     <textarea x-model="pad.mensaje" @input="schedulePreview()" rows="2" class="admin-input" placeholder="Mensaje opcional para los padrinos"></textarea>

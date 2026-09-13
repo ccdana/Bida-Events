@@ -45,9 +45,7 @@
         <div class="rounded-2xl border border-stone-200 bg-stone-50/60 p-4 space-y-3">
             <div class="flex items-center gap-2 mb-1">
                 <span class="flex h-7 w-7 items-center justify-center rounded-lg bg-white border border-stone-200 text-stone-500">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-                    </svg>
+                    <x-phosphor-shopping-bag class="w-4 h-4" aria-hidden="true" />
                 </span>
                 <p class="text-sm font-semibold text-stone-800">Tienda de regalos externa</p>
                 <span class="ml-auto text-[10px] text-stone-400 uppercase tracking-wider">Opcional</span>
@@ -73,9 +71,7 @@
             class="w-full flex items-center gap-3 text-left group">
             <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
                 :class="sobresActive ? 'bg-amber-100 text-amber-700' : 'bg-stone-100 text-stone-400'">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                </svg>
+                <x-phosphor-envelope-simple class="w-5 h-5" aria-hidden="true" />
             </span>
             <div class="flex-1 min-w-0">
                 <p class="text-sm font-semibold text-stone-900">Lluvia de sobres</p>
@@ -85,11 +81,7 @@
                 :class="sobresActive ? 'bg-amber-100 text-amber-700' : 'bg-stone-100 text-stone-500'"
                 x-text="sobresActive ? 'Activo' : 'Inactivo'">
             </span>
-            <svg class="w-4 h-4 text-stone-400 shrink-0 transition-transform duration-200"
-                :class="sobresActive ? 'rotate-180' : ''"
-                fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
-            </svg>
+            <x-phosphor-caret-down class="w-4 h-4 text-stone-400 shrink-0 transition-transform duration-200" x-bind:class="sobresActive ? 'rotate-180' : ''" aria-hidden="true" />
         </button>
 
         <div x-show="sobresActive" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-1" class="mt-4 space-y-3 pt-4 border-t border-stone-100">
@@ -114,9 +106,7 @@
             class="w-full flex items-center gap-3 text-left group">
             <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
                 :class="bancoActive ? 'bg-emerald-100 text-emerald-700' : 'bg-stone-100 text-stone-400'">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v9a2 2 0 002 2z"/>
-                </svg>
+                <x-phosphor-credit-card class="w-5 h-5" aria-hidden="true" />
             </span>
             <div class="flex-1 min-w-0">
                 <p class="text-sm font-semibold text-stone-900">Transferencia bancaria</p>
@@ -126,11 +116,7 @@
                 :class="bancoActive ? 'bg-emerald-100 text-emerald-700' : 'bg-stone-100 text-stone-500'"
                 x-text="bancoActive ? 'Activo' : 'Inactivo'">
             </span>
-            <svg class="w-4 h-4 text-stone-400 shrink-0 transition-transform duration-200"
-                :class="bancoActive ? 'rotate-180' : ''"
-                fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
-            </svg>
+            <x-phosphor-caret-down class="w-4 h-4 text-stone-400 shrink-0 transition-transform duration-200" x-bind:class="bancoActive ? 'rotate-180' : ''" aria-hidden="true" />
         </button>
 
         <div x-show="bancoActive" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-1" class="mt-4 space-y-3 pt-4 border-t border-stone-100">
@@ -177,9 +163,7 @@
             class="w-full flex items-center gap-3 text-left group">
             <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
                 :class="opcionesActive ? 'bg-violet-100 text-violet-700' : 'bg-stone-100 text-stone-400'">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                    <rect x="3" y="8" width="18" height="13" rx="1"/><path d="M12 8v13M3 12h18M12 8c-2 0-3-1.5-3-3s1.5-2 3-2 3 1 3 2-1 3-3 3z" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
+                <x-phosphor-gift class="w-5 h-5" aria-hidden="true" />
             </span>
             <div class="flex-1 min-w-0">
                 <p class="text-sm font-semibold text-stone-900">Más opciones de regalo</p>
@@ -189,11 +173,7 @@
                 class="shrink-0 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-violet-100 text-violet-700"
                 x-text="modules.regalos.opciones.length + (modules.regalos.opciones.length === 1 ? ' opción' : ' opciones')">
             </span>
-            <svg class="w-4 h-4 text-stone-400 shrink-0 transition-transform duration-200"
-                :class="opcionesActive ? 'rotate-180' : ''"
-                fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
-            </svg>
+            <x-phosphor-caret-down class="w-4 h-4 text-stone-400 shrink-0 transition-transform duration-200" x-bind:class="opcionesActive ? 'rotate-180' : ''" aria-hidden="true" />
         </button>
 
         <div x-show="opcionesActive" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-1" class="mt-4 pt-4 border-t border-stone-100 space-y-3">
@@ -201,14 +181,12 @@
                 <div class="rounded-xl border border-stone-200 bg-stone-50 p-3.5 space-y-3">
                     <div class="flex items-center justify-between gap-2">
                         <span class="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-stone-500">
-                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                                <rect x="3" y="8" width="18" height="13" rx="1"/><path d="M12 8v13M3 12h18M12 8c-2 0-3-1.5-3-3s1.5-2 3-2 3 1 3 2-1 3-3 3z" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
+                            <x-phosphor-gift class="w-3 h-3" aria-hidden="true" />
                             Opción <span x-text="i + 1"></span>
                         </span>
                         <button type="button" @click="removeGiftOption(i)"
                             class="flex items-center gap-1 rounded-lg px-2.5 py-1 text-[11px] font-medium text-red-500 hover:bg-red-50 hover:text-red-600 transition">
-                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                            <x-phosphor-x class="w-3.5 h-3.5" aria-hidden="true" />
                             Eliminar
                         </button>
                     </div>
@@ -239,9 +217,7 @@
 
             <button type="button" @click="addGiftOption(); opcionesActive = true"
                 class="w-full flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-stone-200 bg-stone-50 py-3 text-xs font-semibold text-stone-500 hover:border-stone-300 hover:bg-stone-100 hover:text-stone-700 transition">
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
-                </svg>
+                <x-phosphor-plus class="w-4 h-4" aria-hidden="true" />
                 Agregar opción
             </button>
         </div>

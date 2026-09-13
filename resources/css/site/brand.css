@@ -2,25 +2,32 @@
    MARCA — Isotipo y logo de Bida Events (components/brand/*)
 
    Se usa en el sitio público y en los paneles, por eso vive fuera de .site.
+   El isotipo es de trazo: su color sale de --brand-logo (dorado del logo
+   original) y su grosor de --brand-stroke (unidades del viewBox de 966 de alto).
    ════════════════════════════════════════════════════════════════════════════ */
 
 .brand-mark {
+    --brand-stroke: 40;
     display: block;
     flex-shrink: 0;
     overflow: visible;
+    color: var(--brand-logo, #b8902e);
 }
 
-.brand-mark__dot {
-    fill: var(--brand-accent, #4a6b5b);
-    transform-box: fill-box;
-    transform-origin: center;
-    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+.brand-mark__line {
+    stroke-width: calc(var(--brand-stroke) * 1px);
+}
+
+/* La separación crece junto con el trazo para mantener el hueco visible */
+.brand-mark__gap {
+    stroke-width: calc(var(--brand-stroke) * 1px + 40px);
 }
 
 .brand-logo {
+    --brand-logo: #b8902e;
     display: inline-flex;
     align-items: center;
-    gap: 0.6rem;
+    gap: 0.55rem;
     font-family: 'Outfit Variable', ui-sans-serif, system-ui, sans-serif;
     line-height: 1;
     letter-spacing: -0.02em;
@@ -35,41 +42,48 @@
     opacity: 0.62;
 }
 
-/* El punto de luz reacciona al pasar el cursor por el enlace del logo */
-@media (hover: hover) {
-    a:hover > .brand-logo .brand-mark__dot,
-    a.brand-logo:hover .brand-mark__dot {
-        transform: scale(1.35);
+@media (prefers-color-scheme: dark) {
+    html:not([data-theme='light']) .site .brand-mark,
+    html:not([data-theme='light']) .site .brand-logo {
+        --brand-logo: #dcb866;
     }
 }
 
-/* Entrada: el arco se levanta desde la base y luego se enciende la luz */
-@keyframes brand-rise {
-    from { clip-path: inset(100% 0 0 0); }
-    to { clip-path: inset(0 0 0 0); }
+[data-theme='dark'] .brand-mark,
+[data-theme='dark'] .brand-logo {
+    --brand-logo: #dcb866;
 }
 
-@keyframes brand-light {
-    0% { transform: scale(0); opacity: 0; }
-    60% { opacity: 1; }
-    100% { transform: scale(1); opacity: 1; }
+/* La solapa baja un poco al pasar el cursor por el enlace del logo */
+.brand-mark__flap {
+    transition: translate 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.brand-mark--animated .brand-mark__shape {
-    animation: brand-rise 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+@media (hover: hover) {
+    a:hover .brand-mark__flap {
+        translate: 0 18px;
+    }
 }
 
-.brand-mark--animated .brand-mark__dot {
-    animation: brand-light 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.75s both;
+/* Entrada: el celular se dibuja, la solapa se cierra y aparecen los detalles */
+@keyframes brand-draw {
+    to { stroke-dashoffset: 0; }
+}
+
+.brand-mark--animated .brand-mark__line {
+    stroke-dasharray: 1 1;
+    stroke-dashoffset: 1;
+    animation: brand-draw 1s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+    animation-delay: calc(0.1s + var(--i, 0) * 110ms);
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .brand-mark--animated .brand-mark__shape,
-    .brand-mark--animated .brand-mark__dot {
+    .brand-mark--animated .brand-mark__line {
+        stroke-dasharray: none;
         animation: none;
     }
 
-    .brand-mark__dot {
+    .brand-mark__flap {
         transition: none;
     }
 }

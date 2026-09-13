@@ -48,7 +48,8 @@
                 @endforeach
             </nav>
 
-            <div class="hidden items-center gap-6 lg:flex">
+            <div class="hidden items-center gap-5 lg:flex">
+                @include('layouts.partials.theme-toggle')
                 <a href="{{ $accountUrl }}" class="site-nav-link text-[0.95rem] font-medium text-site-muted hover:text-site-ink">{{ $accountLabel }}</a>
                 <a href="{{ $contactUrl }}" target="_blank" rel="noopener" class="site-btn" data-magnetic>
                     <x-phosphor-whatsapp-logo aria-hidden="true" />
@@ -56,12 +57,15 @@
                 </a>
             </div>
 
-            <button type="button" class="relative grid size-11 place-items-center rounded-full border border-site-line lg:hidden"
-                @click="open = !open" :aria-expanded="open.toString()" aria-controls="menu-movil">
-                <span class="sr-only" x-text="open ? 'Cerrar menú' : 'Abrir menú'">Abrir menú</span>
-                <x-phosphor-list class="site-swap is-on" x-bind:class="{ 'is-on': !open }" aria-hidden="true" />
-                <x-phosphor-x class="site-swap" x-bind:class="{ 'is-on': open }" aria-hidden="true" />
-            </button>
+            <div class="flex items-center gap-1 lg:hidden">
+                @include('layouts.partials.theme-toggle')
+                <button type="button" class="relative grid size-11 place-items-center rounded-full border border-site-line"
+                    @click="open = !open" :aria-expanded="open.toString()" aria-controls="menu-movil">
+                    <span class="sr-only" x-text="open ? 'Cerrar menú' : 'Abrir menú'">Abrir menú</span>
+                    <x-phosphor-list class="site-swap is-on" x-bind:class="{ 'is-on': !open }" aria-hidden="true" />
+                    <x-phosphor-x class="site-swap" x-bind:class="{ 'is-on': open }" aria-hidden="true" />
+                </button>
+            </div>
         </div>
 
         <div id="menu-movil" x-show="open" x-cloak
@@ -401,7 +405,7 @@
     <footer class="border-t border-site-line">
         <div class="mx-auto flex max-w-7xl flex-col gap-6 px-5 py-10 text-[0.95rem] text-site-muted md:flex-row md:items-center md:justify-between lg:px-8">
             <div class="flex items-center gap-4">
-                <x-brand.mark class="size-7 text-site-ink" />
+                <x-brand.mark class="h-8 w-auto" />
                 <p>© {{ now()->year }} {{ $bida['brand'] }}. Invitaciones digitales hechas en Bolivia.</p>
             </div>
             <nav class="flex flex-wrap gap-x-6 gap-y-2" aria-label="Pie de página">

@@ -4,7 +4,11 @@
 @section('header-title', 'Crear invitación')
 
 @section('header-actions')
-    <button type="button" onclick="document.getElementById('invitation-form').requestSubmit()" class="admin-primary-button">Crear invitación</button>
+    <a href="{{ route('admin.dashboard') }}" class="admin-link-button">Cancelar</a>
+    <button type="button" onclick="document.getElementById('invitation-form').requestSubmit()" class="admin-primary-button">
+        <x-phosphor-plus-bold aria-hidden="true" />
+        Crear invitación
+    </button>
 @endsection
 
 @section('content')

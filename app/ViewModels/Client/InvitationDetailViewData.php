@@ -20,9 +20,19 @@ class InvitationDetailViewData
 
         $rows = $guests->map(fn ($guest) => [
             'guest' => $guest,
-            'statusLabel' => ucfirst((string) $guest->status),
+            'statusLabel' => match ($guest->status) {
+                'confirmed' => 'Confirmado',
+                'declined' => 'No asiste',
+                'pending' => 'Pendiente',
+                default => ucfirst((string) $guest->status),
+            },
+            'statusClass' => match ($guest->status) {
+                'confirmed' => 'is-confirmed',
+                'declined' => 'is-declined',
+                default => 'is-pending',
+            },
             'passesLabel' => $guest->passes_confirmed . '/' . $guest->passes_allocated,
-            'dietaryRestrictions' => $guest->dietary_restrictions ?? '—',
+            'dietaryRestrictions' => $guest->dietary_restrictions ?: 'Sin indicar',
         ])->values();
 
         return compact(

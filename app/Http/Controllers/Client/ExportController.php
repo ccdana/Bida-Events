@@ -2,71 +2,68 @@
 
 namespace App\Http\Controllers\Client;
 
-use App\Exports\GuestsExport;
+use App\Exports\GuestReportExport;
 use App\Http\Controllers\Controller;
 use App\Models\Invitation;
 use App\Services\InvitationModuleService;
-use App\ViewModels\Client\InvitationExportViewData;
+use App\Support\Pdf\PdfAssets;
+use App\ViewModels\Client\GuestReportData;
+use App\ViewModels\Client\InvitationPrintData;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ExportController extends Controller
 {
-    public function guestsExcel(Invitation $invitation, InvitationExportViewData $viewData, InvitationModuleService $moduleService)
+    private const GUEST_COLUMNS = [
+        'id', 'invitation_id', 'name', 'phone', 'passes_allocated', 'passes_confirmed',
+        'status', 'dietary_restrictions', 'table_number', 'confirmed_at', 'qr_code_token',
+    ];
+
+    /** Excel con resumen, listado completo, invitados por contactar y alimentación. */
+    public function guestsExcel(Invitation $invitation, GuestReportData $report)
     {
-        abort_unless($invitation->user_id === auth()->id(), 403);
-
-        $guests = $invitation->guests()
-            ->select('id', 'invitation_id', 'name', 'phone', 'passes_allocated', 'passes_confirmed', 'status', 'dietary_restrictions', 'table_number', 'confirmed_at')
-            ->orderBy('name')
-            ->get();
-
-        $stats = $viewData->buildGuestStats($guests);
-        $modulos = $moduleService->storedModules($invitation);
+        $this->authorizeOwner($invitation);
 
         return Excel::download(
-            new GuestsExport($invitation, $stats, $modulos, $guests, $viewData->buildGuestRows($guests)),
-            "confirmados-{$invitation->slug}.xlsx"
+            new GuestReportExport($report->make($invitation, $this->guests($invitation))),
+            "invitados-{$invitation->slug}.xlsx",
         );
     }
 
-    public function guestsPdf(Invitation $invitation, InvitationExportViewData $viewData)
+    /** PDF para planificar: cifras clave, qué hacer ahora y listas por estado. */
+    public function guestsPdf(Invitation $invitation, GuestReportData $report, PdfAssets $assets)
     {
-        abort_unless($invitation->user_id === auth()->id(), 403);
+        $this->authorizeOwner($invitation);
 
-        $guests = $invitation->guests()
-            ->select('id', 'invitation_id', 'name', 'phone', 'passes_allocated', 'passes_confirmed', 'status', 'dietary_restrictions', 'table_number', 'confirmed_at')
-            ->orderBy('name')
-            ->get();
+        $data = $report->make($invitation, $this->guests($invitation)) + ['logo' => $assets->logo()];
 
-        $stats = $viewData->buildGuestStats($guests);
-        $summary = $viewData->buildSummaryInsights($guests, $stats);
-
-        $pdf = Pdf::loadView('client.exports.guests-pdf', [
-            'invitation' => $invitation,
-            'guests' => $guests,
-            'stats' => $stats,
-            'summary' => $summary,
-            'guestRows' => $viewData->buildGuestRows($guests),
-        ]);
-
-        return $pdf->download("confirmados-{$invitation->slug}.pdf");
+        return Pdf::loadView('client.exports.guests-pdf', $data)
+            ->setPaper('a4')
+            ->setOption('isFontSubsettingEnabled', true)
+            ->download("reporte-invitados-{$invitation->slug}.pdf");
     }
 
-    public function invitationPdf(Invitation $invitation, InvitationExportViewData $viewData, InvitationModuleService $moduleService)
+    /** Invitación lista para imprimir, con el diseño y los datos de la plantilla del cliente. */
+    public function invitationPdf(Invitation $invitation, InvitationPrintData $print, InvitationModuleService $moduleService)
+    {
+        $this->authorizeOwner($invitation);
+
+        $data = $print->make($invitation, $moduleService->storedModules($invitation));
+
+        return Pdf::loadView('client.exports.invitation-pdf', $data)
+            ->setPaper('a4')
+            ->setOption('isFontSubsettingEnabled', true)
+            ->download("invitacion-{$invitation->slug}.pdf");
+    }
+
+    private function authorizeOwner(Invitation $invitation): void
     {
         abort_unless($invitation->user_id === auth()->id(), 403);
+    }
 
-        $modulos = $moduleService->storedModules($invitation);
-        $guests = $invitation->guests()->select('id', 'invitation_id', 'status', 'passes_allocated', 'passes_confirmed')->get();
-        $stats = $viewData->buildGuestStats($guests);
-        $pdf = Pdf::loadView('client.exports.invitation-pdf', array_merge(
-            $viewData->buildInvitationPdfViewData($invitation, $modulos, $stats),
-            [
-                'guestRows' => $viewData->buildGuestRows($guests),
-            ]
-        ));
-
-        return $pdf->download("invitacion-{$invitation->slug}.pdf");
+    private function guests(Invitation $invitation): Collection
+    {
+        return $invitation->guests()->select(self::GUEST_COLUMNS)->orderBy('name')->get();
     }
 }

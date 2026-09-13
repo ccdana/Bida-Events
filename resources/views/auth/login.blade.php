@@ -8,9 +8,12 @@
     {{-- El rotador sincroniza la frase del subtítulo con las fotos del panel derecho --}}
     <main data-rotator data-rotator-interval="3600" class="grid min-h-[100dvh] lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
         <div class="flex flex-col px-5 py-6 sm:px-10 lg:px-16">
-            <a href="{{ route('home') }}" class="self-start text-lg">
-                <x-brand.logo animated />
-            </a>
+            <div class="flex items-center justify-between gap-4">
+                <a href="{{ route('home') }}" class="text-lg">
+                    <x-brand.logo animated />
+                </a>
+                @include('layouts.partials.theme-toggle')
+            </div>
 
             <div class="mx-auto my-auto w-full max-w-sm py-14 lg:mx-0">
                 <h1 class="site-enter text-3xl font-semibold tracking-tight sm:text-4xl" style="--enter-index: 1">Ingresa a tu cuenta</h1>
@@ -31,23 +34,23 @@
                     @csrf
 
                     <div class="site-enter grid gap-2" style="--enter-index: 3">
-                        <label for="email" class="text-[0.95rem] font-medium">Correo electrónico</label>
+                        <label for="username" class="text-[0.95rem] font-medium">Usuario</label>
                         <div class="site-field">
-                            <x-phosphor-envelope-simple-light class="site-field__icon" aria-hidden="true" />
-                            <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus
-                                autocomplete="username" inputmode="email"
-                                @class(['site-input', 'is-invalid' => $errors->has('email')])
-                                @error('email') aria-invalid="true" aria-describedby="email-error" @enderror>
+                            <x-phosphor-user class="site-field__icon" aria-hidden="true" />
+                            <input id="username" type="text" name="username" value="{{ old('username') }}" required autofocus
+                                autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="maria.valenzuela"
+                                @class(['site-input', 'is-invalid' => $errors->has('username')])
+                                @error('username') aria-invalid="true" aria-describedby="username-error" @enderror>
                         </div>
-                        @error('email')
-                            <p id="email-error" class="site-enter text-sm text-site-danger">{{ $message }}</p>
+                        @error('username')
+                            <p id="username-error" class="site-enter text-sm text-site-danger">{{ $message }}</p>
                         @enderror
                     </div>
 
                     <div class="site-enter grid gap-2" style="--enter-index: 4">
                         <label for="password" class="text-[0.95rem] font-medium">Contraseña</label>
                         <div class="site-field">
-                            <x-phosphor-lock-simple-light class="site-field__icon" aria-hidden="true" />
+                            <x-phosphor-lock-key class="site-field__icon" aria-hidden="true" />
                             <input id="password" type="password" :type="showPassword ? 'text' : 'password'" name="password" required
                                 autocomplete="current-password"
                                 @keydown="capsLock = $event.getModifierState('CapsLock')" @keyup="capsLock = $event.getModifierState('CapsLock')"
@@ -61,7 +64,7 @@
                             </button>
                         </div>
                         <p class="flex items-center gap-2 text-sm text-site-muted" x-show="capsLock" x-cloak x-transition.opacity aria-live="polite">
-                            <x-phosphor-arrow-fat-line-up-light class="size-4" aria-hidden="true" />
+                            <x-phosphor-arrow-fat-line-up class="size-4 shrink-0" aria-hidden="true" />
                             Bloq Mayús está activado
                         </p>
                         @error('password')
@@ -89,7 +92,7 @@
 
                 @if(app()->environment('local'))
                     <p class="mt-8 rounded-[12px] border border-dashed border-site-line px-4 py-3 text-sm text-site-muted">
-                        Solo en local: admin@test.com o cliente@test.com, contraseña «password».
+                        Solo en local: usuario «admin» o «cliente», contraseña «password».
                     </p>
                 @endif
             </div>

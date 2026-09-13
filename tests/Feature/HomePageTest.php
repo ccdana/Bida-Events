@@ -36,7 +36,8 @@ class HomePageTest extends TestCase
             ->assertSee('Bodas')
             ->assertSee('Aniversarios')
             ->assertSee('brand-mark', false)
-            ->assertSee('favicon.svg', false);
+            ->assertSee('favicon.svg', false)
+            ->assertSee('onclick="toggleTheme()"', false);
     }
 
     public function test_the_demo_preview_falls_back_to_an_image_when_the_demo_is_missing(): void
@@ -64,7 +65,7 @@ class HomePageTest extends TestCase
         $this->get(route('login'))
             ->assertOk()
             ->assertSee('Ingresa a tu cuenta')
-            ->assertSee('name="email"', false)
+            ->assertSee('name="username"', false)
             ->assertSee('name="password"', false)
             ->assertSee('data-rotator', false)
             ->assertDontSee('admin@test.com');
