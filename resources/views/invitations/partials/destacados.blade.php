@@ -34,14 +34,19 @@
         @endif
 
         @if(isset($tabs['cortejo']))
-            <div x-show="tab === 'cortejo'" role="tabpanel">
+            {{-- Cada grupo se despliega al tocarlo; cerrado muestra nombre del grupo y cantidad --}}
+            <div class="inv-folds" x-show="tab === 'cortejo'" role="tabpanel">
+                <p class="inv-help inv-folds__hint">Toca cada grupo para ver los nombres</p>
                 @foreach($groups as $groupLabel => $people)
-                    <div class="inv-court__group">
-                        <h3 class="inv-court__group-title">
-                            {{ $groupLabel }}
-                            <span class="inv-court__count">{{ count($people) }}</span>
-                        </h3>
-                        <ul class="inv-court__names">
+                    <details class="inv-fold inv-court__group">
+                        <summary class="inv-fold__summary">
+                            <span class="inv-fold__heading">
+                                <span class="inv-court__group-title">{{ $groupLabel }}</span>
+                            </span>
+                            <span class="inv-court__count">{{ count($people) }} {{ count($people) === 1 ? 'persona' : 'personas' }}</span>
+                            <span class="inv-fold__chevron" aria-hidden="true"></span>
+                        </summary>
+                        <ul class="inv-fold__body inv-court__names">
                             @foreach($people as $person)
                                 <li>
                                     <span class="inv-court__name">{{ $person['nombre'] }}</span>
@@ -51,25 +56,42 @@
                                 </li>
                             @endforeach
                         </ul>
-                    </div>
+                    </details>
                 @endforeach
             </div>
         @endif
 
         @if(isset($tabs['padrinos']))
-            <ul class="inv-list" x-show="tab === 'padrinos'" x-cloak role="tabpanel">
+            {{-- Los nombres siempre visibles; el mensaje de cada padrino se despliega --}}
+            <div class="inv-folds" x-show="tab === 'padrinos'" x-cloak role="tabpanel">
                 @foreach($padrinos as $padrino)
-                    <li>
-                        @if(!empty($padrino['rol']))
-                            <span class="inv-label">{{ $padrino['rol'] }}</span>
-                        @endif
-                        <p class="inv-sponsor__names">{{ $padrino['nombres'] }}</p>
-                        @if(!empty($padrino['mensaje']))
-                            <p class="inv-sponsor__message">{{ $padrino['mensaje'] }}</p>
-                        @endif
-                    </li>
+                    @if(!empty($padrino['mensaje']))
+                        <details class="inv-fold" name="cortejo-padrinos">
+                            <summary class="inv-fold__summary">
+                                <span class="inv-fold__heading">
+                                    @if(!empty($padrino['rol']))
+                                        <span class="inv-label">{{ $padrino['rol'] }}</span>
+                                    @endif
+                                    <span class="inv-sponsor__names">{{ $padrino['nombres'] }}</span>
+                                </span>
+                                <span class="inv-fold__chevron" aria-hidden="true"></span>
+                            </summary>
+                            <div class="inv-fold__body">
+                                <p class="inv-sponsor__message">{{ $padrino['mensaje'] }}</p>
+                            </div>
+                        </details>
+                    @else
+                        <div class="inv-fold inv-fold--static">
+                            <span class="inv-fold__heading">
+                                @if(!empty($padrino['rol']))
+                                    <span class="inv-label">{{ $padrino['rol'] }}</span>
+                                @endif
+                                <span class="inv-sponsor__names">{{ $padrino['nombres'] }}</span>
+                            </span>
+                        </div>
+                    @endif
                 @endforeach
-            </ul>
+            </div>
         @endif
 
         @if(empty($tabs))

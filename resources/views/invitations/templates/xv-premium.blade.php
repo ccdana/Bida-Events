@@ -78,6 +78,12 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="theme-color" content="{{ $colores['background'] ?? '#FFFAF5' }}">
     <title>{{ $guestName }}</title>
+    <script>
+        // Dentro de un iframe (vista previa del editor o teléfono de la home) se oculta la barra de scroll
+        if (window.self !== window.top) {
+            document.documentElement.classList.add('inv-embedded');
+        }
+    </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -98,6 +104,8 @@
     </style>
 </head>
 <body class="inv-page overflow-x-hidden {{ $hasPlayer ? 'has-player' : '' }}" x-data="invitationApp()" x-init="init()">
+
+    @include('invitations.partials.particles')
 
     {{-- ═══ MENÚ DE SECCIONES ═══ --}}
     <div x-data="invitationNav(@js(array_column($navItems, 'id')))"
@@ -322,9 +330,30 @@
         };
     }
 
+    // Portada: el desvanecido inferior toma el fondo real de lo que viene después, sea la sección que sea
+    function blendHeroWithNextSection() {
+        const hero = document.getElementById('inicio');
+
+        if (!hero) {
+            return;
+        }
+
+        const next = hero.nextElementSibling?.firstElementChild ?? hero.nextElementSibling;
+        const isTransparent = (color) => !color || color === 'transparent' || /rgba\(.*,\s*0\)$/.test(color);
+        let color = next ? getComputedStyle(next).backgroundColor : '';
+
+        if (isTransparent(color)) {
+            color = getComputedStyle(document.body).backgroundColor;
+        }
+
+        hero.style.setProperty('--inv-hero-fade', color);
+    }
+
     function invitationApp() {
         return {
             init() {
+                blendHeroWithNextSection();
+
                 const observer = new IntersectionObserver((entries) => {
                     entries.forEach((entry) => {
                         if (entry.isIntersecting) {

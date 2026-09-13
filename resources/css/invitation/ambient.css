@@ -1,0 +1,131 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   INVITACIÓN — Ambiente: partículas de fondo, transición de la portada y
+   vista embebida (vista previa del editor y teléfono de la home)
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* ── Vista embebida: sin barra de scroll dentro del teléfono ────────────── */
+
+html.inv-embedded {
+    scrollbar-width: none;
+}
+
+html.inv-embedded::-webkit-scrollbar,
+html.inv-embedded body::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+/* ── Partículas de fondo ────────────────────────────────────────────────────
+   Capa fija detrás del contenido: se ven sobre el fondo de la invitación y
+   quedan tapadas por la portada y las secciones con color propio. */
+
+.inv-particles {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.inv-particles span {
+    position: absolute;
+    top: 0;
+    left: var(--x);
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: radial-gradient(
+        circle,
+        color-mix(in srgb, var(--primary-color) 65%, #fff) 0 28%,
+        color-mix(in srgb, var(--primary-color) 45%, transparent) 52%,
+        transparent 72%
+    );
+    opacity: 0;
+    will-change: transform, opacity;
+    animation: inv-particle-rise var(--d) linear var(--delay) infinite;
+}
+
+/* En celulares se muestran menos para no distraer ni gastar batería */
+.inv-particles span:nth-child(n + 15) {
+    display: none;
+}
+
+@media (min-width: 768px) {
+    .inv-particles span:nth-child(n + 15) {
+        display: block;
+    }
+}
+
+@keyframes inv-particle-rise {
+    0% {
+        opacity: 0;
+        transform: translate3d(0, 105vh, 0) scale(var(--s));
+    }
+
+    12% {
+        opacity: var(--o);
+    }
+
+    50% {
+        transform: translate3d(var(--dx), 50vh, 0) scale(var(--s));
+    }
+
+    88% {
+        opacity: var(--o);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate3d(calc(var(--dx) * -0.6), -8vh, 0) scale(var(--s));
+    }
+}
+
+/* ── Portada: se funde con la sección siguiente ─────────────────────────────
+   --inv-hero-fade lo define el script de la plantilla con el fondo real de lo
+   que viene después de la portada. */
+
+.inv-hero::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: -1;
+    height: clamp(9rem, 32svh, 17rem);
+    background: linear-gradient(
+        180deg,
+        transparent 0%,
+        color-mix(in srgb, var(--inv-hero-fade, var(--bg-color)) 22%, transparent) 30%,
+        color-mix(in srgb, var(--inv-hero-fade, var(--bg-color)) 78%, transparent) 60%,
+        var(--inv-hero-fade, var(--bg-color)) 82%
+    );
+    pointer-events: none;
+}
+
+/* El velo ya no oscurece el borde inferior: ahí manda el desvanecido */
+.inv-hero__veil {
+    background: linear-gradient(
+        180deg,
+        rgb(0 0 0 / 0.4) 0%,
+        rgb(0 0 0 / 0.16) 34%,
+        rgb(0 0 0 / 0.24) 58%,
+        rgb(0 0 0 / 0.18) 100%
+    );
+}
+
+/* El indicador queda sobre la zona fundida: usa el color de texto de la invitación */
+.inv-hero--image .inv-hero__scroll {
+    color: var(--text-color);
+}
+
+/* La primera sección no necesita filete: la transición ya las separa */
+#contenido > :first-child {
+    border-top-color: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .inv-particles {
+        display: none;
+    }
+}

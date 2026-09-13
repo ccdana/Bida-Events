@@ -48,16 +48,111 @@
     transform: scaleX(1);
 }
 
+/* ── Desplegables (dress code, cortejo) ─────────────────────────────────── */
+
+.inv-folds {
+    border-top: 1px solid var(--inv-line);
+}
+
+.inv-folds__hint {
+    margin: 0.9rem 0 0.4rem;
+}
+
+.inv-fold {
+    border-bottom: 1px solid var(--inv-line);
+    interpolate-size: allow-keywords;
+}
+
+.inv-fold__summary,
+.inv-fold--static {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    min-height: 3.5rem;
+    padding-block: 0.9rem;
+}
+
+.inv-fold__summary {
+    cursor: pointer;
+    list-style: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.inv-fold__summary::-webkit-details-marker {
+    display: none;
+}
+
+.inv-fold__heading {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.inv-fold__chevron {
+    position: relative;
+    flex-shrink: 0;
+    width: 2rem;
+    height: 2rem;
+    border: 1px solid var(--inv-line-strong);
+    border-radius: 999px;
+    transition: rotate 0.35s var(--inv-ease), background-color 0.25s ease;
+}
+
+.inv-fold__chevron::before {
+    content: '';
+    position: absolute;
+    top: 45%;
+    left: 50%;
+    width: 0.45rem;
+    height: 0.45rem;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    translate: -50% -50%;
+    rotate: 45deg;
+}
+
+.inv-fold[open] .inv-fold__chevron {
+    rotate: 180deg;
+    background: var(--inv-tint);
+}
+
+.inv-fold::details-content {
+    block-size: 0;
+    overflow: clip;
+    transition: block-size 0.45s var(--inv-ease), content-visibility 0.45s allow-discrete;
+}
+
+.inv-fold[open]::details-content {
+    block-size: auto;
+}
+
+.inv-fold__body {
+    padding-bottom: 1.25rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .inv-fold::details-content,
+    .inv-fold__chevron {
+        transition: none;
+    }
+}
+
 /* ── Video ──────────────────────────────────────────────────────────────── */
 
+/* --video-ratio lo fija video-player.js con las medidas reales del video.
+   Un video vertical no pasa del 78% del alto de pantalla y queda centrado. */
 .inv-video__frame {
     position: relative;
     display: grid;
-    margin: 0;
+    width: min(100%, calc(78svh * var(--video-ratio, 1.7778)));
+    margin: 0 auto;
     overflow: hidden;
-    aspect-ratio: 16 / 9;
+    aspect-ratio: var(--video-ratio, 16 / 9);
     border-radius: 4px;
     background: #0d0d0d;
+    transition: width 0.4s var(--inv-ease);
 }
 
 .inv-video__frame > * {
@@ -153,21 +248,40 @@
     gap: 1rem;
 }
 
+/* En celular la foto de referencia va arriba y a lo ancho, para que se vea el atuendo completo */
 .inv-dress__item.has-image {
-    grid-template-columns: 5.5rem minmax(0, 1fr);
     align-items: start;
 }
 
 .inv-dress__image {
+    display: block;
     width: 100%;
     aspect-ratio: 4 / 5;
+    max-height: 26rem;
     object-fit: cover;
-    border-radius: 3px;
+    object-position: center top;
+    border-radius: var(--inv-radius);
     background: var(--inv-tint);
 }
 
+.inv-dress__thumb {
+    flex-shrink: 0;
+    width: 3.5rem;
+    height: 3.5rem;
+    object-fit: cover;
+    object-position: center top;
+    border-radius: var(--inv-radius);
+    background: var(--inv-tint);
+    transition: opacity 0.3s ease;
+}
+
+/* Abierta ya se ve la foto grande: la miniatura se atenúa */
+.inv-dress__fold[open] .inv-dress__thumb {
+    opacity: 0.35;
+}
+
 .inv-dress__title {
-    margin-top: 0.3rem;
+    display: block;
     font-family: var(--font-titles);
     font-size: 1.3rem;
     font-weight: 400;
@@ -236,25 +350,23 @@
     color: var(--inv-soft);
 }
 
+/* En pantallas más anchas la foto pasa al costado del texto */
 @media (min-width: 640px) {
     .inv-dress__item.has-image {
-        grid-template-columns: 8rem minmax(0, 1fr);
-        gap: 1.5rem;
+        grid-template-columns: 13rem minmax(0, 1fr);
+        align-items: center;
+        gap: 1.75rem;
+    }
+
+    .inv-dress__image {
+        max-height: none;
     }
 }
 
 /* ── Cortejo ────────────────────────────────────────────────────────────── */
 
-.inv-court__group + .inv-court__group {
-    margin-top: 2.25rem;
-}
-
 .inv-court__group-title {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    padding-bottom: 0.6rem;
-    border-bottom: 1px solid var(--inv-line-strong);
+    display: block;
     font-family: var(--font-titles);
     font-size: 1.3rem;
     font-weight: 400;
@@ -276,8 +388,8 @@
 }
 
 .inv-court__names li {
-    padding-block: 0.85rem;
-    border-bottom: 1px solid var(--inv-line);
+    padding-block: 0.75rem;
+    border-top: 1px solid var(--inv-line);
 }
 
 .inv-court__name {

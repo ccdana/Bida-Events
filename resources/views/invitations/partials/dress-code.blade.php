@@ -37,27 +37,47 @@
         @endif
 
         @if(isset($tabs['sugerencias']))
-            <ul class="inv-list" x-show="tab === 'sugerencias'" role="tabpanel">
+            {{-- Cada sugerencia es desplegable: cerrada solo muestra miniatura y título --}}
+            <div class="inv-folds" x-show="tab === 'sugerencias'" role="tabpanel">
+                <p class="inv-help inv-folds__hint">Toca cada opción para ver el detalle</p>
                 @foreach($sugerencias as $sug)
-                    <li class="inv-dress__item {{ !empty($sug['imagen']) ? 'has-image' : '' }}">
-                        @if(!empty($sug['imagen']))
-                            <img src="{{ \App\Support\CloudinaryImage::url($sug['imagen'], 400) }}" alt="{{ $sug['titulo'] }}" class="inv-dress__image" loading="lazy" decoding="async">
-                        @endif
-                        <div>
-                            @if(!empty($sug['para']))
-                                <span class="inv-label">{{ $sug['para'] }}</span>
+                    <details class="inv-fold inv-dress__fold" name="dress-code-sugerencias">
+                        <summary class="inv-fold__summary">
+                            @if(!empty($sug['imagen']))
+                                <img src="{{ \App\Support\CloudinaryImage::url($sug['imagen'], 120) }}"
+                                    alt="" width="56" height="56" class="inv-dress__thumb" loading="lazy" decoding="async">
                             @endif
-                            <h3 class="inv-dress__title">{{ $sug['titulo'] }}</h3>
-                            @if(!empty($sug['descripcion']))
-                                <p class="inv-dress__text">{{ $sug['descripcion'] }}</p>
+                            <span class="inv-fold__heading">
+                                @if(!empty($sug['para']))
+                                    <span class="inv-label">{{ $sug['para'] }}</span>
+                                @endif
+                                <span class="inv-dress__title">{{ $sug['titulo'] }}</span>
+                            </span>
+                            <span class="inv-fold__chevron" aria-hidden="true"></span>
+                        </summary>
+
+                        <div class="inv-fold__body inv-dress__item {{ !empty($sug['imagen']) ? 'has-image' : '' }}">
+                            @if(!empty($sug['imagen']))
+                                @php($dressSrcset = \App\Support\CloudinaryImage::srcset($sug['imagen'], [400, 800]))
+                                <img src="{{ \App\Support\CloudinaryImage::url($sug['imagen'], 800) }}"
+                                    @if($dressSrcset) srcset="{{ $dressSrcset }}" sizes="(min-width: 640px) 13rem, 100vw" @endif
+                                    alt="{{ $sug['titulo'] }}" width="800" height="1000"
+                                    class="inv-dress__image" loading="lazy" decoding="async">
                             @endif
-                            @if(!empty($sug['ejemplos']))
-                                <p class="inv-dress__examples">Ideas: {{ implode(' · ', $sug['ejemplos']) }}</p>
+                            @if(!empty($sug['descripcion']) || !empty($sug['ejemplos']))
+                                <div>
+                                    @if(!empty($sug['descripcion']))
+                                        <p class="inv-dress__text">{{ $sug['descripcion'] }}</p>
+                                    @endif
+                                    @if(!empty($sug['ejemplos']))
+                                        <p class="inv-dress__examples">Ideas: {{ implode(' · ', $sug['ejemplos']) }}</p>
+                                    @endif
+                                </div>
                             @endif
                         </div>
-                    </li>
+                    </details>
                 @endforeach
-            </ul>
+            </div>
         @endif
 
         @if(isset($tabs['colores']))

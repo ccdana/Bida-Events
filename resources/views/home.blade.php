@@ -289,37 +289,71 @@
                 <div class="mt-14 grid gap-5 lg:grid-cols-3 lg:items-center">
                     @foreach($packages as $index => $package)
                         @php($featured = $package['featured'] ?? false)
+                        @php($premium = $package['premium'] ?? false)
                         <article @class([
-                                'site-lift flex flex-col rounded-[20px] p-7 lg:p-8',
+                                'site-lift flex flex-col rounded-[20px]',
+                                'p-7 lg:p-8' => ! $premium,
                                 'site-invert lg:py-11' => $featured,
-                                'border border-site-line bg-site-bg' => ! $featured,
+                                'site-premium p-8 lg:p-10' => $premium,
+                                'border border-site-line bg-site-bg' => ! $featured && ! $premium,
                             ])
                             data-reveal style="--reveal-index: {{ $index }}">
+                            @if($premium)
+                                {{-- Marco interior con esquinas doradas y un brillo que recorre la tarjeta --}}
+                                <span class="site-premium__frame" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+                                <span class="site-premium__sheen" aria-hidden="true"></span>
+                            @endif
+
                             <div class="flex items-center justify-between gap-3">
-                                <h3 class="text-xl font-medium">{{ $package['name'] }}</h3>
+                                <h3 class="flex items-center gap-2.5 text-xl font-medium">
+                                    @if($premium)
+                                        <x-phosphor-crown-simple-fill class="size-5 text-site-accent" aria-hidden="true" />
+                                    @endif
+                                    {{ $package['name'] }}
+                                </h3>
                                 @if($featured)
                                     <span class="rounded-full bg-site-accent px-3 py-1 text-sm font-medium text-site-on-accent">Recomendado</span>
+                                @elseif($premium)
+                                    <span class="site-premium__badge">Experiencia completa</span>
                                 @endif
                             </div>
 
                             <p class="mt-6 flex items-baseline gap-2">
-                                <span class="text-5xl font-semibold tracking-tight tabular-nums">{{ $package['price'] }}</span>
+                                <span @class(['text-5xl font-semibold tracking-tight tabular-nums', 'site-premium__price' => $premium])>{{ $package['price'] }}</span>
                                 <span class="text-xl text-site-muted">Bs</span>
                             </p>
 
                             <p class="mt-4 leading-relaxed text-site-muted">{{ $package['summary'] }}</p>
 
-                            <ul class="mt-7 flex-1 space-y-3 border-t border-site-line pt-7">
+                            @if($premium)
+                                <div class="site-premium__rule mt-7" aria-hidden="true">
+                                    <x-phosphor-diamond-fill />
+                                </div>
+                            @endif
+
+                            <ul @class([
+                                'flex-1 space-y-3',
+                                'mt-7 border-t border-site-line pt-7' => ! $premium,
+                                'mt-6' => $premium,
+                            ])>
                                 @foreach($package['features'] as $feature)
                                     <li class="flex gap-3">
-                                        <x-phosphor-check-bold class="mt-1 size-4 shrink-0 text-site-accent" aria-hidden="true" />
+                                        @if($premium)
+                                            <span class="site-premium__check"><x-phosphor-check-bold aria-hidden="true" /></span>
+                                        @else
+                                            <x-phosphor-check-bold class="mt-1 size-4 shrink-0 text-site-accent" aria-hidden="true" />
+                                        @endif
                                         <span>{{ $feature }}</span>
                                     </li>
                                 @endforeach
                             </ul>
 
                             <a href="{{ $package['whatsapp'] }}" target="_blank" rel="noopener"
-                                @class(['site-btn site-btn--lg mt-9 justify-center', 'site-btn--ghost' => ! $featured])>
+                                @class([
+                                    'site-btn site-btn--lg mt-9 justify-center',
+                                    'site-btn--gold' => $premium,
+                                    'site-btn--ghost' => ! $featured && ! $premium,
+                                ])>
                                 Elegir {{ $package['name'] }}
                                 <x-phosphor-arrow-right class="site-btn__arrow" aria-hidden="true" />
                             </a>

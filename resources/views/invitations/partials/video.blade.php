@@ -23,7 +23,7 @@
                     id="{{ $videoPlayerId }}"
                     class="inv-video__media"
                     playsinline
-                    preload="{{ empty($video['poster'] ?? null) ? 'metadata' : 'none' }}"
+                    preload="metadata"
                     data-video-player="true"
                 >
                     <source src="{{ $video['video_url'] }}" type="video/mp4">

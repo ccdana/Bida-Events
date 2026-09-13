@@ -24,6 +24,17 @@ const initVideoPlayers = () => {
             let isIdle = true;
             let hasPlayed = false;
 
+            // El marco toma la proporción real del video (vertical u horizontal) para que se vea completo
+            const applyAspectRatio = () => {
+                if (frame && element.videoWidth && element.videoHeight) {
+                    frame.style.setProperty('--video-ratio', (element.videoWidth / element.videoHeight).toFixed(4));
+                    frame.classList.toggle('is-portrait', element.videoHeight > element.videoWidth);
+                }
+            };
+
+            element.addEventListener('loadedmetadata', applyAspectRatio);
+            applyAspectRatio();
+
             const setIdleState = (idle) => {
                 isIdle = idle;
                 frame?.classList.toggle('is-idle', idle);
