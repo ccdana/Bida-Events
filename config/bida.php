@@ -15,7 +15,7 @@ return [
 
     'brand' => env('BIDA_BRAND', 'Bida Events'),
 
-    'city' => env('BIDA_CITY', 'La Paz, Bolivia'),
+    'city' => env('BIDA_CITY', 'Cochabamba, Bolivia'),
 
     // Solo dígitos, con código de país (591 para Bolivia)
     'whatsapp' => env('BIDA_WHATSAPP', '59170000000'),
@@ -135,7 +135,6 @@ return [
             'key' => 'premium',
             'name' => 'Premium',
             'price' => 700,
-            'premium' => true,
             'summary' => 'Para que tus invitados participen antes, durante y después del evento.',
             'features' => [
                 'Todo lo del paquete Estándar',
