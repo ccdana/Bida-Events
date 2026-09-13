@@ -8,12 +8,17 @@
     ]);
     $padrinos = array_values(array_filter($destacados['padrinos'] ?? [], fn ($p) => !empty($p['nombres'] ?? null)));
     $tabs = array_filter([
-        'cortejo' => count($groups) ? 'Cortejo' : null,
+        'cortejo' => count($groups) ? ($invCopy['court_group_tab'] ?? 'Cortejo') : null,
         'padrinos' => count($padrinos) ? 'Padrinos' : null,
     ]);
+    // En los bautizos los padrinos son lo principal: su pestaña va primero
+    if (($invCopy['court_first'] ?? null) === 'padrinos' && isset($tabs['padrinos'])) {
+        $tabs = ['padrinos' => $tabs['padrinos']] + $tabs;
+    }
+    $firstTab = array_key_first($tabs);
 @endphp
 
-<section class="inv-section reveal inv-court" id="destacados" x-data="{ tab: @js(array_key_first($tabs) ?? '') }">
+<section class="inv-section reveal inv-court" id="destacados" x-data="{ tab: @js($firstTab ?? '') }">
     <div class="inv-wrap">
         @include('invitations.partials.section-header', [
             'lottie' => $invCopy['court_lottie'] ?? 'crown',
@@ -35,7 +40,7 @@
 
         @if(isset($tabs['cortejo']))
             {{-- Cada grupo se despliega al tocarlo; cerrado muestra nombre del grupo y cantidad --}}
-            <div class="inv-folds" x-show="tab === 'cortejo'" role="tabpanel">
+            <div class="inv-folds" x-show="tab === 'cortejo'" @if($firstTab !== 'cortejo') x-cloak @endif role="tabpanel">
                 <p class="inv-help inv-folds__hint">Toca cada grupo para ver los nombres</p>
                 @foreach($groups as $groupLabel => $people)
                     <details class="inv-fold inv-court__group">
@@ -63,7 +68,7 @@
 
         @if(isset($tabs['padrinos']))
             {{-- Los nombres siempre visibles; el mensaje de cada padrino se despliega --}}
-            <div class="inv-folds" x-show="tab === 'padrinos'" x-cloak role="tabpanel">
+            <div class="inv-folds" x-show="tab === 'padrinos'" @if($firstTab !== 'padrinos') x-cloak @endif role="tabpanel">
                 @foreach($padrinos as $padrino)
                     @if(!empty($padrino['mensaje']))
                         <details class="inv-fold" name="cortejo-padrinos">

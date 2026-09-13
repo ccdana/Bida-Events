@@ -277,7 +277,7 @@ function invitationForm(config) {
 
         fontSample(roleKey) {
             if (roleKey === 'script') {
-                return this.modules.bienvenida?.nombre_quinceanera || (this.isWeddingTemplate() ? 'Ana & Luis' : 'Sofía Valentina');
+                return this.modules.bienvenida?.nombre_quinceanera || (this.isWeddingTemplate() ? 'Ana & Luis' : (this.isBaptismTemplate() ? 'Mateo Andrés' : 'Sofía Valentina'));
             }
             return roleKey === 'titulos' ? 'Itinerario' : 'Te esperamos a las 18:00';
         },
@@ -784,6 +784,12 @@ function invitationForm(config) {
         isWeddingTemplate() {
             const value = String(this.meta.template ?? '');
             return this.templateOptions.find(option => option.value === value)?.event === 'boda';
+        },
+
+        // Plantilla de bautizo: el editor habla del bebé, abuelos y tíos
+        isBaptismTemplate() {
+            const value = String(this.meta.template ?? '');
+            return this.templateOptions.find(option => option.value === value)?.event === 'bautizo';
         },
 
         getStatusLabel() {
@@ -1515,6 +1521,30 @@ function invitationForm(config) {
                         accent: '#F8E4E6',
                         text: '#3A2828',
                         background: '#FFF8F8',
+                    },
+                },
+                {
+                    mode: 'light',
+                    name: 'Cielo Bautizo',
+                    description: 'Celeste suave y blanco nube',
+                    colors: {
+                        primary: '#6B9AC4',
+                        secondary: '#C9A96E',
+                        accent: '#DCEBF5',
+                        text: '#2E3A46',
+                        background: '#F7FBFE',
+                    },
+                },
+                {
+                    mode: 'light',
+                    name: 'Rosa Bautizo',
+                    description: 'Rosa delicado y marfil',
+                    colors: {
+                        primary: '#D48BA4',
+                        secondary: '#C9A96E',
+                        accent: '#F8E3EA',
+                        text: '#46323A',
+                        background: '#FFF9FB',
                     },
                 },
                 {

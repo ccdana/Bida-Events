@@ -1,0 +1,920 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   INVITACIÓN — Tema "Bautizo Cielo" (invitations.templates.bautizo-cielo)
+
+   Todo va dentro de .inv-bautizo. Lenguaje de cielo y agua: nubes que se abren
+   al entrar, rayos de luz, paloma, destellos que titilan, burbujas que flotan y
+   secciones separadas por olas. Formas redondas y tipografía serif serena, con
+   la manuscrita reservada a los detalles. Lee la paleta del evento.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+.inv-bautizo {
+    --inv-radius: 22px;
+    --inv-bautizo-deep: color-mix(in srgb, var(--primary-color) 58%, var(--text-color));
+    --inv-bautizo-tint: color-mix(in srgb, var(--accent-color) 42%, var(--bg-color));
+    --inv-bautizo-cloud: color-mix(in srgb, var(--bg-color) 35%, #fff);
+    --inv-bautizo-bounce: cubic-bezier(0.34, 1.3, 0.64, 1);
+    /* Formas como máscara: toman el color de la invitación */
+    --inv-bautizo-star: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M10 0 C11 6 14 9 20 10 C14 11 11 14 10 20 C9 14 6 11 0 10 C6 9 9 6 10 0Z'/%3E%3C/svg%3E");
+    --inv-bautizo-wave: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 24' preserveAspectRatio='none'%3E%3Cpath d='M0 24 L0 12 C20 0 40 0 60 12 C80 24 100 24 120 12 L120 24 Z'/%3E%3C/svg%3E");
+    --inv-bautizo-ripple: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 10'%3E%3Cpath d='M0 5 C5 1 15 1 20 5 C25 9 35 9 40 5' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+
+.inv-bautizo-star {
+    display: inline-block;
+    flex-shrink: 0;
+    width: 0.7rem;
+    height: 0.7rem;
+    background: currentColor;
+    -webkit-mask: var(--inv-bautizo-star) center / contain no-repeat;
+    mask: var(--inv-bautizo-star) center / contain no-repeat;
+}
+
+/* ── Paloma ─────────────────────────────────────────────────────────────── */
+
+.inv-bautizo-dove {
+    overflow: visible;
+}
+
+.inv-bautizo-dove__body,
+.inv-bautizo-dove__wing path {
+    fill: var(--inv-bautizo-cloud);
+    stroke: var(--inv-bautizo-deep);
+    stroke-width: 3;
+    stroke-linejoin: round;
+}
+
+.inv-bautizo-dove__eye {
+    fill: var(--inv-bautizo-deep);
+}
+
+.inv-bautizo-dove__wing {
+    transform-box: view-box;
+    transform-origin: 112px 92px;
+    animation: inv-bautizo-flap 1.8s ease-in-out infinite;
+}
+
+@keyframes inv-bautizo-flap {
+    0%, 60%, 100% { rotate: 0deg; }
+    20% { rotate: -36deg; }
+    40% { rotate: 4deg; }
+}
+
+/* ── Fondo vivo ─────────────────────────────────────────────────────────── */
+
+.inv-bautizo .inv-bautizo-ambient {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.inv-bautizo-ambient__cloud {
+    position: absolute;
+    left: 0;
+    width: 70vmax;
+    height: 24vmax;
+    border-radius: 50%;
+    background: radial-gradient(ellipse at center, color-mix(in srgb, var(--accent-color) 55%, #fff) 0%, transparent 70%);
+    opacity: 0.65;
+    animation: inv-bautizo-cloud-pass 90s linear infinite;
+}
+
+.inv-bautizo-ambient__cloud--1 {
+    top: 6%;
+    animation-delay: -20s;
+}
+
+.inv-bautizo-ambient__cloud--2 {
+    top: 44%;
+    opacity: 0.45;
+    animation-duration: 120s;
+    animation-delay: -70s;
+}
+
+.inv-bautizo-ambient__cloud--3 {
+    top: 76%;
+    animation-duration: 105s;
+    animation-delay: -40s;
+}
+
+@keyframes inv-bautizo-cloud-pass {
+    from { translate: -75vmax 0; }
+    to { translate: 110vw 0; }
+}
+
+.inv-bautizo-ambient__sparkle {
+    position: absolute;
+    top: var(--top);
+    left: var(--left);
+    width: var(--size);
+    height: var(--size);
+    background: color-mix(in srgb, var(--primary-color) 55%, #fff);
+    opacity: 0;
+    -webkit-mask: var(--inv-bautizo-star) center / contain no-repeat;
+    mask: var(--inv-bautizo-star) center / contain no-repeat;
+    animation: inv-bautizo-twinkle var(--d) ease-in-out var(--delay) infinite;
+}
+
+/* En celulares titilan menos destellos */
+.inv-bautizo-ambient__sparkle:nth-child(n + 13) {
+    display: none;
+}
+
+@media (min-width: 768px) {
+    .inv-bautizo-ambient__sparkle:nth-child(n + 13) {
+        display: block;
+    }
+}
+
+@keyframes inv-bautizo-twinkle {
+    0%, 100% { opacity: 0; scale: 0.4; rotate: 0deg; }
+    50% { opacity: 0.9; scale: 1; rotate: 45deg; }
+}
+
+@keyframes inv-bautizo-bob {
+    50% { translate: 0 -6px; }
+}
+
+/* ── Apertura: las nubes se abren ───────────────────────────────────────── */
+
+.inv-bautizo-intro {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    overflow: hidden;
+    pointer-events: none;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--accent-color) 75%, #fff), color-mix(in srgb, var(--accent-color) 35%, var(--bg-color)));
+    animation: inv-bautizo-intro-out 0.9s ease 1.75s forwards;
+}
+
+html.inv-intro-skip .inv-bautizo-intro {
+    display: none;
+}
+
+.inv-bautizo-intro__cloud {
+    position: absolute;
+    width: 120vmax;
+    color: var(--inv-bautizo-cloud);
+    filter: drop-shadow(0 24px 30px color-mix(in srgb, var(--primary-color) 20%, transparent));
+}
+
+.inv-bautizo-intro__cloud--left {
+    top: -4vmax;
+    left: -58vmax;
+    animation: inv-bautizo-part-left 1.7s cubic-bezier(0.6, 0, 0.2, 1) 0.55s forwards;
+}
+
+.inv-bautizo-intro__cloud--right {
+    right: -58vmax;
+    bottom: 4vmax;
+    animation: inv-bautizo-part-right 1.7s cubic-bezier(0.6, 0, 0.2, 1) 0.55s forwards;
+}
+
+.inv-bautizo-intro__cloud--low {
+    bottom: -36vmax;
+    left: -20vmax;
+    width: 140vmax;
+    animation: inv-bautizo-part-down 1.7s cubic-bezier(0.6, 0, 0.2, 1) 0.55s forwards;
+}
+
+.inv-bautizo-intro__center {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: 0.4rem;
+    animation: inv-bautizo-intro-center 0.6s ease 0.55s forwards;
+}
+
+.inv-bautizo-intro__dove {
+    width: 7.5rem;
+    animation: inv-bautizo-bob 2.4s ease-in-out infinite;
+}
+
+.inv-bautizo-intro__name {
+    font-family: var(--font-titles);
+    font-size: clamp(1.8rem, 8vw, 2.6rem);
+    font-weight: 600;
+    color: var(--inv-bautizo-deep);
+}
+
+@keyframes inv-bautizo-part-left {
+    to { translate: -105vmax -10vmax; }
+}
+
+@keyframes inv-bautizo-part-right {
+    to { translate: 105vmax 10vmax; }
+}
+
+@keyframes inv-bautizo-part-down {
+    to { translate: 0 70vmax; }
+}
+
+@keyframes inv-bautizo-intro-center {
+    to { opacity: 0; scale: 0.9; }
+}
+
+@keyframes inv-bautizo-intro-out {
+    to { opacity: 0; visibility: hidden; }
+}
+
+/* Con apertura, la portada se anima cuando las nubes terminan de abrirse */
+html.inv-intro-active .inv-bautizo-hero .inv-fade-up { animation-delay: 1.45s; }
+html.inv-intro-active .inv-bautizo-hero .inv-fade-up--1 { animation-delay: 1.6s; }
+html.inv-intro-active .inv-bautizo-hero .inv-fade-up--2 { animation-delay: 1.75s; }
+html.inv-intro-active .inv-bautizo-hero .inv-fade-up--3 { animation-delay: 1.9s; }
+
+/* ── Portada ────────────────────────────────────────────────────────────── */
+
+.inv-bautizo-hero {
+    color: var(--text-color);
+    background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--accent-color) 70%, #fff) 0%,
+        color-mix(in srgb, var(--accent-color) 30%, var(--bg-color)) 58%,
+        var(--bg-color) 100%
+    );
+}
+
+.inv-bautizo-hero::after {
+    display: none;
+}
+
+/* Rayos de luz que bajan desde arriba y se mecen */
+.inv-bautizo-hero__rays {
+    position: absolute;
+    top: -20%;
+    left: -50%;
+    z-index: -1;
+    width: 200%;
+    height: 90%;
+    background: repeating-conic-gradient(from 180deg at 50% 0%, color-mix(in srgb, #fff 60%, transparent) 0deg 3deg, transparent 3deg 11deg);
+    opacity: 0.55;
+    transform-origin: 50% 0;
+    -webkit-mask-image: radial-gradient(ellipse 50% 100% at 50% 0%, #000 0%, transparent 80%);
+    mask-image: radial-gradient(ellipse 50% 100% at 50% 0%, #000 0%, transparent 80%);
+    pointer-events: none;
+    animation: inv-bautizo-rays 16s ease-in-out infinite alternate;
+}
+
+@keyframes inv-bautizo-rays {
+    from { rotate: -4deg; }
+    to { rotate: 4deg; }
+}
+
+.inv-bautizo-hero__inner {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 34rem;
+    padding: 5.25rem 1.5rem clamp(6rem, 24vw, 9rem);
+}
+
+.inv-bautizo-hero__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.45rem 1.1rem 0.55rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, #fff 72%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--primary-color) 25%, transparent);
+    font-family: var(--font-script);
+    font-size: 1.4rem;
+    line-height: 1;
+    color: var(--inv-bautizo-deep);
+}
+
+.inv-bautizo-hero__eyebrow .inv-bautizo-star {
+    color: var(--primary-color);
+}
+
+.inv-bautizo-medallion {
+    position: relative;
+    width: min(60vw, 16.5rem);
+    aspect-ratio: 1;
+    margin-top: 2.4rem;
+}
+
+.inv-bautizo-medallion::before {
+    content: '';
+    position: absolute;
+    inset: -7%;
+    border: 2px solid color-mix(in srgb, var(--primary-color) 30%, #fff);
+    border-radius: 50%;
+    box-shadow:
+        0 0 0 9px color-mix(in srgb, #fff 55%, transparent),
+        0 34px 60px -30px color-mix(in srgb, var(--primary-color) 65%, transparent);
+}
+
+/* Halo de rayos finos que gira lento alrededor de la foto */
+.inv-bautizo-medallion__halo {
+    position: absolute;
+    inset: -24%;
+    border-radius: 50%;
+    background: repeating-conic-gradient(color-mix(in srgb, var(--primary-color) 38%, transparent) 0deg 1.6deg, transparent 1.6deg 10deg);
+    -webkit-mask: radial-gradient(circle, transparent 62%, #000 64%, #000 74%, transparent 84%);
+    mask: radial-gradient(circle, transparent 62%, #000 64%, #000 74%, transparent 84%);
+    animation: spin-slow 70s linear infinite;
+}
+
+.inv-bautizo-medallion__window {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    border-radius: 50%;
+    background: var(--inv-bautizo-tint);
+    box-shadow: inset 0 0 0 4px color-mix(in srgb, #fff 80%, transparent);
+}
+
+.inv-bautizo-medallion__photo {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 30%;
+    animation: inv-bautizo-zoom 22s ease-in-out infinite alternate;
+}
+
+@keyframes inv-bautizo-zoom {
+    from { scale: 1.02; }
+    to { scale: 1.1; }
+}
+
+.inv-bautizo-medallion__initial {
+    display: grid;
+    place-items: center;
+    height: 100%;
+    font-family: var(--font-titles);
+    font-size: clamp(4rem, 20vw, 6rem);
+    font-weight: 600;
+    color: var(--inv-bautizo-deep);
+}
+
+.inv-bautizo-medallion__dove {
+    position: absolute;
+    top: -16%;
+    right: -30%;
+    width: 52%;
+    filter: drop-shadow(0 10px 12px color-mix(in srgb, var(--primary-color) 30%, transparent));
+    animation: inv-bautizo-bob 4.5s ease-in-out infinite;
+}
+
+.inv-bautizo-hero__name {
+    margin-top: 2.1rem;
+    font-family: var(--font-titles);
+    font-size: clamp(2.5rem, 11vw, 4.6rem);
+    font-weight: 600;
+    line-height: 1.05;
+    text-wrap: balance;
+}
+
+.inv-bautizo-hero__message {
+    max-width: 24rem;
+    margin-top: 1rem;
+    font-size: 0.98rem;
+    line-height: 1.75;
+    color: var(--inv-muted);
+    text-wrap: pretty;
+}
+
+.inv-bautizo-hero__date {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem 0.6rem;
+    margin-top: 1.5rem;
+    padding: 0.65rem 1.25rem;
+    border-radius: 999px;
+    background: var(--inv-bautizo-deep);
+    color: var(--bg-color);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    box-shadow: 0 12px 26px -14px color-mix(in srgb, var(--primary-color) 80%, transparent);
+}
+
+.inv-bautizo-hero__date .inv-bautizo-star {
+    width: 0.55rem;
+    height: 0.55rem;
+}
+
+.inv-bautizo-hero .inv-bautizo-hero__scroll {
+    position: relative;
+    bottom: auto;
+    left: auto;
+    margin-top: 2rem;
+    color: var(--inv-soft);
+    transform: none;
+}
+
+/* Franja de nubes que se desplaza al pie de la portada */
+.inv-bautizo-clouds {
+    position: absolute;
+    right: 0;
+    bottom: -1px;
+    left: 0;
+    height: clamp(5rem, 22vw, 9rem);
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.inv-bautizo-clouds__layer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 200%;
+    height: 100%;
+    animation: inv-bautizo-drift-x 70s linear infinite;
+}
+
+.inv-bautizo-clouds__layer--back {
+    fill: color-mix(in srgb, var(--accent-color) 45%, #fff);
+    opacity: 0.85;
+}
+
+.inv-bautizo-clouds__layer--front {
+    height: 78%;
+    fill: var(--bg-color);
+    animation-duration: 46s;
+    animation-direction: reverse;
+}
+
+@keyframes inv-bautizo-drift-x {
+    to { translate: -50% 0; }
+}
+
+/* ── Secciones y encabezados ────────────────────────────────────────────── */
+
+.inv-bautizo .inv-section {
+    padding-block: 4.5rem 4rem;
+    border-top: 0;
+}
+
+/* Secciones alternas sobre agua clara con olas arriba y abajo */
+.inv-bautizo #contenido > .inv-section:nth-of-type(even) {
+    background: var(--inv-bautizo-tint);
+}
+
+.inv-bautizo #contenido > .inv-section:nth-of-type(even)::before,
+.inv-bautizo #contenido > .inv-section:nth-of-type(even)::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    left: 0;
+    height: 22px;
+    background: var(--inv-bautizo-tint);
+    pointer-events: none;
+    -webkit-mask: var(--inv-bautizo-wave) 0 0 / 160px 100% repeat-x;
+    mask: var(--inv-bautizo-wave) 0 0 / 160px 100% repeat-x;
+    animation: inv-bautizo-wave 14s linear infinite;
+}
+
+.inv-bautizo #contenido > .inv-section:nth-of-type(even)::before {
+    bottom: calc(100% - 1px);
+}
+
+.inv-bautizo #contenido > .inv-section:nth-of-type(even)::after {
+    top: calc(100% - 1px);
+    scale: 1 -1;
+    animation-direction: reverse;
+}
+
+@keyframes inv-bautizo-wave {
+    to {
+        -webkit-mask-position: 160px 0;
+        mask-position: 160px 0;
+    }
+}
+
+.inv-bautizo .inv-head__eyebrow {
+    font-family: var(--font-script);
+    font-size: 1.4rem;
+    font-weight: 400;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--inv-bautizo-deep);
+}
+
+.inv-bautizo .inv-head__title {
+    margin-top: 0.2rem;
+    font-family: var(--font-titles);
+    font-size: clamp(2rem, 8.5vw, 3.2rem);
+    font-weight: 600;
+    line-height: 1.1;
+}
+
+/* Filete convertido en una onda de agua que fluye */
+.inv-bautizo .inv-head__rule {
+    width: 4.5rem;
+    height: 0.6rem;
+    margin-top: 0.8rem;
+    background: var(--primary-color);
+    opacity: 0.75;
+    -webkit-mask: var(--inv-bautizo-ripple) 0 50% / 1.5rem 0.6rem repeat-x;
+    mask: var(--inv-bautizo-ripple) 0 50% / 1.5rem 0.6rem repeat-x;
+    animation: inv-bautizo-ripple 2.4s linear infinite;
+}
+
+@keyframes inv-bautizo-ripple {
+    to {
+        -webkit-mask-position: 1.5rem 50%;
+        mask-position: 1.5rem 50%;
+    }
+}
+
+.inv-bautizo .invitation-lottie-framed {
+    gap: 0.8rem;
+    margin-bottom: 1.2rem;
+}
+
+.inv-bautizo .invitation-lottie-framed__rule {
+    width: 0.95rem;
+    height: 0.95rem;
+    background: var(--primary-color);
+    -webkit-mask: var(--inv-bautizo-star) center / contain no-repeat;
+    mask: var(--inv-bautizo-star) center / contain no-repeat;
+    animation: inv-bautizo-glint 2.8s ease-in-out infinite;
+}
+
+.inv-bautizo .invitation-lottie-framed__rule:last-child {
+    animation-delay: -1.4s;
+}
+
+@keyframes inv-bautizo-glint {
+    0%, 100% { opacity: 0.35; scale: 0.6; }
+    50% { opacity: 0.95; scale: 1; }
+}
+
+/* El ícono animado vive dentro de una burbuja con brillo que flota */
+.inv-bautizo .invitation-lottie-framed__icon {
+    box-sizing: content-box;
+    width: 2.6rem;
+    height: 2.6rem;
+    padding: 0.75rem;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at 30% 24%, color-mix(in srgb, #fff 92%, transparent) 0 12%, transparent 13%),
+        radial-gradient(circle, color-mix(in srgb, var(--accent-color) 25%, var(--bg-color)), color-mix(in srgb, var(--accent-color) 75%, var(--bg-color)));
+    box-shadow:
+        inset 0 0 0 2px color-mix(in srgb, #fff 70%, transparent),
+        0 12px 24px -12px color-mix(in srgb, var(--primary-color) 55%, transparent);
+    animation: inv-bautizo-bob 4s ease-in-out infinite;
+}
+
+/* Aparición con un pequeño rebote, como algo que sale a flote */
+.inv-bautizo .reveal {
+    transform: translateY(34px);
+    transition: opacity 0.9s var(--inv-ease), transform 1s var(--inv-bautizo-bounce);
+}
+
+.inv-bautizo .reveal.is-visible {
+    transform: none;
+}
+
+.inv-bautizo .inv-empty {
+    border: 0;
+    border-radius: var(--inv-radius);
+    background: color-mix(in srgb, #fff 60%, transparent);
+}
+
+/* ── Controles ──────────────────────────────────────────────────────────── */
+
+.inv-bautizo .inv-btn {
+    border: 0;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--inv-bautizo-deep), color-mix(in srgb, var(--primary-color) 80%, var(--inv-bautizo-deep)));
+    color: var(--bg-color);
+    letter-spacing: 0.1em;
+    box-shadow:
+        inset 0 1px 0 rgb(255 255 255 / 0.3),
+        0 12px 24px -12px color-mix(in srgb, var(--primary-color) 75%, transparent);
+}
+
+.inv-bautizo .inv-btn--ghost {
+    background: color-mix(in srgb, #fff 75%, transparent);
+    color: var(--inv-bautizo-deep);
+    box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--primary-color) 35%, transparent);
+}
+
+@media (hover: hover) {
+    .inv-bautizo .inv-btn:hover:not(:disabled) {
+        background: linear-gradient(135deg, color-mix(in srgb, var(--inv-bautizo-deep) 88%, #fff), var(--primary-color));
+    }
+
+    .inv-bautizo .inv-btn--ghost:hover:not(:disabled) {
+        background: #fff;
+        box-shadow: inset 0 0 0 1.5px var(--primary-color);
+    }
+}
+
+/* Pestañas como chips separados */
+.inv-bautizo .inv-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+    border: 0;
+}
+
+.inv-bautizo .inv-tab {
+    min-height: 2.5rem;
+    padding: 0.5rem 1.1rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, #fff 70%, transparent);
+    color: var(--inv-bautizo-deep);
+    letter-spacing: 0.12em;
+    box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--primary-color) 30%, transparent);
+    transition: color 0.2s ease, background-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.inv-bautizo .inv-tab::after {
+    display: none;
+}
+
+.inv-bautizo .inv-tab.is-active {
+    background: var(--inv-bautizo-deep);
+    color: var(--bg-color);
+    box-shadow: 0 8px 18px -10px color-mix(in srgb, var(--primary-color) 80%, transparent);
+}
+
+/* Desplegables como tarjetas redondas */
+.inv-bautizo .inv-folds {
+    border-top: 0;
+}
+
+.inv-bautizo .inv-fold {
+    margin-bottom: 0.6rem;
+    padding-inline: 1.1rem;
+    border-bottom: 0;
+    border-radius: var(--inv-radius);
+    background: color-mix(in srgb, #fff 72%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--primary-color) 16%, transparent);
+}
+
+.inv-bautizo .inv-fold__chevron {
+    border: 0;
+    background: var(--inv-bautizo-tint);
+}
+
+.inv-bautizo .inv-fold[open] .inv-fold__chevron {
+    background: var(--inv-bautizo-deep);
+    color: var(--bg-color);
+}
+
+.inv-bautizo .inv-list {
+    border-top: 0;
+}
+
+/* ── Cuenta regresiva y tarjetas ────────────────────────────────────────── */
+
+.inv-bautizo .inv-countdown__grid {
+    gap: 0.55rem;
+    padding: 0.5rem 0.2rem;
+    border: 0;
+}
+
+/* Cada número es una burbuja que flota a su propio ritmo */
+.inv-bautizo .inv-countdown__unit {
+    aspect-ratio: 1;
+    justify-content: center;
+    padding: 0;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at 30% 24%, color-mix(in srgb, #fff 90%, transparent) 0 10%, transparent 11%),
+        radial-gradient(circle, color-mix(in srgb, var(--accent-color) 20%, var(--bg-color)), color-mix(in srgb, var(--accent-color) 70%, var(--bg-color)));
+    box-shadow:
+        inset 0 0 0 1.5px color-mix(in srgb, #fff 70%, transparent),
+        0 12px 22px -14px color-mix(in srgb, var(--primary-color) 65%, transparent);
+    animation: inv-bautizo-bob 3.6s ease-in-out infinite;
+}
+
+.inv-bautizo .inv-countdown__unit:nth-child(2) { animation-delay: -0.9s; }
+.inv-bautizo .inv-countdown__unit:nth-child(3) { animation-delay: -1.8s; }
+.inv-bautizo .inv-countdown__unit:nth-child(4) { animation-delay: -2.7s; }
+
+.inv-bautizo .inv-countdown__unit + .inv-countdown__unit {
+    border-left: 0;
+}
+
+.inv-bautizo .inv-countdown__value {
+    font-size: clamp(1.45rem, 7.4vw, 2.8rem);
+    font-weight: 600;
+    color: var(--inv-bautizo-deep);
+}
+
+.inv-bautizo .inv-countdown__label {
+    margin-top: 0.3rem;
+    font-size: 0.5rem;
+    letter-spacing: 0.14em;
+}
+
+.inv-bautizo .inv-countdown__date {
+    margin-top: 1.4rem;
+    font-weight: 600;
+    color: var(--inv-bautizo-deep);
+}
+
+.inv-bautizo .inv-guest__facts,
+.inv-bautizo .inv-pass {
+    border: 0;
+    border-radius: 28px;
+    background: color-mix(in srgb, #fff 78%, transparent);
+    box-shadow: 0 18px 40px -26px color-mix(in srgb, var(--primary-color) 70%, transparent);
+}
+
+.inv-bautizo .inv-guest__facts > div + div,
+.inv-bautizo .inv-pass__facts > div + div {
+    border-left-color: color-mix(in srgb, var(--primary-color) 18%, transparent);
+}
+
+.inv-bautizo .inv-pass {
+    padding: 1.75rem 1.25rem;
+}
+
+.inv-bautizo .inv-pass__qr {
+    border-radius: 18px;
+}
+
+/* ── Fotos, video y mapa ────────────────────────────────────────────────── */
+
+.inv-bautizo .inv-gallery__card {
+    padding: 6px;
+    border-radius: 26px;
+    background: var(--inv-bautizo-cloud);
+    box-shadow: 0 20px 36px -22px color-mix(in srgb, var(--primary-color) 70%, transparent);
+}
+
+.inv-bautizo .inv-gallery__image {
+    border-radius: 20px;
+}
+
+.inv-bautizo .inv-gallery__arrow {
+    border: 0;
+    background: color-mix(in srgb, #fff 80%, transparent);
+    color: var(--inv-bautizo-deep);
+    box-shadow: 0 8px 18px -12px color-mix(in srgb, var(--primary-color) 70%, transparent);
+}
+
+.inv-bautizo .inv-video__frame {
+    border-radius: 28px;
+    box-shadow: 0 0 0 6px var(--inv-bautizo-cloud), 0 24px 44px -26px color-mix(in srgb, var(--primary-color) 70%, transparent);
+}
+
+.inv-bautizo .inv-dress__image {
+    border-radius: 26px;
+}
+
+.inv-bautizo .inv-dress__thumb {
+    border-radius: 16px;
+}
+
+.inv-bautizo .inv-location__photo,
+.inv-bautizo .inv-location__map {
+    border: 0;
+    border-radius: 26px;
+    box-shadow: 0 0 0 5px var(--inv-bautizo-cloud);
+}
+
+.inv-bautizo .inv-mural__item {
+    border-radius: 18px;
+}
+
+/* ── Encuestas y confirmación ───────────────────────────────────────────── */
+
+.inv-bautizo .inv-poll__option {
+    border-color: transparent;
+    border-radius: 20px;
+    background: color-mix(in srgb, #fff 75%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--primary-color) 22%, transparent);
+}
+
+.inv-bautizo .inv-poll__option.is-selected {
+    box-shadow: inset 0 0 0 2px var(--primary-color);
+}
+
+.inv-bautizo .inv-choice {
+    border-color: transparent;
+    border-radius: 999px;
+    background: color-mix(in srgb, #fff 75%, transparent);
+    box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--primary-color) 30%, transparent);
+}
+
+.inv-bautizo .inv-choice.is-selected {
+    background: var(--inv-bautizo-deep);
+    color: var(--bg-color);
+    box-shadow: none;
+}
+
+.inv-bautizo .inv-rsvp__num,
+.inv-bautizo .inv-stepper__btn {
+    border: 0;
+    background: var(--inv-bautizo-tint);
+    color: var(--inv-bautizo-deep);
+}
+
+.inv-bautizo .inv-sheet {
+    border-radius: 28px 28px 0 0;
+}
+
+@media (min-width: 640px) {
+    .inv-bautizo .inv-sheet {
+        border-radius: 28px;
+    }
+}
+
+/* ── Menú y reproductor ─────────────────────────────────────────────────── */
+
+.inv-bautizo .inv-nav__toggle {
+    border: 0;
+    background: color-mix(in srgb, #fff 80%, transparent);
+    color: var(--inv-bautizo-deep);
+    box-shadow: 0 10px 24px -14px color-mix(in srgb, var(--primary-color) 70%, transparent);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+}
+
+.inv-bautizo .inv-nav__panel {
+    background: linear-gradient(180deg, color-mix(in srgb, var(--accent-color) 60%, #fff), var(--bg-color) 60%);
+}
+
+.inv-bautizo .inv-nav__heading {
+    font-family: var(--font-titles);
+    font-size: 2.2rem;
+    font-weight: 600;
+}
+
+/* Reproductor como hoja redondeada que sube desde abajo */
+.inv-bautizo .inv-player {
+    border-top: 0;
+    border-radius: 24px 24px 0 0;
+    background: color-mix(in srgb, #fff 82%, transparent);
+    box-shadow: 0 -12px 30px -22px color-mix(in srgb, var(--primary-color) 70%, transparent);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+}
+
+.inv-bautizo .inv-player__toggle {
+    border: 0;
+    background: linear-gradient(135deg, var(--inv-bautizo-deep), var(--primary-color));
+    color: var(--bg-color);
+}
+
+/* ── Pie ────────────────────────────────────────────────────────────────── */
+
+.inv-bautizo-footer {
+    position: relative;
+    z-index: 1;
+    padding: 4rem 1.25rem 4rem;
+    border-top: 0;
+}
+
+.inv-bautizo-footer__dove {
+    display: block;
+    width: 5rem;
+    margin: 0 auto 0.75rem;
+    animation: inv-bautizo-bob 4s ease-in-out infinite;
+}
+
+.inv-bautizo-footer__name {
+    font-family: var(--font-titles);
+    font-size: clamp(1.9rem, 8vw, 2.6rem);
+    font-weight: 600;
+    line-height: 1.15;
+}
+
+.inv-bautizo-footer__date {
+    margin: 0.4rem 0 1.6rem;
+    font-family: var(--font-script);
+    font-size: 1.3rem;
+    color: var(--inv-bautizo-deep);
+}
+
+/* ── Movimiento reducido ────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+    .inv-bautizo-intro,
+    .inv-bautizo .inv-bautizo-ambient__sparkle {
+        display: none;
+    }
+
+    .inv-bautizo-ambient__cloud,
+    .inv-bautizo-hero__rays,
+    .inv-bautizo-medallion__halo,
+    .inv-bautizo-medallion__photo,
+    .inv-bautizo-medallion__dove,
+    .inv-bautizo-clouds__layer,
+    .inv-bautizo-dove__wing,
+    .inv-bautizo .inv-countdown__unit,
+    .inv-bautizo #contenido > .inv-section::before,
+    .inv-bautizo #contenido > .inv-section::after {
+        animation: none;
+    }
+}

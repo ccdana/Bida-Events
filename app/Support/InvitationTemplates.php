@@ -15,6 +15,8 @@ final class InvitationTemplates
 
     public const BODA_JARDIN = 'invitations.templates.boda-jardin';
 
+    public const BAUTIZO_CIELO = 'invitations.templates.bautizo-cielo';
+
     public const DEFAULT = self::XV_PREMIUM;
 
     public static function all(): array
@@ -58,6 +60,37 @@ final class InvitationTemplates
                     'nav_court' => 'Padrinos',
                     'gifts_intro' => 'Tu presencia es nuestro mejor regalo. Si deseas tener un detalle, aquí tienes algunas opciones.',
                     'rsvp_declined_intro' => 'Si cambias de planes, escríbenos para actualizar tu respuesta.',
+                ],
+            ],
+            self::BAUTIZO_CIELO => [
+                'label' => 'Bautizo Cielo',
+                'description' => 'Nubes que se abren al entrar, foto en medallón con halo y paloma, destellos y secciones separadas por olas.',
+                'event' => 'bautizo',
+                'order' => [
+                    'cuenta_regresiva', 'galeria', 'destacados', 'ubicacion', 'itinerario', 'dress_code', 'video',
+                    'regalos', 'rsvp', 'hashtag', 'encuestas', 'playlist', 'fotomural', 'post_evento',
+                ],
+                'copy' => [
+                    'hero_eyebrow' => 'Mi bautizo',
+                    'menu_heading' => 'El bautizo de',
+                    'guest_help' => 'Te toma menos de un minuto y nos ayuda a preparar este día tan especial.',
+                    'gallery_eyebrow' => 'Mis primeros momentos',
+                    'itinerary_eyebrow' => 'Así será mi día',
+                    'itinerary_empty' => 'Muy pronto compartiremos el orden de la celebración.',
+                    'dress_hint' => 'Tonos sugeridos para mi bautizo',
+                    'dress_empty' => 'Viste cómodo y elegante para acompañarme.',
+                    'court_lottie' => 'dove',
+                    'court_eyebrow' => 'Quienes me guiarán',
+                    'court_title' => 'Mis padrinos',
+                    'court_intro' => 'Las personas que me acompañarán en la fe y en la vida.',
+                    'court_empty' => 'Pronto presentaremos a mis padrinos.',
+                    // Los grupos del cortejo pasan a ser la familia y los padrinos van primero
+                    'court_first' => 'padrinos',
+                    'court_group_tab' => 'Familia',
+                    'court_men' => 'Abuelos',
+                    'court_women' => 'Tíos',
+                    'nav_court' => 'Padrinos',
+                    'rsvp_declined_intro' => 'Si cambias de planes, avísale a mis papás para actualizar tu respuesta.',
                 ],
             ],
         ];

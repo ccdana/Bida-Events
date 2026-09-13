@@ -106,5 +106,6 @@ class DatabaseSeeder extends Seeder
         }
 
         $this->call(BodaJardinDemoSeeder::class);
+        $this->call(BautizoCieloDemoSeeder::class);
     }
 }

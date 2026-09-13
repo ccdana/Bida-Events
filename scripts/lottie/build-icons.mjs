@@ -855,6 +855,44 @@ const ICONS = [
             { nm: 'spine', paths: svg('M62 24 L62 37 M62 59 L62 85 M62 107 L62 133 M62 155 L62 168') },
         ],
     },
+    {
+        // Paloma del bautizo: aletea dos veces, planea y flota entre destellos
+        slug: 'dove',
+        loop: 'loop-flap',
+        parts: [
+            {
+                nm: 'rays',
+                anchor: [96, 52],
+                paths: svg('M96 36 L96 50 M68 44 L75 55 M124 44 L117 55'),
+                loop: {
+                    opacity: [[0, 35], [30, 100], [60, 35], [90, 100], [120, 35]],
+                },
+            },
+            {
+                nm: 'wing',
+                parent: 'rig',
+                anchor: [106, 120],
+                paths: svg('M106 118 C100 94 88 74 64 62 C72 80 74 88 78 96 C66 90 54 90 46 92 C60 106 82 116 106 122 Z'),
+                loop: {
+                    rotation: [[0, 0], [14, -38], [28, 2], [42, -38], [56, 0], [120, 0]],
+                },
+            },
+            { nm: 'eye', parent: 'rig', paths: circle(148, 100, 1.5) },
+            {
+                nm: 'body',
+                parent: 'rig',
+                paths: svg('M160 94 C154 86 142 88 138 98 C134 108 126 114 112 116 C94 118 78 114 60 110 L32 104 L44 116 L30 125 L56 126 C72 138 94 144 116 140 C136 136 152 124 156 108 L168 104 Z'),
+            },
+            {
+                nm: 'rig',
+                null: true,
+                anchor: [100, 120],
+                loop: {
+                    position: [[0, [0, 0]], [30, [0, -6]], [60, [0, 0]], [90, [0, -6]], [120, [0, 0]]],
+                },
+            },
+        ],
+    },
 ];
 
 // ─── Validación ─────────────────────────────────────────────────────────────
