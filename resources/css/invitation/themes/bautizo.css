@@ -36,29 +36,78 @@
     overflow: visible;
 }
 
-/* La paloma es siempre blanca con contorno oscuro teñido del primario: se distingue con paletas claras y oscuras */
+/* Siempre blanca con un contorno fino teñido del primario: se distingue con paletas claras y oscuras */
+.inv-bautizo-dove {
+    --dove-white: color-mix(in srgb, var(--accent-color) 6%, #fff);
+    --dove-shade: color-mix(in srgb, var(--primary-color) 16%, #eef1f5);
+    --dove-ink: color-mix(in srgb, var(--primary-color) 45%, #5d6675);
+}
+
 .inv-bautizo-dove__body,
-.inv-bautizo-dove__wing path {
-    fill: color-mix(in srgb, var(--accent-color) 12%, #fff);
-    stroke: color-mix(in srgb, var(--primary-color) 55%, #1f2430);
-    stroke-width: 3;
+.inv-bautizo-dove__shade,
+.inv-bautizo-dove__beak {
+    stroke: var(--dove-ink);
+    stroke-width: 1.4;
     stroke-linejoin: round;
 }
 
-.inv-bautizo-dove__eye {
-    fill: color-mix(in srgb, var(--primary-color) 55%, #1f2430);
+.inv-bautizo-dove__stop {
+    stop-color: var(--dove-white);
 }
 
+.inv-bautizo-dove__stop--low {
+    stop-color: color-mix(in srgb, var(--dove-shade) 45%, var(--dove-white));
+}
+
+.inv-bautizo-dove__shade {
+    fill: var(--dove-shade);
+}
+
+.inv-bautizo-dove__belly {
+    fill: var(--dove-shade);
+    opacity: 0.8;
+}
+
+.inv-bautizo-dove__beak {
+    fill: color-mix(in srgb, var(--secondary-color) 55%, #d9b98a);
+}
+
+.inv-bautizo-dove__line {
+    fill: none;
+    stroke: color-mix(in srgb, var(--dove-ink) 45%, transparent);
+    stroke-width: 1.1;
+    stroke-linecap: round;
+}
+
+.inv-bautizo-dove__eye {
+    fill: var(--dove-ink);
+}
+
+.inv-bautizo-dove__stem {
+    fill: none;
+    stroke: color-mix(in srgb, #6f8a5e 75%, var(--primary-color));
+    stroke-width: 1.6;
+    stroke-linecap: round;
+}
+
+.inv-bautizo-dove__leaf {
+    fill: color-mix(in srgb, #8fa97c 80%, var(--primary-color));
+}
+
+/* Aleteo suave, como planeando: cada ala gira desde su raíz */
 .inv-bautizo-dove__wing {
     transform-box: fill-box;
-    transform-origin: 100% 90%;
-    animation: inv-bautizo-flap 1.8s ease-in-out infinite;
+    transform-origin: 8% 96%;
+    animation: inv-bautizo-flap 3.2s ease-in-out infinite;
+}
+
+.inv-bautizo-dove__wing--back {
+    animation-delay: 0.12s;
 }
 
 @keyframes inv-bautizo-flap {
-    0%, 60%, 100% { rotate: 0deg; }
-    20% { rotate: -36deg; }
-    40% { rotate: 4deg; }
+    0%, 100% { rotate: 0deg; }
+    45% { rotate: 16deg; scale: 1 0.94; }
 }
 
 /* ── Fondo vivo ─────────────────────────────────────────────────────────── */
@@ -245,26 +294,39 @@ html.inv-intro-active .inv-bautizo-hero .inv-fade-up--3 { animation-delay: 1.9s;
     display: none;
 }
 
-/* Rayos de luz que bajan desde arriba y se mecen */
-.inv-bautizo-hero__rays {
+/* Luz celestial: un resplandor desde arriba y tres haces difusos que se mecen despacio */
+.inv-bautizo-hero__light {
     position: absolute;
-    top: -20%;
-    left: -50%;
+    inset: 0 0 auto;
     z-index: -1;
-    width: 200%;
-    height: 90%;
-    background: repeating-conic-gradient(from 180deg at 50% 0%, color-mix(in srgb, var(--primary-color) 22%, transparent) 0deg 3deg, transparent 3deg 11deg);
-    opacity: 0.55;
-    transform-origin: 50% 0;
-    -webkit-mask-image: radial-gradient(ellipse 50% 100% at 50% 0%, #000 0%, transparent 80%);
-    mask-image: radial-gradient(ellipse 50% 100% at 50% 0%, #000 0%, transparent 80%);
+    height: 78%;
+    overflow: hidden;
+    background: radial-gradient(ellipse 60% 70% at 50% 0%, color-mix(in srgb, #fff 55%, transparent), transparent 72%);
     pointer-events: none;
-    animation: inv-bautizo-rays 16s ease-in-out infinite alternate;
 }
 
-@keyframes inv-bautizo-rays {
-    from { rotate: -4deg; }
-    to { rotate: 4deg; }
+.inv-bautizo-hero__light span {
+    position: absolute;
+    top: -12%;
+    left: 50%;
+    width: clamp(5rem, 22vw, 10rem);
+    height: 120%;
+    margin-left: calc(clamp(5rem, 22vw, 10rem) / -2);
+    background: linear-gradient(180deg, color-mix(in srgb, #fff 70%, transparent), transparent 85%);
+    filter: blur(22px);
+    opacity: 0.55;
+    transform-origin: 50% 0;
+    rotate: var(--ray, 0deg);
+    animation: inv-bautizo-ray 14s ease-in-out infinite alternate;
+}
+
+.inv-bautizo-hero__light span:nth-child(1) { --ray: -28deg; animation-delay: -4s; }
+.inv-bautizo-hero__light span:nth-child(2) { --ray: 0deg; opacity: 0.7; }
+.inv-bautizo-hero__light span:nth-child(3) { --ray: 28deg; animation-delay: -9s; }
+
+@keyframes inv-bautizo-ray {
+    from { rotate: calc(var(--ray) - 5deg); }
+    to { rotate: calc(var(--ray) + 5deg); }
 }
 
 .inv-bautizo-hero__inner {
@@ -278,51 +340,53 @@ html.inv-intro-active .inv-bautizo-hero .inv-fade-up--3 { animation-delay: 1.9s;
     padding: 5.25rem 1.5rem clamp(6rem, 24vw, 9rem);
 }
 
+/* Subtítulo manuscrito entre dos filetes finos */
 .inv-bautizo-hero__eyebrow {
     display: inline-flex;
     align-items: center;
-    gap: 0.6rem;
-    padding: 0.45rem 1.1rem 0.55rem;
-    border-radius: 999px;
-    background: color-mix(in srgb, var(--bg-color) 72%, transparent);
-    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--primary-color) 25%, transparent);
+    gap: 0.9rem;
     font-family: var(--font-script);
-    font-size: 1.4rem;
-    line-height: 1;
+    font-size: 1.7rem;
+    line-height: 1.1;
     color: var(--inv-bautizo-deep);
 }
 
-.inv-bautizo-hero__eyebrow .inv-bautizo-star {
-    color: var(--primary-color);
+.inv-bautizo-hero__eyebrow::before,
+.inv-bautizo-hero__eyebrow::after {
+    content: '';
+    width: 2.2rem;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--primary-color) 65%, transparent));
 }
 
+.inv-bautizo-hero__eyebrow::after {
+    rotate: 180deg;
+}
+
+/* Foto en óvalo con doble filete; la paloma desciende sobre el borde superior */
 .inv-bautizo-medallion {
     position: relative;
-    width: min(60vw, 16.5rem);
-    aspect-ratio: 1;
-    margin-top: 2.4rem;
+    width: min(62vw, 16rem);
+    aspect-ratio: 4 / 5;
+    margin-top: 5.6rem;
+}
+
+.inv-bautizo-medallion::before,
+.inv-bautizo-medallion::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
 }
 
 .inv-bautizo-medallion::before {
-    content: '';
-    position: absolute;
-    inset: -7%;
-    border: 2px solid color-mix(in srgb, var(--primary-color) 35%, var(--bg-color));
-    border-radius: 50%;
-    box-shadow:
-        0 0 0 9px color-mix(in srgb, var(--bg-color) 55%, transparent),
-        0 34px 60px -30px color-mix(in srgb, var(--primary-color) 65%, transparent);
+    inset: -0.7rem;
+    border: 1px solid color-mix(in srgb, var(--primary-color) 50%, transparent);
 }
 
-/* Halo de rayos finos que gira lento alrededor de la foto */
-.inv-bautizo-medallion__halo {
-    position: absolute;
-    inset: -24%;
-    border-radius: 50%;
-    background: repeating-conic-gradient(color-mix(in srgb, var(--primary-color) 38%, transparent) 0deg 1.6deg, transparent 1.6deg 10deg);
-    -webkit-mask: radial-gradient(circle, transparent 62%, #000 64%, #000 74%, transparent 84%);
-    mask: radial-gradient(circle, transparent 62%, #000 64%, #000 74%, transparent 84%);
-    animation: spin-slow 70s linear infinite;
+.inv-bautizo-medallion::after {
+    inset: -1.35rem;
+    border: 1px solid color-mix(in srgb, var(--primary-color) 22%, transparent);
 }
 
 .inv-bautizo-medallion__window {
@@ -331,7 +395,9 @@ html.inv-intro-active .inv-bautizo-hero .inv-fade-up--3 { animation-delay: 1.9s;
     overflow: hidden;
     border-radius: 50%;
     background: var(--inv-bautizo-tint);
-    box-shadow: inset 0 0 0 4px color-mix(in srgb, var(--bg-color) 80%, transparent);
+    box-shadow:
+        0 0 0 5px color-mix(in srgb, var(--bg-color) 70%, #fff),
+        0 36px 60px -30px color-mix(in srgb, var(--primary-color) 60%, transparent);
 }
 
 .inv-bautizo-medallion__photo {
@@ -358,17 +424,22 @@ html.inv-intro-active .inv-bautizo-hero .inv-fade-up--3 { animation-delay: 1.9s;
     color: var(--inv-bautizo-deep);
 }
 
+/* Paloma que desciende sobre el óvalo, con un halo de luz detrás */
 .inv-bautizo-medallion__dove {
     position: absolute;
-    top: -16%;
-    right: -30%;
-    width: 52%;
-    filter: drop-shadow(0 10px 12px color-mix(in srgb, var(--primary-color) 30%, transparent));
+    top: -4.4rem;
+    left: 50%;
+    z-index: 2;
+    width: 58%;
+    margin-left: -29%;
+    filter:
+        drop-shadow(0 0 18px color-mix(in srgb, #fff 80%, transparent))
+        drop-shadow(0 12px 14px color-mix(in srgb, var(--primary-color) 28%, transparent));
     animation: inv-bautizo-bob 4.5s ease-in-out infinite;
 }
 
 .inv-bautizo-hero__name {
-    margin-top: 2.1rem;
+    margin-top: 2.6rem;
     font-family: var(--font-titles);
     font-size: clamp(2.5rem, 11vw, 4.6rem);
     font-weight: 600;
@@ -385,27 +456,27 @@ html.inv-intro-active .inv-bautizo-hero .inv-fade-up--3 { animation-delay: 1.9s;
     text-wrap: pretty;
 }
 
+/* Fecha sobria entre filetes, sin cápsula */
 .inv-bautizo-hero__date {
     display: inline-flex;
     flex-wrap: wrap;
     align-items: center;
     justify-content: center;
-    gap: 0.35rem 0.6rem;
-    margin-top: 1.5rem;
-    padding: 0.65rem 1.25rem;
-    border-radius: 999px;
-    background: var(--inv-bautizo-deep);
-    color: var(--bg-color);
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 0.14em;
+    gap: 0.4rem 0.75rem;
+    margin-top: 1.75rem;
+    padding: 0.85rem 0.25rem;
+    border-block: 1px solid color-mix(in srgb, var(--primary-color) 35%, transparent);
+    color: var(--inv-bautizo-deep);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
-    box-shadow: 0 12px 26px -14px color-mix(in srgb, var(--primary-color) 80%, transparent);
 }
 
 .inv-bautizo-hero__date .inv-bautizo-star {
-    width: 0.55rem;
-    height: 0.55rem;
+    width: 0.5rem;
+    height: 0.5rem;
+    color: var(--primary-color);
 }
 
 .inv-bautizo-hero .inv-bautizo-hero__scroll {
@@ -908,8 +979,7 @@ html.inv-intro-active .inv-bautizo-hero .inv-fade-up--3 { animation-delay: 1.9s;
     }
 
     .inv-bautizo-ambient__cloud,
-    .inv-bautizo-hero__rays,
-    .inv-bautizo-medallion__halo,
+    .inv-bautizo-hero__light span,
     .inv-bautizo-medallion__photo,
     .inv-bautizo-medallion__dove,
     .inv-bautizo-clouds__layer,

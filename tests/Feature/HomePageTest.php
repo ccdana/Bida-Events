@@ -59,7 +59,7 @@ class HomePageTest extends TestCase
             ->assertOk()
             ->assertSee('id="plantillas"', false)
             ->assertSee('href="#plantillas"', false)
-            ->assertSeeInOrder(['XV Años Premium', 'Boda Jardín', 'Bautizo Cielo', 'Cumpleaños Fiesta'])
+            ->assertSeeInOrder(['XV Años Elegante', 'Boda Jardín', 'Bautizo Cielo', 'Cumpleaños Fiesta'])
             ->assertSee('src="'.route('invitation.show', 'xv-isabella').'"', false)
             ->assertSee(route('invitation.show', 'cumple-daniela-30'), false);
     }

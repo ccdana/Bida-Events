@@ -25,7 +25,7 @@ final class InvitationTemplates
     {
         return [
             self::XV_PREMIUM => [
-                'label' => 'XV Años Premium',
+                'label' => 'XV Años Elegante',
                 'description' => 'Portada a pantalla completa con la foto, partículas doradas y estilo editorial.',
                 'event' => 'xv',
                 'order' => [

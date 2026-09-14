@@ -489,23 +489,6 @@ html[data-theme='dark'] .site {
     to { transform: translateX(-50%); }
 }
 
-/* ── Texto que se ilumina al hacer scroll (Nosotros) ────────────────────── */
-
-@supports (animation-timeline: view()) {
-    @media (prefers-reduced-motion: no-preference) {
-        .site-statement .site-word {
-            animation: site-word-fill linear both;
-            animation-timeline: view();
-            animation-range: cover 5% cover 38%;
-        }
-    }
-}
-
-@keyframes site-word-fill {
-    from { opacity: 0.16; }
-    to { opacity: 1; }
-}
-
 /* ── Proceso: la línea se dibuja con el scroll ──────────────────────────── */
 
 .site-steps {

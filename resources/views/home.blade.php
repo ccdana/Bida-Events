@@ -5,7 +5,6 @@
 
 @php
     $sections = array_filter([
-        'nosotros' => 'Nosotros',
         'servicios' => 'Servicios',
         'plantillas' => count($demos) ? 'Plantillas' : null,
         'precios' => 'Precios',
@@ -15,7 +14,6 @@
     $accountUrl = $user ? route('dashboard') : route('login');
     $accountLabel = $user ? 'Mi panel' : 'Ingresar';
     $showcase = $bida['showcase'];
-    $statement = "Somos un equipo de {$bida['city']} que diseña invitaciones digitales para bodas, bautizos, cumpleaños y cada fecha que tu familia quiere celebrar.";
     $steps = [
         ['icon' => 'chat-circle-text', 'title' => 'Nos escribes', 'text' => 'Cuéntanos qué celebras, la fecha y el lugar. Te ayudamos a elegir el paquete por WhatsApp.'],
         ['icon' => 'pencil-simple-line', 'title' => 'Diseñamos contigo', 'text' => 'Armamos tu invitación con tus fotos, colores y textos. Revisas la vista previa y pides cambios.'],
@@ -159,40 +157,8 @@
             </div>
         </section>
 
-        {{-- ═══ Nosotros: el texto se ilumina con el scroll ═══ --}}
-        <section id="nosotros" class="scroll-mt-20">
-            <div class="mx-auto grid max-w-7xl gap-12 px-5 py-20 md:grid-cols-12 md:gap-8 lg:px-8 lg:py-32">
-                <div class="md:col-span-7">
-                    <h2 class="text-[0.95rem] font-medium text-site-accent" data-reveal>Nosotros</h2>
-                    <p class="site-statement mt-6 text-[1.9rem] font-medium leading-[1.2] tracking-tight md:text-[2.4rem] lg:text-[2.8rem]">
-                        @foreach(explode(' ', $statement) as $word)
-                            <span class="site-word">{{ $word }}</span>
-                        @endforeach
-                    </p>
-                    <p class="mt-8 max-w-[46ch] text-lg leading-relaxed text-site-muted" data-reveal>
-                        Te acompañamos por WhatsApp desde el primer mensaje hasta el día del evento.
-                    </p>
-
-                    <dl class="mt-12 grid max-w-md grid-cols-2 gap-6 border-t border-site-line pt-8" data-reveal>
-                        <div>
-                            <dt class="text-sm text-site-muted">Hecho en</dt>
-                            <dd class="mt-1 text-xl font-medium">Bolivia</dd>
-                        </div>
-                        <div>
-                            <dt class="text-sm text-site-muted">Atención</dt>
-                            <dd class="mt-1 text-xl font-medium">Por WhatsApp</dd>
-                        </div>
-                    </dl>
-                </div>
-
-                <figure class="site-zoom overflow-hidden rounded-[20px] md:col-span-5 md:mt-28" data-reveal style="--reveal-index: 1">
-                    <x-site.image key="nosotros" class="aspect-[4/5] w-full object-cover" />
-                </figure>
-            </div>
-        </section>
-
         {{-- ═══ Servicios (bento de 5 celdas) ═══ --}}
-        <section id="servicios" class="scroll-mt-20 border-t border-site-line">
+        <section id="servicios" class="scroll-mt-20">
             <div class="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-28">
                 <h2 class="max-w-[20ch] text-3xl font-semibold leading-[1.1] tracking-tight md:text-5xl" data-reveal>
                     Todo lo que tu invitación puede incluir

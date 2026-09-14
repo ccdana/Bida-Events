@@ -1,4 +1,4 @@
-{{-- Portada del bautizo: rayos de luz, foto en medallón con halo y paloma, nombre y fecha sobre nubes --}}
+{{-- Portada del bautizo: luz suave desde arriba, paloma que desciende sobre la foto en óvalo, nombre y fecha sobre nubes --}}
 @php
     $heroEyebrow = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? 'Mi bautizo');
     $heroMessage = $page->welcome['mensaje'] ?? '';
@@ -7,23 +7,20 @@
 @endphp
 
 <header id="inicio" class="inv-hero inv-bautizo-hero">
-    <div class="inv-bautizo-hero__rays" aria-hidden="true"></div>
+    <div class="inv-bautizo-hero__light" aria-hidden="true">
+        <span></span><span></span><span></span>
+    </div>
 
     <div class="inv-bautizo-hero__inner">
-        <p class="inv-bautizo-hero__eyebrow inv-fade-up">
-            <i class="inv-bautizo-star" aria-hidden="true"></i>
-            {{ $heroEyebrow }}
-            <i class="inv-bautizo-star" aria-hidden="true"></i>
-        </p>
+        <p class="inv-bautizo-hero__eyebrow inv-fade-up">{{ $heroEyebrow }}</p>
 
         <div class="inv-bautizo-medallion inv-fade-up inv-fade-up--1">
-            <span class="inv-bautizo-medallion__halo" aria-hidden="true"></span>
             <div class="inv-bautizo-medallion__window">
                 @if($page->heroImage)
                     @php($heroSrcset = \App\Support\CloudinaryImage::srcset($page->heroImage, [480, 768, 1200]))
                     <img
                         src="{{ \App\Support\CloudinaryImage::url($page->heroImage, 1200) }}"
-                        @if($heroSrcset) srcset="{{ $heroSrcset }}" sizes="(min-width: 640px) 17rem, 62vw" @endif
+                        @if($heroSrcset) srcset="{{ $heroSrcset }}" sizes="(min-width: 640px) 17rem, 64vw" @endif
                         alt=""
                         class="inv-bautizo-medallion__photo"
                         loading="eager"

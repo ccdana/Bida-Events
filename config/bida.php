@@ -86,12 +86,6 @@ return [
             'stock' => 469198040,
             'alt' => 'Quinceañera con vestido de gala en un jardín',
         ],
-        'nosotros' => [
-            'path' => 'images/site/nosotros.webp',
-            'size' => [900, 1125],
-            'stock' => 476708229,
-            'alt' => 'Organizadora de eventos trabajando en su escritorio',
-        ],
         'servicio-enlace' => [
             'path' => 'images/site/servicio-enlace.webp',
             'size' => [1200, 840],
