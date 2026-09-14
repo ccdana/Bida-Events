@@ -342,7 +342,7 @@ Antes y después de cada optimización medir:
 php artisan migrate:status
 php artisan migrate
 php artisan invitations:migrate-json --dry-run
-php artisan invitations:migrate-json --invitation=xv-sofia
+php artisan invitations:migrate-json --invitation=xv-isabella
 php artisan optimize:clear
 php artisan queue:work
 php artisan test

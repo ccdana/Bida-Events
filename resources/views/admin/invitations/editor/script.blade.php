@@ -1138,14 +1138,13 @@ function invitationForm(config) {
             const files = [...(event.target.files || [])];
             for (const file of files) {
                 const blobUrl = URL.createObjectURL(file);
-                const index = this.modules.galeria.fotos.length;
                 this.modules.galeria.fotos.push(blobUrl);
                 this.pendingUploads.push({
                     file,
                     type: 'image',
                     context: 'gallery',
                     blobUrl,
-                    apply: (url) => { this.modules.galeria.fotos[index] = url; },
+                    apply: this.replaceInListApplier(() => this.modules.galeria.fotos, blobUrl),
                 });
             }
             event.target.value = '';
@@ -1161,17 +1160,27 @@ function invitationForm(config) {
             this.modules.post_evento.fotos ??= [];
             for (const file of files) {
                 const blobUrl = URL.createObjectURL(file);
-                const index = this.modules.post_evento.fotos.length;
                 this.modules.post_evento.fotos.push(blobUrl);
                 this.pendingUploads.push({
                     file,
                     type: 'image',
                     context: 'post-evento',
                     blobUrl,
-                    apply: (url) => { this.modules.post_evento.fotos[index] = url; },
+                    apply: this.replaceInListApplier(() => this.modules.post_evento.fotos, blobUrl),
                 });
             }
             event.target.value = '';
+        },
+
+        // Reemplaza la foto por su valor y no por su posición: si se quitan fotos antes de guardar, los índices cambian
+        replaceInListApplier(getList, initialUrl) {
+            let current = initialUrl;
+            return (url) => {
+                const list = getList() ?? [];
+                const index = list.indexOf(current);
+                if (index >= 0) list[index] = url;
+                current = url;
+            };
         },
 
         hasLocationCoordinates() {
@@ -1457,7 +1466,11 @@ function invitationForm(config) {
         addEvento() { this.modules.itinerario.eventos.push({ hora: '20:00', titulo: '', icono: 'especial', descripcion: '' }); },
         removeEvento(i) { this.modules.itinerario.eventos.splice(i, 1); },
         addSugerencia() { this.modules.dress_code.sugerencias.push({ para: '', titulo: '', descripcion: '', ejemplos: [] }); },
-        removeSugerencia(i) { this.modules.dress_code.sugerencias.splice(i, 1); },
+        removeSugerencia(i) {
+            // Evita subir a Cloudinary la foto pendiente de una sugerencia eliminada
+            this.clearMediaUrl(this.modules.dress_code.sugerencias[i]?.imagen);
+            this.modules.dress_code.sugerencias.splice(i, 1);
+        },
         addColorPermitido() { this.modules.dress_code.colores_permitidos.push({ nombre: '', hex: '#C9A96E' }); },
         addEvitar() { this.modules.dress_code.evitar.push(''); },
         removeEvitar(i) { this.modules.dress_code.evitar.splice(i, 1); },

@@ -42,7 +42,8 @@ class InvitationModuleRules
     public static function rules(string $prefix): array
     {
         $p = $prefix;
-        $url = ['nullable', 'string', 'max:2048'];
+        // Los medios deben llegar ya subidos (Cloudinary); una URL blob:/data: significa que la subida no se completó
+        $url = ['nullable', 'string', 'max:2048', 'not_regex:/^\s*(blob|data):/i'];
         $rules = [$p => ['array']];
 
         foreach (InvitationDefaults::moduleCodes() as $code) {
@@ -91,6 +92,7 @@ class InvitationModuleRules
             "{$p}.regalos.opciones.*.enlace" => $url,
 
             "{$p}.dress_code.sugerencias" => ['nullable', 'array', 'max:30'],
+            "{$p}.dress_code.sugerencias.*.imagen" => $url,
             "{$p}.destacados.chambelanes" => ['nullable', 'array', 'max:60'],
             "{$p}.destacados.damitas" => ['nullable', 'array', 'max:60'],
             "{$p}.destacados.padrinos" => ['nullable', 'array', 'max:60'],

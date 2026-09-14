@@ -23,6 +23,8 @@ class MediaUploadService
         'regalos_qr' => ['width' => 300, 'height' => 300, 'crop' => 'fill', 'quality' => 'auto'],
     ];
 
+    private const VIDEO_DELIVERY = ['crop' => 'limit', 'width' => 1280, 'height' => 1280, 'quality' => 'auto', 'format' => 'mp4'];
+
     public function isCloudinaryConfigured(): bool
     {
         return ! empty(config('cloudinary.cloud_url'));
@@ -73,6 +75,12 @@ class MediaUploadService
             $options['resource_type'] = 'auto';
         }
 
+        // La versión MP4 liviana se genera al subir: Cloudinary no transforma al vuelo videos pesados
+        if ($type === 'video') {
+            $options['eager'] = [self::VIDEO_DELIVERY];
+            $options['eager_async'] = true;
+        }
+
         // Agregar transformaciones para imágenes según contexto
         if ($type === 'image' && isset(self::IMAGE_TRANSFORMS[$context])) {
             $transform = self::IMAGE_TRANSFORMS[$context];
@@ -98,11 +106,31 @@ class MediaUploadService
             $url = $this->addCloudinaryTransform($url, $context);
         }
 
+        if ($type === 'video') {
+            $url = $this->videoDeliveryUrl($url);
+        }
+
         return [
             'url' => $url,
             'public_id' => $result['public_id'] ?? null,
             'provider' => 'cloudinary',
         ];
+    }
+
+    /**
+     * Los videos se entregan como MP4 (H.264) de hasta 1280px: los .mov de iPhone no se reproducen en Chrome
+     * y un 4K pesa demasiado para verse desde el celular. Usa la misma transformación que se genera al subir.
+     */
+    protected function videoDeliveryUrl(string $url): string
+    {
+        $parts = explode('/video/upload/', $url, 2);
+        if (count($parts) !== 2) {
+            return $url;
+        }
+
+        $path = preg_replace('/\.[a-z0-9]+$/i', '', $parts[1]).'.mp4';
+
+        return $parts[0].'/video/upload/c_limit,h_1280,q_auto,w_1280/'.$path;
     }
 
     protected function addCloudinaryTransform(string $url, string $context): string

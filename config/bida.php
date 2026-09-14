@@ -28,7 +28,10 @@ return [
     'tiktok' => env('BIDA_TIKTOK', 'bidaevents'),
 
     // Invitación activa que se muestra como vista previa en la portada (vacío para usar una imagen)
-    'demo_slug' => env('BIDA_DEMO_SLUG', 'xv-sofia'),
+    'demo_slug' => env('BIDA_DEMO_SLUG', 'xv-isabella'),
+
+    // Invitaciones de muestra (una por plantilla) que se pueden recorrer en la sección "Plantillas"
+    'demo_invitations' => ['xv-isabella', 'boda-camila-andres', 'bautizo-emilia', 'cumple-daniela-30'],
 
     /*
     | Eventos que rotan en la portada y en el login. Cada uno usa una foto de

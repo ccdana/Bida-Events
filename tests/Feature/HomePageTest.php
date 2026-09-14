@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use App\Support\SiteImage;
+use Database\Seeders\ShowcaseInvitationsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\File;
 use Tests\TestCase;
@@ -47,6 +48,28 @@ class HomePageTest extends TestCase
         $this->get(route('home'))
             ->assertOk()
             ->assertDontSee('<iframe', false);
+    }
+
+    public function test_visitors_can_pick_a_showcase_invitation_for_each_template(): void
+    {
+        $this->seed(ShowcaseInvitationsSeeder::class);
+
+        $this->withoutVite()
+            ->get(route('home'))
+            ->assertOk()
+            ->assertSee('id="plantillas"', false)
+            ->assertSee('href="#plantillas"', false)
+            ->assertSeeInOrder(['XV Años Premium', 'Boda Jardín', 'Bautizo Cielo', 'Cumpleaños Fiesta'])
+            ->assertSee('src="'.route('invitation.show', 'xv-isabella').'"', false)
+            ->assertSee(route('invitation.show', 'cumple-daniela-30'), false);
+    }
+
+    public function test_the_templates_section_is_hidden_without_showcase_invitations(): void
+    {
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertDontSee('id="plantillas"', false)
+            ->assertDontSee('href="#plantillas"', false);
     }
 
     public function test_signed_in_users_get_a_link_to_their_panel(): void

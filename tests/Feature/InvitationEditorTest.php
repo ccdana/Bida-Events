@@ -68,6 +68,25 @@ class InvitationEditorTest extends TestCase
             ->assertSee('Nombre sin guardar');
     }
 
+    public function test_media_that_was_not_uploaded_is_rejected(): void
+    {
+        $modules = XvSofiaModuleData::all();
+        $modules['bienvenida']['imagen_hero'] = 'blob:http://bida-events.test/3f1c2a';
+        $modules['galeria']['fotos'][] = 'data:image/png;base64,iVBORw0KGgo=';
+        $modules['dress_code']['sugerencias'][0]['imagen'] = 'blob:http://bida-events.test/9a8b7c';
+
+        $this->actingAs($this->admin)
+            ->from(route('admin.invitations.create'))
+            ->post(route('admin.invitations.store'), $this->payload($modules))
+            ->assertSessionHasErrors([
+                'modulos_data.bienvenida.imagen_hero',
+                'modulos_data.galeria.fotos.'.(count($modules['galeria']['fotos']) - 1),
+                'modulos_data.dress_code.sugerencias.0.imagen',
+            ]);
+
+        $this->assertDatabaseCount('invitations', 0);
+    }
+
     protected function payload(array $modules): array
     {
         return [

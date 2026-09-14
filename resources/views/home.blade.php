@@ -4,13 +4,14 @@
 @section('description', 'Invitaciones digitales para bodas, bautizos, cumpleaños y XV años, con confirmación de asistencia, música, fotos y mapa. Paquetes desde 200 Bs.')
 
 @php
-    $sections = [
+    $sections = array_filter([
         'nosotros' => 'Nosotros',
         'servicios' => 'Servicios',
+        'plantillas' => count($demos) ? 'Plantillas' : null,
         'precios' => 'Precios',
         'preguntas' => 'Preguntas',
         'contacto' => 'Contacto',
-    ];
+    ]);
     $accountUrl = $user ? route('dashboard') : route('login');
     $accountLabel = $user ? 'Mi panel' : 'Ingresar';
     $showcase = $bida['showcase'];
@@ -248,6 +249,65 @@
                 </div>
             </div>
         </section>
+
+        {{-- ═══ Plantillas: el visitante elige un evento y recorre la invitación de muestra ═══ --}}
+        @if(count($demos))
+            <section id="plantillas" class="scroll-mt-20 border-t border-site-line bg-site-surface"
+                x-data="{ active: 0, loading: true, demos: @js($demos) }">
+                <div class="mx-auto grid max-w-7xl gap-12 px-5 py-20 lg:grid-cols-12 lg:items-center lg:gap-8 lg:px-8 lg:py-28">
+                    <div class="lg:col-span-6">
+                        <p class="text-[0.95rem] font-medium text-site-accent" data-reveal>Plantillas</p>
+                        <h2 class="mt-4 max-w-[18ch] text-3xl font-semibold leading-[1.1] tracking-tight md:text-5xl" data-reveal>
+                            Recorre una invitación real
+                        </h2>
+                        <p class="mt-5 max-w-[46ch] text-lg leading-relaxed text-site-muted" data-reveal>
+                            Elige un evento y mírala como la verán tus invitados: fotos, música, mapa, confirmación de asistencia y cada sección.
+                        </p>
+
+                        <div class="mt-10 grid gap-3 sm:grid-cols-2" role="tablist" aria-label="Plantillas de invitación" data-reveal>
+                            @foreach($demos as $index => $demo)
+                                <button type="button" role="tab" id="plantilla-tab-{{ $index }}" aria-controls="plantilla-vista"
+                                    aria-selected="{{ $index === 0 ? 'true' : 'false' }}"
+                                    :aria-selected="(active === {{ $index }}).toString()"
+                                    @click="if (active !== {{ $index }}) { active = {{ $index }}; loading = true }"
+                                    @class(['site-template', 'is-active' => $index === 0])
+                                    :class="{ 'is-active': active === {{ $index }} }">
+                                    <x-dynamic-component :component="'phosphor-'.$demo['icon'].'-light'" class="site-template__icon" aria-hidden="true" />
+                                    <span class="min-w-0">
+                                        <span class="block text-sm text-site-muted">{{ $demo['event'] }}</span>
+                                        <span class="block text-lg font-medium leading-snug">{{ $demo['label'] }}</span>
+                                    </span>
+                                </button>
+                            @endforeach
+                        </div>
+
+                        @foreach($demos as $index => $demo)
+                            <div class="mt-8" x-show="active === {{ $index }}" @if($index > 0) x-cloak @endif>
+                                <p class="text-sm text-site-muted">Ejemplo: {{ $demo['title'] }}</p>
+                                <p class="mt-2 max-w-[46ch] leading-relaxed">{{ $demo['description'] }}</p>
+                                <a href="{{ $demo['url'] }}" target="_blank" rel="noopener" class="site-btn site-btn--ghost site-btn--lg mt-6">
+                                    Abrir en pantalla completa
+                                    <x-phosphor-arrow-up-right class="site-btn__arrow" aria-hidden="true" />
+                                </a>
+                            </div>
+                        @endforeach
+                    </div>
+
+                    <div class="flex flex-col items-center gap-4 lg:col-span-5 lg:col-start-8" data-reveal style="--reveal-index: 1">
+                        <div class="site-phone site-phone--showcase">
+                            <div id="plantilla-vista" role="tabpanel" aria-labelledby="plantilla-tab-0"
+                                :aria-labelledby="'plantilla-tab-' + active"
+                                class="site-phone__screen" :class="{ 'is-loading': loading }">
+                                <iframe src="{{ $demos[0]['url'] }}" :src="demos[active].url"
+                                    title="Invitación de muestra: {{ $demos[0]['title'] }}" :title="'Invitación de muestra: ' + demos[active].title"
+                                    loading="lazy" @load="loading = false"></iframe>
+                            </div>
+                        </div>
+                        <p class="text-sm text-site-muted">Desliza dentro del teléfono para recorrerla</p>
+                    </div>
+                </div>
+            </section>
+        @endif
 
         {{-- ═══ Cómo trabajamos: la línea se dibuja con el scroll ═══ --}}
         <section class="border-t border-site-line">
