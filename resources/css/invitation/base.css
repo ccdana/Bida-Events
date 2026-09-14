@@ -397,16 +397,114 @@ textarea.inv-input {
 .inv-fade-up--2 { animation-delay: 0.24s; }
 .inv-fade-up--3 { animation-delay: 0.36s; }
 
-/* ── Footer ─────────────────────────────────────────────────────────────── */
+/* ── Footer ────────────────────────────────────────────────────────────────── */
 
+/* Pie común: adorno, nombre, fecha, volver al inicio y crédito de la marca. Cada tema ajusta tipografías y adornos. */
 .inv-footer {
-    padding: 3rem 1.25rem 3.5rem;
+    position: relative;
+    z-index: 1;
+    padding: 3.5rem 1.25rem calc(1.75rem + env(safe-area-inset-bottom));
     border-top: 1px solid var(--inv-line);
     text-align: center;
 }
 
-.inv-footer__text {
+.inv-footer__inner {
+    width: 100%;
+    max-width: 56rem;
+    margin-inline: auto;
+}
+
+.inv-footer__ornament {
+    display: block;
+    margin: 0 auto 1rem;
+}
+
+.inv-footer__ornament--line {
+    width: 3rem;
+    height: 1px;
+    background: var(--primary-color);
+    opacity: 0.6;
+}
+
+.inv-footer__name {
+    font-family: var(--font-script);
+    font-size: clamp(2.2rem, 10vw, 3.2rem);
+    line-height: 1.1;
+    color: var(--text-color);
+    text-wrap: balance;
+}
+
+.inv-footer__date {
+    margin-top: 0.4rem;
     font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--inv-muted);
+}
+
+/* Barra inferior: apilada y centrada en celular; a los lados en pantallas anchas */
+.inv-footer__bar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--inv-line);
+}
+
+.inv-footer__top {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-height: 2.75rem;
+    padding-inline: 0.5rem;
+    color: var(--inv-soft);
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: color 0.2s ease;
+}
+
+.inv-footer__top svg {
+    width: 0.85rem;
+    height: 0.85rem;
+    transition: translate 0.25s var(--inv-ease);
+}
+
+/* Crédito de la marca: invita a crear una invitación propia y lleva al sitio */
+.inv-footer__credit {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.65rem 1.1rem;
+    border-radius: 14px;
+    color: inherit;
+    text-decoration: none;
+    transition: background-color 0.25s ease;
+}
+
+.inv-footer__pitch {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.78rem;
+    color: var(--inv-muted);
+    transition: color 0.2s ease;
+}
+
+.inv-footer__pitch svg {
+    width: 0.85rem;
+    height: 0.85rem;
+    transition: translate 0.25s var(--inv-ease);
+}
+
+.inv-footer__text {
+    font-size: 0.6rem;
     letter-spacing: 0.26em;
     text-transform: uppercase;
     color: var(--inv-soft);
@@ -415,6 +513,59 @@ textarea.inv-input {
 .inv-footer__brand {
     color: var(--text-color);
     font-weight: 600;
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, var(--primary-color) 55%, transparent);
+    text-underline-offset: 3px;
+}
+
+@media (min-width: 768px) {
+    .inv-footer {
+        padding-top: 4.5rem;
+        padding-inline: 2rem;
+    }
+
+    .inv-footer__name {
+        font-size: 3.6rem;
+    }
+
+    .inv-footer__bar {
+        flex-direction: row;
+        justify-content: space-between;
+        margin-top: 2.75rem;
+        padding-top: 0.75rem;
+    }
+
+    .inv-footer__top {
+        padding-inline: 0;
+    }
+
+    .inv-footer__credit {
+        align-items: flex-end;
+        margin-right: -1.1rem;
+        text-align: right;
+    }
+}
+
+@media (hover: hover) {
+    .inv-footer__top:hover {
+        color: var(--text-color);
+    }
+
+    .inv-footer__top:hover svg {
+        translate: 0 -2px;
+    }
+
+    .inv-footer__credit:hover {
+        background: color-mix(in srgb, var(--primary-color) 9%, transparent);
+    }
+
+    .inv-footer__credit:hover .inv-footer__pitch {
+        color: var(--inv-accent-ink);
+    }
+
+    .inv-footer__credit:hover .inv-footer__pitch svg {
+        translate: 3px 0;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {

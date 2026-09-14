@@ -2,7 +2,7 @@
     @include('admin.partials.panel-intro', [
         'eyebrow' => 'Invitados de honor',
         'title' => 'Cortejo y padrinos',
-        'description' => 'dos pestañas: «Cortejo», con chambelanes y damitas (damas y caballeros de honor en bodas; abuelos y tíos en bautizos, donde los padrinos se muestran primero), y «Padrinos», con su rol, nombres y mensaje. Los grupos vacíos no se muestran.',
+        'description' => 'dos pestañas: «Cortejo», con chambelanes y damitas (damas y caballeros de honor en bodas; abuelos y tíos en bautizos, donde los padrinos se muestran primero; amigos, familia y anfitriones en cumpleaños), y «Padrinos», con su rol, nombres y mensaje. Los grupos vacíos no se muestran.',
         'tip' => 'La descripción es opcional y aparece en letra pequeña debajo del nombre (ej. «Primo y confidente»).',
         'moduleKey' => 'destacados',
         'countExpr' => '`${(modules.destacados.chambelanes?.length || 0) + (modules.destacados.damitas?.length || 0) + (modules.destacados.padrinos?.length || 0)} personas`',
@@ -11,12 +11,12 @@
     <!-- Chambelanes -->
     <section class="admin-card p-3 space-y-2">
         <div class="flex items-center justify-between gap-2">
-            <p class="admin-eyebrow mb-0" x-text="isWeddingTemplate() ? 'Caballeros de honor' : (isBaptismTemplate() ? 'Abuelos' : 'Chambelanes')">Chambelanes</p>
+            <p class="admin-eyebrow mb-0" x-text="isWeddingTemplate() ? 'Caballeros de honor' : (isBaptismTemplate() ? 'Abuelos' : (isBirthdayTemplate() ? 'Amigos' : 'Chambelanes'))">Chambelanes</p>
             <button type="button" @click="addChambelan()" class="admin-link-button text-xs">+ Agregar</button>
         </div>
 
         <template x-if="modules.destacados.chambelanes.length === 0">
-            <p class="text-xs text-stone-500 rounded-lg border border-dashed border-stone-200 bg-stone-50 py-4 text-center" x-text="isWeddingTemplate() ? 'Sin caballeros de honor registrados' : (isBaptismTemplate() ? 'Sin abuelos registrados' : 'Sin chambelanes registrados')">Sin chambelanes registrados</p>
+            <p class="text-xs text-stone-500 rounded-lg border border-dashed border-stone-200 bg-stone-50 py-4 text-center" x-text="isWeddingTemplate() ? 'Sin caballeros de honor registrados' : (isBaptismTemplate() ? 'Sin abuelos registrados' : (isBirthdayTemplate() ? 'Sin amigos registrados' : 'Sin chambelanes registrados'))">Sin chambelanes registrados</p>
         </template>
     </section>
 
@@ -24,7 +24,7 @@
         <section class="admin-card p-3 space-y-2">
             <div class="flex items-center justify-between gap-2">
                 <span class="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-white border border-stone-200 text-xs font-semibold text-stone-600">
-                    <span x-text="isWeddingTemplate() ? 'Caballero' : (isBaptismTemplate() ? 'Abuelo' : 'Chambelán')">Chambelán</span> <span x-text="i + 1"></span>
+                    <span x-text="isWeddingTemplate() ? 'Caballero' : (isBaptismTemplate() ? 'Abuelo' : (isBirthdayTemplate() ? 'Amigo' : 'Chambelán'))">Chambelán</span> <span x-text="i + 1"></span>
                 </span>
                 <button type="button" @click="modules.destacados.chambelanes.splice(i, 1); schedulePreview()"
                     class="text-xs font-medium text-red-600 hover:text-red-700">Eliminar</button>
@@ -57,12 +57,12 @@
     <!-- Damitas -->
     <section class="admin-card p-3 space-y-2">
         <div class="flex items-center justify-between gap-2">
-            <p class="admin-eyebrow mb-0" x-text="isWeddingTemplate() ? 'Damas de honor' : (isBaptismTemplate() ? 'Tíos' : 'Damitas')">Damitas</p>
+            <p class="admin-eyebrow mb-0" x-text="isWeddingTemplate() ? 'Damas de honor' : (isBaptismTemplate() ? 'Tíos' : (isBirthdayTemplate() ? 'Familia' : 'Damitas'))">Damitas</p>
             <button type="button" @click="addDamita()" class="admin-link-button text-xs">+ Agregar</button>
         </div>
 
         <template x-if="modules.destacados.damitas.length === 0">
-            <p class="text-xs text-stone-500 rounded-lg border border-dashed border-stone-200 bg-stone-50 py-4 text-center" x-text="isWeddingTemplate() ? 'Sin damas de honor registradas' : (isBaptismTemplate() ? 'Sin tíos registrados' : 'Sin damitas registradas')">Sin damitas registradas</p>
+            <p class="text-xs text-stone-500 rounded-lg border border-dashed border-stone-200 bg-stone-50 py-4 text-center" x-text="isWeddingTemplate() ? 'Sin damas de honor registradas' : (isBaptismTemplate() ? 'Sin tíos registrados' : (isBirthdayTemplate() ? 'Sin familiares registrados' : 'Sin damitas registradas'))">Sin damitas registradas</p>
         </template>
     </section>
 
@@ -70,7 +70,7 @@
         <section class="admin-card p-3 space-y-2">
             <div class="flex items-center justify-between gap-2">
                 <span class="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-white border border-stone-200 text-xs font-semibold text-stone-600">
-                    <span x-text="isWeddingTemplate() ? 'Dama' : (isBaptismTemplate() ? 'Tío' : 'Damita')">Damita</span> <span x-text="i + 1"></span>
+                    <span x-text="isWeddingTemplate() ? 'Dama' : (isBaptismTemplate() ? 'Tío' : (isBirthdayTemplate() ? 'Familiar' : 'Damita'))">Damita</span> <span x-text="i + 1"></span>
                 </span>
                 <button type="button" @click="modules.destacados.damitas.splice(i, 1); schedulePreview()"
                     class="text-xs font-medium text-red-600 hover:text-red-700">Eliminar</button>
@@ -103,12 +103,12 @@
     <!-- Padrinos -->
     <section class="admin-card p-3 space-y-2">
         <div class="flex items-center justify-between gap-2">
-            <p class="admin-eyebrow mb-0">Padrinos</p>
+            <p class="admin-eyebrow mb-0" x-text="isBirthdayTemplate() ? 'Anfitriones' : 'Padrinos'">Padrinos</p>
             <button type="button" @click="addPadrino()" class="admin-link-button text-xs">+ Agregar</button>
         </div>
 
         <template x-if="modules.destacados.padrinos.length === 0">
-            <p class="text-xs text-stone-500 rounded-lg border border-dashed border-stone-200 bg-stone-50 py-4 text-center">Sin padrinos registrados</p>
+            <p class="text-xs text-stone-500 rounded-lg border border-dashed border-stone-200 bg-stone-50 py-4 text-center" x-text="isBirthdayTemplate() ? 'Sin anfitriones registrados' : 'Sin padrinos registrados'">Sin padrinos registrados</p>
         </template>
     </section>
 
@@ -116,7 +116,7 @@
         <section class="admin-card p-3 space-y-2">
             <div class="flex items-center justify-between gap-2">
                 <span class="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-white border border-stone-200 text-xs font-semibold text-stone-600">
-                    Padrino <span x-text="i + 1"></span>
+                    <span x-text="isBirthdayTemplate() ? 'Anfitrión' : 'Padrino'">Padrino</span> <span x-text="i + 1"></span>
                 </span>
                 <button type="button" @click="modules.destacados.padrinos.splice(i, 1); schedulePreview()"
                     class="text-xs font-medium text-red-600 hover:text-red-700">Eliminar</button>

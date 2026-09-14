@@ -22,7 +22,10 @@
         <div class="inv-hero__veil" aria-hidden="true"></div>
     @endif
 
+    <span class="inv-hero__frame" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+
     <div class="inv-hero__content">
+        @include('invitations.partials.xv.crown', ['class' => 'inv-hero__crown'])
         <p class="inv-hero__eyebrow inv-fade-up">{{ $heroEyebrow }}</p>
 
         <h1 class="inv-hero__title inv-fade-up inv-fade-up--1">{{ $heroTitle }}</h1>

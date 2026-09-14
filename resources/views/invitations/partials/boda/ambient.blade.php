@@ -10,12 +10,12 @@
     <div class="inv-boda-petals">
         @for($i = 0; $i < 18; $i++)
             @php
-                $duration = 14 + ($i * 5) % 11;
+                $duration = 12 + ($i * 5) % 10;
                 $style = sprintf(
                     '--x:%.1f%%;--s:%.2f;--o:%.2f;--dx:%dpx;--d:%ds;--delay:-%.1fs',
                     fmod($i * 41.3 + 7, 100),
                     0.7 + (($i * 7) % 6) / 10,
-                    0.45 + (($i * 3) % 5) / 10,
+                    0.55 + (($i * 3) % 5) / 10,
                     (($i * 37) % 90) - 45,
                     $duration,
                     fmod($i * 2.9, $duration),

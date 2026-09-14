@@ -45,8 +45,33 @@ class WeddingTemplateTest extends TestCase
             ->assertOk()
             ->assertSee('Chambelanes')
             ->assertSee('data-lottie-icon="crown"', false)
+            // Telón de apertura y pie con nombre, fecha y accesos rápidos
+            ->assertSee('inv-page inv-xv', false)
+            ->assertSee('inv-xv-intro', false)
+            ->assertSeeInOrder(['inv-footer__name', 'Sofía Valentina', 'inv-footer__bar', 'Volver al inicio'], false)
+            ->assertDontSee('inv-footer__links', false)
+            // El crédito lleva al sitio de Bida Events con una invitación a crear la propia
+            ->assertSeeInOrder(['href="'.route('home').'" class="inv-footer__credit"', 'Crea la tuya', 'Bida Events'], false)
             ->assertDontSee('inv-boda', false)
             ->assertSeeInOrder(['id="itinerario"', 'id="dress-code"', 'id="destacados"', 'id="ubicacion"'], false);
+    }
+
+    public function test_wedding_cover_is_shown_even_after_the_wedding(): void
+    {
+        $invitation = $this->createInvitation([
+            'slug' => 'boda-pasada',
+            'template' => InvitationTemplates::BODA_JARDIN,
+            'event_date' => now()->subWeek(),
+        ]);
+        app(InvitationModuleService::class)->syncAllModules($invitation, BodaJardinDemoSeeder::modules());
+
+        $this->assertTrue($invitation->fresh()->is_post_event);
+
+        $this->withoutVite()
+            ->get(route('invitation.show', $invitation->slug))
+            ->assertOk()
+            ->assertSee('inv-boda-cover', false)
+            ->assertSee('inv-boda-envelope__liner', false);
     }
 
     public function test_wedding_template_is_offered_in_the_editor(): void

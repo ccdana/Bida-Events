@@ -1,22 +1,21 @@
 {{--
-    Plantilla "Boda Jardín": mismos módulos que XV Premium con un lenguaje propio de boda.
-    Sobre de apertura, foto en arco con ramas que crecen, pétalos, títulos caligráficos y
-    secciones separadas por ornamentos. Estilos en resources/css/invitation/themes/boda.css.
+    Plantilla "Cumpleaños Fiesta": mismos módulos que las demás con un lenguaje de fiesta.
+    Pastel con velas que se soplan al entrar, confeti, globos, banderines, la edad en grande y
+    controles con bordes marcados y sombras de color. Estilos en resources/css/invitation/themes/cumple.css.
 --}}
 @php
-    $page = new \App\Support\InvitationPage($invitation, $modulos, $guest ?? null, \App\Support\InvitationTemplates::BODA_JARDIN);
+    $page = new \App\Support\InvitationPage($invitation, $modulos, $guest ?? null, \App\Support\InvitationTemplates::CUMPLE_FIESTA);
     $invCopy = $page->copy;
-    $coupleNames = $page->names();
-    // El sobre se muestra en cada visita, también después de la boda; solo se omite en la vista previa del editor
-    $showCover = empty($isPreview);
+    // El pastel aparece en cada visita, también después de la fiesta; solo se omite en la vista previa del editor
+    $showIntro = empty($isPreview);
 @endphp
 <!DOCTYPE html>
 <html lang="es">
 <head>
     @include('invitations.partials.shell.head')
-    @if($showCover)
+    @if($showIntro)
         <script>
-            // Dentro de un iframe (teléfono de la home) no se muestra el sobre
+            // Dentro de un iframe (teléfono de la home) no se muestra el pastel
             (function () {
                 const root = document.documentElement;
 
@@ -27,7 +26,7 @@
 
                 root.classList.add('inv-cover-waiting');
 
-                // El sobre abre siempre sobre la portada, aunque sea una recarga
+                // La fiesta empieza siempre en la portada, aunque sea una recarga
                 if ('scrollRestoration' in history) {
                     history.scrollRestoration = 'manual';
                 }
@@ -35,42 +34,42 @@
                 window.scrollTo(0, 0);
             })();
         </script>
-        <noscript><style>.inv-boda-cover { display: none !important; }</style></noscript>
+        <noscript><style>.inv-cumple-intro { display: none !important; }</style></noscript>
     @endif
 </head>
-<body class="inv-page inv-boda overflow-x-hidden {{ $page->hasPlayer ? 'has-player' : '' }}" x-data="invitationApp()" x-init="init()">
+<body class="inv-page inv-cumple overflow-x-hidden {{ $page->hasPlayer ? 'has-player' : '' }}" x-data="invitationApp()" x-init="init()">
 
-    @if($showCover)
-        @include('invitations.partials.boda.cover')
+    @if($showIntro)
+        @include('invitations.partials.cumple.intro')
     @endif
 
-    @include('invitations.partials.boda.ambient')
+    @include('invitations.partials.cumple.ambient')
 
     @include('invitations.partials.shell.nav')
 
     @include('invitations.partials.music-player', ['musica' => $page->music, 'flags' => array_merge($page->flags, ['musica' => $page->visible('musica')])])
 
-    @include('invitations.partials.boda.hero')
+    @include('invitations.partials.cumple.hero')
 
     <main id="contenido">
         @include('invitations.partials.shell.modules')
     </main>
 
     @include('invitations.partials.shell.footer', [
-        'footerClass' => 'inv-boda-footer',
-        'footerName' => implode(' & ', $coupleNames),
-        'footerDate' => $page->eventDate->format('d · m · Y'),
-        'footerOrnament' => null,
+        'footerClass' => 'inv-cumple-footer',
+        'footerName' => $page->displayName,
+        'footerDate' => \Illuminate\Support\Str::ucfirst($page->eventDate->locale('es')->translatedFormat('l j \d\e F \d\e Y')),
+        'footerOrnament' => 'balloons',
     ])
 
     @include('invitations.partials.shell.scripts')
 
-    @if($showCover)
+    @if($showIntro)
         <script>
-        // Sobre de apertura: el toque que lo abre también desbloquea la música si tiene autoplay
-        function weddingCover() {
+        // Pastel de apertura: al soplar las velas sale confeti; el toque también desbloquea la música si tiene autoplay
+        function birthdayIntro() {
             return {
-                opening: false,
+                blown: false,
                 closed: false,
                 init() {
                     const root = document.documentElement;
@@ -83,18 +82,18 @@
                     window.scrollTo(0, 0);
                     root.classList.add('inv-lock');
                 },
-                open() {
-                    if (this.opening) {
+                blow() {
+                    if (this.blown) {
                         return;
                     }
 
-                    this.opening = true;
+                    this.blown = true;
 
                     const root = document.documentElement;
                     const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
-                    // La portada empieza a animarse mientras la tarjeta crece y el sobre se desvanece
-                    setTimeout(() => root.classList.remove('inv-cover-waiting'), reduced ? 0 : 1500);
+                    // La portada empieza a animarse mientras el confeti cae y el pastel se va
+                    setTimeout(() => root.classList.remove('inv-cover-waiting'), reduced ? 0 : 1600);
                     setTimeout(() => {
                         this.closed = true;
                         root.classList.remove('inv-lock');

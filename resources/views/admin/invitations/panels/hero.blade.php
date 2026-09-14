@@ -13,13 +13,14 @@
 
         <div class="grid gap-2">
             <div>
-                <label class="admin-label" x-text="isWeddingTemplate() ? 'Nombres de los novios' : (isBaptismTemplate() ? 'Nombre del bebé' : 'Nombre de la protagonista')">Nombre de la protagonista</label>
-                <input type="text" x-model="modules.bienvenida.nombre_quinceanera" @input="schedulePreview()" class="admin-input" :placeholder="isWeddingTemplate() ? 'Ej. Ana & Luis' : (isBaptismTemplate() ? 'Ej. Mateo Andrés' : 'Ej. Sofía Valentina')">
+                <label class="admin-label" x-text="isWeddingTemplate() ? 'Nombres de los novios' : (isBaptismTemplate() ? 'Nombre del bebé' : (isBirthdayTemplate() ? 'Nombre de quien cumple años' : 'Nombre de la protagonista'))">Nombre de la protagonista</label>
+                <input type="text" x-model="modules.bienvenida.nombre_quinceanera" @input="schedulePreview()" class="admin-input" :placeholder="isWeddingTemplate() ? 'Ej. Ana & Luis' : (isBaptismTemplate() ? 'Ej. Mateo Andrés' : (isBirthdayTemplate() ? 'Ej. Valeria' : 'Ej. Sofía Valentina'))">
                 <p x-show="isWeddingTemplate()" x-cloak class="mt-1 text-xs text-site-muted">Sepáralos con «&» o «y»: la portada los muestra con un ampersand caligráfico.</p>
             </div>
             <div>
                 <label class="admin-label">Subtítulo superior</label>
-                <input type="text" x-model="modules.bienvenida.subtitulo" @input="schedulePreview()" class="admin-input" :placeholder="isWeddingTemplate() ? 'Ej. Nos casamos' : (isBaptismTemplate() ? 'Ej. Mi bautizo' : 'Ej. Celebrando mis XV Años')">
+                <input type="text" x-model="modules.bienvenida.subtitulo" @input="schedulePreview()" class="admin-input" :placeholder="isWeddingTemplate() ? 'Ej. Nos casamos' : (isBaptismTemplate() ? 'Ej. Mi bautizo' : (isBirthdayTemplate() ? 'Ej. Mis 30 años' : 'Ej. Celebrando mis XV Años'))">
+                <p x-show="isBirthdayTemplate()" x-cloak class="mt-1 text-xs text-site-muted">Incluye la edad (ej. «Mis 30 años»): se muestra en grande en la portada y en las velas del pastel.</p>
             </div>
         </div>
     </section>

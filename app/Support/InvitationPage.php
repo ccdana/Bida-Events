@@ -23,7 +23,7 @@ final class InvitationPage
         'Merriweather' => '300;400;700', 'Montserrat' => '300;400;500;600;700', 'Inter' => '300;400;500;600;700',
         'Lato' => '300;400;700', 'Nunito Sans' => '300;400;600;700', 'Source Sans 3' => '300;400;600;700',
         'Poppins' => '300;400;500;600;700', 'Raleway' => '300;400;500;600;700', 'Open Sans' => '300;400;600;700',
-        'Dancing Script' => '400;700', 'Tangerine' => '400;700',
+        'Dancing Script' => '400;700', 'Tangerine' => '400;700', 'Fredoka' => '400;500;600;700',
     ];
 
     private const NAV_LABELS = [
@@ -155,6 +155,12 @@ final class InvitationPage
         $parts = array_values(array_filter(array_map('trim', $parts), fn (string $part) => $part !== ''));
 
         return $parts ?: [$this->displayName];
+    }
+
+    /** Edad escrita en el subtítulo ("Mis 30 años" → 30); null si no trae un número. */
+    public function age(): ?int
+    {
+        return preg_match('/\b(\d{1,3})\b/u', (string) ($this->welcome['subtitulo'] ?? ''), $match) ? (int) $match[1] : null;
     }
 
     /** Iniciales para monogramas y sellos, p. ej. "A & L". */

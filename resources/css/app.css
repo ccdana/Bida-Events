@@ -7,8 +7,10 @@
 @import './invitation/modules.css';
 @import './invitation/nav-player.css';
 @import './invitation/ambient.css';
+@import './invitation/themes/xv.css';
 @import './invitation/themes/boda.css';
 @import './invitation/themes/bautizo.css';
+@import './invitation/themes/cumple.css';
 @import './site/brand.css';
 @import './site/site.css';
 @import './admin/admin.css';

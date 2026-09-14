@@ -17,6 +17,8 @@ final class InvitationTemplates
 
     public const BAUTIZO_CIELO = 'invitations.templates.bautizo-cielo';
 
+    public const CUMPLE_FIESTA = 'invitations.templates.cumple-fiesta';
+
     public const DEFAULT = self::XV_PREMIUM;
 
     public static function all(): array
@@ -91,6 +93,41 @@ final class InvitationTemplates
                     'court_women' => 'Tíos',
                     'nav_court' => 'Padrinos',
                     'rsvp_declined_intro' => 'Si cambias de planes, avísale a mis papás para actualizar tu respuesta.',
+                ],
+            ],
+            self::CUMPLE_FIESTA => [
+                'label' => 'Cumpleaños Fiesta',
+                'description' => 'Pastel con velas que se soplan al entrar, confeti, globos, banderines y la edad en grande.',
+                'event' => 'cumple',
+                'order' => [
+                    'cuenta_regresiva', 'galeria', 'ubicacion', 'itinerario', 'dress_code', 'playlist', 'encuestas',
+                    'destacados', 'regalos', 'rsvp', 'hashtag', 'video', 'fotomural', 'post_evento',
+                ],
+                'copy' => [
+                    'hero_eyebrow' => '¡Celebremos juntos!',
+                    'menu_heading' => 'El cumpleaños de',
+                    'intro_eyebrow' => '¡Estás invitado!',
+                    'intro_hint' => 'Toca el pastel para soplar las velas',
+                    'intro_cheer' => '¡A celebrar!',
+                    'guest_help' => 'Te toma menos de un minuto y me ayuda a preparar la fiesta.',
+                    'countdown_lottie' => 'cake',
+                    'gallery_eyebrow' => 'Recuerdos favoritos',
+                    'itinerary_eyebrow' => 'Así será la fiesta',
+                    'itinerary_empty' => 'Muy pronto compartiré el programa de la fiesta.',
+                    'dress_hint' => 'Colores sugeridos para la fiesta',
+                    'dress_empty' => 'Ven cómodo y listo para bailar.',
+                    'court_lottie' => 'balloon',
+                    'court_eyebrow' => 'Gente especial',
+                    'court_title' => 'Mi gente favorita',
+                    'court_intro' => 'Las personas que hacen cada año más especial.',
+                    'court_empty' => 'Pronto presentaré a mi gente favorita.',
+                    // Los grupos del cortejo son amigos y familia; los padrinos pasan a ser anfitriones
+                    'court_group_tab' => 'Mi gente',
+                    'court_sponsors_tab' => 'Anfitriones',
+                    'court_men' => 'Amigos',
+                    'court_women' => 'Familia',
+                    'nav_court' => 'Mi gente',
+                    'rsvp_declined_intro' => 'Si cambias de planes, escríbeme para actualizar tu respuesta.',
                 ],
             ],
         ];

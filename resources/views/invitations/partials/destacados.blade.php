@@ -9,7 +9,7 @@
     $padrinos = array_values(array_filter($destacados['padrinos'] ?? [], fn ($p) => !empty($p['nombres'] ?? null)));
     $tabs = array_filter([
         'cortejo' => count($groups) ? ($invCopy['court_group_tab'] ?? 'Cortejo') : null,
-        'padrinos' => count($padrinos) ? 'Padrinos' : null,
+        'padrinos' => count($padrinos) ? ($invCopy['court_sponsors_tab'] ?? 'Padrinos') : null,
     ]);
     // En los bautizos los padrinos son lo principal: su pestaña va primero
     if (($invCopy['court_first'] ?? null) === 'padrinos' && isset($tabs['padrinos'])) {

@@ -1,0 +1,1230 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   INVITACIÓN — Tema "Cumpleaños Fiesta" (invitations.templates.cumple-fiesta)
+
+   Todo va dentro de .inv-cumple. Lenguaje juguetón de fiesta: pastel con velas
+   que se soplan, confeti, globos, banderines, la edad en grande y controles con
+   bordes marcados y sombras sólidas de color. Lee la paleta del evento: los
+   tres colores de fiesta salen del primario, el secundario y su mezcla.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+.inv-cumple {
+    --inv-radius: 14px;
+    --inv-cumple-c1: var(--primary-color);
+    --inv-cumple-c2: var(--secondary-color);
+    --inv-cumple-c3: color-mix(in oklch, var(--primary-color), var(--secondary-color));
+    --inv-cumple-ink: var(--text-color);
+    --inv-cumple-paper: color-mix(in srgb, var(--bg-color) 25%, #fff);
+    --inv-cumple-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --inv-cumple-dots: radial-gradient(color-mix(in srgb, var(--primary-color) 16%, transparent) 1.6px, transparent 2.2px) 0 0 / 22px 22px;
+    /* Banderín como máscara: el color lo pone el fondo, que alterna los tres colores de fiesta */
+    --inv-cumple-flag: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 22'%3E%3Cpath d='M0 1.5 H24' stroke='%23000' stroke-width='1.5'/%3E%3Cpath d='M3 2 L21 2 L12 20 Z'/%3E%3C/svg%3E");
+}
+
+.inv-cumple.has-player {
+    padding-bottom: calc(5.25rem + env(safe-area-inset-bottom));
+}
+
+@keyframes inv-cumple-bob {
+    50% { translate: 0 -10px; }
+}
+
+@keyframes inv-cumple-pop-in {
+    from { opacity: 0; transform: translateY(18px) scale(0.7); }
+    to { opacity: 1; transform: none; }
+}
+
+.inv-cumple-pop {
+    animation: inv-cumple-pop-in 0.8s var(--inv-cumple-bounce) var(--d, 0s) both;
+}
+
+/* ── Globo y cinta ──────────────────────────────────────────────────────── */
+
+.inv-cumple-balloon {
+    overflow: visible;
+    color: var(--inv-cumple-c1);
+}
+
+.inv-cumple-balloon__string {
+    fill: none;
+    stroke: color-mix(in srgb, var(--inv-cumple-ink) 55%, transparent);
+    stroke-width: 1.4;
+    stroke-linecap: round;
+}
+
+/* Etiqueta tipo cinta con puntas recortadas */
+.inv-cumple-ribbon {
+    display: inline-block;
+    padding: 0.5rem 1.4rem;
+    background: var(--inv-cumple-ink);
+    color: var(--bg-color);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 50%, 100% 100%, 0 100%, 10px 50%);
+    rotate: -2deg;
+}
+
+/* ── Fondo vivo ─────────────────────────────────────────────────────────── */
+
+.inv-cumple .inv-cumple-ambient {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.inv-cumple-ambient__balloon {
+    position: absolute;
+    bottom: -22vh;
+    left: var(--x);
+    width: calc(2.6rem * var(--s));
+    opacity: 0.32;
+    animation: inv-cumple-rise var(--d) linear var(--delay) infinite;
+}
+
+.inv-cumple-ambient__balloon .inv-cumple-balloon {
+    display: block;
+    width: 100%;
+}
+
+.inv-cumple-ambient__balloon:nth-of-type(3n + 2) .inv-cumple-balloon { color: var(--inv-cumple-c2); }
+.inv-cumple-ambient__balloon:nth-of-type(3n) .inv-cumple-balloon { color: var(--inv-cumple-c3); }
+
+.inv-cumple-ambient__confetti {
+    position: absolute;
+    top: -5vh;
+    left: var(--x);
+    width: 7px;
+    height: 11px;
+    border-radius: 2px;
+    background: var(--inv-cumple-c1);
+    opacity: 0;
+    animation: inv-cumple-fall var(--d) linear var(--delay) infinite;
+}
+
+.inv-cumple-ambient__confetti:nth-of-type(3n + 2) { background: var(--inv-cumple-c2); }
+.inv-cumple-ambient__confetti:nth-of-type(3n) { background: var(--inv-cumple-c3); }
+.inv-cumple-ambient__confetti:nth-of-type(4n) { width: 8px; height: 8px; border-radius: 50%; }
+
+/* En celulares suben menos globos y cae menos confeti */
+.inv-cumple-ambient__balloon:nth-of-type(n + 6),
+.inv-cumple-ambient__confetti:nth-of-type(n + 11) {
+    display: none;
+}
+
+@media (min-width: 768px) {
+    .inv-cumple-ambient__balloon:nth-of-type(n + 6),
+    .inv-cumple-ambient__confetti:nth-of-type(n + 11) {
+        display: block;
+    }
+}
+
+@keyframes inv-cumple-rise {
+    0% { transform: translate3d(0, 0, 0) rotate(-4deg); }
+    50% { transform: translate3d(var(--sway), -65vh, 0) rotate(4deg); }
+    100% { transform: translate3d(0, -135vh, 0) rotate(-4deg); }
+}
+
+@keyframes inv-cumple-fall {
+    0% { opacity: 0; transform: translate3d(0, 0, 0) rotate(0deg); }
+    10%, 90% { opacity: 0.8; }
+    100% { opacity: 0; transform: translate3d(var(--dx), 110vh, 0) rotate(var(--r)); }
+}
+
+/* ── Apertura: soplar las velas ─────────────────────────────────────────── */
+
+.inv-cumple-intro {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: grid;
+    place-items: center;
+    padding: 2rem 1.25rem;
+    overflow: hidden;
+    color: var(--text-color);
+    background:
+        radial-gradient(60% 45% at 50% 62%, color-mix(in srgb, var(--secondary-color) 24%, transparent), transparent 70%),
+        var(--inv-cumple-dots),
+        var(--bg-color);
+}
+
+html.inv-cover-skip .inv-cumple-intro {
+    display: none;
+}
+
+.inv-cumple-intro__content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.inv-cumple-intro__eyebrow {
+    animation: inv-cumple-pop-in 0.7s var(--inv-cumple-bounce) 0.1s both;
+}
+
+.inv-cumple-intro__name {
+    margin-top: 0.9rem;
+    font-family: var(--font-titles);
+    font-size: clamp(2.6rem, 12vw, 4rem);
+    font-weight: 700;
+    line-height: 1;
+    animation: inv-cumple-pop-in 0.8s var(--inv-cumple-bounce) 0.25s both;
+}
+
+.inv-cumple-cake {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: min(66vw, 15rem);
+    margin-top: 2.6rem;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    transform-origin: 50% 100%;
+    animation: inv-cumple-pop-in 0.8s var(--inv-cumple-bounce) 0.4s both, inv-cumple-wiggle 3s ease-in-out 1.4s infinite;
+}
+
+/* El contenedor de velas conserva su flex: las velas van una al lado de la otra */
+.inv-cumple-cake > span:not(.inv-cumple-cake__candles) {
+    display: block;
+}
+
+.inv-cumple-cake__candles {
+    position: relative;
+    z-index: 3;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 1.1rem;
+    min-height: 4.5rem;
+    margin-bottom: -0.35rem;
+}
+
+.inv-cumple-candle {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    --c: var(--inv-cumple-c1);
+}
+
+.inv-cumple-candle:nth-child(2) { --c: var(--inv-cumple-c2); }
+.inv-cumple-candle:nth-child(3) { --c: var(--inv-cumple-c3); }
+
+.inv-cumple-candle__body {
+    width: 0.8rem;
+    height: 3.1rem;
+    border: 2px solid var(--inv-cumple-ink);
+    border-radius: 5px 5px 2px 2px;
+    background: repeating-linear-gradient(135deg, var(--c) 0 6px, #fff 6px 12px);
+}
+
+/* Vela con forma de número */
+.inv-cumple-candle.is-digit .inv-cumple-candle__body {
+    width: auto;
+    height: auto;
+    border: 0;
+    background: repeating-linear-gradient(135deg, var(--c) 0 8px, color-mix(in srgb, var(--c) 35%, #fff) 8px 16px);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-family: var(--font-titles);
+    font-size: 4.4rem;
+    font-weight: 700;
+    line-height: 0.85;
+    -webkit-text-stroke: 2px var(--inv-cumple-ink);
+}
+
+.inv-cumple-candle__flame {
+    position: absolute;
+    bottom: calc(100% + 2px);
+    left: 50%;
+    width: 0.9rem;
+    height: 1.35rem;
+    margin-left: -0.45rem;
+    border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%;
+    background: radial-gradient(circle at 50% 72%, #fff 0 16%, #ffd65a 36%, #ff8a3d 68%, transparent 71%);
+    filter: drop-shadow(0 0 6px rgb(255 170 60 / 0.8));
+    transform-origin: 50% 90%;
+    animation: inv-cumple-flicker 0.5s ease-in-out infinite alternate;
+    animation-delay: calc(var(--i) * -0.17s);
+}
+
+.inv-cumple-candle__smoke {
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    width: 0.6rem;
+    height: 0.6rem;
+    margin-left: -0.3rem;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--inv-cumple-ink) 22%, transparent);
+    box-shadow:
+        5px -12px 0 1px color-mix(in srgb, var(--inv-cumple-ink) 16%, transparent),
+        -4px -24px 0 3px color-mix(in srgb, var(--inv-cumple-ink) 10%, transparent);
+    opacity: 0;
+}
+
+/* Glaseado de color con gotas que caen sobre el piso del pastel */
+.inv-cumple-cake__frosting {
+    position: relative;
+    z-index: 2;
+    width: 104%;
+    height: 1.9rem;
+    border: 2.5px solid var(--inv-cumple-ink);
+    border-bottom: 0;
+    border-radius: 18px 18px 0 0;
+    background: var(--inv-cumple-c1);
+}
+
+.inv-cumple-cake__frosting::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    right: -2.5px;
+    left: -2.5px;
+    height: 1.2rem;
+    background: radial-gradient(circle at 50% 0, var(--inv-cumple-c1) 0 58%, transparent 60%) 0 0 / 1.7rem 2.3rem repeat-x;
+}
+
+.inv-cumple-cake__tier {
+    position: relative;
+    width: 100%;
+    height: 6rem;
+    overflow: hidden;
+    border: 2.5px solid var(--inv-cumple-ink);
+    border-top: 0;
+    border-radius: 0 0 12px 12px;
+    background: linear-gradient(180deg, var(--inv-cumple-paper) 0 52%, color-mix(in srgb, var(--inv-cumple-c2) 45%, #fff) 52% 66%, var(--inv-cumple-paper) 66%);
+    box-shadow: 6px 6px 0 color-mix(in srgb, var(--inv-cumple-ink) 85%, transparent);
+}
+
+/* Chispas de colores sobre el bizcocho */
+.inv-cumple-cake__tier::before {
+    content: '';
+    position: absolute;
+    inset: 1.5rem 0.4rem 0;
+    background-image:
+        radial-gradient(var(--inv-cumple-c1) 2px, transparent 2.5px),
+        radial-gradient(var(--inv-cumple-c3) 2px, transparent 2.5px);
+    background-position: 6px 4px, 20px 18px;
+    background-size: 28px 22px, 34px 26px;
+}
+
+.inv-cumple-cake__plate {
+    width: 120%;
+    height: 12px;
+    margin-top: 6px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--inv-cumple-ink) 85%, transparent);
+}
+
+.inv-cumple-intro__hint {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 2rem;
+    padding: 0.55rem 1.1rem;
+    border: 2px solid var(--inv-cumple-ink);
+    border-radius: 999px;
+    background: var(--bg-color);
+    box-shadow: 3px 3px 0 var(--inv-cumple-c1);
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    animation: inv-cumple-pop-in 0.8s var(--inv-cumple-bounce) 0.6s both, inv-cumple-nudge 1.6s ease-in-out 1.4s infinite;
+}
+
+.inv-cumple-intro__confetti {
+    position: absolute;
+    top: 58%;
+    left: 50%;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.inv-cumple-intro__confetti span {
+    position: absolute;
+    width: 8px;
+    height: 13px;
+    margin: -6px -4px;
+    border-radius: 2px;
+    background: var(--inv-cumple-c1);
+    opacity: 0;
+}
+
+.inv-cumple-intro__confetti span:nth-child(3n + 2) { background: var(--inv-cumple-c2); }
+.inv-cumple-intro__confetti span:nth-child(3n) { background: var(--inv-cumple-c3); }
+.inv-cumple-intro__confetti span:nth-child(4n) { width: 9px; height: 9px; border-radius: 50%; }
+.inv-cumple-intro__confetti span:nth-child(5n) { width: 5px; height: 15px; background: var(--inv-cumple-ink); }
+
+.inv-cumple-intro__cheer {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 3;
+    translate: -50% -50%;
+    color: var(--inv-cumple-c1);
+    font-family: var(--font-titles);
+    font-size: clamp(2.8rem, 13vw, 4.6rem);
+    font-weight: 700;
+    white-space: nowrap;
+    text-shadow: 3px 3px 0 var(--inv-cumple-ink);
+    animation: inv-cumple-cheer 0.8s var(--inv-cumple-bounce) 0.45s both;
+}
+
+/* Al soplar: se apagan las llamas, sale humo, explota el confeti y el pastel se va */
+.inv-cumple-intro.is-blown {
+    pointer-events: none;
+    animation: inv-cumple-intro-out 0.7s ease 1.7s forwards;
+}
+
+.inv-cumple-intro.is-blown :is(.inv-cumple-intro__eyebrow, .inv-cumple-intro__name, .inv-cumple-intro__hint) {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    animation: none;
+}
+
+.inv-cumple-intro.is-blown .inv-cumple-candle__flame {
+    animation: inv-cumple-blow 0.35s ease-in forwards;
+}
+
+.inv-cumple-intro.is-blown .inv-cumple-candle__smoke {
+    animation: inv-cumple-smoke 1.1s ease-out 0.2s forwards;
+}
+
+.inv-cumple-intro.is-blown .inv-cumple-cake {
+    animation: inv-cumple-cake-drop 0.8s ease-in 0.55s forwards;
+}
+
+.inv-cumple-intro.is-blown .inv-cumple-intro__confetti span {
+    animation: inv-cumple-burst 1.7s cubic-bezier(0.15, 0.75, 0.35, 1) calc(0.3s + var(--delay)) forwards;
+}
+
+@keyframes inv-cumple-wiggle {
+    0%, 100% { rotate: 0deg; }
+    8% { rotate: -3deg; }
+    16% { rotate: 3deg; }
+    24% { rotate: 0deg; }
+}
+
+@keyframes inv-cumple-nudge {
+    50% { translate: 0 -3px; }
+}
+
+@keyframes inv-cumple-flicker {
+    from { rotate: -3deg; scale: 1 1; }
+    to { rotate: 4deg; scale: 0.9 1.12; }
+}
+
+@keyframes inv-cumple-blow {
+    to { opacity: 0; rotate: -25deg; scale: 0 0.4; }
+}
+
+@keyframes inv-cumple-smoke {
+    0% { opacity: 0.9; translate: 0 0; scale: 0.6; }
+    100% { opacity: 0; translate: 6px -42px; scale: 1.6; }
+}
+
+@keyframes inv-cumple-cake-drop {
+    0% { transform: none; }
+    30% { transform: translateY(-10px) scale(1.04); }
+    100% { opacity: 0; transform: translateY(60vh) rotate(8deg); }
+}
+
+@keyframes inv-cumple-burst {
+    0% { opacity: 1; transform: translate(0, 0) rotate(0deg); }
+    35% { opacity: 1; transform: translate(calc(var(--x) * 0.85), var(--y)) rotate(calc(var(--r) * 0.4)); }
+    100% { opacity: 0; transform: translate(var(--x), calc(var(--y) + 55vh)) rotate(var(--r)); }
+}
+
+@keyframes inv-cumple-cheer {
+    from { opacity: 0; transform: scale(0.3) rotate(-10deg); }
+    to { opacity: 1; transform: none; }
+}
+
+@keyframes inv-cumple-intro-out {
+    to { opacity: 0; visibility: hidden; }
+}
+
+/* Mientras el pastel espera, la portada no empieza sus animaciones */
+html.inv-cover-waiting .inv-cumple-hero,
+html.inv-cover-waiting .inv-cumple-hero * {
+    animation-play-state: paused !important;
+}
+
+/* ── Portada ────────────────────────────────────────────────────────────── */
+
+.inv-cumple-hero {
+    color: var(--text-color);
+    background:
+        radial-gradient(circle at 15% 22%, color-mix(in srgb, var(--secondary-color) 22%, transparent), transparent 38%),
+        radial-gradient(circle at 88% 36%, color-mix(in srgb, var(--primary-color) 16%, transparent), transparent 40%),
+        var(--inv-cumple-dots);
+}
+
+.inv-cumple-hero::after {
+    display: none;
+}
+
+.inv-cumple-hero__bunting {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 0;
+    width: 100%;
+    height: clamp(3.75rem, 14vw, 6rem);
+    overflow: visible;
+    pointer-events: none;
+}
+
+.inv-cumple-bunting__string {
+    fill: none;
+    stroke: var(--inv-cumple-ink);
+    stroke-width: 1.3;
+    opacity: 0.55;
+}
+
+.inv-cumple-bunting__flag {
+    fill: var(--inv-cumple-c1);
+    transform-box: fill-box;
+    transform-origin: 50% 0;
+    animation: inv-cumple-flag 2.6s ease-in-out infinite alternate;
+    animation-delay: calc(var(--i) * -0.35s);
+}
+
+.inv-cumple-bunting__flag:nth-of-type(3n + 2) { fill: var(--inv-cumple-c2); }
+.inv-cumple-bunting__flag:nth-of-type(3n) { fill: var(--inv-cumple-c3); }
+
+@keyframes inv-cumple-flag {
+    from { rotate: -7deg; }
+    to { rotate: 7deg; }
+}
+
+.inv-cumple-hero__inner {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 34rem;
+    padding: 5.75rem 1.5rem 3rem;
+}
+
+.inv-cumple-stage {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: min(74vw, 19rem);
+    margin-top: 2.2rem;
+}
+
+/* La edad gigante, rayada y con contorno, detrás de la foto */
+.inv-cumple-age {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 0;
+    translate: -50% -52%;
+    background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--inv-cumple-c1) 30%, transparent) 0 10px, transparent 10px 20px);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-family: var(--font-titles);
+    font-size: clamp(13rem, 72vw, 21rem);
+    font-weight: 700;
+    line-height: 0.8;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+    -webkit-text-stroke: 2.5px color-mix(in srgb, var(--inv-cumple-c1) 85%, transparent);
+    animation: inv-cumple-age-in 1.1s var(--inv-cumple-bounce) 0.15s both;
+}
+
+@keyframes inv-cumple-age-in {
+    from { opacity: 0; transform: scale(0.3) rotate(-20deg); }
+    to { opacity: 1; transform: none; }
+}
+
+/* Foto tipo sticker con cintas en las esquinas */
+/* Más angosta que la edad, para que los números asomen a los lados */
+.inv-cumple-photo {
+    position: relative;
+    z-index: 1;
+    width: 56%;
+    aspect-ratio: 4 / 5;
+    margin: 0;
+    padding: 8px 8px 2.2rem;
+    border: 2px solid var(--inv-cumple-ink);
+    border-radius: 10px;
+    background: var(--inv-cumple-paper);
+    box-shadow: 6px 6px 0 var(--inv-cumple-c1);
+    rotate: -4deg;
+}
+
+.inv-cumple-photo::before,
+.inv-cumple-photo::after {
+    content: '';
+    position: absolute;
+    top: -0.55rem;
+    z-index: 1;
+    width: 3.6rem;
+    height: 1.15rem;
+    background: color-mix(in srgb, var(--inv-cumple-c2) 72%, transparent);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.12);
+}
+
+.inv-cumple-photo::before {
+    left: -1.1rem;
+    rotate: -35deg;
+}
+
+.inv-cumple-photo::after {
+    right: -1.1rem;
+    rotate: 35deg;
+}
+
+.inv-cumple-photo img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 30%;
+    border-radius: 6px;
+}
+
+.inv-cumple-photo__initial {
+    display: grid;
+    place-items: center;
+    height: 100%;
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--inv-cumple-c2) 30%, #fff);
+    color: var(--inv-cumple-ink);
+    font-family: var(--font-titles);
+    font-size: 5rem;
+    font-weight: 700;
+}
+
+.inv-cumple-stage__balloon {
+    position: absolute;
+    z-index: 2;
+    animation: inv-cumple-bob 3.4s ease-in-out infinite;
+}
+
+.inv-cumple-stage__balloon--1 {
+    top: -12%;
+    left: -12%;
+    width: 22%;
+    color: var(--inv-cumple-c2);
+    rotate: -12deg;
+}
+
+.inv-cumple-stage__balloon--2 {
+    top: -18%;
+    right: -10%;
+    width: 27%;
+    color: var(--inv-cumple-c1);
+    rotate: 10deg;
+    animation-delay: -1.2s;
+}
+
+.inv-cumple-stage__balloon--3 {
+    right: -16%;
+    bottom: 6%;
+    width: 19%;
+    color: var(--inv-cumple-c3);
+    rotate: 16deg;
+    animation-delay: -2s;
+}
+
+/* Nombre: cada letra entra saltando y luego hace una ola de vez en cuando */
+.inv-cumple-hero__name {
+    margin-top: 2.2rem;
+    font-family: var(--font-titles);
+    font-size: clamp(2.8rem, 13vw, 5rem);
+    font-weight: 700;
+    line-height: 1.02;
+    text-shadow: 3px 3px 0 color-mix(in srgb, var(--inv-cumple-c1) 45%, transparent);
+}
+
+.inv-cumple-word {
+    display: inline-block;
+    white-space: nowrap;
+}
+
+.inv-cumple-letter {
+    display: inline-block;
+    animation:
+        inv-cumple-letter 0.7s var(--inv-cumple-bounce) calc(0.5s + var(--i) * 0.05s) both,
+        inv-cumple-wave 6s ease-in-out calc(3s + var(--i) * 0.07s) infinite;
+}
+
+@keyframes inv-cumple-letter {
+    from { opacity: 0; transform: translateY(-60%) scale(0.5) rotate(-12deg); }
+    to { opacity: 1; transform: none; }
+}
+
+@keyframes inv-cumple-wave {
+    0%, 10%, 100% { translate: 0 0; }
+    5% { translate: 0 -14%; }
+}
+
+.inv-cumple-hero__message {
+    max-width: 24rem;
+    margin-top: 1rem;
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--inv-muted);
+    text-wrap: pretty;
+}
+
+/* Fecha como una entrada de fiesta */
+.inv-cumple-ticket {
+    display: inline-flex;
+    align-items: stretch;
+    margin-top: 1.6rem;
+    overflow: hidden;
+    border: 2px solid var(--inv-cumple-ink);
+    border-radius: 12px;
+    background: var(--bg-color);
+    box-shadow: 4px 4px 0 var(--inv-cumple-c2);
+    rotate: 1.5deg;
+}
+
+.inv-cumple-ticket__label {
+    display: grid;
+    place-items: center;
+    padding: 0.5rem 0.45rem;
+    background: var(--inv-cumple-ink);
+    color: var(--bg-color);
+    font-size: 0.55rem;
+    font-weight: 700;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    writing-mode: vertical-rl;
+    rotate: 180deg;
+}
+
+.inv-cumple-ticket__main {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 0.55rem 1rem;
+    text-align: left;
+}
+
+.inv-cumple-ticket__day {
+    font-family: var(--font-titles);
+    font-size: 1.05rem;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.inv-cumple-ticket__year {
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    color: var(--inv-soft);
+}
+
+.inv-cumple-ticket__stub {
+    display: grid;
+    place-items: center;
+    padding: 0.5rem 0.9rem;
+    border-left: 2px dashed var(--inv-cumple-ink);
+    font-family: var(--font-titles);
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+.inv-cumple-hero .inv-cumple-hero__scroll {
+    position: relative;
+    bottom: auto;
+    left: auto;
+    margin-top: 2rem;
+    color: var(--inv-soft);
+    transform: none;
+}
+
+/* ── Secciones y encabezados ────────────────────────────────────────────── */
+
+.inv-cumple .inv-section {
+    padding-block: 5rem 4rem;
+    border-top: 0;
+}
+
+/* Guirnalda de banderines de colores arriba de cada sección */
+.inv-cumple #contenido > .inv-section::before,
+.inv-cumple-footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 22px;
+    background: linear-gradient(90deg, var(--inv-cumple-c1) 0 33.34%, var(--inv-cumple-c2) 0 66.67%, var(--inv-cumple-c3) 0) 0 0 / 72px 100%;
+    opacity: 0.9;
+    -webkit-mask: var(--inv-cumple-flag) 0 0 / 24px 22px repeat-x;
+    mask: var(--inv-cumple-flag) 0 0 / 24px 22px repeat-x;
+}
+
+/* Secciones alternas con lunares */
+.inv-cumple #contenido > .inv-section:nth-of-type(even) {
+    background: var(--inv-cumple-dots), color-mix(in srgb, var(--accent-color) 18%, var(--bg-color));
+}
+
+.inv-cumple .inv-head__eyebrow {
+    display: inline-block;
+    padding: 0.4rem 1.15rem;
+    background: var(--inv-cumple-ink);
+    color: var(--bg-color);
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    clip-path: polygon(0 0, 100% 0, calc(100% - 9px) 50%, 100% 100%, 0 100%, 9px 50%);
+    rotate: -2deg;
+}
+
+.inv-cumple .inv-head__title {
+    margin-top: 0.8rem;
+    font-size: clamp(2.2rem, 9.5vw, 3.5rem);
+    font-weight: 700;
+    line-height: 1.02;
+}
+
+/* Filete convertido en tres trozos de confeti */
+.inv-cumple .inv-head__rule {
+    width: 4.5rem;
+    height: 6px;
+    margin-top: 0.9rem;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--inv-cumple-c1) 0 30%, transparent 30% 36%, var(--inv-cumple-c2) 36% 64%, transparent 64% 70%, var(--inv-cumple-c3) 70%);
+    opacity: 1;
+}
+
+.inv-cumple .invitation-lottie-framed {
+    gap: 0.9rem;
+    margin-bottom: 1.4rem;
+}
+
+.inv-cumple .invitation-lottie-framed__rule {
+    width: 0.6rem;
+    height: 0.95rem;
+    border-radius: 2px;
+    background: var(--inv-cumple-c2);
+    rotate: 24deg;
+    animation: inv-cumple-jiggle 2.2s ease-in-out infinite;
+}
+
+.inv-cumple .invitation-lottie-framed__rule:last-child {
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 50%;
+    background: var(--inv-cumple-c1);
+    animation-delay: -1.1s;
+}
+
+@keyframes inv-cumple-jiggle {
+    50% { translate: 0 -4px; rotate: -18deg; }
+}
+
+/* El ícono animado va en un sticker inclinado que se tambalea */
+.inv-cumple .invitation-lottie-framed__icon {
+    box-sizing: content-box;
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0.65rem;
+    border: 2px solid var(--inv-cumple-ink);
+    border-radius: 16px;
+    background: color-mix(in srgb, var(--secondary-color) 28%, var(--bg-color));
+    box-shadow: 4px 4px 0 var(--inv-cumple-ink);
+    rotate: -5deg;
+    animation: inv-cumple-wobble 4s ease-in-out infinite;
+}
+
+@keyframes inv-cumple-wobble {
+    0%, 100% { rotate: -5deg; }
+    50% { rotate: 4deg; }
+}
+
+/* Aparición con rebote e inclinación, como algo que salta a la vista */
+.inv-cumple .reveal {
+    transform: translateY(28px) rotate(-1.2deg) scale(0.97);
+    transition: opacity 0.6s ease, transform 0.9s var(--inv-cumple-bounce);
+}
+
+.inv-cumple .reveal.is-visible {
+    transform: none;
+}
+
+.inv-cumple .inv-empty {
+    border: 2px dashed color-mix(in srgb, var(--inv-cumple-ink) 40%, transparent);
+    border-radius: 16px;
+}
+
+/* ── Controles con borde marcado y sombra sólida ────────────────────────── */
+
+.inv-cumple .inv-btn {
+    border: 2px solid var(--inv-cumple-ink);
+    border-radius: 14px;
+    background: var(--inv-cumple-ink);
+    color: var(--bg-color);
+    box-shadow: 4px 4px 0 var(--inv-cumple-c1);
+    transition: translate 0.2s var(--inv-cumple-bounce), box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.inv-cumple .inv-btn:active {
+    opacity: 1;
+    translate: 3px 3px;
+    box-shadow: 1px 1px 0 var(--inv-cumple-c1);
+}
+
+.inv-cumple .inv-btn--ghost {
+    background: var(--bg-color);
+    color: var(--inv-cumple-ink);
+    box-shadow: 4px 4px 0 var(--inv-cumple-c2);
+}
+
+@media (hover: hover) {
+    .inv-cumple .inv-btn:hover:not(:disabled) {
+        translate: -2px -2px;
+        background: var(--inv-cumple-ink);
+        box-shadow: 6px 6px 0 var(--inv-cumple-c1);
+    }
+
+    .inv-cumple .inv-btn--ghost:hover:not(:disabled) {
+        border-color: var(--inv-cumple-ink);
+        background: var(--bg-color);
+        box-shadow: 6px 6px 0 var(--inv-cumple-c2);
+    }
+}
+
+.inv-cumple .inv-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.6rem;
+    border: 0;
+}
+
+.inv-cumple .inv-tab {
+    min-height: 2.5rem;
+    padding: 0.45rem 1.1rem;
+    border: 2px solid var(--inv-cumple-ink);
+    border-radius: 999px;
+    background: var(--bg-color);
+    color: var(--inv-cumple-ink);
+    letter-spacing: 0.12em;
+    transition: translate 0.2s var(--inv-cumple-bounce), box-shadow 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+}
+
+.inv-cumple .inv-tab::after {
+    display: none;
+}
+
+.inv-cumple .inv-tab.is-active {
+    translate: -1px -1px;
+    background: var(--inv-cumple-ink);
+    color: var(--bg-color);
+    box-shadow: 3px 3px 0 var(--inv-cumple-c1);
+}
+
+.inv-cumple .inv-folds {
+    border-top: 0;
+}
+
+.inv-cumple .inv-fold {
+    margin-bottom: 0.8rem;
+    padding-inline: 1rem;
+    border: 2px solid var(--inv-cumple-ink);
+    border-radius: 16px;
+    background: var(--bg-color);
+    box-shadow: 4px 4px 0 var(--inv-cumple-ink);
+}
+
+.inv-cumple .inv-fold[open] {
+    box-shadow: 4px 4px 0 var(--inv-cumple-c1);
+}
+
+.inv-cumple .inv-fold__chevron {
+    border: 2px solid var(--inv-cumple-ink);
+}
+
+.inv-cumple .inv-fold[open] .inv-fold__chevron {
+    background: var(--inv-cumple-c2);
+}
+
+/* ── Cuenta regresiva y tarjetas ────────────────────────────────────────── */
+
+.inv-cumple .inv-countdown__grid {
+    gap: 0.55rem;
+    padding: 0.3rem 0.2rem 0.6rem;
+    border: 0;
+}
+
+/* Fichas inclinadas, cada una con su color de sombra */
+.inv-cumple .inv-countdown__unit,
+.inv-cumple .inv-countdown__unit + .inv-countdown__unit {
+    padding: 0.95rem 0 0.75rem;
+    border: 2px solid var(--inv-cumple-ink);
+    border-radius: 14px;
+    background: var(--bg-color);
+    box-shadow: 4px 4px 0 var(--inv-cumple-c1);
+    rotate: -2deg;
+}
+
+.inv-cumple .inv-countdown__unit:nth-child(2) { box-shadow: 4px 4px 0 var(--inv-cumple-c2); rotate: 2deg; }
+.inv-cumple .inv-countdown__unit:nth-child(3) { box-shadow: 4px 4px 0 var(--inv-cumple-c3); rotate: -1.5deg; }
+.inv-cumple .inv-countdown__unit:nth-child(4) { rotate: 2.5deg; }
+
+.inv-cumple .inv-countdown__value {
+    font-size: clamp(1.9rem, 9vw, 3.6rem);
+    font-weight: 700;
+    color: var(--inv-cumple-ink);
+}
+
+.inv-cumple .inv-countdown__unit:last-child .inv-countdown__value {
+    animation: inv-cumple-tick 1s var(--inv-cumple-bounce) infinite;
+}
+
+@keyframes inv-cumple-tick {
+    0% { scale: 1.18; }
+    40%, 100% { scale: 1; }
+}
+
+.inv-cumple .inv-countdown__date {
+    font-weight: 600;
+    color: var(--inv-cumple-ink);
+}
+
+/* Banner del invitado y pase como entradas con borde punteado */
+.inv-cumple .inv-guest__facts,
+.inv-cumple .inv-pass {
+    border: 2px dashed var(--inv-cumple-ink);
+    border-radius: 18px;
+    background: color-mix(in srgb, var(--secondary-color) 14%, var(--bg-color));
+}
+
+.inv-cumple .inv-guest__facts > div + div,
+.inv-cumple .inv-pass__facts > div + div {
+    border-left: 2px dashed color-mix(in srgb, var(--inv-cumple-ink) 35%, transparent);
+}
+
+.inv-cumple .inv-pass {
+    padding: 1.75rem 1.25rem;
+}
+
+.inv-cumple .inv-pass__qr {
+    border: 2px solid var(--inv-cumple-ink);
+    border-radius: 12px;
+}
+
+/* ── Fotos, video y mapa ────────────────────────────────────────────────── */
+
+/* Galería: fotos con cinta adhesiva arriba */
+.inv-cumple .inv-gallery__card {
+    overflow: visible;
+    padding: 8px;
+    border: 2px solid var(--inv-cumple-ink);
+    border-radius: 10px;
+    background: var(--inv-cumple-paper);
+}
+
+.inv-cumple .inv-gallery__card::before {
+    content: '';
+    position: absolute;
+    top: -11px;
+    left: 50%;
+    z-index: 1;
+    width: 4.5rem;
+    height: 1.3rem;
+    translate: -50% 0;
+    rotate: -4deg;
+    background: color-mix(in srgb, var(--inv-cumple-c2) 70%, transparent);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.12);
+}
+
+.inv-cumple .inv-gallery__image {
+    border-radius: 6px;
+}
+
+.inv-cumple .inv-gallery__arrow {
+    border: 2px solid var(--inv-cumple-ink);
+    box-shadow: 3px 3px 0 var(--inv-cumple-c2);
+}
+
+.inv-cumple .inv-video__frame,
+.inv-cumple .inv-location__photo,
+.inv-cumple .inv-location__map {
+    border: 2px solid var(--inv-cumple-ink);
+    border-radius: 18px;
+    box-shadow: 6px 6px 0 var(--inv-cumple-c1);
+}
+
+.inv-cumple .inv-location__map {
+    box-shadow: 6px 6px 0 var(--inv-cumple-c2);
+}
+
+.inv-cumple .inv-dress__image {
+    border: 2px solid var(--inv-cumple-ink);
+    border-radius: 16px;
+}
+
+.inv-cumple .inv-dress__thumb,
+.inv-cumple .inv-mural__item {
+    border: 2px solid var(--inv-cumple-ink);
+    border-radius: 12px;
+}
+
+/* ── Encuestas y confirmación ───────────────────────────────────────────── */
+
+.inv-cumple .inv-poll__option,
+.inv-cumple .inv-choice {
+    border: 2px solid var(--inv-cumple-ink);
+    border-radius: 14px;
+}
+
+.inv-cumple .inv-poll__option.is-selected {
+    border-color: var(--inv-cumple-ink);
+    box-shadow: 3px 3px 0 var(--inv-cumple-c1);
+}
+
+.inv-cumple .inv-poll__bar {
+    background: color-mix(in srgb, var(--inv-cumple-c2) 35%, transparent);
+}
+
+.inv-cumple .inv-choice.is-selected {
+    border-color: var(--inv-cumple-ink);
+    background: var(--inv-cumple-ink);
+    color: var(--bg-color);
+    box-shadow: 3px 3px 0 var(--inv-cumple-c1);
+}
+
+.inv-cumple .inv-rsvp__num,
+.inv-cumple .inv-stepper__btn {
+    border: 2px solid var(--inv-cumple-ink);
+    background: color-mix(in srgb, var(--inv-cumple-c2) 25%, var(--bg-color));
+}
+
+.inv-cumple .inv-sheet {
+    border: 2px solid var(--inv-cumple-ink);
+    border-bottom: 0;
+    border-radius: 22px 22px 0 0;
+}
+
+@media (min-width: 640px) {
+    .inv-cumple .inv-sheet {
+        border-bottom: 2px solid var(--inv-cumple-ink);
+        border-radius: 22px;
+    }
+}
+
+/* ── Menú y reproductor ─────────────────────────────────────────────────── */
+
+.inv-cumple .inv-nav__toggle {
+    border: 2px solid var(--inv-cumple-ink);
+    box-shadow: 3px 3px 0 var(--inv-cumple-c1);
+}
+
+.inv-cumple .inv-nav__panel {
+    background: var(--inv-cumple-dots), var(--bg-color);
+}
+
+.inv-cumple .inv-nav__heading {
+    font-family: var(--font-titles);
+    font-size: 2.6rem;
+    font-weight: 700;
+}
+
+.inv-cumple .inv-nav__link.is-active .inv-nav__num {
+    color: var(--inv-cumple-c1);
+}
+
+/* Reproductor flotante tipo sticker */
+.inv-cumple .inv-player {
+    right: 0.6rem;
+    bottom: calc(0.6rem + env(safe-area-inset-bottom));
+    left: 0.6rem;
+    padding: 0.45rem 0.9rem 0.45rem 0.45rem;
+    border: 2px solid var(--inv-cumple-ink);
+    border-radius: 16px;
+    box-shadow: 4px 4px 0 var(--inv-cumple-c2);
+}
+
+.inv-cumple .inv-player__toggle {
+    border: 0;
+    border-radius: 12px;
+    background: var(--inv-cumple-c1);
+    color: #fff;
+}
+
+@media (min-width: 640px) {
+    .inv-cumple .inv-player {
+        right: auto;
+        left: 50%;
+        width: min(30rem, calc(100% - 1.2rem));
+        translate: -50% 0;
+    }
+}
+
+/* ── Pie ────────────────────────────────────────────────────────────────── */
+
+.inv-cumple-footer {
+    padding-top: 4.75rem;
+    border-top: 0;
+}
+
+.inv-cumple-trio {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+.inv-cumple-trio .inv-cumple-balloon {
+    width: 1.8rem;
+    margin-inline: -0.2rem;
+    animation: inv-cumple-bob 3s ease-in-out infinite;
+}
+
+.inv-cumple-trio .inv-cumple-balloon:nth-child(1) { color: var(--inv-cumple-c2); rotate: -12deg; }
+.inv-cumple-trio .inv-cumple-balloon:nth-child(2) { width: 2.2rem; animation-delay: -1s; }
+.inv-cumple-trio .inv-cumple-balloon:nth-child(3) { color: var(--inv-cumple-c3); rotate: 12deg; animation-delay: -2s; }
+
+.inv-cumple-footer .inv-footer__name {
+    font-family: var(--font-titles);
+    font-size: clamp(2.2rem, 9vw, 3.2rem);
+    font-weight: 700;
+}
+
+.inv-cumple-footer .inv-footer__bar {
+    border-top: 2px dashed color-mix(in srgb, var(--inv-cumple-ink) 25%, transparent);
+}
+
+/* ── Movimiento reducido ────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+    .inv-cumple .inv-cumple-ambient,
+    .inv-cumple-intro__confetti {
+        display: none;
+    }
+
+    .inv-cumple-bunting__flag,
+    .inv-cumple-stage__balloon,
+    .inv-cumple-letter,
+    .inv-cumple-candle__flame,
+    .inv-cumple .invitation-lottie-framed__icon,
+    .inv-cumple .invitation-lottie-framed__rule,
+    .inv-cumple .inv-countdown__value {
+        animation: none;
+    }
+}

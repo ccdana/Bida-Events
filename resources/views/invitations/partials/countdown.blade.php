@@ -1,7 +1,7 @@
 <section class="inv-section reveal inv-countdown" id="cuenta-regresiva" x-data="countdown('{{ $eventDate }}')" x-init="start()">
     <div class="inv-wrap inv-wrap--wide">
         <header class="inv-head">
-            @include('invitations.partials.lottie-framed-icon', ['name' => 'clock'])
+            @include('invitations.partials.lottie-framed-icon', ['name' => $invCopy['countdown_lottie'] ?? 'clock'])
             <p class="inv-head__eyebrow" x-text="finished ? 'Llegó el momento' : 'El gran día se acerca'">El gran día se acerca</p>
             <h2 class="inv-head__title" x-text="finished ? '¡Hoy es el gran día!' : 'Faltan'">Faltan</h2>
             <div class="inv-head__rule" aria-hidden="true"></div>

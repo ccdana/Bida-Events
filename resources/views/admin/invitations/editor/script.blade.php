@@ -277,14 +277,14 @@ function invitationForm(config) {
 
         fontSample(roleKey) {
             if (roleKey === 'script') {
-                return this.modules.bienvenida?.nombre_quinceanera || (this.isWeddingTemplate() ? 'Ana & Luis' : (this.isBaptismTemplate() ? 'Mateo Andrés' : 'Sofía Valentina'));
+                return this.modules.bienvenida?.nombre_quinceanera || (this.isWeddingTemplate() ? 'Ana & Luis' : (this.isBaptismTemplate() ? 'Mateo Andrés' : (this.isBirthdayTemplate() ? 'Valeria' : 'Sofía Valentina')));
             }
             return roleKey === 'titulos' ? 'Itinerario' : 'Te esperamos a las 18:00';
         },
         fontOptions: {
             titulos: [
                 'Playfair Display', 'Cormorant Garamond', 'Cinzel', 'Libre Baskerville',
-                'Bodoni Moda', 'Prata', 'Lora', 'Merriweather',
+                'Bodoni Moda', 'Prata', 'Lora', 'Merriweather', 'Fredoka',
             ],
             cuerpo: [
                 'Montserrat', 'Inter', 'Lato', 'Nunito Sans', 'Source Sans 3',
@@ -790,6 +790,12 @@ function invitationForm(config) {
         isBaptismTemplate() {
             const value = String(this.meta.template ?? '');
             return this.templateOptions.find(option => option.value === value)?.event === 'bautizo';
+        },
+
+        // Plantilla de cumpleaños: el editor habla de amigos, familia y anfitriones
+        isBirthdayTemplate() {
+            const value = String(this.meta.template ?? '');
+            return this.templateOptions.find(option => option.value === value)?.event === 'cumple';
         },
 
         getStatusLabel() {
@@ -1545,6 +1551,30 @@ function invitationForm(config) {
                         accent: '#F8E3EA',
                         text: '#46323A',
                         background: '#FFF9FB',
+                    },
+                },
+                {
+                    mode: 'light',
+                    name: 'Confeti Coral',
+                    description: 'Coral, amarillo sol y menta',
+                    colors: {
+                        primary: '#F25C54',
+                        secondary: '#F7B32B',
+                        accent: '#9ADBC5',
+                        text: '#2B2D42',
+                        background: '#FFF8F0',
+                    },
+                },
+                {
+                    mode: 'light',
+                    name: 'Fiesta Lila',
+                    description: 'Lila vibrante y amarillo',
+                    colors: {
+                        primary: '#8E6CEF',
+                        secondary: '#FFC93C',
+                        accent: '#E6DDFB',
+                        text: '#2A2440',
+                        background: '#FBF8FF',
                     },
                 },
                 {

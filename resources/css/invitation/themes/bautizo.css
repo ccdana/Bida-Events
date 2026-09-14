@@ -48,8 +48,8 @@
 }
 
 .inv-bautizo-dove__wing {
-    transform-box: view-box;
-    transform-origin: 112px 92px;
+    transform-box: fill-box;
+    transform-origin: 100% 90%;
     animation: inv-bautizo-flap 1.8s ease-in-out infinite;
 }
 
@@ -76,8 +76,8 @@
     height: 24vmax;
     border-radius: 50%;
     background: radial-gradient(ellipse at center, color-mix(in srgb, var(--accent-color) 55%, #fff) 0%, transparent 70%);
-    opacity: 0.65;
-    animation: inv-bautizo-cloud-pass 90s linear infinite;
+    opacity: 0.8;
+    animation: inv-bautizo-cloud-pass 75s linear infinite;
 }
 
 .inv-bautizo-ambient__cloud--1 {
@@ -117,19 +117,19 @@
 }
 
 /* En celulares titilan menos destellos */
-.inv-bautizo-ambient__sparkle:nth-child(n + 13) {
+.inv-bautizo-ambient__sparkle:nth-child(n + 16) {
     display: none;
 }
 
 @media (min-width: 768px) {
-    .inv-bautizo-ambient__sparkle:nth-child(n + 13) {
+    .inv-bautizo-ambient__sparkle:nth-child(n + 16) {
         display: block;
     }
 }
 
 @keyframes inv-bautizo-twinkle {
     0%, 100% { opacity: 0; scale: 0.4; rotate: 0deg; }
-    50% { opacity: 0.9; scale: 1; rotate: 45deg; }
+    50% { opacity: 1; scale: 1.1; rotate: 45deg; }
 }
 
 @keyframes inv-bautizo-bob {
@@ -867,34 +867,34 @@ html.inv-intro-active .inv-bautizo-hero .inv-fade-up--3 { animation-delay: 1.9s;
     color: var(--bg-color);
 }
 
-/* ── Pie ────────────────────────────────────────────────────────────────── */
+/* ── Pie ───────────────────────────────────────────────────────────────────── */
 
 .inv-bautizo-footer {
-    position: relative;
-    z-index: 1;
-    padding: 4rem 1.25rem 4rem;
     border-top: 0;
 }
 
-.inv-bautizo-footer__dove {
-    display: block;
-    width: 5rem;
-    margin: 0 auto 0.75rem;
+.inv-bautizo-footer .inv-footer__ornament {
+    width: 4.5rem;
     animation: inv-bautizo-bob 4s ease-in-out infinite;
 }
 
-.inv-bautizo-footer__name {
+.inv-bautizo-footer .inv-footer__name {
     font-family: var(--font-titles);
     font-size: clamp(1.9rem, 8vw, 2.6rem);
     font-weight: 600;
-    line-height: 1.15;
 }
 
-.inv-bautizo-footer__date {
-    margin: 0.4rem 0 1.6rem;
+.inv-bautizo-footer .inv-footer__date {
     font-family: var(--font-script);
     font-size: 1.3rem;
+    font-weight: 400;
+    letter-spacing: 0;
+    text-transform: none;
     color: var(--inv-bautizo-deep);
+}
+
+.inv-bautizo-footer .inv-footer__bar {
+    border-top-color: color-mix(in srgb, var(--primary-color) 20%, transparent);
 }
 
 /* ── Movimiento reducido ────────────────────────────────────────────────── */

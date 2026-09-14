@@ -15,26 +15,7 @@
 <head>
     @include('invitations.partials.shell.head')
     @if($showIntro)
-        <script>
-            // Solo en la primera visita de la sesión y nunca dentro de un iframe (teléfono de la home)
-            (function () {
-                let skip = window.self !== window.top;
-
-                try {
-                    skip = skip || sessionStorage.getItem(@js($introKey)) === '1';
-                    sessionStorage.setItem(@js($introKey), '1');
-                } catch (error) {}
-
-                document.documentElement.classList.add(skip ? 'inv-intro-skip' : 'inv-intro-active');
-
-                // Con la apertura, la invitación empieza siempre en la portada aunque sea una recarga
-                if (!skip && 'scrollRestoration' in history) {
-                    history.scrollRestoration = 'manual';
-                    window.scrollTo(0, 0);
-                }
-            })();
-        </script>
-        <noscript><style>.inv-bautizo-intro { display: none !important; }</style></noscript>
+        @include('invitations.partials.shell.intro-script', ['introSelector' => '.inv-bautizo-intro'])
     @endif
 </head>
 <body class="inv-page inv-bautizo overflow-x-hidden {{ $page->hasPlayer ? 'has-player' : '' }}" x-data="invitationApp()" x-init="init()">
@@ -55,12 +36,12 @@
         @include('invitations.partials.shell.modules')
     </main>
 
-    <footer class="inv-footer inv-bautizo-footer">
-        @include('invitations.partials.bautizo.dove', ['class' => 'inv-bautizo-footer__dove'])
-        <p class="inv-bautizo-footer__name">{{ $page->displayName }}</p>
-        <p class="inv-bautizo-footer__date">{{ \Illuminate\Support\Str::ucfirst($page->eventDate->locale('es')->translatedFormat('j \d\e F \d\e Y')) }}</p>
-        <p class="inv-footer__text">Hecho con cariño por <span class="inv-footer__brand">Bida Events</span></p>
-    </footer>
+    @include('invitations.partials.shell.footer', [
+        'footerClass' => 'inv-bautizo-footer',
+        'footerName' => $page->displayName,
+        'footerDate' => \Illuminate\Support\Str::ucfirst($page->eventDate->locale('es')->translatedFormat('j \d\e F \d\e Y')),
+        'footerOrnament' => 'dove',
+    ])
 
     @include('invitations.partials.shell.scripts')
 </body>
