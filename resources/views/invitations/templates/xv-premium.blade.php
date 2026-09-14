@@ -21,6 +21,8 @@
 
     @include('invitations.partials.particles')
 
+    @include('invitations.partials.xv.glints')
+
     @include('invitations.partials.shell.nav')
 
     @include('invitations.partials.music-player', ['musica' => $page->music, 'flags' => array_merge($page->flags, ['musica' => $page->visible('musica')])])

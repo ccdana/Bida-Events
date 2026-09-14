@@ -275,18 +275,47 @@ html.inv-intro-active .inv-xv .inv-hero__crown .inv-xv-crown__gem { animation-de
 
 /* ── Separadores y encabezados ──────────────────────────────────────────── */
 
-/* Rombo dorado sobre el filete que separa cada sección */
-.inv-xv #contenido > .inv-section:not(:first-child) > .inv-wrap::before {
+/* Las secciones ya no llevan filete: las separa un ornamento dorado con volutas */
+.inv-xv .inv-section {
+    border-top: 0;
+}
+
+.inv-xv #contenido > .inv-section > .inv-wrap {
+    position: relative;
+    z-index: 1;
+}
+
+.inv-xv #contenido > .inv-section:not(:first-child)::after {
     content: '';
     position: absolute;
-    top: -4px;
+    top: -10px;
     left: 50%;
-    width: 7px;
-    height: 7px;
-    margin-left: -3.5px;
-    rotate: 45deg;
-    background: radial-gradient(circle, var(--primary-color) 0 1.5px, var(--bg-color) 2px);
-    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--primary-color) 70%, transparent);
+    z-index: 1;
+    width: min(88%, 20rem);
+    height: 20px;
+    translate: -50% 0;
+    background: var(--primary-color);
+    opacity: 0.8;
+    -webkit-mask: var(--inv-xv-flourish) center / contain no-repeat;
+    mask: var(--inv-xv-flourish) center / contain no-repeat;
+}
+
+/* Secciones alternas: resplandor dorado arriba y tapiz de rombos que se desvanece en los bordes */
+.inv-xv #contenido > .inv-section:nth-of-type(even) {
+    background: radial-gradient(80% 60% at 50% 0%, color-mix(in srgb, var(--primary-color) 10%, transparent), transparent 70%);
+}
+
+.inv-xv #contenido > .inv-section:nth-of-type(even)::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--primary-color);
+    opacity: 0.07;
+    pointer-events: none;
+    -webkit-mask: var(--inv-xv-damask) 0 0 / 44px 44px repeat, linear-gradient(transparent, #000 18%, #000 82%, transparent);
+    -webkit-mask-composite: source-in;
+    mask: var(--inv-xv-damask) 0 0 / 44px 44px repeat, linear-gradient(transparent, #000 18%, #000 82%, transparent);
+    mask-composite: intersect;
 }
 
 .inv-xv .inv-head__rule {
@@ -362,6 +391,474 @@ html.inv-intro-active .inv-xv .inv-hero__crown .inv-xv-crown__gem { animation-de
 /* Filete dorado que se desvanece hacia los lados */
 .inv-xv-footer .inv-footer__bar {
     border-image: linear-gradient(90deg, transparent, color-mix(in srgb, var(--primary-color) 60%, transparent), transparent) 1;
+}
+
+/* ── Más vida: brillos, joyas y marcos dorados ─────────────────────────────── */
+
+.inv-xv {
+    --inv-xv-star: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M10 0 C11 6 14 9 20 10 C14 11 11 14 10 20 C9 14 6 11 0 10 C6 9 9 6 10 0Z'/%3E%3C/svg%3E");
+    --inv-xv-flourish: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 220 20'%3E%3Cg fill='none' stroke='%23000' stroke-width='1' stroke-linecap='round'%3E%3Cpath d='M4 10 H66 M154 10 H216'/%3E%3Cpath d='M66 10 C74 10 76 4 82 4 C87 4 88 9 84 11 C81 12 79 9 82 8'/%3E%3Cpath d='M154 10 C146 10 144 16 138 16 C133 16 132 11 136 9 C139 8 141 11 138 12'/%3E%3C/g%3E%3Cpath d='M110 2 L118 10 L110 18 L102 10Z M89 10 L92 7 L95 10 L92 13Z M125 10 L128 7 L131 10 L128 13Z'/%3E%3C/svg%3E");
+    --inv-xv-damask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 44'%3E%3Cpath d='M22 2 L42 22 L22 42 L2 22 Z' fill='none' stroke='%23000' stroke-width='.8'/%3E%3Cpath d='M22 17 L27 22 L22 27 L17 22Z'/%3E%3Ccircle cx='22' cy='2' r='1.4'/%3E%3Ccircle cx='2' cy='22' r='1.4'/%3E%3C/svg%3E");
+}
+
+/* Fondo: resplandores dorados que se desplazan y destellos que titilan */
+.inv-xv .inv-xv-glints {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.inv-xv-glints__orb {
+    position: absolute;
+    width: 46vmax;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(circle, color-mix(in srgb, var(--primary-color) 22%, transparent), transparent 65%);
+    opacity: 0.6;
+    animation: inv-xv-orb 30s ease-in-out infinite alternate;
+}
+
+.inv-xv-glints__orb--1 { top: -14vmax; right: -16vmax; }
+.inv-xv-glints__orb--2 { top: 45vh; left: -20vmax; animation-duration: 38s; animation-direction: alternate-reverse; }
+.inv-xv-glints__orb--3 { right: 10vw; bottom: -18vmax; animation-duration: 44s; }
+
+.inv-xv-glints__star,
+.inv-xv .inv-hero__sparkle {
+    position: absolute;
+    top: var(--top);
+    left: var(--left);
+    width: var(--size);
+    height: var(--size);
+    background: var(--inv-xv-gold);
+    opacity: 0;
+    filter: drop-shadow(0 0 4px color-mix(in srgb, var(--primary-color) 70%, transparent));
+    -webkit-mask: var(--inv-xv-star) center / contain no-repeat;
+    mask: var(--inv-xv-star) center / contain no-repeat;
+    animation: inv-xv-twinkle var(--d, 2.8s) ease-in-out var(--delay, 0s) infinite;
+}
+
+.inv-xv-glints__star:nth-child(n + 11) {
+    display: none;
+}
+
+@media (min-width: 768px) {
+    .inv-xv-glints__star:nth-child(n + 11) {
+        display: block;
+    }
+}
+
+@keyframes inv-xv-orb {
+    to { translate: -6vmax 5vmax; scale: 1.15; }
+}
+
+@keyframes inv-xv-twinkle {
+    0%, 100% { opacity: 0; scale: 0.3; rotate: 0deg; }
+    50% { opacity: 0.95; scale: 1; rotate: 90deg; }
+}
+
+/* Portada: destellos alrededor del nombre */
+.inv-xv .inv-hero__title-wrap {
+    position: relative;
+}
+
+/* Encabezados: estrellas junto a la frase, título con degradado y el ícono en un medallón con halo */
+.inv-xv .inv-head__eyebrow::before,
+.inv-xv .inv-head__eyebrow::after {
+    content: '✦';
+    display: inline-block;
+    margin-inline: 0.7em;
+    color: var(--primary-color);
+    font-size: 0.85em;
+    letter-spacing: 0;
+}
+
+.inv-xv .inv-head__title {
+    background: linear-gradient(180deg, var(--text-color) 45%, var(--inv-accent-ink));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.inv-xv .invitation-lottie-framed {
+    gap: 0.55rem;
+}
+
+.inv-xv .invitation-lottie-framed__rule {
+    position: relative;
+    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--primary-color) 70%, transparent));
+}
+
+.inv-xv .invitation-lottie-framed__rule:last-child {
+    background: linear-gradient(270deg, transparent, color-mix(in srgb, var(--primary-color) 70%, transparent));
+}
+
+.inv-xv .invitation-lottie-framed__rule::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: -2px;
+    width: 5px;
+    height: 5px;
+    translate: 0 -50%;
+    rotate: 45deg;
+    background: var(--primary-color);
+}
+
+.inv-xv .invitation-lottie-framed__rule:last-child::after {
+    right: auto;
+    left: -2px;
+}
+
+.inv-xv .invitation-lottie-framed__icon {
+    box-sizing: content-box;
+    width: 2.6rem;
+    height: 2.6rem;
+    padding: 0.8rem;
+    border-radius: 50%;
+    background: radial-gradient(circle at 50% 35%, color-mix(in srgb, var(--primary-color) 18%, var(--bg-color)), var(--bg-color) 72%);
+    box-shadow:
+        0 0 0 1px color-mix(in srgb, var(--primary-color) 55%, transparent),
+        0 0 0 5px var(--bg-color),
+        0 0 0 6px color-mix(in srgb, var(--primary-color) 25%, transparent),
+        0 10px 30px -10px color-mix(in srgb, var(--primary-color) 55%, transparent);
+    animation: inv-xv-halo 4.5s ease-in-out infinite;
+}
+
+@keyframes inv-xv-halo {
+    50% {
+        box-shadow:
+            0 0 0 1px color-mix(in srgb, var(--primary-color) 85%, transparent),
+            0 0 0 5px var(--bg-color),
+            0 0 0 6px color-mix(in srgb, var(--primary-color) 45%, transparent),
+            0 10px 38px -6px color-mix(in srgb, var(--primary-color) 75%, transparent);
+    }
+}
+
+/* Cuenta regresiva: fichas enmarcadas como estuches, con un destello que las recorre */
+.inv-xv .inv-countdown__grid {
+    gap: 0.55rem;
+    padding-top: 0.4rem;
+    border: 0;
+}
+
+.inv-xv .inv-countdown__unit,
+.inv-xv .inv-countdown__unit + .inv-countdown__unit {
+    position: relative;
+    padding: 1.1rem 0 0.9rem;
+    border: 1px solid color-mix(in srgb, var(--primary-color) 45%, transparent);
+    border-radius: 4px;
+    background:
+        linear-gradient(115deg, transparent 40%, color-mix(in srgb, #fff 22%, transparent) 50%, transparent 60%) 220% 0 / 250% 100% no-repeat,
+        linear-gradient(165deg, color-mix(in srgb, var(--primary-color) 12%, var(--bg-color)), var(--bg-color) 65%);
+    box-shadow:
+        inset 0 0 0 3px var(--bg-color),
+        inset 0 0 0 4px color-mix(in srgb, var(--primary-color) 22%, transparent),
+        0 14px 28px -20px color-mix(in srgb, var(--primary-color) 70%, transparent);
+    animation: inv-xv-glint 6s ease-in-out infinite;
+}
+
+.inv-xv .inv-countdown__unit:nth-child(2) { animation-delay: 0.25s; }
+.inv-xv .inv-countdown__unit:nth-child(3) { animation-delay: 0.5s; }
+.inv-xv .inv-countdown__unit:nth-child(4) { animation-delay: 0.75s; }
+
+.inv-xv .inv-countdown__unit::after {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: 50%;
+    width: 7px;
+    height: 7px;
+    margin-left: -3.5px;
+    rotate: 45deg;
+    background: var(--primary-color);
+    box-shadow: 0 0 0 2px var(--bg-color);
+}
+
+@keyframes inv-xv-glint {
+    0%, 70% { background-position: 220% 0, 0 0; }
+    100% { background-position: -120% 0, 0 0; }
+}
+
+/* Banner del invitado y pase con borde de lámina dorada */
+.inv-xv .inv-guest__facts,
+.inv-xv .inv-pass {
+    border: 1px solid transparent;
+    border-radius: 10px;
+    background:
+        radial-gradient(90% 80% at 50% 0%, color-mix(in srgb, var(--primary-color) 10%, var(--bg-color)), var(--bg-color) 70%) padding-box,
+        linear-gradient(135deg, color-mix(in srgb, var(--primary-color) 75%, #000), var(--inv-xv-gold), var(--primary-color), var(--inv-xv-gold)) border-box;
+    box-shadow: 0 18px 40px -28px color-mix(in srgb, var(--primary-color) 80%, transparent);
+}
+
+.inv-xv .inv-guest__facts > div + div,
+.inv-xv .inv-pass__facts > div + div {
+    border-left-color: color-mix(in srgb, var(--primary-color) 30%, transparent);
+}
+
+.inv-xv .inv-pass {
+    padding: 1.75rem 1.25rem;
+}
+
+.inv-xv .inv-pass__qr {
+    box-shadow:
+        0 0 0 1px var(--primary-color),
+        0 0 0 5px var(--bg-color),
+        0 0 0 6px color-mix(in srgb, var(--primary-color) 35%, transparent);
+}
+
+/* Pestañas y desplegables con acentos dorados */
+.inv-xv .inv-tabs {
+    border-bottom-color: color-mix(in srgb, var(--primary-color) 25%, transparent);
+}
+
+.inv-xv .inv-tab.is-active {
+    color: var(--inv-accent-ink);
+}
+
+.inv-xv .inv-tab::after {
+    background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+}
+
+.inv-xv .inv-folds {
+    border-top-color: color-mix(in srgb, var(--primary-color) 22%, transparent);
+}
+
+.inv-xv .inv-fold {
+    padding-inline: 0.6rem;
+    border-bottom-color: color-mix(in srgb, var(--primary-color) 22%, transparent);
+    transition: background-color 0.3s ease;
+}
+
+.inv-xv .inv-fold[open] {
+    background: linear-gradient(90deg, color-mix(in srgb, var(--primary-color) 8%, transparent), transparent 75%);
+}
+
+.inv-xv .inv-fold__chevron {
+    border-color: color-mix(in srgb, var(--primary-color) 50%, transparent);
+    color: var(--inv-accent-ink);
+}
+
+.inv-xv .inv-fold[open] .inv-fold__chevron {
+    background: var(--primary-color);
+    color: var(--bg-color);
+    box-shadow: 0 0 14px color-mix(in srgb, var(--primary-color) 45%, transparent);
+}
+
+/* Cortejo: estrella en cada grupo y rombo junto a cada nombre */
+.inv-xv .inv-court__group-title::before {
+    content: '✦';
+    margin-right: 0.5rem;
+    color: var(--primary-color);
+    font-size: 0.7em;
+    vertical-align: 0.15em;
+}
+
+.inv-xv .inv-court__names li {
+    position: relative;
+    padding-left: 1.15rem;
+    border-top-color: color-mix(in srgb, var(--primary-color) 14%, transparent);
+}
+
+.inv-xv .inv-court__names li::before {
+    content: '';
+    position: absolute;
+    top: 1.2rem;
+    left: 0.1rem;
+    width: 5px;
+    height: 5px;
+    rotate: 45deg;
+    background: var(--primary-color);
+}
+
+.inv-xv .inv-sponsor__names {
+    background: linear-gradient(180deg, var(--text-color) 40%, var(--inv-accent-ink));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+/* Itinerario: cada momento es una joya en forma de rombo */
+.inv-xv .inv-itinerary__node-dot {
+    border-radius: 30%;
+    rotate: 45deg;
+    box-shadow:
+        0 0 0 3px var(--bg-color),
+        0 0 0 4px color-mix(in srgb, var(--primary-color) calc(10% + var(--a) * 45%), transparent);
+}
+
+.inv-xv .inv-itinerary__icon {
+    rotate: -45deg;
+}
+
+.inv-xv .inv-itinerary__time::before {
+    content: '✦ ';
+    color: var(--primary-color);
+}
+
+/* Galería, video, mapa y fotomural con marcos dorados */
+.inv-xv .inv-gallery__stack::before {
+    --inv-xv-corner: color-mix(in srgb, var(--primary-color) 75%, transparent);
+    content: '';
+    position: absolute;
+    inset: -16px;
+    pointer-events: none;
+    background:
+        linear-gradient(var(--inv-xv-corner), var(--inv-xv-corner)) top left / 26px 1.5px no-repeat,
+        linear-gradient(var(--inv-xv-corner), var(--inv-xv-corner)) top left / 1.5px 26px no-repeat,
+        linear-gradient(var(--inv-xv-corner), var(--inv-xv-corner)) top right / 26px 1.5px no-repeat,
+        linear-gradient(var(--inv-xv-corner), var(--inv-xv-corner)) top right / 1.5px 26px no-repeat,
+        linear-gradient(var(--inv-xv-corner), var(--inv-xv-corner)) bottom left / 26px 1.5px no-repeat,
+        linear-gradient(var(--inv-xv-corner), var(--inv-xv-corner)) bottom left / 1.5px 26px no-repeat,
+        linear-gradient(var(--inv-xv-corner), var(--inv-xv-corner)) bottom right / 26px 1.5px no-repeat,
+        linear-gradient(var(--inv-xv-corner), var(--inv-xv-corner)) bottom right / 1.5px 26px no-repeat;
+}
+
+.inv-xv .inv-gallery__arrow,
+.inv-xv .inv-playlist__play {
+    border-color: color-mix(in srgb, var(--primary-color) 45%, transparent);
+    color: var(--inv-accent-ink);
+}
+
+.inv-xv .inv-video__frame,
+.inv-xv .inv-location__photo,
+.inv-xv .inv-location__map {
+    border-color: transparent;
+    border-radius: 6px;
+    box-shadow:
+        0 0 0 1px color-mix(in srgb, var(--primary-color) 55%, transparent),
+        0 0 0 6px var(--bg-color),
+        0 0 0 7px color-mix(in srgb, var(--primary-color) 25%, transparent),
+        0 24px 50px -30px color-mix(in srgb, var(--primary-color) 70%, transparent);
+}
+
+.inv-xv .inv-location__media {
+    gap: 1.25rem;
+}
+
+.inv-xv .inv-mural__item {
+    border-radius: 4px;
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--primary-color) 45%, transparent);
+}
+
+.inv-xv .inv-dress__swatch {
+    box-shadow: 0 0 0 3px var(--bg-color), 0 0 0 4px color-mix(in srgb, var(--primary-color) 55%, transparent);
+}
+
+.inv-xv .inv-empty {
+    border-block-color: color-mix(in srgb, var(--primary-color) 25%, transparent);
+}
+
+/* Encuestas: marca en rombo y barra dorada */
+.inv-xv .inv-poll__option {
+    border-color: color-mix(in srgb, var(--primary-color) 30%, var(--inv-line-strong));
+}
+
+.inv-xv .inv-poll__option.is-selected {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 15%, transparent), 0 10px 22px -16px color-mix(in srgb, var(--primary-color) 70%, transparent);
+}
+
+.inv-xv .inv-poll__bar {
+    background: linear-gradient(90deg, color-mix(in srgb, var(--primary-color) 8%, transparent), color-mix(in srgb, var(--primary-color) 28%, transparent));
+}
+
+.inv-xv .inv-poll__mark {
+    border-color: color-mix(in srgb, var(--primary-color) 55%, transparent);
+    border-radius: 3px;
+    rotate: 45deg;
+}
+
+.inv-xv .inv-poll__option.is-selected .inv-poll__mark {
+    background: linear-gradient(var(--primary-color), var(--primary-color)) center / 48% 48% no-repeat;
+}
+
+/* Confirmación, regalos y playlist */
+.inv-xv .inv-rsvp__step {
+    border-top-color: color-mix(in srgb, var(--primary-color) 20%, transparent);
+}
+
+.inv-xv .inv-rsvp__num,
+.inv-xv .inv-stepper__btn,
+.inv-xv .inv-gift__icon {
+    border-color: color-mix(in srgb, var(--primary-color) 55%, transparent);
+    color: var(--inv-accent-ink);
+    box-shadow: 0 0 12px color-mix(in srgb, var(--primary-color) 20%, transparent);
+}
+
+.inv-xv .inv-gift__icon {
+    background: radial-gradient(circle, color-mix(in srgb, var(--primary-color) 14%, var(--bg-color)), var(--bg-color));
+    box-shadow: 0 0 0 4px var(--bg-color), 0 0 0 5px color-mix(in srgb, var(--primary-color) 22%, transparent);
+}
+
+.inv-xv .inv-choice {
+    border-color: color-mix(in srgb, var(--primary-color) 32%, var(--inv-line-strong));
+}
+
+.inv-xv .inv-choice.is-selected {
+    border-color: var(--primary-color);
+    background: color-mix(in srgb, var(--primary-color) 14%, var(--bg-color));
+    color: var(--text-color);
+}
+
+.inv-xv .inv-gifts .inv-list,
+.inv-xv .inv-gifts .inv-list > li {
+    border-color: color-mix(in srgb, var(--primary-color) 18%, transparent);
+}
+
+.inv-xv .inv-playlist__num {
+    display: grid;
+    place-items: center;
+    min-width: 1.9rem;
+    height: 1.9rem;
+    border: 1px solid color-mix(in srgb, var(--primary-color) 45%, transparent);
+    border-radius: 50%;
+    color: var(--inv-accent-ink);
+}
+
+/* Hashtag en dorado entre dos ornamentos */
+.inv-xv .inv-hashtag__tag {
+    position: relative;
+    padding-block: 2rem;
+    border-block: 0;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--primary-color) 70%, #fff), var(--inv-accent-ink));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.inv-xv .inv-hashtag__tag::before,
+.inv-xv .inv-hashtag__tag::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    width: min(80%, 16rem);
+    height: 16px;
+    translate: -50% 0;
+    background: var(--primary-color);
+    opacity: 0.7;
+    -webkit-mask: var(--inv-xv-flourish) center / contain no-repeat;
+    mask: var(--inv-xv-flourish) center / contain no-repeat;
+}
+
+.inv-xv .inv-hashtag__tag::before { top: 0.2rem; }
+.inv-xv .inv-hashtag__tag::after { bottom: 0.2rem; }
+
+.inv-xv .inv-player__toggle {
+    border-color: color-mix(in srgb, var(--primary-color) 55%, transparent);
+    color: var(--inv-accent-ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .inv-xv .inv-xv-glints,
+    .inv-xv .inv-hero__sparkle {
+        display: none;
+    }
+
+    .inv-xv .invitation-lottie-framed__icon,
+    .inv-xv .inv-countdown__unit {
+        animation: none;
+    }
 }
 
 /* ── Movimiento reducido ────────────────────────────────────────────────── */

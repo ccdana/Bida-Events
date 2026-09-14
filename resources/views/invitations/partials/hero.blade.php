@@ -28,7 +28,12 @@
         @include('invitations.partials.xv.crown', ['class' => 'inv-hero__crown'])
         <p class="inv-hero__eyebrow inv-fade-up">{{ $heroEyebrow }}</p>
 
-        <h1 class="inv-hero__title inv-fade-up inv-fade-up--1">{{ $heroTitle }}</h1>
+        <div class="inv-hero__title-wrap">
+            @foreach([[-4, 12, 12, 0], [96, 4, 9, 0.9], [6, 86, 8, 1.7], [92, 80, 13, 2.4], [50, -14, 7, 3.1]] as [$sparkLeft, $sparkTop, $sparkSize, $sparkDelay])
+                <span class="inv-hero__sparkle" style="--left: {{ $sparkLeft }}%; --top: {{ $sparkTop }}%; --size: {{ $sparkSize }}px; --delay: {{ $sparkDelay }}s" aria-hidden="true"></span>
+            @endforeach
+            <h1 class="inv-hero__title inv-fade-up inv-fade-up--1">{{ $heroTitle }}</h1>
+        </div>
 
         <div class="inv-hero__rule inv-fade-up inv-fade-up--2" aria-hidden="true"></div>
 

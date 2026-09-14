@@ -114,10 +114,13 @@
 
 /* ── Sobre de apertura ─────────────────────────────────────────────────────── */
 
+/* El sobre y la tarjeta son siempre de papel claro teñido con la paleta: se leen bien sobre fondos claros y oscuros */
 .inv-boda-cover {
-    --env-paper: color-mix(in srgb, var(--accent-color) 45%, var(--bg-color));
-    --env-shade: color-mix(in srgb, var(--primary-color) 24%, var(--env-paper));
-    --env-deep: color-mix(in srgb, var(--primary-color) 38%, var(--env-paper));
+    --env-paper: color-mix(in srgb, var(--accent-color) 28%, #fbf7f0);
+    --env-shade: color-mix(in srgb, var(--primary-color) 16%, var(--env-paper));
+    --env-deep: color-mix(in srgb, var(--primary-color) 30%, var(--env-paper));
+    --env-card: color-mix(in srgb, var(--accent-color) 8%, #fffdf9);
+    --env-ink: color-mix(in srgb, var(--primary-color) 30%, #2f2a25);
     position: fixed;
     inset: 0;
     z-index: 200;
@@ -127,12 +130,19 @@
     overflow: hidden;
     color: var(--text-color);
     background:
-        radial-gradient(60% 45% at 50% 58%, color-mix(in srgb, var(--accent-color) 70%, var(--bg-color)), transparent 72%),
+        radial-gradient(60% 45% at 50% 58%, color-mix(in srgb, var(--accent-color) 45%, var(--bg-color)), transparent 72%),
         var(--bg-color);
+    transition: opacity 0.65s ease, transform 0.65s var(--inv-ease);
 }
 
 html.inv-cover-skip .inv-boda-cover {
     display: none;
+}
+
+.inv-boda-cover.is-leaving {
+    pointer-events: none;
+    opacity: 0;
+    transform: scale(1.04);
 }
 
 .inv-boda-cover__glow {
@@ -202,14 +212,14 @@ html.inv-cover-skip .inv-boda-cover {
 
 .inv-boda-envelope {
     position: relative;
-    width: min(84vw, 23rem);
-    aspect-ratio: 1.45;
-    margin-top: 2rem;
+    width: min(82vw, 22rem);
+    aspect-ratio: 1.5;
+    margin-top: 2.4rem;
     padding: 0;
     border: 0;
     background: none;
     cursor: pointer;
-    perspective: 1200px;
+    perspective: 900px;
     animation: inv-fade-up 1s var(--inv-ease) 0.45s both, inv-boda-float 4.5s ease-in-out 1.5s infinite;
 }
 
@@ -218,21 +228,21 @@ html.inv-cover-skip .inv-boda-cover {
     display: block;
 }
 
+/* Fondo del sobre */
 .inv-boda-envelope__back {
     inset: 0;
-    border-radius: 10px;
+    z-index: 0;
+    border-radius: 8px;
     background: linear-gradient(180deg, var(--env-deep), var(--env-shade));
-    box-shadow:
-        0 36px 60px -34px color-mix(in srgb, var(--text-color) 65%, transparent),
-        0 2px 6px color-mix(in srgb, var(--text-color) 12%, transparent);
+    box-shadow: 0 30px 50px -30px rgb(0 0 0 / 0.45), 0 2px 6px rgb(0 0 0 / 0.1);
 }
 
-/* Tarjeta con doble marco que sale del sobre */
+/* Tarjeta con doble marco que espera dentro del sobre */
 .inv-boda-envelope > .inv-boda-envelope__letter {
     top: 7%;
-    right: 7%;
-    bottom: 9%;
-    left: 7%;
+    right: 6%;
+    bottom: 6%;
+    left: 6%;
     z-index: 1;
     display: flex;
     flex-direction: column;
@@ -241,26 +251,26 @@ html.inv-cover-skip .inv-boda-cover {
     gap: 0.3rem;
     padding: 0.8rem;
     border-radius: 4px;
-    background: color-mix(in srgb, var(--bg-color) 70%, #fff);
+    background: var(--env-card);
+    color: var(--env-ink);
     box-shadow:
-        inset 0 0 0 6px color-mix(in srgb, var(--bg-color) 70%, #fff),
-        inset 0 0 0 7px color-mix(in srgb, var(--primary-color) 35%, transparent),
-        0 2px 8px color-mix(in srgb, var(--text-color) 14%, transparent);
-    transform-origin: 50% 100%;
+        inset 0 0 0 5px var(--env-card),
+        inset 0 0 0 6px color-mix(in srgb, var(--primary-color) 40%, transparent),
+        0 2px 10px rgb(0 0 0 / 0.12);
+    transition: transform 0.85s var(--inv-ease);
 }
 
 .inv-boda-envelope__letter-eyebrow {
     font-family: var(--font-titles);
     font-size: 0.8rem;
     font-style: italic;
-    color: var(--inv-accent-ink);
+    color: color-mix(in srgb, var(--primary-color) 70%, var(--env-ink));
 }
 
 .inv-boda-envelope__letter-names {
     font-family: var(--font-script);
     font-size: clamp(1.5rem, 7vw, 2rem);
     line-height: 1.1;
-    color: var(--text-color);
 }
 
 .inv-boda-envelope__letter-rule {
@@ -276,70 +286,57 @@ html.inv-cover-skip .inv-boda-cover {
     font-size: 0.55rem;
     font-weight: 600;
     letter-spacing: 0.3em;
-    color: var(--inv-soft);
+    color: color-mix(in srgb, var(--env-ink) 70%, transparent);
 }
 
-/* Bolsillo delantero con los pliegues laterales e inferior */
+/* Bolsillo delantero: pliegues laterales e inferior que tapan la parte baja de la tarjeta */
 .inv-boda-envelope__pocket {
     inset: 0;
     z-index: 2;
-    border-radius: 0 0 10px 10px;
-    background: linear-gradient(165deg, var(--env-paper), var(--env-shade));
-    clip-path: polygon(0 0, 50% 54%, 100% 0, 100% 100%, 0 100%);
+    border-radius: 0 0 8px 8px;
+    background: linear-gradient(170deg, var(--env-paper), var(--env-shade));
+    clip-path: polygon(0 0, 50% 52%, 100% 0, 100% 100%, 0 100%);
 }
 
 .inv-boda-envelope__pocket::before {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(0deg, color-mix(in srgb, var(--primary-color) 16%, transparent), transparent 70%);
-    clip-path: polygon(0 100%, 50% 48%, 100% 100%);
+    background: linear-gradient(0deg, color-mix(in srgb, var(--primary-color) 14%, transparent), transparent 75%);
+    clip-path: polygon(0 100%, 50% 46%, 100% 100%);
 }
 
-/* Solapa con dos caras: papel por fuera y forro estampado por dentro */
+/* Solapa: cubre la abertura mientras el sobre está cerrado */
 .inv-boda-envelope__flap {
     top: 0;
     right: 0;
     left: 0;
     z-index: 3;
-    height: 58%;
-    transform-origin: top;
-    transform-style: preserve-3d;
-}
-
-.inv-boda-envelope__flap-front,
-.inv-boda-envelope__liner {
-    position: absolute;
-    inset: 0;
-    clip-path: polygon(0 0, 100% 0, 50% 100%);
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
-}
-
-.inv-boda-envelope__flap-front {
+    height: 56%;
     background: linear-gradient(180deg, var(--env-deep), var(--env-paper));
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+    transform-origin: 50% 0;
 }
 
-.inv-boda-envelope__liner {
-    background:
-        radial-gradient(circle, color-mix(in srgb, var(--primary-color) 45%, transparent) 1.2px, transparent 1.7px) 0 0 / 12px 12px,
-        linear-gradient(180deg, color-mix(in srgb, var(--accent-color) 60%, #fff), color-mix(in srgb, var(--accent-color) 85%, var(--bg-color)));
-    transform: rotateX(180deg);
+.inv-boda-envelope__back,
+.inv-boda-envelope__pocket,
+.inv-boda-envelope__flap {
+    transition: translate 0.6s var(--inv-ease), opacity 0.5s ease;
 }
 
 /* Sello de cera con borde irregular e iniciales en relieve */
 .inv-boda-envelope > .inv-boda-envelope__seal {
-    top: 58%;
+    top: 56%;
     left: 50%;
     z-index: 4;
     display: grid;
     place-items: center;
-    width: 4.6rem;
-    height: 4.6rem;
+    width: 4.4rem;
+    height: 4.4rem;
     translate: -50% -50%;
     border-radius: 47% 53% 49% 51% / 52% 47% 53% 48%;
     background: radial-gradient(circle at 36% 30%, color-mix(in srgb, var(--primary-color) 55%, #fff) 0%, var(--primary-color) 45%, color-mix(in srgb, var(--primary-color) 65%, #000) 100%);
-    color: color-mix(in srgb, var(--bg-color) 80%, #fff);
+    color: #fffaf2;
     box-shadow:
         0 8px 16px -8px rgb(0 0 0 / 0.55),
         inset 0 -3px 6px rgb(0 0 0 / 0.18),
@@ -359,7 +356,7 @@ html.inv-cover-skip .inv-boda-cover {
 .inv-boda-envelope__seal > span {
     position: relative;
     font-family: var(--font-script);
-    font-size: 1.45rem;
+    font-size: 1.4rem;
     line-height: 1;
     text-shadow: 0 1px 0 rgb(0 0 0 / 0.3), 0 -1px 0 rgb(255 255 255 / 0.2);
 }
@@ -368,7 +365,7 @@ html.inv-cover-skip .inv-boda-cover {
     display: inline-flex;
     align-items: center;
     gap: 0.65rem;
-    margin-top: 1.9rem;
+    margin-top: 2rem;
     padding: 0.6rem 1.15rem;
     border-radius: 999px;
     background: color-mix(in srgb, var(--bg-color) 75%, transparent);
@@ -400,7 +397,7 @@ html.inv-cover-skip .inv-boda-cover {
 
 @media (min-width: 768px) {
     .inv-boda-envelope {
-        width: 26rem;
+        width: 25rem;
     }
 
     .inv-boda-cover__branch {
@@ -408,13 +405,9 @@ html.inv-cover-skip .inv-boda-cover {
     }
 }
 
-/* Apertura: el sello se rompe, la solapa gira, la tarjeta sale y crece, y el sobre se hunde */
-.inv-boda-cover.is-opening {
-    pointer-events: none;
-    animation: inv-boda-cover-out 0.85s var(--inv-ease) 1.55s forwards;
-}
-
+/* Etapa 1: se rompe el sello y la solapa gira hacia atrás mostrando el forro estampado */
 .inv-boda-cover.is-opening .inv-boda-envelope {
+    cursor: default;
     animation: none;
 }
 
@@ -425,23 +418,31 @@ html.inv-cover-skip .inv-boda-cover {
 }
 
 .inv-boda-cover.is-opening .inv-boda-envelope__seal {
-    animation: inv-boda-seal-break 0.5s var(--inv-ease) forwards;
+    animation: inv-boda-seal-break 0.45s var(--inv-ease) forwards;
 }
 
 .inv-boda-cover.is-opening .inv-boda-envelope__flap {
-    animation: inv-boda-flap-open 0.85s var(--inv-ease) 0.3s forwards;
+    animation: inv-boda-flap-open 0.7s cubic-bezier(0.45, 0, 0.2, 1) 0.15s forwards;
 }
 
-.inv-boda-cover.is-opening .inv-boda-envelope__letter {
-    animation: inv-boda-letter-out 1.4s var(--inv-ease) 0.75s forwards;
+/* Etapa 2: con la solapa ya abierta detrás, la tarjeta sale del sobre */
+.inv-boda-envelope.is-open .inv-boda-envelope__flap {
+    z-index: 0;
 }
 
-.inv-boda-cover.is-opening :is(.inv-boda-envelope__back, .inv-boda-envelope__pocket) {
-    animation: inv-boda-envelope-drop 0.8s var(--inv-ease) 1.25s forwards;
+.inv-boda-envelope.is-open .inv-boda-envelope__letter {
+    transform: translateY(-58%);
 }
 
-.inv-boda-cover.is-opening :is(.inv-boda-envelope__flap-front, .inv-boda-envelope__liner) {
-    animation: inv-boda-fade-out 0.6s ease 1.25s forwards;
+/* Etapa 3: el sobre se hunde y la tarjeta queda al frente y crece hacia la invitación */
+.inv-boda-envelope.is-reveal :is(.inv-boda-envelope__back, .inv-boda-envelope__pocket, .inv-boda-envelope__flap) {
+    opacity: 0;
+    translate: 0 28%;
+}
+
+.inv-boda-envelope.is-reveal .inv-boda-envelope__letter {
+    z-index: 5;
+    transform: translateY(-30%) scale(1.3);
 }
 
 @keyframes inv-boda-glow {
@@ -468,30 +469,27 @@ html.inv-cover-skip .inv-boda-cover {
     100% { opacity: 0; scale: 0.3; rotate: 35deg; }
 }
 
+/* La cara visible cambia a mitad del giro: primero el papel, luego el forro con lunares */
 @keyframes inv-boda-flap-open {
-    0% { z-index: 3; transform: rotateX(0deg); }
-    55% { z-index: 3; }
-    56% { z-index: 0; }
-    100% { z-index: 0; transform: rotateX(180deg); }
-}
+    0% {
+        transform: rotateX(0deg);
+        background: linear-gradient(180deg, var(--env-deep), var(--env-paper));
+    }
 
-@keyframes inv-boda-letter-out {
-    0% { z-index: 1; transform: translateY(0); }
-    45% { z-index: 1; transform: translateY(-58%); }
-    46% { z-index: 5; }
-    100% { z-index: 5; transform: translateY(-16%) scale(1.45); }
-}
+    49% {
+        background: linear-gradient(180deg, var(--env-deep), var(--env-paper));
+    }
 
-@keyframes inv-boda-envelope-drop {
-    to { opacity: 0; transform: translateY(35%); }
-}
+    50%,
+    100% {
+        background:
+            radial-gradient(circle, color-mix(in srgb, var(--primary-color) 40%, transparent) 1.2px, transparent 1.7px) 0 0 / 11px 11px,
+            color-mix(in srgb, var(--accent-color) 40%, #fffaf2);
+    }
 
-@keyframes inv-boda-fade-out {
-    to { opacity: 0; }
-}
-
-@keyframes inv-boda-cover-out {
-    to { opacity: 0; transform: scale(1.06); visibility: hidden; }
+    100% {
+        transform: rotateX(180deg);
+    }
 }
 
 /* Mientras el sobre está cerrado, la portada espera para animarse al abrirlo */
@@ -1142,6 +1140,337 @@ html.inv-cover-waiting .inv-boda-hero * {
 
 .inv-boda-footer .inv-footer__bar {
     border-top-color: color-mix(in srgb, var(--primary-color) 25%, transparent);
+}
+
+/* ── Más vida: detalles por módulo ─────────────────────────────────────────── */
+
+.inv-boda {
+    --inv-boda-corner: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cpath d='M2 4 C28 8 58 22 112 58' fill='none' stroke='%23000' stroke-width='1.4' stroke-linecap='round'/%3E%3Cpath d='M30 12 C40 26 44 40 42 56' fill='none' stroke='%23000' stroke-width='1.2' stroke-linecap='round'/%3E%3Cpath d='M20 7 C24 -1 34 -2 40 2 C34 8 26 10 20 7Z M46 16 C44 26 50 34 58 36 C58 28 54 20 46 16Z M60 24 C66 16 76 16 82 20 C76 26 68 28 60 24Z M80 36 C78 46 84 54 92 56 C92 48 88 40 80 36Z M36 30 C28 34 26 42 30 48 C36 44 38 36 36 30Z M44 44 C50 48 52 56 48 62 C42 58 40 50 44 44Z'/%3E%3Ccircle cx='100' cy='46' r='2.4'/%3E%3Ccircle cx='107' cy='60' r='2'/%3E%3Ccircle cx='10' cy='18' r='2'/%3E%3C/svg%3E");
+    --inv-boda-corner-flip: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cg transform='rotate(180 60 60)'%3E%3Cpath d='M2 4 C28 8 58 22 112 58' fill='none' stroke='%23000' stroke-width='1.4' stroke-linecap='round'/%3E%3Cpath d='M30 12 C40 26 44 40 42 56' fill='none' stroke='%23000' stroke-width='1.2' stroke-linecap='round'/%3E%3Cpath d='M20 7 C24 -1 34 -2 40 2 C34 8 26 10 20 7Z M46 16 C44 26 50 34 58 36 C58 28 54 20 46 16Z M60 24 C66 16 76 16 82 20 C76 26 68 28 60 24Z M80 36 C78 46 84 54 92 56 C92 48 88 40 80 36Z M36 30 C28 34 26 42 30 48 C36 44 38 36 36 30Z M44 44 C50 48 52 56 48 62 C42 58 40 50 44 44Z'/%3E%3Ccircle cx='100' cy='46' r='2.4'/%3E%3Ccircle cx='107' cy='60' r='2'/%3E%3Ccircle cx='10' cy='18' r='2'/%3E%3C/g%3E%3C/svg%3E");
+    --inv-boda-laurel: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M28 88.1 A44 44 0 0 1 28 11.9 M72 88.1 A44 44 0 0 0 72 11.9' fill='none' stroke='%23000' stroke-width='.8'/%3E%3Cellipse cx='28' cy='88.1' rx='6' ry='2.4' transform='rotate(210 28 88.1)'/%3E%3Cellipse cx='11.9' cy='72' rx='6' ry='2.4' transform='rotate(240 11.9 72)'/%3E%3Cellipse cx='6' cy='50' rx='6' ry='2.4' transform='rotate(270 6 50)'/%3E%3Cellipse cx='11.9' cy='28' rx='6' ry='2.4' transform='rotate(300 11.9 28)'/%3E%3Cellipse cx='28' cy='11.9' rx='6' ry='2.4' transform='rotate(330 28 11.9)'/%3E%3Cellipse cx='72' cy='88.1' rx='6' ry='2.4' transform='rotate(150 72 88.1)'/%3E%3Cellipse cx='88.1' cy='72' rx='6' ry='2.4' transform='rotate(120 88.1 72)'/%3E%3Cellipse cx='94' cy='50' rx='6' ry='2.4' transform='rotate(90 94 50)'/%3E%3Cellipse cx='88.1' cy='28' rx='6' ry='2.4' transform='rotate(60 88.1 28)'/%3E%3Cellipse cx='72' cy='11.9' rx='6' ry='2.4' transform='rotate(30 72 11.9)'/%3E%3C/svg%3E");
+}
+
+/* Mariposas que cruzan la pantalla aleteando */
+.inv-boda-butterfly {
+    position: absolute;
+    top: var(--y);
+    left: -3rem;
+    width: calc(1.9rem * var(--s));
+    color: color-mix(in srgb, var(--primary-color) 70%, var(--accent-color));
+    opacity: 0.6;
+    animation: inv-boda-flight var(--d) linear var(--delay) infinite;
+}
+
+.inv-boda-butterfly svg {
+    display: block;
+    width: 100%;
+    overflow: visible;
+}
+
+.inv-boda-butterfly__wing {
+    fill: currentColor;
+    transform-box: fill-box;
+    animation: inv-boda-wing 0.32s ease-in-out infinite alternate;
+}
+
+.inv-boda-butterfly__wing--left { transform-origin: 100% 50%; }
+.inv-boda-butterfly__wing--right { transform-origin: 0 50%; }
+
+.inv-boda-butterfly__body {
+    stroke: color-mix(in srgb, var(--text-color) 60%, transparent);
+    stroke-width: 1.6;
+    stroke-linecap: round;
+}
+
+.inv-boda-butterfly:nth-of-type(n + 3) {
+    display: none;
+}
+
+@media (min-width: 768px) {
+    .inv-boda-butterfly:nth-of-type(n + 3) {
+        display: block;
+    }
+}
+
+@keyframes inv-boda-flight {
+    0% { transform: translate3d(0, 0, 0) rotate(8deg); }
+    25% { transform: translate3d(30vw, -6vh, 0) rotate(-6deg); }
+    50% { transform: translate3d(60vw, 4vh, 0) rotate(10deg); }
+    75% { transform: translate3d(92vw, -8vh, 0) rotate(-4deg); }
+    100% { transform: translate3d(calc(100vw + 6rem), 0, 0) rotate(8deg); }
+}
+
+@keyframes inv-boda-wing {
+    to { scale: 0.25 1; }
+}
+
+/* Ramas en dos esquinas de las secciones con velo */
+.inv-boda #contenido > .inv-section > .inv-wrap {
+    position: relative;
+    z-index: 1;
+}
+
+.inv-boda #contenido > .inv-section:nth-of-type(even)::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--primary-color);
+    opacity: 0.18;
+    pointer-events: none;
+    -webkit-mask: var(--inv-boda-corner) top left / clamp(6rem, 28vw, 10rem) no-repeat, var(--inv-boda-corner-flip) bottom right / clamp(6rem, 28vw, 10rem) no-repeat;
+    mask: var(--inv-boda-corner) top left / clamp(6rem, 28vw, 10rem) no-repeat, var(--inv-boda-corner-flip) bottom right / clamp(6rem, 28vw, 10rem) no-repeat;
+}
+
+/* Cuenta regresiva: cada círculo con su corona de laurel */
+.inv-boda .inv-countdown__grid {
+    gap: 0.95rem;
+    padding: 0.7rem;
+}
+
+.inv-boda .inv-countdown__unit::before {
+    content: '';
+    position: absolute;
+    inset: -9px;
+    background: var(--primary-color);
+    opacity: 0.5;
+    pointer-events: none;
+    -webkit-mask: var(--inv-boda-laurel) center / contain no-repeat;
+    mask: var(--inv-boda-laurel) center / contain no-repeat;
+}
+
+/* Itinerario: cada momento en una tarjeta suave */
+.inv-boda .inv-itinerary__body {
+    padding: 0.8rem 1rem;
+    border-radius: 18px;
+    background: color-mix(in srgb, var(--bg-color) 65%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--primary-color) 16%, transparent);
+}
+
+.inv-boda .inv-itinerary__time {
+    font-family: var(--font-titles);
+    font-size: 0.95rem;
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: 0.06em;
+}
+
+.inv-boda .inv-itinerary__node-dot {
+    background: color-mix(in srgb, var(--accent-color) 35%, var(--bg-color));
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--bg-color) 80%, transparent), 0 0 0 5px color-mix(in srgb, var(--primary-color) calc(10% + var(--a) * 35%), transparent);
+}
+
+/* Banner del invitado como tarjeta de papelería con filete punteado */
+.inv-boda .inv-guest__facts {
+    position: relative;
+}
+
+.inv-boda .inv-guest__facts::before {
+    content: '';
+    position: absolute;
+    inset: 6px;
+    border: 1px dashed color-mix(in srgb, var(--primary-color) 35%, transparent);
+    border-radius: 18px;
+    pointer-events: none;
+}
+
+/* Confirmación: pasos como tarjetas y pase con sello de cera */
+.inv-boda .inv-rsvp__step {
+    margin-bottom: 0.75rem;
+    padding: 1.25rem 1.1rem;
+    border: 0;
+    border-radius: 20px;
+    background: color-mix(in srgb, var(--bg-color) 62%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--primary-color) 18%, transparent);
+}
+
+.inv-boda .inv-rsvp__submit {
+    border-top: 0;
+}
+
+.inv-boda .inv-pass {
+    position: relative;
+    margin-top: 1.75rem;
+    padding-top: 2.5rem;
+}
+
+.inv-boda .inv-pass::before {
+    content: '';
+    position: absolute;
+    top: -1.5rem;
+    left: 50%;
+    width: 3rem;
+    height: 3rem;
+    translate: -50% 0;
+    border-radius: 47% 53% 49% 51% / 52% 47% 53% 48%;
+    background: radial-gradient(circle at 36% 30%, color-mix(in srgb, var(--primary-color) 55%, #fff), var(--primary-color) 50%, color-mix(in srgb, var(--primary-color) 65%, #000));
+    box-shadow: 0 6px 12px -6px rgb(0 0 0 / 0.5);
+}
+
+.inv-boda .inv-pass::after {
+    content: '';
+    position: absolute;
+    top: -0.55rem;
+    left: 50%;
+    width: 1.1rem;
+    height: 1rem;
+    translate: -50% 0;
+    background: color-mix(in srgb, var(--bg-color) 80%, #fff);
+    -webkit-mask: var(--inv-boda-heart) center / contain no-repeat;
+    mask: var(--inv-boda-heart) center / contain no-repeat;
+}
+
+/* Regalos y playlist en tarjetas suaves */
+.inv-boda .inv-gifts .inv-list {
+    border-top: 0;
+}
+
+.inv-boda .inv-gifts .inv-list > li {
+    margin-bottom: 0.65rem;
+    border-bottom: 0;
+    border-radius: 20px;
+    background: color-mix(in srgb, var(--bg-color) 62%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--primary-color) 18%, transparent);
+}
+
+.inv-boda .inv-gift {
+    padding: 0.95rem 1.1rem;
+}
+
+.inv-boda .inv-gift__icon,
+.inv-boda .inv-playlist__num {
+    border: 0;
+    background: color-mix(in srgb, var(--accent-color) 45%, var(--bg-color));
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent-color) 20%, transparent);
+}
+
+.inv-boda .inv-playlist__num {
+    display: grid;
+    place-items: center;
+    min-width: 1.9rem;
+    height: 1.9rem;
+    border-radius: 50%;
+    color: var(--inv-accent-ink);
+}
+
+.inv-boda .inv-playlist__play {
+    border-color: color-mix(in srgb, var(--primary-color) 35%, transparent);
+    background: color-mix(in srgb, var(--bg-color) 70%, transparent);
+}
+
+/* Hashtag en letra manuscrita entre ramitas */
+.inv-boda .inv-hashtag__tag {
+    position: relative;
+    padding-block: 2.1rem;
+    border-block: 0;
+    font-family: var(--font-script);
+    font-size: clamp(2.4rem, 12vw, 3.8rem);
+}
+
+.inv-boda .inv-hashtag__tag::before,
+.inv-boda .inv-hashtag__tag::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    width: 9rem;
+    height: 1.2rem;
+    translate: -50% 0;
+    background: var(--primary-color);
+    opacity: 0.55;
+    -webkit-mask: var(--inv-boda-vine) center / contain no-repeat;
+    mask: var(--inv-boda-vine) center / contain no-repeat;
+}
+
+.inv-boda .inv-hashtag__tag::before { top: 0.3rem; }
+.inv-boda .inv-hashtag__tag::after { bottom: 0.3rem; }
+
+/* Encuestas: la opción elegida se marca con un corazón */
+.inv-boda .inv-poll__option.is-selected {
+    border-color: var(--primary-color);
+    background: color-mix(in srgb, var(--accent-color) 25%, var(--bg-color));
+}
+
+.inv-boda .inv-poll__option.is-selected .inv-poll__mark {
+    border: 0;
+    background: var(--primary-color);
+    -webkit-mask: var(--inv-boda-heart) center / contain no-repeat;
+    mask: var(--inv-boda-heart) center / contain no-repeat;
+}
+
+.inv-boda .inv-poll__bar {
+    background: color-mix(in srgb, var(--accent-color) 45%, transparent);
+}
+
+/* Cortejo: un corazón junto a cada nombre */
+.inv-boda .inv-court__names li {
+    position: relative;
+    padding-left: 1.35rem;
+    border-top-color: color-mix(in srgb, var(--primary-color) 16%, transparent);
+}
+
+.inv-boda .inv-court__names li::before {
+    content: '';
+    position: absolute;
+    top: 1.05rem;
+    left: 0;
+    width: 0.75rem;
+    height: 0.68rem;
+    background: var(--primary-color);
+    opacity: 0.6;
+    -webkit-mask: var(--inv-boda-heart) center / contain no-repeat;
+    mask: var(--inv-boda-heart) center / contain no-repeat;
+}
+
+.inv-boda .inv-sponsor__names {
+    font-style: italic;
+}
+
+.inv-boda .inv-fold {
+    border-bottom-color: color-mix(in srgb, var(--primary-color) 18%, transparent);
+}
+
+/* Dress code, ubicación y fotomural */
+.inv-boda .inv-dress__style {
+    font-family: var(--font-titles);
+    font-size: 1.05rem;
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    text-transform: none;
+    color: var(--inv-accent-ink);
+}
+
+.inv-boda .inv-dress__swatch {
+    box-shadow: 0 0 0 4px var(--bg-color), 0 0 0 5px color-mix(in srgb, var(--primary-color) 40%, transparent);
+}
+
+.inv-boda .inv-location__media {
+    gap: 1rem;
+}
+
+.inv-boda .inv-location__photo {
+    border-radius: 999px 999px 20px 20px;
+}
+
+.inv-boda .inv-mural__item {
+    padding: 5px 5px 20px;
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--bg-color) 30%, #fff);
+    box-shadow: 0 10px 20px -14px color-mix(in srgb, var(--text-color) 45%, transparent);
+    rotate: -1.5deg;
+}
+
+.inv-boda .inv-mural__item:nth-child(even) {
+    rotate: 1.5deg;
+}
+
+.inv-boda .inv-mural__item img {
+    border-radius: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .inv-boda-butterfly {
+        display: none;
+    }
 }
 
 /* ── Movimiento reducido ────────────────────────────────────────────────── */

@@ -24,6 +24,7 @@ class WeddingTemplateTest extends TestCase
             ->get(route('invitation.show', $invitation->slug))
             ->assertOk()
             ->assertSee('inv-page inv-boda', false)
+            ->assertSee('inv-boda-butterfly', false)
             ->assertSee('inv-boda-cover', false)
             ->assertSeeInOrder(['inv-boda-hero__names', 'Ana', '&amp;', 'Luis'], false)
             ->assertSee('Damas de honor')
@@ -47,6 +48,8 @@ class WeddingTemplateTest extends TestCase
             ->assertSee('data-lottie-icon="crown"', false)
             // Telón de apertura y pie con nombre, fecha y accesos rápidos
             ->assertSee('inv-page inv-xv', false)
+            ->assertSee('inv-xv-glints', false)
+            ->assertSee('inv-hero__sparkle', false)
             ->assertSee('inv-xv-intro', false)
             ->assertSeeInOrder(['inv-footer__name', 'Sofía Valentina', 'inv-footer__bar', 'Volver al inicio'], false)
             ->assertDontSee('inv-footer__links', false)
@@ -71,7 +74,8 @@ class WeddingTemplateTest extends TestCase
             ->get(route('invitation.show', $invitation->slug))
             ->assertOk()
             ->assertSee('inv-boda-cover', false)
-            ->assertSee('inv-boda-envelope__liner', false);
+            ->assertSee('inv-boda-envelope__flap', false)
+            ->assertSee('inv-boda-envelope__seal', false);
     }
 
     public function test_wedding_template_is_offered_in_the_editor(): void

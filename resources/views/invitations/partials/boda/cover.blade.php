@@ -1,7 +1,7 @@
 {{--
     Sobre de apertura: papel con forro estampado, sello de cera con las iniciales, ramas y pétalos alrededor.
-    Al tocarlo el sello se rompe, la solapa gira, la tarjeta sale y crece hacia la invitación
-    (lógica en boda-jardin.blade.php, estilos en themes/boda.css).
+    Al tocarlo avanza por etapas (lógica en boda-jardin.blade.php, estilos en themes/boda.css):
+    1) se rompe el sello y la solapa gira, 2) la tarjeta sale, 3) el sobre se hunde y la tarjeta crece, 4) se desvanece.
 --}}
 @php
     $coverNames = implode(' & ', $coupleNames);
@@ -11,7 +11,7 @@
 <div class="inv-boda-cover"
     x-data="weddingCover()"
     x-show="!closed"
-    :class="{ 'is-opening': opening }"
+    :class="{ 'is-opening': stage >= 1, 'is-leaving': stage >= 4 }"
     role="dialog"
     aria-modal="true"
     aria-label="Invitación de {{ implode(' y ', $coupleNames) }}">
@@ -36,7 +36,10 @@
         </p>
         <p class="inv-boda-cover__names">{{ $coverNames }}</p>
 
-        <button type="button" class="inv-boda-envelope" @click="open()" aria-label="Abrir la invitación">
+        <button type="button" class="inv-boda-envelope"
+            :class="{ 'is-open': stage >= 2, 'is-reveal': stage >= 3 }"
+            @click="open()"
+            aria-label="Abrir la invitación">
             <span class="inv-boda-envelope__back"></span>
 
             <span class="inv-boda-envelope__letter">
@@ -47,12 +50,7 @@
             </span>
 
             <span class="inv-boda-envelope__pocket"></span>
-
-            <span class="inv-boda-envelope__flap">
-                <span class="inv-boda-envelope__flap-front"></span>
-                <span class="inv-boda-envelope__liner"></span>
-            </span>
-
+            <span class="inv-boda-envelope__flap"></span>
             <span class="inv-boda-envelope__seal"><span>{{ $coverSeal }}</span></span>
         </button>
 

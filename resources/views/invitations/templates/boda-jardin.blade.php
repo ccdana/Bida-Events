@@ -70,7 +70,8 @@
         // Sobre de apertura: el toque que lo abre también desbloquea la música si tiene autoplay
         function weddingCover() {
             return {
-                opening: false,
+                // 0 cerrado · 1 sello y solapa · 2 sale la tarjeta · 3 el sobre se hunde · 4 se desvanece
+                stage: 0,
                 closed: false,
                 init() {
                     const root = document.documentElement;
@@ -84,21 +85,31 @@
                     root.classList.add('inv-lock');
                 },
                 open() {
-                    if (this.opening) {
+                    if (this.stage > 0) {
                         return;
                     }
 
-                    this.opening = true;
-
                     const root = document.documentElement;
-                    const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-
-                    // La portada empieza a animarse mientras la tarjeta crece y el sobre se desvanece
-                    setTimeout(() => root.classList.remove('inv-cover-waiting'), reduced ? 0 : 1500);
-                    setTimeout(() => {
+                    const finish = () => {
                         this.closed = true;
                         root.classList.remove('inv-lock');
-                    }, reduced ? 150 : 2400);
+                    };
+
+                    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+                        root.classList.remove('inv-cover-waiting');
+                        finish();
+                        return;
+                    }
+
+                    // Cada etapa se activa por tiempo: así la tarjeta siempre queda por delante de la solapa ya abierta
+                    this.stage = 1;
+                    setTimeout(() => { this.stage = 2; }, 800);
+                    setTimeout(() => { this.stage = 3; }, 1650);
+                    setTimeout(() => {
+                        this.stage = 4;
+                        root.classList.remove('inv-cover-waiting');
+                    }, 2300);
+                    setTimeout(finish, 2950);
                 },
             };
         }
