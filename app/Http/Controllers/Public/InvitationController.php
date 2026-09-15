@@ -9,6 +9,7 @@ use App\Support\InvitationDefaults;
 use App\Services\InvitationModuleService;
 use App\Services\InvitationCacheService;
 use App\Support\YouTubeHelper;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
 class InvitationController extends Controller
@@ -19,15 +20,7 @@ class InvitationController extends Controller
 
     public function show(string $slug, ?string $token = null)
     {
-        $invitation = Invitation::query()
-            ->with(['eventType', 'user'])
-            ->where('slug', $slug)
-            ->published()
-            ->firstOrFail();
-
-        $invitation->clearModulesCache();
-
-        $modulos = $this->resolveModules($invitation);
+        $invitation = $this->findPublished($slug);
 
         $guest = null;
         if ($token) {
@@ -36,6 +29,66 @@ class InvitationController extends Controller
                 ->select('id', 'invitation_id', 'name', 'qr_code_token', 'passes_allocated', 'status', 'passes_confirmed', 'confirmed_at')
                 ->firstOrFail();
         }
+
+        $response = $this->render($invitation, $guest);
+
+        if ($invitation->updated_at) {
+            $response->setLastModified($invitation->updated_at);
+            $response->setEtag(sha1($invitation->id.'-'.$invitation->updated_at->timestamp));
+        }
+
+        return $response;
+    }
+
+    /**
+     * Invitación de muestra para los teléfonos de la home: se ve como la de un invitado real (confirmación,
+     * encuestas, playlist, fotomural), pero las respuestas se simulan en el navegador y nada se guarda.
+     * Solo existe para config('bida.demo_invitations'). Con ?portada=1 la apertura se abre sola.
+     */
+    public function demo(Request $request, string $slug)
+    {
+        abort_unless(in_array($slug, config('bida.demo_invitations', []), true), 404);
+
+        $autoplay = $request->boolean('portada');
+
+        // La apertura del teléfono de la portada va sin invitado; la muestra interactiva, con uno ficticio
+        $response = $this->render($this->findPublished($slug), $autoplay ? null : $this->demoGuest(), [
+            'isDemo' => true,
+            'coverAutoplay' => $autoplay,
+        ]);
+
+        $response->headers->set('Cache-Control', 'no-store, max-age=0');
+        $response->headers->set('X-Robots-Tag', 'noindex, nofollow');
+
+        return $response;
+    }
+
+    protected function findPublished(string $slug): Invitation
+    {
+        return Invitation::query()
+            ->with(['eventType', 'user'])
+            ->where('slug', $slug)
+            ->published()
+            ->firstOrFail();
+    }
+
+    /** Invitado ficticio, sin guardar, para que la muestra enseñe el enlace personal, la confirmación y el pase QR. */
+    protected function demoGuest(): Guest
+    {
+        return (new Guest)->forceFill([
+            'name' => 'Familia Pérez',
+            'passes_allocated' => 3,
+            'passes_confirmed' => 0,
+            'status' => 'pending',
+            'qr_code_token' => 'MUESTRABIDAEVENTS',
+        ]);
+    }
+
+    protected function render(Invitation $invitation, ?Guest $guest, array $extra = [])
+    {
+        $invitation->clearModulesCache();
+
+        $modulos = $this->resolveModules($invitation);
 
         $rawFlags = $modulos['config']['modulos'] ?? [];
         $config = $modulos['config'] ?? [];
@@ -59,7 +112,7 @@ class InvitationController extends Controller
             $modulos['config']['modulos']['fotomural'] = true;
         }
 
-        $response = response()->view($template, [
+        return response()->view($template, [
             'invitation' => $invitation,
             'modulos' => $modulos,
             'guest' => $guest,
@@ -67,14 +120,7 @@ class InvitationController extends Controller
             'calendarUrl' => $calendarUrl,
             'playlistSongs' => $playlistSongs,
             'fotomuralPhotos' => $fotomuralPhotos,
-        ]);
-
-        if ($invitation->updated_at) {
-            $response->setLastModified($invitation->updated_at);
-            $response->setEtag(sha1($invitation->id.'-'.$invitation->updated_at->timestamp));
-        }
-
-        return $response;
+        ] + $extra);
     }
 
     protected function resolveModules(Invitation $invitation): array

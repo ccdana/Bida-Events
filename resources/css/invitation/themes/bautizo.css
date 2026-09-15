@@ -127,31 +127,94 @@
     height: 24vmax;
     border-radius: 50%;
     background: radial-gradient(ellipse at center, color-mix(in srgb, var(--accent-color) 55%, var(--bg-color)) 0%, transparent 70%);
-    opacity: 0.8;
-    animation: inv-bautizo-cloud-pass 75s linear infinite;
+    opacity: 0.85;
+    animation: inv-bautizo-cloud-pass 56s linear infinite;
 }
 
 .inv-bautizo-ambient__cloud--1 {
     top: 6%;
-    animation-delay: -20s;
+    animation-delay: -18s;
 }
 
 .inv-bautizo-ambient__cloud--2 {
-    top: 44%;
-    opacity: 0.45;
-    animation-duration: 120s;
-    animation-delay: -70s;
+    top: 42%;
+    opacity: 0.5;
+    animation-duration: 84s;
+    animation-delay: -50s;
 }
 
 .inv-bautizo-ambient__cloud--3 {
-    top: 76%;
-    animation-duration: 105s;
-    animation-delay: -40s;
+    top: 74%;
+    animation-duration: 70s;
+    animation-delay: -30s;
+}
+
+/* Una nube más pequeña cruza en sentido contrario */
+.inv-bautizo-ambient__cloud--4 {
+    top: 24%;
+    width: 48vmax;
+    height: 16vmax;
+    opacity: 0.6;
+    animation-duration: 64s;
+    animation-delay: -12s;
+    animation-direction: reverse;
 }
 
 @keyframes inv-bautizo-cloud-pass {
     from { translate: -75vmax 0; }
     to { translate: 110vw 0; }
+}
+
+/* Palomas lejanas que atraviesan el cielo aleteando */
+.inv-bautizo .inv-bautizo-ambient__dove {
+    position: absolute;
+    left: 0;
+    width: 3.4rem;
+    opacity: 0.34;
+    animation: inv-bautizo-dove-fly 34s linear infinite;
+}
+
+.inv-bautizo-ambient__dove--1 {
+    top: 16%;
+    animation-delay: -8s;
+}
+
+.inv-bautizo .inv-bautizo-ambient__dove--2 {
+    top: 60%;
+    width: 2.5rem;
+    opacity: 0.24;
+    animation-duration: 48s;
+    animation-delay: -30s;
+}
+
+@keyframes inv-bautizo-dove-fly {
+    0% { translate: 110vw 0; }
+    50% { translate: 45vw -4vh; }
+    100% { translate: -25vw 1vh; }
+}
+
+/* Burbujas de agua que suben despacio meciéndose */
+.inv-bautizo-ambient__bubble {
+    position: absolute;
+    bottom: -3rem;
+    left: var(--left);
+    width: var(--size);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at 32% 30%, rgb(255 255 255 / 0.4) 0 12%, transparent 14%),
+        color-mix(in srgb, var(--accent-color) 28%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--primary-color) 30%, transparent);
+    opacity: 0;
+    animation: inv-bautizo-rise var(--d) ease-in var(--delay) infinite;
+}
+
+@keyframes inv-bautizo-rise {
+    0% { opacity: 0; transform: translate(0, 0); }
+    12% { opacity: 0.75; }
+    50% { transform: translate(var(--sway), -55vh); }
+    85% { opacity: 0.45; }
+    100% { opacity: 0; transform: translate(calc(var(--sway) * -0.5), -112vh); }
 }
 
 .inv-bautizo-ambient__sparkle {
@@ -167,13 +230,24 @@
     animation: inv-bautizo-twinkle var(--d) ease-in-out var(--delay) infinite;
 }
 
-/* En celulares titilan menos destellos */
-.inv-bautizo-ambient__sparkle:nth-child(n + 16) {
+/* Algunos destellos además flotan */
+.inv-bautizo-ambient__sparkle:nth-child(3n) {
+    animation: inv-bautizo-twinkle var(--d) ease-in-out var(--delay) infinite, inv-bautizo-drift 12s ease-in-out var(--delay) infinite alternate;
+}
+
+@keyframes inv-bautizo-drift {
+    to { translate: 14px -22px; }
+}
+
+/* En celulares hay menos destellos y burbujas */
+.inv-bautizo-ambient__sparkle:nth-child(n + 17),
+.inv-bautizo-ambient__bubble:nth-child(n + 9) {
     display: none;
 }
 
 @media (min-width: 768px) {
-    .inv-bautizo-ambient__sparkle:nth-child(n + 16) {
+    .inv-bautizo-ambient__sparkle:nth-child(n + 17),
+    .inv-bautizo-ambient__bubble:nth-child(n + 9) {
         display: block;
     }
 }
@@ -187,106 +261,556 @@
     50% { translate: 0 -6px; }
 }
 
-/* ── Apertura: las nubes se abren ───────────────────────────────────────── */
+/* ── Apertura: pila bautismal; la invitación aparece en la onda del agua ── */
+
+@property --inv-cover-hole {
+    syntax: '<length>';
+    inherits: false;
+    initial-value: 0px;
+}
 
 .inv-bautizo-intro {
     position: fixed;
     inset: 0;
     z-index: 200;
-    overflow: hidden;
-    pointer-events: none;
-    background: linear-gradient(180deg, color-mix(in srgb, var(--accent-color) 75%, var(--bg-color)), color-mix(in srgb, var(--accent-color) 35%, var(--bg-color)));
-    animation: inv-bautizo-intro-out 0.9s ease 1.75s forwards;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
 }
 
-html.inv-intro-skip .inv-bautizo-intro {
+html.inv-cover-skip .inv-bautizo-intro {
     display: none;
+}
+
+.inv-bautizo-intro.is-parting {
+    pointer-events: none;
+}
+
+.inv-bautizo-intro__scene {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    background:
+        radial-gradient(80% 50% at 50% 0%, rgb(255 255 255 / 0.7), transparent 70%),
+        linear-gradient(180deg,
+            color-mix(in srgb, var(--accent-color) 80%, var(--primary-color)) 0%,
+            color-mix(in srgb, var(--accent-color) 40%, var(--bg-color)) 50%,
+            var(--bg-color) 100%);
+}
+
+/* La escena se abre en una onda que crece desde donde cayó el agua (--cover-x/y los pone el JS) */
+.inv-bautizo-intro.is-parting .inv-bautizo-intro__scene {
+    -webkit-mask: radial-gradient(circle at var(--cover-x, 50%) var(--cover-y, 60%), transparent var(--inv-cover-hole), rgb(0 0 0 / 0.5) calc(var(--inv-cover-hole) + 18px), #000 calc(var(--inv-cover-hole) + 56px));
+    mask: radial-gradient(circle at var(--cover-x, 50%) var(--cover-y, 60%), transparent var(--inv-cover-hole), rgb(0 0 0 / 0.5) calc(var(--inv-cover-hole) + 18px), #000 calc(var(--inv-cover-hole) + 56px));
+    animation: inv-bautizo-hole 1.5s cubic-bezier(0.45, 0, 0.3, 1) forwards;
+}
+
+/* Anillos de agua que acompañan la onda por encima de la portada */
+.inv-bautizo-intro__waves {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.inv-bautizo-intro__waves span {
+    position: absolute;
+    top: var(--cover-y, 60%);
+    left: var(--cover-x, 50%);
+    width: calc((var(--inv-cover-hole) + 18px) * 2);
+    aspect-ratio: 1;
+    translate: -50% -50%;
+    border: 2px solid rgb(255 255 255 / 0.9);
+    border-radius: 50%;
+    box-shadow:
+        0 0 0 1px color-mix(in srgb, var(--primary-color) 30%, transparent),
+        0 0 30px rgb(255 255 255 / 0.55),
+        inset 0 0 30px rgb(255 255 255 / 0.35);
+    opacity: 0;
+}
+
+.inv-bautizo-intro__waves span:nth-child(2) {
+    border-width: 1px;
+}
+
+.inv-bautizo-intro.is-parting .inv-bautizo-intro__waves span {
+    animation:
+        inv-bautizo-hole 1.5s cubic-bezier(0.45, 0, 0.3, 1) forwards,
+        inv-bautizo-wave-fade 1.5s linear forwards;
+}
+
+.inv-bautizo-intro.is-parting .inv-bautizo-intro__waves span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.inv-bautizo-intro__light {
+    position: absolute;
+    top: -30svh;
+    left: 50%;
+    width: max(110vw, 40rem);
+    height: 80svh;
+    translate: -50% 0;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgb(255 255 255 / 0.85), transparent);
+    pointer-events: none;
+    animation: inv-bautizo-intro-light 7s ease-in-out infinite alternate;
 }
 
 .inv-bautizo-intro__cloud {
     position: absolute;
-    width: 120vmax;
     color: var(--inv-bautizo-cloud);
-    filter: drop-shadow(0 24px 30px color-mix(in srgb, var(--primary-color) 20%, transparent));
+    filter: drop-shadow(0 -6px 22px color-mix(in srgb, var(--primary-color) 14%, transparent));
+    animation: inv-bautizo-intro-float 8s ease-in-out infinite alternate;
 }
 
 .inv-bautizo-intro__cloud--left {
-    top: -4vmax;
-    left: -58vmax;
-    animation: inv-bautizo-part-left 1.7s cubic-bezier(0.6, 0, 0.2, 1) 0.55s forwards;
+    bottom: -9vmax;
+    left: -24vmax;
+    width: 62vmax;
 }
 
 .inv-bautizo-intro__cloud--right {
-    right: -58vmax;
-    bottom: 4vmax;
-    animation: inv-bautizo-part-right 1.7s cubic-bezier(0.6, 0, 0.2, 1) 0.55s forwards;
+    right: -28vmax;
+    bottom: -13vmax;
+    width: 70vmax;
+    animation-duration: 10s;
+    animation-direction: alternate-reverse;
 }
 
-.inv-bautizo-intro__cloud--low {
-    bottom: -36vmax;
-    left: -20vmax;
-    width: 140vmax;
-    animation: inv-bautizo-part-down 1.7s cubic-bezier(0.6, 0, 0.2, 1) 0.55s forwards;
+@media (orientation: landscape) {
+    .inv-bautizo-intro__cloud--left { bottom: -10vw; left: -10vw; width: 40vw; }
+    .inv-bautizo-intro__cloud--right { right: -12vw; bottom: -14vw; width: 46vw; }
 }
 
-.inv-bautizo-intro__center {
+.inv-bautizo-intro__sparkle {
     position: absolute;
-    inset: 0;
-    z-index: 1;
-    display: grid;
-    place-content: center;
-    justify-items: center;
-    gap: 0.4rem;
-    animation: inv-bautizo-intro-center 0.6s ease 0.55s forwards;
+    top: var(--top);
+    left: var(--left);
+    width: var(--size);
+    aspect-ratio: 1;
+    background: color-mix(in srgb, var(--secondary-color) 55%, #fff);
+    clip-path: polygon(50% 0, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0 50%, 39% 39%);
+    animation: inv-bautizo-twinkle var(--d) ease-in-out var(--delay) infinite;
 }
 
-.inv-bautizo-intro__dove {
-    width: 7.5rem;
-    animation: inv-bautizo-bob 2.4s ease-in-out infinite;
+.inv-bautizo-intro__content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: min(100%, 28rem);
+    padding: 1.5rem 1.5rem calc(1.5rem + env(safe-area-inset-bottom));
+    text-align: center;
+}
+
+.inv-bautizo-intro__eyebrow {
+    font-family: var(--font-script);
+    font-size: clamp(1.45rem, 6vw, 1.9rem);
+    line-height: 1.2;
+    color: var(--primary-color);
+    animation: inv-fade-up 0.9s var(--inv-ease) 0.15s both;
 }
 
 .inv-bautizo-intro__name {
+    margin-top: 0.1rem;
     font-family: var(--font-titles);
-    font-size: clamp(1.8rem, 8vw, 2.6rem);
+    font-size: clamp(2rem, min(9vw, 5.8svh), 3rem);
     font-weight: 600;
+    line-height: 1.1;
     color: var(--inv-bautizo-deep);
+    animation: inv-fade-up 1s var(--inv-ease) 0.3s both;
 }
 
-@keyframes inv-bautizo-part-left {
-    to { translate: -105vmax -10vmax; }
+.inv-bautizo-intro__date {
+    margin-top: 0.6rem;
+    padding-block: 0.4rem;
+    border-block: 1px solid color-mix(in srgb, var(--primary-color) 30%, transparent);
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: var(--inv-bautizo-deep);
+    animation: inv-fade-up 1s var(--inv-ease) 0.45s both;
 }
 
-@keyframes inv-bautizo-part-right {
-    to { translate: 105vmax 10vmax; }
+/* Pila bautismal con la jarra */
+.inv-bautizo-font {
+    position: relative;
+    isolation: isolate;
+    display: block;
+    width: clamp(12rem, min(68vw, 38svh), 17.5rem);
+    margin-top: clamp(0.5rem, 2.5svh, 1.5rem);
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    animation: inv-fade-up 1.1s var(--inv-ease) 0.55s both;
 }
 
-@keyframes inv-bautizo-part-down {
-    to { translate: 0 70vmax; }
+.inv-bautizo-font:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 6px;
+    border-radius: 1rem;
 }
 
-@keyframes inv-bautizo-intro-center {
-    to { opacity: 0; scale: 0.9; }
+/* Halo de luz detrás de la pila */
+.inv-bautizo-font__halo {
+    position: absolute;
+    top: 52%;
+    left: 50%;
+    z-index: -1;
+    width: 118%;
+    aspect-ratio: 1;
+    translate: -50% -50%;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgb(255 255 255 / 0.95), color-mix(in srgb, var(--accent-color) 45%, transparent) 62%, transparent);
+    animation: inv-bautizo-halo-breathe 5s ease-in-out infinite;
 }
 
-@keyframes inv-bautizo-intro-out {
-    to { opacity: 0; visibility: hidden; }
+.inv-bautizo-font__art {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
 }
 
-/* Con apertura, la portada se anima cuando las nubes terminan de abrirse */
-html.inv-intro-active .inv-bautizo-hero .inv-fade-up { animation-delay: 1.45s; }
-html.inv-intro-active .inv-bautizo-hero .inv-fade-up--1 { animation-delay: 1.6s; }
-html.inv-intro-active .inv-bautizo-hero .inv-fade-up--2 { animation-delay: 1.75s; }
-html.inv-intro-active .inv-bautizo-hero .inv-fade-up--3 { animation-delay: 1.9s; }
+.inv-bautizo-font__stone-top { stop-color: #fff; }
+.inv-bautizo-font__stone-low { stop-color: color-mix(in srgb, var(--primary-color) 18%, var(--bg-color)); }
+.inv-bautizo-font__pearl-hi { stop-color: #fff; }
+.inv-bautizo-font__pearl-mid { stop-color: color-mix(in srgb, var(--accent-color) 70%, #fff); }
+.inv-bautizo-font__pearl-low { stop-color: color-mix(in srgb, var(--primary-color) 34%, var(--bg-color)); }
+.inv-bautizo-font__water-top { stop-color: color-mix(in srgb, var(--accent-color) 40%, #cfe7f1); }
+.inv-bautizo-font__water-deep { stop-color: color-mix(in srgb, var(--primary-color) 22%, #93c6db); }
+.inv-bautizo-font__glow-in { stop-color: #fff; }
+.inv-bautizo-font__glow-out { stop-color: #fff; stop-opacity: 0; }
+
+.inv-bautizo-font__shadow {
+    fill: color-mix(in srgb, var(--primary-color) 22%, transparent);
+}
+
+.inv-bautizo-font__stone {
+    stroke: color-mix(in srgb, var(--primary-color) 30%, transparent);
+    stroke-width: 1.2;
+}
+
+.inv-bautizo-font__knot {
+    fill: color-mix(in srgb, var(--bg-color) 70%, #fff);
+}
+
+.inv-bautizo-font__rim {
+    fill: color-mix(in srgb, var(--bg-color) 60%, #fff);
+    stroke: color-mix(in srgb, var(--secondary-color) 80%, #fff);
+    stroke-width: 1.8;
+}
+
+.inv-bautizo-font__water-edge {
+    fill: none;
+    stroke: color-mix(in srgb, var(--primary-color) 22%, transparent);
+    stroke-width: 1;
+}
+
+.inv-bautizo-font__gold {
+    fill: none;
+    stroke: color-mix(in srgb, var(--secondary-color) 80%, transparent);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+}
+
+.inv-bautizo-font__gold--thin {
+    stroke-width: 0.8;
+    opacity: 0.8;
+}
+
+.inv-bautizo-font__shimmer {
+    fill: none;
+    stroke: rgb(255 255 255 / 0.85);
+    stroke-width: 1.4;
+    stroke-linecap: round;
+    animation: inv-bautizo-shimmer 3.6s ease-in-out infinite;
+}
+
+.inv-bautizo-font__shimmer--2 {
+    animation-delay: -1.8s;
+}
+
+.inv-bautizo-font__ripple {
+    fill: none;
+    stroke: #fff;
+    stroke-width: 1.3;
+    vector-effect: non-scaling-stroke;
+    transform-box: fill-box;
+    transform-origin: center;
+    opacity: 0;
+    animation: inv-bautizo-ripple-idle 4.2s ease-out calc(var(--i) * 1.4s) infinite;
+}
+
+.inv-bautizo-font__glow,
+.inv-bautizo-font__splash,
+.inv-bautizo-font__star {
+    opacity: 0;
+}
+
+.inv-bautizo-font__splash {
+    fill: color-mix(in srgb, var(--accent-color) 30%, #a9d4e6);
+    stroke: #fff;
+    stroke-width: 0.8;
+}
+
+.inv-bautizo-font__star {
+    fill: color-mix(in srgb, var(--secondary-color) 75%, #fff);
+    transform-box: fill-box;
+    transform-origin: center;
+}
+
+.inv-bautizo-font__stream {
+    fill: none;
+    stroke: color-mix(in srgb, var(--accent-color) 25%, #9fd0e4);
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    opacity: 0;
+}
+
+.inv-bautizo-font__stream--shine {
+    stroke: rgb(255 255 255 / 0.85);
+    stroke-width: 1.2;
+}
+
+/* La jarra se mece desde el centro del cuerpo, como a punto de verter */
+.inv-bautizo-font__ewer {
+    transform-box: view-box;
+    transform-origin: 108px 92px;
+    animation: inv-bautizo-ewer-sway 4.5s ease-in-out infinite;
+}
+
+.inv-bautizo-font__ewer-body {
+    stroke: color-mix(in srgb, var(--primary-color) 45%, var(--text-color));
+    stroke-opacity: 0.45;
+    stroke-width: 1.1;
+    stroke-linejoin: round;
+}
+
+/* Asa con un contorno apenas más oscuro debajo, para que se lea como pieza de porcelana */
+.inv-bautizo-font__ewer-handle-edge {
+    fill: none;
+    stroke: color-mix(in srgb, var(--primary-color) 45%, var(--text-color));
+    stroke-opacity: 0.35;
+    stroke-width: 6;
+    stroke-linecap: round;
+}
+
+.inv-bautizo-font__ewer-handle {
+    fill: none;
+    stroke: color-mix(in srgb, var(--primary-color) 32%, var(--bg-color));
+    stroke-width: 4.5;
+    stroke-linecap: round;
+}
+
+/* Interior de la boca y canal del pico */
+.inv-bautizo-font__ewer-mouth {
+    fill: color-mix(in srgb, var(--primary-color) 30%, var(--bg-color));
+}
+
+.inv-bautizo-font__ewer-channel {
+    fill: none;
+    stroke: color-mix(in srgb, var(--primary-color) 25%, #fff);
+    stroke-width: 1;
+    stroke-linecap: round;
+}
+
+.inv-bautizo-font__glint {
+    fill: none;
+    stroke: #fff;
+    stroke-width: 3;
+    stroke-linecap: round;
+    animation: inv-bautizo-ewer-glint 3.2s ease-in-out infinite;
+}
+
+.inv-bautizo-font__glint--sm {
+    stroke-width: 1.6;
+}
+
+.inv-bautizo-intro__hint {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: clamp(0.9rem, 2.5svh, 1.5rem);
+    padding: 0.55rem 1.1rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, #fff 75%, transparent);
+    box-shadow:
+        inset 0 0 0 1px color-mix(in srgb, var(--primary-color) 26%, transparent),
+        0 10px 24px -14px color-mix(in srgb, var(--primary-color) 50%, transparent);
+    color: var(--inv-bautizo-deep);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    animation: inv-fade-up 1s var(--inv-ease) 0.9s both;
+}
+
+.inv-bautizo-intro__hint-dot {
+    position: relative;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--primary-color);
+}
+
+.inv-bautizo-intro__hint-dot::after {
+    content: '';
+    position: absolute;
+    inset: -5px;
+    border: 1px solid var(--primary-color);
+    border-radius: 50%;
+    animation: inv-bautizo-intro-ping 1.8s ease-out infinite;
+}
+
+/* Al tocar: la jarra se inclina y vierte un chorro; el agua brilla, salpica, suelta destellos y hace ondas */
+.inv-bautizo-intro.is-opening .inv-bautizo-font__ewer {
+    animation: inv-bautizo-ewer-pour 1.35s cubic-bezier(0.45, 0, 0.3, 1) forwards;
+}
+
+.inv-bautizo-intro.is-opening .inv-bautizo-font__stream {
+    animation: inv-bautizo-stream 0.95s ease-in-out 0.35s forwards;
+}
+
+.inv-bautizo-intro.is-opening .inv-bautizo-font__ripple {
+    animation: inv-bautizo-ripple-splash 1s ease-out calc(0.62s + var(--i) * 0.16s) forwards;
+}
+
+.inv-bautizo-intro.is-opening .inv-bautizo-font__splash {
+    animation: inv-bautizo-splash 0.7s cubic-bezier(0.2, 0.6, 0.4, 1) 0.64s forwards;
+}
+
+.inv-bautizo-intro.is-opening .inv-bautizo-font__star {
+    animation: inv-bautizo-star 1s ease-out calc(0.68s + var(--i) * 0.07s) forwards;
+}
+
+.inv-bautizo-intro.is-opening .inv-bautizo-font__glow {
+    animation: inv-bautizo-font-glow 1.1s ease 0.62s forwards;
+}
+
+.inv-bautizo-intro.is-opening .inv-bautizo-intro__hint {
+    animation: inv-bautizo-intro-fade 0.4s ease forwards;
+}
+
+@media (max-height: 560px) {
+    .inv-bautizo-intro__eyebrow {
+        display: none;
+    }
+
+    .inv-bautizo-intro__hint {
+        margin-top: 0.6rem;
+    }
+}
+
+@keyframes inv-bautizo-hole {
+    to { --inv-cover-hole: 110vmax; }
+}
+
+@keyframes inv-bautizo-wave-fade {
+    0% { opacity: 0; }
+    12% { opacity: 1; }
+    70% { opacity: 0.6; }
+    100% { opacity: 0; }
+}
+
+@keyframes inv-bautizo-intro-light {
+    to { opacity: 0.55; scale: 1.08; }
+}
+
+@keyframes inv-bautizo-intro-float {
+    to { transform: translateX(2.5vmax); }
+}
+
+@keyframes inv-bautizo-halo-breathe {
+    50% { opacity: 0.7; scale: 0.94; }
+}
+
+@keyframes inv-bautizo-ewer-sway {
+    50% { rotate: 4deg; }
+}
+
+/* Se inclina hacia la pila acercándose a su centro, vierte y vuelve casi recta */
+@keyframes inv-bautizo-ewer-pour {
+    0% { rotate: 0deg; translate: 0 0; }
+    28%, 70% { rotate: 50deg; translate: -34px 10px; }
+    100% { rotate: 6deg; translate: -6px 0; }
+}
+
+@keyframes inv-bautizo-ewer-glint {
+    0%, 100% { opacity: 0.35; }
+    50% { opacity: 0.95; }
+}
+
+/* El chorro crece desde el pico, se sostiene y se corta desde arriba */
+@keyframes inv-bautizo-stream {
+    0% { opacity: 1; stroke-dashoffset: 1; }
+    40%, 68% { opacity: 1; stroke-dashoffset: 0; }
+    100% { opacity: 1; stroke-dashoffset: -1; }
+}
+
+@keyframes inv-bautizo-shimmer {
+    0%, 100% { opacity: 0.2; translate: -4px 0; }
+    50% { opacity: 0.9; translate: 4px 0; }
+}
+
+@keyframes inv-bautizo-ripple-idle {
+    0% { opacity: 0.75; transform: scale(1); }
+    100% { opacity: 0; transform: scale(5); }
+}
+
+@keyframes inv-bautizo-ripple-splash {
+    0% { opacity: 1; transform: scale(0.6); }
+    100% { opacity: 0; transform: scale(7); }
+}
+
+@keyframes inv-bautizo-splash {
+    0% { opacity: 0; transform: translate(0, 0); }
+    20% { opacity: 1; }
+    55% { opacity: 1; transform: translate(var(--dx), var(--dy)); }
+    100% { opacity: 0; transform: translate(calc(var(--dx) * 1.4), 6px); }
+}
+
+@keyframes inv-bautizo-star {
+    0% { opacity: 0; transform: translate(0, 0) scale(0.3) rotate(0deg); }
+    25% { opacity: 1; }
+    100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(1.1) rotate(90deg); }
+}
+
+@keyframes inv-bautizo-font-glow {
+    35% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+@keyframes inv-bautizo-intro-ping {
+    from { opacity: 0.9; transform: scale(0.4); }
+    to { opacity: 0; transform: scale(1.4); }
+}
+
+@keyframes inv-bautizo-intro-fade {
+    to { opacity: 0; transform: translateY(8px); }
+}
+
+/* Mientras la jarra espera, la portada no empieza sus animaciones */
+html.inv-cover-waiting .inv-bautizo-hero,
+html.inv-cover-waiting .inv-bautizo-hero * {
+    animation-play-state: paused !important;
+}
 
 /* ── Portada ────────────────────────────────────────────────────────────── */
 
 .inv-bautizo-hero {
     color: var(--text-color);
+    /* Se desvanece hacia abajo para dejar ver las nubes, palomas y burbujas del fondo */
     background: linear-gradient(
         180deg,
         color-mix(in srgb, var(--accent-color) 70%, var(--bg-color)) 0%,
-        color-mix(in srgb, var(--accent-color) 30%, var(--bg-color)) 58%,
-        var(--bg-color) 100%
+        color-mix(in srgb, color-mix(in srgb, var(--accent-color) 30%, var(--bg-color)) 55%, transparent) 58%,
+        transparent 100%
     );
 }
 
@@ -531,9 +1055,13 @@ html.inv-intro-active .inv-bautizo-hero .inv-fade-up--3 { animation-delay: 1.9s;
     border-top: 0;
 }
 
-/* Secciones alternas sobre agua clara con olas arriba y abajo */
+/* Secciones alternas sobre agua clara con olas arriba y abajo; translúcidas para que se vea el cielo animado */
+.inv-bautizo {
+    --inv-bautizo-water: color-mix(in srgb, var(--inv-bautizo-tint) 68%, transparent);
+}
+
 .inv-bautizo #contenido > .inv-section:nth-of-type(even) {
-    background: var(--inv-bautizo-tint);
+    background: var(--inv-bautizo-water);
 }
 
 .inv-bautizo #contenido > .inv-section:nth-of-type(even)::before,
@@ -543,7 +1071,7 @@ html.inv-intro-active .inv-bautizo-hero .inv-fade-up--3 { animation-delay: 1.9s;
     right: 0;
     left: 0;
     height: 22px;
-    background: var(--inv-bautizo-tint);
+    background: var(--inv-bautizo-water);
     pointer-events: none;
     -webkit-mask: var(--inv-bautizo-wave) 0 0 / 160px 100% repeat-x;
     mask: var(--inv-bautizo-wave) 0 0 / 160px 100% repeat-x;
@@ -626,19 +1154,15 @@ html.inv-intro-active .inv-bautizo-hero .inv-fade-up--3 { animation-delay: 1.9s;
     50% { opacity: 0.95; scale: 1; }
 }
 
-/* El ícono animado vive dentro de una burbuja con brillo que flota */
+/* El ícono animado vive dentro de un círculo claro que flota */
 .inv-bautizo .invitation-lottie-framed__icon {
     box-sizing: content-box;
     width: 2.6rem;
     height: 2.6rem;
     padding: 0.75rem;
     border-radius: 50%;
-    background:
-        radial-gradient(circle at 30% 24%, rgb(255 255 255 / 0.4) 0 7%, transparent 8%),
-        radial-gradient(circle, color-mix(in srgb, var(--accent-color) 25%, var(--bg-color)), color-mix(in srgb, var(--accent-color) 75%, var(--bg-color)));
-    box-shadow:
-        inset 0 0 0 2px color-mix(in srgb, var(--bg-color) 70%, transparent),
-        0 12px 24px -12px color-mix(in srgb, var(--primary-color) 55%, transparent);
+    background: color-mix(in srgb, var(--accent-color) 40%, var(--bg-color));
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--primary-color) 22%, transparent);
     animation: inv-bautizo-bob 4s ease-in-out infinite;
 }
 
@@ -660,26 +1184,24 @@ html.inv-intro-active .inv-bautizo-hero .inv-fade-up--3 { animation-delay: 1.9s;
 
 /* ── Controles ──────────────────────────────────────────────────────────── */
 
+/* Botón de color sólido, sin degradado ni resplandor */
 .inv-bautizo .inv-btn {
     border: 0;
     border-radius: 999px;
-    background: linear-gradient(135deg, var(--inv-bautizo-deep), color-mix(in srgb, var(--primary-color) 80%, var(--inv-bautizo-deep)));
+    background: var(--inv-bautizo-deep);
     color: var(--bg-color);
     letter-spacing: 0.1em;
-    box-shadow:
-        inset 0 1px 0 rgb(255 255 255 / 0.3),
-        0 12px 24px -12px color-mix(in srgb, var(--primary-color) 75%, transparent);
 }
 
 .inv-bautizo .inv-btn--ghost {
-    background: color-mix(in srgb, var(--bg-color) 75%, transparent);
+    background: transparent;
     color: var(--inv-bautizo-deep);
-    box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--primary-color) 35%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--primary-color) 40%, transparent);
 }
 
 @media (hover: hover) {
     .inv-bautizo .inv-btn:hover:not(:disabled) {
-        background: linear-gradient(135deg, color-mix(in srgb, var(--inv-bautizo-deep) 85%, var(--bg-color)), var(--primary-color));
+        background: color-mix(in srgb, var(--inv-bautizo-deep) 88%, var(--bg-color));
     }
 
     .inv-bautizo .inv-btn--ghost:hover:not(:disabled) {
@@ -715,21 +1237,16 @@ html.inv-intro-active .inv-bautizo-hero .inv-fade-up--3 { animation-delay: 1.9s;
 .inv-bautizo .inv-tab.is-active {
     background: var(--inv-bautizo-deep);
     color: var(--bg-color);
-    box-shadow: 0 8px 18px -10px color-mix(in srgb, var(--primary-color) 80%, transparent);
+    box-shadow: none;
 }
 
-/* Desplegables como tarjetas redondas */
+/* Desplegables como filas con filete fino, sin tarjetas */
 .inv-bautizo .inv-folds {
-    border-top: 0;
+    border-top: 1px solid color-mix(in srgb, var(--primary-color) 18%, transparent);
 }
 
 .inv-bautizo .inv-fold {
-    margin-bottom: 0.6rem;
-    padding-inline: 1.1rem;
-    border-bottom: 0;
-    border-radius: var(--inv-radius);
-    background: color-mix(in srgb, var(--bg-color) 72%, transparent);
-    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--primary-color) 16%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, var(--primary-color) 18%, transparent);
 }
 
 .inv-bautizo .inv-fold__chevron {
@@ -754,18 +1271,14 @@ html.inv-intro-active .inv-bautizo-hero .inv-fade-up--3 { animation-delay: 1.9s;
     border: 0;
 }
 
-/* Cada número es una burbuja que flota a su propio ritmo */
+/* Cada número es un círculo claro que flota a su propio ritmo */
 .inv-bautizo .inv-countdown__unit {
     aspect-ratio: 1;
     justify-content: center;
     padding: 0;
     border-radius: 50%;
-    background:
-        radial-gradient(circle at 30% 24%, rgb(255 255 255 / 0.4) 0 6%, transparent 7%),
-        radial-gradient(circle, color-mix(in srgb, var(--accent-color) 20%, var(--bg-color)), color-mix(in srgb, var(--accent-color) 70%, var(--bg-color)));
-    box-shadow:
-        inset 0 0 0 1.5px color-mix(in srgb, var(--bg-color) 70%, transparent),
-        0 12px 22px -14px color-mix(in srgb, var(--primary-color) 65%, transparent);
+    background: color-mix(in srgb, var(--accent-color) 38%, var(--bg-color));
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--primary-color) 22%, transparent);
     animation: inv-bautizo-bob 3.6s ease-in-out infinite;
 }
 
@@ -797,10 +1310,9 @@ html.inv-intro-active .inv-bautizo-hero .inv-fade-up--3 { animation-delay: 1.9s;
 
 .inv-bautizo .inv-guest__facts,
 .inv-bautizo .inv-pass {
-    border: 0;
+    border: 1px solid color-mix(in srgb, var(--primary-color) 20%, transparent);
     border-radius: 28px;
     background: color-mix(in srgb, var(--bg-color) 78%, transparent);
-    box-shadow: 0 18px 40px -26px color-mix(in srgb, var(--primary-color) 70%, transparent);
 }
 
 .inv-bautizo .inv-guest__facts > div + div,
@@ -833,7 +1345,7 @@ html.inv-intro-active .inv-bautizo-hero .inv-fade-up--3 { animation-delay: 1.9s;
     border: 0;
     background: color-mix(in srgb, var(--bg-color) 80%, transparent);
     color: var(--inv-bautizo-deep);
-    box-shadow: 0 8px 18px -12px color-mix(in srgb, var(--primary-color) 70%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--primary-color) 30%, transparent);
 }
 
 .inv-bautizo .inv-video__frame {
@@ -973,11 +1485,19 @@ html.inv-intro-active .inv-bautizo-hero .inv-fade-up--3 { animation-delay: 1.9s;
 /* ── Movimiento reducido ────────────────────────────────────────────────── */
 
 @media (prefers-reduced-motion: reduce) {
-    .inv-bautizo-intro,
-    .inv-bautizo .inv-bautizo-ambient__sparkle {
+    .inv-bautizo-intro__sparkle,
+    .inv-bautizo .inv-bautizo-ambient__sparkle,
+    .inv-bautizo .inv-bautizo-ambient__bubble,
+    .inv-bautizo .inv-bautizo-ambient__dove {
         display: none;
     }
 
+    .inv-bautizo-intro__cloud,
+    .inv-bautizo-intro__light,
+    .inv-bautizo-font__ewer,
+    .inv-bautizo-font__glint,
+    .inv-bautizo-font__ripple,
+    .inv-bautizo-font__shimmer,
     .inv-bautizo-ambient__cloud,
     .inv-bautizo-hero__light span,
     .inv-bautizo-medallion__photo,

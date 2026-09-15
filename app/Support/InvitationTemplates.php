@@ -28,9 +28,10 @@ final class InvitationTemplates
                 'label' => 'XV Años Elegante',
                 'description' => 'Portada a pantalla completa con la foto, partículas doradas y estilo editorial.',
                 'event' => 'xv',
+                // Orden por prioridad del invitado: cuándo y dónde, confirmar, lo emocional, regalos y participación
                 'order' => [
-                    'cuenta_regresiva', 'video', 'galeria', 'itinerario', 'dress_code', 'destacados', 'ubicacion',
-                    'hashtag', 'encuestas', 'playlist', 'regalos', 'rsvp', 'fotomural', 'post_evento',
+                    'cuenta_regresiva', 'ubicacion', 'itinerario', 'rsvp', 'dress_code', 'video', 'galeria',
+                    'destacados', 'regalos', 'playlist', 'encuestas', 'hashtag', 'fotomural', 'post_evento',
                 ],
                 'copy' => [],
             ],
@@ -39,8 +40,8 @@ final class InvitationTemplates
                 'description' => 'Sobre que se abre al entrar, foto en arco con ramas que crecen, pétalos y títulos caligráficos.',
                 'event' => 'boda',
                 'order' => [
-                    'cuenta_regresiva', 'video', 'galeria', 'ubicacion', 'itinerario', 'dress_code', 'destacados',
-                    'regalos', 'rsvp', 'hashtag', 'playlist', 'encuestas', 'fotomural', 'post_evento',
+                    'cuenta_regresiva', 'galeria', 'ubicacion', 'itinerario', 'rsvp', 'dress_code', 'video',
+                    'destacados', 'regalos', 'playlist', 'encuestas', 'hashtag', 'fotomural', 'post_evento',
                 ],
                 'copy' => [
                     'hero_eyebrow' => 'Nos casamos',
@@ -69,8 +70,8 @@ final class InvitationTemplates
                 'description' => 'Nubes que se abren al entrar, foto en medallón con halo y paloma, destellos y secciones separadas por olas.',
                 'event' => 'bautizo',
                 'order' => [
-                    'cuenta_regresiva', 'galeria', 'destacados', 'ubicacion', 'itinerario', 'dress_code', 'video',
-                    'regalos', 'rsvp', 'hashtag', 'encuestas', 'playlist', 'fotomural', 'post_evento',
+                    'cuenta_regresiva', 'ubicacion', 'itinerario', 'rsvp', 'destacados', 'galeria', 'dress_code',
+                    'video', 'regalos', 'playlist', 'encuestas', 'hashtag', 'fotomural', 'post_evento',
                 ],
                 'copy' => [
                     'hero_eyebrow' => 'Mi bautizo',
@@ -100,8 +101,8 @@ final class InvitationTemplates
                 'description' => 'Pastel con velas que se soplan al entrar, confeti, globos, banderines y la edad en grande.',
                 'event' => 'cumple',
                 'order' => [
-                    'cuenta_regresiva', 'galeria', 'ubicacion', 'itinerario', 'dress_code', 'playlist', 'encuestas',
-                    'destacados', 'regalos', 'rsvp', 'hashtag', 'video', 'fotomural', 'post_evento',
+                    'cuenta_regresiva', 'ubicacion', 'itinerario', 'rsvp', 'dress_code', 'playlist', 'encuestas',
+                    'galeria', 'destacados', 'regalos', 'hashtag', 'video', 'fotomural', 'post_evento',
                 ],
                 'copy' => [
                     'hero_eyebrow' => '¡Celebremos juntos!',

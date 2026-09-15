@@ -20,6 +20,7 @@
     x-effect="document.documentElement.classList.toggle('inv-lock', showBank)">
     <div class="inv-wrap">
         @include('invitations.partials.section-header', [
+            'compact' => true,
             'lottie' => 'gift',
             'eyebrow' => 'Detalles especiales',
             'title' => $regalos['titulo'] ?? 'Regalos',

@@ -56,7 +56,8 @@ class WeddingTemplateTest extends TestCase
             // El crédito lleva al sitio de Bida Events con una invitación a crear la propia
             ->assertSeeInOrder(['href="'.route('home').'" class="inv-footer__credit"', 'Crea la tuya', 'Bida Events'], false)
             ->assertDontSee('inv-boda', false)
-            ->assertSeeInOrder(['id="itinerario"', 'id="dress-code"', 'id="destacados"', 'id="ubicacion"'], false);
+            // Primero lo práctico (dónde y cuándo), después lo emocional
+            ->assertSeeInOrder(['id="ubicacion"', 'id="itinerario"', 'id="dress-code"', 'id="video"', 'id="destacados"'], false);
     }
 
     public function test_wedding_cover_is_shown_even_after_the_wedding(): void
@@ -75,7 +76,9 @@ class WeddingTemplateTest extends TestCase
             ->assertOk()
             ->assertSee('inv-boda-cover', false)
             ->assertSee('inv-boda-envelope__flap', false)
-            ->assertSee('inv-boda-envelope__seal', false);
+            ->assertSee('inv-boda-envelope__seal', false)
+            // Después de la boda los recuerdos van primero
+            ->assertSeeInOrder(['id="post-evento"', 'id="fotomural"', 'id="galeria"'], false);
     }
 
     public function test_wedding_template_is_offered_in_the_editor(): void

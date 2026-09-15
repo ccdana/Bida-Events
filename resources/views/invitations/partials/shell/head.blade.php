@@ -9,6 +9,10 @@
     if (window.self !== window.top) {
         document.documentElement.classList.add('inv-embedded');
     }
+
+    // Muestra de la home: las respuestas se simulan en el navegador y la música nunca arranca sola
+    window.invDemo = @js(! empty($isDemo));
+    window.invCoverAutoplay = @js(! empty($coverAutoplay));
 </script>
 @vite(['resources/css/app.css', 'resources/js/app.js'])
 <link rel="preconnect" href="https://fonts.googleapis.com">

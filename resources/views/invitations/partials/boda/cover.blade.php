@@ -36,7 +36,7 @@
         </p>
         <p class="inv-boda-cover__names">{{ $coverNames }}</p>
 
-        <button type="button" class="inv-boda-envelope"
+        <button type="button" class="inv-boda-envelope" data-cover-trigger
             :class="{ 'is-open': stage >= 2, 'is-reveal': stage >= 3 }"
             @click="open()"
             aria-label="Abrir la invitación">

@@ -5,6 +5,11 @@
 @endphp
 <section class="inv-section reveal inv-rsvp" id="rsvp"
     x-data="rsvpForm(@js($slug), @js($guest->qr_code_token), {{ $maxPasses }}, @js($guest->status ?? ''), {{ (int) ($guest->passes_confirmed ?? 0) }})">
+    @if(! empty($isDemo))
+        {{-- Pase de la muestra: se muestra al confirmar sin llamar al servidor --}}
+        <template x-ref="demoQr">{!! QrCode::size(200)->margin(1)->generate($guest->qr_code_token) !!}</template>
+    @endif
+
     <div class="inv-wrap">
 
         {{-- Confirmado: pase de entrada --}}
@@ -124,6 +129,16 @@ function rsvpForm(slug, token, maxPasses, initialStatus, initialPasses) {
             this.loading = true;
             this.error = '';
             try {
+                // Muestra de la home: la respuesta se simula y no se guarda
+                if (window.invDemo) {
+                    await new Promise((resolve) => setTimeout(resolve, 600));
+                    this.currentStatus = this.attending ? 'confirmed' : 'declined';
+                    this.passesConfirmed = this.attending ? this.passes : 0;
+                    this.qrSvg = this.attending ? (this.$refs.demoQr?.innerHTML ?? null) : null;
+                    this.$el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    return;
+                }
+
                 const res = await fetch(`/p/${slug}/i/${token}/confirm`, {
                     method: 'POST',
                     headers: {

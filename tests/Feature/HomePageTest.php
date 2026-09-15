@@ -15,7 +15,7 @@ class HomePageTest extends TestCase
 
     public function test_guests_see_the_packages_and_whatsapp_contact(): void
     {
-        config(['bida.whatsapp' => '+591 7123-4567']);
+        config(['bida.whatsapp' => '+591 7123-4567', 'bida.facebook' => 'bidaeventsbo']);
 
         $response = $this->get(route('home'));
 
@@ -25,7 +25,8 @@ class HomePageTest extends TestCase
             ->assertSee('https://wa.me/59171234567?text=', false)
             ->assertSee(rawurlencode('me interesa el paquete Estándar (400 Bs)'), false)
             ->assertSee(route('login'), false)
-            ->assertSee('Ingresar');
+            ->assertSee('Ingresar')
+            ->assertSee('https://www.facebook.com/bidaeventsbo', false);
     }
 
     public function test_home_lists_every_configured_event_type_and_the_brand_logo(): void
@@ -60,8 +61,16 @@ class HomePageTest extends TestCase
             ->assertSee('id="plantillas"', false)
             ->assertSee('href="#plantillas"', false)
             ->assertSeeInOrder(['XV Años Elegante', 'Boda Jardín', 'Bautizo Cielo', 'Cumpleaños Fiesta'])
-            ->assertSee('src="'.route('invitation.show', 'xv-isabella').'"', false)
-            ->assertSee(route('invitation.show', 'cumple-daniela-30'), false);
+            // El teléfono de la sección prueba la muestra interactiva; el de la portada recorre las aperturas
+            ->assertSee('src="'.route('invitation.demo', 'xv-isabella').'"', false)
+            ->assertSee('data-cover-reel', false)
+            ->assertSee(route('invitation.demo', ['slug' => 'boda-camila-andres', 'portada' => 1]), false)
+            // "Abrir en pantalla completa" lleva a la muestra, no a la invitación real
+            ->assertSee('href="'.route('invitation.demo', 'cumple-daniela-30').'"', false)
+            ->assertDontSee('href="'.route('invitation.show', 'cumple-daniela-30').'"', false)
+            // La foto y la palabra de la portada siguen el orden del teléfono y cambian con él
+            ->assertSee('data-rotator-driven', false)
+            ->assertSeeInOrder(['tus XV años', 'tu boda', 'tu bautizo', 'tu cumpleaños']);
     }
 
     public function test_the_templates_section_is_hidden_without_showcase_invitations(): void

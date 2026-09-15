@@ -27,21 +27,25 @@ return [
 
     'tiktok' => env('BIDA_TIKTOK', 'bidaevents'),
 
+    // Lo que va después de facebook.com/
+    'facebook' => env('BIDA_FACEBOOK', 'bidaevents'),
+
     // Invitación activa que se muestra como vista previa en la portada (vacío para usar una imagen)
     'demo_slug' => env('BIDA_DEMO_SLUG', 'xv-isabella'),
 
-    // Invitaciones de muestra (una por plantilla) que se pueden recorrer en la sección "Plantillas"
+    // Invitaciones de muestra (una por plantilla): se prueban en "Plantillas" sin guardar nada y el teléfono de la portada recorre sus aperturas
     'demo_invitations' => ['xv-isabella', 'boda-camila-andres', 'bautizo-emilia', 'cumple-daniela-30'],
 
     /*
     | Eventos que rotan en la portada y en el login. Cada uno usa una foto de
-    | la lista "images". Agregar un evento aquí lo suma a la animación.
+    | la lista "images" y "event" lo une con su plantilla de muestra, para que en
+    | la portada cambien junto con el teléfono. Agregar un evento lo suma a la animación.
     */
     'showcase' => [
-        ['phrase' => 'tu boda', 'label' => 'bodas', 'image' => 'event-boda'],
-        ['phrase' => 'tu bautizo', 'label' => 'bautizos', 'image' => 'event-bautizo'],
-        ['phrase' => 'tu cumpleaños', 'label' => 'cumpleaños', 'image' => 'event-cumpleanos'],
-        ['phrase' => 'tus XV años', 'label' => 'XV años', 'image' => 'event-xv'],
+        ['phrase' => 'tu boda', 'label' => 'bodas', 'image' => 'event-boda', 'event' => 'boda'],
+        ['phrase' => 'tu bautizo', 'label' => 'bautizos', 'image' => 'event-bautizo', 'event' => 'bautizo'],
+        ['phrase' => 'tu cumpleaños', 'label' => 'cumpleaños', 'image' => 'event-cumpleanos', 'event' => 'cumple'],
+        ['phrase' => 'tus XV años', 'label' => 'XV años', 'image' => 'event-xv', 'event' => 'xv'],
     ],
 
     // Franja de tipos de evento (ícono de Phosphor sin prefijo)

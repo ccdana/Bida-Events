@@ -6,6 +6,7 @@
  * - Rotador: la palabra del evento y su foto cambian juntas ([data-rotator]).
  * - Botones magnéticos en escritorio ([data-magnetic]).
  * - Cabecera con fondo al dejar la parte superior ([data-site-header]).
+ * - Teléfono de la portada que recorre las aperturas de cada plantilla ([data-cover-reel]).
  *
  * Las entradas, el scroll-driven y los hovers viven en resources/css/site/site.css.
  * No usa listeners de scroll: todo se basa en IntersectionObserver.
@@ -41,7 +42,8 @@ function initReveal() {
 /**
  * Cada [data-rotator] contiene uno o más [data-rotator-group] con la misma
  * cantidad de hijos (palabras, fotos). Todos avanzan al mismo índice.
- * Solo corre mientras el bloque está visible y la pestaña activa.
+ * Solo corre mientras el bloque está visible y la pestaña activa. Con [data-rotator-driven] no avanza
+ * solo: lo mueve el evento "rotator:show" (el teléfono de la portada, al cambiar de plantilla).
  */
 function initRotators() {
     if (reducedMotion) {
@@ -80,6 +82,18 @@ function initRotators() {
             }
             timer = setInterval(() => show((index + 1) % count), interval);
         };
+
+        if (rotator.hasAttribute('data-rotator-driven')) {
+            rotator.addEventListener('rotator:show', (event) => {
+                const target = Number(event.detail);
+
+                if (Number.isInteger(target) && target >= 0 && target < count && target !== index) {
+                    show(target);
+                }
+            });
+
+            return;
+        }
 
         new IntersectionObserver(([entry]) => {
             inView = entry.isIntersecting;
@@ -126,7 +140,75 @@ function initHeaderState() {
     }).observe(sentinel);
 }
 
+/**
+ * Teléfono de la portada: cada muestra abre su apertura sola (?portada=1). Pasado un rato, el teléfono
+ * se desvanece y carga la plantilla siguiente. Solo avanza mientras se ve y la pestaña está activa.
+ */
+function initCoverReel() {
+    const reel = document.querySelector('[data-cover-reel]');
+    const frame = reel?.querySelector('[data-cover-reel-frame]');
+    const items = reel ? JSON.parse(reel.dataset.coverReel || '[]') : [];
+
+    if (!frame || items.length < 2 || reducedMotion) {
+        return;
+    }
+
+    const label = reel.querySelector('[data-cover-reel-label]');
+    // La apertura espera, se abre y la invitación se luce unos segundos antes de cambiar
+    const dwell = 9500;
+    let index = 0;
+    let timer = null;
+    let inView = false;
+
+    const stop = () => {
+        clearTimeout(timer);
+        timer = null;
+    };
+
+    const rotator = reel.closest('[data-rotator]');
+
+    const next = () => {
+        index = (index + 1) % items.length;
+        reel.classList.add('is-switching');
+
+        // Foto, palabra y etiqueta cambian en el mismo instante en que el teléfono empieza a cambiar
+        if (rotator && items[index].rotator !== null && items[index].rotator !== undefined) {
+            rotator.dispatchEvent(new CustomEvent('rotator:show', { detail: items[index].rotator }));
+        }
+
+        if (label) {
+            label.textContent = items[index].label;
+        }
+
+        // La muestra nueva se carga cuando el teléfono terminó de desvanecerse
+        setTimeout(() => {
+            frame.src = items[index].url;
+        }, 450);
+    };
+
+    const schedule = () => {
+        stop();
+
+        if (inView && !document.hidden) {
+            timer = setTimeout(next, dwell);
+        }
+    };
+
+    frame.addEventListener('load', () => {
+        reel.classList.remove('is-switching');
+        schedule();
+    });
+
+    new IntersectionObserver(([entry]) => {
+        inView = entry.isIntersecting;
+        inView ? schedule() : stop();
+    }).observe(reel);
+
+    document.addEventListener('visibilitychange', () => (document.hidden ? stop() : schedule()));
+}
+
 initReveal();
 initRotators();
 initMagnetic();
 initHeaderState();
+initCoverReel();

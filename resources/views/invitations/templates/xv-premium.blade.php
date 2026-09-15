@@ -1,16 +1,15 @@
 @php
     $page = new \App\Support\InvitationPage($invitation, $modulos, $guest ?? null, \App\Support\InvitationTemplates::XV_PREMIUM);
     $invCopy = $page->copy;
-    // El telón de apertura no aparece en la vista previa del editor ni cuando la fiesta ya pasó
-    $showIntro = ! $page->isPostEvent && empty($isPreview);
-    $introKey = 'inv-intro-'.$invitation->slug;
+    // El telón aparece en cada visita, también después de la fiesta; solo se omite en la vista previa del editor
+    $showIntro = empty($isPreview);
 @endphp
 <!DOCTYPE html>
 <html lang="es">
 <head>
     @include('invitations.partials.shell.head')
     @if($showIntro)
-        @include('invitations.partials.shell.intro-script', ['introSelector' => '.inv-xv-intro'])
+        @include('invitations.partials.shell.cover-script', ['coverSelector' => '.inv-xv-intro'])
     @endif
 </head>
 <body class="inv-page inv-xv overflow-x-hidden {{ $page->hasPlayer ? 'has-player' : '' }}" x-data="invitationApp()" x-init="init()">
@@ -46,5 +45,9 @@
     ])
 
     @include('invitations.partials.shell.scripts')
+
+    @if($showIntro)
+        @include('invitations.partials.shell.cover-component')
+    @endif
 </body>
 </html>

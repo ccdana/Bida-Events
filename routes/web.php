@@ -18,6 +18,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
 
+// Invitaciones de muestra de la home: se pueden recorrer y probar, pero nada se guarda
+Route::get('/muestra/{slug}', [PublicInvitationController::class, 'demo'])->name('invitation.demo');
+
 Route::get('/dashboard', function (Request $request) {
     $user = $request->user();
 

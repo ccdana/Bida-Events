@@ -14,27 +14,7 @@
 <head>
     @include('invitations.partials.shell.head')
     @if($showIntro)
-        <script>
-            // Dentro de un iframe (teléfono de la home) no se muestra el pastel
-            (function () {
-                const root = document.documentElement;
-
-                if (window.self !== window.top) {
-                    root.classList.add('inv-cover-skip');
-                    return;
-                }
-
-                root.classList.add('inv-cover-waiting');
-
-                // La fiesta empieza siempre en la portada, aunque sea una recarga
-                if ('scrollRestoration' in history) {
-                    history.scrollRestoration = 'manual';
-                }
-
-                window.scrollTo(0, 0);
-            })();
-        </script>
-        <noscript><style>.inv-cumple-intro { display: none !important; }</style></noscript>
+        @include('invitations.partials.shell.cover-script', ['coverSelector' => '.inv-cumple-intro'])
     @endif
 </head>
 <body class="inv-page inv-cumple overflow-x-hidden {{ $page->hasPlayer ? 'has-player' : '' }}" x-data="invitationApp()" x-init="init()">

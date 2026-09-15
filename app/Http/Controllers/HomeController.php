@@ -59,11 +59,14 @@ class HomeController extends Controller
                 [$event, $icon] = $events[$template['event']] ?? ['Evento', 'sparkle'];
 
                 return [
-                    'url' => route('invitation.show', $slug),
+                    // Muestra interactiva (nada se guarda) y la misma con la apertura que se abre sola
+                    'demoUrl' => route('invitation.demo', $slug),
+                    'coverUrl' => route('invitation.demo', ['slug' => $slug, 'portada' => 1]),
                     'title' => $invitation->title,
                     'label' => $template['label'],
                     'description' => $template['description'],
                     'event' => $event,
+                    'eventKey' => $template['event'],
                     'icon' => $icon,
                 ];
             })

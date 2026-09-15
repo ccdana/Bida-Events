@@ -39,7 +39,8 @@ function musicPlayer(src, autoplay) {
         init() {
             this.$refs.audio.volume = this.volume;
 
-            if (!autoplay) {
+            // En las muestras de la home solo suena si el visitante toca reproducir
+            if (!autoplay || window.invDemo) {
                 return;
             }
 

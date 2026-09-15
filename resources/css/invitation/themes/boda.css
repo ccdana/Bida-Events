@@ -761,11 +761,22 @@ html.inv-cover-waiting .inv-boda-hero * {
     text-transform: none;
 }
 
+/* Títulos de sección en serif para que se lean; la manuscrita queda para los nombres */
 .inv-boda .inv-head__title {
-    margin-top: 0.15rem;
+    margin-top: 0.3rem;
+    font-family: var(--font-titles);
+    font-size: clamp(2.2rem, 9.5vw, 3.5rem);
+    font-weight: 500;
+    line-height: 1.08;
+    letter-spacing: 0.01em;
+}
+
+.inv-boda #guest-banner .inv-head__title {
     font-family: var(--font-script);
-    font-size: clamp(2.7rem, 13vw, 4.4rem);
+    font-size: clamp(2.6rem, 12vw, 4.2rem);
+    font-weight: 400;
     line-height: 1.12;
+    letter-spacing: 0;
 }
 
 .inv-boda .inv-head__rule {
@@ -1238,12 +1249,9 @@ html.inv-cover-waiting .inv-boda-hero * {
     mask: var(--inv-boda-laurel) center / contain no-repeat;
 }
 
-/* Itinerario: cada momento en una tarjeta suave */
+/* Itinerario: cada momento sobre la línea, sin tarjeta */
 .inv-boda .inv-itinerary__body {
-    padding: 0.8rem 1rem;
-    border-radius: 18px;
-    background: color-mix(in srgb, var(--bg-color) 65%, transparent);
-    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--primary-color) 16%, transparent);
+    padding: 0.15rem 0 0.35rem;
 }
 
 .inv-boda .inv-itinerary__time {
@@ -1273,14 +1281,12 @@ html.inv-cover-waiting .inv-boda-hero * {
     pointer-events: none;
 }
 
-/* Confirmación: pasos como tarjetas y pase con sello de cera */
+/* Confirmación: pasos separados por un filete y pase con sello de cera */
 .inv-boda .inv-rsvp__step {
-    margin-bottom: 0.75rem;
-    padding: 1.25rem 1.1rem;
+    margin-bottom: 0.5rem;
+    padding: 1.25rem 0;
     border: 0;
-    border-radius: 20px;
-    background: color-mix(in srgb, var(--bg-color) 62%, transparent);
-    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--primary-color) 18%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, var(--primary-color) 18%, transparent);
 }
 
 .inv-boda .inv-rsvp__submit {
@@ -1319,21 +1325,13 @@ html.inv-cover-waiting .inv-boda-hero * {
     mask: var(--inv-boda-heart) center / contain no-repeat;
 }
 
-/* Regalos y playlist en tarjetas suaves */
+/* Regalos como filas con filete fino; íconos de regalos y playlist en medallón */
 .inv-boda .inv-gifts .inv-list {
-    border-top: 0;
+    border-top-color: color-mix(in srgb, var(--primary-color) 18%, transparent);
 }
 
 .inv-boda .inv-gifts .inv-list > li {
-    margin-bottom: 0.65rem;
-    border-bottom: 0;
-    border-radius: 20px;
-    background: color-mix(in srgb, var(--bg-color) 62%, transparent);
-    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--primary-color) 18%, transparent);
-}
-
-.inv-boda .inv-gift {
-    padding: 0.95rem 1.1rem;
+    border-bottom-color: color-mix(in srgb, var(--primary-color) 18%, transparent);
 }
 
 .inv-boda .inv-gift__icon,
@@ -1362,8 +1360,9 @@ html.inv-cover-waiting .inv-boda-hero * {
     position: relative;
     padding-block: 2.1rem;
     border-block: 0;
-    font-family: var(--font-script);
-    font-size: clamp(2.4rem, 12vw, 3.8rem);
+    font-family: var(--font-titles);
+    font-size: clamp(2rem, 9vw, 3rem);
+    font-style: italic;
 }
 
 .inv-boda .inv-hashtag__tag::before,

@@ -3,9 +3,13 @@
     $totalPreguntas = count($preguntas);
 @endphp
 
-<section class="inv-section reveal inv-polls" id="encuestas">
+{{-- Una pregunta a la vez: se avanza con las flechas o solo al votar --}}
+<section class="inv-section reveal inv-polls" id="encuestas"
+    x-data="{ step: 0, total: {{ $totalPreguntas }} }"
+    @poll-voted="setTimeout(() => { if (step < total - 1) step++ }, 1800)">
     <div class="inv-wrap">
         @include('invitations.partials.section-header', [
+            'compact' => true,
             'lottie' => 'poll',
             'eyebrow' => 'Tu opinión cuenta',
             'title' => $encuestas['titulo'] ?? 'Encuestas',
@@ -19,10 +23,9 @@
                 $isGrid = in_array($pollType, ['rating', 'emoji'], true);
             @endphp
             <div class="inv-poll"
+                x-show="step === {{ $number }}" @if($number > 0) x-cloak @endif
+                x-transition:enter="inv-poll-enter" x-transition:enter-start="inv-poll-enter-start"
                 x-data="pollVoter(@js($poll['id']), @js($pollResults[$poll['id']] ?? array_fill(0, count($options), 0)), @js($options), @js($slug), @js($guestToken), @js($pollType))">
-                @if($totalPreguntas > 1)
-                    <span class="inv-label">Pregunta {{ $number + 1 }} de {{ $totalPreguntas }}</span>
-                @endif
                 <h3 class="inv-poll__question">{{ $poll['pregunta'] ?? '' }}</h3>
 
                 <ul class="inv-poll__options {{ $isGrid ? 'inv-poll__options--grid' : '' }}" :aria-busy="loading.toString()">
@@ -48,6 +51,20 @@
         @empty
             <p class="inv-empty">Pronto habrá preguntas para votar.</p>
         @endforelse
+
+        @if($totalPreguntas > 1)
+            <nav class="inv-polls__nav" aria-label="Preguntas">
+                <button type="button" class="inv-gallery__arrow" @click="step = Math.max(0, step - 1)" :disabled="step === 0" aria-label="Pregunta anterior">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+                <p class="inv-polls__count" aria-live="polite">
+                    <span x-text="step + 1">1</span> de {{ $totalPreguntas }}
+                </p>
+                <button type="button" class="inv-gallery__arrow" @click="step = Math.min(total - 1, step + 1)" :disabled="step === total - 1" aria-label="Pregunta siguiente">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+            </nav>
+        @endif
     </div>
 </section>
 <script>
@@ -71,6 +88,20 @@ function pollVoter(pollId, initialPct, options, slug, guestToken, pollType) {
             this.error = false;
 
             try {
+                // Muestra de la home: el voto se suma a los resultados solo en este navegador
+                if (window.invDemo) {
+                    await new Promise((resolve) => setTimeout(resolve, 350));
+                    const counts = this.percentages.map((pct) => pct / 5);
+                    const hasVotes = counts.some((count) => count > 0);
+                    const tally = counts.map((count, index) => (hasVotes ? count : 0) + (index === idx ? 1 : 0));
+                    const total = tally.reduce((sum, count) => sum + count, 0);
+                    this.percentages = tally.map((count) => Math.round((count / total) * 100));
+                    this.voted = true;
+                    this.message = 'Así se ve tu voto. Es una muestra: no se guarda.';
+                    this.$dispatch('poll-voted');
+                    return;
+                }
+
                 const res = await fetch(`/p/${slug}/polls/${pollId}/vote`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content, 'Accept': 'application/json' },
@@ -85,6 +116,8 @@ function pollVoter(pollId, initialPct, options, slug, guestToken, pollType) {
                 this.percentages = data.percentages;
                 this.voted = true;
                 this.message = 'Gracias, tu voto quedó registrado.';
+                // La sección pasa sola a la siguiente pregunta después de mostrar los resultados
+                this.$dispatch('poll-voted');
             } catch (e) {
                 this.selected = null;
                 this.error = true;

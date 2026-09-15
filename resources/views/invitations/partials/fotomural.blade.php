@@ -4,6 +4,7 @@
 <section class="inv-section reveal inv-mural-section" id="fotomural" x-data="fotomural(@js($slug), @js($guestToken), @js($photos ?? []), @js($isPreview ?? false), @js($readOnly))" x-init="init()">
     <div class="inv-wrap inv-wrap--wide">
         @include('invitations.partials.section-header', [
+            'compact' => true,
             'lottie' => 'camera',
             'eyebrow' => 'Recuerdos en vivo',
             'title' => 'Fotomural',
@@ -82,6 +83,14 @@ function fotomural(slug, guestToken, initialPhotos, isPreview, readOnly) {
 
             if (isPreview || this.readOnly) {
                 this.notify(isPreview ? 'El fotomural no está disponible en la vista previa.' : 'El fotomural ya no recibe fotos.', true);
+                e.target.value = '';
+                return;
+            }
+
+            // Muestra de la home: la foto aparece en el mural solo en este navegador, no se sube
+            if (window.invDemo) {
+                this.photos = [{ id: `muestra-${Date.now()}`, url: URL.createObjectURL(file), guest: 'Tú' }, ...this.photos];
+                this.notify('¡Listo! Así se verá tu foto en el mural. Es una muestra: no se guarda.');
                 e.target.value = '';
                 return;
             }

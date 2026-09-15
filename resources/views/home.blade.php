@@ -14,6 +14,27 @@
     $accountUrl = $user ? route('dashboard') : route('login');
     $accountLabel = $user ? 'Mi panel' : 'Ingresar';
     $showcase = $bida['showcase'];
+    // Con muestras, las fotos y la palabra de la portada siguen el orden del teléfono para cambiar junto con él
+    if (count($demos)) {
+        $ordered = [];
+        foreach (array_column($demos, 'eventKey') as $eventKey) {
+            foreach ($showcase as $position => $event) {
+                if (($event['event'] ?? null) === $eventKey) {
+                    $ordered[] = $event;
+                    unset($showcase[$position]);
+                    break;
+                }
+            }
+        }
+        $showcase = array_merge($ordered, array_values($showcase));
+    }
+    $features = [
+        ['icon' => 'link-simple', 'title' => 'Tu invitación, en un enlace', 'text' => 'Portada, cuenta regresiva, itinerario y mapa. Se abre desde cualquier celular sin instalar nada.'],
+        ['icon' => 'qr-code', 'title' => 'Confirmación con pase QR', 'text' => 'Cada invitado confirma desde su enlace y recibe un pase para presentar en la entrada.'],
+        ['icon' => 'music-notes', 'title' => 'Música, fotos y video', 'text' => 'Tu canción de fondo, una galería que se desliza con el dedo y el video de tu save the date.'],
+        ['icon' => 'chart-bar', 'title' => 'Encuestas y playlist', 'text' => 'Tus invitados votan, sugieren las canciones de la pista y participan antes de la fiesta.'],
+        ['icon' => 'users-three', 'title' => 'Lista de invitados al día', 'text' => 'Ves quién confirmó y cuántas personas van. Descargas el reporte en PDF o Excel.'],
+    ];
     $steps = [
         ['icon' => 'chat-circle-text', 'title' => 'Nos escribes', 'text' => 'Cuéntanos qué celebras, la fecha y el lugar. Te ayudamos a elegir el paquete por WhatsApp.'],
         ['icon' => 'pencil-simple-line', 'title' => 'Diseñamos contigo', 'text' => 'Armamos tu invitación con tus fotos, colores y textos. Revisas la vista previa y pides cambios.'],
@@ -28,6 +49,25 @@
         ['¿Cuánto tardan en entregarla?', 'Depende del paquete y de cuándo nos envíes las fotos y los datos. Te damos una fecha de entrega al confirmar tu pedido.'],
         ['¿Cómo se realiza el pago?', 'Coordinamos el pago por WhatsApp cuando eliges tu paquete, antes de empezar el diseño.'],
     ];
+    $socials = array_values(array_filter([
+        ! empty($bida['instagram']) ? ['label' => 'Instagram', 'value' => '@'.$bida['instagram'], 'url' => 'https://www.instagram.com/'.$bida['instagram'].'/', 'icon' => 'instagram-logo'] : null,
+        ! empty($bida['facebook']) ? ['label' => 'Facebook', 'value' => 'facebook.com/'.$bida['facebook'], 'url' => 'https://www.facebook.com/'.$bida['facebook'], 'icon' => 'facebook-logo'] : null,
+        ! empty($bida['tiktok']) ? ['label' => 'TikTok', 'value' => '@'.$bida['tiktok'], 'url' => 'https://www.tiktok.com/@'.$bida['tiktok'], 'icon' => 'tiktok-logo'] : null,
+    ]));
+    $contacts = array_merge(
+        [
+            ['label' => 'WhatsApp', 'value' => 'Escríbenos', 'url' => $contactUrl, 'icon' => 'whatsapp-logo'],
+            ['label' => 'Correo', 'value' => $bida['email'], 'url' => 'mailto:'.$bida['email'], 'icon' => 'envelope-simple'],
+        ],
+        $socials,
+        [['label' => 'Ubicación', 'value' => $bida['city'], 'url' => null, 'icon' => 'map-pin']],
+    );
+    // El teléfono de la portada recorre la apertura de cada plantilla (se abren solas)
+    $coverReel = array_map(function (array $demo) use ($showcase): array {
+        $position = array_search($demo['eventKey'], array_column($showcase, 'event'), true);
+
+        return ['url' => $demo['coverUrl'], 'label' => $demo['label'], 'rotator' => $position === false ? null : $position];
+    }, $demos);
 @endphp
 
 @section('content')
@@ -87,8 +127,8 @@
     </header>
 
     <main>
-        {{-- ═══ Portada: la palabra del evento y su foto rotan juntas ═══ --}}
-        <section data-rotator data-rotator-interval="3200"
+        {{-- ═══ Portada: el teléfono recorre las aperturas y la palabra y la foto del evento cambian con él ═══ --}}
+        <section data-rotator data-rotator-interval="3200" @if(count($demos)) data-rotator-driven @endif
             class="mx-auto grid max-w-7xl items-center gap-12 px-5 pb-16 pt-8 md:pt-14 lg:min-h-[calc(100dvh-72px)] lg:grid-cols-[1.1fr_0.9fr] lg:gap-12 lg:px-8 lg:py-12">
             <div>
                 <h1 class="site-enter text-[2.5rem] font-semibold leading-[1.06] tracking-tight sm:text-5xl lg:text-[3rem] xl:text-[3.5rem]">
@@ -112,8 +152,8 @@
                         <x-phosphor-whatsapp-logo aria-hidden="true" />
                         Escríbenos
                     </a>
-                    <a href="#precios" class="site-btn site-btn--ghost site-btn--lg justify-center">
-                        Ver precios
+                    <a href="{{ count($demos) ? '#plantillas' : '#precios' }}" class="site-btn site-btn--ghost site-btn--lg justify-center">
+                        {{ count($demos) ? 'Probar una invitación' : 'Ver precios' }}
                         <x-phosphor-arrow-down class="site-btn__arrow" aria-hidden="true" />
                     </a>
                 </div>
@@ -126,15 +166,25 @@
                     @endforeach
                 </div>
 
-                <div class="site-phone absolute bottom-0 left-0">
+                <div class="site-phone absolute bottom-0 left-0"
+                    @if(count($demos)) data-cover-reel="{{ json_encode($coverReel, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) }}" @endif>
                     <div class="site-phone__screen">
-                        @if($demoUrl)
+                        @if(count($demos))
+                            <iframe src="{{ $demos[0]['coverUrl'] }}" title="Apertura de las invitaciones de muestra" tabindex="-1" aria-hidden="true" data-cover-reel-frame></iframe>
+                        @elseif($demoUrl)
                             <iframe src="{{ $demoUrl }}" title="Vista previa de una invitación de ejemplo" loading="lazy" tabindex="-1" aria-hidden="true"></iframe>
                         @else
                             {{-- TODO: captura real de una invitación en celular, 390x844 --}}
                             <img src="https://picsum.photos/seed/bida-invitacion-celular/390/844?grayscale" alt="" width="390" height="844" loading="lazy">
                         @endif
                     </div>
+
+                    @if(count($demos))
+                        <p class="site-phone__tag" aria-hidden="true">
+                            <span class="site-phone__tag-dot"></span>
+                            <span data-cover-reel-label>{{ $demos[0]['label'] }}</span>
+                        </p>
+                    @endif
                 </div>
             </div>
         </section>
@@ -157,101 +207,91 @@
             </div>
         </section>
 
-        {{-- ═══ Servicios (bento de 5 celdas) ═══ --}}
+        {{-- ═══ Servicios: filas numeradas junto a una foto, y una franja con el fotomural ═══ --}}
         <section id="servicios" class="scroll-mt-20">
             <div class="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-28">
-                <h2 class="max-w-[20ch] text-3xl font-semibold leading-[1.1] tracking-tight md:text-5xl" data-reveal>
-                    Todo lo que tu invitación puede incluir
-                </h2>
-                <p class="mt-5 max-w-[50ch] text-lg leading-relaxed text-site-muted" data-reveal>
-                    Eliges lo que tu evento necesita y todo se ve bien en el celular.
-                </p>
+                <div class="grid gap-12 lg:grid-cols-12 lg:gap-8">
+                    <div class="lg:col-span-5">
+                        <div class="lg:sticky lg:top-28">
+                            <h2 class="max-w-[16ch] text-3xl font-semibold leading-[1.1] tracking-tight md:text-5xl" data-reveal>
+                                Todo lo que tu invitación puede incluir
+                            </h2>
+                            <p class="mt-5 max-w-[42ch] text-lg leading-relaxed text-site-muted" data-reveal>
+                                Eliges lo que tu evento necesita y todo se ve bien en el celular.
+                            </p>
+                            <div class="site-photo mt-10 aspect-[4/3] lg:aspect-[4/5]" data-reveal>
+                                <x-site.image key="servicio-enlace" />
+                            </div>
+                        </div>
+                    </div>
 
-                <div class="mt-14 grid gap-4 md:grid-cols-2 lg:auto-rows-[minmax(14rem,auto)] lg:grid-cols-6">
-                    <article class="site-zoom flex flex-col overflow-hidden rounded-[20px] bg-site-surface md:col-span-2 lg:col-span-3 lg:row-span-2" data-reveal>
-                        <div class="flex-1 overflow-hidden">
-                            <x-site.image key="servicio-enlace" class="aspect-[10/7] size-full object-cover" />
-                        </div>
-                        <div class="p-7 lg:p-8">
-                            <h3 class="text-2xl font-medium tracking-tight">Tu invitación, en un enlace</h3>
-                            <p class="mt-2 max-w-[44ch] leading-relaxed text-site-muted">Portada, cuenta regresiva, itinerario y mapa. Se abre desde cualquier celular sin instalar nada.</p>
-                        </div>
-                    </article>
+                    <ol class="site-features lg:col-span-6 lg:col-start-7">
+                        @foreach($features as $index => $feature)
+                            <li class="site-feature" data-reveal>
+                                <span class="site-feature__num">{{ str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) }}</span>
+                                <div>
+                                    <h3 class="site-feature__title">{{ $feature['title'] }}</h3>
+                                    <p class="site-feature__text">{{ $feature['text'] }}</p>
+                                </div>
+                                <x-dynamic-component :component="'phosphor-'.$feature['icon'].'-light'" class="site-feature__icon" aria-hidden="true" />
+                            </li>
+                        @endforeach
+                    </ol>
+                </div>
 
-                    <article class="site-lift flex flex-col justify-between gap-10 rounded-[20px] bg-site-tint p-7 lg:col-span-3 lg:p-8" data-reveal style="--reveal-index: 1">
-                        <x-phosphor-qr-code-light class="site-lift__icon size-10 text-site-accent" aria-hidden="true" />
-                        <div>
-                            <h3 class="text-2xl font-medium tracking-tight">Confirmación con pase QR</h3>
-                            <p class="mt-2 max-w-[40ch] leading-relaxed text-site-muted">Cada invitado confirma desde su enlace y recibe un pase para presentar en la entrada.</p>
-                        </div>
-                    </article>
-
-                    <article class="site-lift flex flex-col justify-between gap-10 rounded-[20px] border border-site-line p-7 lg:col-span-3 lg:p-8" data-reveal style="--reveal-index: 2">
-                        <x-phosphor-music-notes-light class="site-lift__icon size-10 text-site-accent" aria-hidden="true" />
-                        <div>
-                            <h3 class="text-2xl font-medium tracking-tight">Música, fotos y video</h3>
-                            <p class="mt-2 max-w-[40ch] leading-relaxed text-site-muted">Tu canción de fondo, una galería que se desliza con el dedo y el video de tu save the date.</p>
-                        </div>
-                    </article>
-
-                    <article class="site-invert site-lift flex flex-col justify-between gap-10 rounded-[20px] p-7 lg:col-span-2 lg:p-8" data-reveal style="--reveal-index: 1">
-                        <x-phosphor-users-three-light class="site-lift__icon size-10 text-site-accent" aria-hidden="true" />
-                        <div>
-                            <h3 class="text-2xl font-medium tracking-tight">Lista de invitados al día</h3>
-                            <p class="mt-2 leading-relaxed text-site-muted">Ves quién confirmó y cuántas personas van. Descargas el reporte en PDF o Excel.</p>
-                        </div>
-                    </article>
-
-                    <article class="site-zoom grid overflow-hidden rounded-[20px] bg-site-surface sm:grid-cols-2 lg:col-span-4" data-reveal style="--reveal-index: 2">
-                        <div class="flex flex-col justify-end p-7 lg:p-8">
-                            <x-phosphor-images-light class="mb-10 size-10 text-site-accent" aria-hidden="true" />
-                            <h3 class="text-2xl font-medium tracking-tight">Recuerdos en vivo</h3>
-                            <p class="mt-2 leading-relaxed text-site-muted">Tus invitados suben fotos durante el evento y todos las ven en el fotomural.</p>
-                        </div>
-                        <div class="order-first overflow-hidden sm:order-none">
-                            <x-site.image key="servicio-fotomural" class="aspect-square size-full object-cover sm:aspect-auto" />
-                        </div>
-                    </article>
+                <div class="mt-20 grid items-end gap-8 lg:mt-28 lg:grid-cols-12" data-reveal>
+                    <div class="site-photo aspect-[16/11] lg:col-span-7">
+                        <x-site.image key="servicio-fotomural" />
+                    </div>
+                    <div class="lg:col-span-4 lg:col-start-9 lg:pb-4">
+                        <p class="text-[0.95rem] font-medium text-site-accent">Durante la fiesta</p>
+                        <h3 class="mt-3 text-3xl font-semibold leading-[1.1] tracking-tight md:text-4xl">Recuerdos en vivo</h3>
+                        <p class="mt-4 max-w-[40ch] text-lg leading-relaxed text-site-muted">
+                            Tus invitados suben fotos desde su celular y todos las ven al instante en el fotomural.
+                        </p>
+                    </div>
                 </div>
             </div>
         </section>
 
-        {{-- ═══ Plantillas: el visitante elige un evento y recorre la invitación de muestra ═══ --}}
+        {{-- ═══ Plantillas: el visitante elige un evento y prueba la invitación de muestra (nada se guarda) ═══ --}}
         @if(count($demos))
             <section id="plantillas" class="scroll-mt-20 border-t border-site-line bg-site-surface"
                 x-data="{ active: 0, loading: true, demos: @js($demos) }">
-                <div class="mx-auto grid max-w-7xl gap-12 px-5 py-20 lg:grid-cols-12 lg:items-center lg:gap-8 lg:px-8 lg:py-28">
+                <div class="mx-auto grid max-w-7xl gap-14 px-5 py-20 lg:grid-cols-12 lg:items-center lg:gap-8 lg:px-8 lg:py-28">
                     <div class="lg:col-span-6">
                         <p class="text-[0.95rem] font-medium text-site-accent" data-reveal>Plantillas</p>
                         <h2 class="mt-4 max-w-[18ch] text-3xl font-semibold leading-[1.1] tracking-tight md:text-5xl" data-reveal>
-                            Recorre una invitación real
+                            Pruébala como un invitado
                         </h2>
                         <p class="mt-5 max-w-[46ch] text-lg leading-relaxed text-site-muted" data-reveal>
-                            Elige un evento y mírala como la verán tus invitados: fotos, música, mapa, confirmación de asistencia y cada sección.
+                            Ábrela dentro del teléfono, confirma tu asistencia, vota, sugiere una canción o sube una foto. Es una muestra: nada de lo que hagas se guarda.
                         </p>
 
-                        <div class="mt-10 grid gap-3 sm:grid-cols-2" role="tablist" aria-label="Plantillas de invitación" data-reveal>
+                        <ol class="site-template-list mt-10" role="tablist" aria-label="Plantillas de invitación" data-reveal>
                             @foreach($demos as $index => $demo)
-                                <button type="button" role="tab" id="plantilla-tab-{{ $index }}" aria-controls="plantilla-vista"
-                                    aria-selected="{{ $index === 0 ? 'true' : 'false' }}"
-                                    :aria-selected="(active === {{ $index }}).toString()"
-                                    @click="if (active !== {{ $index }}) { active = {{ $index }}; loading = true }"
-                                    @class(['site-template', 'is-active' => $index === 0])
-                                    :class="{ 'is-active': active === {{ $index }} }">
-                                    <x-dynamic-component :component="'phosphor-'.$demo['icon'].'-light'" class="site-template__icon" aria-hidden="true" />
-                                    <span class="min-w-0">
-                                        <span class="block text-sm text-site-muted">{{ $demo['event'] }}</span>
-                                        <span class="block text-lg font-medium leading-snug">{{ $demo['label'] }}</span>
-                                    </span>
-                                </button>
+                                <li>
+                                    <button type="button" role="tab" id="plantilla-tab-{{ $index }}" aria-controls="plantilla-vista"
+                                        aria-selected="{{ $index === 0 ? 'true' : 'false' }}"
+                                        :aria-selected="(active === {{ $index }}).toString()"
+                                        @click="if (active !== {{ $index }}) { active = {{ $index }}; loading = true }"
+                                        @class(['site-template', 'is-active' => $index === 0])
+                                        :class="{ 'is-active': active === {{ $index }} }">
+                                        <span class="site-template__num">{{ str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) }}</span>
+                                        <span class="site-template__name">{{ $demo['label'] }}</span>
+                                        <span class="site-template__event">{{ $demo['event'] }}</span>
+                                    </button>
+                                </li>
                             @endforeach
-                        </div>
+                        </ol>
 
                         @foreach($demos as $index => $demo)
                             <div class="mt-8" x-show="active === {{ $index }}" @if($index > 0) x-cloak @endif>
-                                <p class="text-sm text-site-muted">Ejemplo: {{ $demo['title'] }}</p>
-                                <p class="mt-2 max-w-[46ch] leading-relaxed">{{ $demo['description'] }}</p>
-                                <a href="{{ $demo['url'] }}" target="_blank" rel="noopener" class="site-btn site-btn--ghost site-btn--lg mt-6">
+                                <p class="max-w-[46ch] leading-relaxed text-site-muted">
+                                    {{ $demo['description'] }}
+                                    <span class="text-site-ink">Ejemplo: {{ $demo['title'] }}.</span>
+                                </p>
+                                <a href="{{ $demo['demoUrl'] }}" target="_blank" rel="noopener" class="site-btn site-btn--ghost site-btn--lg mt-6">
                                     Abrir en pantalla completa
                                     <x-phosphor-arrow-up-right class="site-btn__arrow" aria-hidden="true" />
                                 </a>
@@ -264,12 +304,12 @@
                             <div id="plantilla-vista" role="tabpanel" aria-labelledby="plantilla-tab-0"
                                 :aria-labelledby="'plantilla-tab-' + active"
                                 class="site-phone__screen" :class="{ 'is-loading': loading }">
-                                <iframe src="{{ $demos[0]['url'] }}" :src="demos[active].url"
+                                <iframe src="{{ $demos[0]['demoUrl'] }}" :src="demos[active].demoUrl"
                                     title="Invitación de muestra: {{ $demos[0]['title'] }}" :title="'Invitación de muestra: ' + demos[active].title"
                                     loading="lazy" @load="loading = false"></iframe>
                             </div>
                         </div>
-                        <p class="text-sm text-site-muted">Desliza dentro del teléfono para recorrerla</p>
+                        <p class="text-sm text-site-muted">Toca y desliza dentro del teléfono</p>
                     </div>
                 </div>
             </section>
@@ -303,7 +343,7 @@
             </div>
         </section>
 
-        {{-- ═══ Precios ═══ --}}
+        {{-- ═══ Precios: tres columnas separadas por filetes ═══ --}}
         <section id="precios" class="scroll-mt-20 border-t border-site-line bg-site-surface">
             <div class="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-28">
                 <p class="text-[0.95rem] font-medium text-site-accent" data-reveal>Precios</p>
@@ -312,63 +352,37 @@
                     Pago único por invitación, en bolivianos. Cada paquete incluye todo lo del anterior.
                 </p>
 
-                <div class="mt-14 grid gap-5 lg:grid-cols-3 lg:items-center">
+                <div class="site-plans mt-14">
                     @foreach($packages as $index => $package)
                         @php($featured = $package['featured'] ?? false)
                         @php($premium = $package['premium'] ?? false)
-                        <article @class([
-                                'site-lift flex flex-col rounded-[20px]',
-                                'p-7 lg:p-8' => ! $premium,
-                                'site-invert lg:py-11' => $featured,
-                                'site-premium p-8 lg:p-10' => $premium,
-                                'border border-site-line bg-site-bg' => ! $featured && ! $premium,
-                            ])
+                        <article @class(['site-plan', 'site-plan--featured' => $featured, 'site-plan--premium' => $premium])
                             data-reveal style="--reveal-index: {{ $index }}">
-                            @if($premium)
-                                {{-- Marco interior con esquinas doradas y un brillo que recorre la tarjeta --}}
-                                <span class="site-premium__frame" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
-                                <span class="site-premium__sheen" aria-hidden="true"></span>
-                            @endif
-
-                            <div class="flex items-center justify-between gap-3">
-                                <h3 class="flex items-center gap-2.5 text-xl font-medium">
-                                    @if($premium)
-                                        <x-phosphor-crown-simple-fill class="size-5 text-site-accent" aria-hidden="true" />
-                                    @endif
+                            <div class="site-plan__head">
+                                <h3 class="site-plan__name">
                                     {{ $package['name'] }}
+                                    @if($premium)
+                                        <x-phosphor-crown-simple-fill class="site-plan__crown" aria-hidden="true" />
+                                    @endif
                                 </h3>
                                 @if($featured)
-                                    <span class="rounded-full bg-site-accent px-3 py-1 text-sm font-medium text-site-on-accent">Recomendado</span>
+                                    <span class="site-plan__tag">Recomendado</span>
                                 @elseif($premium)
-                                    <span class="site-premium__badge">Experiencia completa</span>
+                                    <span class="site-plan__tag">Experiencia completa</span>
                                 @endif
                             </div>
 
-                            <p class="mt-6 flex items-baseline gap-2">
-                                <span @class(['text-5xl font-semibold tracking-tight tabular-nums', 'site-premium__price' => $premium])>{{ $package['price'] }}</span>
+                            <p class="mt-7 flex items-baseline gap-2">
+                                <span class="site-plan__price">{{ $package['price'] }}</span>
                                 <span class="text-xl text-site-muted">Bs</span>
                             </p>
 
-                            <p class="mt-4 leading-relaxed text-site-muted">{{ $package['summary'] }}</p>
+                            <p class="mt-4 max-w-[36ch] leading-relaxed text-site-muted">{{ $package['summary'] }}</p>
 
-                            @if($premium)
-                                <div class="site-premium__rule mt-7" aria-hidden="true">
-                                    <x-phosphor-diamond-fill />
-                                </div>
-                            @endif
-
-                            <ul @class([
-                                'flex-1 space-y-3',
-                                'mt-7 border-t border-site-line pt-7' => ! $premium,
-                                'mt-6' => $premium,
-                            ])>
+                            <ul class="site-plan__features">
                                 @foreach($package['features'] as $feature)
-                                    <li class="flex gap-3">
-                                        @if($premium)
-                                            <span class="site-premium__check"><x-phosphor-check-bold aria-hidden="true" /></span>
-                                        @else
-                                            <x-phosphor-check-bold class="mt-1 size-4 shrink-0 text-site-accent" aria-hidden="true" />
-                                        @endif
+                                    <li>
+                                        <x-phosphor-check-bold class="site-plan__check" aria-hidden="true" />
                                         <span>{{ $feature }}</span>
                                     </li>
                                 @endforeach
@@ -376,7 +390,7 @@
 
                             <a href="{{ $package['whatsapp'] }}" target="_blank" rel="noopener"
                                 @class([
-                                    'site-btn site-btn--lg mt-9 justify-center',
+                                    'site-btn site-btn--lg mt-10 justify-center',
                                     'site-btn--gold' => $premium,
                                     'site-btn--ghost' => ! $featured && ! $premium,
                                 ])>
@@ -416,12 +430,12 @@
             </div>
         </section>
 
-        {{-- ═══ Contacto ═══ --}}
-        <section id="contacto" class="scroll-mt-20 px-5 pb-20 lg:px-8 lg:pb-28">
-            <div class="mx-auto grid max-w-7xl gap-12 rounded-[20px] bg-site-tint px-6 py-14 md:px-14 md:py-20 lg:grid-cols-[1.2fr_0.8fr] lg:items-end" data-reveal>
-                <div>
-                    <h2 class="max-w-[18ch] text-3xl font-semibold leading-[1.08] tracking-tight md:text-5xl">¿Ya tienes fecha para tu evento?</h2>
-                    <p class="mt-5 max-w-[46ch] text-lg leading-relaxed text-site-muted">
+        {{-- ═══ Contacto: llamado grande y filas con cada canal ═══ --}}
+        <section id="contacto" class="scroll-mt-20 border-t border-site-line bg-site-surface">
+            <div class="mx-auto grid max-w-7xl gap-14 px-5 py-20 lg:grid-cols-12 lg:gap-8 lg:px-8 lg:py-28">
+                <div class="lg:col-span-6" data-reveal>
+                    <h2 class="max-w-[15ch] text-4xl font-semibold leading-[1.04] tracking-tight md:text-6xl">¿Ya tienes fecha para tu evento?</h2>
+                    <p class="mt-6 max-w-[42ch] text-lg leading-relaxed text-site-muted">
                         Escríbenos por WhatsApp y te ayudamos a elegir el paquete ideal.
                     </p>
                     <a href="{{ $contactUrl }}" target="_blank" rel="noopener" class="site-btn site-btn--lg mt-9" data-magnetic>
@@ -430,40 +444,32 @@
                     </a>
                 </div>
 
-                <ul class="grid gap-4 text-lg">
-                    <li>
-                        <a href="mailto:{{ $bida['email'] }}" class="site-nav-link inline-flex items-center gap-3 hover:text-site-accent">
-                            <x-phosphor-envelope-simple-light class="size-6 shrink-0" aria-hidden="true" />
-                            {{ $bida['email'] }}
-                        </a>
-                    </li>
-                    @if(!empty($bida['instagram']))
+                <ul class="site-contact lg:col-span-5 lg:col-start-8" data-reveal style="--reveal-index: 1">
+                    @foreach($contacts as $contact)
                         <li>
-                            <a href="https://www.instagram.com/{{ $bida['instagram'] }}/" target="_blank" rel="noopener" class="site-nav-link inline-flex items-center gap-3 hover:text-site-accent">
-                                <x-phosphor-instagram-logo-light class="size-6 shrink-0" aria-hidden="true" />
-                                {{ '@'.$bida['instagram'] }}
-                            </a>
+                            @if($contact['url'])
+                                <a href="{{ $contact['url'] }}" @unless(str_starts_with($contact['url'], 'mailto:')) target="_blank" rel="noopener" @endunless class="site-contact__row">
+                                    <x-dynamic-component :component="'phosphor-'.$contact['icon'].'-light'" class="site-contact__icon" aria-hidden="true" />
+                                    <span class="site-contact__label">{{ $contact['label'] }}</span>
+                                    <span class="site-contact__value">{{ $contact['value'] }}</span>
+                                    <x-phosphor-arrow-up-right class="site-contact__arrow" aria-hidden="true" />
+                                </a>
+                            @else
+                                <div class="site-contact__row">
+                                    <x-dynamic-component :component="'phosphor-'.$contact['icon'].'-light'" class="site-contact__icon" aria-hidden="true" />
+                                    <span class="site-contact__label">{{ $contact['label'] }}</span>
+                                    <span class="site-contact__value">{{ $contact['value'] }}</span>
+                                </div>
+                            @endif
                         </li>
-                    @endif
-                    @if(!empty($bida['tiktok']))
-                        <li>
-                            <a href="https://www.tiktok.com/@{{ $bida['tiktok'] }}" target="_blank" rel="noopener" class="site-nav-link inline-flex items-center gap-3 hover:text-site-accent">
-                                <x-phosphor-tiktok-logo-light class="size-6 shrink-0" aria-hidden="true" />
-                                {{ '@'.$bida['tiktok'] }}
-                            </a>
-                        </li>
-                    @endif
-                    <li class="inline-flex items-center gap-3 text-site-muted">
-                        <x-phosphor-map-pin-light class="size-6 shrink-0" aria-hidden="true" />
-                        {{ $bida['city'] }}
-                    </li>
+                    @endforeach
                 </ul>
             </div>
         </section>
     </main>
 
     <footer class="border-t border-site-line">
-        <div class="mx-auto flex max-w-7xl flex-col gap-6 px-5 py-10 text-[0.95rem] text-site-muted md:flex-row md:items-center md:justify-between lg:px-8">
+        <div class="mx-auto flex max-w-7xl flex-col gap-6 px-5 py-10 text-[0.95rem] text-site-muted lg:flex-row lg:items-center lg:justify-between lg:px-8">
             <div class="flex items-center gap-4">
                 <x-brand.mark class="h-8 w-auto" />
                 <p>© {{ now()->year }} {{ $bida['brand'] }}. Invitaciones digitales hechas en Bolivia.</p>
@@ -474,6 +480,17 @@
                 @endforeach
                 <a href="{{ $accountUrl }}" class="site-nav-link font-medium text-site-ink">{{ $accountLabel }}</a>
             </nav>
+            @if(count($socials))
+                <ul class="-ml-2.5 flex items-center gap-1 lg:ml-0" aria-label="Redes sociales">
+                    @foreach($socials as $social)
+                        <li>
+                            <a href="{{ $social['url'] }}" target="_blank" rel="noopener" class="site-social" aria-label="{{ $social['label'] }}">
+                                <x-dynamic-component :component="'phosphor-'.$social['icon']" class="size-5" aria-hidden="true" />
+                            </a>
+                        </li>
+                    @endforeach
+                </ul>
+            @endif
         </div>
     </footer>
 @endsection

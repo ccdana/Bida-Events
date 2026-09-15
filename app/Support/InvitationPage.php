@@ -16,6 +16,8 @@ final class InvitationPage
     // Después del evento solo quedan los módulos de recuerdos
     private const POST_EVENT_MODULES = ['musica', 'fotomural', 'galeria', 'hashtag', 'post_evento'];
 
+    private const POST_EVENT_ORDER = ['post_evento', 'fotomural', 'galeria', 'hashtag'];
+
     // Pesos publicados en Google Fonts: pedir uno inexistente invalida toda la hoja de estilos
     private const FONT_WEIGHTS = [
         'Playfair Display' => '400;600;700', 'Cormorant Garamond' => '400;600;700', 'Cinzel' => '400;600;700',
@@ -94,8 +96,11 @@ final class InvitationPage
         $this->welcome = (array) ($modules['bienvenida'] ?? []);
         $this->music = (array) ($modules['musica'] ?? []);
         $this->copy = $meta['copy'];
-        $this->order = $meta['order'];
         $this->isPostEvent = (bool) $invitation->is_post_event;
+        // Después del evento los recuerdos pasan al frente, sin importar el orden de la plantilla
+        $this->order = $this->isPostEvent
+            ? array_values(array_unique([...self::POST_EVENT_ORDER, ...$meta['order']]))
+            : $meta['order'];
         $this->guestToken = $guest?->qr_code_token ?? '';
         $this->heroImage = ($this->welcome['imagen_hero'] ?? null) ?: null;
         $this->hasPlayer = $this->visible('musica') && ! empty($this->music['audio_url'] ?? null);

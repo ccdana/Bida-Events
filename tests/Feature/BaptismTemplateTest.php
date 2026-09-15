@@ -33,7 +33,7 @@ class BaptismTemplateTest extends TestCase
             // Los padrinos van primero y el cortejo se presenta como la familia
             ->assertSeeInOrder(["tab = 'padrinos'", "tab = 'cortejo'"], false)
             ->assertSee('>Familia</button>', false)
-            ->assertSeeInOrder(['id="galeria"', 'id="destacados"', 'id="ubicacion"', 'id="itinerario"'], false);
+            ->assertSeeInOrder(['id="ubicacion"', 'id="itinerario"', 'id="destacados"', 'id="galeria"'], false);
     }
 
     public function test_other_templates_keep_the_cortejo_tab_first(): void

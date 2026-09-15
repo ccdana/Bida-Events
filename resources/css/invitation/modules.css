@@ -448,6 +448,7 @@
 }
 
 .inv-location__map {
+    position: relative;
     overflow: hidden;
     aspect-ratio: 4 / 3;
     border: 1px solid var(--inv-line);
@@ -460,6 +461,18 @@
     width: 100%;
     height: 100%;
     border: 0;
+    filter: grayscale(0.55) contrast(0.95);
+}
+
+/* El mapa toma el tono de la paleta para no romper los colores de la invitación */
+.inv-location__map::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--primary-color);
+    mix-blend-mode: color;
+    opacity: 0.35;
+    pointer-events: none;
 }
 
 .inv-location__note {
@@ -480,23 +493,68 @@
 
 /* ── Hashtag ────────────────────────────────────────────────────────────── */
 
+/* Una sola línea: si la etiqueta no cabe, fitText() (hashtag.blade.php) reduce la letra */
 .inv-hashtag__tag {
     padding-block: 1.25rem;
     border-block: 1px solid var(--inv-line);
     font-family: var(--font-titles);
     font-size: clamp(2rem, 10vw, 3.4rem);
-    line-height: 1.15;
+    line-height: 1.2;
     color: var(--inv-accent-ink);
     text-align: center;
+    white-space: nowrap;
+}
+
+/* Margen lateral para que las letras inclinadas o caligráficas no se recorten */
+.inv-hashtag__text {
+    display: inline-block;
+    padding-inline: 0.14em;
+    white-space: nowrap;
+}
+
+.inv-hashtag__tag.is-wrapped,
+.inv-hashtag__tag.is-wrapped .inv-hashtag__text {
+    white-space: normal;
     overflow-wrap: anywhere;
 }
 
 /* ── Encuestas ──────────────────────────────────────────────────────────── */
 
-.inv-poll + .inv-poll {
-    margin-top: 2.25rem;
-    padding-top: 2.25rem;
-    border-top: 1px solid var(--inv-line);
+/* Una pregunta a la vez; se avanza con las flechas o al votar. El paginador de la playlist usa lo mismo */
+.inv-polls__nav,
+.inv-pager {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.25rem;
+    margin-top: 1.25rem;
+}
+
+.inv-polls__count,
+.inv-pager__count {
+    min-width: 4.5rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--inv-soft);
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+.inv-polls__nav .inv-gallery__arrow:disabled,
+.inv-pager .inv-gallery__arrow:disabled {
+    opacity: 0.35;
+    cursor: default;
+}
+
+.inv-poll-enter {
+    transition: opacity 0.45s var(--inv-ease), transform 0.45s var(--inv-ease);
+}
+
+.inv-poll-enter-start {
+    opacity: 0;
+    transform: translateX(18px);
 }
 
 .inv-poll__question {
@@ -705,6 +763,20 @@
     width: 100%;
     height: 100%;
     border: 0;
+}
+
+/* Cada página de canciones entra escalonada */
+.inv-playlist .inv-list > li {
+    animation: inv-playlist-in 0.4s var(--inv-ease) both;
+}
+
+.inv-playlist .inv-list > li:nth-child(2) { animation-delay: 0.04s; }
+.inv-playlist .inv-list > li:nth-child(3) { animation-delay: 0.08s; }
+.inv-playlist .inv-list > li:nth-child(4) { animation-delay: 0.12s; }
+.inv-playlist .inv-list > li:nth-child(5) { animation-delay: 0.16s; }
+
+@keyframes inv-playlist-in {
+    from { opacity: 0; transform: translateY(6px); }
 }
 
 /* ── Regalos y hoja de datos bancarios ──────────────────────────────────── */

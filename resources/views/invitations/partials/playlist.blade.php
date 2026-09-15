@@ -1,6 +1,7 @@
 <section class="inv-section reveal inv-playlist" id="playlist" x-data="playlistApp(@js($slug), @js($guestToken), @js($songs ?? []), @js($isPreview ?? false))" x-init="init()">
     <div class="inv-wrap">
         @include('invitations.partials.section-header', [
+            'compact' => true,
             'lottie' => 'music',
             'eyebrow' => 'Colabora con la fiesta',
             'title' => $playlist['titulo'] ?? 'Playlist colaborativa',
@@ -27,10 +28,10 @@
         </div>
 
         <ol class="inv-list" x-show="songs.length" x-cloak>
-            <template x-for="(item, i) in songs" :key="item.id">
+            <template x-for="(item, i) in pagedSongs" :key="item.id">
                 <li>
                     <div class="inv-playlist__song">
-                        <span class="inv-playlist__num" x-text="String(i + 1).padStart(2, '0')"></span>
+                        <span class="inv-playlist__num" x-text="String(page * perPage + i + 1).padStart(2, '0')"></span>
                         <div class="inv-playlist__meta">
                             <p class="inv-playlist__title" x-text="item.text"></p>
                             <p class="inv-playlist__by" x-text="[item.guest, item.at].filter(Boolean).join(' · ')"></p>
@@ -54,6 +55,18 @@
             </template>
         </ol>
 
+        <nav class="inv-pager" x-show="pageCount > 1" x-cloak aria-label="Páginas de canciones">
+            <button type="button" class="inv-gallery__arrow" @click="goTo(page - 1)" :disabled="page === 0" aria-label="Canciones anteriores">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <p class="inv-pager__count" aria-live="polite">
+                <span x-text="page + 1">1</span> de <span x-text="pageCount">1</span>
+            </p>
+            <button type="button" class="inv-gallery__arrow" @click="goTo(page + 1)" :disabled="page >= pageCount - 1" aria-label="Más canciones">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+        </nav>
+
         <p class="inv-empty" x-show="!songs.length" x-cloak>Sé la primera persona en sugerir una canción.</p>
     </div>
 </section>
@@ -66,6 +79,18 @@ function playlistApp(slug, guestToken, initialSongs, isPreview) {
         error: false,
         submitting: false,
         playingId: null,
+        // Canciones sugeridas en la muestra de la home: solo existen en este navegador
+        localSongs: [],
+        // Las canciones se muestran de 5 en 5; la más reciente va primero
+        page: 0,
+        perPage: 5,
+        get pageCount() {
+            return Math.max(1, Math.ceil(this.songs.length / this.perPage));
+        },
+        get pagedSongs() {
+            const start = this.page * this.perPage;
+            return this.songs.slice(start, start + this.perPage);
+        },
         init() {
             if (!isPreview) {
                 this.refresh();
@@ -82,11 +107,18 @@ function playlistApp(slug, guestToken, initialSongs, isPreview) {
                     headers: { 'Accept': 'application/json' },
                 });
                 const data = await res.json();
-                if (data.songs) this.songs = data.songs;
+                if (data.songs) {
+                    this.songs = [...this.localSongs, ...data.songs];
+                    this.page = Math.min(this.page, this.pageCount - 1);
+                }
                 if (!res.ok && data.message) this.notify(data.message, true);
             } catch (e) {
                 this.notify('No se pudo cargar la playlist.', true);
             }
+        },
+        goTo(page) {
+            this.page = Math.min(Math.max(page, 0), this.pageCount - 1);
+            this.playingId = null;
         },
         togglePlay(item) {
             this.playingId = this.playingId === item.id ? null : item.id;
@@ -100,6 +132,20 @@ function playlistApp(slug, guestToken, initialSongs, isPreview) {
             this.submitting = true;
             this.notify('');
             try {
+                // Muestra de la home: la canción aparece en la lista solo en este navegador
+                if (window.invDemo) {
+                    await new Promise((resolve) => setTimeout(resolve, 400));
+                    const text = this.song.trim();
+                    const youtube = text.match(/(?:youtu\.be\/|[?&]v=|shorts\/|embed\/)([\w-]{11})/);
+                    const item = { id: `muestra-${Date.now()}`, text, guest: 'Tú', at: 'ahora', is_youtube: !!youtube, youtube_id: youtube ? youtube[1] : null };
+                    this.localSongs = [item, ...this.localSongs];
+                    this.songs = [item, ...this.songs];
+                    this.song = '';
+                    this.page = 0;
+                    this.notify('¡Listo! Tu canción ya está en la lista. Es una muestra: no se guarda.');
+                    return;
+                }
+
                 const res = await fetch(`/p/${slug}/playlist`, {
                     method: 'POST',
                     headers: {
@@ -112,6 +158,7 @@ function playlistApp(slug, guestToken, initialSongs, isPreview) {
                 const data = await res.json().catch(() => ({}));
                 if (data.success) {
                     this.song = '';
+                    this.page = 0;
                     this.notify(data.message || '¡Gracias! Tu canción ya está en la lista.');
                     await this.refresh();
                 } else {

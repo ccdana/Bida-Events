@@ -1,21 +1,20 @@
 {{--
     Plantilla "Bautizo Cielo": mismos módulos que las demás con un lenguaje de bautizo.
-    Nubes que se abren al entrar, foto en medallón con halo y paloma, destellos, burbujas y
+    Pila bautismal y jarra de agua que se toca para entrar, foto en medallón con halo y paloma, destellos, burbujas y
     secciones separadas por olas. Estilos en resources/css/invitation/themes/bautizo.css.
 --}}
 @php
     $page = new \App\Support\InvitationPage($invitation, $modulos, $guest ?? null, \App\Support\InvitationTemplates::BAUTIZO_CIELO);
     $invCopy = $page->copy;
-    // La apertura con nubes no aparece en la vista previa del editor ni cuando el bautizo ya pasó
-    $showIntro = ! $page->isPostEvent && empty($isPreview);
-    $introKey = 'inv-intro-'.$invitation->slug;
+    // Las nubes aparecen en cada visita, también después del bautizo; solo se omiten en la vista previa del editor
+    $showIntro = empty($isPreview);
 @endphp
 <!DOCTYPE html>
 <html lang="es">
 <head>
     @include('invitations.partials.shell.head')
     @if($showIntro)
-        @include('invitations.partials.shell.intro-script', ['introSelector' => '.inv-bautizo-intro'])
+        @include('invitations.partials.shell.cover-script', ['coverSelector' => '.inv-bautizo-intro'])
     @endif
 </head>
 <body class="inv-page inv-bautizo overflow-x-hidden {{ $page->hasPlayer ? 'has-player' : '' }}" x-data="invitationApp()" x-init="init()">
@@ -44,5 +43,9 @@
     ])
 
     @include('invitations.partials.shell.scripts')
+
+    @if($showIntro)
+        @include('invitations.partials.shell.cover-component')
+    @endif
 </body>
 </html>

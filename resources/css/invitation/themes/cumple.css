@@ -178,32 +178,179 @@ html.inv-cover-skip .inv-cumple-intro {
 
 .inv-cumple-cake {
     position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: min(66vw, 15rem);
-    margin-top: 2.6rem;
-    padding: 0;
+    display: block;
+    width: min(74vw, 16.5rem);
+    margin-top: 1.4rem;
+    padding: 4.8rem 0 0;
     border: 0;
     background: none;
     cursor: pointer;
     transform-origin: 50% 100%;
+    -webkit-tap-highlight-color: transparent;
     animation: inv-cumple-pop-in 0.8s var(--inv-cumple-bounce) 0.4s both, inv-cumple-wiggle 3s ease-in-out 1.4s infinite;
 }
 
-/* El contenedor de velas conserva su flex: las velas van una al lado de la otra */
-.inv-cumple-cake > span:not(.inv-cumple-cake__candles) {
+.inv-cumple-cake:focus-visible {
+    border-radius: 24px;
+    outline: 3px dashed var(--inv-cumple-c1);
+    outline-offset: 10px;
+}
+
+.inv-cumple-cake__body {
+    position: relative;
     display: block;
 }
 
+/* Pastel de dos pisos en SVG con borde de sticker y sombra sólida */
+.inv-cumple-cake__art {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    filter: drop-shadow(6px 6px 0 color-mix(in srgb, var(--inv-cumple-ink) 85%, transparent));
+}
+
+.inv-cumple-cake__tier,
+.inv-cumple-cake__frosting,
+.inv-cumple-cake__stand,
+.inv-cumple-cake__pipe {
+    stroke: var(--inv-cumple-ink);
+    stroke-width: 2.5;
+    stroke-linejoin: round;
+}
+
+.inv-cumple-cake__tier {
+    fill: var(--inv-cumple-paper);
+}
+
+.inv-cumple-cake__tier--top {
+    fill: color-mix(in srgb, var(--inv-cumple-c3) 20%, var(--inv-cumple-paper));
+}
+
+.inv-cumple-cake__band {
+    fill: color-mix(in srgb, var(--inv-cumple-c2) 55%, #fff);
+}
+
+.inv-cumple-cake__frosting {
+    fill: var(--inv-cumple-c1);
+}
+
+.inv-cumple-cake__frosting--top {
+    fill: var(--inv-cumple-c2);
+}
+
+.inv-cumple-cake__shine {
+    fill: none;
+    stroke: rgb(255 255 255 / 0.6);
+    stroke-width: 3.5;
+    stroke-linecap: round;
+}
+
+.inv-cumple-cake__pipe {
+    fill: #fff;
+    stroke-width: 2;
+}
+
+.inv-cumple-cake__stand {
+    fill: color-mix(in srgb, var(--inv-cumple-ink) 10%, #fff);
+}
+
+.inv-cumple-cake__sprinkle {
+    stroke: var(--inv-cumple-c1);
+    stroke-width: 3.4;
+    stroke-linecap: round;
+}
+
+.inv-cumple-cake__sprinkle:nth-child(3n + 2) { stroke: var(--inv-cumple-c2); }
+.inv-cumple-cake__sprinkle:nth-child(3n) { stroke: var(--inv-cumple-c3); }
+
+.inv-cumple-cake__dots circle {
+    fill: var(--inv-cumple-c1);
+}
+
+.inv-cumple-cake__dots circle:nth-child(even) {
+    fill: var(--inv-cumple-c3);
+}
+
+/* Luz cálida detrás del pastel, chispas alrededor y un anillo que invita a tocar */
+.inv-cumple-cake__glow {
+    position: absolute;
+    top: 6%;
+    left: 50%;
+    z-index: -1;
+    width: 150%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(circle, color-mix(in srgb, var(--inv-cumple-c2) 40%, transparent), transparent 62%);
+    translate: -50% 0;
+    pointer-events: none;
+    animation: inv-cumple-glow 3.2s ease-in-out infinite alternate;
+}
+
+.inv-cumple-cake__sparkle {
+    position: absolute;
+    top: var(--t);
+    left: var(--l);
+    width: var(--s);
+    aspect-ratio: 1;
+    background: var(--c);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M10 0 C11 6 14 9 20 10 C14 11 11 14 10 20 C9 14 6 11 0 10 C6 9 9 6 10 0Z'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M10 0 C11 6 14 9 20 10 C14 11 11 14 10 20 C9 14 6 11 0 10 C6 9 9 6 10 0Z'/%3E%3C/svg%3E") center / contain no-repeat;
+    opacity: 0;
+    pointer-events: none;
+    animation: inv-cumple-twinkle 1.9s ease-in-out var(--d) infinite;
+}
+
+.inv-cumple-cake__tap {
+    position: absolute;
+    bottom: 0.4rem;
+    left: 11%;
+    width: 78%;
+    height: 1.7rem;
+    border: 2.5px solid var(--inv-cumple-c1);
+    border-radius: 50%;
+    opacity: 0;
+    pointer-events: none;
+    animation: inv-cumple-tap 2s ease-out 1.6s infinite;
+}
+
+.inv-cumple-intro.is-blown :is(.inv-cumple-cake__tap, .inv-cumple-cake__sparkle, .inv-cumple-candle__glow) {
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    animation: none;
+}
+
+@keyframes inv-cumple-glow {
+    from { opacity: 0.55; scale: 0.92; }
+    to { opacity: 1; scale: 1.05; }
+}
+
+@keyframes inv-cumple-twinkle {
+    0%, 100% { opacity: 0; scale: 0.3; rotate: 0deg; }
+    50% { opacity: 1; scale: 1; rotate: 90deg; }
+}
+
+@keyframes inv-cumple-tap {
+    0% { opacity: 0.9; scale: 0.55; }
+    100% { opacity: 0; scale: 1.3; }
+}
+
+@keyframes inv-cumple-halo {
+    from { opacity: 0.55; scale: 0.85; }
+    to { opacity: 1; scale: 1.15; }
+}
+
+/* Velas sobre el piso de arriba */
 .inv-cumple-cake__candles {
-    position: relative;
+    position: absolute;
+    right: 0;
+    bottom: 78%;
+    left: 0;
     z-index: 3;
     display: flex;
     align-items: flex-end;
     justify-content: center;
-    gap: 1.1rem;
-    min-height: 4.5rem;
+    gap: 0.8rem;
     margin-bottom: -0.35rem;
 }
 
@@ -237,15 +384,42 @@ html.inv-cover-skip .inv-cumple-intro {
     background-clip: text;
     color: transparent;
     font-family: var(--font-titles);
-    font-size: 4.4rem;
+    font-size: 4rem;
     font-weight: 700;
     line-height: 0.85;
     -webkit-text-stroke: 2px var(--inv-cumple-ink);
 }
 
+/* Mecha y halo de luz de cada vela */
+.inv-cumple-candle::after {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    width: 2px;
+    height: 7px;
+    margin-left: -1px;
+    border-radius: 2px;
+    background: var(--inv-cumple-ink);
+}
+
+.inv-cumple-candle__glow {
+    position: absolute;
+    bottom: calc(100% - 0.3rem);
+    left: 50%;
+    width: 2.8rem;
+    height: 2.8rem;
+    margin-left: -1.4rem;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgb(255 196 90 / 0.55), transparent 65%);
+    pointer-events: none;
+    animation: inv-cumple-halo 1.4s ease-in-out infinite alternate;
+    animation-delay: calc(var(--i) * -0.3s);
+}
+
 .inv-cumple-candle__flame {
     position: absolute;
-    bottom: calc(100% + 2px);
+    bottom: calc(100% + 6px);
     left: 50%;
     width: 0.9rem;
     height: 1.35rem;
@@ -273,59 +447,6 @@ html.inv-cover-skip .inv-cumple-intro {
     opacity: 0;
 }
 
-/* Glaseado de color con gotas que caen sobre el piso del pastel */
-.inv-cumple-cake__frosting {
-    position: relative;
-    z-index: 2;
-    width: 104%;
-    height: 1.9rem;
-    border: 2.5px solid var(--inv-cumple-ink);
-    border-bottom: 0;
-    border-radius: 18px 18px 0 0;
-    background: var(--inv-cumple-c1);
-}
-
-.inv-cumple-cake__frosting::after {
-    content: '';
-    position: absolute;
-    top: 100%;
-    right: -2.5px;
-    left: -2.5px;
-    height: 1.2rem;
-    background: radial-gradient(circle at 50% 0, var(--inv-cumple-c1) 0 58%, transparent 60%) 0 0 / 1.7rem 2.3rem repeat-x;
-}
-
-.inv-cumple-cake__tier {
-    position: relative;
-    width: 100%;
-    height: 6rem;
-    overflow: hidden;
-    border: 2.5px solid var(--inv-cumple-ink);
-    border-top: 0;
-    border-radius: 0 0 12px 12px;
-    background: linear-gradient(180deg, var(--inv-cumple-paper) 0 52%, color-mix(in srgb, var(--inv-cumple-c2) 45%, #fff) 52% 66%, var(--inv-cumple-paper) 66%);
-    box-shadow: 6px 6px 0 color-mix(in srgb, var(--inv-cumple-ink) 85%, transparent);
-}
-
-/* Chispas de colores sobre el bizcocho */
-.inv-cumple-cake__tier::before {
-    content: '';
-    position: absolute;
-    inset: 1.5rem 0.4rem 0;
-    background-image:
-        radial-gradient(var(--inv-cumple-c1) 2px, transparent 2.5px),
-        radial-gradient(var(--inv-cumple-c3) 2px, transparent 2.5px);
-    background-position: 6px 4px, 20px 18px;
-    background-size: 28px 22px, 34px 26px;
-}
-
-.inv-cumple-cake__plate {
-    width: 120%;
-    height: 12px;
-    margin-top: 6px;
-    border-radius: 999px;
-    background: color-mix(in srgb, var(--inv-cumple-ink) 85%, transparent);
-}
 
 .inv-cumple-intro__hint {
     display: inline-flex;
@@ -1222,6 +1343,10 @@ html.inv-cover-waiting .inv-cumple-hero * {
     .inv-cumple-stage__balloon,
     .inv-cumple-letter,
     .inv-cumple-candle__flame,
+    .inv-cumple-candle__glow,
+    .inv-cumple-cake__glow,
+    .inv-cumple-cake__sparkle,
+    .inv-cumple-cake__tap,
     .inv-cumple .invitation-lottie-framed__icon,
     .inv-cumple .invitation-lottie-framed__rule,
     .inv-cumple .inv-countdown__value {
