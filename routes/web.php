@@ -90,9 +90,11 @@ Route::prefix('client')->name('client.')->middleware(['auth', 'client'])->group(
         ->can('moderateContributions', 'invitation')
         ->name('contributions.update');
 
-    Route::middleware('can:export,invitation')->group(function () {
-        Route::get('/invitations/{invitation}/export/excel', [ExportController::class, 'guestsExcel'])->name('export.excel');
-        Route::get('/invitations/{invitation}/export/pdf', [ExportController::class, 'guestsPdf'])->name('export.pdf');
-        Route::get('/invitations/{invitation}/export/invitation-pdf', [ExportController::class, 'invitationPdf'])->name('export.invitation-pdf');
-    });
+    // Los archivos se arman en segundo plano: se piden, se consulta el estado y se descargan
+    Route::post('/invitations/{invitation}/export/{type}', [ExportController::class, 'store'])
+        ->middleware('can:export,invitation')
+        ->name('export.store');
+
+    Route::get('/exports/{export}/estado', [ExportController::class, 'status'])->name('export.status');
+    Route::get('/exports/{export}/descargar', [ExportController::class, 'download'])->name('export.download');
 });

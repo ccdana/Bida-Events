@@ -8,17 +8,27 @@ use App\Http\Requests\Admin\Guest\UpdateGuestRequest;
 use App\Models\Guest;
 use App\Models\Invitation;
 use App\Services\InvitationModuleService;
+use Illuminate\Http\Request;
 
 /**
  * La pertenencia del invitado a la invitación la garantiza scopeBindings() en routes/web.php.
  */
 class GuestController extends Controller
 {
-    public function index(Invitation $invitation)
+    public function index(Request $request, Invitation $invitation)
     {
-        $guests = $invitation->guests()->orderBy('name')->get();
+        $search = trim((string) $request->query('q', ''));
+        $status = (string) $request->query('estado', '');
 
-        return view('admin.guests.index', compact('invitation', 'guests'));
+        $guests = $invitation->guests()
+            ->when($search !== '', fn ($query) => $query->where('name', 'like', '%'.$search.'%'))
+            ->when(in_array($status, ['confirmed', 'declined', 'pending'], true), fn ($query) => $query->where('status', $status))
+            ->orderBy('name')
+            ->orderBy('id')
+            ->paginate(50)
+            ->withQueryString();
+
+        return view('admin.guests.index', compact('invitation', 'guests', 'search', 'status'));
     }
 
     public function store(StoreGuestRequest $request, Invitation $invitation)

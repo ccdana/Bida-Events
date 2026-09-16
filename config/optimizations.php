@@ -29,6 +29,9 @@ return [
     'retention' => [
         // Días después del evento que se conservan las fotos del fotomural (comando invitations:purge-contributions)
         'photos_days' => env('RETENTION_PHOTOS_DAYS', 180),
+
+        // Días que se conservan los Excel y PDF que pidió el cliente
+        'exports_days' => env('RETENTION_EXPORTS_DAYS', 7),
     ],
 
     'rate_limits' => [

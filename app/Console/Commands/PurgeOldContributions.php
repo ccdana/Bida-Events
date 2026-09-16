@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\GuestContribution;
 use App\Models\Invitation;
+use App\Models\InvitationExport;
 use Illuminate\Console\Command;
 
 /**
@@ -71,7 +72,24 @@ class PurgeOldContributions extends Command
         });
 
         $this->components->info("Listo: {$deleted} aportes borrados, {$photos} con su archivo en Cloudinary.");
+        $this->purgeExports();
 
         return self::SUCCESS;
+    }
+
+    /** Los Excel y PDF que pidió el cliente se guardan pocos días: después se vuelven a generar. */
+    private function purgeExports(): void
+    {
+        $days = (int) config('optimizations.retention.exports_days', 7);
+        $exports = InvitationExport::where('created_at', '<', now()->subDays($days))->get();
+
+        foreach ($exports as $export) {
+            $export->deleteFile();
+            $export->delete();
+        }
+
+        if ($exports->isNotEmpty()) {
+            $this->components->info("Se borraron {$exports->count()} archivos exportados de más de {$days} días.");
+        }
     }
 }

@@ -2,68 +2,72 @@
 
 namespace App\Http\Controllers\Client;
 
-use App\Exports\GuestReportExport;
 use App\Http\Controllers\Controller;
+use App\Jobs\GenerateInvitationExport;
 use App\Models\Invitation;
-use App\Services\InvitationModuleService;
-use App\Support\Pdf\PdfAssets;
-use App\ViewModels\Client\GuestReportData;
-use App\ViewModels\Client\InvitationPrintData;
-use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Support\Collection;
-use Maatwebsite\Excel\Facades\Excel;
+use App\Models\InvitationExport;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
+/**
+ * Exportaciones del cliente. El archivo se arma en segundo plano: el panel muestra el estado y,
+ * cuando está listo, el enlace de descarga. La pertenencia la revisa la policy de la invitación.
+ */
 class ExportController extends Controller
 {
-    private const GUEST_COLUMNS = [
-        'id', 'invitation_id', 'name', 'phone', 'passes_allocated', 'passes_confirmed',
-        'status', 'dietary_restrictions', 'table_number', 'confirmed_at', 'qr_code_token',
-    ];
-
-    /** Excel con resumen, listado completo, invitados por contactar y alimentación. */
-    public function guestsExcel(Invitation $invitation, GuestReportData $report)
+    public function store(Request $request, Invitation $invitation, string $type)
     {
-        $this->authorizeOwner($invitation);
+        abort_unless(isset(InvitationExport::TYPES[$type]), 404);
 
-        return Excel::download(
-            new GuestReportExport($report->make($invitation, $this->guests($invitation))),
-            "invitados-{$invitation->slug}.xlsx",
-        );
+        $export = InvitationExport::create([
+            'invitation_id' => $invitation->id,
+            'user_id' => $request->user()->id,
+            'type' => $type,
+            'status' => InvitationExport::PENDING,
+        ]);
+
+        GenerateInvitationExport::dispatch($export);
+
+        // Con la cola en modo inmediato el archivo ya está listo al volver
+        $export->refresh();
+
+        if ($request->wantsJson()) {
+            return response()->json($this->payload($export));
+        }
+
+        return back()->with('export', $this->payload($export));
     }
 
-    /** PDF para planificar: cifras clave, qué hacer ahora y listas por estado. */
-    public function guestsPdf(Invitation $invitation, GuestReportData $report, PdfAssets $assets)
+    public function status(InvitationExport $export)
     {
-        $this->authorizeOwner($invitation);
+        $this->authorizeExport($export);
 
-        $data = $report->make($invitation, $this->guests($invitation)) + ['logo' => $assets->logo()];
-
-        return Pdf::loadView('client.exports.guests-pdf', $data)
-            ->setPaper('a4')
-            ->setOption('isFontSubsettingEnabled', true)
-            ->download("reporte-invitados-{$invitation->slug}.pdf");
+        return response()->json($this->payload($export));
     }
 
-    /** Invitación lista para imprimir, con el diseño y los datos de la plantilla del cliente. */
-    public function invitationPdf(Invitation $invitation, InvitationPrintData $print, InvitationModuleService $moduleService)
+    public function download(InvitationExport $export)
     {
-        $this->authorizeOwner($invitation);
+        $this->authorizeExport($export);
+        abort_unless($export->isReady(), 404);
 
-        $data = $print->make($invitation, $moduleService->storedModules($invitation));
-
-        return Pdf::loadView('client.exports.invitation-pdf', $data)
-            ->setPaper('a4')
-            ->setOption('isFontSubsettingEnabled', true)
-            ->download("invitacion-{$invitation->slug}.pdf");
+        return Storage::disk('local')->download($export->path, $export->filename());
     }
 
-    private function authorizeOwner(Invitation $invitation): void
+    private function authorizeExport(InvitationExport $export): void
     {
-        abort_unless($invitation->user_id === auth()->id(), 403);
+        abort_unless((int) $export->user_id === (int) auth()->id(), 403);
     }
 
-    private function guests(Invitation $invitation): Collection
+    /** @return array<string, mixed> */
+    private function payload(InvitationExport $export): array
     {
-        return $invitation->guests()->select(self::GUEST_COLUMNS)->orderBy('name')->get();
+        return [
+            'id' => $export->id,
+            'status' => $export->status,
+            'label' => $export->label(),
+            'error' => $export->error,
+            'status_url' => route('client.export.status', $export),
+            'download_url' => $export->isReady() ? route('client.export.download', $export) : null,
+        ];
     }
 }

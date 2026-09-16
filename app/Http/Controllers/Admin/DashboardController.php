@@ -10,9 +10,13 @@ class DashboardController extends Controller
 {
     public function index(DashboardViewData $viewData)
     {
-        $invitations = Invitation::with(['eventType', 'guests'])
+        // Solo la página que se ve, y el número de invitados lo cuenta la base
+        $invitations = Invitation::query()
+            ->select('id', 'user_id', 'event_type_id', 'slug', 'title', 'event_date', 'status', 'created_at')
+            ->with('eventType:id,name')
+            ->withCount('guests')
             ->latest()
-            ->get();
+            ->paginate(20);
 
         return view('admin.dashboard', $viewData->make($invitations));
     }

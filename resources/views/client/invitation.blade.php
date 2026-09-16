@@ -19,17 +19,12 @@
                 @endif
             </div>
             <div class="flex flex-wrap gap-2">
-                <a href="{{ route('client.export.excel', $invitation) }}" class="admin-link-button">
-                    <x-phosphor-file-xls aria-hidden="true" />
-                    Descargar Excel
-                </a>
-                <a href="{{ route('client.export.pdf', $invitation) }}" class="admin-link-button">
-                    <x-phosphor-file-pdf aria-hidden="true" />
-                    Descargar PDF
-                </a>
+                @include('client.partials.export-buttons', ['invitation' => $invitation])
             </div>
         </div>
     </header>
+
+    @include('client.partials.export-status')
 
     <dl class="site-enter mt-10 grid grid-cols-2 gap-y-6 border-y border-site-line py-6 lg:grid-cols-4" style="--enter-index: 1">
         @foreach([

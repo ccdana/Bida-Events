@@ -31,7 +31,8 @@
             <div class="inv-mural">
                 <template x-for="photo in photos" :key="photo.id">
                     <figure class="inv-mural__item">
-                        <img :src="photo.url" :alt="photo.guest ? 'Foto de ' + photo.guest : 'Foto del evento'" loading="lazy" decoding="async">
+                        <img :src="photo.url" :srcset="photo.srcset" sizes="(min-width: 768px) 15rem, 45vw"
+                            :alt="photo.guest ? 'Foto de ' + photo.guest : 'Foto del evento'" loading="lazy" decoding="async">
                         <figcaption x-show="photo.guest" x-text="photo.guest"></figcaption>
                     </figure>
                 </template>

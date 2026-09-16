@@ -49,6 +49,8 @@ y el sitio responde en `http://bida-events.test`.
 | `php artisan db:seed --class=ShowcaseInvitationsSeeder` | Rehacer las invitaciones de muestra |
 | `php artisan optimize:clear` | Limpiar caché de vistas, rutas y configuración |
 | `php artisan invitations:purge-contributions --dry-run` | Ver qué fotos viejas se borrarían |
+| `php artisan bida:medir --guardar` | Medir las pantallas públicas y guardar el resultado |
+| `php artisan queue:work` | Procesar los archivos que piden los clientes (en producción, con supervisor) |
 | `php artisan test` | Suite completa |
 | `npm run build` | Compilar CSS y JS |
 
@@ -124,6 +126,7 @@ propósito y responde `no-store`.
 | `.env` / `.env.example` | Configuración por entorno. `.env` nunca se versiona; toda variable nueva se documenta en el ejemplo |
 | `README.md` | Presentación corta del proyecto |
 | `PROJECT_MAPA.md` | Este documento |
+| `docs/rendimiento.md` | Última medición de tiempos, consultas y peso (la genera `php artisan bida:medir --guardar`) |
 | `.claude/skills/taste-skill/SKILL.md` | Guía de criterio visual usada al diseñar el sitio |
 
 ### 5.2 Arranque y configuración
@@ -168,6 +171,7 @@ propósito y responde `no-store`.
 | `Client/DashboardController.php` | Panel del cliente: sus invitaciones e invitados |
 | `Client/ExportController.php` | Exporta invitados en Excel y PDF, y la invitación en PDF |
 | `Client/ContributionController.php` | El cliente oculta o vuelve a mostrar una foto o una canción de sus invitados (no borra nada) |
+| `Client/ExportController.php` | Pide un archivo, consulta su estado y lo descarga cuando está listo |
 
 ### 5.4 Middleware, validación y autorización
 
@@ -203,6 +207,7 @@ propósito y responde `no-store`.
 | `InvitationDressCodeItem.php` | Código de vestimenta: sugerencias, colores permitidos y qué evitar |
 | `InvitationGiftOption.php` | Opciones de la mesa de regalos |
 | `InvitationMedia.php` | Catálogo de medios: canción de fondo y video |
+| `InvitationExport.php` | Pedido de archivo del cliente: tipo, estado y ruta del archivo generado |
 | `Guest.php` | Invitado: nombre, pases asignados y confirmados, estado, mesa, restricciones y token del enlace personal |
 | `GuestContribution.php` | Aporte del invitado: canción o foto del fotomural |
 | `EventType.php` | Catálogo de tipos de evento |
@@ -257,7 +262,9 @@ propósito y responde `no-store`.
 | `Providers/AppServiceProvider.php` | Registro de servicios, límites de peticiones y ajustes globales |
 | `Providers/BladeServiceProvider.php` | Directivas y componentes propios de Blade |
 | `Console/Commands/MigrateInvitationJsonModules.php` | Comando `invitations:migrate-json`, con `--dry-run`, `--invitation` y `--force` |
-| `Console/Commands/PurgeOldContributions.php` | Comando `invitations:purge-contributions`: borra fotos de eventos viejos con su archivo en Cloudinary |
+| `Console/Commands/PurgeOldContributions.php` | Comando `invitations:purge-contributions`: borra fotos de eventos viejos (con su archivo en Cloudinary) y exportaciones vencidas |
+| `Console/Commands/MeasurePerformance.php` | Comando `bida:medir`: tiempo, consultas, memoria y peso del HTML de las pantallas públicas |
+| `Jobs/GenerateInvitationExport.php` | Arma en segundo plano el Excel o el PDF que pidió el cliente |
 
 ### 5.9 Base de datos
 
@@ -298,6 +305,7 @@ propósito y responde `no-store`.
 | `2026_09_15_000006_create_invitation_gift_options_table` | Opciones de regalo |
 | `2026_09_15_000007_create_invitation_media_table` | Canción y video de la invitación |
 | `2026_09_15_000008_drop_textual_poll_id_from_poll_votes_table` | El voto apunta a la encuesta por su fila |
+| `2026_09_15_000009_create_invitation_exports_table` | Pedidos de Excel y PDF generados en segundo plano |
 
 **Semillas y datos de ejemplo:**
 
@@ -330,6 +338,7 @@ propósito y responde `no-store`.
 | `layouts/partials/panel-actions.blade.php` | Acciones de la cabecera (tema y salir) |
 | `layouts/partials/theme-script.blade.php` | Tema claro/oscuro compartido; sin preferencia sigue al sistema |
 | `layouts/partials/theme-toggle.blade.php` | Botón de cambio de tema |
+| `layouts/partials/pagination.blade.php` | Paginación de los paneles (anterior, posición y siguiente) |
 | `components/brand/logo.blade.php` | Logo con el nombre de la marca |
 | `components/brand/mark.blade.php` | Isotipo suelto |
 | `components/site/image.blade.php` | Foto del sitio con tamaños y respaldo |
@@ -436,6 +445,8 @@ propósito y responde `no-store`.
 | `client/invitation.blade.php` | Detalle con invitados y confirmaciones |
 | `client/exports/guests-pdf.blade.php` | PDF de invitados, con títulos que no se separan de su tabla |
 | `client/exports/invitation-pdf.blade.php` | PDF de la invitación |
+| `client/partials/export-buttons.blade.php` | Botones para pedir cada archivo |
+| `client/partials/export-status.blade.php` | Aviso del archivo en preparación, con su enlace de descarga |
 
 ### 5.11 Estilos y scripts
 
@@ -485,6 +496,7 @@ propósito y responde `no-store`.
 | `tests/Feature/GuestLinksAndModerationTest.php` | Regenerar el enlace de un invitado y ocultar aportes sin borrarlos |
 | `tests/Feature/StructuredModulesRoundTripTest.php` | Los módulos de las cuatro plantillas vuelven iguales desde las tablas |
 | `tests/Feature/ModuleSyncAndRetentionTest.php` | Guardado todo o nada, reutilización de filas y purga de fotos viejas |
+| `tests/Feature/AdminPanelPerformanceTest.php` | El panel pagina, cuenta en la base y no crece en consultas |
 | `tests/Feature/AccessControlTest.php` | Separación de admin y cliente |
 | `tests/Feature/ClientCredentialsTest.php` | Alta y acceso del cliente |
 | `tests/Feature/ClientExportsTest.php` | Exportaciones Excel y PDF |
@@ -610,56 +622,40 @@ Pruebas que lo respaldan: `SecurityHardeningTest`, `GuestLinksAndModerationTest`
   los reportes después del evento, y programar el comando (por ejemplo, mensual).
 - **Varias sedes (punto 12).** La tabla de ubicaciones ya lo permite, pero el editor y las plantillas
   todavía manejan una sola.
-### 7.3 Rendimiento y escalabilidad
+### 7.3 Rendimiento y escalabilidad — implementada
 
-#### 16. El panel admin carga todo — *impacto alto, esfuerzo bajo*
+| # | Qué se hizo | Dónde |
+| --- | --- | --- |
+| 16 | El panel admin pagina de 20 en 20, cuenta los invitados en la base (`withCount`) y las cifras salen de consultas agregadas | `Admin\DashboardController`, `DashboardViewData`, `layouts/partials/pagination` |
+| 17 | El listado de invitados pagina de 50 en 50 y tiene buscador por nombre y filtro por estado, que viajan en la URL | `Admin\GuestController@index` y su vista |
+| 18 | La caché de invitaciones se arma con candado: quien llega primero la genera y el resto espera su resultado | `InvitationCacheService::remember`, usado en las cuatro lecturas del controlador público |
+| 19 | Los Excel y PDF se generan en cola: el panel muestra "preparando…" y aparece el enlace cuando está listo | `GenerateInvitationExport`, `Client\ExportController`, tabla `invitation_exports` |
+| 20 | El fotomural y las fotos post evento piden variantes por tamaño (`srcset` y `sizes`), además de carga diferida | `CloudinaryImage::srcset` en el payload del fotomural y en `post-event` |
+| 21 | Comando de medición propio que deja el número por escrito | `bida:medir`, resultado en `docs/rendimiento.md` |
 
-- **Hoy:** `Admin\DashboardController` hace `Invitation::with(['eventType', 'guests'])->latest()->get()`
-  y `DashboardViewData` cuenta con `$invitation->guests?->count()`.
-- **Por qué importa:** trae todas las invitaciones y **todos** los invitados de todas ellas solo para
-  mostrar un número. Con 50 invitaciones de 150 invitados son 7.500 filas por visita.
-- **Cómo:** `Invitation::withCount('guests')->with('eventType')->latest()->paginate(20)` y leer
-  `guests_count` en el view model.
-- **Verificar:** `assertDatabaseCount` no aplica aquí; usar una prueba que cuente consultas
-  (`DB::listen`) y comparar antes y después.
+**Lo que se midió** (6 repeticiones por pantalla, base local con las cuatro invitaciones de muestra):
 
-#### 17. El listado de invitados no pagina — *impacto medio, esfuerzo bajo*
+| Pantalla | Consultas antes | Consultas después | Tiempo P50 antes | Tiempo P50 después | Memoria antes | Memoria después |
+| --- | --- | --- | --- | --- | --- | --- |
+| Invitación (`/p/{slug}`) | 22 | 8 | 31 ms | 17 ms | 493 KB | 227 KB |
+| Muestra (`/muestra/{slug}`) | 22 | 8 | 37 ms | 21 ms | 516 KB | 236 KB |
+| Portada | 4 | 4 | 24 ms | 23 ms | 113 KB | 113 KB |
 
-- **Hoy:** `Admin\GuestController@index` hace `$invitation->guests()->orderBy('name')->get()`.
-- **Cómo:** `paginate(50)` con buscador por nombre y filtro por estado; el índice
-  `(invitation_id, name, id)` mantiene el orden estable.
+El "después" es con `CACHE_OPTIMIZATIONS_ENABLED=true`. En el panel admin, una prueba fija el
+comportamiento: con 25 invitaciones y 500 invitados hace menos de 15 consultas y muestra 20 filas.
 
-#### 18. Caché en base de datos y apagada — *impacto alto, esfuerzo medio*
+**Pendiente**
 
-- **Hoy:** `CACHE_STORE=database` y `optimizations.cache.enabled=false`, así que cada visita rearma
-  módulos, encuestas, playlist y fotomural.
-- **Por qué importa:** el trabajo de armar una invitación se repite en cada visita, justo cuando llega
-  el pico (todos abren el enlace el mismo día).
-- **Cómo:** Redis en producción, `CACHE_OPTIMIZATIONS_ENABLED=true` y un `Cache::lock` al regenerar
-  para evitar que muchas visitas rearmen lo mismo a la vez. La invalidación por eventos ya existe.
-- **Verificar:** medir P50/P95 de `/p/{slug}` antes y después con la misma cantidad de módulos.
-
-#### 19. Tareas pesadas en la petición — *impacto medio, esfuerzo medio*
-
-- **Hoy:** Excel, PDF y las subidas a Cloudinary ocurren dentro de la petición.
-- **Cómo:** moverlas a colas (la tabla `jobs` ya existe), avisar al cliente cuando el archivo esté
-  listo y configurar reintentos, timeout y alertas de `failed_jobs`.
-
-#### 20. Imágenes sin variantes ni carga diferida — *impacto medio, esfuerzo bajo*
-
-- **Hoy:** `CloudinaryImage::srcset` se usa en portadas, galería, dress code y ubicación, pero no en
-  `destacados`, `fotomural` ni `post-event`. `loading="lazy"` aparece en dress code, fotomural,
-  ubicación, post-evento, regalos y video; la galería y destacados no lo usan.
-- **Por qué importa:** el fotomural puede tener decenas de fotos y es lo más pesado de la invitación.
-- **Cómo:** aplicar `srcset` y `sizes` a esos tres módulos y `loading="lazy"` más `decoding="async"` a
-  todo lo que no sea la portada.
-- **Verificar:** comparar el peso total de la invitación en el inspector antes y después.
-
-#### 21. Medir antes de optimizar — *impacto alto, esfuerzo bajo*
-
-- **Cómo:** registrar para portada, invitación, editor y panel: tiempo P50/P95, número de consultas,
-  memoria, peso de HTML, CSS, JS e imágenes. Guardar la medición en el repositorio para comparar.
-
+- **Encender la caché en producción (punto 18).** Sigue apagada por defecto. Hay que poner
+  `CACHE_OPTIMIZATIONS_ENABLED=true` y, si hay más de una instancia, `CACHE_STORE=redis`: el candado
+  necesita un almacén compartido.
+- **Un worker para la cola (punto 19).** Con `QUEUE_CONNECTION=sync` el archivo se arma en la misma
+  petición, así que en producción hay que poner `QUEUE_CONNECTION=database` (o redis) y correr
+  `queue:work` con supervisor. Sin worker, el panel se queda en "preparando…".
+- **Programar la limpieza.** `invitations:purge-contributions` borra fotos viejas y exportaciones
+  vencidas, pero todavía nadie lo ejecuta solo: falta agregarlo al programador de tareas.
+- **Medir con datos reales (punto 21).** La medición local usa cuatro invitaciones; conviene repetirla
+  con un volumen parecido al de producción.
 ### 7.4 Frontend, diseño y accesibilidad
 
 #### 22. La invitación depende de JavaScript — *impacto medio, esfuerzo medio*
@@ -756,7 +752,7 @@ Pruebas que lo respaldan: `SecurityHardeningTest`, `GuestLinksAndModerationTest`
 | --- | --- | --- |
 | **1. Seguridad** | ✔ Hecho | Indexación, caché del enlace personal, proxies, votos, contraseña del cliente, subidas, cabeceras, tokens y moderación (ver 7.1). Falta configurar `TRUSTED_PROXIES` y exigir la CSP en producción |
 | **2. Datos** | ✔ Hecho | Tablas para ubicación, destacados, vestimenta, regalos y medios; voto por relación real; guardado que reutiliza filas; borrado y retención de archivos. Falta dejar de escribir el JSON de respaldo |
-| **3. Rendimiento** | Costo y espera | Paginación, conteos y agregaciones en SQL, caché con Redis, colas para PDF y Excel, retención de archivos |
+| **3. Rendimiento** | ✔ Hecho | Paginación y conteos en la base, caché con candado, exportaciones en cola, imágenes por tamaño y comando de medición. Falta encender la caché y correr un worker en producción |
 | **4. Experiencia** | Producto | Editor por pasos, accesibilidad, Open Graph por invitación, guía visual, limpieza de vistas sin uso |
 | **5. Crecimiento** | Captación | Páginas por evento, UTM y medición, contenido con las muestras |
 

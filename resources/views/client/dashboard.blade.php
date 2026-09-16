@@ -8,6 +8,8 @@
         <p class="mt-2 max-w-[52ch] text-site-muted">Revisa quién confirmó asistencia y descarga tus reportes.</p>
     </header>
 
+    @include('client.partials.export-status')
+
     <div class="mt-10 grid gap-5">
         @forelse($items as $index => $row)
             @php($invitation = $row['invitation'])
@@ -42,18 +44,7 @@
                         <x-phosphor-list-checks aria-hidden="true" />
                         Ver invitados
                     </a>
-                    <a href="{{ route('client.export.excel', $invitation) }}" class="admin-link-button">
-                        <x-phosphor-file-xls aria-hidden="true" />
-                        Excel
-                    </a>
-                    <a href="{{ route('client.export.pdf', $invitation) }}" class="admin-link-button">
-                        <x-phosphor-file-pdf aria-hidden="true" />
-                        PDF de confirmados
-                    </a>
-                    <a href="{{ route('client.export.invitation-pdf', $invitation) }}" class="admin-link-button">
-                        <x-phosphor-envelope-simple aria-hidden="true" />
-                        PDF de la invitación
-                    </a>
+                    @include('client.partials.export-buttons', ['invitation' => $invitation])
                 </div>
             </article>
         @empty

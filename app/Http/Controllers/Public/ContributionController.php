@@ -102,6 +102,7 @@ class ContributionController extends Controller
             ->map(fn ($c) => [
                 'id' => $c->id,
                 'url' => CloudinaryImage::url($c->file_path, 800),
+                'srcset' => CloudinaryImage::srcset($c->file_path, [320, 640, 960]),
                 'guest' => $c->guest?->name,
                 'at' => $c->created_at?->diffForHumans(),
             ]);

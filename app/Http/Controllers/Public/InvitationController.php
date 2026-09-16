@@ -125,26 +125,13 @@ class InvitationController extends Controller
 
     protected function resolveModules(Invitation $invitation): array
     {
-        if (InvitationCacheService::enabled()) {
-            $cacheKey = "invitation.{$invitation->slug}.modules";
-            $cached = Cache::get($cacheKey);
+        $modulos = InvitationCacheService::remember(
+            "invitation.{$invitation->slug}.modules",
+            InvitationCacheService::invitationTtl(),
+            fn () => $this->moduleService->loadForDisplay($invitation)
+        );
 
-            if (is_array($cached)) {
-                return array_replace_recursive(InvitationDefaults::emptyModules(), $cached);
-            }
-        }
-
-        $modulos = $this->moduleService->loadForDisplay($invitation);
-
-        if (InvitationCacheService::enabled()) {
-            Cache::put(
-                "invitation.{$invitation->slug}.modules",
-                $modulos,
-                InvitationCacheService::invitationTtl()
-            );
-        }
-
-        return array_replace_recursive(InvitationDefaults::emptyModules(), $modulos);
+        return array_replace_recursive(InvitationDefaults::emptyModules(), is_array($modulos) ? $modulos : []);
     }
 
     private function getPollResults(Invitation $invitation, array $modulos): array
@@ -154,11 +141,7 @@ class InvitationController extends Controller
             return $pollResults;
         }
 
-        if (! InvitationCacheService::enabled()) {
-            return $this->buildPollResults($invitation, $modulos);
-        }
-
-        return Cache::remember(
+        return InvitationCacheService::remember(
             "invitation.{$invitation->id}.polls",
             (int) config('optimizations.cache.invitations.polls_ttl', 300),
             fn () => $this->buildPollResults($invitation, $modulos)
@@ -177,11 +160,7 @@ class InvitationController extends Controller
 
     private function getPlaylistSongs(Invitation $invitation): array
     {
-        if (! InvitationCacheService::enabled()) {
-            return $this->buildPlaylistSongs($invitation);
-        }
-
-        return Cache::remember(
+        return InvitationCacheService::remember(
             "invitation.{$invitation->id}.playlist",
             (int) config('optimizations.cache.invitations.playlist_ttl', 120),
             fn () => $this->buildPlaylistSongs($invitation)
@@ -205,11 +184,7 @@ class InvitationController extends Controller
 
     private function getFotomuralPhotos(Invitation $invitation): array
     {
-        if (! InvitationCacheService::enabled()) {
-            return $this->buildFotomuralPhotos($invitation);
-        }
-
-        return Cache::remember(
+        return InvitationCacheService::remember(
             "invitation.{$invitation->id}.fotomural",
             (int) config('optimizations.cache.invitations.fotomural_ttl', 120),
             fn () => $this->buildFotomuralPhotos($invitation)
@@ -229,6 +204,7 @@ class InvitationController extends Controller
             ->map(fn ($c) => [
                 'id' => $c->id,
                 'url' => \App\Support\CloudinaryImage::url($c->file_path, 800),
+                'srcset' => \App\Support\CloudinaryImage::srcset($c->file_path, [320, 640, 960]),
                 'guest' => $c->guest?->name,
                 'at' => $c->created_at?->diffForHumans(),
             ])

@@ -12,6 +12,7 @@ use Database\Seeders\XvSofiaModuleData;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use Tests\Concerns\CreatesInvitations;
 use Tests\TestCase;
@@ -39,29 +40,47 @@ class ClientExportsTest extends TestCase
         parent::tearDown();
     }
 
-    public function test_owner_downloads_guest_and_invitation_reports(): void
+    public function test_owner_requests_the_reports_and_downloads_them_when_they_are_ready(): void
     {
         Excel::fake();
+        Storage::fake('local');
         $owner = User::factory()->create();
         $invitation = $this->createInvitation(['user_id' => $owner->id]);
         $this->createGuests($invitation);
 
         $this->actingAs($owner);
 
-        $this->get(route('client.export.excel', $invitation))->assertOk();
-        Excel::assertDownloaded("invitados-{$invitation->slug}.xlsx", function (GuestReportExport $export) {
+        // El Excel se arma en segundo plano (en pruebas la cola corre al instante)
+        $excel = $this->postJson(route('client.export.store', [$invitation, 'guests-excel']))
+            ->assertOk()
+            ->assertJsonPath('status', 'ready')
+            ->json();
+
+        Excel::assertStored("exports/{$excel['id']}/invitados-{$invitation->slug}.xlsx", 'local', function (GuestReportExport $export) {
             $titles = array_map(fn ($sheet) => $sheet->title(), $export->sheets());
 
             return $titles === ['Resumen', 'Invitados', 'Por contactar', 'Alimentación'];
         });
 
-        $this->get(route('client.export.pdf', $invitation))
-            ->assertOk()
-            ->assertHeader('content-type', 'application/pdf');
+        // Los PDF quedan guardados y se descargan desde su enlace
+        foreach (['guests-pdf' => 'reporte-invitados', 'invitation-pdf' => 'invitacion'] as $type => $prefix) {
+            $pdf = $this->postJson(route('client.export.store', [$invitation, $type]))
+                ->assertOk()
+                ->assertJsonPath('status', 'ready')
+                ->json();
 
-        $this->get(route('client.export.invitation-pdf', $invitation))
-            ->assertOk()
-            ->assertHeader('content-type', 'application/pdf');
+            Storage::disk('local')->assertExists("exports/{$pdf['id']}/{$prefix}-{$invitation->slug}.pdf");
+
+            $this->get($pdf['download_url'])
+                ->assertOk()
+                ->assertDownload("{$prefix}-{$invitation->slug}.pdf");
+        }
+
+        // El estado se puede consultar y otro cliente no puede bajar el archivo
+        $this->getJson(route('client.export.status', $excel['id']))->assertOk()->assertJsonPath('status', 'ready');
+
+        $this->actingAs(User::factory()->create());
+        $this->get(route('client.export.download', $excel['id']))->assertForbidden();
     }
 
     public function test_guest_report_gives_the_numbers_to_plan_the_event(): void

@@ -872,3 +872,29 @@ html[data-theme='dark'] .adm-device {
         transition: none;
     }
 }
+
+/* ── Paginación de los paneles ──────────────────────────────────────────── */
+
+.adm-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 1.25rem;
+}
+
+.adm-pagination__status {
+    font-size: 0.9rem;
+    color: var(--site-muted);
+}
+
+.adm-pagination__total {
+    display: block;
+    font-size: 0.8rem;
+}
+
+.admin-link-button.is-disabled {
+    opacity: 0.45;
+    pointer-events: none;
+}

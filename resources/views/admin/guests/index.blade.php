@@ -20,7 +20,7 @@
             <div class="mt-4 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
                 <div class="min-w-0">
                     <h1 class="truncate text-3xl font-semibold tracking-tight md:text-4xl">{{ $invitation->title }}</h1>
-                    <p class="mt-2 text-site-muted">{{ $guests->count() }} invitados. Cada uno recibe su propio enlace para confirmar.</p>
+                    <p class="mt-2 text-site-muted">{{ $guests->total() }} invitados. Cada uno recibe su propio enlace para confirmar.</p>
                 </div>
                 <div class="flex flex-wrap gap-2">
                     <a href="{{ route('invitation.show', $invitation->slug) }}" target="_blank" rel="noopener" class="admin-link-button">
@@ -37,6 +37,30 @@
 
         <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_21rem] lg:items-start">
             <section class="site-enter overflow-hidden rounded-[16px] border border-site-line bg-site-surface" style="--enter-index: 1">
+                {{-- Buscar por nombre y filtrar por estado; ambos viajan en la URL para poder compartirla --}}
+                <form method="GET" class="flex flex-wrap items-end gap-3 border-b border-site-line p-4">
+                    <div class="min-w-[12rem] flex-1">
+                        <label for="buscar-invitado" class="admin-label">Buscar</label>
+                        <input id="buscar-invitado" type="search" name="q" value="{{ $search }}" placeholder="Nombre del invitado" class="admin-input">
+                    </div>
+                    <div>
+                        <label for="filtrar-estado" class="admin-label">Estado</label>
+                        <select id="filtrar-estado" name="estado" class="admin-input">
+                            <option value="">Todos</option>
+                            @foreach(['confirmed' => 'Confirmados', 'pending' => 'Pendientes', 'declined' => 'No asisten'] as $value => $label)
+                                <option value="{{ $value }}" @selected($status === $value)>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <button type="submit" class="admin-link-button">
+                        <x-phosphor-magnifying-glass aria-hidden="true" />
+                        Filtrar
+                    </button>
+                    @if($search !== '' || $status !== '')
+                        <a href="{{ route('admin.guests.index', $invitation) }}" class="admin-link-button">Limpiar</a>
+                    @endif
+                </form>
+
                 <div class="overflow-x-auto">
                     <table class="adm-table">
                         <thead>
@@ -93,13 +117,19 @@
                                         <div class="flex flex-col items-center py-12 text-center">
                                             <x-phosphor-users-three-light class="size-12 text-site-accent" aria-hidden="true" />
                                             <p class="mt-4 font-medium">Todavía no hay invitados</p>
-                                            <p class="mt-1 text-site-muted">Agrega el primero con el formulario.</p>
+                                            <p class="mt-1 text-site-muted">
+                                                {{ $search !== '' || $status !== '' ? 'Ningún invitado coincide con la búsqueda.' : 'Agrega el primero con el formulario.' }}
+                                            </p>
                                         </div>
                                     </td>
                                 </tr>
                             @endforelse
                         </tbody>
                     </table>
+                </div>
+
+                <div class="px-4 pb-4">
+                    @include('layouts.partials.pagination', ['paginator' => $guests])
                 </div>
             </section>
 

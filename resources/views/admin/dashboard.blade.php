@@ -28,7 +28,7 @@
 
         <section class="site-enter" style="--enter-index: 2">
             <div class="flex items-baseline justify-between gap-4">
-                <h2 class="text-xl font-semibold tracking-tight">Últimas invitaciones</h2>
+                <h2 class="text-xl font-semibold tracking-tight">Invitaciones</h2>
                 <p class="text-sm text-site-muted">{{ $metrics['total'] }} en total</p>
             </div>
 
@@ -90,6 +90,8 @@
                     </li>
                 @endforelse
             </ul>
+
+            @include('layouts.partials.pagination', ['paginator' => $invitations])
         </section>
     </div>
 @endsection

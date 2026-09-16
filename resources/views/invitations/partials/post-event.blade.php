@@ -16,7 +16,10 @@
             <div class="inv-mural">
                 @foreach($fotos as $index => $foto)
                     <a href="{{ $foto }}" target="_blank" rel="noopener" class="inv-mural__item">
-                        <img src="{{ \App\Support\CloudinaryImage::url($foto, 600) }}" alt="Foto oficial {{ $index + 1 }}" loading="lazy" decoding="async">
+                        @php($postSrcset = \App\Support\CloudinaryImage::srcset($foto, [320, 640, 960]))
+                        <img src="{{ \App\Support\CloudinaryImage::url($foto, 600) }}"
+                            @if($postSrcset) srcset="{{ $postSrcset }}" sizes="(min-width: 768px) 18rem, 45vw" @endif
+                            alt="Foto oficial {{ $index + 1 }}" loading="lazy" decoding="async">
                     </a>
                 @endforeach
             </div>
