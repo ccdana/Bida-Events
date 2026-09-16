@@ -48,6 +48,7 @@ y el sitio responde en `http://bida-events.test`.
 | `php artisan invitations:migrate-json --invitation=xv-isabella` | Migrar una sola invitación |
 | `php artisan db:seed --class=ShowcaseInvitationsSeeder` | Rehacer las invitaciones de muestra |
 | `php artisan optimize:clear` | Limpiar caché de vistas, rutas y configuración |
+| `php artisan invitations:purge-contributions --dry-run` | Ver qué fotos viejas se borrarían |
 | `php artisan test` | Suite completa |
 | `npm run build` | Compilar CSS y JS |
 
@@ -196,7 +197,12 @@ propósito y responde `no-store`.
 | `InvitationGalleryImage.php` | Cada imagen, por colección (galería, portada, post-evento) y orden |
 | `InvitationPoll.php` | Pregunta de encuesta, con su clave estable y sus opciones |
 | `InvitationPollOption.php` | Opción de una encuesta |
-| `PollVote.php` | Voto: invitación, encuesta, opción y votante |
+| `PollVote.php` | Voto: invitación, encuesta (por su fila), opción y votante |
+| `InvitationLocation.php` | Sede del evento: nombre, dirección, coordenadas, mapa y foto |
+| `InvitationFeaturedPerson.php` | Personas destacadas por grupo (chambelanes, damitas, padrinos…) |
+| `InvitationDressCodeItem.php` | Código de vestimenta: sugerencias, colores permitidos y qué evitar |
+| `InvitationGiftOption.php` | Opciones de la mesa de regalos |
+| `InvitationMedia.php` | Catálogo de medios: canción de fondo y video |
 | `Guest.php` | Invitado: nombre, pases asignados y confirmados, estado, mesa, restricciones y token del enlace personal |
 | `GuestContribution.php` | Aporte del invitado: canción o foto del fotomural |
 | `EventType.php` | Catálogo de tipos de evento |
@@ -250,7 +256,8 @@ propósito y responde `no-store`.
 | `Listeners/RefreshInvitationCache.php` | Escucha los tres eventos e invalida la caché de forma síncrona |
 | `Providers/AppServiceProvider.php` | Registro de servicios, límites de peticiones y ajustes globales |
 | `Providers/BladeServiceProvider.php` | Directivas y componentes propios de Blade |
-| `Console/Commands/MigrateInvitationJsonModules.php` | Comando `invitations:migrate-json`, con `--dry-run` y `--invitation` |
+| `Console/Commands/MigrateInvitationJsonModules.php` | Comando `invitations:migrate-json`, con `--dry-run`, `--invitation` y `--force` |
+| `Console/Commands/PurgeOldContributions.php` | Comando `invitations:purge-contributions`: borra fotos de eventos viejos con su archivo en Cloudinary |
 
 ### 5.9 Base de datos
 
@@ -285,6 +292,12 @@ propósito y responde `no-store`.
 | `2026_09_13_000002_simplify_invitation_status` | Simplifica los estados de la invitación |
 | `2026_09_15_000001_drop_access_password_from_users_table` | La contraseña del cliente deja de guardarse descifrable |
 | `2026_09_15_000002_add_moderation_status_to_guest_contributions_table` | Permite ocultar fotos y canciones sin borrarlas |
+| `2026_09_15_000003_create_invitation_locations_table` | Sedes del evento |
+| `2026_09_15_000004_create_invitation_featured_people_table` | Personas destacadas por grupo |
+| `2026_09_15_000005_create_invitation_dress_code_items_table` | Código de vestimenta |
+| `2026_09_15_000006_create_invitation_gift_options_table` | Opciones de regalo |
+| `2026_09_15_000007_create_invitation_media_table` | Canción y video de la invitación |
+| `2026_09_15_000008_drop_textual_poll_id_from_poll_votes_table` | El voto apunta a la encuesta por su fila |
 
 **Semillas y datos de ejemplo:**
 
@@ -470,6 +483,8 @@ propósito y responde `no-store`.
 | `tests/Feature/DemoInvitationTest.php` | Muestras interactivas: no guardan nada, apertura automática y acceso restringido |
 | `tests/Feature/SecurityHardeningTest.php` | `noindex`, caché privada del enlace personal, cabeceras de seguridad y rechazo de SVG |
 | `tests/Feature/GuestLinksAndModerationTest.php` | Regenerar el enlace de un invitado y ocultar aportes sin borrarlos |
+| `tests/Feature/StructuredModulesRoundTripTest.php` | Los módulos de las cuatro plantillas vuelven iguales desde las tablas |
+| `tests/Feature/ModuleSyncAndRetentionTest.php` | Guardado todo o nada, reutilización de filas y purga de fotos viejas |
 | `tests/Feature/AccessControlTest.php` | Separación de admin y cliente |
 | `tests/Feature/ClientCredentialsTest.php` | Alta y acceso del cliente |
 | `tests/Feature/ClientExportsTest.php` | Exportaciones Excel y PDF |
@@ -488,28 +503,32 @@ propósito y responde `no-store`.
 
 ## 6. Estado de la normalización de datos
 
-Los módulos nacieron como un JSON por invitación (`invitation_data.json_data`). Hoy cuatro ya viven en
-tablas propias y el JSON queda como respaldo.
+Los módulos nacieron como un JSON por invitación (`invitation_data.json_data`). Hoy **todas las listas
+viven en tablas** y el JSON guarda solo la configuración de cada módulo (títulos, textos y bloques que
+no son listas), además de seguir como respaldo mientras una invitación no tenga fila en
+`invitation_settings`.
 
-| Área | Dónde vive hoy | Falta |
+| Área | Dónde vive hoy | Nota |
 | --- | --- | --- |
-| Configuración y visibilidad | `invitation_settings` | Migrar todas las invitaciones y retirar el respaldo |
-| Itinerario | `invitation_itinerary_items` | Quitar las lecturas JSON |
-| Galería | `invitation_gallery_images` | Cubrir portada y post-evento |
-| Encuestas | `invitation_polls` + `invitation_poll_options` | Usar `invitation_poll_id` como única relación del voto |
-| Ubicación | JSON | Tabla propia si habrá varias sedes |
-| Destacados | JSON | Tabla con grupo y orden |
-| Dress code | JSON | Tabla con categoría y orden |
-| Regalos | JSON | Separar lo público de los datos bancarios |
-| Medios (audio, video) | JSON + Cloudinary | Catálogo de medios por invitación |
-| Playlist y fotomural | `guest_contributions` | Moderación y retención |
-| RSVP | `guests` | Historial y auditoría |
+| Configuración y visibilidad | `invitation_settings` | Una fila por invitación |
+| Itinerario | `invitation_itinerary_items` | Con orden estable |
+| Galería y fotos post evento | `invitation_gallery_images` | Separadas por `collection` |
+| Encuestas | `invitation_polls` + `invitation_poll_options` | El voto usa `invitation_poll_id` |
+| Ubicación | `invitation_locations` | Preparada para varias sedes |
+| Personas destacadas | `invitation_featured_people` | Guarda el grupo y con qué nombre llegó el campo |
+| Código de vestimenta | `invitation_dress_code_items` | Sugerencias, colores y qué evitar |
+| Opciones de regalo | `invitation_gift_options` | Los datos bancarios siguen en el JSON del módulo |
+| Canción y video | `invitation_media` | Un registro por tipo |
+| Playlist y fotomural | `guest_contributions` | Con estado de moderación |
+| RSVP | `guests` | — |
 
 **Regla:** en tablas va lo que se repite, se ordena, se filtra o se consulta; en JSON queda la
-configuración pequeña y propia de una plantilla (colores, textos, interruptores).
+configuración pequeña y propia de una plantilla (colores, textos, interruptores, datos bancarios).
+
+**Lo que falta para cerrar el ciclo:** hoy se escribe en tablas *y* en JSON. Cuando ninguna
+instalación dependa del respaldo, toca dejar de escribir el JSON y crear una migración de limpieza.
 
 ---
-
 ## 7. Sugerencias de mejora
 
 Cada punto dice **qué pasa hoy** (con el archivo), **por qué importa**, **cómo resolverlo** y **cómo
@@ -557,43 +576,40 @@ Pruebas que lo respaldan: `SecurityHardeningTest`, `GuestLinksAndModerationTest`
 - **Tokens (punto 10):** ya se pueden rotar, pero todavía no caducan solos después del evento.
 - **Moderación (punto 11):** el cliente ve los últimos 60 aportes; si un evento genera muchos más,
   conviene paginar esa lista.
-### 7.2 Datos y base de datos
+### 7.2 Datos y base de datos — implementada
 
-#### 12. Terminar la normalización — *impacto alto, esfuerzo alto*
+| # | Qué se hizo | Dónde |
+| --- | --- | --- |
+| 12 | Ubicación, personas destacadas, código de vestimenta, opciones de regalo, medios y fotos post evento pasaron a tablas propias, con orden e índices | Cinco migraciones nuevas, cinco modelos y `InvitationStructuredDataService` |
+| 13 | El voto se relaciona con la encuesta por su fila: se completó la relación, se movió la clave única a `(invitation_poll_id, voter_key)` y se eliminó el `poll_id` textual | Migración `drop_textual_poll_id`, `ContributionController@votePoll`, `InvitationModuleService::pollResultsFor` |
+| 14 | El guardado del editor ya era una transacción; ahora además reutiliza las filas en vez de borrarlas y recrearlas, así los ids no cambian | `InvitationStructuredDataService::replaceOrdered` |
+| 15 | Al borrar una foto se borra su archivo en Cloudinary, y hay un comando de retención para eventos viejos | `GuestContribution::booted`, `MediaUploadService::delete`, `invitations:purge-contributions` |
 
-- **Hoy:** configuración, itinerario, galería y encuestas viven en tablas; ubicación, destacados,
-  dress code, regalos y medios siguen dentro de `invitation_data.json_data`.
-- **Por qué importa:** cambiar una fila obliga a leer, deserializar y reescribir el módulo completo;
-  no se puede ordenar, filtrar ni indexar, y dos ediciones simultáneas se pisan.
-- **Cómo:** repetir el patrón ya usado: migración con `invitation_id`, `sort_order` e índice
-  `(invitation_id, sort_order, id)`, modelo, filas en `InvitationStructuredDataService` (`hydrate`,
-  `sync`, `verify`) y lectura preferente desde tablas.
-- **Verificar:** `php artisan invitations:migrate-json --dry-run` sin diferencias, y una prueba que
-  compare el HTML de una invitación migrada contra el de su JSON original.
+**Cómo se comprobó**
 
-#### 13. Retirar el `poll_id` textual — *impacto medio, esfuerzo medio*
+- `invitations:migrate-json --dry-run --force` sobre las cuatro invitaciones reales: 0 diferencias.
+- `StructuredModulesRoundTripTest`: lo guardado vuelve idéntico desde las tablas en las cuatro
+  plantillas, y la invitación sigue mostrando todo aunque se borre el JSON.
+- `ModuleSyncAndRetentionTest`: si algo falla a la mitad no se guarda nada, al reguardar los ids no
+  cambian y la purga borra solo lo viejo.
+- En la base real: 200 votos quedaron enlazados a su encuesta, la columna `poll_id` ya no existe y las
+  tablas nuevas tienen 4 ubicaciones, 36 personas destacadas, 35 elementos de vestimenta, 8 medios y
+  11 fotos post evento.
 
-- **Hoy:** el voto guarda `poll_id` (texto) y `invitation_poll_id`; la unicidad usa el textual.
-- **Cómo:** cuando todas las invitaciones estén migradas, mover la unicidad a
-  `(invitation_poll_id, voter_key)`, migrar los votos viejos y eliminar la columna en una migración
-  nueva (sin editar las históricas).
+**Pendiente**
 
-#### 14. Guardado del editor atómico — *impacto medio, esfuerzo medio*
-
-- **Hoy:** `InvitationModuleService::syncAllModules` guarda módulo por módulo.
-- **Por qué importa:** si algo falla a la mitad, la invitación queda con unos módulos nuevos y otros
-  viejos.
-- **Cómo:** envolver el guardado en `DB::transaction()` y preferir `upsert()` a borrar y recrear las
-  colecciones, para no romper referencias ni inflar los timestamps.
-- **Verificar:** prueba que fuerce un error en el último módulo y afirme que nada se guardó.
-
-#### 15. Borrado y retención — *impacto medio, esfuerzo medio*
-
-- **Hoy:** al borrar una invitación o un invitado no está definido qué pasa con fotos de Cloudinary,
-  aportes y votos.
-- **Cómo:** decidir por tabla entre cascada, `nullOnDelete` o borrado suave; borrar el asset remoto
-  cuando se borra su fila; y definir cuánto tiempo se guardan fotos y datos después del evento.
-
+- **Dejar de escribir el JSON (punto 12).** Hoy cada guardado escribe tablas y JSON. Cuando se
+  confirme que ninguna instalación lee el respaldo, hay que quitar la doble escritura y limpiar
+  `invitation_data`.
+- **Votos sin encuesta (punto 13).** La migración eliminó los votos que apuntaban a encuestas que ya
+  no existían (en esta base no había ninguno). Si al desplegar en producción hay muchos, conviene
+  guardarlos antes en una tabla de archivo.
+- **Una invitación sin normalizar ya no acepta votos (punto 13).** El endpoint responde 404 si la
+  encuesta no tiene fila. Antes de desplegar hay que correr `invitations:migrate-json`.
+- **Retención más allá de las fotos (punto 15).** Falta decidir qué pasa con los datos de invitados y
+  los reportes después del evento, y programar el comando (por ejemplo, mensual).
+- **Varias sedes (punto 12).** La tabla de ubicaciones ya lo permite, pero el editor y las plantillas
+  todavía manejan una sola.
 ### 7.3 Rendimiento y escalabilidad
 
 #### 16. El panel admin carga todo — *impacto alto, esfuerzo bajo*
@@ -739,7 +755,7 @@ Pruebas que lo respaldan: `SecurityHardeningTest`, `GuestLinksAndModerationTest`
 | Fase | Foco | Trabajos |
 | --- | --- | --- |
 | **1. Seguridad** | ✔ Hecho | Indexación, caché del enlace personal, proxies, votos, contraseña del cliente, subidas, cabeceras, tokens y moderación (ver 7.1). Falta configurar `TRUSTED_PROXIES` y exigir la CSP en producción |
-| **2. Datos** | Una sola fuente | Migrar ubicación, destacados, dress code, regalos y medios; retirar el respaldo JSON; índices y transacciones |
+| **2. Datos** | ✔ Hecho | Tablas para ubicación, destacados, vestimenta, regalos y medios; voto por relación real; guardado que reutiliza filas; borrado y retención de archivos. Falta dejar de escribir el JSON de respaldo |
 | **3. Rendimiento** | Costo y espera | Paginación, conteos y agregaciones en SQL, caché con Redis, colas para PDF y Excel, retención de archivos |
 | **4. Experiencia** | Producto | Editor por pasos, accesibilidad, Open Graph por invitación, guía visual, limpieza de vistas sin uso |
 | **5. Crecimiento** | Captación | Páginas por evento, UTM y medición, contenido con las muestras |

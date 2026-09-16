@@ -24,6 +24,19 @@ class GuestContribution extends Model
         return $query->where('moderation_status', self::VISIBLE);
     }
 
+    /**
+     * Al borrar una foto se borra también su archivo en Cloudinary, para no pagar por archivos
+     * que ya nadie ve. Solo aplica al borrado por modelo (no a un DELETE masivo por consulta).
+     */
+    protected static function booted(): void
+    {
+        static::deleted(function (self $contribution) {
+            if ($contribution->type === 'live_photo' && $contribution->file_path) {
+                app(\App\Services\MediaUploadService::class)->delete($contribution->file_path);
+            }
+        });
+    }
+
     public function invitation(): BelongsTo
     {
         return $this->belongsTo(Invitation::class);

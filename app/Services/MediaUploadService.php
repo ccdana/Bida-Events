@@ -173,6 +173,66 @@ class MediaUploadService
         ];
     }
 
+    /**
+     * Borra en Cloudinary el archivo de una URL nuestra. Devuelve false (sin romper nada) si la URL
+     * no es de Cloudinary, si no hay credenciales o si el borrado falla: la fila local ya se fue y
+     * no queremos que un error remoto detenga la operación.
+     */
+    public function delete(?string $url): bool
+    {
+        $publicId = $this->publicIdFromUrl($url);
+
+        if ($publicId === null || ! $this->isCloudinaryConfigured()) {
+            return false;
+        }
+
+        try {
+            Configuration::instance(config('cloudinary.cloud_url'));
+            (new UploadApi)->destroy($publicId, ['resource_type' => str_contains((string) $url, '/video/') ? 'video' : 'image']);
+
+            return true;
+        } catch (\Throwable $exception) {
+            Log::warning('No se pudo borrar el archivo en Cloudinary.', [
+                'public_id' => $publicId,
+                'error' => $exception->getMessage(),
+            ]);
+
+            return false;
+        }
+    }
+
+    /**
+     * De "https://res.cloudinary.com/cuenta/image/upload/v123/carpeta/archivo.jpg" saca
+     * "carpeta/archivo" (sin transformaciones, versión ni extensión).
+     */
+    public function publicIdFromUrl(?string $url): ?string
+    {
+        if (! is_string($url) || ! str_contains($url, 'res.cloudinary.com')) {
+            return null;
+        }
+
+        $path = parse_url($url, PHP_URL_PATH);
+
+        if (! is_string($path) || ! preg_match('#/upload/(.+)$#', $path, $match)) {
+            return null;
+        }
+
+        $segments = array_values(array_filter(explode('/', $match[1])));
+
+        // Se descartan las transformaciones (llevan coma o son el prefijo de versión "v123")
+        while ($segments !== [] && (str_contains($segments[0], ',') || preg_match('/^v\d+$/', $segments[0]))) {
+            array_shift($segments);
+        }
+
+        if ($segments === []) {
+            return null;
+        }
+
+        $publicId = implode('/', $segments);
+
+        return preg_replace('/\.[a-z0-9]+$/i', '', $publicId) ?: null;
+    }
+
     public function validateFile(UploadedFile $file, string $type): void
     {
         // Sin SVG: puede traer scripts dentro. Las dimensiones evitan imágenes que revientan la memoria al procesarlas.

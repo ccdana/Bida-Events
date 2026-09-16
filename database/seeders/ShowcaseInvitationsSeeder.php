@@ -79,8 +79,7 @@ class ShowcaseInvitationsSeeder extends Seeder
         foreach ($data['poll_votes'] as $vote) {
             PollVote::create([
                 'invitation_id' => $invitation->id,
-                'poll_id' => $vote['poll'],
-                'invitation_poll_id' => $pollIds[$vote['poll']] ?? null,
+                'invitation_poll_id' => $pollIds[$vote['poll']],
                 'option_index' => $vote['option'],
                 'guest_id' => $guestIds[$vote['guest']] ?? null,
                 'voter_key' => $vote['voter_key'],

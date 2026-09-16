@@ -11,7 +11,6 @@ class PollVote extends Model
 
     protected $fillable = [
         'invitation_id',
-        'poll_id',
         'invitation_poll_id',
         'option_index',
         'guest_id',

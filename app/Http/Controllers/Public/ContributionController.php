@@ -177,7 +177,8 @@ class ContributionController extends Controller
         $moduleService = app(InvitationModuleService::class);
         $poll = $moduleService->pollReference($invitation, $pollId);
 
-        if (! $poll) {
+        // Sin fila de encuesta no hay dónde guardar el voto (la invitación aún no está normalizada)
+        if (! $poll || ! ($poll['id'] ?? null)) {
             return response()->json(['success' => false, 'message' => 'Esta encuesta no existe.'], 404);
         }
 
@@ -185,8 +186,7 @@ class ContributionController extends Controller
             return response()->json(['success' => false, 'message' => 'Esa opción no existe en la encuesta.'], 422);
         }
 
-        $existing = PollVote::where('invitation_id', $invitation->id)
-            ->where('poll_id', $pollId)
+        $existing = PollVote::where('invitation_poll_id', $poll['id'])
             ->where('voter_key', $voterKey)
             ->first();
 
@@ -205,15 +205,14 @@ class ContributionController extends Controller
         try {
             $vote = PollVote::create([
                 'invitation_id' => $invitation->id,
-                'poll_id' => $pollId,
-                'invitation_poll_id' => $poll['id'] ?? null,
+                'invitation_poll_id' => $poll['id'],
                 'option_index' => $validated['option_index'],
                 'guest_id' => $guestId,
                 'voter_key' => $voterKey,
                 'created_at' => now(),
             ]);
         } catch (QueryException $exception) {
-            // Dos toques a la vez: la clave única (invitation_id, poll_id, voter_key) es la que manda
+            // Dos toques a la vez: la clave única (invitation_poll_id, voter_key) es la que manda
             if (($exception->errorInfo[0] ?? null) === '23000') {
                 return response()->json(['success' => false, 'message' => 'Ya votaste en esta encuesta.'], 422);
             }

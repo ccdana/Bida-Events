@@ -5,26 +5,28 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class InvitationGalleryImage extends Model
+class InvitationMedia extends Model
 {
-    public const COLLECTION_GALLERY = 'gallery';
+    public const TYPE_AUDIO = 'audio';
 
-    public const COLLECTION_POST_EVENT = 'post_event';
+    public const TYPE_VIDEO = 'video';
+
+    protected $table = 'invitation_media';
 
     protected $fillable = [
         'invitation_id',
-        'collection',
+        'type',
+        'title',
         'url',
-        'media_type',
-        'alt_text',
-        'is_cover',
+        'poster_url',
+        'autoplay',
         'status',
         'meta',
         'sort_order',
     ];
 
     protected $casts = [
-        'is_cover' => 'boolean',
+        'autoplay' => 'boolean',
         'meta' => 'array',
         'sort_order' => 'integer',
     ];

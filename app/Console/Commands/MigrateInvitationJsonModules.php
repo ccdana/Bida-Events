@@ -15,7 +15,7 @@ class MigrateInvitationJsonModules extends Command
                             {--invitation=* : Limita la migración a IDs o slugs concretos}
                             {--force : Vuelve a copiar invitaciones que ya tienen datos normalizados}';
 
-    protected $description = 'Copia config, itinerario, galería y encuestas desde invitation_data.json_data a sus tablas normalizadas';
+    protected $description = 'Copia los módulos de invitation_data.json_data a sus tablas normalizadas (config, itinerario, galería, encuestas, ubicación, destacados, vestimenta, regalos y medios)';
 
     public function handle(InvitationStructuredDataService $structuredData): int
     {
@@ -91,6 +91,7 @@ class MigrateInvitationJsonModules extends Command
                 "{$report['itinerario']['created']}/{$report['itinerario']['detected']}",
                 "{$report['galeria']['created']}/{$report['galeria']['detected']}",
                 "{$report['encuestas']['created']}/{$report['encuestas']['detected']} ({$report['encuestas']['options']})",
+                $this->otherModulesSummary($report),
                 count($report['skipped']),
             ];
 
@@ -108,7 +109,7 @@ class MigrateInvitationJsonModules extends Command
         }
 
         $this->table(
-            ['ID', 'Slug', 'Estado', 'Itinerario (creados/detectados)', 'Galería (creadas/detectadas)', 'Encuestas (opciones)', 'Omitidos'],
+            ['ID', 'Slug', 'Estado', 'Itinerario', 'Galería', 'Encuestas (opciones)', 'Otros módulos', 'Omitidos'],
             $rows
         );
 
@@ -133,5 +134,19 @@ class MigrateInvitationJsonModules extends Command
         $this->components->info($summary);
 
         return self::SUCCESS;
+    }
+
+    /** Resumen corto de los módulos que se normalizaron después: ubicación, destacados, etc. */
+    protected function otherModulesSummary(array $report): string
+    {
+        $created = 0;
+        $detected = 0;
+
+        foreach (['ubicacion', 'destacados', 'dress_code', 'regalos', 'media', 'post_evento'] as $module) {
+            $created += $report[$module]['created'] ?? 0;
+            $detected += $report[$module]['detected'] ?? 0;
+        }
+
+        return "{$created}/{$detected}";
     }
 }

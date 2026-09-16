@@ -123,6 +123,31 @@ class Invitation extends Model
         return $this->hasMany(InvitationPoll::class)->orderBy('sort_order')->orderBy('id');
     }
 
+    public function locations(): HasMany
+    {
+        return $this->hasMany(InvitationLocation::class)->orderBy('sort_order')->orderBy('id');
+    }
+
+    public function featuredPeople(): HasMany
+    {
+        return $this->hasMany(InvitationFeaturedPerson::class)->orderBy('sort_order')->orderBy('id');
+    }
+
+    public function dressCodeItems(): HasMany
+    {
+        return $this->hasMany(InvitationDressCodeItem::class)->orderBy('sort_order')->orderBy('id');
+    }
+
+    public function giftOptions(): HasMany
+    {
+        return $this->hasMany(InvitationGiftOption::class)->orderBy('sort_order')->orderBy('id');
+    }
+
+    public function media(): HasMany
+    {
+        return $this->hasMany(InvitationMedia::class)->orderBy('sort_order')->orderBy('id');
+    }
+
     /**
      * Scopes para queries optimizadas
      */

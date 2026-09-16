@@ -5,26 +5,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class InvitationGalleryImage extends Model
+class InvitationGiftOption extends Model
 {
-    public const COLLECTION_GALLERY = 'gallery';
-
-    public const COLLECTION_POST_EVENT = 'post_event';
-
     protected $fillable = [
         'invitation_id',
-        'collection',
+        'title',
+        'description',
         'url',
-        'media_type',
-        'alt_text',
-        'is_cover',
-        'status',
+        'image_url',
         'meta',
         'sort_order',
     ];
 
     protected $casts = [
-        'is_cover' => 'boolean',
         'meta' => 'array',
         'sort_order' => 'integer',
     ];

@@ -3,25 +3,42 @@
 namespace App\Services;
 
 use App\Models\Invitation;
+use App\Models\InvitationDressCodeItem;
+use App\Models\InvitationFeaturedPerson;
 use App\Models\InvitationGalleryImage;
+use App\Models\InvitationGiftOption;
 use App\Models\InvitationItineraryItem;
+use App\Models\InvitationLocation;
+use App\Models\InvitationMedia;
 use App\Models\InvitationPoll;
-use App\Models\InvitationPollOption;
 use App\Models\InvitationSetting;
-use App\Models\PollVote;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 /**
- * Módulos que ya viven en tablas normalizadas: config, itinerario, galería y encuestas.
- * El resto sigue en invitation_data.json_data, que además actúa como fallback
+ * Módulos que ya viven en tablas normalizadas: configuración, itinerario, galería (incluidas las
+ * fotos post evento), encuestas, ubicación, personas destacadas, código de vestimenta, opciones de
+ * regalo y medios (audio y video).
+ *
+ * En el JSON del módulo solo queda su configuración: títulos, textos y bloques que no son listas
+ * (por ejemplo los datos bancarios de regalos). invitation_data.json_data sigue siendo el respaldo
  * mientras una invitación no tenga fila en invitation_settings.
  */
 class InvitationStructuredDataService
 {
-    public const RELATIONS = ['settings', 'itineraryItems', 'galleryImages', 'polls.options'];
+    public const RELATIONS = [
+        'settings',
+        'itineraryItems',
+        'galleryImages',
+        'polls.options',
+        'locations',
+        'featuredPeople',
+        'dressCodeItems',
+        'giftOptions',
+        'media',
+    ];
 
     protected const CONFIG_KEYS = ['template', 'colores', 'tipografias', 'modulos'];
 
@@ -30,6 +47,20 @@ class InvitationStructuredDataService
     protected const GALLERY_KEYS = ['url', 'alt'];
 
     protected const POLL_KEYS = ['id', 'tipo', 'pregunta', 'opciones'];
+
+    protected const LOCATION_KEYS = ['lat', 'lng', 'nombre_lugar', 'direccion', 'maps_url', 'nota', 'imagen_lugar'];
+
+    protected const PERSON_KEYS = ['nombre', 'nombres', 'iniciales', 'rol', 'detalle', 'mensaje'];
+
+    protected const DRESS_SUGGESTION_KEYS = ['para', 'titulo', 'descripcion', 'ejemplos', 'imagen'];
+
+    protected const DRESS_COLOR_KEYS = ['nombre', 'hex'];
+
+    protected const GIFT_KEYS = ['titulo', 'descripcion', 'enlace', 'imagen'];
+
+    protected const AUDIO_KEYS = ['titulo', 'audio_url', 'autoplay'];
+
+    protected const VIDEO_KEYS = ['titulo', 'video_url', 'poster'];
 
     /** @var array<int, true> */
     protected static array $reportedFallbacks = [];
@@ -93,6 +124,39 @@ class InvitationStructuredDataService
                 ->all(),
         ];
 
+        if ($location = $this->locationValue($invitation)) {
+            $modules['ubicacion'] = $location;
+        }
+
+        // Las claves que no son listas (títulos, textos) se conservan del JSON del módulo
+        $modules['destacados'] = array_merge(
+            array_filter($this->arrayValue($modules['destacados'] ?? null), fn ($value) => ! is_array($value)),
+            $this->featuredPeopleValues($invitation)
+        );
+
+        $modules['dress_code'] = array_merge(
+            $this->arrayValue($modules['dress_code'] ?? null),
+            $this->dressCodeValues($invitation)
+        );
+
+        $modules['regalos'] = array_merge(
+            $this->arrayValue($modules['regalos'] ?? null),
+            ['opciones' => $this->giftOptionValues($invitation)]
+        );
+
+        foreach ($this->mediaValues($invitation) as $code => $value) {
+            $modules[$code] = $value;
+        }
+
+        $postEvent = $invitation->galleryImages->where('collection', InvitationGalleryImage::COLLECTION_POST_EVENT);
+
+        if ($postEvent->isNotEmpty() || array_key_exists('fotos', $this->arrayValue($modules['post_evento'] ?? null))) {
+            $modules['post_evento'] = [
+                ...$this->arrayValue($modules['post_evento'] ?? null),
+                'fotos' => $postEvent->map(fn (InvitationGalleryImage $image) => $this->galleryImageValue($image))->values()->all(),
+            ];
+        }
+
         return $modules;
     }
 
@@ -106,18 +170,38 @@ class InvitationStructuredDataService
         $itinerary = $this->itineraryRows($modules['itinerario'] ?? null);
         $gallery = $this->galleryRows($modules['galeria'] ?? null);
         $polls = $this->pollRows($modules['encuestas'] ?? null);
+        $locations = $this->locationRows($modules['ubicacion'] ?? null);
+        $people = $this->featuredPeopleRows($modules['destacados'] ?? null);
+        $dress = $this->dressCodeRows($modules['dress_code'] ?? null);
+        $gifts = $this->giftOptionRows($modules['regalos'] ?? null);
+        $media = $this->mediaRows($modules);
+        $postEvent = $this->postEventGalleryRows($modules['post_evento'] ?? null);
 
-        DB::transaction(function () use ($invitation, $modules, $itinerary, $gallery, $polls) {
+        DB::transaction(function () use ($invitation, $modules, $itinerary, $gallery, $polls, $locations, $people, $dress, $gifts, $media, $postEvent) {
             InvitationSetting::updateOrCreate(
                 ['invitation_id' => $invitation->id],
                 $this->settingsAttributes($modules['config'] ?? null)
             );
 
-            $invitation->itineraryItems()->delete();
-            $invitation->itineraryItems()->createMany($itinerary['rows']);
+            $this->replaceOrdered($invitation->itineraryItems(), $itinerary['rows']);
 
-            $invitation->galleryImages()->where('collection', InvitationGalleryImage::COLLECTION_GALLERY)->delete();
-            $invitation->galleryImages()->createMany($gallery['rows']);
+            $this->replaceOrdered(
+                $invitation->galleryImages()->where('collection', InvitationGalleryImage::COLLECTION_GALLERY),
+                $gallery['rows'],
+                ['collection' => InvitationGalleryImage::COLLECTION_GALLERY]
+            );
+
+            $this->replaceOrdered(
+                $invitation->galleryImages()->where('collection', InvitationGalleryImage::COLLECTION_POST_EVENT),
+                $postEvent['rows'],
+                ['collection' => InvitationGalleryImage::COLLECTION_POST_EVENT]
+            );
+
+            $this->replaceOrdered($invitation->locations(), $locations['rows']);
+            $this->replaceOrdered($invitation->featuredPeople(), $people['rows']);
+            $this->replaceOrdered($invitation->dressCodeItems(), $dress['rows']);
+            $this->replaceOrdered($invitation->giftOptions(), $gifts['rows']);
+            $this->replaceOrdered($invitation->media(), $media['rows']);
 
             $this->syncPolls($invitation, $polls['rows']);
         });
@@ -134,8 +218,22 @@ class InvitationStructuredDataService
                 'created' => count($polls['rows']),
                 'options' => array_sum(array_map(fn (array $row) => count($row['options']), $polls['rows'])),
             ],
-            'skipped' => [...$itinerary['skipped'], ...$gallery['skipped'], ...$polls['skipped']],
-            'warnings' => [...$itinerary['warnings'], ...$gallery['warnings'], ...$polls['warnings']],
+            'ubicacion' => ['detected' => $locations['detected'], 'created' => count($locations['rows'])],
+            'destacados' => ['detected' => $people['detected'], 'created' => count($people['rows'])],
+            'dress_code' => ['detected' => $dress['detected'], 'created' => count($dress['rows'])],
+            'regalos' => ['detected' => $gifts['detected'], 'created' => count($gifts['rows'])],
+            'media' => ['detected' => $media['detected'], 'created' => count($media['rows'])],
+            'post_evento' => ['detected' => $postEvent['detected'], 'created' => count($postEvent['rows'])],
+            'skipped' => [
+                ...$itinerary['skipped'], ...$gallery['skipped'], ...$polls['skipped'],
+                ...$locations['skipped'], ...$people['skipped'], ...$dress['skipped'],
+                ...$gifts['skipped'], ...$media['skipped'], ...$postEvent['skipped'],
+            ],
+            'warnings' => [
+                ...$itinerary['warnings'], ...$gallery['warnings'], ...$polls['warnings'],
+                ...$locations['warnings'], ...$people['warnings'], ...$dress['warnings'],
+                ...$gifts['warnings'], ...$media['warnings'], ...$postEvent['warnings'],
+            ],
         ];
     }
 
@@ -188,7 +286,391 @@ class InvitationStructuredDataService
                 ->all()
         );
 
+        $this->compareRows(
+            $differences,
+            'ubicacion',
+            $this->locationRows($modules['ubicacion'] ?? null)['rows'],
+            $invitation->locations->map->only(['name', 'address', 'latitude', 'longitude', 'map_url', 'image_url', 'note', 'meta', 'sort_order'])->all()
+        );
+
+        $this->compareRows(
+            $differences,
+            'destacados',
+            $this->featuredPeopleRows($modules['destacados'] ?? null)['rows'],
+            $invitation->featuredPeople->map->only(['group', 'name_key', 'name', 'initials', 'role', 'detail', 'message', 'meta', 'sort_order'])->all()
+        );
+
+        $this->compareRows(
+            $differences,
+            'dress_code',
+            $this->dressCodeRows($modules['dress_code'] ?? null)['rows'],
+            $invitation->dressCodeItems->map->only(['kind', 'audience', 'title', 'description', 'image_url', 'color_hex', 'examples', 'meta', 'sort_order'])->all()
+        );
+
+        $this->compareRows(
+            $differences,
+            'regalos',
+            $this->giftOptionRows($modules['regalos'] ?? null)['rows'],
+            $invitation->giftOptions->map->only(['title', 'description', 'url', 'image_url', 'meta', 'sort_order'])->all()
+        );
+
+        $this->compareRows(
+            $differences,
+            'media',
+            $this->mediaRows($modules)['rows'],
+            $invitation->media->map->only(['type', 'title', 'url', 'poster_url', 'autoplay', 'status', 'meta', 'sort_order'])->all()
+        );
+
+        $this->compareRows(
+            $differences,
+            'post_evento',
+            $this->postEventGalleryRows($modules['post_evento'] ?? null)['rows'],
+            $invitation->galleryImages
+                ->where('collection', InvitationGalleryImage::COLLECTION_POST_EVENT)
+                ->map->only(['collection', 'url', 'media_type', 'alt_text', 'is_cover', 'status', 'meta', 'sort_order'])
+                ->values()
+                ->all()
+        );
+
         return $differences;
+    }
+
+    /** La ubicación es una fila: así mañana pueden ser dos (ceremonia y fiesta) sin tocar el JSON. */
+    public function locationRows(mixed $module): array
+    {
+        $result = $this->emptyResult();
+        $location = $this->arrayValue($module);
+
+        if ($location === []) {
+            return $result;
+        }
+
+        $result['detected']++;
+
+        $result['rows'][] = [
+            'name' => $this->stringValue($location['nombre_lugar'] ?? null, 255, 'ubicacion.nombre_lugar', $result['warnings']),
+            'address' => $this->stringValue($location['direccion'] ?? null, 500, 'ubicacion.direccion', $result['warnings']),
+            'latitude' => $this->floatValue($location['lat'] ?? null),
+            'longitude' => $this->floatValue($location['lng'] ?? null),
+            'map_url' => $this->stringValue($location['maps_url'] ?? null, null, 'ubicacion.maps_url', $result['warnings']),
+            'image_url' => $this->stringValue($location['imagen_lugar'] ?? null, null, 'ubicacion.imagen_lugar', $result['warnings']),
+            'note' => $this->stringValue($location['nota'] ?? null, null, 'ubicacion.nota', $result['warnings']),
+            'meta' => $this->metaValue($location, self::LOCATION_KEYS),
+            'sort_order' => 0,
+        ];
+
+        return $result;
+    }
+
+    /** Cada grupo (chambelanes, damitas, padrinos, cortejo…) es una lista ordenada de personas. */
+    public function featuredPeopleRows(mixed $module): array
+    {
+        $result = $this->emptyResult();
+
+        foreach ($this->arrayValue($module) as $group => $people) {
+            if (! is_array($people) || ! array_is_list($people)) {
+                continue;
+            }
+
+            foreach ($people as $index => $person) {
+                $result['detected']++;
+                $path = "destacados.{$group}[{$index}]";
+
+                if (! is_array($person)) {
+                    $result['skipped'][] = "{$path}: se esperaba un objeto";
+                    continue;
+                }
+
+                // Los padrinos llegan con "nombres" y el resto con "nombre": se recuerda cuál era
+                $nameKey = array_key_exists('nombres', $person) ? 'nombres' : 'nombre';
+
+                $result['rows'][] = [
+                    'group' => mb_substr((string) $group, 0, 50),
+                    'name_key' => $nameKey,
+                    'name' => $this->stringValue($person[$nameKey] ?? null, 255, "{$path}.{$nameKey}", $result['warnings']),
+                    'initials' => $this->stringValue($person['iniciales'] ?? null, 10, "{$path}.iniciales", $result['warnings']),
+                    'role' => $this->stringValue($person['rol'] ?? null, 255, "{$path}.rol", $result['warnings']),
+                    'detail' => $this->stringValue($person['detalle'] ?? null, null, "{$path}.detalle", $result['warnings']),
+                    'message' => $this->stringValue($person['mensaje'] ?? null, null, "{$path}.mensaje", $result['warnings']),
+                    'meta' => $this->metaValue($person, self::PERSON_KEYS),
+                    'sort_order' => count($result['rows']),
+                ];
+            }
+        }
+
+        return $result;
+    }
+
+    /** Tres listas en una tabla: sugerencias, colores permitidos y qué evitar. */
+    public function dressCodeRows(mixed $module): array
+    {
+        $result = $this->emptyResult();
+        $module = $this->arrayValue($module);
+
+        foreach (array_values($this->listValue($module['sugerencias'] ?? null)) as $index => $item) {
+            $result['detected']++;
+            $path = "dress_code.sugerencias[{$index}]";
+
+            if (! is_array($item)) {
+                $result['skipped'][] = "{$path}: se esperaba un objeto";
+                continue;
+            }
+
+            $examples = $this->listValue($item['ejemplos'] ?? null);
+
+            $result['rows'][] = [
+                'kind' => InvitationDressCodeItem::KIND_SUGGESTION,
+                'audience' => $this->stringValue($item['para'] ?? null, 100, "{$path}.para", $result['warnings']),
+                'title' => $this->stringValue($item['titulo'] ?? null, 255, "{$path}.titulo", $result['warnings']),
+                'description' => $this->stringValue($item['descripcion'] ?? null, null, "{$path}.descripcion", $result['warnings']),
+                'image_url' => $this->stringValue($item['imagen'] ?? null, null, "{$path}.imagen", $result['warnings']),
+                'color_hex' => null,
+                'examples' => $examples === [] ? null : array_map('strval', $examples),
+                'meta' => $this->metaValue($item, self::DRESS_SUGGESTION_KEYS),
+                'sort_order' => count($result['rows']),
+            ];
+        }
+
+        foreach (array_values($this->listValue($module['colores_permitidos'] ?? null)) as $index => $color) {
+            $result['detected']++;
+            $path = "dress_code.colores_permitidos[{$index}]";
+            $color = is_array($color) ? $color : ['nombre' => $color];
+
+            $result['rows'][] = [
+                'kind' => InvitationDressCodeItem::KIND_COLOR,
+                'audience' => null,
+                'title' => $this->stringValue($color['nombre'] ?? null, 255, "{$path}.nombre", $result['warnings']),
+                'description' => null,
+                'image_url' => null,
+                'color_hex' => $this->stringValue($color['hex'] ?? null, 20, "{$path}.hex", $result['warnings']),
+                'examples' => null,
+                'meta' => $this->metaValue($color, self::DRESS_COLOR_KEYS),
+                'sort_order' => count($result['rows']),
+            ];
+        }
+
+        foreach (array_values($this->listValue($module['evitar'] ?? null)) as $index => $avoid) {
+            $result['detected']++;
+            $path = "dress_code.evitar[{$index}]";
+
+            $result['rows'][] = [
+                'kind' => InvitationDressCodeItem::KIND_AVOID,
+                'audience' => null,
+                'title' => $this->stringValue(is_array($avoid) ? ($avoid['titulo'] ?? null) : $avoid, 255, $path, $result['warnings']),
+                'description' => null,
+                'image_url' => null,
+                'color_hex' => null,
+                'examples' => null,
+                'meta' => is_array($avoid) ? $this->metaValue($avoid, ['titulo']) : null,
+                'sort_order' => count($result['rows']),
+            ];
+        }
+
+        return $result;
+    }
+
+    /** Solo la lista pública de regalos: los datos bancarios siguen en el JSON del módulo. */
+    public function giftOptionRows(mixed $module): array
+    {
+        $result = $this->emptyResult();
+        $options = $this->listValue($this->arrayValue($module)['opciones'] ?? null);
+
+        foreach (array_values($options) as $index => $option) {
+            $result['detected']++;
+            $path = "regalos.opciones[{$index}]";
+
+            if (! is_array($option)) {
+                $result['skipped'][] = "{$path}: se esperaba un objeto";
+                continue;
+            }
+
+            $result['rows'][] = [
+                'title' => $this->stringValue($option['titulo'] ?? null, 255, "{$path}.titulo", $result['warnings']),
+                'description' => $this->stringValue($option['descripcion'] ?? null, null, "{$path}.descripcion", $result['warnings']),
+                'url' => $this->stringValue($option['enlace'] ?? null, null, "{$path}.enlace", $result['warnings']),
+                'image_url' => $this->stringValue($option['imagen'] ?? null, null, "{$path}.imagen", $result['warnings']),
+                'meta' => $this->metaValue($option, self::GIFT_KEYS),
+                'sort_order' => count($result['rows']),
+            ];
+        }
+
+        return $result;
+    }
+
+    /** Catálogo de medios: la canción de fondo y el video, uno por tipo. */
+    public function mediaRows(array $modules): array
+    {
+        $result = $this->emptyResult();
+        $audio = $this->arrayValue($modules['musica'] ?? null);
+        $video = $this->arrayValue($modules['video'] ?? null);
+
+        if (($audio['audio_url'] ?? '') !== '' || ($audio['titulo'] ?? '') !== '') {
+            $result['detected']++;
+            $result['rows'][] = [
+                'type' => InvitationMedia::TYPE_AUDIO,
+                'title' => $this->stringValue($audio['titulo'] ?? null, 255, 'musica.titulo', $result['warnings']),
+                'url' => $this->stringValue($audio['audio_url'] ?? null, null, 'musica.audio_url', $result['warnings']),
+                'poster_url' => null,
+                'autoplay' => (bool) ($audio['autoplay'] ?? false),
+                'status' => 'active',
+                'meta' => $this->metaValue($audio, self::AUDIO_KEYS),
+                'sort_order' => count($result['rows']),
+            ];
+        }
+
+        if (($video['video_url'] ?? '') !== '' || ($video['titulo'] ?? '') !== '') {
+            $result['detected']++;
+            $result['rows'][] = [
+                'type' => InvitationMedia::TYPE_VIDEO,
+                'title' => $this->stringValue($video['titulo'] ?? null, 255, 'video.titulo', $result['warnings']),
+                'url' => $this->stringValue($video['video_url'] ?? null, null, 'video.video_url', $result['warnings']),
+                'poster_url' => $this->stringValue($video['poster'] ?? null, null, 'video.poster', $result['warnings']),
+                'autoplay' => false,
+                'status' => 'active',
+                'meta' => $this->metaValue($video, self::VIDEO_KEYS),
+                'sort_order' => count($result['rows']),
+            ];
+        }
+
+        return $result;
+    }
+
+    /** Las fotos posteriores al evento usan la misma tabla de galería, en otra colección. */
+    public function postEventGalleryRows(mixed $module): array
+    {
+        $result = $this->galleryRows(['fotos' => $this->arrayValue($module)['fotos'] ?? []]);
+
+        foreach ($result['rows'] as $index => $row) {
+            $result['rows'][$index]['collection'] = InvitationGalleryImage::COLLECTION_POST_EVENT;
+        }
+
+        $result['skipped'] = array_map(
+            fn (string $message) => str_replace('galeria.fotos', 'post_evento.fotos', $message),
+            $result['skipped']
+        );
+
+        return $result;
+    }
+
+    protected function locationValue(Invitation $invitation): ?array
+    {
+        $location = $invitation->locations->first();
+
+        if (! $location instanceof InvitationLocation) {
+            return null;
+        }
+
+        return array_filter(array_merge($location->meta ?? [], [
+            'lat' => $location->latitude,
+            'lng' => $location->longitude,
+            'nombre_lugar' => $location->name,
+            'direccion' => $location->address,
+            'maps_url' => $location->map_url,
+            'nota' => $location->note,
+            'imagen_lugar' => $location->image_url,
+        ]), fn ($value) => $value !== null);
+    }
+
+    /** @return array<string, list<array<string, mixed>>> */
+    protected function featuredPeopleValues(Invitation $invitation): array
+    {
+        $groups = [];
+
+        foreach ($invitation->featuredPeople as $person) {
+            $groups[$person->group][] = array_filter(array_merge($person->meta ?? [], [
+                $person->name_key => $person->name,
+                'iniciales' => $person->initials,
+                'rol' => $person->role,
+                'detalle' => $person->detail,
+                'mensaje' => $person->message,
+            ]), fn ($value) => $value !== null);
+        }
+
+        return $groups;
+    }
+
+    protected function dressCodeValues(Invitation $invitation): array
+    {
+        $items = $invitation->dressCodeItems;
+
+        return [
+            'sugerencias' => $items
+                ->where('kind', InvitationDressCodeItem::KIND_SUGGESTION)
+                ->map(fn (InvitationDressCodeItem $item) => array_filter(array_merge($item->meta ?? [], [
+                    'para' => $item->audience,
+                    'titulo' => $item->title,
+                    'descripcion' => $item->description,
+                    'ejemplos' => $item->examples,
+                    'imagen' => $item->image_url,
+                ]), fn ($value) => $value !== null))
+                ->values()
+                ->all(),
+            'colores_permitidos' => $items
+                ->where('kind', InvitationDressCodeItem::KIND_COLOR)
+                ->map(fn (InvitationDressCodeItem $item) => array_filter(array_merge($item->meta ?? [], [
+                    'nombre' => $item->title,
+                    'hex' => $item->color_hex,
+                ]), fn ($value) => $value !== null))
+                ->values()
+                ->all(),
+            'evitar' => $items
+                ->where('kind', InvitationDressCodeItem::KIND_AVOID)
+                ->map(fn (InvitationDressCodeItem $item) => $item->title)
+                ->values()
+                ->all(),
+        ];
+    }
+
+    /** @return list<array<string, mixed>> */
+    protected function giftOptionValues(Invitation $invitation): array
+    {
+        return $invitation->giftOptions
+            ->map(fn (InvitationGiftOption $option) => array_filter(array_merge($option->meta ?? [], [
+                'titulo' => $option->title,
+                'descripcion' => $option->description,
+                'enlace' => $option->url,
+                'imagen' => $option->image_url,
+            ]), fn ($value) => $value !== null))
+            ->values()
+            ->all();
+    }
+
+    /** @return array<string, array<string, mixed>> */
+    protected function mediaValues(Invitation $invitation): array
+    {
+        $values = [];
+
+        foreach ($invitation->media as $media) {
+            if ($media->type === InvitationMedia::TYPE_AUDIO) {
+                $values['musica'] = array_filter(array_merge($media->meta ?? [], [
+                    'titulo' => $media->title,
+                    'audio_url' => $media->url,
+                    'autoplay' => $media->autoplay,
+                ]), fn ($value) => $value !== null);
+                continue;
+            }
+
+            if ($media->type === InvitationMedia::TYPE_VIDEO) {
+                $values['video'] = array_filter(array_merge($media->meta ?? [], [
+                    'titulo' => $media->title,
+                    'video_url' => $media->url,
+                    'poster' => $media->poster_url,
+                ]), fn ($value) => $value !== null);
+            }
+        }
+
+        return $values;
+    }
+
+    protected function floatValue(mixed $value): ?float
+    {
+        return is_numeric($value) ? (float) $value : null;
+    }
+
+    /** @return array<int|string, mixed> */
+    protected function listValue(mixed $value): array
+    {
+        return is_array($value) ? $value : [];
     }
 
     /**
@@ -373,22 +855,48 @@ class InvitationStructuredDataService
                 Arr::except($row, ['poll_key', 'options'])
             );
 
-            InvitationPollOption::where('poll_id', $poll->id)->delete();
-            $poll->options()->createMany(array_map(
+            $this->replaceOrdered($poll->options(), array_map(
                 fn (string $label, int $index) => ['label' => $label, 'sort_order' => $index],
                 $row['options'],
                 array_keys($row['options'])
             ));
 
-            PollVote::where('invitation_id', $invitation->id)
-                ->where('poll_id', $row['poll_key'])
-                ->whereNull('invitation_poll_id')
-                ->update(['invitation_poll_id' => $poll->id]);
-
             $keptIds[] = $poll->id;
         }
 
         $invitation->polls()->whereNotIn('id', $keptIds)->delete();
+    }
+
+    /**
+     * Guarda una lista ordenada reutilizando las filas que ya existen: actualiza las primeras,
+     * crea las que faltan y borra las que sobran. Así no cambian los ids (nada que dependa de
+     * ellos se rompe) ni se llenan los timestamps de cambios que no ocurrieron.
+     *
+     * @param  \Illuminate\Database\Eloquent\Relations\HasMany<\Illuminate\Database\Eloquent\Model>  $relation
+     * @param  list<array<string, mixed>>  $rows
+     * @param  array<string, mixed>  $defaults  Valores que identifican al grupo (por ejemplo, la colección)
+     */
+    protected function replaceOrdered($relation, array $rows, array $defaults = []): void
+    {
+        $existing = (clone $relation)->orderBy('sort_order')->orderBy('id')->get();
+        $rows = array_values($rows);
+
+        foreach ($rows as $index => $row) {
+            $current = $existing[$index] ?? null;
+
+            if ($current) {
+                $current->fill($row + $defaults)->save();
+                continue;
+            }
+
+            $relation->create($row + $defaults);
+        }
+
+        $extra = $existing->slice(count($rows))->pluck('id');
+
+        if ($extra->isNotEmpty()) {
+            (clone $relation)->whereIn($existing->first()->getTable().'.id', $extra->all())->delete();
+        }
     }
 
     protected function configFromSettings(InvitationSetting $settings): array

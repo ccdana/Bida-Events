@@ -60,21 +60,13 @@ class InvitationStructuredModulesTest extends TestCase
         $this->assertSame('Sorpresa Final', $resolved['itinerario']['eventos'][0]['titulo']);
     }
 
-    public function test_command_migrates_legacy_json_and_links_existing_votes(): void
+    public function test_command_migrates_legacy_json(): void
     {
         $invitation = $this->makeInvitation();
 
         foreach (XvSofiaModuleData::all() as $code => $data) {
             InvitationData::create(['invitation_id' => $invitation->id, 'feature_code' => $code, 'json_data' => $data]);
         }
-
-        PollVote::create([
-            'invitation_id' => $invitation->id,
-            'poll_id' => 'nivel-fiesta',
-            'option_index' => 4,
-            'voter_key' => 'voter-1',
-            'created_at' => now(),
-        ]);
 
         // Sin migrar todavía: se lee desde JSON
         $resolved = app(InvitationModuleService::class)->resolveModules(Invitation::find($invitation->id));
@@ -87,10 +79,10 @@ class InvitationStructuredModulesTest extends TestCase
         $this->artisan('invitations:migrate-json')->assertSuccessful();
         $this->assertDatabaseHas('invitation_settings', ['invitation_id' => $invitation->id]);
         $this->assertDatabaseCount('invitation_itinerary_items', 6);
-        $this->assertSame(
-            InvitationPoll::where('poll_key', 'nivel-fiesta')->value('id'),
-            PollVote::first()->invitation_poll_id
-        );
+        $this->assertNotNull(InvitationPoll::where('poll_key', 'nivel-fiesta')->value('id'));
+        // Los módulos que se normalizaron después también quedan en tablas
+        $this->assertDatabaseCount('invitation_locations', 1);
+        $this->assertGreaterThan(0, $invitation->featuredPeople()->count());
 
         // Una segunda ejecución omite lo ya migrado
         $this->artisan('invitations:migrate-json')->assertSuccessful();
@@ -101,11 +93,23 @@ class InvitationStructuredModulesTest extends TestCase
     {
         $invitation = $this->makeInvitation();
 
+        $polls = [];
+        foreach (['a' => 2, 'b' => 3, 'c' => 2] as $key => $options) {
+            $polls[$key] = InvitationPoll::create([
+                'invitation_id' => $invitation->id,
+                'poll_key' => $key,
+                'question' => "Pregunta {$key}",
+                'type' => 'single',
+                'is_enabled' => true,
+                'sort_order' => count($polls),
+            ])->id;
+        }
+
         $votes = [['a', 0], ['a', 0], ['a', 0], ['a', 1], ['b', 2]];
-        foreach ($votes as $i => [$pollId, $option]) {
+        foreach ($votes as $i => [$pollKey, $option]) {
             PollVote::create([
                 'invitation_id' => $invitation->id,
-                'poll_id' => $pollId,
+                'invitation_poll_id' => $polls[$pollKey],
                 'option_index' => $option,
                 'voter_key' => "voter-{$i}",
                 'created_at' => now(),

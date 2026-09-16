@@ -78,17 +78,27 @@ class InvitationModuleService
 
         $counts = array_map(fn (int $total) => array_fill(0, max(0, $total), 0), $optionCounts);
 
-        $rows = PollVote::query()
-            ->where('invitation_id', $invitation->id)
-            ->whereIn('poll_id', array_map('strval', array_keys($optionCounts)))
-            ->selectRaw('poll_id, option_index, COUNT(*) as total')
-            ->groupBy('poll_id', 'option_index')
-            ->toBase()
-            ->get();
+        // El editor y las plantillas usan poll_key; los votos apuntan a la fila de la encuesta
+        $pollIds = $invitation->polls()
+            ->whereIn('poll_key', array_map('strval', array_keys($optionCounts)))
+            ->pluck('id', 'poll_key');
 
-        foreach ($rows as $row) {
-            if (isset($counts[$row->poll_id][$row->option_index])) {
-                $counts[$row->poll_id][$row->option_index] = (int) $row->total;
+        if ($pollIds->isNotEmpty()) {
+            $keyById = $pollIds->flip();
+
+            $rows = PollVote::query()
+                ->whereIn('invitation_poll_id', $pollIds->values())
+                ->selectRaw('invitation_poll_id, option_index, COUNT(*) as total')
+                ->groupBy('invitation_poll_id', 'option_index')
+                ->toBase()
+                ->get();
+
+            foreach ($rows as $row) {
+                $key = $keyById[$row->invitation_poll_id] ?? null;
+
+                if ($key !== null && isset($counts[$key][$row->option_index])) {
+                    $counts[$key][$row->option_index] = (int) $row->total;
+                }
             }
         }
 

@@ -26,6 +26,11 @@ return [
         'log_json_fallback' => env('LOG_JSON_MODULE_FALLBACK', true),
     ],
 
+    'retention' => [
+        // Días después del evento que se conservan las fotos del fotomural (comando invitations:purge-contributions)
+        'photos_days' => env('RETENTION_PHOTOS_DAYS', 180),
+    ],
+
     'rate_limits' => [
         // Peticiones por minuto; los endpoints públicos se limitan por IP e invitación
         'login' => env('RATE_LIMIT_LOGIN', 5),
