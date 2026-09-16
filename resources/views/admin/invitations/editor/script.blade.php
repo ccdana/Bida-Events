@@ -157,6 +157,8 @@ function invitationForm(config) {
         previewKey: config.previewKey ?? 'draft',
         previewRevision: config.previewRevision ?? 0,
         clientStoreUrl: config.clientStoreUrl,
+        clientPasswordUrl: config.clientPasswordUrl,
+        clientPasswordLoading: false,
         mediaUploadUrl: config.mediaUploadUrl,
         previewTick: Date.now(),
         previewLoading: false,
@@ -740,6 +742,40 @@ function invitationForm(config) {
                 ...client,
                 id: String(client.id),
             }));
+        },
+
+        /**
+         * La contraseña no se guarda descifrable: esto genera una nueva y la muestra una sola vez,
+         * para dictarla o enviarla al cliente en el momento.
+         */
+        async regenerateClientPassword(client) {
+            if (!client || this.clientPasswordLoading) {
+                return;
+            }
+
+            this.clientPasswordLoading = true;
+            this.clientError = '';
+
+            try {
+                const res = await fetch(this.clientPasswordUrl.replace('__ID__', client.id), {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
+                        'Accept': 'application/json',
+                    },
+                });
+                const data = await res.json();
+
+                if (!res.ok || !data.success) {
+                    throw new Error(data.message || 'No se pudo generar la contraseña.');
+                }
+
+                client.password = data.client.password;
+            } catch (error) {
+                this.clientError = error.message;
+            } finally {
+                this.clientPasswordLoading = false;
+            }
         },
 
         /** Mensaje listo para enviar al cliente por WhatsApp con sus datos de acceso. */

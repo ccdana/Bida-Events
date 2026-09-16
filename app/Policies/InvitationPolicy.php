@@ -34,4 +34,10 @@ class InvitationPolicy
     {
         return false;
     }
+
+    /** El cliente puede ocultar o volver a mostrar las fotos y canciones de su propia invitación. */
+    public function moderateContributions(User $user, Invitation $invitation): bool
+    {
+        return $this->view($user, $invitation);
+    }
 }

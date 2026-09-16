@@ -2,12 +2,14 @@
 
 namespace App\ViewModels\Client;
 
+use App\Models\GuestContribution;
 use App\Models\Invitation;
+use App\Support\CloudinaryImage;
 use Illuminate\Support\Collection;
 
 class InvitationDetailViewData
 {
-    public function make(Invitation $invitation, Collection $guests): array
+    public function make(Invitation $invitation, Collection $guests, ?Collection $contributionRows = null): array
     {
         $confirmed = $guests->where('status', 'confirmed');
         $declined = $guests->where('status', 'declined');
@@ -35,9 +37,20 @@ class InvitationDetailViewData
             'dietaryRestrictions' => $guest->dietary_restrictions ?: 'Sin indicar',
         ])->values();
 
+        // Fotos y canciones que el cliente puede ocultar de su invitación
+        $contributions = ($contributionRows ?? new Collection)->map(fn (GuestContribution $contribution) => [
+            'id' => $contribution->id,
+            'isPhoto' => $contribution->type === 'live_photo',
+            'url' => $contribution->type === 'live_photo' ? CloudinaryImage::url($contribution->file_path, 200) : null,
+            'text' => $contribution->type === 'live_photo' ? 'Foto del fotomural' : (string) $contribution->content_text,
+            'meta' => collect([$contribution->guest?->name, $contribution->created_at?->diffForHumans()])->filter()->implode(' · '),
+            'isHidden' => $contribution->moderation_status === GuestContribution::HIDDEN,
+        ])->values();
+
         return compact(
             'invitation',
             'guests',
+            'contributions',
             'confirmed',
             'declined',
             'pending',

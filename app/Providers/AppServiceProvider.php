@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Middleware\TrustProxies;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
@@ -29,7 +30,22 @@ class AppServiceProvider extends ServiceProvider
             URL::forceScheme('https');
         }
 
+        $this->configureTrustedProxies();
         $this->configureRateLimiting();
+    }
+
+    /**
+     * Solo se confía en los proxies declarados (TRUSTED_PROXIES). De eso depende la IP real del
+     * visitante, que es la que usan los límites por minuto de login, RSVP, votos y fotos: confiar
+     * en cualquiera permitiría falsear X-Forwarded-For y saltarse esos límites.
+     */
+    protected function configureTrustedProxies(): void
+    {
+        $proxies = config('security.trusted_proxies', []);
+
+        if ($proxies !== []) {
+            TrustProxies::at($proxies === ['*'] ? '*' : $proxies);
+        }
     }
 
     protected function configureRateLimiting(): void

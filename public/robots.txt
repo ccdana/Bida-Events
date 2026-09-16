@@ -1,2 +1,8 @@
+# Las invitaciones y los paneles no se indexan: llevan datos de clientes e invitados.
 User-agent: *
-Disallow:
+Disallow: /p/
+Disallow: /muestra/
+Disallow: /admin/
+Disallow: /client/
+Disallow: /login
+Allow: /

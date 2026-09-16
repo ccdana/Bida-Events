@@ -11,11 +11,15 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Los proxies de confianza se declaran en AppServiceProvider, donde ya está cargada la configuración
         $middleware->alias([
-            $middleware->trustProxies(at: '*'),
             'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
             'client' => \App\Http\Middleware\EnsureUserIsClient::class,
             'cache.public.invitations' => \App\Http\Middleware\CachePublicInvitations::class,
+        ]);
+
+        $middleware->web(append: [
+            \App\Http\Middleware\SecurityHeaders::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

@@ -26,12 +26,30 @@ class ClientCredentialsTest extends TestCase
         $client = User::where('username', 'maria.valenzuela2')->firstOrFail();
         $this->assertFalse($client->isAdmin());
         $this->assertNull($client->email);
-        $this->assertSame($password, $client->access_password);
-        $this->assertNotSame($password, $client->getRawOriginal('access_password'));
+        // La contraseña no se guarda descifrable: solo queda el hash
+        $this->assertFalse(\Illuminate\Support\Facades\Schema::hasColumn('users', 'access_password'));
+        $this->assertTrue(\Illuminate\Support\Facades\Hash::check($password, $client->password));
 
         // El cliente entra con el usuario y la contraseña generados
         auth()->logout();
         $this->post('/login', ['username' => 'maria.valenzuela2', 'password' => $password])
+            ->assertRedirect(route('client.dashboard'));
+    }
+
+    public function test_admin_generates_a_new_password_when_the_client_loses_it(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+        $client = User::factory()->create(['is_admin' => false, 'username' => 'familia.perez']);
+
+        $password = $this->actingAs($admin)
+            ->postJson(route('admin.clients.password', $client))
+            ->assertOk()
+            ->json('client.password');
+
+        $this->assertMatchesRegularExpression('/^[a-z2-9]{4}-[a-z2-9]{4}$/', $password);
+
+        auth()->logout();
+        $this->post('/login', ['username' => 'familia.perez', 'password' => $password])
             ->assertRedirect(route('client.dashboard'));
     }
 

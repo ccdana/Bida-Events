@@ -78,12 +78,12 @@ class InvitationEditorViewData
                 'description' => \App\Support\InvitationTemplates::get($value)['description'],
                 'event' => \App\Support\InvitationTemplates::get($value)['event'],
             ])->values(),
-            // Solo el administrador abre el editor: por eso puede ver la contraseña de cada cliente
+            // La contraseña no viaja: solo se ve la que se acaba de crear o regenerar en el editor
             'clients' => $clientList->map(fn ($client) => [
                 'id' => (string) $client->id,
                 'name' => $client->name,
                 'username' => $client->username,
-                'password' => $client->access_password,
+                'password' => null,
             ])->values(),
             'meta' => [
                 'title' => $invitation?->title ?? '',
@@ -100,6 +100,7 @@ class InvitationEditorViewData
             'previewUrl' => route('admin.preview.frame'),
             'previewStoreUrl' => route('admin.preview.store'),
             'clientStoreUrl' => route('admin.clients.store'),
+            'clientPasswordUrl' => route('admin.clients.password', ['client' => '__ID__']),
             'mediaUploadUrl' => route('admin.media.upload'),
             'mapsSearchUrl' => route('admin.maps.search'),
             'mapsResolveUrl' => route('admin.maps.resolve'),

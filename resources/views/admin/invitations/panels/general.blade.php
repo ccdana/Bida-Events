@@ -144,7 +144,13 @@
                                 </span>
                             </template>
                             <template x-if="!getAssignedClient().password">
-                                <span class="text-right text-xs text-site-muted">No disponible: la cuenta se creó antes de este cambio</span>
+                                <span class="flex flex-col items-end gap-1">
+                                    <span class="text-right text-xs text-site-muted">Guardada cifrada: solo se ve al crearla</span>
+                                    <button type="button" class="admin-link-button" :disabled="clientPasswordLoading"
+                                        @click="regenerateClientPassword(getAssignedClient())">
+                                        <span x-text="clientPasswordLoading ? 'Generando…' : 'Generar una nueva'">Generar una nueva</span>
+                                    </button>
+                                </span>
                             </template>
                         </dd>
                     </div>

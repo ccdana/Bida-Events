@@ -2,6 +2,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="csrf-token" content="{{ csrf_token() }}">
+{{-- La invitación es privada: no debe aparecer en buscadores --}}
+<meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="{{ $page->colors['background'] }}">
 <title>{{ $page->displayName }}</title>
 <script>

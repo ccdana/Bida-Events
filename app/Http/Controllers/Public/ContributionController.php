@@ -13,6 +13,7 @@ use App\Services\InvitationModuleService;
 use App\Services\MediaUploadService;
 use App\Support\CloudinaryImage;
 use App\Support\YouTubeHelper;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 
 class ContributionController extends Controller
@@ -33,6 +34,7 @@ class ContributionController extends Controller
 
         $songs = $invitation->contributions()
             ->where('type', 'song_request')
+            ->visible()
             ->with('guest:id,name')
             ->latest('created_at')
             ->take(50)
@@ -92,6 +94,7 @@ class ContributionController extends Controller
 
         $photos = $invitation->contributions()
             ->where('type', 'live_photo')
+            ->visible()
             ->with('guest:id,name')
             ->latest('created_at')
             ->take(60)
@@ -170,6 +173,18 @@ class ContributionController extends Controller
 
         $voterKey = $validated['guest_token'] ?? $request->session()->getId();
 
+        // La encuesta debe existir dentro de esta invitación y la opción debe ser una de las suyas
+        $moduleService = app(InvitationModuleService::class);
+        $poll = $moduleService->pollReference($invitation, $pollId);
+
+        if (! $poll) {
+            return response()->json(['success' => false, 'message' => 'Esta encuesta no existe.'], 404);
+        }
+
+        if ($validated['option_index'] >= (int) ($poll['options_count'] ?? 0)) {
+            return response()->json(['success' => false, 'message' => 'Esa opción no existe en la encuesta.'], 422);
+        }
+
         $existing = PollVote::where('invitation_id', $invitation->id)
             ->where('poll_id', $pollId)
             ->where('voter_key', $voterKey)
@@ -187,18 +202,24 @@ class ContributionController extends Controller
             $guestId = $guest?->id;
         }
 
-        $moduleService = app(InvitationModuleService::class);
-        $poll = $moduleService->pollReference($invitation, $pollId);
+        try {
+            $vote = PollVote::create([
+                'invitation_id' => $invitation->id,
+                'poll_id' => $pollId,
+                'invitation_poll_id' => $poll['id'] ?? null,
+                'option_index' => $validated['option_index'],
+                'guest_id' => $guestId,
+                'voter_key' => $voterKey,
+                'created_at' => now(),
+            ]);
+        } catch (QueryException $exception) {
+            // Dos toques a la vez: la clave única (invitation_id, poll_id, voter_key) es la que manda
+            if (($exception->errorInfo[0] ?? null) === '23000') {
+                return response()->json(['success' => false, 'message' => 'Ya votaste en esta encuesta.'], 422);
+            }
 
-        $vote = PollVote::create([
-            'invitation_id' => $invitation->id,
-            'poll_id' => $pollId,
-            'invitation_poll_id' => $poll['id'] ?? null,
-            'option_index' => $validated['option_index'],
-            'guest_id' => $guestId,
-            'voter_key' => $voterKey,
-            'created_at' => now(),
-        ]);
+            throw $exception;
+        }
 
         PollVoteSubmitted::dispatch($vote);
 

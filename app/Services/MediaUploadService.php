@@ -175,10 +175,11 @@ class MediaUploadService
 
     public function validateFile(UploadedFile $file, string $type): void
     {
+        // Sin SVG: puede traer scripts dentro. Las dimensiones evitan imágenes que revientan la memoria al procesarlas.
         $rules = match ($type) {
             'video' => ['mimes:mp4,mov,webm,avi', 'max:102400'], // 100MB
             'audio' => ['mimes:mp3,m4a,wav,ogg,aac', 'max:20480'], // 20MB
-            default => ['mimes:jpg,jpeg,png,gif,webp,svg', 'max:10240'], // 10MB
+            default => ['image', 'mimes:jpg,jpeg,png,gif,webp', 'dimensions:max_width=8000,max_height=8000', 'max:10240'], // 10MB
         };
 
         validator(['file' => $file], ['file' => $rules])->validate();

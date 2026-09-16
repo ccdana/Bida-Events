@@ -85,6 +85,7 @@ class PublicInteractionsTest extends TestCase
     {
         config(['optimizations.rate_limits.votes' => 2]);
         $invitation = $this->createInvitation();
+        app(\App\Services\InvitationModuleService::class)->syncAllModules($invitation, \Database\Seeders\XvSofiaModuleData::all());
         Cache::put("invitation.{$invitation->id}.polls", ['cacheada'], 300);
 
         $vote = fn (string $pollId) => $this->postJson(
@@ -99,5 +100,31 @@ class PublicInteractionsTest extends TestCase
         $vote('caida-pista')
             ->assertStatus(429)
             ->assertJson(['success' => false]);
+    }
+
+    public function test_a_vote_needs_a_real_poll_a_real_option_and_solo_cuenta_una_vez(): void
+    {
+        config(['optimizations.rate_limits.votes' => 30]);
+        $invitation = $this->createInvitation();
+        app(\App\Services\InvitationModuleService::class)->syncAllModules($invitation, \Database\Seeders\XvSofiaModuleData::all());
+
+        $vote = fn (string $pollId, int $option) => $this->postJson(
+            route('invitation.poll.vote', ['slug' => $invitation->slug, 'pollId' => $pollId]),
+            ['option_index' => $option, 'guest_token' => 'votante-1']
+        );
+
+        // Una encuesta que no es de esta invitación no acepta votos
+        $vote('encuesta-inventada', 0)->assertNotFound();
+
+        // Tampoco una opción que no existe en la encuesta
+        $vote('color-vestido', 99)->assertStatus(422);
+
+        // El voto válido cuenta una sola vez por votante
+        $vote('color-vestido', 1)->assertOk();
+        $vote('color-vestido', 2)
+            ->assertStatus(422)
+            ->assertJson(['success' => false]);
+
+        $this->assertSame(1, \App\Models\PollVote::where('invitation_id', $invitation->id)->count());
     }
 }

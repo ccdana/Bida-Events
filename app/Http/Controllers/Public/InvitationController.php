@@ -192,6 +192,7 @@ class InvitationController extends Controller
     {
         return $invitation->contributions()
             ->where('type', 'song_request')
+            ->visible()
             ->select('id', 'invitation_id', 'guest_id', 'type', 'content_text', 'created_at')
             ->with('guest:id,name')
             ->latest('created_at')
@@ -219,6 +220,7 @@ class InvitationController extends Controller
     {
         return $invitation->contributions()
             ->where('type', 'live_photo')
+            ->visible()
             ->select('id', 'invitation_id', 'guest_id', 'file_path', 'created_at')
             ->with('guest:id,name')
             ->latest('created_at')

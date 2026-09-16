@@ -40,6 +40,17 @@ class GuestController extends Controller
         return back()->with('success', 'Invitado actualizado.');
     }
 
+    /**
+     * Cambia el enlace personal de un invitado. Sirve cuando el enlace se envió a quien no era
+     * o terminó en un grupo: el anterior deja de funcionar al instante.
+     */
+    public function regenerateToken(Invitation $invitation, Guest $guest)
+    {
+        $guest->update(['qr_code_token' => InvitationModuleService::generateGuestToken()]);
+
+        return back()->with('success', 'Listo, el enlace anterior de '.$guest->name.' ya no funciona.');
+    }
+
     public function destroy(Invitation $invitation, Guest $guest)
     {
         $guest->delete();

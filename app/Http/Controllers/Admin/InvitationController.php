@@ -128,11 +128,11 @@ class InvitationController extends Controller
         $name = trim($request->validated('name'));
         $password = $credentials->password();
 
+        // Solo se guarda el hash: la contraseña se muestra una vez y, si se pierde, se genera otra
         $client = User::create([
             'name' => $name,
             'username' => $credentials->username($name),
             'password' => Hash::make($password),
-            'access_password' => $password,
             'is_admin' => false,
         ]);
 
@@ -145,6 +145,28 @@ class InvitationController extends Controller
                 'password' => $password,
             ],
         ], 201);
+    }
+
+    /**
+     * Genera una contraseña nueva para un cliente y la devuelve una sola vez.
+     * Se usa cuando el cliente la pierde, porque la anterior no se puede consultar.
+     */
+    public function regenerateClientPassword(User $client, ClientCredentials $credentials)
+    {
+        abort_if($client->isAdmin(), 403, 'Solo se regeneran contraseñas de clientes.');
+
+        $password = $credentials->password();
+        $client->update(['password' => Hash::make($password)]);
+
+        return response()->json([
+            'success' => true,
+            'client' => [
+                'id' => $client->id,
+                'name' => $client->name,
+                'username' => $client->username,
+                'password' => $password,
+            ],
+        ]);
     }
 
     protected function syncModules(Invitation $invitation, array $modulesData): void

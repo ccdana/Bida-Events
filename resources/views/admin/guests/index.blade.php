@@ -70,6 +70,13 @@
                                                 class="admin-icon-button" aria-label="Abrir el enlace de {{ $guest->name }}" title="Abrir enlace personal">
                                                 <x-phosphor-link-simple aria-hidden="true" />
                                             </a>
+                                            <form method="POST" action="{{ route('admin.guests.token', [$invitation, $guest]) }}"
+                                                onsubmit="return confirm('¿Generar un enlace nuevo para {{ e($guest->name) }}? El anterior dejará de funcionar.')">
+                                                @csrf
+                                                <button type="submit" class="admin-icon-button" aria-label="Generar un enlace nuevo para {{ $guest->name }}" title="Generar enlace nuevo">
+                                                    <x-phosphor-arrows-clockwise aria-hidden="true" />
+                                                </button>
+                                            </form>
                                             <form method="POST" action="{{ route('admin.guests.destroy', [$invitation, $guest]) }}" onsubmit="return confirm('¿Eliminar a {{ e($guest->name) }}?')">
                                                 @csrf
                                                 @method('DELETE')

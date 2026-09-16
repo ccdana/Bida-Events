@@ -34,6 +34,12 @@ class DashboardController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('client.invitation', $viewData->make($invitation, $guests));
+        $contributions = $invitation->contributions()
+            ->with('guest:id,name')
+            ->latest('created_at')
+            ->take(60)
+            ->get();
+
+        return view('client.invitation', $viewData->make($invitation, $guests, $contributions));
     }
 }

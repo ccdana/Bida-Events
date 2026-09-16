@@ -20,13 +20,16 @@ class CachePublicInvitations
         }
 
         if ($request->route('token')) {
+            // Página de un invitado (su nombre, sus pases y su pase QR): solo puede guardarla su navegador
             $ttl = (int) config('optimizations.http.guest_invitation_ttl', 300);
-            $response->headers->set('Cache-Control', "public, max-age={$ttl}, must-revalidate");
-        } else {
-            $ttl = (int) config('optimizations.http.public_invitation_ttl', 300);
-            $response->headers->set('Cache-Control', "public, max-age={$ttl}, must-revalidate");
+            $response->headers->set('Cache-Control', "private, max-age={$ttl}, must-revalidate");
+            $response->headers->set('Vary', 'Accept-Encoding, Cookie');
+
+            return $response;
         }
 
+        $ttl = (int) config('optimizations.http.public_invitation_ttl', 300);
+        $response->headers->set('Cache-Control', "public, max-age={$ttl}, must-revalidate");
         $response->headers->set('Vary', 'Accept-Encoding');
 
         return $response;

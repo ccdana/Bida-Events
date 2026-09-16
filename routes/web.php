@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\GuestController as AdminGuestController;
 use App\Http\Controllers\Admin\InvitationController as AdminInvitationController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Client\ContributionController as ClientContributionController;
 use App\Http\Controllers\Client\DashboardController as ClientDashboardController;
 use App\Http\Controllers\Client\ExportController;
 use App\Http\Controllers\HomeController;
@@ -59,6 +60,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::get('/invitations/create', [AdminInvitationController::class, 'create'])->name('invitations.create');
     Route::post('/invitations', [AdminInvitationController::class, 'store'])->name('invitations.store');
     Route::post('/clients', [AdminInvitationController::class, 'storeClient'])->name('clients.store');
+    Route::post('/clients/{client}/password', [AdminInvitationController::class, 'regenerateClientPassword'])->name('clients.password');
     Route::post('/preview', [PreviewController::class, 'store'])->name('preview.store');
     Route::get('/preview/frame', [PreviewController::class, 'frame'])->name('preview.frame');
     Route::post('/media/upload', [MediaUploadController::class, 'store'])->name('media.upload');
@@ -73,6 +75,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
         Route::post('/invitations/{invitation}/guests', [AdminGuestController::class, 'store'])->name('guests.store');
         Route::put('/invitations/{invitation}/guests/{guest}', [AdminGuestController::class, 'update'])->name('guests.update');
         Route::delete('/invitations/{invitation}/guests/{guest}', [AdminGuestController::class, 'destroy'])->name('guests.destroy');
+        Route::post('/invitations/{invitation}/guests/{guest}/token', [AdminGuestController::class, 'regenerateToken'])->name('guests.token');
     });
 });
 
@@ -80,6 +83,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
 Route::prefix('client')->name('client.')->middleware(['auth', 'client'])->group(function () {
     Route::get('/', [ClientDashboardController::class, 'index'])->name('dashboard');
     Route::get('/invitations/{invitation}', [ClientDashboardController::class, 'show'])->can('view', 'invitation')->name('invitation.show');
+
+    // Ocultar o volver a mostrar una foto o una canción de invitados (no se borra nada)
+    Route::patch('/invitations/{invitation}/contributions/{contribution}', [ClientContributionController::class, 'update'])
+        ->scopeBindings()
+        ->can('moderateContributions', 'invitation')
+        ->name('contributions.update');
 
     Route::middleware('can:export,invitation')->group(function () {
         Route::get('/invitations/{invitation}/export/excel', [ExportController::class, 'guestsExcel'])->name('export.excel');
