@@ -19,6 +19,9 @@ const initVideoPlayers = () => {
         }
 
         try {
+            // Los controles nativos solo son el respaldo sin JavaScript: aquí manda el reproductor propio
+            element.removeAttribute('controls');
+
             const frame = element.closest('[data-video-frame]') ?? element.parentElement;
             const toggleButton = frame?.querySelector('[data-video-toggle]');
             let isIdle = true;

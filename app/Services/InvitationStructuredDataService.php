@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\Invitation;
 use App\Models\InvitationDressCodeItem;
-use App\Models\InvitationFeaturedPerson;
 use App\Models\InvitationGalleryImage;
 use App\Models\InvitationGiftOption;
 use App\Models\InvitationItineraryItem;
@@ -12,6 +11,8 @@ use App\Models\InvitationLocation;
 use App\Models\InvitationMedia;
 use App\Models\InvitationPoll;
 use App\Models\InvitationSetting;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -378,6 +379,7 @@ class InvitationStructuredDataService
 
                 if (! is_array($person)) {
                     $result['skipped'][] = "{$path}: se esperaba un objeto";
+
                     continue;
                 }
 
@@ -413,6 +415,7 @@ class InvitationStructuredDataService
 
             if (! is_array($item)) {
                 $result['skipped'][] = "{$path}: se esperaba un objeto";
+
                 continue;
             }
 
@@ -481,6 +484,7 @@ class InvitationStructuredDataService
 
             if (! is_array($option)) {
                 $result['skipped'][] = "{$path}: se esperaba un objeto";
+
                 continue;
             }
 
@@ -647,6 +651,7 @@ class InvitationStructuredDataService
                     'audio_url' => $media->url,
                     'autoplay' => $media->autoplay,
                 ]), fn ($value) => $value !== null);
+
                 continue;
             }
 
@@ -721,6 +726,7 @@ class InvitationStructuredDataService
 
             if (! is_array($event)) {
                 $result['skipped'][] = "{$path}: se esperaba un objeto";
+
                 continue;
             }
 
@@ -755,6 +761,7 @@ class InvitationStructuredDataService
 
             if (! is_string($url) || trim($url) === '') {
                 $result['skipped'][] = "{$path}: URL vacía o inválida";
+
                 continue;
             }
 
@@ -794,6 +801,7 @@ class InvitationStructuredDataService
 
             if (! is_array($poll)) {
                 $result['skipped'][] = "{$path}: se esperaba un objeto";
+
                 continue;
             }
 
@@ -806,11 +814,13 @@ class InvitationStructuredDataService
 
             if (mb_strlen($key) > 100) {
                 $result['skipped'][] = "{$path}: el id supera 100 caracteres";
+
                 continue;
             }
 
             if (isset($seenKeys[$key])) {
                 $result['skipped'][] = "{$path}: id duplicado '{$key}'";
+
                 continue;
             }
 
@@ -822,6 +832,7 @@ class InvitationStructuredDataService
             foreach (is_array($rawOptions) ? array_values($rawOptions) : [] as $optionIndex => $option) {
                 if ($option !== null && ! is_scalar($option)) {
                     $result['warnings'][] = "{$path}.opciones[{$optionIndex}]: valor no textual descartado";
+
                     continue;
                 }
 
@@ -872,7 +883,7 @@ class InvitationStructuredDataService
      * crea las que faltan y borra las que sobran. Así no cambian los ids (nada que dependa de
      * ellos se rompe) ni se llenan los timestamps de cambios que no ocurrieron.
      *
-     * @param  \Illuminate\Database\Eloquent\Relations\HasMany<\Illuminate\Database\Eloquent\Model>  $relation
+     * @param  HasMany<Model>  $relation
      * @param  list<array<string, mixed>>  $rows
      * @param  array<string, mixed>  $defaults  Valores que identifican al grupo (por ejemplo, la colección)
      */
@@ -886,6 +897,7 @@ class InvitationStructuredDataService
 
             if ($current) {
                 $current->fill($row + $defaults)->save();
+
                 continue;
             }
 

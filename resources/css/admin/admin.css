@@ -279,6 +279,14 @@ html[data-theme='dark'] body.client-shell {
     box-shadow: 0 0 0 4px color-mix(in srgb, var(--site-accent) 18%, transparent);
 }
 
+/* Campo compacto: descripciones de fotos y otros datos que acompañan a una miniatura */
+.admin-input--sm {
+    min-height: 2.25rem;
+    padding: 0.4rem 0.65rem;
+    border-radius: 9px;
+    font-size: 0.8125rem;
+}
+
 textarea.admin-input {
     min-height: 5.5rem;
     line-height: 1.5;
@@ -610,6 +618,61 @@ textarea.admin-input {
     font-size: 0.75rem;
     font-variant-numeric: tabular-nums;
     opacity: 0.7;
+}
+
+/* Punto rojo: el módulo está encendido pero le falta contenido (ver tabIssues en el editor) */
+.admin-editor-warn {
+    flex-shrink: 0;
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 999px;
+    background: var(--site-danger);
+}
+
+/* Resumen de lo que falta, encima de los botones de guardar y publicar */
+.admin-editor-pending {
+    margin-bottom: 0.75rem;
+    border: 1px solid color-mix(in srgb, var(--site-danger) 35%, var(--site-line));
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--site-danger) 6%, var(--site-surface));
+    font-size: 0.8125rem;
+}
+
+.admin-editor-pending > summary {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.55rem 0.75rem;
+    color: var(--site-danger);
+    cursor: pointer;
+    list-style: none;
+}
+
+.admin-editor-pending > summary::-webkit-details-marker {
+    display: none;
+}
+
+.admin-editor-pending > ul {
+    max-height: 11rem;
+    margin: 0;
+    padding: 0 0.35rem 0.4rem;
+    overflow-y: auto;
+    list-style: none;
+}
+
+.admin-editor-pending button {
+    display: flex;
+    width: 100%;
+    align-items: baseline;
+    gap: 0.5rem;
+    padding: 0.3rem 0.4rem;
+    border-radius: 8px;
+    text-align: left;
+    cursor: pointer;
+}
+
+.admin-editor-pending button:hover {
+    background: color-mix(in srgb, var(--site-ink) 5%, transparent);
 }
 
 .admin-editor-feature-row {

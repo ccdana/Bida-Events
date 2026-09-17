@@ -35,7 +35,7 @@ class Invitation extends Model
         'title',
         'event_date',
         'status',
-        'expires_at'
+        'expires_at',
     ];
 
     protected $casts = [
@@ -47,6 +47,7 @@ class Invitation extends Model
 
     // Attributes cache
     protected $appends = ['modules', 'is_post_event'];
+
     protected $hidden = ['modulesData'];
 
     /**
@@ -68,7 +69,7 @@ class Invitation extends Model
     public function features(): BelongsToMany
     {
         return $this->belongsToMany(Feature::class, 'invitation_features')
-                    ->withPivot('is_enabled');
+            ->withPivot('is_enabled');
     }
 
     /**
@@ -159,7 +160,7 @@ class Invitation extends Model
     public function scopePublished(Builder $query): Builder
     {
         return $query->where('status', 'active')
-                    ->where('expires_at', '>=', now()->toDateString());
+            ->where('expires_at', '>=', now()->toDateString());
     }
 
     public function scopeWithAllData(Builder $query): Builder

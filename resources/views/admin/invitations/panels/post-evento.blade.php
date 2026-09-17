@@ -27,14 +27,23 @@
                 <span x-text="mediaUploading ? 'Subiendo...' : 'Subir fotos oficiales'"></span>
                 <input type="file" accept="image/jpeg,image/png,image/webp" multiple class="hidden" @change="uploadPostEventPhotos($event)">
             </label>
-            <div class="grid grid-cols-3 gap-2 mt-3" x-show="(modules.post_evento.fotos || []).length" x-cloak>
+            <div class="grid grid-cols-2 gap-3 mt-3" x-show="(modules.post_evento.fotos || []).length" x-cloak>
                 <template x-for="(foto, i) in modules.post_evento.fotos" :key="'pe'+i">
-                    <div class="relative aspect-square rounded-lg overflow-hidden border">
-                        <img :src="foto" class="w-full h-full object-cover">
-                        <button type="button" @click="clearMediaUrl(foto); modules.post_evento.fotos.splice(i,1)" class="absolute top-0.5 right-0.5 w-5 h-5 bg-red-600 text-white text-xs rounded-full">×</button>
+                    <div class="space-y-1">
+                        <div class="relative aspect-square rounded-lg overflow-hidden border">
+                            <img :src="photoUrl(foto)" :alt="photoAlt(foto)" class="w-full h-full object-cover">
+                            <button type="button" @click="clearMediaUrl(photoUrl(foto)); modules.post_evento.fotos.splice(i,1)" class="absolute top-0.5 right-0.5 w-5 h-5 bg-red-600 text-white text-xs rounded-full" aria-label="Quitar foto">×</button>
+                        </div>
+                        <input type="text" maxlength="255"
+                            class="admin-input admin-input--sm"
+                            :value="photoAlt(foto)"
+                            @change="setPhotoAlt(modules.post_evento.fotos, i, $event.target.value)"
+                            :aria-label="'Descripción de la foto ' + (i + 1)"
+                            placeholder="Describe la foto (opcional)">
                     </div>
                 </template>
             </div>
+            <p class="mt-2 text-xs text-stone-500">La descripción la leen en voz alta los lectores de pantalla. Déjala vacía si la foto es solo decorativa.</p>
         </div>
         <div>
             <label class="admin-label">Enlace externo galería <span class="normal-case text-stone-400">(opcional)</span></label>

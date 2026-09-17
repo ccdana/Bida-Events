@@ -4,6 +4,8 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
 class ClientCredentialsTest extends TestCase
@@ -27,8 +29,8 @@ class ClientCredentialsTest extends TestCase
         $this->assertFalse($client->isAdmin());
         $this->assertNull($client->email);
         // La contraseña no se guarda descifrable: solo queda el hash
-        $this->assertFalse(\Illuminate\Support\Facades\Schema::hasColumn('users', 'access_password'));
-        $this->assertTrue(\Illuminate\Support\Facades\Hash::check($password, $client->password));
+        $this->assertFalse(Schema::hasColumn('users', 'access_password'));
+        $this->assertTrue(Hash::check($password, $client->password));
 
         // El cliente entra con el usuario y la contraseña generados
         auth()->logout();

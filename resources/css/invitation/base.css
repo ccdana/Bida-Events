@@ -7,12 +7,17 @@
    ════════════════════════════════════════════════════════════════════════════ */
 
 .inv-page {
-    --inv-muted: color-mix(in srgb, var(--text-color) 64%, var(--bg-color));
-    --inv-soft: color-mix(in srgb, var(--text-color) 46%, var(--bg-color));
+    /* Los tonos de texto guardan 4.5:1 contra el fondo en las cuatro paletas (AA).
+       Si cambias las mezclas, revisa /admin/sistema-visual, que mide el contraste real. */
+    --inv-muted: color-mix(in srgb, var(--text-color) 78%, var(--bg-color));
+    --inv-soft: color-mix(in srgb, var(--text-color) 70%, var(--bg-color));
     --inv-line: color-mix(in srgb, var(--text-color) 11%, var(--bg-color));
     --inv-line-strong: color-mix(in srgb, var(--text-color) 22%, var(--bg-color));
     --inv-tint: color-mix(in srgb, var(--accent-color) 20%, var(--bg-color));
-    --inv-accent-ink: color-mix(in srgb, var(--primary-color) 80%, var(--text-color));
+    /* Texto pequeño en color de evento: mezclado con el texto para que se lea */
+    --inv-accent-ink: color-mix(in srgb, var(--primary-color) 55%, var(--text-color));
+    /* Piezas grandes y decorativas (cuenta regresiva, hashtag, monograma): el dorado sin apagar */
+    --inv-accent-deco: color-mix(in srgb, var(--primary-color) 80%, var(--text-color));
     --inv-radius: 6px;
     --inv-ease: cubic-bezier(0.22, 1, 0.36, 1);
 
@@ -284,8 +289,34 @@
 }
 
 .inv-page :is(a, button, input, select, textarea, [tabindex]):focus-visible {
-    outline: 2px solid var(--primary-color);
+    outline: 2px solid var(--inv-accent-ink);
     outline-offset: 3px;
+}
+
+/* ── Saltar al contenido ────────────────────────────────────────────────────
+   Primer elemento enfocable de la página: con el teclado se llega al contenido
+   sin recorrer el menú. Solo se ve cuando tiene el foco.
+   ──────────────────────────────────────────────────────────────────────── */
+
+.inv-skip {
+    position: fixed;
+    top: 0.75rem;
+    left: 50%;
+    z-index: 200;
+    padding: 0.7rem 1.2rem;
+    border-radius: var(--inv-radius);
+    background: var(--text-color);
+    color: var(--bg-color);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-decoration: none;
+    translate: -50% -180%;
+    transition: translate 0.25s var(--inv-ease);
+}
+
+.inv-skip:focus-visible {
+    translate: -50% 0;
 }
 
 /* ── Listas con filete ──────────────────────────────────────────────────── */
@@ -597,4 +628,72 @@ textarea.inv-input {
         animation-iteration-count: 1 !important;
         scroll-behavior: auto !important;
     }
+}
+
+/* ── Sin JavaScript ─────────────────────────────────────────────────────────
+   La invitación se lee entera aunque el script no llegue: fecha, lugar,
+   itinerario, dress code y regalos ya vienen en el HTML. Lo que de verdad
+   necesita JavaScript (confirmar, votar, sugerir canciones, subir fotos) se
+   reemplaza por un aviso dentro de <noscript>.
+
+   La clase la quita el primer script de la cabecera y la vuelve a poner el
+   vigía si Alpine no arrancó: así también sirve cuando el bundle falla.
+   ──────────────────────────────────────────────────────────────────────── */
+
+.no-js .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+}
+
+/* Las pestañas necesitan JavaScript: sin él, los grupos van uno debajo del otro */
+.no-js .inv-tabs {
+    display: none;
+}
+
+.no-js [role="tabpanel"][x-cloak] {
+    display: block !important;
+}
+
+/* Controles que no hacen nada sin JavaScript */
+.no-js .inv-nav__toggle,
+.no-js .inv-player,
+.no-js .inv-countdown__grid,
+.no-js .inv-gallery__hint,
+.no-js .inv-gallery__nav,
+.no-js .inv-playlist__head,
+.no-js .inv-polls__nav,
+.no-js .inv-video__toggle,
+.no-js [data-needs-js] {
+    display: none;
+}
+
+/* Sin el reproductor propio, el video queda con los controles del navegador a la vista */
+.no-js .inv-video__poster {
+    display: none;
+}
+
+/* Sin el carrusel, las fotos de la galería se ven en columna */
+.no-js .inv-gallery__stack {
+    display: grid;
+    gap: 1rem;
+    height: auto;
+}
+
+.no-js .inv-gallery__card {
+    position: static;
+    rotate: none;
+    translate: none;
+    opacity: 1;
+}
+
+/* Aviso de <noscript>: mismo tono que los estados vacíos */
+.inv-noscript {
+    display: block;
+    padding: 1.5rem 1rem;
+    border-block: 1px solid var(--inv-line);
+    color: var(--inv-soft);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    text-align: center;
 }

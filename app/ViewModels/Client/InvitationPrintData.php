@@ -3,6 +3,7 @@
 namespace App\ViewModels\Client;
 
 use App\Models\Invitation;
+use App\Support\InvitationTemplates;
 use App\Support\Pdf\PdfAssets;
 use Illuminate\Support\Str;
 
@@ -43,7 +44,7 @@ class InvitationPrintData
             'itinerary' => $enabled('itinerario') ? $this->itinerary($this->section($modules, 'itinerario')) : [],
             'dressCode' => $enabled('dress_code') ? $this->dressCode($this->section($modules, 'dress_code')) : null,
             'honor' => $enabled('destacados') ? $this->honor($this->section($modules, 'destacados')) : null,
-            'copy' => \App\Support\InvitationTemplates::copy($invitation->template),
+            'copy' => InvitationTemplates::copy($invitation->template),
             'gifts' => $enabled('regalos') ? $this->gifts($this->section($modules, 'regalos')) : null,
             'hashtag' => $enabled('hashtag') ? $this->text(data_get($modules, 'hashtag.hashtag')) : null,
             'rsvp' => [

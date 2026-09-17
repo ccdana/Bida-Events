@@ -65,5 +65,4 @@ class InvitationPreviewSession
             'modulos' => $modulos,
         ];
     }
-
 }

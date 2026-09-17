@@ -10,7 +10,8 @@
     $showIntro = empty($isPreview);
 @endphp
 <!DOCTYPE html>
-<html lang="es">
+{{-- La clase no-js la quita el primer script de la cabecera (ver shell/head) --}}
+<html lang="es" class="no-js">
 <head>
     @include('invitations.partials.shell.head')
     @if($showIntro)
@@ -18,6 +19,7 @@
     @endif
 </head>
 <body class="inv-page inv-bautizo overflow-x-hidden {{ $page->hasPlayer ? 'has-player' : '' }}" x-data="invitationApp()" x-init="init()">
+    <a class="inv-skip" href="#contenido">Saltar al contenido</a>
 
     @if($showIntro)
         @include('invitations.partials.bautizo.intro')

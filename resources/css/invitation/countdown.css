@@ -24,7 +24,7 @@
     font-size: clamp(2.2rem, 11vw, 4.4rem);
     line-height: 1;
     letter-spacing: -0.02em;
-    color: var(--inv-accent-ink);
+    color: var(--inv-accent-deco);
     font-variant-numeric: tabular-nums;
 }
 

@@ -15,10 +15,10 @@ return new class extends Migration
 
         foreach ($configs as $config) {
             $data = json_decode($config->json_data, true);
-            
+
             if (isset($data['modulos']['transporte'])) {
                 unset($data['modulos']['transporte']);
-                
+
                 DB::table('invitation_data')
                     ->where('id', $config->id)
                     ->update(['json_data' => json_encode($data)]);

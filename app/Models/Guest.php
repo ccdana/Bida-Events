@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\InvitationModuleService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -21,7 +22,7 @@ class Guest extends Model
         'table_number',
         'dietary_restrictions',
         'qr_code_token',
-        'confirmed_at'
+        'confirmed_at',
     ];
 
     protected $casts = [
@@ -34,7 +35,7 @@ class Guest extends Model
     {
         static::creating(function (Guest $guest) {
             if (empty($guest->qr_code_token)) {
-                $guest->qr_code_token = \App\Services\InvitationModuleService::generateGuestToken();
+                $guest->qr_code_token = InvitationModuleService::generateGuestToken();
             }
         });
     }

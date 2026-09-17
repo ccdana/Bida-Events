@@ -104,6 +104,143 @@ return [
         ],
     ],
 
+    /*
+    | Tarjetas de 1200×630 que se ven al compartir un enlace en WhatsApp o Facebook.
+    | Se recortan de las fotos de "images" con `php artisan bida:imagenes-compartir`
+    | y quedan en public/images/share/{nombre}.jpg. "focus" es el punto vertical del
+    | recorte: 0 arriba, 1 abajo. Las invitaciones sin foto de portada usan la de su evento.
+    */
+    'share_images' => [
+        'inicio' => ['image' => 'servicio-enlace', 'focus' => 0.45],
+        'boda' => ['image' => 'event-boda', 'focus' => 0.35],
+        'xv' => ['image' => 'event-xv', 'focus' => 0.25],
+        'bautizo' => ['image' => 'event-bautizo', 'focus' => 0.8],
+        'cumple' => ['image' => 'event-cumpleanos', 'focus' => 0.15],
+    ],
+
+    /*
+    | Páginas por tipo de evento (/invitaciones-de-boda, etc.). Cada una tiene su
+    | muestra embebida, sus preguntas y un código propio en el mensaje de WhatsApp,
+    | para saber desde qué página escribió el cliente.
+    */
+    'landings' => [
+        'invitaciones-de-boda' => [
+            'event' => 'boda',
+            'link' => 'Invitaciones de boda',
+            'code' => 'BODA',
+            'demo' => 'boda-camila-andres',
+            'image' => 'event-boda',
+            'label' => 'Bodas',
+            'title' => 'Invitaciones digitales de boda en Bolivia',
+            'description' => 'Invitación web para tu boda con sobre que se abre, confirmación de asistencia por invitado, padrinos, mesa de regalos y mapa. Lista para enviar por WhatsApp.',
+            'heading' => 'Invitaciones de boda que tus invitados abren desde WhatsApp',
+            'intro' => 'Un sobre que se abre al entrar, su foto en arco y todo lo que sus invitados necesitan saber: cuándo, dónde, qué ponerse y cómo confirmar.',
+            'highlights' => [
+                ['icon' => 'envelope-open', 'title' => 'Un sobre que se abre', 'text' => 'La invitación empieza como un sobre sellado que el invitado toca para abrir.'],
+                ['icon' => 'users-three', 'title' => 'Padrinos y cortejo', 'text' => 'Presenten a quienes los acompañan, con nombre y el papel de cada uno.'],
+                ['icon' => 'gift', 'title' => 'Mesa de regalos', 'text' => 'Datos de la cuenta con QR, lluvia de sobres o el enlace a su lista de regalos.'],
+                ['icon' => 'qr-code', 'title' => 'Confirmación con pase', 'text' => 'Cada invitado confirma cuántas personas van y recibe un pase QR para la entrada.'],
+            ],
+            'faqs' => [
+                ['¿Podemos poner la ceremonia y la recepción en lugares distintos?', 'Sí. El itinerario muestra cada momento con su hora y la ubicación lleva mapa y el botón para llegar.'],
+                ['¿Cómo evitamos que vengan más personas de las invitadas?', 'Cada invitado recibe su propio enlace con los lugares reservados; al confirmar no puede pasar de ese número.'],
+                ['¿Podemos compartir las fotos de la boda después?', 'Sí. Después de la fiesta la invitación pasa a mostrar las fotos oficiales y las que subieron sus invitados.'],
+            ],
+            'whatsapp' => 'Hola {brand}, nos casamos y queremos una invitación digital para nuestra boda.',
+        ],
+        'invitaciones-xv-anos' => [
+            'event' => 'xv',
+            'link' => 'Invitaciones de XV años',
+            'code' => 'XV',
+            'demo' => 'xv-isabella',
+            'image' => 'event-xv',
+            'label' => 'XV años',
+            'title' => 'Invitaciones digitales de XV años en Bolivia',
+            'description' => 'Invitación web para quince años con telón que se abre, chambelanes y damas, playlist, encuestas y confirmación con pase QR. Lista para enviar por WhatsApp.',
+            'heading' => 'Invitaciones de XV años con telón, música y pase de entrada',
+            'intro' => 'Un telón que se abre al entrar, su foto a pantalla completa y una invitación donde los invitados también participan: votan, sugieren canciones y suben fotos.',
+            'highlights' => [
+                ['icon' => 'crown-simple', 'title' => 'Un telón que se abre', 'text' => 'La invitación empieza con un telón que el invitado toca para descubrir a la quinceañera.'],
+                ['icon' => 'users-three', 'title' => 'Chambelanes y padrinos', 'text' => 'Presenta a tu corte y a tus padrinos, cada uno con su papel en la fiesta.'],
+                ['icon' => 'music-notes', 'title' => 'Playlist y encuestas', 'text' => 'Tus invitados sugieren las canciones del baile y votan en juegos antes de la fiesta.'],
+                ['icon' => 'camera', 'title' => 'Fotomural en vivo', 'text' => 'Durante la fiesta suben fotos desde el celular y todos las ven al instante.'],
+            ],
+            'faqs' => [
+                ['¿Se puede poner el vals y la ceremonia de velas en el itinerario?', 'Sí. Cada momento lleva su hora, un ícono y una descripción corta.'],
+                ['¿Mis papás pueden ver quién confirmó?', 'Sí. Tienen un panel con la lista de invitados, cuántos confirmaron y el reporte en PDF o Excel.'],
+                ['¿Puede sonar mi canción al abrir la invitación?', 'Sí. La música empieza cuando el invitado abre el telón y puede pausarla cuando quiera.'],
+            ],
+            'whatsapp' => 'Hola {brand}, quiero una invitación digital para unos XV años.',
+        ],
+        'invitaciones-de-bautizo' => [
+            'event' => 'bautizo',
+            'link' => 'Invitaciones de bautizo',
+            'code' => 'BAUT',
+            'demo' => 'bautizo-emilia',
+            'image' => 'event-bautizo',
+            'label' => 'Bautizos',
+            'title' => 'Invitaciones digitales de bautizo en Bolivia',
+            'description' => 'Invitación web para bautizo con nubes que se abren, padrinos, horario de la misa y la recepción, mapa y confirmación de asistencia. Lista para enviar por WhatsApp.',
+            'heading' => 'Invitaciones de bautizo tranquilas, claras y fáciles de compartir',
+            'intro' => 'Una pila bautismal que se llena al entrar, la foto del bebé en un medallón y los datos que la familia necesita: la misa, la recepción, los padrinos y cómo llegar.',
+            'highlights' => [
+                ['icon' => 'drop', 'title' => 'Una apertura con agua', 'text' => 'La invitación empieza con una jarra que vierte agua sobre la pila al tocarla.'],
+                ['icon' => 'hands-praying', 'title' => 'Padrinos primero', 'text' => 'Los padrinos encabezan la sección de familia, con su nombre y un mensaje.'],
+                ['icon' => 'map-pin', 'title' => 'Misa y recepción', 'text' => 'Horario de la iglesia y de la recepción, con mapa y botón para llegar a cada lugar.'],
+                ['icon' => 'images', 'title' => 'Fotos para la familia', 'text' => 'Después del bautizo, la misma invitación reúne las fotos del día.'],
+            ],
+            'faqs' => [
+                ['¿Sirve también para primera comunión o presentación?', 'Sí. Cambiamos los textos y las secciones a la celebración que tengan.'],
+                ['¿Los abuelos van a poder abrirla?', 'Sí. Se abre en el navegador del celular desde el enlace, sin instalar nada ni crear cuentas.'],
+                ['¿Podemos poner a los padrinos y a la familia?', 'Sí. Hay una sección para padrinos y otra para la familia, cada una con su nombre y su papel.'],
+            ],
+            'whatsapp' => 'Hola {brand}, queremos una invitación digital para un bautizo.',
+        ],
+        'invitaciones-de-cumpleanos' => [
+            'event' => 'cumple',
+            'link' => 'Invitaciones de cumpleaños',
+            'code' => 'CUMP',
+            'demo' => 'cumple-daniela-30',
+            'image' => 'event-cumpleanos',
+            'label' => 'Cumpleaños',
+            'title' => 'Invitaciones digitales de cumpleaños en Bolivia',
+            'description' => 'Invitación web de cumpleaños con pastel y velas que se soplan, confeti, playlist, juegos y confirmación de asistencia. Lista para enviar por WhatsApp.',
+            'heading' => 'Invitaciones de cumpleaños para que la fiesta empiece antes',
+            'intro' => 'Un pastel con velas que el invitado sopla al entrar, confeti y una invitación con juegos, playlist y todo lo necesario para llegar a la fiesta.',
+            'highlights' => [
+                ['icon' => 'cake', 'title' => 'Velas que se soplan', 'text' => 'La invitación empieza con un pastel: el invitado lo toca y se apagan las velas.'],
+                ['icon' => 'chart-bar', 'title' => 'Juegos antes de la fiesta', 'text' => 'Encuestas divertidas que tus invitados responden y ven los resultados al instante.'],
+                ['icon' => 'music-notes', 'title' => 'Playlist entre todos', 'text' => 'Cada invitado sugiere la canción que no puede faltar en la pista.'],
+                ['icon' => 't-shirt', 'title' => 'Dress code con ejemplos', 'text' => 'Colores de la fiesta y sugerencias con foto, para que todos combinen.'],
+            ],
+            'faqs' => [
+                ['¿Sirve para cumpleaños infantiles?', 'Sí. Adaptamos colores, textos y secciones a la edad y al tema de la fiesta.'],
+                ['¿Puede mostrar la edad que cumplo?', 'Sí. La plantilla pone la edad en grande sobre el pastel.'],
+                ['¿Qué pasa si cambia la hora o el lugar?', 'Se actualiza en el mismo enlace y tus invitados ven siempre la versión correcta.'],
+            ],
+            'whatsapp' => 'Hola {brand}, quiero una invitación digital para un cumpleaños.',
+        ],
+    ],
+
+    /*
+    | Origen de cada contacto. Los enlaces de campaña llevan utm_source, utm_medium y
+    | utm_campaign (o ?ref= en material impreso). El sitio recuerda el origen 30 días y
+    | agrega un código corto al mensaje de WhatsApp, por ejemplo «Ref. BODA-FB-MAYO».
+    | Aquí se abrevian las fuentes conocidas; las demás usan sus primeras letras.
+    | Para armar un enlace: php artisan bida:enlace-campana
+    */
+    'lead_sources' => [
+        'facebook' => 'FB',
+        'fb' => 'FB',
+        'instagram' => 'IG',
+        'ig' => 'IG',
+        'tiktok' => 'TT',
+        'google' => 'GO',
+        'whatsapp' => 'WA',
+        'youtube' => 'YT',
+        'qr' => 'QR',
+    ],
+
     'packages' => [
         [
             'key' => 'basico',

@@ -32,12 +32,33 @@
             <span class="mt-4 inline-block rounded-md px-3 py-1.5 text-xs font-semibold" :class="spot('primary')"
                 :style="`background:${modules.config.colores.primary};color:${modules.config.colores.background}`">Confirmar asistencia</span>
         </div>
-        <div class="flex items-center justify-between gap-3 border-t border-site-line px-4 py-2.5 text-xs">
-            <span class="text-site-muted">Legibilidad del texto sobre el fondo</span>
-            <span class="admin-status-badge" :class="getContrastRatio() >= 4.5 ? 'is-active' : (getContrastRatio() >= 3 ? '' : 'is-declined')">
-                <span class="admin-status-dot"></span>
-                <span x-text="getContrastRatio() >= 4.5 ? 'Buena' : (getContrastRatio() >= 3 ? 'Justa' : 'Difícil de leer')"></span>
-            </span>
+        {{-- Contraste medido sobre las mezclas reales de la invitación, no solo texto sobre fondo --}}
+        <div class="border-t border-site-line px-4 py-3">
+            <div class="flex items-center justify-between gap-3 text-xs">
+                <span class="text-site-muted">Legibilidad de la paleta</span>
+                <span class="admin-status-badge" :class="contrastIssues().length === 0 ? 'is-active' : 'is-declined'">
+                    <span class="admin-status-dot"></span>
+                    <span x-text="contrastIssues().length === 0
+                        ? 'Todo se lee bien'
+                        : (contrastIssues().length === 1 ? '1 tono difícil de leer' : contrastIssues().length + ' tonos difíciles de leer')"></span>
+                </span>
+            </div>
+
+            <dl class="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-[11px]">
+                <template x-for="check in contrastChecks()" :key="check.label">
+                    <div class="flex items-center justify-between gap-2 border-b border-site-line/60 py-0.5">
+                        <dt class="truncate text-site-muted" x-text="check.label"></dt>
+                        <dd class="shrink-0 font-medium tabular-nums"
+                            :class="check.ratio >= check.min ? 'text-site-muted' : 'text-site-danger'"
+                            x-text="check.ratio.toFixed(1) + ':1'"></dd>
+                    </div>
+                </template>
+            </dl>
+
+            <p class="mt-2 text-[11px] text-site-muted" x-show="contrastIssues().length > 0" x-cloak>
+                Los tonos marcados no llegan al mínimo que se lee con comodidad (4.5:1, o 3:1 en texto grande).
+                Prueba con un fondo más claro o un color de evento más oscuro.
+            </p>
         </div>
     </section>
 

@@ -584,7 +584,7 @@ html.inv-cover-waiting .inv-xv .inv-hero * {
 /* ── Módulos ────────────────────────────────────────────────────────────── */
 
 .inv-xv .inv-countdown__value {
-    background: linear-gradient(180deg, color-mix(in srgb, var(--primary-color) 70%, #fff), var(--inv-accent-ink));
+    background: linear-gradient(180deg, color-mix(in srgb, var(--primary-color) 70%, #fff), var(--inv-accent-deco));
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -718,7 +718,7 @@ html.inv-cover-waiting .inv-xv .inv-hero * {
 }
 
 .inv-xv .inv-head__title {
-    background: linear-gradient(180deg, var(--text-color) 45%, var(--inv-accent-ink));
+    background: linear-gradient(180deg, var(--text-color) 45%, var(--inv-accent-deco));
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -916,7 +916,7 @@ html.inv-cover-waiting .inv-xv .inv-hero * {
 }
 
 .inv-xv .inv-sponsor__names {
-    background: linear-gradient(180deg, var(--text-color) 40%, var(--inv-accent-ink));
+    background: linear-gradient(180deg, var(--text-color) 40%, var(--inv-accent-deco));
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -1090,7 +1090,7 @@ html.inv-cover-waiting .inv-xv .inv-hero * {
     position: relative;
     padding-block: 2rem;
     border-block: 0;
-    background: linear-gradient(180deg, color-mix(in srgb, var(--primary-color) 70%, #fff), var(--inv-accent-ink));
+    background: linear-gradient(180deg, color-mix(in srgb, var(--primary-color) 70%, #fff), var(--inv-accent-deco));
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;

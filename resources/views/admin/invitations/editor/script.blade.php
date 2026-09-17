@@ -311,6 +311,130 @@ function invitationForm(config) {
             return Object.values(flags).filter(Boolean).length;
         },
 
+        // ── Qué falta para publicar ─────────────────────────────────────────
+        // Un módulo encendido pero vacío no se ve en la invitación. En vez de que el
+        // cliente lo descubra después, el editor lo marca apartado por apartado.
+
+        moduleIssues(tabId) {
+            const m = this.modules;
+            const list = (value) => Array.isArray(value) ? value : [];
+            const filled = (value) => typeof value === 'string' ? value.trim() !== '' : Boolean(value);
+            const some = (values) => values.filter(Boolean);
+
+            switch (tabId) {
+                case 'general':
+                    return some([
+                        !filled(this.meta.title) && 'Falta el título',
+                        !filled(this.meta.event_date) && 'Falta la fecha del evento',
+                        !filled(this.meta.slug) && 'Falta la dirección de la invitación',
+                        !this.meta.user_id && 'Falta asignar el cliente',
+                    ]);
+
+                case 'hero':
+                    return some([
+                        !filled(m.bienvenida?.nombre_quinceanera) && 'Falta el nombre del festejado',
+                        !filled(m.bienvenida?.imagen_hero) && 'Falta la foto de portada',
+                    ]);
+
+                case 'ubicacion':
+                    return some([
+                        !filled(m.ubicacion?.nombre_lugar) && !filled(m.ubicacion?.direccion) && 'Falta el lugar o la dirección',
+                        !this.hasLocationCoordinates() && !filled(m.ubicacion?.maps_url) && 'Falta el punto en el mapa',
+                    ]);
+
+                case 'itinerario':
+                    return list(m.itinerario?.eventos).some(evento => filled(evento?.titulo))
+                        ? [] : ['No hay ningún momento cargado'];
+
+                case 'dress':
+                    return list(m.dress_code?.sugerencias).length
+                        || list(m.dress_code?.colores_permitidos).length
+                        || list(m.dress_code?.evitar).length
+                            ? [] : ['No hay sugerencias, colores ni cosas a evitar'];
+
+                case 'destacados':
+                    return list(m.destacados?.chambelanes).length
+                        + list(m.destacados?.damitas).length
+                        + list(m.destacados?.padrinos).length > 0
+                            ? [] : ['No hay personas cargadas'];
+
+                case 'galeria':
+                    return list(m.galeria?.fotos).length ? [] : ['No hay fotos'];
+
+                case 'video':
+                    return filled(m.video?.video_url) ? [] : ['Falta el video'];
+
+                case 'musica':
+                    return filled(m.musica?.audio_url) ? [] : ['Falta la canción de fondo'];
+
+                case 'hashtag':
+                    return filled(m.hashtag?.hashtag) ? [] : ['Falta la etiqueta'];
+
+                case 'encuestas':
+                    return list(m.encuestas?.preguntas).some(poll =>
+                        filled(poll?.pregunta) && list(poll?.opciones).filter(filled).length >= 2
+                    ) ? [] : ['No hay ninguna pregunta con dos opciones'];
+
+                case 'regalos':
+                    return filled(m.regalos?.banco?.cuenta) || filled(m.regalos?.banco?.qr_url)
+                        || filled(m.regalos?.sobres?.titulo) || filled(m.regalos?.tienda_url)
+                        || list(m.regalos?.opciones).some(gift => filled(gift?.titulo))
+                            ? [] : ['No hay ninguna forma de regalo cargada'];
+
+                case 'post_evento':
+                    return list(m.post_evento?.fotos).length || filled(m.post_evento?.enlace_externo)
+                        ? [] : ['No hay fotos oficiales ni enlace a la galería'];
+
+                case 'countdown':
+                case 'agendar':
+                    return filled(this.meta.event_date) ? [] : ['Necesita la fecha del evento'];
+
+                // Playlist, RSVP, fotomural y estética funcionan sin cargar nada
+                default:
+                    return [];
+            }
+        },
+
+        // Un módulo apagado no está incompleto: simplemente no sale
+        tabIssues(tab) {
+            if (tab.moduleCode && !this.isTabEnabled(tab)) return [];
+
+            return this.moduleIssues(tab.id);
+        },
+
+        groupIssueCount(groupId) {
+            const group = this.tabGroups.find(item => item.id === groupId);
+
+            return (group?.tabs ?? []).reduce((total, tab) => total + this.tabIssues(tab).length, 0);
+        },
+
+        /** Todo lo que falta, con el apartado donde se arregla. */
+        get pendingIssues() {
+            return this.tabGroups.flatMap(group =>
+                group.tabs.flatMap(tab => this.tabIssues(tab).map(issue => ({
+                    tabId: tab.id,
+                    groupId: group.id,
+                    label: tab.label,
+                    issue,
+                })))
+            );
+        },
+
+        get isPublished() {
+            return this.meta.status === 'active';
+        },
+
+        // Publicar es un cambio de estado explícito: se guarda en el mismo envío del formulario
+        publish() {
+            this.meta.status = 'active';
+            this.$refs.saveButton?.click();
+        },
+
+        unpublish() {
+            this.meta.status = 'inactive';
+            this.$refs.saveButton?.click();
+        },
+
         init() {
             this.ensureStructure();
             this.normalizeMetaSelects();
@@ -915,9 +1039,32 @@ function invitationForm(config) {
             }
         },
 
+        // ── Fotos con descripción ───────────────────────────────────────────
+        // Una foto es su URL a secas o {url, alt}: solo se convierte en objeto
+        // cuando el cliente escribe una descripción, para no ensuciar los datos.
+
+        photoUrl(photo) {
+            return typeof photo === 'string' ? photo : (photo?.url ?? '');
+        },
+
+        photoAlt(photo) {
+            return typeof photo === 'string' ? '' : (photo?.alt ?? '');
+        },
+
+        setPhotoAlt(list, index, value) {
+            const photo = list[index];
+            const alt = (value ?? '').trim();
+            const url = this.photoUrl(photo);
+
+            list[index] = alt === ''
+                ? url
+                : { ...(typeof photo === 'object' && photo ? photo : {}), url, alt };
+
+            this.schedulePreview();
+        },
+
         openImageCropperFromGallery(index) {
-            const url = this.modules.galeria.fotos[index];
-            this.openImageCropper(url, 'gallery');
+            this.openImageCropper(this.photoUrl(this.modules.galeria.fotos[index]), 'gallery');
         },
 
         openImageCropper(url, contextOverride = null) {
@@ -1187,7 +1334,7 @@ function invitationForm(config) {
         },
 
         removeGalleryPhoto(index) {
-            this.clearMediaUrl(this.modules.galeria.fotos[index]);
+            this.clearMediaUrl(this.photoUrl(this.modules.galeria.fotos[index]));
             this.modules.galeria.fotos.splice(index, 1);
         },
 
@@ -1213,8 +1360,12 @@ function invitationForm(config) {
             let current = initialUrl;
             return (url) => {
                 const list = getList() ?? [];
-                const index = list.indexOf(current);
-                if (index >= 0) list[index] = url;
+                const index = list.findIndex(photo => this.photoUrl(photo) === current);
+                if (index >= 0) {
+                    const photo = list[index];
+                    // Si ya tenía descripción, se conserva al cambiar la URL temporal por la definitiva
+                    list[index] = typeof photo === 'string' ? url : { ...photo, url };
+                }
                 current = url;
             };
         },
@@ -1785,11 +1936,54 @@ function invitationForm(config) {
         },
 
         getContrastRatio() {
-            const lum1 = this.getRelativeLuminance(this.modules.config.colores.text);
-            const lum2 = this.getRelativeLuminance(this.modules.config.colores.background);
-            const lighter = Math.max(lum1, lum2);
-            const darker = Math.min(lum1, lum2);
-            return ((lighter + 0.05) / (darker + 0.05)).toFixed(2);
+            return this.contrastBetween(this.modules.config.colores.text, this.modules.config.colores.background).toFixed(2);
+        },
+
+        // ── Contraste de la paleta ──────────────────────────────────────────
+        // La invitación no pinta los colores tal cual: mezcla el texto con el fondo
+        // para los tonos apagados (resources/css/invitation/base.css). Aquí se repiten
+        // esas mezclas para medir lo que de verdad va a leer el invitado.
+
+        contrastBetween(colorA, colorB) {
+            const a = this.getRelativeLuminance(colorA);
+            const b = this.getRelativeLuminance(colorB);
+            return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+        },
+
+        mixColors(hexA, hexB, weight) {
+            const parse = (hex) => {
+                const clean = String(hex ?? '').replace('#', '');
+                return clean.length === 6 ? [0, 2, 4].map(i => parseInt(clean.slice(i, i + 2), 16)) : [0, 0, 0];
+            };
+            const [ar, ag, ab] = parse(hexA);
+            const [br, bg, bb] = parse(hexB);
+            const channel = (x, y) => Math.round(x * weight + y * (1 - weight));
+            return '#' + [channel(ar, br), channel(ag, bg), channel(ab, bb)]
+                .map(v => v.toString(16).padStart(2, '0')).join('');
+        },
+
+        /**
+         * Cada fila dice qué pieza se mide, con cuánto contraste y cuánto necesita:
+         * 4.5 para texto normal y 3 para texto grande o bordes (WCAG AA).
+         */
+        contrastChecks() {
+            const colors = this.modules.config?.colores ?? {};
+            const text = colors.text ?? '#000000';
+            const bg = colors.background ?? '#ffffff';
+            const primary = colors.primary ?? '#000000';
+
+            return [
+                { label: 'Textos', ratio: this.contrastBetween(text, bg), min: 4.5 },
+                { label: 'Textos apagados', ratio: this.contrastBetween(this.mixColors(text, bg, 0.78), bg), min: 4.5 },
+                { label: 'Etiquetas y ayudas', ratio: this.contrastBetween(this.mixColors(text, bg, 0.70), bg), min: 4.5 },
+                { label: 'Detalles en color', ratio: this.contrastBetween(this.mixColors(primary, text, 0.55), bg), min: 4.5 },
+                { label: 'Números grandes', ratio: this.contrastBetween(this.mixColors(primary, text, 0.80), bg), min: 3 },
+                { label: 'Texto de los botones', ratio: this.contrastBetween(bg, text), min: 4.5 },
+            ];
+        },
+
+        contrastIssues() {
+            return this.contrastChecks().filter(check => check.ratio < check.min);
         },
 
         // Validación de colores hexadecimales

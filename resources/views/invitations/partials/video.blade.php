@@ -19,10 +19,12 @@
                         draggable="false"
                     >
                 @endif
+                {{-- controls es el respaldo sin JavaScript: el reproductor propio lo quita al iniciarse --}}
                 <video
                     id="{{ $videoPlayerId }}"
                     class="inv-video__media"
                     playsinline
+                    controls
                     preload="metadata"
                     data-video-player="true"
                 >

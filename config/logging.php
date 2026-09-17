@@ -58,6 +58,24 @@ return [
             'ignore_exceptions' => false,
         ],
 
+        // Peticiones lentas (App\Http\Middleware\LogSlowRequests)
+        'performance' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/performance.log'),
+            'level' => 'warning',
+            'days' => 14,
+            'replace_placeholders' => true,
+        ],
+
+        // Respaldos, pruebas de restauración, trabajos fallidos y alertas de bida:salud
+        'operations' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/operations.log'),
+            'level' => 'info',
+            'days' => 60,
+            'replace_placeholders' => true,
+        ],
+
         'single' => [
             'driver' => 'single',
             'path' => storage_path('logs/laravel.log'),

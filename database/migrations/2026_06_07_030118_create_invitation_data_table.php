@@ -13,9 +13,9 @@ return new class extends Migration
             $blueprint->foreignId('invitation_id')->constrained()->onDelete('cascade');
             $blueprint->string('feature_code', 100)->index(); // Ej: 'regalos', 'itinerario'
             $blueprint->json('json_data'); // Guarda configuraciones y URLs de Cloudinary
-            
+
             // Un módulo solo puede tener un bloque de datos por invitación
-            $blueprint->unique(['invitation_id', 'feature_code']); 
+            $blueprint->unique(['invitation_id', 'feature_code']);
         });
     }
 

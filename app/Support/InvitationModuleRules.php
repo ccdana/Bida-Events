@@ -2,6 +2,8 @@
 
 namespace App\Support;
 
+use Closure;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
 /**
@@ -29,6 +31,7 @@ class InvitationModuleRules
 
             if (! is_string($raw)) {
                 $decoded[$code] = $raw;
+
                 continue;
             }
 
@@ -73,9 +76,11 @@ class InvitationModuleRules
             "{$p}.itinerario.eventos.*.descripcion" => ['nullable', 'string', 'max:2000'],
 
             "{$p}.galeria.fotos" => ['nullable', 'array', 'max:100'],
-            "{$p}.galeria.fotos.*" => $url,
+            "{$p}.galeria.fotos.*" => self::photoEntry($url),
+            "{$p}.galeria.fotos.*.alt" => ['nullable', 'string', 'max:255'],
             "{$p}.post_evento.fotos" => ['nullable', 'array', 'max:200'],
-            "{$p}.post_evento.fotos.*" => $url,
+            "{$p}.post_evento.fotos.*" => self::photoEntry($url),
+            "{$p}.post_evento.fotos.*.alt" => ['nullable', 'string', 'max:255'],
 
             "{$p}.encuestas.preguntas" => ['nullable', 'array', 'max:30'],
             "{$p}.encuestas.preguntas.*" => ['array'],
@@ -97,6 +102,27 @@ class InvitationModuleRules
             "{$p}.destacados.damitas" => ['nullable', 'array', 'max:60'],
             "{$p}.destacados.padrinos" => ['nullable', 'array', 'max:60'],
         ];
+    }
+
+    /**
+     * Una foto puede llegar como URL suelta o como {url, alt}: en ambos casos se valida la URL,
+     * para que una subida a medias (blob:) no entre por la puerta del objeto.
+     */
+    private static function photoEntry(array $urlRules): array
+    {
+        return ['nullable', function (string $attribute, mixed $value, Closure $fail) use ($urlRules) {
+            $url = is_array($value) ? ($value['url'] ?? null) : $value;
+
+            if ($url === null || $url === '') {
+                return;
+            }
+
+            $validator = Validator::make(['url' => $url], ['url' => $urlRules]);
+
+            if ($validator->fails()) {
+                $fail('La foto no tiene una dirección válida.');
+            }
+        }];
     }
 
     public static function attributes(string $prefix): array
@@ -124,8 +150,10 @@ class InvitationModuleRules
             "{$p}.itinerario.eventos.*.descripcion" => 'descripción del momento #:position del itinerario',
             "{$p}.galeria.fotos" => 'galería',
             "{$p}.galeria.fotos.*" => 'foto #:position de la galería',
+            "{$p}.galeria.fotos.*.alt" => 'descripción de la foto #:position',
             "{$p}.post_evento.fotos" => 'fotos post evento',
             "{$p}.post_evento.fotos.*" => 'foto #:position post evento',
+            "{$p}.post_evento.fotos.*.alt" => 'descripción de la foto #:position post evento',
             "{$p}.encuestas.preguntas" => 'encuestas',
             "{$p}.encuestas.preguntas.*.id" => 'identificador de la encuesta #:position',
             "{$p}.encuestas.preguntas.*.tipo" => 'tipo de la encuesta #:position',

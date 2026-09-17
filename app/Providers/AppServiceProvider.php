@@ -5,9 +5,12 @@ namespace App\Providers;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Middleware\TrustProxies;
 use Illuminate\Http\Request;
+use Illuminate\Queue\Events\JobFailed;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 
 class AppServiceProvider extends ServiceProvider
@@ -17,7 +20,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //$this->app->register(BladeServiceProvider::class);
+        //
     }
 
     /**
@@ -32,6 +35,22 @@ class AppServiceProvider extends ServiceProvider
 
         $this->configureTrustedProxies();
         $this->configureRateLimiting();
+        $this->reportFailedJobs();
+    }
+
+    /**
+     * Un trabajo que agota sus reintentos (por ejemplo un Excel que no se pudo generar) queda
+     * en el log de operación en el momento; bida:salud además avisa por correo si se acumulan.
+     */
+    protected function reportFailedJobs(): void
+    {
+        Queue::failing(function (JobFailed $event) {
+            Log::channel('operations')->error('Trabajo fallido', [
+                'job' => $event->job->resolveName(),
+                'queue' => $event->job->getQueue(),
+                'error' => $event->exception->getMessage(),
+            ]);
+        });
     }
 
     /**

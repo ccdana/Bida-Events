@@ -21,6 +21,17 @@ final class InvitationTemplates
 
     public const DEFAULT = self::XV_PREMIUM;
 
+    /**
+     * Paleta por defecto de una plantilla. La usa la página del sistema visual
+     * (/admin/sistema-visual) para medir el contraste de cada tema.
+     *
+     * @return array<string, string>
+     */
+    public static function palette(string $template): array
+    {
+        return self::all()[$template]['palette'] ?? self::all()[self::DEFAULT]['palette'];
+    }
+
     public static function all(): array
     {
         return [
@@ -28,6 +39,14 @@ final class InvitationTemplates
                 'label' => 'XV Años Elegante',
                 'description' => 'Portada a pantalla completa con la foto, partículas doradas y estilo editorial.',
                 'event' => 'xv',
+                // Paleta con la que nace una invitación de este tipo (la misma de la muestra)
+                'palette' => [
+                    'primary' => '#C9A96E',
+                    'secondary' => '#2C1810',
+                    'accent' => '#F5E6D3',
+                    'text' => '#1A1A1A',
+                    'background' => '#FFFAF5',
+                ],
                 // Orden por prioridad del invitado: cuándo y dónde, confirmar, lo emocional, regalos y participación
                 'order' => [
                     'cuenta_regresiva', 'ubicacion', 'itinerario', 'rsvp', 'dress_code', 'video', 'galeria',
@@ -39,6 +58,14 @@ final class InvitationTemplates
                 'label' => 'Boda Jardín',
                 'description' => 'Sobre que se abre al entrar, foto en arco con ramas que crecen, pétalos y títulos caligráficos.',
                 'event' => 'boda',
+                // Paleta con la que nace una invitación de este tipo (la misma de la muestra)
+                'palette' => [
+                    'primary' => '#A8875A',
+                    'secondary' => '#5E6B55',
+                    'accent' => '#EAD9CF',
+                    'text' => '#3A3530',
+                    'background' => '#FCF9F4',
+                ],
                 'order' => [
                     'cuenta_regresiva', 'galeria', 'ubicacion', 'itinerario', 'rsvp', 'dress_code', 'video',
                     'destacados', 'regalos', 'playlist', 'encuestas', 'hashtag', 'fotomural', 'post_evento',
@@ -69,6 +96,14 @@ final class InvitationTemplates
                 'label' => 'Bautizo Cielo',
                 'description' => 'Nubes que se abren al entrar, foto en medallón con halo y paloma, destellos y secciones separadas por olas.',
                 'event' => 'bautizo',
+                // Paleta con la que nace una invitación de este tipo (la misma de la muestra)
+                'palette' => [
+                    'primary' => '#6B9AC4',
+                    'secondary' => '#C9A96E',
+                    'accent' => '#DCEBF5',
+                    'text' => '#2E3A46',
+                    'background' => '#F7FBFE',
+                ],
                 'order' => [
                     'cuenta_regresiva', 'ubicacion', 'itinerario', 'rsvp', 'destacados', 'galeria', 'dress_code',
                     'video', 'regalos', 'playlist', 'encuestas', 'hashtag', 'fotomural', 'post_evento',
@@ -100,6 +135,14 @@ final class InvitationTemplates
                 'label' => 'Cumpleaños Fiesta',
                 'description' => 'Pastel con velas que se soplan al entrar, confeti, globos, banderines y la edad en grande.',
                 'event' => 'cumple',
+                // Paleta con la que nace una invitación de este tipo (la misma de la muestra)
+                'palette' => [
+                    'primary' => '#F25C54',
+                    'secondary' => '#F7B32B',
+                    'accent' => '#9ADBC5',
+                    'text' => '#2B2D42',
+                    'background' => '#FFF8F0',
+                ],
                 'order' => [
                     'cuenta_regresiva', 'ubicacion', 'itinerario', 'rsvp', 'dress_code', 'playlist', 'encuestas',
                     'galeria', 'destacados', 'regalos', 'hashtag', 'video', 'fotomural', 'post_evento',

@@ -6,6 +6,7 @@ use App\Services\InvitationModuleService;
 use App\Support\InvitationDefaults;
 use App\Support\InvitationTemplates;
 use Database\Seeders\BautizoCieloDemoSeeder;
+use Database\Seeders\BodaJardinDemoSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Concerns\CreatesInvitations;
 use Tests\TestCase;
@@ -39,7 +40,7 @@ class BaptismTemplateTest extends TestCase
     public function test_other_templates_keep_the_cortejo_tab_first(): void
     {
         $invitation = $this->createInvitation(['template' => InvitationTemplates::BODA_JARDIN]);
-        app(InvitationModuleService::class)->syncAllModules($invitation, \Database\Seeders\BodaJardinDemoSeeder::modules());
+        app(InvitationModuleService::class)->syncAllModules($invitation, BodaJardinDemoSeeder::modules());
 
         $this->withoutVite()
             ->get(route('invitation.show', $invitation->slug))

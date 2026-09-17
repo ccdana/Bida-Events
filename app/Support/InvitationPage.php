@@ -47,6 +47,12 @@ final class InvitationPage
 
     public readonly array $config;
 
+    /** Tipo de evento de la plantilla (xv, boda, bautizo, cumple) */
+    public readonly string $eventKey;
+
+    /** Nombre del lugar, para la vista previa al compartir */
+    public readonly ?string $placeName;
+
     public readonly array $colors;
 
     public readonly array $fonts;
@@ -107,6 +113,14 @@ final class InvitationPage
         $this->eventDate = $invitation->event_date->copy()->timezone(config('app.timezone'));
         $this->eventLabel = Str::ucfirst($this->eventDate->locale('es')->translatedFormat('l j \d\e F · H:i \h'));
         $this->displayName = ($this->welcome['nombre_quinceanera'] ?? null) ?: $invitation->title;
+        $this->eventKey = $meta['event'] ?? 'xv';
+        $this->placeName = trim((string) ($modules['ubicacion']['nombre_lugar'] ?? '')) ?: null;
+    }
+
+    /** Título, descripción e imagen que se ven al compartir el enlace (Open Graph). */
+    public function share(string $url, bool $personal = true): array
+    {
+        return ShareMeta::forInvitation($this, $url, $personal);
     }
 
     public function visible(string $module): bool

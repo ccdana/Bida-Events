@@ -14,7 +14,7 @@
         ])
 
         @unless($readOnly)
-            <div class="inv-actions inv-mural__actions">
+            <div class="inv-actions inv-mural__actions" data-needs-js>
                 <button type="button" class="inv-btn inv-btn--block" @click="$refs.fileInput.click()" :disabled="uploading">
                     @include('invitations.partials.icon', ['name' => 'camera', 'class' => 'inv-btn__icon', 'animated' => false])
                     <span x-text="uploading ? 'Subiendo foto…' : 'Compartir una foto'">Compartir una foto</span>
@@ -22,6 +22,10 @@
                 <input type="file" x-ref="fileInput" accept="image/*" class="sr-only" tabindex="-1" @change="upload">
                 <p class="inv-help">Puedes usar la cámara o elegir una foto de tu galería.</p>
             </div>
+
+            <noscript>
+                <p class="inv-noscript">Para compartir fotos necesitas activar JavaScript en tu navegador.</p>
+            </noscript>
         @endunless
 
         <p class="inv-status" :class="{ 'is-error': error }" x-text="message" aria-live="polite"></p>

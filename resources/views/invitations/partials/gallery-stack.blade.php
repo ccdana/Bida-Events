@@ -1,10 +1,14 @@
 @php
+    // La foto llega como URL suelta o como {url, alt}: la descripción la escribe el cliente en el editor
     $galleryPhotos = collect($galeria['fotos'] ?? [])
-        ->map(fn ($foto) => is_array($foto) ? ($foto['url'] ?? null) : $foto)
-        ->filter(fn ($url) => is_string($url) && $url !== '')
+        ->map(fn ($foto) => is_array($foto)
+            ? ['url' => $foto['url'] ?? null, 'alt' => trim((string) ($foto['alt'] ?? ''))]
+            : ['url' => $foto, 'alt' => ''])
+        ->filter(fn ($foto) => is_string($foto['url']) && $foto['url'] !== '')
         ->values();
-    $galleryUrls = $galleryPhotos->map(fn ($url) => \App\Support\CloudinaryImage::url($url, 1200))->all();
-    $gallerySrcsets = $galleryPhotos->map(fn ($url) => \App\Support\CloudinaryImage::srcset($url))->all();
+    $galleryUrls = $galleryPhotos->map(fn ($foto) => \App\Support\CloudinaryImage::url($foto['url'], 1200))->all();
+    $gallerySrcsets = $galleryPhotos->map(fn ($foto) => \App\Support\CloudinaryImage::srcset($foto['url']))->all();
+    $galleryAlts = $galleryPhotos->pluck('alt')->all();
     $galleryCount = count($galleryUrls);
 @endphp
 
@@ -42,7 +46,7 @@
                             <img
                                 src="{{ $url }}"
                                 @if(!empty($gallerySrcsets[$index])) srcset="{{ $gallerySrcsets[$index] }}" sizes="(min-width: 1024px) 25rem, (min-width: 768px) 22rem, 80vw" @endif
-                                alt="Foto {{ $index + 1 }} de {{ $galleryCount }}"
+                                alt="{{ $galleryAlts[$index] !== '' ? $galleryAlts[$index] : 'Foto '.($index + 1).' de '.$galleryCount }}"
                                 class="inv-gallery__image"
                                 loading="{{ $index < 3 ? 'eager' : 'lazy' }}"
                                 decoding="async"

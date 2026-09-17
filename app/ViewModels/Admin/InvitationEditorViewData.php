@@ -5,9 +5,10 @@ namespace App\ViewModels\Admin;
 use App\Models\EventType;
 use App\Models\Invitation;
 use App\Models\User;
+use App\Services\InvitationPreviewSession;
 use App\Services\MediaUploadService;
 use App\Support\InvitationDefaults;
-use App\Services\InvitationPreviewSession;
+use App\Support\InvitationTemplates;
 use Illuminate\Support\Collection;
 
 class InvitationEditorViewData
@@ -75,8 +76,8 @@ class InvitationEditorViewData
             'templateOptions' => $templates->map(fn ($label, $value) => [
                 'value' => $value,
                 'label' => $label,
-                'description' => \App\Support\InvitationTemplates::get($value)['description'],
-                'event' => \App\Support\InvitationTemplates::get($value)['event'],
+                'description' => InvitationTemplates::get($value)['description'],
+                'event' => InvitationTemplates::get($value)['event'],
             ])->values(),
             // La contraseña no viaja: solo se ve la que se acaba de crear o regenerar en el editor
             'clients' => $clientList->map(fn ($client) => [

@@ -1,15 +1,17 @@
 <?php
 
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\DesignSystemController;
+use App\Http\Controllers\Admin\GuestController as AdminGuestController;
+use App\Http\Controllers\Admin\InvitationController as AdminInvitationController;
 use App\Http\Controllers\Admin\MapsController;
 use App\Http\Controllers\Admin\MediaUploadController;
 use App\Http\Controllers\Admin\PreviewController;
-use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
-use App\Http\Controllers\Admin\GuestController as AdminGuestController;
-use App\Http\Controllers\Admin\InvitationController as AdminInvitationController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Client\ContributionController as ClientContributionController;
 use App\Http\Controllers\Client\DashboardController as ClientDashboardController;
 use App\Http\Controllers\Client\ExportController;
+use App\Http\Controllers\EventLandingController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Public\ContributionController;
 use App\Http\Controllers\Public\InvitationController as PublicInvitationController;
@@ -17,7 +19,17 @@ use App\Http\Controllers\Public\RsvpController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', HomeController::class)->name('home');
+// Sitio público: la portada y las páginas por tipo de evento recuerdan el origen de campaña (utm_*, ?ref=)
+Route::middleware('lead.source')->group(function () {
+    Route::get('/', HomeController::class)->name('home');
+
+    // /invitaciones-de-boda, /invitaciones-xv-anos… (contenido en config/bida.php, clave landings)
+    Route::get('/{landing}', EventLandingController::class)
+        ->whereIn('landing', array_keys(config('bida.landings', [])))
+        ->name('landing');
+});
+
+Route::get('/sitemap.xml', [EventLandingController::class, 'sitemap'])->name('sitemap');
 
 // Invitaciones de muestra de la home: se pueden recorrer y probar, pero nada se guarda
 Route::get('/muestra/{slug}', [PublicInvitationController::class, 'demo'])->name('invitation.demo');
@@ -57,6 +69,9 @@ Route::prefix('p')->name('invitation.')->middleware('cache.public.invitations')-
 // Panel administrativo
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
+
+    // Referencia interna de colores, tipografía y componentes
+    Route::get('/sistema-visual', [DesignSystemController::class, 'index'])->name('design-system');
     Route::get('/invitations/create', [AdminInvitationController::class, 'create'])->name('invitations.create');
     Route::post('/invitations', [AdminInvitationController::class, 'store'])->name('invitations.store');
     Route::post('/clients', [AdminInvitationController::class, 'storeClient'])->name('clients.store');

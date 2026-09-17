@@ -20,7 +20,7 @@ class UpdateInvitationRequest extends FormRequest
 
     public function rules(): array
     {
-        /** @var \App\Models\Invitation|null $invitation */
+        /** @var Invitation|null $invitation */
         $invitation = $this->route('invitation');
 
         return [

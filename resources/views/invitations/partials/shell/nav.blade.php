@@ -1,23 +1,27 @@
 {{-- Menú de secciones: panel a pantalla completa con la sección activa resaltada --}}
 @php($navItems = $page->navItems())
 <div x-data="invitationNav(@js(array_column($navItems, 'id')))"
-    @keydown.escape.window="open = false"
+    @keydown.escape.window="close()"
+    @keydown.tab="trapFocus($event)"
     x-effect="document.documentElement.classList.toggle('inv-lock', open)">
     <button type="button"
         class="inv-nav__toggle"
+        x-ref="toggle"
         :class="{ 'is-open': open }"
-        @click="open = !open"
+        @click="toggle()"
         :aria-expanded="open.toString()"
         aria-controls="inv-nav-panel">
         <span x-text="open ? 'Cerrar' : 'Menú'">Menú</span>
         <span class="inv-nav__bars" aria-hidden="true"><span></span><span></span></span>
     </button>
 
-    <div class="inv-nav__backdrop" x-show="open" x-cloak x-transition.opacity @click="open = false"></div>
+    <div class="inv-nav__backdrop" x-show="open" x-cloak x-transition.opacity @click="close()"></div>
 
     <nav id="inv-nav-panel"
         class="inv-nav__panel"
         x-show="open" x-cloak
+        x-ref="panel"
+        :aria-hidden="open ? null : 'true'"
         x-transition:enter="inv-nav-anim"
         x-transition:enter-start="inv-nav-hidden"
         x-transition:enter-end="inv-nav-shown"
@@ -34,7 +38,7 @@
                     <a href="#{{ $item['id'] }}"
                         class="inv-nav__link"
                         :class="{ 'is-active': active === '{{ $item['id'] }}' }"
-                        @click="open = false">
+                        @click="close(false)">
                         <span class="inv-nav__num">{{ str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) }}</span>
                         {{ $item['label'] }}
                     </a>

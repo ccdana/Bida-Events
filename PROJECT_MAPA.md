@@ -31,7 +31,7 @@ sepa dónde tocar sin romper nada.
 ```bash
 composer install && npm install
 cp .env.example .env && php artisan key:generate
-php artisan migrate --seed        # admin + tipos de evento + invitaciones de muestra
+php artisan migrate --seed        # admin + tipos de evento + invitaciones de muestra + cliente de prueba
 npm run build                     # o: npm run dev
 php artisan test
 php artisan optimize:clear        # tras cambiar vistas, rutas o configuración
@@ -39,7 +39,10 @@ php artisan optimize:clear        # tras cambiar vistas, rutas o configuración
 
 En este equipo (Laragon) los binarios son
 `C:\laragon\bin\php\php-8.4.24-Win32-vs17-x64\php.exe` y `C:\laragon\bin\nodejs\node-v22\node.exe`,
-y el sitio responde en `http://bida-events.test`.
+y el sitio responde en `http://bida-events.test`. La base local es PostgreSQL; `pg_dump` y `psql` están en
+`C:\laragon\bin\postgresql\pgsql\bin` (variables `BACKUP_PG_DUMP` y `BACKUP_PSQL`).
+
+Despliegue: `docs/despliegue.md`. Registros, alertas y respaldos: `docs/operacion.md`.
 
 | Comando | Para qué |
 | --- | --- |
@@ -50,7 +53,15 @@ y el sitio responde en `http://bida-events.test`.
 | `php artisan optimize:clear` | Limpiar caché de vistas, rutas y configuración |
 | `php artisan invitations:purge-contributions --dry-run` | Ver qué fotos viejas se borrarían |
 | `php artisan bida:medir --guardar` | Medir las pantallas públicas y guardar el resultado |
+| `php artisan bida:imagenes-compartir` | Regenerar las tarjetas para compartir después de cambiar una foto del sitio |
+| `php artisan bida:enlace-campana invitaciones-de-boda --fuente=facebook --medio=anuncio --campana=mayo` | Armar el enlace de una campaña y ver su código |
 | `php artisan queue:work` | Procesar los archivos que piden los clientes (en producción, con supervisor) |
+| `php artisan db:seed --class=ClientUserSeeder` | Crear el cliente de prueba `cliente.prueba` (muestra la contraseña una vez) |
+| `php artisan bida:respaldo` | Respaldar base y medios en `storage/app/backups` |
+| `php artisan bida:probar-respaldo` | Restaurar el último respaldo en una base temporal y verificarlo |
+| `php artisan bida:salud` | Revisar colas, respaldos y disco |
+| `php artisan schedule:list` | Ver las tareas programadas |
+| `vendor/bin/pint --test` | Revisar el estilo del código (lo exige la integración continua) |
 | `php artisan test` | Suite completa |
 | `npm run build` | Compilar CSS y JS |
 
@@ -60,7 +71,7 @@ y el sitio responde en `http://bida-events.test`.
 
 | Superficie | Quién entra | Rutas | Vistas |
 | --- | --- | --- | --- |
-| **Sitio público** | Cualquiera | `/`, `/login` | `home.blade.php`, `auth/login.blade.php`, `layouts/site.blade.php` |
+| **Sitio público** | Cualquiera | `/`, `/invitaciones-de-*`, `/login` | `home.blade.php`, `landing.blade.php`, `site/partials/*`, `auth/login.blade.php`, `layouts/site.blade.php` |
 | **Invitación pública** | Invitados con enlace | `/p/{slug}`, `/p/{slug}/i/{token}` | `invitations/templates/*` |
 | **Muestras interactivas** | Visitantes de la home | `/muestra/{slug}` | Las mismas plantillas, en modo muestra |
 | **Panel admin** | Usuario con `is_admin` | `/admin/**` | `admin/**`, `layouts/admin*.blade.php` |
@@ -94,7 +105,9 @@ Todas están en `routes/web.php`.
 
 | Método y ruta | Nombre | Controlador | Notas |
 | --- | --- | --- | --- |
-| `GET /` | `home` | `HomeController` | Portada pública |
+| `GET /` | `home` | `HomeController` | Portada pública; middleware `lead.source` |
+| `GET /invitaciones-de-boda`, `/invitaciones-xv-anos`, `/invitaciones-de-bautizo`, `/invitaciones-de-cumpleanos` | `landing` | `EventLandingController` | Página por tipo de evento (contenido en `config/bida.php`, clave `landings`); middleware `lead.source` |
+| `GET /sitemap.xml` | `sitemap` | `EventLandingController@sitemap` | Portada y páginas por evento |
 | `GET /muestra/{slug}` | `invitation.demo` | `Public\InvitationController@demo` | Solo las invitaciones de `bida.demo_invitations`; nada se guarda; `noindex` |
 | `GET /dashboard` | `dashboard` | Cierre en rutas | Redirige a admin o cliente según el rol |
 | `GET/POST /login`, `POST /logout` | `login`, `logout` | `Auth\LoginController` | `throttle:login` |
@@ -104,6 +117,7 @@ Todas están en `routes/web.php`.
 | `GET/POST /p/{slug}/playlist` | `invitation.playlist*` | `Public\ContributionController` | `throttle:invitation-songs` |
 | `GET/POST /p/{slug}/fotomural` | `invitation.fotomural*` | `Public\ContributionController` | `throttle:invitation-photos` |
 | `POST /p/{slug}/polls/{pollId}/vote` | `invitation.poll.vote` | `Public\ContributionController@votePoll` | `throttle:invitation-votes` |
+| `GET /admin/sistema-visual` | `admin.design-system` | `Admin\DesignSystemController` | Referencia interna de colores, tipografía y componentes |
 | `/admin/**` | `admin.*` | `Admin\*` | Middleware `auth` + `admin` |
 | `/client/**` | `client.*` | `Client\*` | Middleware `auth` + `client`, con policies |
 
@@ -127,6 +141,9 @@ propósito y responde `no-store`.
 | `README.md` | Presentación corta del proyecto |
 | `PROJECT_MAPA.md` | Este documento |
 | `docs/rendimiento.md` | Última medición de tiempos, consultas y peso (la genera `php artisan bida:medir --guardar`) |
+| `docs/despliegue.md` | Primera instalación, publicación de una versión, vuelta atrás, cron y worker |
+| `docs/operacion.md` | Registros, alertas de `bida:salud`, respaldos, prueba y procedimiento de restauración |
+| `.github/workflows/ci.yml` | Integración continua: compila, revisa estilo con Pint y corre las pruebas en cada push |
 | `.claude/skills/taste-skill/SKILL.md` | Guía de criterio visual usada al diseñar el sitio |
 
 ### 5.2 Arranque y configuración
@@ -144,25 +161,28 @@ propósito y responde `no-store`.
 | `config/filesystems.php` | Discos locales y públicos |
 | `config/logging.php` | Canales de log |
 | `config/mail.php` | Envío de correo |
-| `config/optimizations.php` | Interruptores propios: caché de invitaciones y TTL, aviso de lecturas JSON, límites por minuto de login, RSVP, canciones, fotos y votos, cabeceras HTTP de caché y CDN |
+| `config/optimizations.php` | Interruptores propios: caché de invitaciones y TTL, aviso de lecturas JSON, retención, límites por minuto de login, RSVP, canciones, fotos y votos, y cabeceras HTTP de caché |
+| `config/operations.php` | Umbral de peticiones lentas, alertas, carpeta y ejecutables de respaldo |
 | `config/queue.php` | Colas y conexión por defecto |
 | `config/security.php` | Proxies de confianza (`TRUSTED_PROXIES`) y política de contenido (`CSP_ENABLED`, `CSP_ENFORCE`) |
 | `config/services.php` | Credenciales de terceros |
 | `config/session.php` | Driver, duración y cookies de sesión |
 | `routes/web.php` | Todas las rutas (tabla anterior) |
-| `routes/console.php` | Solo el comando de ejemplo `inspire` |
+| `routes/console.php` | Tareas programadas: respaldo diario, prueba de restauración semanal, purga de fotos, revisión de salud cada hora y limpieza de trabajos fallidos |
 
 ### 5.3 Controladores
 
 | Archivo | Qué hace |
 | --- | --- |
 | `app/Http/Controllers/Controller.php` | Controlador base |
-| `HomeController.php` | Portada: paquetes con enlace de WhatsApp prellenado, invitación de la portada y lista de muestras (con su URL interactiva y su URL de apertura automática) |
+| `HomeController.php` | Portada: paquetes con enlace de WhatsApp prellenado y código de origen, invitación de la portada, muestras y tarjeta para compartir |
+| `EventLandingController.php` | Páginas por tipo de evento y `sitemap.xml` |
 | `Auth/LoginController.php` | Formulario de acceso, login con límite de intentos, regeneración de sesión y salida |
 | `Public/InvitationController.php` | Renderiza la invitación pública: carga módulos (tablas o JSON), resultados de encuestas, playlist, fotomural y URL de calendario. También sirve `/muestra/{slug}` con un invitado ficticio que no se guarda |
 | `Public/RsvpController.php` | Confirmación de asistencia por invitado y generación del pase |
 | `Public/ContributionController.php` | Lista y recibe canciones y fotos, y registra votos de encuestas |
 | `Admin/DashboardController.php` | Panel del administrador con el estado de las invitaciones |
+| `Admin/DesignSystemController.php` | Página interna del sistema visual: tokens, tipografía, componentes y contraste de cada tema |
 | `Admin/InvitationController.php` | Crear, editar y actualizar invitaciones; crear el usuario cliente |
 | `Admin/GuestController.php` | Alta, edición y baja de invitados de una invitación |
 | `Admin/MediaUploadController.php` | Subida de imágenes y videos a Cloudinary desde el editor |
@@ -180,6 +200,8 @@ propósito y responde `no-store`.
 | `app/Http/Middleware/EnsureUserIsAdmin.php` | Solo deja pasar a usuarios con `is_admin` |
 | `app/Http/Middleware/EnsureUserIsClient.php` | Solo deja pasar a clientes |
 | `app/Http/Middleware/CachePublicInvitations.php` | Cabeceras de caché de las invitaciones: `public` para el enlace general, `private` para el personal y `no-store` si la caché está apagada |
+| `app/Http/Middleware/CaptureLeadSource.php` | Recuerda 30 días el origen de campaña (`utm_*` o `?ref=`) en la cookie `bida_origen` |
+| `app/Http/Middleware/LogSlowRequests.php` | Registra en `performance-*.log` las peticiones lentas, con el nombre de la ruta y sin tokens |
 | `app/Http/Middleware/SecurityHeaders.php` | Cabeceras de seguridad de todas las respuestas y política de contenido (en modo reporte hasta activar `CSP_ENFORCE`) |
 | `app/Http/Requests/Admin/Invitation/StoreInvitationRequest.php` | Validación al crear una invitación |
 | `app/Http/Requests/Admin/Invitation/UpdateInvitationRequest.php` | Validación al guardar el editor completo |
@@ -219,6 +241,7 @@ propósito y responde `no-store`.
 | --- | --- |
 | `Services/InvitationModuleService.php` | Corazón de los módulos: normaliza lo que llega del editor, resuelve lo que se muestra, guarda módulo por módulo, calcula resultados de encuestas, arma la URL de Google Calendar y genera tokens de invitado |
 | `Services/InvitationStructuredDataService.php` | Puente entre JSON y tablas: dice si una invitación ya está migrada, hidrata desde tablas, sincroniza, verifica diferencias y arma las filas de configuración, itinerario, galería y encuestas |
+| `Services/BackupService.php` | Volcado (`pg_dump`, `mysqldump`, SQLite), compresión, manifiesto de medios, retención y prueba de restauración |
 | `Services/InvitationCacheService.php` | Encendido/apagado de la caché, TTL, invalidación por invitación y olvido puntual de encuestas, playlist y fotomural |
 | `Services/InvitationPreviewSession.php` | Guarda en sesión el borrador del editor para la vista previa |
 | `Services/MediaUploadService.php` | Valida y sube imágenes y videos a Cloudinary con transformaciones por contexto (portada, galería, ubicación, dress code, video, fotomural, QR bancario) |
@@ -228,11 +251,15 @@ propósito y responde `no-store`.
 | Archivo | Qué hace |
 | --- | --- |
 | `InvitationPage.php` | Objeto que usa toda plantilla pública: paleta, fuentes, módulos visibles, orden de secciones, nombres, edad, iniciales y textos de la plantilla |
-| `InvitationTemplates.php` | Catálogo de las cuatro plantillas: etiqueta, descripción, evento, textos propios y orden de módulos |
+| `InvitationTemplates.php` | Catálogo de las cuatro plantillas: etiqueta, descripción, evento, paleta por defecto, textos propios y orden de módulos |
+| `ColorContrast.php` | Contraste WCAG y las mezclas de color de la invitación; lo usan la página del sistema visual y las pruebas |
 | `InvitationDefaults.php` | Códigos de módulos, pestañas del editor, visibilidad por defecto, módulos vacíos y resolución de plantilla |
 | `InvitationModuleRules.php` | Esquema de validación de cada módulo del editor |
 | `ItineraryIcons.php` | Catálogo de íconos del itinerario |
-| `CloudinaryImage.php` | Arma variantes responsivas (`f_auto`, `q_auto`, ancho) y `srcset` |
+| `CloudinaryImage.php` | Arma variantes responsivas (`f_auto`, `q_auto`, ancho), `srcset` y el recorte 1200×630 en JPG para compartir |
+| `ShareMeta.php` | Título, descripción e imagen Open Graph de invitaciones, portada y páginas por evento |
+| `LeadSource.php` | Origen de campaña y código corto del mensaje de WhatsApp (`Ref. BODA-FB-MAYO`) |
+| `ShowcaseDemos.php` | Invitaciones de muestra activas, para la portada y las páginas por evento |
 | `SiteImage.php` | Fotos del sitio público; si el archivo no existe usa un marcador |
 | `MapsLinkParser.php` | Interpreta enlaces de Google Maps y extrae coordenadas |
 | `YouTubeHelper.php` | Detecta enlaces de YouTube y da formato a las canciones sugeridas |
@@ -260,9 +287,13 @@ propósito y responde `no-store`.
 | `Events/PollVoteSubmitted.php` | Se emite al registrar un voto |
 | `Listeners/RefreshInvitationCache.php` | Escucha los tres eventos e invalida la caché de forma síncrona |
 | `Providers/AppServiceProvider.php` | Registro de servicios, límites de peticiones y ajustes globales |
-| `Providers/BladeServiceProvider.php` | Directivas y componentes propios de Blade |
 | `Console/Commands/MigrateInvitationJsonModules.php` | Comando `invitations:migrate-json`, con `--dry-run`, `--invitation` y `--force` |
+| `Console/Commands/BackupCommand.php` | Comando `bida:respaldo`: base, medios locales y manifiesto de Cloudinary |
+| `Console/Commands/TestBackupRestore.php` | Comando `bida:probar-respaldo`: restaura en una base temporal y compara filas |
+| `Console/Commands/HealthCheck.php` | Comando `bida:salud`: trabajos fallidos, cola, exportaciones, respaldos y disco; avisa por correo |
 | `Console/Commands/PurgeOldContributions.php` | Comando `invitations:purge-contributions`: borra fotos de eventos viejos (con su archivo en Cloudinary) y exportaciones vencidas |
+| `Console/Commands/GenerateShareImages.php` | Comando `bida:imagenes-compartir`: recorta las tarjetas de 1200×630 en `public/images/share` |
+| `Console/Commands/CampaignLink.php` | Comando `bida:enlace-campana`: arma un enlace con UTM y muestra el código que llegará por WhatsApp |
 | `Console/Commands/MeasurePerformance.php` | Comando `bida:medir`: tiempo, consultas, memoria y peso del HTML de las pantallas públicas |
 | `Jobs/GenerateInvitationExport.php` | Arma en segundo plano el Excel o el PDF que pidió el cliente |
 
@@ -312,16 +343,17 @@ propósito y responde `no-store`.
 | Archivo | Qué hace |
 | --- | --- |
 | `seeders/DatabaseSeeder.php` | Crea el administrador y llama a los demás |
+| `seeders/ClientUserSeeder.php` | Cliente de prueba `cliente.prueba` con una invitación de muestra sin dueño; la contraseña sale de `SEED_CLIENT_PASSWORD` o se genera y se muestra una vez |
 | `seeders/EventTypeSeeder.php` | Tipos de evento base |
 | `seeders/ShowcaseInvitationsSeeder.php` | Recrea las cuatro invitaciones de muestra completas, con invitados, aportes y votos; es idempotente |
 | `seeders/showcase/xv-isabella.php` | Datos de la muestra de XV años |
 | `seeders/showcase/boda-camila-andres.php` | Datos de la muestra de boda |
 | `seeders/showcase/bautizo-emilia.php` | Datos de la muestra de bautizo |
 | `seeders/showcase/cumple-daniela-30.php` | Datos de la muestra de cumpleaños |
-| `seeders/XvSofiaModuleData.php` | Módulos de ejemplo de XV usados por las pruebas |
-| `seeders/BodaJardinDemoSeeder.php` | Módulos de ejemplo de boda |
-| `seeders/BautizoCieloDemoSeeder.php` | Módulos de ejemplo de bautizo |
-| `seeders/CumpleFiestaDemoSeeder.php` | Módulos de ejemplo de cumpleaños |
+| `seeders/XvSofiaModuleData.php` | Datos de prueba: invitación completa de XV que usan los tests (no son las muestras de la portada) |
+| `seeders/BodaJardinDemoSeeder.php` | Datos de prueba: invitación completa de boda |
+| `seeders/BautizoCieloDemoSeeder.php` | Datos de prueba: invitación completa de bautizo |
+| `seeders/CumpleFiestaDemoSeeder.php` | Datos de prueba: invitación completa de cumpleaños |
 | `factories/UserFactory.php` | Usuarios de prueba |
 
 ### 5.10 Vistas
@@ -330,7 +362,8 @@ propósito y responde `no-store`.
 
 | Archivo | Qué hace |
 | --- | --- |
-| `layouts/site.blade.php` | Layout del sitio público y del login |
+| `layouts/site.blade.php` | Layout del sitio público y del login, con las etiquetas para compartir |
+| `layouts/partials/share-meta.blade.php` | Etiquetas `og:` y `twitter:` (las usan el sitio y las invitaciones) |
 | `layouts/admin.blade.php` | Layout del panel admin |
 | `layouts/admin-editor.blade.php` | Layout del editor, con las fuentes elegibles |
 | `layouts/client.blade.php` | Layout del panel del cliente |
@@ -342,12 +375,14 @@ propósito y responde `no-store`.
 | `components/brand/logo.blade.php` | Logo con el nombre de la marca |
 | `components/brand/mark.blade.php` | Isotipo suelto |
 | `components/site/image.blade.php` | Foto del sitio con tamaños y respaldo |
-| `welcome.blade.php` | Vista por defecto de Laravel; hoy no la usa ninguna ruta |
 
 **Sitio público**
 
 | Archivo | Qué hace |
 | --- | --- |
+| `landing.blade.php` | Página por tipo de evento: portada con su foto y la apertura, qué incluye, muestra interactiva, precios, preguntas (con datos estructurados `FAQPage`) y enlaces a los otros eventos |
+| `site/partials/header.blade.php`, `plans.blade.php`, `faqs.blade.php`, `footer.blade.php` | Cabecera, precios, preguntas y pie compartidos por la portada y las páginas por evento |
+| `sitemap.blade.php` | Mapa del sitio en XML |
 | `home.blade.php` | Portada completa: navegación, encabezado con el teléfono que recorre las aperturas, franja de tipos de evento, servicios en filas numeradas, sección de plantillas con la muestra interactiva, pasos de trabajo, precios en columnas, preguntas frecuentes, contacto y pie |
 | `auth/login.blade.php` | Acceso al panel, con el mismo rotador de la portada |
 
@@ -484,10 +519,10 @@ propósito y responde `no-store`.
 | `public/index.php` | Entrada HTTP |
 | `public/.htaccess` | Reescritura de URLs |
 | `public/robots.txt` | Reglas para buscadores |
+| `public/images/share/*.jpg` | Tarjetas de 1200×630 para compartir la portada y cada tipo de evento (las genera `bida:imagenes-compartir`) |
 | `public/favicon.svg` / `favicon.ico` | Íconos del sitio |
 | `public/images/site/event-*.webp` | Fotos de los cuatro eventos de la portada |
 | `public/images/site/servicio-enlace.webp` / `servicio-fotomural.webp` | Fotos de la sección de servicios |
-| `public/images/site/nosotros.webp` | Foto de una sección que ya se quitó |
 | `tests/TestCase.php` | Base de las pruebas |
 | `tests/Concerns/CreatesInvitations.php` | Utilidad para crear invitaciones de prueba |
 | `tests/Feature/HomePageTest.php` | Portada: paquetes, WhatsApp, redes, plantillas y sincronía del teléfono |
@@ -497,6 +532,14 @@ propósito y responde `no-store`.
 | `tests/Feature/StructuredModulesRoundTripTest.php` | Los módulos de las cuatro plantillas vuelven iguales desde las tablas |
 | `tests/Feature/ModuleSyncAndRetentionTest.php` | Guardado todo o nada, reutilización de filas y purga de fotos viejas |
 | `tests/Feature/AdminPanelPerformanceTest.php` | El panel pagina, cuenta en la base y no crece en consultas |
+| `tests/Feature/AccessibleInvitationTest.php` | Lectura sin JavaScript, foco del menú, contraste de las cuatro paletas y `alt` por foto |
+| `tests/Feature/DesignSystemPageTest.php` | La referencia visual se ve completa y solo la abre administración |
+| `tests/Feature/SharingAndCampaignsTest.php` | Vista previa al compartir, páginas por evento, `sitemap.xml` y código de origen en WhatsApp |
+| `tests/Feature/InvitationPolicyMatrixTest.php` | Cada método de la policy, en la regla y en sus rutas, frente a otro cliente |
+| `tests/Feature/ConcurrencyAndLimitsTest.php` | Votos y confirmaciones simultáneos, subidas prohibidas y 429 con su mensaje |
+| `tests/Feature/TemplateRenderMatrixTest.php` | Las cuatro plantillas vacías y completas, enlace general y personal |
+| `tests/Feature/BackupRestoreTest.php` | El respaldo se crea, se restaura y un volcado roto falla |
+| `tests/Feature/OperationsTest.php` | Revisión de salud, registro de peticiones lentas y cliente de prueba |
 | `tests/Feature/AccessControlTest.php` | Separación de admin y cliente |
 | `tests/Feature/ClientCredentialsTest.php` | Alta y acceso del cliente |
 | `tests/Feature/ClientExportsTest.php` | Exportaciones Excel y PDF |
@@ -656,94 +699,122 @@ comportamiento: con 25 invitaciones y 500 invitados hace menos de 15 consultas y
   vencidas, pero todavía nadie lo ejecuta solo: falta agregarlo al programador de tareas.
 - **Medir con datos reales (punto 21).** La medición local usa cuatro invitaciones; conviene repetirla
   con un volumen parecido al de producción.
-### 7.4 Frontend, diseño y accesibilidad
+### 7.4 Frontend, diseño y accesibilidad — implementada
 
-#### 22. La invitación depende de JavaScript — *impacto medio, esfuerzo medio*
-
-- **Hoy:** varias secciones se muestran con Alpine (`x-show`, `x-cloak`) y la apertura bloquea el
-  scroll hasta que se toca.
-- **Por qué importa:** si el script falla o tarda en una conexión lenta, el invitado no ve fecha,
-  lugar ni itinerario.
-- **Cómo:** que el contenido esencial esté en el HTML y el JavaScript solo lo mejore; `<noscript>` ya
-  oculta la apertura, falta revisar módulos.
-- **Verificar:** abrir una invitación con JavaScript desactivado y comprobar que se lee lo esencial.
-
-#### 23. Accesibilidad — *impacto medio, esfuerzo medio*
-
-- **Hoy:** hay foco visible y se respeta `prefers-reduced-motion`, pero no está verificado el
-  contraste de los cuatro temas ni el recorrido con teclado del menú y la galería. Las fotos que sube
-  el cliente van con `alt` vacío.
-- **Cómo:** revisar contraste (4.5:1 en texto), permitir `alt` por foto en el editor, comprobar que
-  todo control sea alcanzable con teclado y que el menú devuelva el foco al cerrarse.
-- **Verificar:** recorrer una invitación completa solo con teclado y pasar un revisor automático.
-
-#### 24. Sistema visual documentado — *impacto medio, esfuerzo bajo*
-
-- **Hoy:** conviven dos sistemas: los tokens del sitio (`site.css`) y los de la invitación
-  (`base.css`), más cuatro temas.
-- **Cómo:** una página interna que muestre colores, tipografías, botones, campos y tarjetas de cada
-  sistema, para no reinventar estilos en cada pantalla nueva.
-
-#### 25. El editor necesita el mismo cuidado que el sitio — *impacto medio, esfuerzo alto*
-
-- **Hoy:** diecinueve paneles al mismo nivel, sin indicación de progreso ni de qué falta para
-  publicar.
-- **Cómo:** agrupar por etapas (identidad, contenido, interacción, cierre), mostrar qué módulos están
-  incompletos, vista previa siempre visible en pantallas grandes y un botón claro de publicar.
-
-### 7.5 Compartir, SEO y marketing
-
-#### 26. No hay vista previa al compartir — *impacto alto, esfuerzo bajo*
-
-- **Hoy:** ninguna vista tiene etiquetas `og:` ni `twitter:`; al pegar el enlace en WhatsApp no
-  aparece imagen ni descripción.
-- **Por qué importa:** WhatsApp es el canal principal de distribución de este producto.
-- **Cómo:** en `shell/head.blade.php` añadir `og:title` (nombre del evento), `og:description` (fecha y
-  lugar), `og:image` (la foto de portada por Cloudinary, recortada a 1200×630) y `og:url`. Hacer lo
-  mismo en la portada del sitio.
-- **Verificar:** pegar el enlace en un chat de prueba y revisar la tarjeta.
-
-#### 27. Páginas por tipo de evento — *impacto medio, esfuerzo medio*
-
-- **Cómo:** `/invitaciones-de-boda`, `/invitaciones-xv-anos`, etc., cada una con su muestra embebida,
-  preguntas propias y llamado a WhatsApp. Da material para buscadores y para anuncios.
-
-#### 28. Saber de dónde viene cada cliente — *impacto medio, esfuerzo bajo*
-
-- **Cómo:** añadir UTM a los enlaces de campañas y un código corto en el mensaje prellenado de
-  WhatsApp (`HomeController`), para identificar el origen al responder.
-
-### 7.6 Pruebas, calidad y operación
-
-#### 29. Pruebas que faltan — *impacto alto, esfuerzo medio*
-
-- Policies: un cliente no ve, edita, exporta ni gestiona invitados de otro (una prueba por método).
-- Concurrencia: dos votos simultáneos, dos confirmaciones simultáneas.
-- Subidas: archivo grande, tipo no permitido, SVG con script.
-- Límites: que el throttle responda 429 con el mensaje esperado.
-- Regresión visual mínima: que las cuatro plantillas rendericen con módulos vacíos y completos.
-
-#### 30. Observabilidad y respaldos — *impacto alto, esfuerzo medio*
-
-- **Cómo:** registrar tiempos y errores, alertar sobre `failed_jobs`, respaldar base de datos y medios
-  con prueba de restauración, y dejar escrito el procedimiento de despliegue (`migrate --force`,
-  `optimize`, `npm run build`, limpieza de caché).
-
-#### 31. Integración continua — *impacto medio, esfuerzo bajo*
-
-- **Cómo:** un flujo que ejecute `php artisan test`, `./vendor/bin/pint --test` y `npm run build` en
-  cada rama, para no depender de correrlo a mano.
-
-### 7.7 Limpieza pendiente
-
-| Elemento | Situación | Acción |
+| # | Qué se hizo | Dónde |
 | --- | --- | --- |
-| `resources/views/welcome.blade.php` | Ninguna ruta lo usa | Eliminar |
-| `public/images/site/nosotros.webp` | La sección se quitó de la portada | Eliminar |
-| `routes/console.php` | Solo trae el comando `inspire` de ejemplo | Dejarlo o reemplazarlo por comandos propios |
-| `config/optimizations.php` → `blade`, `database`, `cdn` | Claves declaradas que ningún código lee | Quitarlas o implementarlas |
-| `app/Providers/BladeServiceProvider.php` | No está registrado en `bootstrap/providers.php` y su registro está comentado en `AppServiceProvider` | Registrarlo o eliminarlo |
-| Plantillas de ejemplo (`BodaJardinDemoSeeder`, `XvSofiaModuleData`, …) | Se usan en pruebas | Mantener, documentando que son datos de prueba |
+| 22 | La invitación se sirve con la clase `no-js`, que el primer script de la cabecera quita al arrancar. Sin JavaScript todo se ve plano y completo; lo que de verdad lo necesita (confirmar, votar, sugerir, subir fotos) avisa dentro de `<noscript>` | `shell/head`, bloque «Sin JavaScript» de `invitation/base.css`, avisos en `rsvp`, `polls`, `playlist` y `fotomural` |
+| 22 | Un vigía devuelve la clase si Alpine no arrancó a los 6 segundos: también cubre el caso de que el bundle no llegue, no solo el de JavaScript desactivado | `shell/head` |
+| 22 | Los datos bancarios viven en un `<template x-teleport>` que sin Alpine nunca se pinta: ahora hay una copia plana en `<noscript>`. El video se sirve con `controls` y el reproductor propio los quita al iniciarse | `regalos.blade.php`, `video.blade.php`, `resources/js/video-player.js` |
+| 23 | Los tonos apagados no llegaban a 4.5:1 en tres de las cuatro paletas: se recalcularon las mezclas y el dorado decorativo se separó en `--inv-accent-deco` para no apagar los números grandes ni el hashtag | `invitation/base.css` y los cuatro temas |
+| 23 | Enlace «Saltar al contenido», anillo de foco con contraste suficiente, y el menú devuelve el foco al botón al cerrarse y atrapa el tabulador mientras tapa la página | `templates/*`, `shell/nav`, `shell/scripts` |
+| 23 | Cada foto de la galería y del post evento puede llevar descripción, que se guarda en `alt_text` y llega al `alt` de la invitación | panel de galería y post evento, `InvitationModuleRules`, `gallery-stack`, `post-event` |
+| 23 | El panel de Estética mide el contraste de los tonos derivados, no solo texto sobre fondo, y avisa cuál no se lee | `panels/estetica`, `contrastChecks()` en el editor |
+| 24 | Página interna `/admin/sistema-visual` con los colores del sitio, la tipografía, los componentes que ya existen y las cuatro paletas con su contraste medido | `Admin\DesignSystemController`, `admin/design-system.blade.php`, `Support\ColorContrast` |
+| 25 | El editor marca con un punto los apartados incompletos y resume, encima de los botones, todo lo que falta, con un atajo a cada apartado | `editor/sidebar`, `moduleIssues()`/`pendingIssues` en el editor |
+| 25 | Publicar dejó de ser un selector escondido en General: hay botón de publicar y de despublicar, con el estado en texto claro | `editor/sidebar`, `publish()`/`unpublish()` |
+
+**Lo que se comprobó**
+
+- Con el navegador sin JavaScript: la invitación mide 11 256 px de alto, con itinerario, ubicación y
+  regalos visibles (opacidad 1), la apertura y el menú ocultos, los tres grupos de vestimenta uno
+  debajo de otro y los datos del banco con su QR a la vista. Con JavaScript vuelve el comportamiento
+  normal y el video pierde los controles nativos.
+- Con teclado: al abrir el menú el foco cae en el primer enlace y, al pulsar Escape, vuelve al botón.
+- Las cuatro paletas pasan AA en las ocho piezas que mide `ColorContrast` (la más ajustada es
+  «Etiquetas y ayudas» del bautizo, 4.58:1).
+- La lógica de «qué falta» se ejecutó con los datos reales de una invitación: con todo cargado avisa
+  solo del cliente sin asignar, y al vaciar módulos encendidos aparece un aviso por cada uno.
+
+**Pendiente**
+
+- **Descripción de fotos en la portada y en la ubicación.** El `alt` por foto está en la galería y en
+  el post evento; la foto de portada y la del lugar siguen con `alt` vacío (son decorativas, pero la
+  del lugar podría describirse).
+- **Repaso con un lector de pantalla real.** Se verificó el recorrido con teclado y el contraste
+  medido, no la experiencia completa con NVDA o TalkBack.
+- **La vista previa del editor en pantallas chicas.** Sigue siendo una columna aparte; en portátiles
+  angostos el editor queda apretado.
+### 7.5 Compartir, SEO y marketing — implementada
+
+| # | Qué se hizo | Dónde |
+| --- | --- | --- |
+| 26 | Cada invitación comparte su nombre, fecha, lugar y foto de portada recortada por Cloudinary a 1200×630 en JPG. El enlace personal nombra al invitado; la muestra de la home no, porque su invitado es ficticio | `ShareMeta`, `InvitationPage::share()`, `CloudinaryImage::card()`, `shell/head` |
+| 26 | Sin foto de portada, la invitación usa la tarjeta de su tipo de evento. La portada del sitio y las páginas por evento tienen su propia tarjeta, recortada de las fotos del sitio | `public/images/share`, `bida:imagenes-compartir`, `layouts/site` |
+| 27 | Cuatro páginas por tipo de evento con la apertura de su plantilla en el teléfono, lo propio de ese evento, la muestra interactiva, precios, preguntas marcadas con `FAQPage` y enlaces entre ellas | `EventLandingController`, `landing.blade.php`, `config/bida.php` (`landings`) |
+| 27 | Cabecera, precios, preguntas y pie salieron de la portada a parciales, para no duplicarlos. La portada enlaza cada página desde su plantilla y desde el pie | `site/partials/*`, `home.blade.php` |
+| 27 | `sitemap.xml` con la portada y las páginas por evento; las invitaciones y las muestras siguen fuera | `EventLandingController@sitemap` |
+| 28 | Los botones de WhatsApp agregan al final del mensaje un código con la página, la fuente y la campaña: `Ref. BODA-FB-MAYO`. El origen (`utm_*` o `?ref=` para impresos y QR) se recuerda 30 días | `LeadSource`, `CaptureLeadSource`, `config/bida.php` (`lead_sources`) |
+| 28 | Un comando arma el enlace de cada campaña y muestra el código que va a llegar | `bida:enlace-campana` |
+
+**Lo que se comprobó**
+
+- Etiquetas de la muestra de boda: «Camila & Andrés · Nos casamos», «Sábado 12 de diciembre · 16:00 h ·
+  Hacienda Los Molles» y la foto de portada por Cloudinary en `c_fill,g_auto,w_1200,h_630,f_jpg`.
+- Las cinco tarjetas del sitio miden 1200×630; se revisaron los recortes (en bautizo y cumpleaños se
+  ajustó el encuadre para no cortar las caras).
+- Una visita con `?utm_source=facebook&utm_campaign=Mayo 2026` a la página de bodas deja la cookie y el
+  mensaje termina en «Ref. BODA-FB-MAYO2026»; otra visita días después, sin parámetros, a la de XV años
+  conserva la fuente. Sin campaña, la portada manda «Ref. WEB».
+- Las páginas por evento se revisaron en escritorio y en 390 px.
+
+**Pendiente**
+
+- **Probar la tarjeta en un chat real.** WhatsApp solo lee la vista previa de una dirección pública con
+  HTTPS: hay que hacerlo en producción (o con el depurador de Facebook, que usa las mismas etiquetas).
+  WhatsApp guarda la tarjeta en caché: si se cambia la foto de portada, puede tardar en actualizarse.
+- **Declarar el mapa del sitio.** Agregar `Sitemap: https://<dominio>/sitemap.xml` a `public/robots.txt`
+  con el dominio definitivo y enviarlo en Google Search Console.
+- **`APP_URL` en producción.** Los enlaces de `sitemap.xml`, las imágenes para compartir y el comando de
+  campañas usan `APP_URL`; en local sale `http://localhost`.
+- **Medir resultados.** El código llega en el mensaje, pero nadie lo anota: conviene llevar una hoja con
+  los contactos por código para saber qué campaña vende.
+### 7.6 Pruebas, calidad y operación — implementada
+
+| # | Qué se hizo | Dónde |
+| --- | --- | --- |
+| 29 | Una prueba por método de la policy (`view`, `export`, `update`, `manageGuests`, `moderateContributions`), en la regla y en cada ruta, frente a otro cliente; incluye consultar y descargar un archivo ajeno | `InvitationPolicyMatrixTest` |
+| 29 | Voto simultáneo: se inserta el voto rival entre la comprobación y el guardado, y la clave única lo frena. Confirmaciones seguidas: gana la última y nunca pasa de los lugares | `ConcurrencyAndLimitsTest` |
+| 29 | Subidas en el fotomural y en el editor: archivo grande, PDF, SVG con script, PHP con extensión de foto, ejecutable como video e imagen como audio | `ConcurrencyAndLimitsTest` |
+| 29 | Los cuatro endpoints públicos y el login responden 429 con «Demasiados intentos…» | `ConcurrencyAndLimitsTest` |
+| 29 | Las cuatro plantillas se arman vacías con todos los módulos encendidos y completas, en el enlace general y el personal | `TemplateRenderMatrixTest` |
+| 30 | Peticiones lentas en su propio log, con el nombre de la ruta y sin el código del invitado; trabajos fallidos al log en el momento | `LogSlowRequests`, `AppServiceProvider::reportFailedJobs()`, canales `performance` y `operations` |
+| 30 | Respaldo diario de la base (PostgreSQL, MySQL o SQLite), medios locales y manifiesto de Cloudinary, con retención | `bida:respaldo`, `BackupService` |
+| 30 | Prueba de restauración semanal en una base temporal que se borra al terminar | `bida:probar-respaldo` |
+| 30 | Revisión cada hora con aviso por correo: trabajos fallidos, cola sin worker, exportaciones atascadas, antigüedad del respaldo y de su prueba, disco | `bida:salud`, `config/operations.php` |
+| 30 | Procedimiento escrito de despliegue, vuelta atrás, cron, worker, respaldo fuera del servidor y restauración | `docs/despliegue.md`, `docs/operacion.md` |
+| 31 | Flujo de GitHub Actions en cada push y pull request: `npm run build`, `pint --test` y `php artisan test` | `.github/workflows/ci.yml` |
+| 31 | Pint se pasó a todo el código para que el flujo arranque en verde (solo formato: espacios, orden de imports, llaves) | 45 archivos |
+
+**Lo que se comprobó**
+
+- Suite completa: 126 pruebas (800 aserciones), 32 nuevas en este bloque.
+- Contra la base PostgreSQL local: el respaldo pesó 32 KB y listó 75 medios de Cloudinary; la
+  restauración cargó 28 tablas y 578 filas sin diferencias y la base temporal ya no existe;
+  `bida:salud` salió sin fallas.
+
+**Pendiente**
+
+- **Copiar los respaldos fuera del servidor** (`rclone` u otro, ver `docs/operacion.md`) y activar
+  Backup en Cloudinary: el manifiesto dice qué hay, no guarda los archivos.
+- **Configurar el correo** (`MAIL_*`) y `OPERATIONS_ALERT_EMAIL` en producción; sin eso las alertas
+  solo quedan en el log.
+- **El primer push** a GitHub dirá si el flujo de CI pasa también allá (no se pudo ejecutar localmente
+  el runner de Actions).
+- **Disco local:** la revisión marcó 11 % libre en este equipo, apenas sobre el umbral de alerta.
+
+### 7.7 Limpieza — hecha
+
+| Elemento | Qué se hizo |
+| --- | --- |
+| `resources/views/welcome.blade.php` | Eliminado (ninguna ruta lo usaba) |
+| `public/images/site/nosotros.webp` | Eliminado |
+| `routes/console.php` | Reemplazado por las tareas programadas (respaldo, prueba, purga, salud) |
+| `config/optimizations.php` → `blade`, `database`, `cdn` | Quitadas: ningún código las leía |
+| `app/Providers/BladeServiceProvider.php` | Eliminado: no estaba registrado y apuntaba a un componente que no existe; también se quitó el registro comentado |
+| `InvitationDefaults::modules()` | Eliminado: nadie lo llamaba y era lo único que hacía depender a la aplicación de los datos de prueba |
+| Plantillas de ejemplo (`BodaJardinDemoSeeder`, `XvSofiaModuleData`, …) | Se mantienen, marcadas en su comentario como datos de prueba |
+| Cliente de prueba | Nuevo `ClientUserSeeder`, incluido en `DatabaseSeeder` |
 ---
 
 ## 8. Hoja de ruta sugerida
@@ -753,8 +824,9 @@ comportamiento: con 25 invitaciones y 500 invitados hace menos de 15 consultas y
 | **1. Seguridad** | ✔ Hecho | Indexación, caché del enlace personal, proxies, votos, contraseña del cliente, subidas, cabeceras, tokens y moderación (ver 7.1). Falta configurar `TRUSTED_PROXIES` y exigir la CSP en producción |
 | **2. Datos** | ✔ Hecho | Tablas para ubicación, destacados, vestimenta, regalos y medios; voto por relación real; guardado que reutiliza filas; borrado y retención de archivos. Falta dejar de escribir el JSON de respaldo |
 | **3. Rendimiento** | ✔ Hecho | Paginación y conteos en la base, caché con candado, exportaciones en cola, imágenes por tamaño y comando de medición. Falta encender la caché y correr un worker en producción |
-| **4. Experiencia** | Producto | Editor por pasos, accesibilidad, Open Graph por invitación, guía visual, limpieza de vistas sin uso |
-| **5. Crecimiento** | Captación | Páginas por evento, UTM y medición, contenido con las muestras |
+| **4. Experiencia** | ✔ Hecho en parte | Lectura sin JavaScript, contraste AA, foco con teclado, `alt` por foto, sistema visual y editor con avisos y botón de publicar (ver 7.4) y limpieza de código sin uso (7.7) |
+| **5. Crecimiento** | ✔ Hecho en parte | Vista previa al compartir, páginas por evento con `sitemap.xml` y código de origen en WhatsApp (ver 7.5). Falta declarar el sitemap con el dominio y llevar la cuenta de contactos por campaña |
+| **6. Calidad y operación** | ✔ Hecho | Pruebas de permisos, concurrencia, subidas, límites y plantillas; respaldos con restauración probada; alertas; CI (ver 7.6). Falta copiar los respaldos fuera del servidor y configurar el correo de alertas |
 
 ---
 

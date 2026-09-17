@@ -6,11 +6,32 @@
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="{{ $page->colors['background'] }}">
 <title>{{ $page->displayName }}</title>
+{{-- Vista previa al pegar el enlace en WhatsApp: nombre, fecha, lugar y foto de portada --}}
+@include('layouts.partials.share-meta', ['share' => $page->share(url()->current(), empty($isDemo))])
 <script>
-    // Dentro de un iframe (vista previa del editor o teléfono de la home) se oculta la barra de scroll
-    if (window.self !== window.top) {
-        document.documentElement.classList.add('inv-embedded');
-    }
+    (function () {
+        const root = document.documentElement;
+
+        // Dentro de un iframe (vista previa del editor o teléfono de la home) se oculta la barra de scroll
+        if (window.self !== window.top) {
+            root.classList.add('inv-embedded');
+        }
+
+        // La invitación se sirve con la clase no-js: el HTML se lee plano y completo.
+        // Al arrancar se quita, y un vigía la devuelve si Alpine nunca inicia (bundle
+        // caído o red lenta), para que el invitado no se quede con la pantalla en blanco.
+        root.classList.remove('no-js');
+
+        const watchdog = setTimeout(function () {
+            if (window.Alpine) return;
+            root.classList.add('no-js', 'inv-cover-skip');
+            root.classList.remove('inv-cover-waiting', 'inv-lock');
+        }, 6000);
+
+        document.addEventListener('alpine:init', function () {
+            clearTimeout(watchdog);
+        });
+    })();
 
     // Muestra de la home: las respuestas se simulan en el navegador y la música nunca arranca sola
     window.invDemo = @js(! empty($isDemo));

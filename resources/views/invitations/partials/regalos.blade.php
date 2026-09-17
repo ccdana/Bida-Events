@@ -30,7 +30,7 @@
         <ul class="inv-list">
             @if($hasBanco)
                 <li>
-                    <button type="button" class="inv-gift" @click="showBank = true">
+                    <button type="button" class="inv-gift" data-needs-js @click="showBank = true">
                         <span class="inv-gift__icon" aria-hidden="true">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 10l9-6 9 6M5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 20h18" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </span>
@@ -108,6 +108,29 @@
     </div>
 
     @if($hasBanco)
+        {{-- Los datos de la cuenta viven en un <template>, que sin JavaScript nunca se pinta: aquí van planos --}}
+        <noscript>
+            <div class="inv-wrap">
+                <h3 class="inv-label">Transferencia bancaria</h3>
+                <dl class="inv-bank">
+                    @foreach($bankFields as $key => $label)
+                        <div class="inv-bank__row">
+                            <div class="inv-bank__data">
+                                <dt class="inv-label">{{ $label }}</dt>
+                                <dd class="inv-bank__value">{{ $banco[$key] }}</dd>
+                            </div>
+                        </div>
+                    @endforeach
+                </dl>
+                @if(!empty($banco['qr_url']))
+                    <figure class="inv-bank__qr">
+                        <img src="{{ $banco['qr_url'] }}" alt="Código QR para transferir" loading="lazy">
+                        <figcaption class="inv-help">Escanea el código desde la app de tu banco</figcaption>
+                    </figure>
+                @endif
+            </div>
+        </noscript>
+
     <template x-teleport="body">
         <div class="inv-page inv-sheet-backdrop" x-show="showBank" x-cloak
             x-transition.opacity.duration.250ms

@@ -11,12 +11,19 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 abstract class ReportSheet
 {
     protected const INK = 'FF1D1E20';
+
     protected const MUTED = 'FF6C6E73';
+
     protected const LINE = 'FFE3E4E0';
+
     protected const GOLD = 'FF8A6A1C';
+
     protected const GOLD_TINT = 'FFF3EAD4';
+
     protected const DANGER = 'FF9B2C22';
+
     protected const DANGER_TINT = 'FFF6E3E1';
+
     protected const NEUTRAL_TINT = 'FFEFEFEC';
 
     public function __construct(protected array $report) {}

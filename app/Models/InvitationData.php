@@ -17,7 +17,7 @@ class InvitationData extends Model
 
     // CARACTERÍSTICA CLAVE: Mapea la columna JSON a un array manipulable en PHP
     protected $casts = [
-        'json_data' => 'array', 
+        'json_data' => 'array',
     ];
 
     public function invitation(): BelongsTo

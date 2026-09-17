@@ -5,6 +5,9 @@ namespace Database\Seeders;
 /**
  * Payloads JSON de ejemplo para la invitación demo 'xv-sofia'.
  *
+ * Datos de prueba: los usan los tests (tests/Feature) como invitación completa de esta plantilla.
+ * No son las muestras de la portada; esas viven en database/seeders/showcase y ShowcaseInvitationsSeeder.
+ *
  * Estructura de módulos (feature_code => json_data):
  * - config: colores, tipografías, toggles de módulos, plantilla
  * - bienvenida: textos del hero

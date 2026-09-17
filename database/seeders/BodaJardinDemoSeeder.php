@@ -12,6 +12,9 @@ use Illuminate\Database\Seeder;
 /**
  * Invitación de ejemplo de la plantilla "Boda Jardín" (slug boda-ana-luis).
  *
+ * Datos de prueba: los usan los tests (tests/Feature) como invitación completa de esta plantilla.
+ * No son las muestras de la portada; esas viven en database/seeders/showcase y ShowcaseInvitationsSeeder.
+ *
  * Es idempotente: se puede ejecutar sola sobre una base existente con
  * php artisan db:seed --class=BodaJardinDemoSeeder
  */

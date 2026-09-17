@@ -8,7 +8,7 @@
             'intro' => $playlist['descripcion'] ?? 'Sugiere la canción que no puede faltar en la pista.',
         ])
 
-        <form class="inv-playlist__form" @submit.prevent="submit">
+        <form class="inv-playlist__form" data-needs-js @submit.prevent="submit">
             <label class="inv-label" for="playlist-song">Tu canción</label>
             <div class="inv-playlist__row">
                 <input id="playlist-song" type="text" class="inv-input" x-model="song" maxlength="200" autocomplete="off"
@@ -19,6 +19,10 @@
             </div>
             <p class="inv-help inv-playlist__help">Escribe el nombre y el artista, o pega un enlace de YouTube.</p>
         </form>
+
+        <noscript>
+            <p class="inv-noscript">Para sugerir una canción necesitas activar JavaScript en tu navegador.</p>
+        </noscript>
 
         <p class="inv-status" :class="{ 'is-error': error }" x-text="message" aria-live="polite"></p>
 

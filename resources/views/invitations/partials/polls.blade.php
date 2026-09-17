@@ -22,7 +22,7 @@
                 $options = array_values($poll['opciones']);
                 $isGrid = in_array($pollType, ['rating', 'emoji'], true);
             @endphp
-            <div class="inv-poll"
+            <div class="inv-poll" data-needs-js
                 x-show="step === {{ $number }}" @if($number > 0) x-cloak @endif
                 x-transition:enter="inv-poll-enter" x-transition:enter-start="inv-poll-enter-start"
                 x-data="pollVoter(@js($poll['id']), @js($pollResults[$poll['id']] ?? array_fill(0, count($options), 0)), @js($options), @js($slug), @js($guestToken), @js($pollType))">
@@ -65,6 +65,10 @@
                 </button>
             </nav>
         @endif
+
+        <noscript>
+            <p class="inv-noscript">Para votar en las encuestas necesitas activar JavaScript en tu navegador.</p>
+        </noscript>
     </div>
 </section>
 <script>

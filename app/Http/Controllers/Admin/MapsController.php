@@ -23,12 +23,12 @@ class MapsController extends Controller
                     'User-Agent' => 'BidaEvents/1.0 (admin geocoder)',
                 ])
                 ->get('https://nominatim.openstreetmap.org/search', [
-                    'format'         => 'jsonv2',
-                    'limit'          => 8,
+                    'format' => 'jsonv2',
+                    'limit' => 8,
                     'addressdetails' => 1,
-                    'namedetails'    => 1,
-                    'extratags'      => 1,
-                    'q'              => $validated['q'],
+                    'namedetails' => 1,
+                    'extratags' => 1,
+                    'q' => $validated['q'],
                 ]);
 
             if (! $response->successful()) {
@@ -113,9 +113,9 @@ class MapsController extends Controller
 
     protected static function shortLabel(array $item): string
     {
-        $address  = $item['address'] ?? [];
+        $address = $item['address'] ?? [];
         $nameDetails = $item['namedetails'] ?? [];
-        $extraTags   = $item['extratags'] ?? [];
+        $extraTags = $item['extratags'] ?? [];
 
         // Intentar obtener el nombre del lugar/establecimiento
         $venueName = $nameDetails['name'] ?? $nameDetails['name:es'] ?? null;

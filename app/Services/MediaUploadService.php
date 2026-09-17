@@ -4,11 +4,9 @@ namespace App\Services;
 
 use Cloudinary\Api\Upload\UploadApi;
 use Cloudinary\Configuration\Configuration;
-use Cloudinary\Transformation\Transformation;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use RuntimeException;
 
 class MediaUploadService
 {
@@ -91,9 +89,9 @@ class MediaUploadService
                     'crop' => $transform['crop'],
                     'quality' => $transform['quality'],
                     'fetch_format' => 'auto',
-                ]
+                ],
             ];
-            if (!empty($transform['gravity'])) {
+            if (! empty($transform['gravity'])) {
                 $options['transformation'][0]['gravity'] = $transform['gravity'];
             }
         }
@@ -135,7 +133,7 @@ class MediaUploadService
 
     protected function addCloudinaryTransform(string $url, string $context): string
     {
-        if (!isset(self::IMAGE_TRANSFORMS[$context])) {
+        if (! isset(self::IMAGE_TRANSFORMS[$context])) {
             return $url;
         }
 
@@ -153,11 +151,11 @@ class MediaUploadService
             $transform['quality']
         );
 
-        if (!empty($transform['gravity'])) {
-            $transformStr .= ',g_' . $transform['gravity'];
+        if (! empty($transform['gravity'])) {
+            $transformStr .= ',g_'.$transform['gravity'];
         }
 
-        return $parts[0] . '/upload/' . $transformStr . '/' . $parts[1];
+        return $parts[0].'/upload/'.$transformStr.'/'.$parts[1];
     }
 
     protected function uploadToLocal(UploadedFile $file, string $type, string $slug, string $context): array

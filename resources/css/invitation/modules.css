@@ -500,7 +500,7 @@
     font-family: var(--font-titles);
     font-size: clamp(2rem, 10vw, 3.4rem);
     line-height: 1.2;
-    color: var(--inv-accent-ink);
+    color: var(--inv-accent-deco);
     text-align: center;
     white-space: nowrap;
 }

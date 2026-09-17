@@ -29,6 +29,7 @@ class InvitationModuleService
                 $explicitValue = (bool) $rawVisibility[$code];
                 // If explicitly enabled, respect it. If explicitly disabled but has content, still show it.
                 $normalized['config']['modulos'][$code] = $explicitValue || $hasContent;
+
                 continue;
             }
 

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\MediaUploadService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -32,7 +33,7 @@ class GuestContribution extends Model
     {
         static::deleted(function (self $contribution) {
             if ($contribution->type === 'live_photo' && $contribution->file_path) {
-                app(\App\Services\MediaUploadService::class)->delete($contribution->file_path);
+                app(MediaUploadService::class)->delete($contribution->file_path);
             }
         });
     }

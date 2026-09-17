@@ -33,7 +33,7 @@ class InvitationDetailViewData
                 'declined' => 'is-declined',
                 default => 'is-pending',
             },
-            'passesLabel' => $guest->passes_confirmed . '/' . $guest->passes_allocated,
+            'passesLabel' => $guest->passes_confirmed.'/'.$guest->passes_allocated,
             'dietaryRestrictions' => $guest->dietary_restrictions ?: 'Sin indicar',
         ])->values();
 

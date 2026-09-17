@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Services\MediaUploadService;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class MediaUploadController extends Controller
 {
@@ -36,7 +37,7 @@ class MediaUploadController extends Controller
                 'public_id' => $result['public_id'],
                 'provider' => $result['provider'],
             ]);
-        } catch (\Illuminate\Validation\ValidationException $e) {
+        } catch (ValidationException $e) {
             throw $e;
         } catch (\Throwable $e) {
             report($e);

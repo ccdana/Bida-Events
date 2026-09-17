@@ -94,6 +94,47 @@ function invitationNav(sectionIds) {
     return {
         open: false,
         active: sectionIds[0] ?? 'inicio',
+
+        toggle() {
+            this.open ? this.close() : this.show();
+        },
+
+        show() {
+            this.open = true;
+            // El primer enlace recibe el foco: con teclado se navega el menú, no lo que quedó detrás
+            this.$nextTick(() => this.focusables()[0]?.focus());
+        },
+
+        // Al cerrar, el foco vuelve al botón que abrió el menú (salvo al seguir un enlace)
+        close(restoreFocus = true) {
+            if (!this.open) return;
+            this.open = false;
+            if (restoreFocus) this.$refs.toggle?.focus();
+        },
+
+        focusables() {
+            return [...(this.$refs.panel?.querySelectorAll('a[href], button:not([disabled])') ?? [])];
+        },
+
+        // Mientras el panel tapa la página, el tabulador da la vuelta dentro de él
+        trapFocus(event) {
+            if (!this.open) return;
+
+            const items = this.focusables();
+            if (!items.length) return;
+
+            const first = items[0];
+            const last = items[items.length - 1];
+
+            if (event.shiftKey && document.activeElement === first) {
+                event.preventDefault();
+                last.focus();
+            } else if (!event.shiftKey && document.activeElement === last) {
+                event.preventDefault();
+                first.focus();
+            }
+        },
+
         init() {
             if (!('IntersectionObserver' in window)) {
                 return;

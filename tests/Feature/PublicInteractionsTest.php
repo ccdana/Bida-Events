@@ -2,6 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Models\PollVote;
+use App\Services\InvitationModuleService;
+use Database\Seeders\XvSofiaModuleData;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
@@ -16,7 +19,7 @@ class PublicInteractionsTest extends TestCase
     public function test_public_page_renders_responsive_cloudinary_images_with_a_legacy_template_name(): void
     {
         $invitation = $this->createInvitation(['template' => 'pages.invitations.templates.xv-premium']);
-        app(\App\Services\InvitationModuleService::class)->syncAllModules($invitation, \Database\Seeders\XvSofiaModuleData::all());
+        app(InvitationModuleService::class)->syncAllModules($invitation, XvSofiaModuleData::all());
 
         $this->withoutVite()
             ->get(route('invitation.show', $invitation->slug))
@@ -85,7 +88,7 @@ class PublicInteractionsTest extends TestCase
     {
         config(['optimizations.rate_limits.votes' => 2]);
         $invitation = $this->createInvitation();
-        app(\App\Services\InvitationModuleService::class)->syncAllModules($invitation, \Database\Seeders\XvSofiaModuleData::all());
+        app(InvitationModuleService::class)->syncAllModules($invitation, XvSofiaModuleData::all());
         Cache::put("invitation.{$invitation->id}.polls", ['cacheada'], 300);
 
         $vote = fn (string $pollId) => $this->postJson(
@@ -106,7 +109,7 @@ class PublicInteractionsTest extends TestCase
     {
         config(['optimizations.rate_limits.votes' => 30]);
         $invitation = $this->createInvitation();
-        app(\App\Services\InvitationModuleService::class)->syncAllModules($invitation, \Database\Seeders\XvSofiaModuleData::all());
+        app(InvitationModuleService::class)->syncAllModules($invitation, XvSofiaModuleData::all());
 
         $vote = fn (string $pollId, int $option) => $this->postJson(
             route('invitation.poll.vote', ['slug' => $invitation->slug, 'pollId' => $pollId]),
@@ -125,6 +128,6 @@ class PublicInteractionsTest extends TestCase
             ->assertStatus(422)
             ->assertJson(['success' => false]);
 
-        $this->assertSame(1, \App\Models\PollVote::where('invitation_id', $invitation->id)->count());
+        $this->assertSame(1, PollVote::where('invitation_id', $invitation->id)->count());
     }
 }

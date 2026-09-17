@@ -17,6 +17,11 @@
                         'font-medium text-site-ink' => request()->routeIs('admin.dashboard'),
                         'text-site-muted hover:text-site-ink' => ! request()->routeIs('admin.dashboard'),
                     ])>Invitaciones</a>
+                    <a href="{{ route('admin.design-system') }}" @class([
+                        'site-nav-link',
+                        'font-medium text-site-ink' => request()->routeIs('admin.design-system'),
+                        'text-site-muted hover:text-site-ink' => ! request()->routeIs('admin.design-system'),
+                    ])>Sistema visual</a>
                 </nav>
             </div>
 

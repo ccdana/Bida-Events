@@ -44,6 +44,7 @@ class MigrateInvitationJsonModules extends Command
             if ($invitation->settings && ! $force) {
                 $totals['omitidas']++;
                 $rows[] = [$invitation->id, $invitation->slug, 'omitida (ya migrada)', '-', '-', '-', 0];
+
                 continue;
             }
 
@@ -52,6 +53,7 @@ class MigrateInvitationJsonModules extends Command
             if ($modules === []) {
                 $totals['omitidas']++;
                 $rows[] = [$invitation->id, $invitation->slug, 'omitida (sin JSON)', '-', '-', '-', 0];
+
                 continue;
             }
 
@@ -71,6 +73,7 @@ class MigrateInvitationJsonModules extends Command
                 $totals['fallidas']++;
                 $rows[] = [$invitation->id, $invitation->slug, 'error', '-', '-', '-', 0];
                 $details[] = "{$label} error: {$exception->getMessage()}";
+
                 continue;
             }
 

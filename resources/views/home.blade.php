@@ -11,6 +11,7 @@
         'preguntas' => 'Preguntas',
         'contacto' => 'Contacto',
     ]);
+    $navLinks = collect($sections)->mapWithKeys(fn (string $label, string $id) => ['#'.$id => $label])->all();
     $accountUrl = $user ? route('dashboard') : route('login');
     $accountLabel = $user ? 'Mi panel' : 'Ingresar';
     $showcase = $bida['showcase'];
@@ -73,58 +74,7 @@
 @section('content')
     <div data-header-sentinel class="pointer-events-none absolute inset-x-0 top-0 h-4" aria-hidden="true"></div>
 
-    {{-- ═══ Navegación ═══ --}}
-    <header data-site-header x-data="{ open: false }" @keydown.escape.window="open = false"
-        class="site-header sticky top-0 z-40" :class="{ 'is-open': open }">
-        <div class="mx-auto flex h-16 max-w-7xl items-center justify-between gap-6 px-5 lg:h-[72px] lg:px-8">
-            <a href="{{ route('home') }}" class="text-lg">
-                <x-brand.logo animated />
-            </a>
-
-            <nav class="hidden items-center gap-8 text-[0.95rem] text-site-muted lg:flex" aria-label="Secciones">
-                @foreach($sections as $id => $label)
-                    <a href="#{{ $id }}" class="site-nav-link hover:text-site-ink">{{ $label }}</a>
-                @endforeach
-            </nav>
-
-            <div class="hidden items-center gap-5 lg:flex">
-                @include('layouts.partials.theme-toggle')
-                <a href="{{ $accountUrl }}" class="site-nav-link text-[0.95rem] font-medium text-site-muted hover:text-site-ink">{{ $accountLabel }}</a>
-                <a href="{{ $contactUrl }}" target="_blank" rel="noopener" class="site-btn" data-magnetic>
-                    <x-phosphor-whatsapp-logo aria-hidden="true" />
-                    Escríbenos
-                </a>
-            </div>
-
-            <div class="flex items-center gap-1 lg:hidden">
-                @include('layouts.partials.theme-toggle')
-                <button type="button" class="relative grid size-11 place-items-center rounded-full border border-site-line"
-                    @click="open = !open" :aria-expanded="open.toString()" aria-controls="menu-movil">
-                    <span class="sr-only" x-text="open ? 'Cerrar menú' : 'Abrir menú'">Abrir menú</span>
-                    <x-phosphor-list class="site-swap is-on" x-bind:class="{ 'is-on': !open }" aria-hidden="true" />
-                    <x-phosphor-x class="site-swap" x-bind:class="{ 'is-on': open }" aria-hidden="true" />
-                </button>
-            </div>
-        </div>
-
-        <div id="menu-movil" x-show="open" x-cloak
-            x-transition:enter="transition duration-300 ease-out" x-transition:enter-start="-translate-y-2 opacity-0"
-            x-transition:leave="transition duration-200 ease-in" x-transition:leave-end="-translate-y-2 opacity-0"
-            class="px-5 pb-6 lg:hidden">
-            <nav class="flex flex-col text-lg" aria-label="Secciones">
-                @foreach($sections as $id => $label)
-                    <a href="#{{ $id }}" @click="open = false" class="border-b border-site-line py-3.5">{{ $label }}</a>
-                @endforeach
-            </nav>
-            <div class="mt-6 grid gap-3">
-                <a href="{{ $contactUrl }}" target="_blank" rel="noopener" class="site-btn site-btn--lg justify-center">
-                    <x-phosphor-whatsapp-logo aria-hidden="true" />
-                    Escríbenos
-                </a>
-                <a href="{{ $accountUrl }}" class="site-btn site-btn--ghost site-btn--lg justify-center">{{ $accountLabel }}</a>
-            </div>
-        </div>
-    </header>
+    @include('site.partials.header', ['navLinks' => $navLinks])
 
     <main>
         {{-- ═══ Portada: el teléfono recorre las aperturas y la palabra y la foto del evento cambian con él ═══ --}}
@@ -295,6 +245,12 @@
                                     Abrir en pantalla completa
                                     <x-phosphor-arrow-up-right class="site-btn__arrow" aria-hidden="true" />
                                 </a>
+                                @php($eventLanding = collect($landings)->firstWhere('event', $demo['eventKey']))
+                                @if($eventLanding)
+                                    <a href="{{ $eventLanding['url'] }}" class="mt-5 block w-fit font-medium text-site-ink underline decoration-site-line underline-offset-4 hover:decoration-site-accent">
+                                        {{ $eventLanding['label'] }}
+                                    </a>
+                                @endif
                             </div>
                         @endforeach
                     </div>
@@ -343,92 +299,9 @@
             </div>
         </section>
 
-        {{-- ═══ Precios: tres columnas separadas por filetes ═══ --}}
-        <section id="precios" class="scroll-mt-20 border-t border-site-line bg-site-surface">
-            <div class="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-28">
-                <p class="text-[0.95rem] font-medium text-site-accent" data-reveal>Precios</p>
-                <h2 class="mt-4 text-3xl font-semibold leading-[1.1] tracking-tight md:text-5xl" data-reveal>Elige tu paquete</h2>
-                <p class="mt-5 max-w-[52ch] text-lg leading-relaxed text-site-muted" data-reveal>
-                    Pago único por invitación, en bolivianos. Cada paquete incluye todo lo del anterior.
-                </p>
+        @include('site.partials.plans')
 
-                <div class="site-plans mt-14">
-                    @foreach($packages as $index => $package)
-                        @php($featured = $package['featured'] ?? false)
-                        @php($premium = $package['premium'] ?? false)
-                        <article @class(['site-plan', 'site-plan--featured' => $featured, 'site-plan--premium' => $premium])
-                            data-reveal style="--reveal-index: {{ $index }}">
-                            <div class="site-plan__head">
-                                <h3 class="site-plan__name">
-                                    {{ $package['name'] }}
-                                    @if($premium)
-                                        <x-phosphor-crown-simple-fill class="site-plan__crown" aria-hidden="true" />
-                                    @endif
-                                </h3>
-                                @if($featured)
-                                    <span class="site-plan__tag">Recomendado</span>
-                                @elseif($premium)
-                                    <span class="site-plan__tag">Experiencia completa</span>
-                                @endif
-                            </div>
-
-                            <p class="mt-7 flex items-baseline gap-2">
-                                <span class="site-plan__price">{{ $package['price'] }}</span>
-                                <span class="text-xl text-site-muted">Bs</span>
-                            </p>
-
-                            <p class="mt-4 max-w-[36ch] leading-relaxed text-site-muted">{{ $package['summary'] }}</p>
-
-                            <ul class="site-plan__features">
-                                @foreach($package['features'] as $feature)
-                                    <li>
-                                        <x-phosphor-check-bold class="site-plan__check" aria-hidden="true" />
-                                        <span>{{ $feature }}</span>
-                                    </li>
-                                @endforeach
-                            </ul>
-
-                            <a href="{{ $package['whatsapp'] }}" target="_blank" rel="noopener"
-                                @class([
-                                    'site-btn site-btn--lg mt-10 justify-center',
-                                    'site-btn--gold' => $premium,
-                                    'site-btn--ghost' => ! $featured && ! $premium,
-                                ])>
-                                Elegir {{ $package['name'] }}
-                                <x-phosphor-arrow-right class="site-btn__arrow" aria-hidden="true" />
-                            </a>
-                        </article>
-                    @endforeach
-                </div>
-
-                <p class="mt-10 text-site-muted" data-reveal>
-                    ¿Buscas algo distinto?
-                    <a href="{{ $contactUrl }}" target="_blank" rel="noopener" class="font-medium text-site-ink underline underline-offset-4">Escríbenos</a>
-                    y armamos un paquete para tu evento.
-                </p>
-            </div>
-        </section>
-
-        {{-- ═══ Preguntas frecuentes ═══ --}}
-        <section id="preguntas" class="scroll-mt-20 border-t border-site-line">
-            <div class="mx-auto max-w-3xl px-5 py-20 lg:py-28">
-                <h2 class="text-3xl font-semibold leading-[1.1] tracking-tight md:text-5xl" data-reveal>Preguntas frecuentes</h2>
-
-                <div class="mt-12 divide-y divide-site-line border-y border-site-line" data-reveal>
-                    @foreach($faqs as [$question, $answer])
-                        <details class="site-faq group" name="preguntas">
-                            <summary class="flex cursor-pointer list-none items-center justify-between gap-6 py-5 text-lg font-medium transition-colors hover:text-site-accent [&::-webkit-details-marker]:hidden">
-                                {{ $question }}
-                                <span class="grid size-8 shrink-0 place-items-center rounded-full border border-site-line transition-[rotate,background-color] duration-500 group-open:rotate-45 group-open:bg-site-tint">
-                                    <x-phosphor-plus class="size-4" aria-hidden="true" />
-                                </span>
-                            </summary>
-                            <p class="max-w-[60ch] pb-6 leading-relaxed text-site-muted">{{ $answer }}</p>
-                        </details>
-                    @endforeach
-                </div>
-            </div>
-        </section>
+        @include('site.partials.faqs', ['faqs' => $faqs])
 
         {{-- ═══ Contacto: llamado grande y filas con cada canal ═══ --}}
         <section id="contacto" class="scroll-mt-20 border-t border-site-line bg-site-surface">
@@ -468,29 +341,5 @@
         </section>
     </main>
 
-    <footer class="border-t border-site-line">
-        <div class="mx-auto flex max-w-7xl flex-col gap-6 px-5 py-10 text-[0.95rem] text-site-muted lg:flex-row lg:items-center lg:justify-between lg:px-8">
-            <div class="flex items-center gap-4">
-                <x-brand.mark class="h-8 w-auto" />
-                <p>© {{ now()->year }} {{ $bida['brand'] }}. Invitaciones digitales hechas en Bolivia.</p>
-            </div>
-            <nav class="flex flex-wrap gap-x-6 gap-y-2" aria-label="Pie de página">
-                @foreach($sections as $id => $label)
-                    <a href="#{{ $id }}" class="site-nav-link hover:text-site-ink">{{ $label }}</a>
-                @endforeach
-                <a href="{{ $accountUrl }}" class="site-nav-link font-medium text-site-ink">{{ $accountLabel }}</a>
-            </nav>
-            @if(count($socials))
-                <ul class="-ml-2.5 flex items-center gap-1 lg:ml-0" aria-label="Redes sociales">
-                    @foreach($socials as $social)
-                        <li>
-                            <a href="{{ $social['url'] }}" target="_blank" rel="noopener" class="site-social" aria-label="{{ $social['label'] }}">
-                                <x-dynamic-component :component="'phosphor-'.$social['icon']" class="size-5" aria-hidden="true" />
-                            </a>
-                        </li>
-                    @endforeach
-                </ul>
-            @endif
-        </div>
-    </footer>
+    @include('site.partials.footer', ['navLinks' => $navLinks, 'socials' => $socials])
 @endsection

@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Models\GuestContribution;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 
@@ -91,7 +92,7 @@ class YouTubeHelper
     /**
      * @return array{id: int, text: string, youtube_id: string|null, is_youtube: bool, url: string|null, guest: string|null, at: string|null}
      */
-    public static function formatContribution(\App\Models\GuestContribution $contribution): array
+    public static function formatContribution(GuestContribution $contribution): array
     {
         $formatted = self::formatSongEntry($contribution->content_text ?? '');
 

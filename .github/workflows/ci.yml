@@ -1,0 +1,67 @@
+# Integración continua: en cada push a cualquier rama y en cada pull request se compila el
+# frontend, se revisa el estilo del código y se corren las pruebas. Si algo falla, el commit
+# queda marcado en rojo en GitHub. Para correr lo mismo en local:
+#   npm run build && vendor/bin/pint --test && php artisan test
+
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+# Un push nuevo a la misma rama cancela la corrida anterior, que ya quedó vieja
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pruebas:
+    name: Compilación, estilo y pruebas
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Código
+        uses: actions/checkout@v4
+
+      - name: PHP 8.4
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, pdo_sqlite, sqlite3, gd, zip, intl, bcmath, fileinfo
+          coverage: none
+
+      - name: Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Caché de Composer
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('composer.lock') }}
+
+      - name: Dependencias de PHP
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Dependencias de Node
+        run: npm ci
+
+      # Primero la compilación: varias pruebas renderizan vistas que leen el manifiesto de Vite
+      - name: Compilar el frontend
+        run: npm run build
+
+      - name: Estilo del código (Pint)
+        run: vendor/bin/pint --test
+
+      - name: Entorno de pruebas
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      # phpunit.xml usa SQLite en memoria: no hace falta levantar una base
+      - name: Pruebas
+        run: php artisan test

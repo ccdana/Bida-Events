@@ -21,6 +21,8 @@ class DatabaseSeeder extends Seeder
         $this->call([
             EventTypeSeeder::class,
             ShowcaseInvitationsSeeder::class,
+            // Después de las muestras: se le asigna una de ellas
+            ClientUserSeeder::class,
         ]);
     }
 }

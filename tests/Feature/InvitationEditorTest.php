@@ -87,6 +87,32 @@ class InvitationEditorTest extends TestCase
         $this->assertDatabaseCount('invitations', 0);
     }
 
+    public function test_the_editor_shows_what_is_missing_and_offers_to_publish(): void
+    {
+        $invitation = Invitation::create([
+            'event_type_id' => $this->eventType->id,
+            'slug' => 'xv-incompleta',
+            'template' => 'invitations.templates.xv-premium',
+            'title' => 'XV sin terminar',
+            'event_date' => now()->addMonths(2),
+            'status' => 'inactive',
+            'expires_at' => now()->addYear(),
+        ]);
+
+        $this->actingAs($this->admin)
+            ->withoutVite()
+            ->get(route('admin.invitations.edit', $invitation))
+            ->assertOk()
+            // Un módulo encendido y vacío se marca en su apartado y en el resumen
+            ->assertSee('tabIssues(tab).length > 0', false)
+            ->assertSee('pendingIssues.length > 0', false)
+            ->assertSee('datos para que la invitación se vea completa', false)
+            // Publicar deja de estar escondido en un selector del apartado General
+            ->assertSee('@click="publish()"', false)
+            ->assertSee('@click="unpublish()"', false)
+            ->assertSee('Sin publicar: solo la ves tú', false);
+    }
+
     protected function payload(array $modules): array
     {
         return [

@@ -31,10 +31,12 @@
         <p class="admin-eyebrow mb-1">
             <span x-text="(modules.galeria.fotos || []).length"></span> fotos seleccionadas
         </p>
-        <div class="grid grid-cols-3 gap-2">
+        <p class="text-xs text-stone-500">La descripción la leen en voz alta los lectores de pantalla y aparece si la foto no carga. Déjala vacía si la foto es solo decorativa.</p>
+        <div class="grid grid-cols-2 gap-3">
             <template x-for="(foto, i) in modules.galeria.fotos" :key="i">
+                <div class="space-y-1">
                 <div class="relative group aspect-[4/3] rounded-xl overflow-hidden border border-stone-200 bg-stone-100">
-                    <img :src="foto" class="w-full h-full object-cover select-none" draggable="false">
+                    <img :src="photoUrl(foto)" :alt="photoAlt(foto)" class="w-full h-full object-cover select-none" draggable="false">
                     <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition pointer-events-none"></div>
                     <div class="absolute inset-1 flex flex-col justify-between opacity-0 group-hover:opacity-100 transition pointer-events-none">
                         <div class="flex justify-end">
@@ -52,6 +54,13 @@
                             </button>
                         </div>
                     </div>
+                </div>
+                <input type="text" maxlength="255"
+                    class="admin-input admin-input--sm"
+                    :value="photoAlt(foto)"
+                    @change="setPhotoAlt(modules.galeria.fotos, i, $event.target.value)"
+                    :aria-label="'Descripción de la foto ' + (i + 1)"
+                    placeholder="Describe la foto (opcional)">
                 </div>
             </template>
         </div>

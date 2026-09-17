@@ -2,8 +2,6 @@
 
 namespace App\Support;
 
-use Database\Seeders\XvSofiaModuleData;
-
 class InvitationDefaults
 {
     public static function moduleCodes(): array
@@ -74,18 +72,6 @@ class InvitationDefaults
             'agendar' => false,
             'post_evento' => false,
         ];
-    }
-
-    public static function modules(): array
-    {
-        $modules = XvSofiaModuleData::all();
-
-        $modules['bienvenida']['nombre_quinceanera'] = 'Nombre de la Quinceañera';
-        $modules['bienvenida']['subtitulo'] = 'Celebrando mis XV Años';
-        $modules['bienvenida']['mensaje'] = 'Te invito a ser parte de esta noche especial.';
-        $modules['bienvenida']['fecha_texto'] = now()->addMonths(3)->translatedFormat('l j \d\e F, Y');
-
-        return $modules;
     }
 
     /**

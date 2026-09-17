@@ -21,6 +21,7 @@ class ContributionController extends Controller
     public function __construct(
         protected MediaUploadService $mediaUpload
     ) {}
+
     public function listSongs(string $slug)
     {
         $invitation = Invitation::where('slug', $slug)

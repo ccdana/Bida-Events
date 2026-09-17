@@ -5,12 +5,12 @@ namespace App\Http\Controllers\Public;
 use App\Http\Controllers\Controller;
 use App\Models\Guest;
 use App\Models\Invitation;
-use App\Support\InvitationDefaults;
-use App\Services\InvitationModuleService;
 use App\Services\InvitationCacheService;
+use App\Services\InvitationModuleService;
+use App\Support\CloudinaryImage;
+use App\Support\InvitationDefaults;
 use App\Support\YouTubeHelper;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 
 class InvitationController extends Controller
 {
@@ -203,8 +203,8 @@ class InvitationController extends Controller
             ->get()
             ->map(fn ($c) => [
                 'id' => $c->id,
-                'url' => \App\Support\CloudinaryImage::url($c->file_path, 800),
-                'srcset' => \App\Support\CloudinaryImage::srcset($c->file_path, [320, 640, 960]),
+                'url' => CloudinaryImage::url($c->file_path, 800),
+                'srcset' => CloudinaryImage::srcset($c->file_path, [320, 640, 960]),
                 'guest' => $c->guest?->name,
                 'at' => $c->created_at?->diffForHumans(),
             ])

@@ -579,7 +579,7 @@ html.inv-cover-waiting .inv-boda-hero * {
     padding-top: 12%;
     font-family: var(--font-script);
     font-size: clamp(2.8rem, 14vw, 4.2rem);
-    color: var(--inv-accent-ink);
+    color: var(--inv-accent-deco);
 }
 
 .inv-boda-arch__branch {

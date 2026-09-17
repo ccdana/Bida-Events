@@ -2,8 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Services\MediaUploadService;
 use Database\Seeders\ShowcaseInvitationsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Validation\ValidationException;
 use Tests\Concerns\CreatesInvitations;
 use Tests\TestCase;
 
@@ -81,13 +84,13 @@ class SecurityHardeningTest extends TestCase
 
     public function test_uploads_reject_svg_files(): void
     {
-        $service = app(\App\Services\MediaUploadService::class);
-        $svg = \Illuminate\Http\UploadedFile::fake()->createWithContent(
+        $service = app(MediaUploadService::class);
+        $svg = UploadedFile::fake()->createWithContent(
             'logo.svg',
             '<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>'
         );
 
-        $this->expectException(\Illuminate\Validation\ValidationException::class);
+        $this->expectException(ValidationException::class);
 
         $service->validateFile($svg, 'image');
     }

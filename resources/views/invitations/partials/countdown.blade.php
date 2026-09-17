@@ -3,7 +3,7 @@
         <header class="inv-head">
             @include('invitations.partials.lottie-framed-icon', ['name' => $invCopy['countdown_lottie'] ?? 'clock'])
             <p class="inv-head__eyebrow" x-text="finished ? 'Llegó el momento' : 'El gran día se acerca'">El gran día se acerca</p>
-            <h2 class="inv-head__title" x-text="finished ? '¡Hoy es el gran día!' : 'Faltan'">Faltan</h2>
+            <h2 class="inv-head__title" x-text="finished ? '¡Hoy es el gran día!' : 'Faltan'">Falta poco</h2>
             <div class="inv-head__rule" aria-hidden="true"></div>
         </header>
 

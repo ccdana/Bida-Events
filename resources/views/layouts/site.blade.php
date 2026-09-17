@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title>@yield('title', config('bida.brand'))</title>
     <meta name="description" content="@yield('description', 'Invitaciones digitales para bodas, bautizos, cumpleaños y todos tus eventos en Bolivia.')">
+    @include('layouts.partials.share-meta', ['share' => $share ?? \App\Support\ShareMeta::make(
+        config('bida.brand').' | Invitaciones digitales',
+        'Invitaciones digitales para bodas, bautizos, cumpleaños y todos tus eventos en Bolivia.',
+        \App\Support\ShareMeta::siteImage('inicio'),
+        url()->current(),
+    )])
     <meta name="theme-color" content="#f4f4f2" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#131414" media="(prefers-color-scheme: dark)">
     <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">

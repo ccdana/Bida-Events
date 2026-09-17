@@ -3,10 +3,12 @@
 namespace Tests\Feature;
 
 use App\Models\GuestContribution;
+use App\Models\Invitation;
 use App\Models\InvitationItineraryItem;
 use App\Services\InvitationModuleService;
 use App\Services\InvitationStructuredDataService;
 use App\Services\MediaUploadService;
+use Database\Seeders\XvSofiaModuleData;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use RuntimeException;
 use Tests\Concerns\CreatesInvitations;
@@ -20,7 +22,7 @@ class ModuleSyncAndRetentionTest extends TestCase
     {
         $invitation = $this->createInvitation();
         $service = app(InvitationModuleService::class);
-        $service->syncAllModules($invitation, \Database\Seeders\XvSofiaModuleData::all());
+        $service->syncAllModules($invitation, XvSofiaModuleData::all());
 
         $before = $invitation->modulesData()->where('feature_code', 'bienvenida')->value('json_data');
         $itineraryBefore = $invitation->itineraryItems()->count();
@@ -28,13 +30,13 @@ class ModuleSyncAndRetentionTest extends TestCase
         // Si algo falla al guardar las tablas, tampoco debe quedar el JSON nuevo
         $this->instance(InvitationStructuredDataService::class, new class extends InvitationStructuredDataService
         {
-            public function sync(\App\Models\Invitation $invitation, array $modules): array
+            public function sync(Invitation $invitation, array $modules): array
             {
                 throw new RuntimeException('falla al guardar');
             }
         });
 
-        $modules = \Database\Seeders\XvSofiaModuleData::all();
+        $modules = XvSofiaModuleData::all();
         $modules['bienvenida']['nombre_quinceanera'] = 'Nombre cambiado';
 
         try {
@@ -52,7 +54,7 @@ class ModuleSyncAndRetentionTest extends TestCase
     {
         $invitation = $this->createInvitation();
         $service = app(InvitationModuleService::class);
-        $modules = \Database\Seeders\XvSofiaModuleData::all();
+        $modules = XvSofiaModuleData::all();
 
         $service->syncAllModules($invitation, $modules);
         $firstIds = $invitation->itineraryItems()->orderBy('sort_order')->pluck('id')->all();
@@ -71,7 +73,7 @@ class ModuleSyncAndRetentionTest extends TestCase
     {
         $invitation = $this->createInvitation();
         $service = app(InvitationModuleService::class);
-        $modules = \Database\Seeders\XvSofiaModuleData::all();
+        $modules = XvSofiaModuleData::all();
 
         $service->syncAllModules($invitation, $modules);
         $total = $invitation->itineraryItems()->count();

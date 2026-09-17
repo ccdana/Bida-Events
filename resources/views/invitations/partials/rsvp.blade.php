@@ -69,7 +69,7 @@
                 <strong>{{ $maxPasses }} {{ $maxPasses === 1 ? 'lugar' : 'lugares' }}</strong> para ti.
             </p>
 
-            <form class="inv-rsvp__form" @submit.prevent="submit()">
+            <form class="inv-rsvp__form" data-needs-js @submit.prevent="submit()">
                 <fieldset class="inv-rsvp__step">
                     <legend class="inv-rsvp__legend"><span class="inv-rsvp__num">1</span>¿Asistirás?</legend>
                     <div class="inv-rsvp__choices">
@@ -105,6 +105,10 @@
                     <p class="inv-status is-error" x-show="error" x-cloak x-text="error" aria-live="assertive"></p>
                 </div>
             </form>
+
+            <noscript>
+                <p class="inv-noscript">Para confirmar tu asistencia desde aquí necesitas activar JavaScript. Si no puedes, responde directamente a quien te compartió la invitación.</p>
+            </noscript>
         </div>
     </div>
 </section>
