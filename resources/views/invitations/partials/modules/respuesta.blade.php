@@ -24,13 +24,18 @@
             <p class="inv-help"><span x-text="500 - message.length">500</span> caracteres disponibles</p>
 
             <div class="inv-actions">
-                <button type="submit" class="inv-btn inv-btn--block" :disabled="sending || !message.trim()">
+                <button type="submit" class="inv-btn inv-btn--block" x-ref="submit" :disabled="sending || !message.trim()">
                     <span x-text="sending ? 'Enviando…' : 'Enviar respuesta'">Enviar respuesta</span>
                 </button>
             </div>
         </form>
 
-        <p class="inv-reply__sent" x-show="sent" x-cloak role="status">Tu respuesta llegó. ¡Gracias por escribir!</p>
+        {{-- Al enviar, la hoja se dobla en avión de papel y sale volando; alrededor caen pétalos --}}
+        <div class="inv-reply__sent" x-show="sent" x-cloak role="status">
+            <svg class="inv-reply__plane" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M6 30L58 8 44 56 30 38z"/><path d="M58 8L30 38v14l7-9"/></svg>
+            <p class="inv-reply__sent-title">Tu respuesta va en camino</p>
+            <p class="inv-reply__sent-text">¡Gracias por escribir!</p>
+        </div>
         <p class="inv-status is-error" x-show="error" x-cloak x-text="error" aria-live="assertive"></p>
 
         <noscript>
@@ -46,6 +51,14 @@ function cardReply(slug, guestToken, isPreview) {
         sending: false,
         sent: false,
         error: '',
+        // La celebración sale del botón, antes de que el formulario se oculte
+        celebrateSent() {
+            const rect = this.$refs.submit?.getBoundingClientRect();
+
+            this.sent = true;
+            window.dispatchEvent(new CustomEvent('inv-celebrate', { detail: { rect, amount: 30 } }));
+        },
+
         async submit() {
             if (!this.message.trim() || this.sending) return;
 
@@ -59,7 +72,7 @@ function cardReply(slug, guestToken, isPreview) {
 
             // Muestra de la home: se simula el envío, nada se guarda
             if (window.invDemo) {
-                setTimeout(() => { this.sending = false; this.sent = true; }, 500);
+                setTimeout(() => { this.sending = false; this.celebrateSent(); }, 500);
                 return;
             }
 
@@ -80,7 +93,7 @@ function cardReply(slug, guestToken, isPreview) {
                     return;
                 }
 
-                this.sent = true;
+                this.celebrateSent();
             } catch (e) {
                 this.error = 'No se pudo enviar. Revisa tu conexión e intenta de nuevo.';
             } finally {

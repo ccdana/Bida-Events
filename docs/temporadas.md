@@ -81,6 +81,26 @@ Ejemplo: «deseos» para Navidad, una lista de deseos con su texto.
 `ModuleRegistryTest` revisa solo que las vistas existan, que las relaciones estén en `Invitation`,
 que las reglas no pisen campos de otro módulo y que cada perfil use módulos de su tipo.
 
+## Receta 3: recorrido por escenas y gestos
+
+La tarjeta del Día del Amor no se baja con scroll: se recorre como una historia. Para usarlo en otra
+plantilla:
+
+1. Incluir `invitations.partials.story.chrome` después del menú y cargar
+   `resources/css/invitation/story.css` con `@vite` junto a la hoja del tema.
+2. Las escenas salen solas: `#inicio`, cada `<section>` de `#contenido` y el pie. Lo que deba entrar
+   por turnos lleva `data-step` y `style="--step: n"`; el tema cambia la animación con `--step-anim`
+   y el fondo de cada escena con `--story-scene-bg`.
+3. Gestos disponibles (`resources/js/story`), que también funcionan con «Ver todo»:
+   - `holdToOpen()` para mantener presionado (el sello de la carta);
+   - `scratchReveal()` para raspar, con `[data-count-to]` en los números que cuentan desde cero;
+   - `window.dispatchEvent(new CustomEvent('inv-celebrate', { detail: { rect } }))` para la lluvia de
+     pétalos con vibración;
+   - `--tilt-x` / `--tilt-y` en `<html>` para mover algo con la inclinación del teléfono.
+4. Una puerta (`data-story-gate` con `:data-gate-done`) se abre con el primer «siguiente», así nadie
+   queda trabado. El contenido va siempre en el HTML debajo de la puerta, para que se lea sin
+   JavaScript y con lector de pantalla.
+
 ## Qué no hacer
 
 - No preguntar en vistas o controladores «¿es boda?» o «¿es tarjeta?» por el nombre de la plantilla:

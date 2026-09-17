@@ -11,6 +11,7 @@ use App\Services\InvitationModuleService;
 use App\Support\InvitationTemplates;
 use Database\Seeders\ShowcaseInvitationsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Js;
 use Illuminate\Support\Str;
 use Tests\Concerns\CreatesInvitations;
 use Tests\TestCase;
@@ -40,6 +41,38 @@ class SeasonalCardTest extends TestCase
             ->assertDontSee('id="rsvp"', false)
             ->assertDontSee('id="itinerario"', false)
             ->assertDontSee('id="ubicacion"', false);
+    }
+
+    public function test_the_story_mode_keeps_every_scene_readable_in_the_html(): void
+    {
+        $this->createCard(['slug' => 'para-ana']);
+
+        $this->withoutVite()
+            ->get(route('invitation.show', 'para-ana'))
+            ->assertOk()
+            // Controles del modo historia: solo aparecen con JavaScript
+            ->assertSee('data-story x-data="invitationStory(', false)
+            ->assertSee('Ver todo')
+            // La carta está entera debajo del sello, y el sello necesita JavaScript
+            ->assertSee('x-data="holdToOpen(', false)
+            ->assertSee('class="inv-letter-gate__cover" data-needs-js', false)
+            ->assertSee('Gracias por las mañanas de café')
+            ->assertSee('Mantén presionado el sello para abrir la carta')
+            // El tiempo juntos ya viene calculado debajo de la lámina para raspar
+            ->assertSee('x-data="scratchReveal(', false)
+            ->assertSee('data-needs-js aria-hidden="true"', false)
+            ->assertSee('Mostrar sin raspar')
+            ->assertSeeInOrder(['id="inicio"', 'id="dedicatoria"', 'id="juntos-desde"', 'id="galeria"', 'id="respuesta"'], false);
+    }
+
+    public function test_the_editor_preview_does_not_turn_the_card_into_a_story(): void
+    {
+        // Se compara con la misma codificación que usa @js en la vista
+        $public = view('invitations.partials.story.chrome')->render();
+        $preview = view('invitations.partials.story.chrome', ['isPreview' => true])->render();
+
+        $this->assertStringContainsString('invitationStory('.Js::from(['enabled' => true]).')', $public);
+        $this->assertStringContainsString('invitationStory('.Js::from(['enabled' => false]).')', $preview);
     }
 
     public function test_the_card_is_shared_as_a_letter_from_one_person_to_another(): void

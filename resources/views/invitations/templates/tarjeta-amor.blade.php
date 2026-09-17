@@ -3,6 +3,8 @@
     Se abre como una carta atada con una cinta; adentro va la foto, la dedicatoria escrita a mano,
     el tiempo que llevan juntos, recuerdos y la respuesta del destinatario.
     Módulos y vocabulario en App\EventProfiles\LoveCardProfile; estilos en resources/css/cards/amor.css.
+    Se recorre en modo historia (partials/story/chrome, resources/js/story): portada, carta con sello
+    que se abre manteniendo presionado, tiempo juntos que se raspa, recuerdos y respuesta con celebración.
 --}}
 @php
     $page = new \App\Support\InvitationPage($invitation, $modulos, $guest ?? null, \App\Support\InvitationTemplates::TARJETA_AMOR);
@@ -18,7 +20,7 @@
 <html lang="es" class="no-js">
 <head>
     @include('invitations.partials.shell.head')
-    @vite('resources/css/cards/amor.css')
+    @vite(['resources/css/invitation/story.css', 'resources/css/cards/amor.css'])
     @if($showIntro)
         @include('invitations.partials.shell.cover-script', ['coverSelector' => '.inv-amor-intro'])
     @endif
@@ -31,6 +33,9 @@
     @endif
 
     @include('invitations.partials.shell.nav')
+
+    {{-- Se recorre por escenas (toque o deslizar); «Ver todo» vuelve a la página con scroll --}}
+    @include('invitations.partials.story.chrome', ['storyHint' => 'Toca para seguir leyendo'])
 
     @include('invitations.partials.music-player', ['musica' => $page->music, 'flags' => array_merge($page->flags, ['musica' => $page->visible('musica')])])
 

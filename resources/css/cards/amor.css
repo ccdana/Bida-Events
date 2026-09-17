@@ -401,7 +401,153 @@ html.inv-cover-waiting .inv-amor .inv-amor-hero * {
     font-weight: 400;
 }
 
+/* ── Modo historia (resources/css/invitation/story.css) ─────────────────── */
+
+.inv-amor {
+    --story-petal: var(--primary-color);
+    --story-scene-bg:
+        radial-gradient(120% 55% at 50% 0%, color-mix(in srgb, var(--accent-color) 50%, transparent), transparent 70%),
+        var(--bg-color);
+}
+
+/* Cada escena con su luz: portada rosada, carta sobre papel, el tiempo juntos en vino, respuesta cálida */
+.inv-story-on .inv-amor #dedicatoria {
+    --story-scene-bg:
+        radial-gradient(90% 60% at 20% 100%, color-mix(in srgb, var(--accent-color) 55%, transparent), transparent 70%),
+        color-mix(in srgb, var(--accent-color) 16%, var(--bg-color));
+}
+
+.inv-story-on .inv-amor #juntos-desde {
+    --story-scene-bg:
+        radial-gradient(80% 50% at 50% 30%, color-mix(in srgb, var(--primary-color) 55%, transparent), transparent 75%),
+        var(--secondary-color);
+    --story-on-primary: var(--secondary-color);
+    --inv-muted: color-mix(in srgb, #fff 80%, var(--secondary-color));
+    --inv-soft: color-mix(in srgb, #fff 72%, var(--secondary-color));
+    --inv-accent-ink: var(--accent-color);
+    --inv-accent-deco: #fff;
+    --inv-line: color-mix(in srgb, #fff 18%, var(--secondary-color));
+    color: #fff;
+}
+
+.inv-story-on .inv-amor #juntos-desde .inv-head__title {
+    color: #fff;
+}
+
+.inv-story-on .inv-amor #respuesta {
+    --story-scene-bg:
+        radial-gradient(100% 60% at 80% 0%, color-mix(in srgb, var(--primary-color) 22%, transparent), transparent 70%),
+        color-mix(in srgb, var(--accent-color) 30%, var(--bg-color));
+}
+
+.inv-story-on .inv-amor .inv-amor-footer {
+    --story-scene-bg:
+        radial-gradient(90% 60% at 50% 100%, color-mix(in srgb, var(--accent-color) 70%, transparent), transparent 75%),
+        var(--bg-color);
+}
+
+/* Portada: la foto cae y se asienta, la cinta se pega y el «Para…» se escribe de izquierda a derecha */
+.inv-amor-hero__photo {
+    --step-anim: inv-amor-drop;
+    --step-duration: 1.1s;
+    transform: perspective(900px) rotateY(calc(var(--tilt-x, 0) * 9deg)) rotateX(calc(var(--tilt-y, 0) * -7deg));
+    transform-style: preserve-3d;
+}
+
+.inv-amor-hero__tape {
+    transform: translateZ(18px);
+}
+
+.inv-story-on .inv-scene.is-active .inv-amor-hero__tape {
+    animation: inv-amor-tape 0.5s var(--inv-ease) 1.15s both;
+}
+
+@keyframes inv-amor-drop {
+    0% { opacity: 0; translate: 0 -3.5rem; scale: 1.25; }
+    60% { opacity: 1; translate: 0 0.4rem; scale: 0.98; }
+    100% { opacity: 1; translate: 0 0; scale: 1; }
+}
+
+@keyframes inv-amor-tape {
+    from { opacity: 0; scale: 0 1; }
+    to { opacity: 1; scale: 1 1; }
+}
+
+/* Brillo de la foto que se desliza al inclinar el teléfono */
+.inv-amor-hero__glare {
+    position: absolute;
+    inset: 0.7rem 0.7rem 2.6rem;
+    background: linear-gradient(115deg, transparent 30%, rgb(255 255 255 / 0.38) 48%, transparent 64%);
+    background-size: 260% 100%;
+    background-position: calc(50% + var(--tilt-x, 0) * 45%) 0;
+    mix-blend-mode: soft-light;
+    pointer-events: none;
+}
+
+.inv-amor-hero__to {
+    --step-anim: inv-amor-write;
+    --step-duration: 1.5s;
+}
+
+@keyframes inv-amor-write {
+    from { opacity: 1; clip-path: inset(-20% 100% -20% 0); }
+    to { opacity: 1; clip-path: inset(-20% -5% -20% 0); }
+}
+
+/* En una escena la portada entra entera en la pantalla del teléfono */
+.inv-story-on .inv-amor-hero__inner {
+    gap: 0.85rem;
+}
+
+.inv-story-on .inv-amor-hero__photo {
+    width: min(66vw, 17rem, 34svh);
+    margin: 0.5rem 0 0.25rem;
+    padding: 0.55rem 0.55rem 2rem;
+}
+
+.inv-story-on .inv-amor-hero__glare {
+    inset: 0.55rem 0.55rem 2rem;
+}
+
+.inv-story-on .inv-amor-hero__to {
+    font-size: clamp(2.6rem, 13vw, 3.8rem);
+}
+
+/* En modo historia «Leer la carta» apunta hacia la derecha: la carta es la escena siguiente */
+.inv-story-on .inv-amor-hero__scroll svg {
+    rotate: -90deg;
+}
+
+/* Carta lacrada: doblez de papel con el sello de lacre en el centro */
+.inv-amor .inv-letter-gate__cover {
+    background:
+        linear-gradient(to bottom right, transparent calc(50% - 1px), color-mix(in srgb, var(--text-color) 7%, transparent) 50%, transparent calc(50% + 1px)) top left / 50% 42% no-repeat,
+        linear-gradient(to bottom left, transparent calc(50% - 1px), color-mix(in srgb, var(--text-color) 7%, transparent) 50%, transparent calc(50% + 1px)) top right / 50% 42% no-repeat,
+        linear-gradient(170deg, var(--amor-paper), var(--amor-paper-shade));
+    box-shadow: 0 24px 50px -30px color-mix(in srgb, var(--text-color) 55%, transparent);
+    rotate: -0.6deg;
+}
+
+.inv-amor .inv-seal {
+    --seal: color-mix(in srgb, var(--primary-color) 85%, #000);
+}
+
+/* El tiempo juntos: lámina de raspar en los tonos de la cinta */
+.inv-amor .inv-scratch {
+    --scratch-from: color-mix(in srgb, var(--primary-color) 80%, #fff);
+    --scratch-to: color-mix(in srgb, var(--accent-color) 85%, #fff);
+    --scratch-ink: var(--secondary-color);
+}
+
+.inv-story-on .inv-amor #juntos-desde .inv-milestone__value {
+    font-size: clamp(3.2rem, 17vw, 5rem);
+}
+
 @media (prefers-reduced-motion: reduce) {
+    .inv-amor-hero__photo {
+        transform: none;
+    }
+
     .inv-amor-letter,
     .inv-amor-intro__hint-dot,
     .inv-amor-hero__scroll svg {

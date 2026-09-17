@@ -1277,10 +1277,286 @@ div.inv-gift {
 }
 
 .inv-reply__sent {
-    padding: 1.5rem 1rem;
+    display: grid;
+    justify-items: center;
+    gap: 0.35rem;
+    padding: 1.75rem 1rem;
     border-block: 1px solid var(--inv-line);
-    font-family: var(--font-titles);
-    font-size: 1.1rem;
-    color: var(--text-color);
     text-align: center;
 }
+
+.inv-reply__plane {
+    width: 3.25rem;
+    height: 3.25rem;
+    margin-bottom: 0.5rem;
+    color: var(--inv-accent-ink);
+    animation: inv-reply-plane 2.6s var(--inv-ease) both;
+}
+
+.inv-reply__sent-title {
+    font-family: var(--font-titles);
+    font-size: 1.25rem;
+    color: var(--text-color);
+    animation: inv-gate-rise 0.8s var(--inv-ease) 0.5s both;
+}
+
+.inv-reply__sent-text {
+    color: var(--inv-muted);
+    animation: inv-gate-rise 0.8s var(--inv-ease) 0.7s both;
+}
+
+/* El avión despega, da una vuelta y vuelve a posarse */
+@keyframes inv-reply-plane {
+    0% { opacity: 0; translate: -4rem 2rem; rotate: -20deg; scale: 0.6; }
+    35% { opacity: 1; translate: 3rem -2.5rem; rotate: 15deg; scale: 1.1; }
+    65% { translate: -1.5rem -1rem; rotate: -8deg; }
+    100% { opacity: 1; translate: 0 0; rotate: 0deg; scale: 1; }
+}
+
+/* ── Puertas de las tarjetas (resources/js/story/gestures.js) ────────────────
+   El contenido siempre está debajo: sin JavaScript no hay puerta y se lee
+   directo. Al abrirse, [data-gate-done] y los [data-gate-step] entran en turno.
+   ──────────────────────────────────────────────────────────────────────── */
+
+@keyframes inv-gate-rise {
+    from { opacity: 0; translate: 0 18px; filter: blur(6px); }
+    to { opacity: 1; translate: 0 0; filter: blur(0); }
+}
+
+/* Carta lacrada: doblada a una altura fija con el sello encima */
+.inv-letter-gate {
+    position: relative;
+}
+
+html:not(.no-js) .inv-letter-gate .inv-letter {
+    max-height: 21rem;
+    overflow: hidden;
+    transition: max-height 1.2s var(--inv-ease);
+}
+
+html:not(.no-js) .inv-letter-gate[data-gate-done] .inv-letter {
+    max-height: var(--gate-full, none);
+}
+
+html:not(.no-js) .inv-letter-gate[data-gate-done] [data-gate-step] {
+    animation: inv-gate-rise 0.9s var(--inv-ease) calc(var(--step, 0) * 260ms + 420ms) both;
+}
+
+.inv-letter-gate__cover {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    gap: 1.1rem;
+    padding: 1.5rem;
+    border-radius: var(--inv-radius);
+    background: color-mix(in srgb, var(--accent-color) 30%, var(--bg-color));
+    transform-origin: 50% 0;
+    transition: opacity 0.6s ease 0.35s, rotate 0.9s var(--inv-ease) 0.25s, translate 0.9s var(--inv-ease) 0.25s, visibility 0s linear 1.2s;
+}
+
+.inv-letter-gate[data-gate-done] .inv-letter-gate__cover {
+    visibility: hidden;
+    opacity: 0;
+    translate: 0 -2rem;
+    rotate: x 70deg;
+    pointer-events: none;
+}
+
+.inv-letter-gate__label {
+    font-family: var(--font-script);
+    font-size: clamp(1.8rem, 8vw, 2.3rem);
+    line-height: 1.1;
+    color: var(--inv-accent-ink);
+    text-align: center;
+}
+
+.inv-letter-gate__hint {
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    color: var(--inv-muted);
+}
+
+.inv-letter-gate.is-nudged .inv-seal {
+    animation: inv-seal-shake 0.45s ease;
+}
+
+@keyframes inv-seal-shake {
+    0%, 100% { translate: 0 0; }
+    20% { translate: -5px 0; }
+    40% { translate: 5px 0; }
+    60% { translate: -3px 0; }
+    80% { translate: 3px 0; }
+}
+
+/* Sello de lacre: se llena el anillo mientras se mantiene y se parte en dos al abrir */
+.inv-seal {
+    --seal: var(--primary-color);
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 6.25rem;
+    height: 6.25rem;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: none;
+    color: #fff;
+    cursor: pointer;
+    touch-action: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    scale: calc(1 - var(--hold, 0) * 0.08);
+    transition: scale 0.15s ease;
+}
+
+.inv-seal:focus-visible {
+    outline: 2px solid var(--inv-accent-ink);
+    outline-offset: 6px;
+}
+
+.inv-seal__ring {
+    position: absolute;
+    inset: -0.7rem;
+    width: calc(100% + 1.4rem);
+    height: calc(100% + 1.4rem);
+    rotate: -90deg;
+    overflow: visible;
+}
+
+.inv-seal__ring circle {
+    fill: none;
+    stroke: color-mix(in srgb, var(--seal) 18%, transparent);
+    stroke-width: 3;
+}
+
+.inv-seal__ring .inv-seal__ring-fill {
+    stroke: var(--seal);
+    stroke-linecap: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: calc(1 - var(--hold, 0));
+}
+
+.inv-seal__half {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    border-radius: 999px;
+    background:
+        radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--seal) 70%, #fff) 0, transparent 38%),
+        radial-gradient(circle, var(--seal) 58%, color-mix(in srgb, var(--seal) 75%, #000) 100%);
+    box-shadow: 0 10px 22px -10px color-mix(in srgb, var(--seal) 80%, #000);
+    transition: translate 0.7s var(--inv-ease), rotate 0.7s var(--inv-ease), opacity 0.5s ease 0.2s;
+}
+
+.inv-seal__half--left {
+    clip-path: polygon(0 0, 54% 0, 44% 38%, 56% 62%, 46% 100%, 0 100%);
+}
+
+.inv-seal__half--right {
+    clip-path: polygon(54% 0, 100% 0, 100% 100%, 46% 100%, 56% 62%, 44% 38%);
+}
+
+.inv-seal__mark {
+    font-family: var(--font-script);
+    font-size: 2.8rem;
+    line-height: 1;
+    color: color-mix(in srgb, var(--seal) 55%, #fff);
+    text-shadow: 0 -1px 0 color-mix(in srgb, var(--seal) 60%, #000);
+}
+
+.inv-seal__mark--heart {
+    width: 2.2rem;
+    height: 2.2rem;
+}
+
+.inv-letter-gate.is-holding .inv-seal__half {
+    animation: inv-seal-beat 0.55s ease-in-out infinite;
+}
+
+@keyframes inv-seal-beat {
+    0%, 100% { scale: 1; }
+    40% { scale: 1.05; }
+}
+
+.inv-letter-gate[data-gate-done] .inv-seal__half--left {
+    translate: -2.4rem 1rem;
+    rotate: -24deg;
+    opacity: 0;
+}
+
+.inv-letter-gate[data-gate-done] .inv-seal__half--right {
+    translate: 2.4rem 1rem;
+    rotate: 24deg;
+    opacity: 0;
+}
+
+/* Raspar para revelar */
+.inv-scratch {
+    display: grid;
+    justify-items: center;
+    gap: 0.9rem;
+}
+
+.inv-scratch__surface {
+    position: relative;
+    width: 100%;
+    max-width: 30rem;
+    padding: 1.75rem 1rem 1.5rem;
+    border-radius: calc(var(--inv-radius) * 2);
+}
+
+.inv-scratch__surface .inv-milestone__total {
+    margin-top: 1.25rem;
+}
+
+.inv-scratch__canvas {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    cursor: grab;
+    touch-action: none;
+    box-shadow: 0 18px 40px -24px color-mix(in srgb, var(--text-color) 55%, transparent);
+}
+
+.inv-scratch.is-scratching .inv-scratch__canvas {
+    cursor: grabbing;
+}
+
+.inv-scratch-leave {
+    transition: opacity 0.6s ease, scale 0.6s var(--inv-ease);
+}
+
+.inv-scratch-gone {
+    opacity: 0;
+    scale: 1.06;
+}
+
+.inv-scratch__skip {
+    min-height: 2.75rem;
+    padding: 0 1rem;
+    border: 0;
+    background: none;
+    color: var(--inv-muted);
+    font: inherit;
+    font-size: 0.82rem;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+}
+
+.inv-scratch[data-gate-done] .inv-milestone__unit {
+    animation: inv-gate-rise 0.8s var(--inv-ease) both;
+}
+
+.inv-scratch[data-gate-done] .inv-milestone__unit:nth-child(2) { animation-delay: 0.12s; }
+.inv-scratch[data-gate-done] .inv-milestone__unit:nth-child(3) { animation-delay: 0.24s; }
