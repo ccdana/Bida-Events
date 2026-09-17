@@ -10,7 +10,7 @@ class EventType extends Model
     // Desactivamos timestamps ya que esta tabla maestra no los requiere
     public $timestamps = false;
 
-    protected $fillable = ['name', 'slug'];
+    protected $fillable = ['name', 'slug', 'code', 'kind', 'season'];
 
     /**
      * Obtener todas las invitaciones asociadas a este tipo de evento.

@@ -21,11 +21,6 @@ return [
         ],
     ],
 
-    'structured_modules' => [
-        // Registra en el log las invitaciones que todavía se leen desde invitation_data.json_data
-        'log_json_fallback' => env('LOG_JSON_MODULE_FALLBACK', true),
-    ],
-
     'retention' => [
         // Días después del evento que se conservan las fotos del fotomural (comando invitations:purge-contributions)
         'photos_days' => env('RETENTION_PHOTOS_DAYS', 180),
@@ -41,6 +36,7 @@ return [
         'songs' => env('RATE_LIMIT_SONGS', 10),
         'photos' => env('RATE_LIMIT_PHOTOS', 10),
         'votes' => env('RATE_LIMIT_VOTES', 30),
+        'replies' => env('RATE_LIMIT_REPLIES', 5),
     ],
 
     'http' => [

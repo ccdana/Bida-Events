@@ -17,10 +17,10 @@
             :class="focus === 'background' ? 'outline-2 outline-dashed -outline-offset-8 outline-site-accent' : ''"
             :style="`background:${modules.config.colores.background};color:${modules.config.colores.text};font-family:'${modules.config.tipografias.cuerpo}', sans-serif`">
             <p class="inline-block text-[10px] uppercase tracking-[0.3em]" :class="spot('text')"
-                x-text="modules.bienvenida?.subtitulo || (isWeddingTemplate() ? 'Nos casamos' : (isBaptismTemplate() ? 'Mi bautizo' : (isBirthdayTemplate() ? 'Mis 30 años' : 'Celebrando mis XV años')))"></p>
+                x-text="modules.bienvenida?.subtitulo || profile.sample?.subtitle"></p>
             <p class="mx-auto mt-1 block w-fit px-2 text-4xl leading-tight" :class="spot('script')"
                 :style="`font-family:'${modules.config.tipografias.script}', cursive`"
-                x-text="modules.bienvenida?.nombre_quinceanera || (isWeddingTemplate() ? 'Ana & Luis' : (isBaptismTemplate() ? 'Mateo Andrés' : (isBirthdayTemplate() ? 'Valeria' : 'Sofía Valentina')))"></p>
+                x-text="modules.bienvenida?.nombre_quinceanera || modules.dedicatoria?.para || profile.sample?.name"></p>
             <div class="mx-auto mt-3 h-px w-16" :class="spot('primary')" :style="`background:${modules.config.colores.primary}`"></div>
 
             <div class="mt-4 rounded-md px-4 py-3" :class="spot('accent')"

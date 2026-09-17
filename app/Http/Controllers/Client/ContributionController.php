@@ -26,7 +26,8 @@ class ContributionController extends Controller
 
         if ($contribution->type === 'song_request') {
             InvitationCacheService::forgetPlaylist($invitation->id);
-        } else {
+        } elseif ($contribution->type === 'live_photo') {
+            // Las respuestas de tarjeta no están en ninguna caché pública
             InvitationCacheService::forgetFotomural($invitation->id);
         }
 

@@ -2,128 +2,48 @@
 
 namespace App\Support;
 
+use App\Modules\ModuleRegistry;
+
 class InvitationDefaults
 {
+    /** Códigos de módulo en el orden en que se guardan (config/modules.php). */
     public static function moduleCodes(): array
     {
-        return [
-            'config',
-            'bienvenida',
-            'ubicacion',
-            'itinerario',
-            'dress_code',
-            'destacados',
-            'galeria',
-            'musica',
-            'video',
-            'playlist',
-            'hashtag',
-            'encuestas',
-            'regalos',
-            'post_evento',
-            'rsvp',
-            'cuenta_regresiva',
-            'agendar',
-            'fotomural',
-        ];
+        return app(ModuleRegistry::class)->codes();
     }
 
+    /**
+     * Pestaña del editor de cada módulo. Los módulos nuevos usan su propio código como pestaña;
+     * aquí solo quedan los que históricamente tienen otro nombre.
+     */
     public static function moduleTabMap(): array
     {
-        return [
+        $aliases = [
             'bienvenida' => 'hero',
-            'ubicacion' => 'ubicacion',
-            'itinerario' => 'itinerario',
             'dress_code' => 'dress',
-            'destacados' => 'destacados',
-            'galeria' => 'galeria',
-            'video' => 'video',
-            'musica' => 'musica',
-            'playlist' => 'playlist',
-            'hashtag' => 'hashtag',
-            'encuestas' => 'encuestas',
-            'regalos' => 'regalos',
-            'rsvp' => 'rsvp',
             'cuenta_regresiva' => 'countdown',
-            'agendar' => 'agendar',
-            'fotomural' => 'fotomural',
-            'post_evento' => 'post_evento',
         ];
+
+        $map = [];
+
+        foreach (self::moduleCodes() as $code) {
+            if ($code !== 'config') {
+                $map[$code] = $aliases[$code] ?? $code;
+            }
+        }
+
+        return $map;
     }
 
     public static function moduleVisibilityDefaults(): array
     {
-        return [
-            'bienvenida' => true,
-            'video' => false,
-            'musica' => false,
-            'galeria' => false,
-            'itinerario' => false,
-            'dress_code' => false,
-            'destacados' => false,
-            'ubicacion' => false,
-            'hashtag' => false,
-            'encuestas' => false,
-            'playlist' => false,
-            'regalos' => false,
-            'rsvp' => false,
-            'fotomural' => false,
-            'cuenta_regresiva' => false,
-            'agendar' => false,
-            'post_evento' => false,
-        ];
+        return app(ModuleRegistry::class)->visibilityDefaults();
     }
 
-    /**
-     * Retorna módulos vacíos para nuevas invitaciones
-     */
+    /** Forma vacía de todos los módulos para una invitación nueva. */
     public static function emptyModules(): array
     {
-        return [
-            'config' => [
-                'colores' => [
-                    'primary' => '#C9A96E',
-                    'secondary' => '#2C1810',
-                    'accent' => '#F5E6D3',
-                    'text' => '#1A1A1A',
-                    'background' => '#FFFAF5',
-                ],
-                'tipografias' => [
-                    'titulos' => 'Playfair Display',
-                    'cuerpo' => 'Montserrat',
-                    'script' => 'Great Vibes',
-                ],
-                'modulos' => self::moduleVisibilityDefaults(),
-                'template' => 'invitations.templates.xv-premium',
-            ],
-            'bienvenida' => (object) [],
-            'ubicacion' => ['lat' => -16.5, 'lng' => -68.15],
-            'itinerario' => ['titulo' => 'Itinerario', 'eventos' => []],
-            'dress_code' => ['sugerencias' => [], 'colores_permitidos' => [], 'evitar' => []],
-            'destacados' => ['chambelanes' => [], 'damitas' => [], 'padrinos' => []],
-            'galeria' => ['fotos' => []],
-            'musica' => (object) [],
-            'video' => (object) [],
-            'playlist' => (object) [],
-            'hashtag' => (object) [],
-            'encuestas' => ['preguntas' => []],
-            'regalos' => [
-                'sobres' => ['titulo' => '', 'direccion' => ''],
-                'banco' => [
-                    'banco' => '',
-                    'titular' => '',
-                    'ci' => '',
-                    'cuenta' => '',
-                    'qr_url' => '',
-                ],
-                'titulo' => '',
-                'tienda_url' => '',
-                'tienda_texto' => '',
-                'opciones' => [],
-            ],
-            'post_evento' => (object) [],
-            'rsvp' => (object) [],
-        ];
+        return app(ModuleRegistry::class)->emptyModules();
     }
 
     public static function templates(): array

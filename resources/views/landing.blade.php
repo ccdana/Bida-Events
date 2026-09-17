@@ -68,7 +68,11 @@
                     </a>
                 </div>
                 <p class="site-enter mt-6 text-sm text-site-muted" style="--enter-index: 4">
-                    Paquetes desde {{ collect($bida['packages'])->min('price') }} Bs · Pago único por invitación
+                    @if(! empty($page['price_note']))
+                        Lista el mismo día · Se manda por WhatsApp
+                    @else
+                        Paquetes desde {{ collect($bida['packages'])->min('price') }} Bs · Pago único por invitación
+                    @endif
                 </p>
             </div>
 
@@ -97,10 +101,10 @@
                 <div class="lg:col-span-5">
                     <div class="lg:sticky lg:top-28">
                         <h2 class="max-w-[16ch] text-3xl font-semibold leading-[1.1] tracking-tight md:text-5xl" data-reveal>
-                            Pensada para {{ collect($bida['showcase'])->firstWhere('event', $page['event'])['phrase'] ?? 'tu evento' }}
+                            Pensada para {{ $page['for'] ?? (collect($bida['showcase'])->firstWhere('event', $page['event'])['phrase'] ?? 'tu evento') }}
                         </h2>
                         <p class="mt-5 max-w-[42ch] text-lg leading-relaxed text-site-muted" data-reveal>
-                            Además de la cuenta regresiva, el itinerario y el mapa que lleva toda invitación.
+                            {{ $page['features_note'] ?? 'Además de la cuenta regresiva, el itinerario y el mapa que lleva toda invitación.' }}
                         </p>
                     </div>
                 </div>
@@ -127,10 +131,10 @@
                     <div class="lg:col-span-6">
                         <p class="text-[0.95rem] font-medium text-site-accent" data-reveal>{{ $demo['label'] }}</p>
                         <h2 class="mt-4 max-w-[18ch] text-3xl font-semibold leading-[1.1] tracking-tight md:text-5xl" data-reveal>
-                            Pruébala como un invitado
+                            {{ ($page['kind'] ?? 'invitation') === 'card' ? 'Ábrela como si fuera para ti' : 'Pruébala como un invitado' }}
                         </h2>
                         <p class="mt-5 max-w-[46ch] text-lg leading-relaxed text-site-muted" data-reveal>
-                            Ábrela dentro del teléfono, confirma tu asistencia, vota o sugiere una canción. Es una muestra: nada de lo que hagas se guarda.
+                            {{ $page['demo_note'] ?? 'Ábrela dentro del teléfono, confirma tu asistencia, vota o sugiere una canción. Es una muestra: nada de lo que hagas se guarda.' }}
                         </p>
                         <p class="mt-6 max-w-[46ch] leading-relaxed text-site-muted" data-reveal>
                             {{ $demo['description'] }}
@@ -154,7 +158,20 @@
             </section>
         @endif
 
-        @include('site.partials.plans')
+        @if(! empty($page['price_note']))
+            {{-- Tarjetas de temporada: sin paquetes de invitación, el precio se consulta --}}
+            <section id="precios" class="scroll-mt-20 border-t border-site-line bg-site-surface">
+                <div class="mx-auto flex max-w-7xl flex-col items-start gap-6 px-5 py-16 lg:flex-row lg:items-center lg:justify-between lg:px-8" data-reveal>
+                    <p class="max-w-[40ch] text-2xl font-semibold leading-snug tracking-tight md:text-3xl">{{ $page['price_note'] }}</p>
+                    <a href="{{ $contactUrl }}" target="_blank" rel="noopener" class="site-btn site-btn--lg" data-magnetic>
+                        <x-phosphor-whatsapp-logo aria-hidden="true" />
+                        Pedir precio
+                    </a>
+                </div>
+            </section>
+        @else
+            @include('site.partials.plans')
+        @endif
 
         @include('site.partials.faqs', ['faqs' => $faqs])
 

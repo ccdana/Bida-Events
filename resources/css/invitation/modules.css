@@ -1164,3 +1164,123 @@ div.inv-gift {
         columns: 3;
     }
 }
+
+/* ════════════════════════════════════════════════════════════════════════════
+   Módulos de tarjetas estacionales (app/Modules/Card)
+   Base neutra que usa la paleta del evento; cada tema la ajusta en su hoja
+   (p. ej. resources/css/cards/amor.css).
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* ── Dedicatoria: una carta escrita a mano ──────────────────────────────── */
+
+.inv-letter {
+    position: relative;
+    padding: 2.25rem 1.5rem 2rem;
+    border: 1px solid var(--inv-line);
+    border-radius: var(--inv-radius);
+    background: color-mix(in srgb, var(--accent-color) 12%, var(--bg-color));
+    box-shadow: 0 24px 50px -32px color-mix(in srgb, var(--text-color) 45%, transparent);
+}
+
+.inv-letter__to {
+    font-family: var(--font-script);
+    font-size: clamp(2rem, 9vw, 2.6rem);
+    line-height: 1.2;
+    color: var(--inv-accent-ink);
+}
+
+.inv-letter__body {
+    margin-top: 1rem;
+    font-family: var(--font-titles);
+    font-size: 1.06rem;
+    line-height: 1.9;
+    color: var(--text-color);
+    text-wrap: pretty;
+}
+
+.inv-letter__body p + p {
+    margin-top: 1.9em;
+}
+
+.inv-letter__footer {
+    margin-top: 2rem;
+    text-align: right;
+}
+
+.inv-letter__closing {
+    font-size: 0.9rem;
+    font-style: italic;
+    color: var(--inv-muted);
+}
+
+.inv-letter__signature {
+    margin-top: 0.15rem;
+    font-family: var(--font-script);
+    font-size: clamp(1.9rem, 8vw, 2.4rem);
+    line-height: 1.15;
+    color: var(--inv-accent-ink);
+}
+
+@media (min-width: 640px) {
+    .inv-letter {
+        padding: 3rem 2.75rem 2.5rem;
+    }
+}
+
+/* ── Juntos desde: años, meses y días compartidos ───────────────────────── */
+
+.inv-milestone__grid {
+    display: flex;
+    justify-content: center;
+    gap: clamp(1.25rem, 7vw, 3rem);
+}
+
+.inv-milestone__unit {
+    display: grid;
+    justify-items: center;
+    gap: 0.35rem;
+    min-width: 4.5rem;
+}
+
+.inv-milestone__value {
+    font-family: var(--font-titles);
+    font-size: clamp(2.6rem, 13vw, 4.2rem);
+    line-height: 1;
+    color: var(--inv-accent-deco);
+    font-variant-numeric: tabular-nums;
+}
+
+.inv-milestone__label {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--inv-soft);
+}
+
+.inv-milestone__total {
+    margin-top: 1.75rem;
+    font-size: 0.93rem;
+    color: var(--inv-muted);
+    text-align: center;
+}
+
+/* ── Respuesta del destinatario ─────────────────────────────────────────── */
+
+.inv-reply__form {
+    display: grid;
+    gap: 0.5rem;
+}
+
+.inv-reply__input {
+    min-height: 7rem;
+}
+
+.inv-reply__sent {
+    padding: 1.5rem 1rem;
+    border-block: 1px solid var(--inv-line);
+    font-family: var(--font-titles);
+    font-size: 1.1rem;
+    color: var(--text-color);
+    text-align: center;
+}

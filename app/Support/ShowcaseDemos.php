@@ -15,6 +15,7 @@ final class ShowcaseDemos
         'boda' => ['Boda', 'heart'],
         'bautizo' => ['Bautizo', 'baby'],
         'cumple' => ['Cumpleaños', 'cake'],
+        'amor' => ['Día del Amor', 'heart'],
     ];
 
     /**

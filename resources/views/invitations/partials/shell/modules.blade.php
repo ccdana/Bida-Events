@@ -2,6 +2,8 @@
     Secciones de la invitación en el orden que define cada plantilla (App\Support\InvitationTemplates).
     Hereda de la plantilla: $page, $invitation, $modulos, $guest, $pollResults, $calendarUrl, $playlistSongs y $fotomuralPhotos.
 --}}
+@php($moduleRegistry = app(\App\Modules\ModuleRegistry::class))
+
 @if($page->visible('rsvp') && $guest)
     @include('invitations.partials.guest-banner', ['guest' => $guest])
 @endif
@@ -83,5 +85,8 @@
         ])
     @elseif($module === 'post_evento' && $page->isPostEvent && $page->visible('post_evento'))
         @include('invitations.partials.post-event', ['postEvento' => $modulos['post_evento'] ?? []])
+    @elseif($page->visible($module) && $moduleRegistry->has($module) && $moduleRegistry->get($module)->partial())
+        {{-- Módulos con vista propia (tarjetas y los que se sumen): app/Modules --}}
+        @include($moduleRegistry->get($module)->partial(), ['data' => $modulos[$module] ?? []])
     @endif
 @endforeach

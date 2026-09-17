@@ -2,6 +2,8 @@
 
 namespace App\ViewModels\Admin;
 
+use App\EventProfiles\EventProfile;
+use App\EventProfiles\EventProfiles;
 use App\Models\EventType;
 use App\Models\Invitation;
 use App\Models\User;
@@ -72,7 +74,11 @@ class InvitationEditorViewData
             'eventTypes' => $eventTypes->map(fn ($type) => [
                 'id' => (string) $type->id,
                 'name' => $type->name,
+                'code' => $type->code,
+                'kind' => $type->kind,
             ])->values(),
+            // Perfil de cada tipo de evento: el editor arma pestañas, rótulos y avisos con él
+            'profiles' => collect(app(EventProfiles::class)->all())->map(fn (EventProfile $profile) => $profile->toArray()),
             'templateOptions' => $templates->map(fn ($label, $value) => [
                 'value' => $value,
                 'label' => $label,

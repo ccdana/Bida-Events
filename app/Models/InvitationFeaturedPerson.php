@@ -18,12 +18,10 @@ class InvitationFeaturedPerson extends Model
         'role',
         'detail',
         'message',
-        'meta',
         'sort_order',
     ];
 
     protected $casts = [
-        'meta' => 'array',
         'sort_order' => 'integer',
     ];
 

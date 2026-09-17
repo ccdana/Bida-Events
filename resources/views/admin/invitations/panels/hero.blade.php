@@ -12,15 +12,21 @@
         <p class="admin-eyebrow mb-1">Identidad</p>
 
         <div class="grid gap-2">
+            {{-- Cada evento pide sus campos (App\EventProfiles): dos nombres en una boda, la edad en un cumpleaños --}}
+            <template x-for="field in heroFields" :key="field.key">
+                <div>
+                    <label class="admin-label" :for="'hero-' + field.key" x-text="field.label"></label>
+                    <input :id="'hero-' + field.key" :type="field.type || 'text'" class="admin-input"
+                        :min="field.type === 'number' ? 1 : null" :max="field.type === 'number' ? 120 : null"
+                        :value="modules.bienvenida[field.key] ?? ''"
+                        @input="modules.bienvenida[field.key] = $event.target.value; syncHeroName()"
+                        :placeholder="field.placeholder">
+                    <p x-show="field.help" x-cloak class="mt-1 text-xs text-site-muted" x-text="field.help"></p>
+                </div>
+            </template>
             <div>
-                <label class="admin-label" x-text="isWeddingTemplate() ? 'Nombres de los novios' : (isBaptismTemplate() ? 'Nombre del bebé' : (isBirthdayTemplate() ? 'Nombre de quien cumple años' : 'Nombre de la protagonista'))">Nombre de la protagonista</label>
-                <input type="text" x-model="modules.bienvenida.nombre_quinceanera" @input="schedulePreview()" class="admin-input" :placeholder="isWeddingTemplate() ? 'Ej. Ana & Luis' : (isBaptismTemplate() ? 'Ej. Mateo Andrés' : (isBirthdayTemplate() ? 'Ej. Valeria' : 'Ej. Sofía Valentina'))">
-                <p x-show="isWeddingTemplate()" x-cloak class="mt-1 text-xs text-site-muted">Sepáralos con «&» o «y»: la portada los muestra con un ampersand caligráfico.</p>
-            </div>
-            <div>
-                <label class="admin-label">Subtítulo superior</label>
-                <input type="text" x-model="modules.bienvenida.subtitulo" @input="schedulePreview()" class="admin-input" :placeholder="isWeddingTemplate() ? 'Ej. Nos casamos' : (isBaptismTemplate() ? 'Ej. Mi bautizo' : (isBirthdayTemplate() ? 'Ej. Mis 30 años' : 'Ej. Celebrando mis XV Años'))">
-                <p x-show="isBirthdayTemplate()" x-cloak class="mt-1 text-xs text-site-muted">Incluye la edad (ej. «Mis 30 años»): se muestra en grande en la portada y en las velas del pastel.</p>
+                <label class="admin-label" for="hero-subtitulo" x-text="isCard ? 'Frase de la portada' : 'Subtítulo superior'">Subtítulo superior</label>
+                <input id="hero-subtitulo" type="text" x-model="modules.bienvenida.subtitulo" @input="schedulePreview()" class="admin-input" :placeholder="'Ej. ' + (profile.sample?.subtitle ?? 'Celebrando mis XV años')">
             </div>
         </div>
     </section>
@@ -42,7 +48,7 @@
     </section>
 
     <!-- Fecha visible -->
-    <section class="admin-card p-3 space-y-2">
+    <section class="admin-card p-3 space-y-2" x-show="!isCard">
         <p class="admin-eyebrow mb-1">Fecha visible</p>
         <div>
             <label class="admin-label">Texto de fecha en el banner</label>
@@ -52,7 +58,7 @@
     </section>
 
     <!-- Mensaje post-evento -->
-    <section class="admin-card p-3 space-y-2">
+    <section class="admin-card p-3 space-y-2" x-show="!isCard">
         <div x-data="{ open: false }" class="admin-accordion">
             <button type="button" @click="open = !open" class="admin-accordion-trigger">
                 <div class="min-w-0">

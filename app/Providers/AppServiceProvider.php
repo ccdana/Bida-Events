@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\EventProfiles\EventProfiles;
+use App\Modules\ModuleRegistry;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Middleware\TrustProxies;
 use Illuminate\Http\Request;
@@ -20,7 +22,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Una sola lista de módulos por proceso (config/modules.php)
+        $this->app->singleton(ModuleRegistry::class);
+        $this->app->singleton(EventProfiles::class);
     }
 
     /**
@@ -76,7 +80,7 @@ class AppServiceProvider extends ServiceProvider
             : back()->withErrors(['throttle' => $message]);
 
         // Endpoints públicos: límite por IP y por invitación (límites en config/optimizations.php)
-        foreach (['rsvp', 'songs', 'photos', 'votes'] as $key) {
+        foreach (['rsvp', 'songs', 'photos', 'votes', 'replies'] as $key) {
             RateLimiter::for("invitation-{$key}", fn (Request $request) => Limit::perMinute((int) config("optimizations.rate_limits.{$key}"))
                 ->by($request->ip().'|'.$request->route('slug'))
                 ->response($tooManyAttempts));

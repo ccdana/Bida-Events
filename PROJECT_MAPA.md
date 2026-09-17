@@ -5,7 +5,8 @@ Está escrita para que alguien que nunca vio el proyecto pueda ubicarse, y para 
 sepa dónde tocar sin romper nada.
 
 - **Qué es:** una aplicación Laravel 12 que crea, edita y publica invitaciones digitales de eventos
-  (bodas, bautizos, cumpleaños y XV años).
+  (bodas, bautizos, cumpleaños y XV años) y tarjetas de temporada de una persona a otra (Día del Amor;
+  después Halloween, Día de Muertos, Navidad). Cómo sumar una temporada: `docs/temporadas.md`.
 - **Cómo se usa:** el equipo arma la invitación en un editor, entrega un enlace general y, según el
   paquete, un enlace personal por invitado. Los invitados confirman asistencia, votan encuestas,
   sugieren canciones y suben fotos desde el celular.
@@ -42,14 +43,13 @@ En este equipo (Laragon) los binarios son
 y el sitio responde en `http://bida-events.test`. La base local es PostgreSQL; `pg_dump` y `psql` están en
 `C:\laragon\bin\postgresql\pgsql\bin` (variables `BACKUP_PG_DUMP` y `BACKUP_PSQL`).
 
-Despliegue: `docs/despliegue.md`. Registros, alertas y respaldos: `docs/operacion.md`.
+Despliegue: `docs/despliegue.md`. Registros, alertas y respaldos: `docs/operacion.md`. Temporadas y
+módulos nuevos: `docs/temporadas.md`.
 
 | Comando | Para qué |
 | --- | --- |
 | `php artisan migrate:status` | Ver qué migraciones faltan |
-| `php artisan invitations:migrate-json --dry-run` | Simular el paso de módulos JSON a tablas |
-| `php artisan invitations:migrate-json --invitation=xv-isabella` | Migrar una sola invitación |
-| `php artisan db:seed --class=ShowcaseInvitationsSeeder` | Rehacer las invitaciones de muestra |
+| `php artisan db:seed --class=ShowcaseInvitationsSeeder` | Rehacer las invitaciones y tarjetas de muestra |
 | `php artisan optimize:clear` | Limpiar caché de vistas, rutas y configuración |
 | `php artisan invitations:purge-contributions --dry-run` | Ver qué fotos viejas se borrarían |
 | `php artisan bida:medir --guardar` | Medir las pantallas públicas y guardar el resultado |
@@ -83,16 +83,18 @@ Despliegue: `docs/despliegue.md`. Registros, alertas y respaldos: `docs/operacio
 
 1. **Creación.** El admin crea la invitación (`Admin\InvitationController@store`) y, si hace falta, el
    usuario cliente (`ClientCredentials`).
-2. **Edición.** El editor (`admin/invitations/editor/*`) envía todos los módulos como JSON.
-   `UpdateInvitationRequest` los valida con las reglas de `InvitationModuleRules`.
-3. **Guardado.** `InvitationModuleService::syncAllModules` escribe cada módulo. Los módulos ya
-   normalizados (configuración, itinerario, galería y encuestas) pasan además por
-   `InvitationStructuredDataService`, que los guarda en tablas propias.
+2. **Edición.** El editor (`admin/invitations/editor/*`) se adapta al perfil de la plantilla
+   (`App\EventProfiles`): pestañas, campos de portada, grupos de destacados y avisos de lo que falta.
+   Envía cada módulo como JSON en el formulario (solo formato de envío). `UpdateInvitationRequest`
+   los valida con `InvitationModuleRules`, que suma las reglas de cada módulo.
+3. **Guardado.** `InvitationModuleService::syncAllModules` llama a `ModuleRegistry::save` dentro de
+   una transacción: cada módulo (`app/Modules`) escribe sus propias tablas. No hay columnas JSON.
 4. **Invalidación de caché.** El evento `InvitationUpdated` dispara `RefreshInvitationCache`, que
    limpia y recalienta lo cacheado de esa invitación.
-5. **Publicación.** `Public\InvitationController@show` arma los módulos (tablas primero, JSON como
-   respaldo), resuelve plantilla, encuestas, playlist y fotomural, y renderiza la plantilla.
-6. **Interacción del invitado.** RSVP, votos, canciones y fotos entran por
+5. **Publicación.** `Public\InvitationController@show` lee los módulos desde sus tablas
+   (`ModuleRegistry::load`, una carga de relaciones), resuelve plantilla, encuestas, playlist y
+   fotomural, y renderiza la plantilla.
+6. **Interacción del invitado.** RSVP, votos, canciones, fotos y respuestas de tarjeta entran por
    `Public\RsvpController` y `Public\ContributionController`, con límite de peticiones por ruta.
    Cada aporte dispara eventos que vuelven a invalidar la caché.
 7. **Seguimiento.** El cliente ve sus invitados en su panel y exporta Excel o PDF.
@@ -106,7 +108,7 @@ Todas están en `routes/web.php`.
 | Método y ruta | Nombre | Controlador | Notas |
 | --- | --- | --- | --- |
 | `GET /` | `home` | `HomeController` | Portada pública; middleware `lead.source` |
-| `GET /invitaciones-de-boda`, `/invitaciones-xv-anos`, `/invitaciones-de-bautizo`, `/invitaciones-de-cumpleanos` | `landing` | `EventLandingController` | Página por tipo de evento (contenido en `config/bida.php`, clave `landings`); middleware `lead.source` |
+| `GET /invitaciones-de-boda`, `/invitaciones-xv-anos`, `/invitaciones-de-bautizo`, `/invitaciones-de-cumpleanos`, `/tarjetas-dia-del-amor` | `landing` | `EventLandingController` | Página por tipo de evento (contenido en `config/bida.php`, clave `landings`); middleware `lead.source` |
 | `GET /sitemap.xml` | `sitemap` | `EventLandingController@sitemap` | Portada y páginas por evento |
 | `GET /muestra/{slug}` | `invitation.demo` | `Public\InvitationController@demo` | Solo las invitaciones de `bida.demo_invitations`; nada se guarda; `noindex` |
 | `GET /dashboard` | `dashboard` | Cierre en rutas | Redirige a admin o cliente según el rol |
@@ -117,6 +119,7 @@ Todas están en `routes/web.php`.
 | `GET/POST /p/{slug}/playlist` | `invitation.playlist*` | `Public\ContributionController` | `throttle:invitation-songs` |
 | `GET/POST /p/{slug}/fotomural` | `invitation.fotomural*` | `Public\ContributionController` | `throttle:invitation-photos` |
 | `POST /p/{slug}/polls/{pollId}/vote` | `invitation.poll.vote` | `Public\ContributionController@votePoll` | `throttle:invitation-votes` |
+| `POST /p/{slug}/respuesta` | `invitation.reply` | `Public\ContributionController@storeReply` | `throttle:invitation-replies`; 404 si el módulo `respuesta` está apagado |
 | `GET /admin/sistema-visual` | `admin.design-system` | `Admin\DesignSystemController` | Referencia interna de colores, tipografía y componentes |
 | `/admin/**` | `admin.*` | `Admin\*` | Middleware `auth` + `admin` |
 | `/client/**` | `client.*` | `Client\*` | Middleware `auth` + `client`, con policies |
@@ -161,7 +164,9 @@ propósito y responde `no-store`.
 | `config/filesystems.php` | Discos locales y públicos |
 | `config/logging.php` | Canales de log |
 | `config/mail.php` | Envío de correo |
-| `config/optimizations.php` | Interruptores propios: caché de invitaciones y TTL, aviso de lecturas JSON, retención, límites por minuto de login, RSVP, canciones, fotos y votos, y cabeceras HTTP de caché |
+| `config/optimizations.php` | Interruptores propios: caché de invitaciones y TTL, retención, límites por minuto de login, RSVP, canciones, fotos, votos y respuestas de tarjeta, y cabeceras HTTP de caché |
+| `config/modules.php` | Lista de módulos registrados (`app/Modules`); el orden es el orden de guardado |
+| `config/event_profiles.php` | Perfiles de evento y temporada (`app/EventProfiles`) |
 | `config/operations.php` | Umbral de peticiones lentas, alertas, carpeta y ejecutables de respaldo |
 | `config/queue.php` | Colas y conexión por defecto |
 | `config/security.php` | Proxies de confianza (`TRUSTED_PROXIES`) y política de contenido (`CSP_ENABLED`, `CSP_ENFORCE`) |
@@ -216,9 +221,12 @@ propósito y responde `no-store`.
 | Archivo | Qué representa |
 | --- | --- |
 | `User.php` | Administradores y clientes (`is_admin`, usuario y contraseña de acceso) |
-| `Invitation.php` | La invitación: dueño, tipo de evento, plantilla, slug, fecha, estado y vencimiento. Concentra las relaciones (`settings`, `itineraryItems`, `galleryImages`, `polls`, `guests`, `contributions`, `pollVotes`, `modulesData`, `features`), los scopes `active`, `published` y `withAllData`, y el accessor `modules` con su caché en memoria |
-| `InvitationData.php` | Una fila por módulo con su JSON (`json_data`): es el formato antiguo y hoy actúa como respaldo |
-| `InvitationSetting.php` | Configuración normalizada: plantilla, colores, tipografías y visibilidad de módulos |
+| `Invitation.php` | La invitación: dueño, tipo de evento, plantilla, slug, fecha, estado y vencimiento. Concentra las relaciones de cada módulo (`theme`, `hero`, `sections`, `features`, `itineraryItems`, `galleryImages`, `polls`, `hashtag`, `rsvpSetting`, `bankAccounts`, `dedication`, `milestones`…), `guests`, `contributions`, `pollVotes` y los scopes `active`, `published` y `withAllData` |
+| `InvitationTheme.php` | Colores y tipografías (1 a 1) |
+| `InvitationHero.php` | Portada: nombres separados (`primary_name`, `secondary_name`), edad, subtítulo, mensaje, foto y texto post evento |
+| `InvitationSection.php` | Textos de una sección (título, subtítulo, introducción, ejemplo, botón y enlace), una fila por invitación y módulo |
+| `InvitationHashtag.php` / `InvitationRsvpSetting.php` / `InvitationBankAccount.php` | Hashtag, textos del RSVP y cuentas bancarias con su QR |
+| `CardDedication.php` / `CardMilestone.php` | Tarjetas: de, para, mensaje y firma; fecha de «juntos desde» |
 | `InvitationItineraryItem.php` | Cada momento del itinerario, con orden |
 | `InvitationGalleryImage.php` | Cada imagen, por colección (galería, portada, post-evento) y orden |
 | `InvitationPoll.php` | Pregunta de encuesta, con su clave estable y sus opciones |
@@ -226,38 +234,50 @@ propósito y responde `no-store`.
 | `PollVote.php` | Voto: invitación, encuesta (por su fila), opción y votante |
 | `InvitationLocation.php` | Sede del evento: nombre, dirección, coordenadas, mapa y foto |
 | `InvitationFeaturedPerson.php` | Personas destacadas por grupo (chambelanes, damitas, padrinos…) |
-| `InvitationDressCodeItem.php` | Código de vestimenta: sugerencias, colores permitidos y qué evitar |
-| `InvitationGiftOption.php` | Opciones de la mesa de regalos |
-| `InvitationMedia.php` | Catálogo de medios: canción de fondo y video |
+| `InvitationDressCodeItem.php` | Código de vestimenta: sugerencias, colores permitidos y qué evitar, con sus ejemplos en `InvitationDressCodeExample` |
+| `InvitationGiftOption.php` | Regalos por `type`: opciones, sobres y tienda (con `address`) |
+| `InvitationMedia.php` | Canción de fondo (con `artist`) y video |
 | `InvitationExport.php` | Pedido de archivo del cliente: tipo, estado y ruta del archivo generado |
 | `Guest.php` | Invitado: nombre, pases asignados y confirmados, estado, mesa, restricciones y token del enlace personal |
-| `GuestContribution.php` | Aporte del invitado: canción o foto del fotomural |
-| `EventType.php` | Catálogo de tipos de evento |
-| `Feature.php` | Catálogo de módulos disponibles (tabla pivote `invitation_features`) |
+| `GuestContribution.php` | Aporte del invitado: canción, foto del fotomural o respuesta de tarjeta (`type` es texto: cada módulo declara el suyo) |
+| `EventType.php` | Catálogo de tipos de evento con `code` (el del perfil), `kind` (`invitation` o `card`) y `season` |
+| `Feature.php` | Catálogo de módulos; `invitation_features.is_enabled` guarda qué módulos se ven en cada invitación |
 
 ### 5.6 Servicios
 
 | Archivo | Qué hace |
 | --- | --- |
-| `Services/InvitationModuleService.php` | Corazón de los módulos: normaliza lo que llega del editor, resuelve lo que se muestra, guarda módulo por módulo, calcula resultados de encuestas, arma la URL de Google Calendar y genera tokens de invitado |
-| `Services/InvitationStructuredDataService.php` | Puente entre JSON y tablas: dice si una invitación ya está migrada, hidrata desde tablas, sincroniza, verifica diferencias y arma las filas de configuración, itinerario, galería y encuestas |
+| `Services/InvitationModuleService.php` | Normaliza lo que llega del editor, resuelve lo que se muestra, guarda todo con `ModuleRegistry` en una transacción, calcula resultados de encuestas, arma la URL de Google Calendar y genera tokens de invitado |
 | `Services/BackupService.php` | Volcado (`pg_dump`, `mysqldump`, SQLite), compresión, manifiesto de medios, retención y prueba de restauración |
 | `Services/InvitationCacheService.php` | Encendido/apagado de la caché, TTL, invalidación por invitación y olvido puntual de encuestas, playlist y fotomural |
 | `Services/InvitationPreviewSession.php` | Guarda en sesión el borrador del editor para la vista previa |
 | `Services/MediaUploadService.php` | Valida y sube imágenes y videos a Cloudinary con transformaciones por contexto (portada, galería, ubicación, dress code, video, fotomural, QR bancario) |
 
+### 5.6.1 Módulos y perfiles
+
+| Archivo | Qué hace |
+| --- | --- |
+| `Modules/Module.php` | Contrato de un módulo: código, nombre, tipos (`invitation`/`card`), forma vacía, `load`, `save`, relaciones, reglas, vista pública y panel |
+| `Modules/ModuleRegistry.php` | Reúne los módulos de `config/modules.php`: carga y guardado de todos, reglas, visibilidad por defecto y módulos por tipo |
+| `Modules/Concerns/*` | Lectura de valores, reemplazo de listas reutilizando filas, textos de sección y fotos de galería |
+| `Modules/Invitation/*Module.php` | Configuración, portada, ubicación, itinerario, vestimenta, destacados, galería, audio, video, playlist, hashtag, encuestas, regalos, post evento, RSVP y los interruptores (`ToggleModule`) |
+| `Modules/Card/*Module.php` | Tarjetas: `dedicatoria`, `juntos_desde` y `respuesta` (aporte `card_reply`) |
+| `EventProfiles/EventProfile.php` | Perfil de un evento o temporada: tipo, módulos, encendidos por defecto, campos de portada, grupos de destacados, obligatorios y ejemplo |
+| `EventProfiles/EventProfiles.php` | Registro de `config/event_profiles.php`; `forTemplate()` da el perfil de una plantilla |
+| `EventProfiles/{Xv,Wedding,Baptism,Birthday,LoveCard}Profile.php` | XV, boda (dos nombres), bautizo (padrinos), cumpleaños (edad) y tarjeta del Día del Amor |
+
 ### 5.7 Clases de apoyo (`app/Support`)
 
 | Archivo | Qué hace |
 | --- | --- |
-| `InvitationPage.php` | Objeto que usa toda plantilla pública: paleta, fuentes, módulos visibles, orden de secciones, nombres, edad, iniciales y textos de la plantilla |
-| `InvitationTemplates.php` | Catálogo de las cuatro plantillas: etiqueta, descripción, evento, paleta por defecto, textos propios y orden de módulos |
+| `InvitationPage.php` | Objeto que usa toda plantilla pública: perfil, paleta, fuentes, módulos visibles, orden de secciones, nombres, edad, dedicatoria, iniciales y textos de la plantilla |
+| `InvitationTemplates.php` | Catálogo de plantillas (cuatro invitaciones y la tarjeta «Carta de amor»): etiqueta, descripción, perfil (`event`), paleta por defecto, textos propios y orden de módulos |
 | `ColorContrast.php` | Contraste WCAG y las mezclas de color de la invitación; lo usan la página del sistema visual y las pruebas |
-| `InvitationDefaults.php` | Códigos de módulos, pestañas del editor, visibilidad por defecto, módulos vacíos y resolución de plantilla |
+| `InvitationDefaults.php` | Pestañas del editor y resolución de plantilla; códigos, visibilidad y módulos vacíos los toma de `ModuleRegistry` |
 | `InvitationModuleRules.php` | Esquema de validación de cada módulo del editor |
 | `ItineraryIcons.php` | Catálogo de íconos del itinerario |
 | `CloudinaryImage.php` | Arma variantes responsivas (`f_auto`, `q_auto`, ancho), `srcset` y el recorte 1200×630 en JPG para compartir |
-| `ShareMeta.php` | Título, descripción e imagen Open Graph de invitaciones, portada y páginas por evento |
+| `ShareMeta.php` | Título, descripción e imagen Open Graph de invitaciones, tarjetas («Para Ana, de Luis»), portada y páginas por evento |
 | `LeadSource.php` | Origen de campaña y código corto del mensaje de WhatsApp (`Ref. BODA-FB-MAYO`) |
 | `ShowcaseDemos.php` | Invitaciones de muestra activas, para la portada y las páginas por evento |
 | `SiteImage.php` | Fotos del sitio público; si el archivo no existe usa un marcador |
@@ -283,11 +303,10 @@ propósito y responde `no-store`.
 | `Exports/Sheets/PendingGuestsSheet.php` | Hoja de pendientes por confirmar |
 | `Exports/Sheets/DietarySheet.php` | Hoja de restricciones alimentarias |
 | `Events/InvitationUpdated.php` | Se emite al guardar una invitación |
-| `Events/GuestContributionSubmitted.php` | Se emite al recibir una canción o una foto |
+| `Events/GuestContributionSubmitted.php` | Se emite al recibir una canción, una foto o una respuesta de tarjeta |
 | `Events/PollVoteSubmitted.php` | Se emite al registrar un voto |
 | `Listeners/RefreshInvitationCache.php` | Escucha los tres eventos e invalida la caché de forma síncrona |
 | `Providers/AppServiceProvider.php` | Registro de servicios, límites de peticiones y ajustes globales |
-| `Console/Commands/MigrateInvitationJsonModules.php` | Comando `invitations:migrate-json`, con `--dry-run`, `--invitation` y `--force` |
 | `Console/Commands/BackupCommand.php` | Comando `bida:respaldo`: base, medios locales y manifiesto de Cloudinary |
 | `Console/Commands/TestBackupRestore.php` | Comando `bida:probar-respaldo`: restaura en una base temporal y compara filas |
 | `Console/Commands/HealthCheck.php` | Comando `bida:salud`: trabajos fallidos, cola, exportaciones, respaldos y disco; avisa por correo |
@@ -337,6 +356,15 @@ propósito y responde `no-store`.
 | `2026_09_15_000007_create_invitation_media_table` | Canción y video de la invitación |
 | `2026_09_15_000008_drop_textual_poll_id_from_poll_votes_table` | El voto apunta a la encuesta por su fila |
 | `2026_09_15_000009_create_invitation_exports_table` | Pedidos de Excel y PDF generados en segundo plano |
+| `2026_09_17_000001_add_catalog_columns_to_event_types_table` | `code`, `kind` y `season` en los tipos de evento |
+| `2026_09_17_000002_create_invitation_themes_table` | Colores y tipografías |
+| `2026_09_17_000003_create_invitation_heroes_table` | Portada con nombres separados |
+| `2026_09_17_000004_create_invitation_sections_table` | Textos de cada sección |
+| `2026_09_17_000005_create_invitation_detail_tables` | Hashtag, textos del RSVP y cuentas bancarias |
+| `2026_09_17_000006_normalize_list_tables` | Tipo y dirección en regalos, artista en medios, ejemplos de vestimenta en su tabla, sin columnas `meta` |
+| `2026_09_17_000007_create_card_tables` | Dedicatoria y «juntos desde» de las tarjetas |
+| `2026_09_17_000008_drop_json_module_storage` | Elimina `invitation_data` e `invitation_settings` |
+| `2026_09_17_000009_allow_module_contribution_types` | `guest_contributions.type` deja de ser enum para aceptar `card_reply` y futuros tipos |
 
 **Semillas y datos de ejemplo:**
 
@@ -344,12 +372,13 @@ propósito y responde `no-store`.
 | --- | --- |
 | `seeders/DatabaseSeeder.php` | Crea el administrador y llama a los demás |
 | `seeders/ClientUserSeeder.php` | Cliente de prueba `cliente.prueba` con una invitación de muestra sin dueño; la contraseña sale de `SEED_CLIENT_PASSWORD` o se genera y se muestra una vez |
-| `seeders/EventTypeSeeder.php` | Tipos de evento base |
-| `seeders/ShowcaseInvitationsSeeder.php` | Recrea las cuatro invitaciones de muestra completas, con invitados, aportes y votos; es idempotente |
+| `seeders/EventTypeSeeder.php` | Tipos de evento base con su código, tipo y temporada (incluye Día del Amor) |
+| `seeders/ShowcaseInvitationsSeeder.php` | Recrea las cuatro invitaciones y la tarjeta de muestra completas, con invitados, aportes y votos; es idempotente |
 | `seeders/showcase/xv-isabella.php` | Datos de la muestra de XV años |
 | `seeders/showcase/boda-camila-andres.php` | Datos de la muestra de boda |
 | `seeders/showcase/bautizo-emilia.php` | Datos de la muestra de bautizo |
 | `seeders/showcase/cumple-daniela-30.php` | Datos de la muestra de cumpleaños |
+| `seeders/showcase/tarjeta-ana-luis.php` | Tarjeta del Día del Amor de muestra (reusa las fotos de la boda) |
 | `seeders/XvSofiaModuleData.php` | Datos de prueba: invitación completa de XV que usan los tests (no son las muestras de la portada) |
 | `seeders/BodaJardinDemoSeeder.php` | Datos de prueba: invitación completa de boda |
 | `seeders/BautizoCieloDemoSeeder.php` | Datos de prueba: invitación completa de bautizo |
@@ -394,6 +423,9 @@ propósito y responde `no-store`.
 | `invitations/templates/boda-jardin.blade.php` | Boda Jardín: sobre con sello de cera, ramas y pétalos |
 | `invitations/templates/bautizo-cielo.blade.php` | Bautizo Cielo: pila bautismal con jarra, nubes, palomas y burbujas |
 | `invitations/templates/cumple-fiesta.blade.php` | Cumpleaños Fiesta: pastel con velas, confeti, globos y banderines |
+| `invitations/templates/tarjeta-amor.blade.php` | Carta de amor: carta doblada con cinta que se abre, foto con cinta adhesiva, dedicatoria y contador |
+| `invitations/partials/amor/intro.blade.php` / `hero.blade.php` | Apertura de la carta y portada de la tarjeta |
+| `invitations/partials/modules/*.blade.php` | Vistas de los módulos registrados (`dedicatoria`, `juntos-desde`, `respuesta`); `shell/modules` las incluye solas |
 
 **Estructura común de la invitación (`invitations/partials/shell`)**
 
@@ -459,13 +491,14 @@ propósito y responde `no-store`.
 
 | Archivo | Qué hace |
 | --- | --- |
-| `admin/dashboard.blade.php` | Listado y estado de las invitaciones |
+| `admin/dashboard.blade.php` | Listado y estado de invitaciones y tarjetas, con filtro por tipo (`?tipo=invitation` / `card`) |
 | `admin/invitations/create.blade.php` / `edit.blade.php` / `_form.blade.php` | Alta y edición de la invitación |
 | `admin/invitations/editor/layout.blade.php` | Estructura del editor, con recorte de imágenes |
 | `admin/invitations/editor/sidebar.blade.php` | Datos principales enlazados a Alpine |
 | `admin/invitations/editor/preview.blade.php` | Vista previa embebida |
-| `admin/invitations/editor/script.blade.php` | Lógica del editor: estado, subidas y guardado |
-| `admin/invitations/panels/*.blade.php` | Un panel por módulo: general, hero, estética, countdown, agendar, ubicación, itinerario, dress code, destacados, galería, video, regalos, rsvp, playlist, encuestas, hashtag, fotomural, música y post-evento |
+| `admin/invitations/editor/script.blade.php` | Lógica del editor: estado, perfil de la plantilla (pestañas, portada, destacados y avisos), subidas y guardado |
+| `admin/invitations/panels/*.blade.php` | Un panel por módulo: general, hero, estética, countdown, agendar, ubicación, itinerario, dress code, destacados, galería, video, regalos, rsvp, playlist, encuestas, hashtag, fotomural, música y post-evento; «general» elige primero Invitación o Tarjeta |
+| `admin/invitations/panels/modules/*.blade.php` | Paneles de los módulos registrados (dedicatoria, juntos desde, respuesta) |
 | `admin/partials/cloudinary-upload.blade.php` | Campo de subida a Cloudinary |
 | `admin/partials/date-field.blade.php` | Campo de fecha y hora |
 | `admin/partials/icon-picker.blade.php` / `itinerary-icon-picker.blade.php` | Selectores de íconos |
@@ -503,6 +536,7 @@ propósito y responde `no-store`.
 | `resources/css/invitation/themes/boda.css` | Tema de boda: sobre, ramas y tipografía caligráfica |
 | `resources/css/invitation/themes/bautizo.css` | Tema de bautizo: cielo, pila, jarra, olas y destellos |
 | `resources/css/invitation/themes/cumple.css` | Tema de cumpleaños: pastel, confeti, globos y bordes marcados |
+| `resources/css/cards/amor.css` | Tema de la tarjeta del Día del Amor; entrada propia de Vite, se carga solo en esa plantilla |
 | `resources/js/app.js` | Entrada: Alpine, axios, barra de progreso y carga dinámica de los demás módulos según lo que exista en la página |
 | `resources/js/bootstrap.js` | Configura axios |
 | `resources/js/site.js` | Sitio público: revelado al hacer scroll, rotador de la portada, botones magnéticos, cabecera al bajar y teléfono que recorre las aperturas |
@@ -529,22 +563,24 @@ propósito y responde `no-store`.
 | `tests/Feature/DemoInvitationTest.php` | Muestras interactivas: no guardan nada, apertura automática y acceso restringido |
 | `tests/Feature/SecurityHardeningTest.php` | `noindex`, caché privada del enlace personal, cabeceras de seguridad y rechazo de SVG |
 | `tests/Feature/GuestLinksAndModerationTest.php` | Regenerar el enlace de un invitado y ocultar aportes sin borrarlos |
-| `tests/Feature/StructuredModulesRoundTripTest.php` | Los módulos de las cuatro plantillas vuelven iguales desde las tablas |
+| `tests/Feature/StructuredModulesRoundTripTest.php` | Cada módulo de las muestras y datos de prueba vuelve igual desde sus tablas, y ninguna tabla tiene columnas JSON |
+| `tests/Feature/ModuleRegistryTest.php` | Contrato de módulos y perfiles: vistas, relaciones, reglas y guardado de los módulos de tarjeta |
+| `tests/Feature/SeasonalCardTest.php` | Tarjeta: sin RSVP ni itinerario, vista previa al compartir, respuestas (guardado, límite, módulo apagado, panel del cliente), página de campaña, editor y filtro del panel |
 | `tests/Feature/ModuleSyncAndRetentionTest.php` | Guardado todo o nada, reutilización de filas y purga de fotos viejas |
 | `tests/Feature/AdminPanelPerformanceTest.php` | El panel pagina, cuenta en la base y no crece en consultas |
-| `tests/Feature/AccessibleInvitationTest.php` | Lectura sin JavaScript, foco del menú, contraste de las cuatro paletas y `alt` por foto |
+| `tests/Feature/AccessibleInvitationTest.php` | Lectura sin JavaScript, foco del menú, contraste de todas las paletas del catálogo y `alt` por foto |
 | `tests/Feature/DesignSystemPageTest.php` | La referencia visual se ve completa y solo la abre administración |
 | `tests/Feature/SharingAndCampaignsTest.php` | Vista previa al compartir, páginas por evento, `sitemap.xml` y código de origen en WhatsApp |
 | `tests/Feature/InvitationPolicyMatrixTest.php` | Cada método de la policy, en la regla y en sus rutas, frente a otro cliente |
 | `tests/Feature/ConcurrencyAndLimitsTest.php` | Votos y confirmaciones simultáneos, subidas prohibidas y 429 con su mensaje |
-| `tests/Feature/TemplateRenderMatrixTest.php` | Las cuatro plantillas vacías y completas, enlace general y personal |
+| `tests/Feature/TemplateRenderMatrixTest.php` | Todas las plantillas del catálogo, vacías y completas, enlace general y personal; lo que se muestra según el perfil |
 | `tests/Feature/BackupRestoreTest.php` | El respaldo se crea, se restaura y un volcado roto falla |
 | `tests/Feature/OperationsTest.php` | Revisión de salud, registro de peticiones lentas y cliente de prueba |
 | `tests/Feature/AccessControlTest.php` | Separación de admin y cliente |
 | `tests/Feature/ClientCredentialsTest.php` | Alta y acceso del cliente |
 | `tests/Feature/ClientExportsTest.php` | Exportaciones Excel y PDF |
 | `tests/Feature/InvitationEditorTest.php` | Guardado del editor |
-| `tests/Feature/InvitationStructuredModulesTest.php` | Módulos normalizados y respaldo JSON |
+| `tests/Feature/InvitationStructuredModulesTest.php` | Módulos normalizados en sus tablas |
 | `tests/Feature/PublicInteractionsTest.php` | RSVP, votos, canciones y fotos |
 | `tests/Feature/WeddingTemplateTest.php` | Plantillas de boda y XV |
 | `tests/Feature/BaptismTemplateTest.php` | Plantilla de bautizo |
@@ -558,32 +594,35 @@ propósito y responde `no-store`.
 
 ## 6. Estado de la normalización de datos
 
-Los módulos nacieron como un JSON por invitación (`invitation_data.json_data`). Hoy **todas las listas
-viven en tablas** y el JSON guarda solo la configuración de cada módulo (títulos, textos y bloques que
-no son listas), además de seguir como respaldo mientras una invitación no tenga fila en
-`invitation_settings`.
+Los módulos nacieron como un JSON por invitación (`invitation_data.json_data`). Hoy **todo vive en
+tablas relacionadas** y no queda ninguna columna `json` (lo comprueba
+`StructuredModulesRoundTripTest::test_no_application_table_has_a_json_column`). Cada módulo de
+`app/Modules` es dueño de sus tablas.
 
-| Área | Dónde vive hoy | Nota |
+| Área | Dónde vive | Módulo |
 | --- | --- | --- |
-| Configuración y visibilidad | `invitation_settings` | Una fila por invitación |
-| Itinerario | `invitation_itinerary_items` | Con orden estable |
-| Galería y fotos post evento | `invitation_gallery_images` | Separadas por `collection` |
-| Encuestas | `invitation_polls` + `invitation_poll_options` | El voto usa `invitation_poll_id` |
-| Ubicación | `invitation_locations` | Preparada para varias sedes |
-| Personas destacadas | `invitation_featured_people` | Guarda el grupo y con qué nombre llegó el campo |
-| Código de vestimenta | `invitation_dress_code_items` | Sugerencias, colores y qué evitar |
-| Opciones de regalo | `invitation_gift_options` | Los datos bancarios siguen en el JSON del módulo |
-| Canción y video | `invitation_media` | Un registro por tipo |
-| Playlist y fotomural | `guest_contributions` | Con estado de moderación |
-| RSVP | `guests` | — |
+| Plantilla, colores y tipografías | `invitations.template` + `invitation_themes` | `config` |
+| Visibilidad de módulos | `invitation_features` (`is_enabled`) + `features` | `config` |
+| Portada | `invitation_heroes` | `bienvenida` |
+| Títulos y textos de sección | `invitation_sections` (una fila por invitación y módulo) | varios |
+| Itinerario | `invitation_itinerary_items` | `itinerario` |
+| Galería y fotos post evento | `invitation_gallery_images` (por `collection`) | `galeria`, `post_evento` |
+| Encuestas | `invitation_polls` + `invitation_poll_options` | `encuestas` |
+| Ubicación | `invitation_locations` | `ubicacion` |
+| Personas destacadas | `invitation_featured_people` | `destacados` |
+| Código de vestimenta | `invitation_dress_code_items` + `invitation_dress_code_examples` | `dress_code` |
+| Regalos, sobres y tienda | `invitation_gift_options` (por `type`) + `invitation_bank_accounts` | `regalos` |
+| Canción y video | `invitation_media` | `musica`, `video` |
+| Hashtag | `invitation_hashtags` | `hashtag` |
+| Textos del RSVP | `invitation_rsvp_settings`; las respuestas en `guests` | `rsvp` |
+| Dedicatoria y «juntos desde» | `card_dedications`, `card_milestones` | `dedicatoria`, `juntos_desde` |
+| Playlist, fotomural y respuestas de tarjeta | `guest_contributions` (por `type`, con moderación) | `playlist`, `fotomural`, `respuesta` |
 
-**Regla:** en tablas va lo que se repite, se ordena, se filtra o se consulta; en JSON queda la
-configuración pequeña y propia de una plantilla (colores, textos, interruptores, datos bancarios).
-
-**Lo que falta para cerrar el ciclo:** hoy se escribe en tablas *y* en JSON. Cuando ninguna
-instalación dependa del respaldo, toca dejar de escribir el JSON y crear una migración de limpieza.
+**Regla:** un dato nuevo va en columnas tipadas de una tabla propia, nunca en JSON. El editor sigue
+enviando cada módulo como JSON dentro del formulario, pero es solo el formato de envío.
 
 ---
+
 ## 7. Sugerencias de mejora
 
 Cada punto dice **qué pasa hoy** (con el archivo), **por qué importa**, **cómo resolverlo** y **cómo
@@ -635,9 +674,9 @@ Pruebas que lo respaldan: `SecurityHardeningTest`, `GuestLinksAndModerationTest`
 
 | # | Qué se hizo | Dónde |
 | --- | --- | --- |
-| 12 | Ubicación, personas destacadas, código de vestimenta, opciones de regalo, medios y fotos post evento pasaron a tablas propias, con orden e índices | Cinco migraciones nuevas, cinco modelos y `InvitationStructuredDataService` |
+| 12 | Ubicación, personas destacadas, código de vestimenta, opciones de regalo, medios y fotos post evento pasaron a tablas propias, con orden e índices; después, todo lo demás (ver 7.8) | Migraciones, modelos y `app/Modules` |
 | 13 | El voto se relaciona con la encuesta por su fila: se completó la relación, se movió la clave única a `(invitation_poll_id, voter_key)` y se eliminó el `poll_id` textual | Migración `drop_textual_poll_id`, `ContributionController@votePoll`, `InvitationModuleService::pollResultsFor` |
-| 14 | El guardado del editor ya era una transacción; ahora además reutiliza las filas en vez de borrarlas y recrearlas, así los ids no cambian | `InvitationStructuredDataService::replaceOrdered` |
+| 14 | El guardado del editor ya era una transacción; ahora además reutiliza las filas en vez de borrarlas y recrearlas, así los ids no cambian | `Modules/Concerns/ReplacesOrderedRows` |
 | 15 | Al borrar una foto se borra su archivo en Cloudinary, y hay un comando de retención para eventos viejos | `GuestContribution::booted`, `MediaUploadService::delete`, `invitations:purge-contributions` |
 
 **Cómo se comprobó**
@@ -653,14 +692,13 @@ Pruebas que lo respaldan: `SecurityHardeningTest`, `GuestLinksAndModerationTest`
 
 **Pendiente**
 
-- **Dejar de escribir el JSON (punto 12).** Hoy cada guardado escribe tablas y JSON. Cuando se
-  confirme que ninguna instalación lee el respaldo, hay que quitar la doble escritura y limpiar
-  `invitation_data`.
+- ~~Dejar de escribir el JSON (punto 12).~~ Hecho: ver 7.8.
 - **Votos sin encuesta (punto 13).** La migración eliminó los votos que apuntaban a encuestas que ya
   no existían (en esta base no había ninguno). Si al desplegar en producción hay muchos, conviene
   guardarlos antes en una tabla de archivo.
-- **Una invitación sin normalizar ya no acepta votos (punto 13).** El endpoint responde 404 si la
-  encuesta no tiene fila. Antes de desplegar hay que correr `invitations:migrate-json`.
+- **Datos en producción.** `invitation_data` e `invitation_settings` ya no existen y el comando
+  `invitations:migrate-json` se eliminó. Si producción tiene invitaciones reales (no solo muestras),
+  hay que pasar sus datos a las tablas nuevas **antes** de correr la migración `drop_json_module_storage`.
 - **Retención más allá de las fotos (punto 15).** Falta decidir qué pasa con los datos de invitados y
   los reportes después del evento, y programar el comando (por ejemplo, mensual).
 - **Varias sedes (punto 12).** La tabla de ubicaciones ya lo permite, pero el editor y las plantillas
@@ -815,6 +853,24 @@ comportamiento: con 25 invitaciones y 500 invitados hace menos de 15 consultas y
 | `InvitationDefaults::modules()` | Eliminado: nadie lo llamaba y era lo único que hacía depender a la aplicación de los datos de prueba |
 | Plantillas de ejemplo (`BodaJardinDemoSeeder`, `XvSofiaModuleData`, …) | Se mantienen, marcadas en su comentario como datos de prueba |
 | Cliente de prueba | Nuevo `ClientUserSeeder`, incluido en `DatabaseSeeder` |
+### 7.8 Datos sin JSON, editor por evento y tarjetas de temporada — hecha
+
+| Qué se hizo | Dónde |
+| --- | --- |
+| Todo lo que quedaba en JSON (portada, textos de sección, colores, visibilidad, hashtag, RSVP, cuentas, sobres, tienda, `meta` y `examples`) pasó a tablas; se eliminaron `invitation_data`, `invitation_settings`, `InvitationStructuredDataService` y `invitations:migrate-json` | Migraciones `2026_09_17_*`, `app/Modules` |
+| Cada módulo es una unidad con su contrato (tablas, carga, guardado, reglas, vista y panel) y se registra en una línea | `Modules/Module.php`, `ModuleRegistry.php`, `config/modules.php` |
+| Perfiles de evento: el editor muestra solo las pestañas del evento, pide dos nombres en la boda, la edad en el cumpleaños, rotula los destacados según el evento y avisa lo que falta según el perfil | `app/EventProfiles`, `editor/script.blade.php`, paneles `hero`, `destacados`, `general` |
+| Primero se elige Invitación o Tarjeta; el panel filtra por tipo | `panels/general.blade.php`, `Admin\DashboardController` |
+| Tarjeta del Día del Amor con carta que se abre, dedicatoria, contador «juntos desde», galería, música y respuesta privada al cliente | `tarjeta-amor.blade.php`, `css/cards/amor.css`, `Modules/Card/*`, `POST /p/{slug}/respuesta` |
+| Muestra `tarjeta-ana-luis`, página `/tarjetas-dia-del-amor` con código `AMOR` y vista previa «Para Ana, de Luis» | `showcase/tarjeta-ana-luis.php`, `config/bida.php`, `ShareMeta::forCard` |
+| Receta para nuevas temporadas y módulos | `docs/temporadas.md` |
+
+**Pendiente**
+
+- **Precio de las tarjetas:** la página de campaña pide el precio por WhatsApp hasta definirlo.
+- **Fotos propias de la muestra:** la tarjeta de muestra reusa las fotos de la boda.
+- **Datos reales en producción:** ver el aviso de 7.2 antes de migrar.
+
 ---
 
 ## 8. Hoja de ruta sugerida
@@ -822,10 +878,10 @@ comportamiento: con 25 invitaciones y 500 invitados hace menos de 15 consultas y
 | Fase | Foco | Trabajos |
 | --- | --- | --- |
 | **1. Seguridad** | ✔ Hecho | Indexación, caché del enlace personal, proxies, votos, contraseña del cliente, subidas, cabeceras, tokens y moderación (ver 7.1). Falta configurar `TRUSTED_PROXIES` y exigir la CSP en producción |
-| **2. Datos** | ✔ Hecho | Tablas para ubicación, destacados, vestimenta, regalos y medios; voto por relación real; guardado que reutiliza filas; borrado y retención de archivos. Falta dejar de escribir el JSON de respaldo |
+| **2. Datos** | ✔ Hecho | Todo en tablas relacionadas, sin columnas JSON; módulos con contrato propio; voto por relación real; guardado que reutiliza filas; borrado y retención de archivos (ver 7.2 y 7.8) |
 | **3. Rendimiento** | ✔ Hecho | Paginación y conteos en la base, caché con candado, exportaciones en cola, imágenes por tamaño y comando de medición. Falta encender la caché y correr un worker en producción |
 | **4. Experiencia** | ✔ Hecho en parte | Lectura sin JavaScript, contraste AA, foco con teclado, `alt` por foto, sistema visual y editor con avisos y botón de publicar (ver 7.4) y limpieza de código sin uso (7.7) |
-| **5. Crecimiento** | ✔ Hecho en parte | Vista previa al compartir, páginas por evento con `sitemap.xml` y código de origen en WhatsApp (ver 7.5). Falta declarar el sitemap con el dominio y llevar la cuenta de contactos por campaña |
+| **5. Crecimiento** | ✔ Hecho en parte | Vista previa al compartir, páginas por evento con `sitemap.xml`, código de origen en WhatsApp (ver 7.5) y tarjetas de temporada (7.8). Falta declarar el sitemap con el dominio, llevar la cuenta de contactos por campaña y definir el precio de las tarjetas |
 | **6. Calidad y operación** | ✔ Hecho | Pruebas de permisos, concurrencia, subidas, límites y plantillas; respaldos con restauración probada; alertas; CI (ver 7.6). Falta copiar los respaldos fuera del servidor y configurar el correo de alertas |
 
 ---

@@ -9,6 +9,7 @@ use App\Models\Guest;
 use App\Models\GuestContribution;
 use App\Models\Invitation;
 use App\Models\PollVote;
+use App\Modules\Card\ReplyModule;
 use App\Services\InvitationModuleService;
 use App\Services\MediaUploadService;
 use App\Support\CloudinaryImage;
@@ -80,6 +81,48 @@ class ContributionController extends Controller
         GuestContributionSubmitted::dispatch($contribution);
 
         return response()->json(['success' => true, 'message' => '¡Canción agregada a la playlist!']);
+    }
+
+    /**
+     * Respuesta del destinatario de una tarjeta: un mensaje corto que ve quien la mandó.
+     * Solo se acepta si la tarjeta tiene encendido el módulo «respuesta».
+     */
+    public function storeReply(Request $request, string $slug)
+    {
+        $invitation = Invitation::where('slug', $slug)->published()->first();
+
+        $acceptsReplies = $invitation?->features()
+            ->where('code', ReplyModule::CODE)
+            ->wherePivot('is_enabled', true)
+            ->exists();
+
+        if (! $acceptsReplies) {
+            return response()->json(['success' => false, 'message' => 'Esta tarjeta no recibe respuestas.'], 404);
+        }
+
+        $validated = $request->validate([
+            'content_text' => ['required', 'string', 'max:500'],
+            'guest_token' => ['nullable', 'string'],
+        ]);
+
+        $guestId = null;
+        if (! empty($validated['guest_token'])) {
+            $guestId = Guest::where('invitation_id', $invitation->id)
+                ->where('qr_code_token', $validated['guest_token'])
+                ->value('id');
+        }
+
+        $contribution = GuestContribution::create([
+            'invitation_id' => $invitation->id,
+            'guest_id' => $guestId,
+            'type' => ReplyModule::CONTRIBUTION_TYPE,
+            'content_text' => trim($validated['content_text']),
+            'created_at' => now(),
+        ]);
+
+        GuestContributionSubmitted::dispatch($contribution);
+
+        return response()->json(['success' => true, 'message' => 'Tu respuesta llegó.']);
     }
 
     public function listPhotos(string $slug)

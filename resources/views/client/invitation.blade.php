@@ -84,7 +84,7 @@
         {{-- Lo que suben los invitados: se puede ocultar sin borrarlo --}}
         <section class="site-enter mt-10 overflow-hidden rounded-[16px] border border-site-line bg-site-surface" style="--enter-index: 3">
             <div class="border-b border-site-line px-5 py-4">
-                <h2 class="text-lg font-semibold tracking-tight">Fotos y canciones de tus invitados</h2>
+                <h2 class="text-lg font-semibold tracking-tight">{{ $contributions->every(fn ($item) => $item['isReply']) ? 'Respuestas a tu tarjeta' : 'Fotos y canciones de tus invitados' }}</h2>
                 <p class="mt-1 text-sm text-site-muted">
                     Si algo no te gusta, ocúltalo y deja de verse en la invitación. No se borra: puedes volver a mostrarlo.
                 </p>
@@ -97,12 +97,16 @@
                             <img src="{{ $item['url'] }}" alt="" class="size-14 shrink-0 rounded-[10px] object-cover" loading="lazy" decoding="async">
                         @else
                             <span class="grid size-14 shrink-0 place-items-center rounded-[10px] bg-site-tint text-site-accent">
-                                <x-phosphor-music-notes class="size-6" aria-hidden="true" />
+                                @if($item['isReply'])
+                                    <x-phosphor-chat-circle-text class="size-6" aria-hidden="true" />
+                                @else
+                                    <x-phosphor-music-notes class="size-6" aria-hidden="true" />
+                                @endif
                             </span>
                         @endif
 
                         <div class="min-w-0 flex-1">
-                            <p class="truncate font-medium">{{ $item['text'] }}</p>
+                            <p @class(['font-medium', 'truncate' => ! $item['isReply'], 'whitespace-pre-line' => $item['isReply']])>{{ $item['text'] }}</p>
                             <p class="mt-0.5 text-sm text-site-muted">
                                 {{ $item['meta'] }}
                                 @if($item['isHidden'])

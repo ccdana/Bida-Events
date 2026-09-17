@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Modules\ModuleRegistry;
 use Closure;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -53,7 +54,7 @@ class InvitationModuleRules
             $rules["{$p}.{$code}"] = ['nullable', 'array'];
         }
 
-        return $rules + [
+        return $rules + app(ModuleRegistry::class)->rules($p) + [
             "{$p}.config.template" => ['nullable', 'string', 'max:255'],
             "{$p}.config.colores" => ['nullable', 'array'],
             "{$p}.config.colores.*" => ['nullable', 'string', 'max:50'],
@@ -134,7 +135,7 @@ class InvitationModuleRules
             $attributes["{$p}.{$code}"] = "módulo {$code}";
         }
 
-        return $attributes + [
+        return $attributes + app(ModuleRegistry::class)->attributes($p) + [
             "{$p}.config.colores.*" => 'color',
             "{$p}.config.tipografias.*" => 'tipografía',
             "{$p}.config.modulos.*" => 'visibilidad de módulo',

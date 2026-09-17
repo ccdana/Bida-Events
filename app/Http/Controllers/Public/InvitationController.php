@@ -86,8 +86,6 @@ class InvitationController extends Controller
 
     protected function render(Invitation $invitation, ?Guest $guest, array $extra = [])
     {
-        $invitation->clearModulesCache();
-
         $modulos = $this->resolveModules($invitation);
 
         $rawFlags = $modulos['config']['modulos'] ?? [];

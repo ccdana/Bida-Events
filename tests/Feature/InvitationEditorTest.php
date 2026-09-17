@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\EventType;
 use App\Models\Invitation;
 use App\Models\User;
+use App\Services\InvitationModuleService;
 use Database\Seeders\XvSofiaModuleData;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -35,7 +36,8 @@ class InvitationEditorTest extends TestCase
         $response->assertRedirect(route('admin.invitations.edit', $invitation));
         $this->assertDatabaseCount('invitation_itinerary_items', 6);
         $this->assertDatabaseCount('invitation_polls', 4);
-        $this->assertSame('Sofía Valentina', $invitation->modules['bienvenida']['nombre_quinceanera']);
+        $this->assertSame('Sofía Valentina', app(InvitationModuleService::class)->storedModules($invitation)['bienvenida']['nombre_quinceanera']);
+        $this->assertDatabaseHas('invitation_heroes', ['invitation_id' => $invitation->id, 'primary_name' => 'Sofía Valentina']);
     }
 
     public function test_invalid_modules_are_rejected_and_the_editor_keeps_the_submitted_state(): void

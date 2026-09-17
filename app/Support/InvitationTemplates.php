@@ -19,6 +19,8 @@ final class InvitationTemplates
 
     public const CUMPLE_FIESTA = 'invitations.templates.cumple-fiesta';
 
+    public const TARJETA_AMOR = 'invitations.templates.tarjeta-amor';
+
     public const DEFAULT = self::XV_PREMIUM;
 
     /**
@@ -172,6 +174,27 @@ final class InvitationTemplates
                     'court_women' => 'Familia',
                     'nav_court' => 'Mi gente',
                     'rsvp_declined_intro' => 'Si cambias de planes, escríbeme para actualizar tu respuesta.',
+                ],
+            ],
+            // ── Tarjetas estacionales ─────────────────────────────────────────
+            self::TARJETA_AMOR => [
+                'label' => 'Carta de amor',
+                'description' => 'Una carta doblada y atada con una cinta que se abre al tocarla, la foto de los dos, la dedicatoria escrita a mano y el tiempo que llevan juntos.',
+                'event' => 'amor',
+                'palette' => [
+                    'primary' => '#A63A50',
+                    'secondary' => '#6B2433',
+                    'accent' => '#F2D7DB',
+                    'text' => '#2E1A1F',
+                    'background' => '#FFF8F5',
+                ],
+                'order' => ['dedicatoria', 'juntos_desde', 'galeria', 'video', 'respuesta'],
+                'copy' => [
+                    'hero_eyebrow' => 'Feliz Día del Amor',
+                    'menu_heading' => 'Una carta para',
+                    'intro_hint' => 'Toca la cinta para abrir la carta',
+                    'gallery_eyebrow' => 'Nuestros momentos',
+                    'footer_pitch' => '¿Te gustó esta carta? Manda la tuya',
                 ],
             ],
         ];

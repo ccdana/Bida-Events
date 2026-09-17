@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Modules\Module;
 use Illuminate\Support\Str;
 
 /**
@@ -52,6 +53,10 @@ final class ShareMeta
 
         $guest = $personal ? $page->guest : null;
 
+        if ($page->profile->kind() === Module::KIND_CARD) {
+            return self::forCard($page, $url, $eyebrow, $guest?->name);
+        }
+
         // Neutro en persona: sirve igual para «Mis XV años» que para «Nos casamos»
         $title = $guest
             ? "{$page->displayName} · Invitación para {$guest->name}"
@@ -66,6 +71,21 @@ final class ShareMeta
             $url,
             'article',
         );
+    }
+
+    /**
+     * Una tarjeta se presenta como carta: «Para Ana, de Luis» y la frase de la temporada. No lleva
+     * fecha ni lugar, y el mensaje queda para quien la abre.
+     */
+    private static function forCard(InvitationPage $page, string $url, string $phrase, ?string $guestName): array
+    {
+        $to = trim((string) ($page->dedication['para'] ?? '')) ?: $guestName;
+        $from = trim((string) ($page->dedication['de'] ?? ''));
+
+        $title = collect([$to ? "Para {$to}" : null, $from !== '' ? "de {$from}" : null])->filter()->implode(', ')
+            ?: $page->displayName;
+
+        return self::make($title, $phrase.' · Abre la carta', self::invitationImage($page), $url, 'article');
     }
 
     /** La foto de portada recortada por Cloudinary; sin foto, la tarjeta del tipo de evento. */

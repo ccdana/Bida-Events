@@ -186,6 +186,8 @@ class BackupService
             ['invitation_dress_code_items', ['image_url']],
             ['invitation_gift_options', ['image_url']],
             ['guest_contributions', ['file_path']],
+            ['invitation_heroes', ['image_url']],
+            ['invitation_bank_accounts', ['qr_image_url']],
         ];
 
         $urls = collect();
@@ -200,11 +202,7 @@ class BackupService
             }
         }
 
-        // La foto de portada y otros medios siguen dentro del JSON de módulos
-        $json = rescue(fn () => DB::table('invitation_data')->pluck('json_data')->implode("\n"), '', report: false);
-        preg_match_all('#https?://res\.cloudinary\.com/[^"\'\s\\\\]+#', str_replace('\/', '/', (string) $json), $matches);
-
-        $remote = $urls->merge($matches[0])
+        $remote = $urls
             ->filter(fn ($url) => is_string($url) && str_starts_with($url, 'http'))
             ->unique()
             ->sort()

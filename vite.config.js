@@ -5,7 +5,8 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineConfig({
     plugins: [
         laravel({
-            input: ['resources/css/app.css', 'resources/js/app.js'],
+            // Cada tarjeta estacional carga su hoja solo en su plantilla (resources/css/cards)
+            input: ['resources/css/app.css', 'resources/js/app.js', 'resources/css/cards/amor.css'],
             refresh: true,
         }),
         tailwindcss(),

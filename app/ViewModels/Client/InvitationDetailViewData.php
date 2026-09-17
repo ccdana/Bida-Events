@@ -4,6 +4,7 @@ namespace App\ViewModels\Client;
 
 use App\Models\GuestContribution;
 use App\Models\Invitation;
+use App\Modules\Card\ReplyModule;
 use App\Support\CloudinaryImage;
 use Illuminate\Support\Collection;
 
@@ -41,6 +42,8 @@ class InvitationDetailViewData
         $contributions = ($contributionRows ?? new Collection)->map(fn (GuestContribution $contribution) => [
             'id' => $contribution->id,
             'isPhoto' => $contribution->type === 'live_photo',
+            // Respuesta del destinatario de una tarjeta: se lee completa
+            'isReply' => $contribution->type === ReplyModule::CONTRIBUTION_TYPE,
             'url' => $contribution->type === 'live_photo' ? CloudinaryImage::url($contribution->file_path, 200) : null,
             'text' => $contribution->type === 'live_photo' ? 'Foto del fotomural' : (string) $contribution->content_text,
             'meta' => collect([$contribution->guest?->name, $contribution->created_at?->diffForHumans()])->filter()->implode(' · '),

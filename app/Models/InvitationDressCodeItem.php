@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class InvitationDressCodeItem extends Model
 {
@@ -21,16 +22,18 @@ class InvitationDressCodeItem extends Model
         'description',
         'image_url',
         'color_hex',
-        'examples',
-        'meta',
         'sort_order',
     ];
 
     protected $casts = [
-        'examples' => 'array',
-        'meta' => 'array',
         'sort_order' => 'integer',
     ];
+
+    /** Ejemplos de prendas o accesorios de una sugerencia, en orden. */
+    public function examples(): HasMany
+    {
+        return $this->hasMany(InvitationDressCodeExample::class, 'dress_code_item_id')->orderBy('sort_order')->orderBy('id');
+    }
 
     public function invitation(): BelongsTo
     {

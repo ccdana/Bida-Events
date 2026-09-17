@@ -5,6 +5,23 @@
         'description' => 'el título, la fecha y la hora que aparecen en la invitación y en la cuenta regresiva.',
     ])
 
+    {{-- Producto: invitación a un evento o tarjeta de temporada (cambia plantillas, pestañas y campos) --}}
+    <section class="admin-card space-y-3 p-4">
+        <h3 class="text-sm font-semibold">¿Qué vas a crear?</h3>
+        <div class="grid grid-cols-2 gap-2" role="radiogroup" aria-label="Tipo de producto">
+            <template x-for="kind in [{ value: 'invitation', label: 'Invitación', hint: 'Boda, XV, bautizo, cumpleaños' }, { value: 'card', label: 'Tarjeta', hint: 'Día del Amor y otras fechas' }]" :key="kind.value">
+                <button type="button" role="radio" @click="chooseKind(kind.value)"
+                    :aria-checked="((profile.kind ?? 'invitation') === kind.value).toString()"
+                    :disabled="templatesOfKind(kind.value).length === 0"
+                    class="rounded-[12px] border p-3 text-left transition-colors disabled:opacity-50"
+                    :class="(profile.kind ?? 'invitation') === kind.value ? 'border-site-ink bg-site-bg' : 'border-site-line hover:bg-site-bg'">
+                    <span class="block text-sm font-semibold" x-text="kind.label"></span>
+                    <span class="mt-0.5 block text-xs text-site-muted" x-text="kind.hint"></span>
+                </button>
+            </template>
+        </div>
+    </section>
+
     {{-- Identidad --}}
     <section class="admin-card space-y-4 p-4">
         <div>
@@ -30,7 +47,7 @@
                     <x-phosphor-caret-down class="size-4 shrink-0 text-site-muted" x-bind:class="{ 'rotate-180': open }" aria-hidden="true" />
                 </button>
                 <div x-show="open" x-cloak class="admin-accordion-panel">
-                    <template x-for="type in eventTypes" :key="type.id">
+                    <template x-for="type in eventTypes.filter(item => (item.kind ?? 'invitation') === (profile.kind ?? 'invitation'))" :key="type.id">
                         <button type="button" @click="meta.event_type_id = type.id; open = false"
                             class="admin-accordion-option" :class="String(meta.event_type_id) === String(type.id) ? 'is-selected' : ''">
                             <span x-text="type.name"></span>
@@ -48,7 +65,7 @@
                     <x-phosphor-caret-down class="size-4 shrink-0 text-site-muted" x-bind:class="{ 'rotate-180': open }" aria-hidden="true" />
                 </button>
                 <div x-show="open" x-cloak class="admin-accordion-panel">
-                    <template x-for="option in templateOptions" :key="option.value">
+                    <template x-for="option in templatesOfKind(profile.kind ?? 'invitation')" :key="option.value">
                         <button type="button" @click="meta.template = option.value; open = false"
                             class="admin-accordion-option" :class="meta.template === option.value ? 'is-selected' : ''">
                             <span class="min-w-0 text-left">
