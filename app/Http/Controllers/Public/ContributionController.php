@@ -13,9 +13,11 @@ use App\Modules\Card\ReplyModule;
 use App\Services\InvitationModuleService;
 use App\Services\MediaUploadService;
 use App\Support\CloudinaryImage;
+use App\Support\InvitationTemplates;
 use App\Support\YouTubeHelper;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class ContributionController extends Controller
 {
@@ -100,8 +102,12 @@ class ContributionController extends Controller
             return response()->json(['success' => false, 'message' => 'Esta tarjeta no recibe respuestas.'], 404);
         }
 
+        // La flor (u otra reacción) solo puede ser una de las que ofrece la plantilla; con flor, el mensaje es opcional
+        $reactions = array_keys(InvitationTemplates::get($invitation->template)['reactions'] ?? []);
+
         $validated = $request->validate([
-            'content_text' => ['required', 'string', 'max:500'],
+            'content_text' => ['required_without:reaction', 'nullable', 'string', 'max:500'],
+            'reaction' => ['nullable', 'string', Rule::in($reactions)],
             'guest_token' => ['nullable', 'string'],
         ]);
 
@@ -116,7 +122,8 @@ class ContributionController extends Controller
             'invitation_id' => $invitation->id,
             'guest_id' => $guestId,
             'type' => ReplyModule::CONTRIBUTION_TYPE,
-            'content_text' => trim($validated['content_text']),
+            'content_text' => trim((string) ($validated['content_text'] ?? '')) ?: null,
+            'reaction' => $validated['reaction'] ?? null,
             'created_at' => now(),
         ]);
 

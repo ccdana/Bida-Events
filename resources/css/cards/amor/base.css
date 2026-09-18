@@ -1,0 +1,150 @@
+/* Tarjeta «Carta de amor»: tokens, portada, módulos y pie. Ver resources/css/cards/amor.css */
+
+.inv-amor {
+    --amor-ribbon: var(--primary-color);
+    --amor-ribbon-dark: color-mix(in srgb, var(--primary-color) 70%, #000);
+    --amor-paper: color-mix(in srgb, var(--accent-color) 10%, #fffdfb);
+    --amor-paper-shade: color-mix(in srgb, var(--accent-color) 38%, var(--bg-color));
+    /* Primavera: acentos fijos, solo decorativos (hojas, sol, margarita); el texto usa la paleta del cliente */
+    --amor-leaf: #6f9a5b;
+    --amor-leaf-dark: #4d7340;
+    --amor-sun: #f2c75c;
+    --amor-daisy: #fffdf8;
+    --amor-sky: color-mix(in srgb, #dcefe3 55%, var(--bg-color));
+    background:
+        radial-gradient(120% 60% at 50% 0%, color-mix(in srgb, var(--accent-color) 45%, transparent), transparent 70%),
+        var(--bg-color);
+}
+
+/* Mientras la carta está cerrada, la portada espera para animarse al abrirla */
+html.inv-cover-waiting .inv-amor .inv-amor-hero,
+html.inv-cover-waiting .inv-amor .inv-amor-hero * {
+    animation-play-state: paused !important;
+}
+
+/* ── Portada: instantánea con cinta de papel y «Para …» manuscrito ──────── */
+
+.inv-amor-hero {
+    padding: calc(4.5rem + env(safe-area-inset-top)) 1.25rem 3.5rem;
+    text-align: center;
+}
+
+.inv-amor-hero__inner {
+    display: grid;
+    justify-items: center;
+    gap: 1.25rem;
+    max-width: 30rem;
+    margin-inline: auto;
+}
+
+.inv-amor-hero__phrase {
+    font-size: 0.74rem;
+    font-weight: 600;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--inv-accent-ink);
+}
+
+.inv-amor-hero__photo {
+    position: relative;
+    width: min(78vw, 22rem);
+    margin: 0.75rem 0 0.5rem;
+    padding: 0.7rem 0.7rem 2.6rem;
+    background: #fffdfb;
+    rotate: -2.5deg;
+    box-shadow: 0 30px 60px -32px color-mix(in srgb, var(--text-color) 60%, transparent), 0 2px 6px color-mix(in srgb, var(--text-color) 10%, transparent);
+}
+
+.inv-amor-hero__photo img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+}
+
+.inv-amor-hero__tape {
+    position: absolute;
+    top: -0.9rem;
+    left: 50%;
+    width: 6.5rem;
+    z-index: 1;
+    height: 1.8rem;
+    background: color-mix(in srgb, var(--accent-color) 75%, transparent);
+    translate: -50% 0;
+    rotate: 3deg;
+    box-shadow: 0 1px 3px color-mix(in srgb, var(--text-color) 12%, transparent);
+}
+
+.inv-amor-hero__to {
+    font-family: var(--font-script);
+    font-size: clamp(3rem, 15vw, 4.6rem);
+    font-weight: 400;
+    line-height: 1.05;
+    color: var(--text-color);
+    text-wrap: balance;
+}
+
+.inv-amor-hero__message {
+    max-width: 26rem;
+    font-family: var(--font-titles);
+    font-size: 1.05rem;
+    line-height: 1.75;
+    color: var(--inv-muted);
+    text-wrap: pretty;
+}
+
+.inv-amor-hero__from {
+    font-family: var(--font-script);
+    font-size: 1.9rem;
+    color: var(--inv-accent-ink);
+}
+
+.inv-amor-hero__scroll {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-height: 2.75rem;
+    margin-top: 0.5rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-color);
+    text-decoration: none;
+}
+
+.inv-amor-hero__scroll svg {
+    width: 1rem;
+    height: 1rem;
+    animation: inv-amor-nudge 2s ease-in-out infinite;
+}
+
+@keyframes inv-amor-nudge {
+    0%, 100% { translate: 0 0; }
+    50% { translate: 0 4px; }
+}
+
+/* ── Módulos dentro de la carta ─────────────────────────────────────────── */
+
+.inv-amor .inv-section {
+    border-top-color: color-mix(in srgb, var(--primary-color) 18%, var(--bg-color));
+}
+
+.inv-amor .inv-head__title {
+    font-weight: 400;
+}
+
+.inv-amor .inv-letter {
+    background-color: var(--amor-paper);
+    rotate: -0.6deg;
+}
+
+.inv-amor .inv-btn {
+    border-radius: 999px;
+}
+
+.inv-amor-footer .inv-footer__name {
+    font-family: var(--font-script);
+    font-size: 2.4rem;
+    font-weight: 400;
+}

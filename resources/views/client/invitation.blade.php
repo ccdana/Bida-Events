@@ -106,7 +106,16 @@
                         @endif
 
                         <div class="min-w-0 flex-1">
-                            <p @class(['font-medium', 'truncate' => ! $item['isReply'], 'whitespace-pre-line' => $item['isReply']])>{{ $item['text'] }}</p>
+                            @if($item['reaction'])
+                                <p class="flex flex-wrap items-center gap-x-2 text-sm font-medium text-site-accent">
+                                    <x-phosphor-flower-tulip class="size-4" aria-hidden="true" />
+                                    Te respondió con {{ mb_strtolower($item['reaction']['label']) }}
+                                    <span class="font-normal text-site-muted">· {{ $item['reaction']['meaning'] }}</span>
+                                </p>
+                            @endif
+                            @if($item['text'] !== '')
+                                <p @class(['font-medium', 'truncate' => ! $item['isReply'], 'whitespace-pre-line' => $item['isReply']])>{{ $item['text'] }}</p>
+                            @endif
                             <p class="mt-0.5 text-sm text-site-muted">
                                 {{ $item['meta'] }}
                                 @if($item['isHidden'])

@@ -17,7 +17,7 @@ class GuestContribution extends Model
 
     public const HIDDEN = 'hidden';
 
-    protected $fillable = ['invitation_id', 'guest_id', 'type', 'content_text', 'file_path', 'moderation_status'];
+    protected $fillable = ['invitation_id', 'guest_id', 'type', 'content_text', 'reaction', 'file_path', 'moderation_status'];
 
     /** Lo que ven los invitados: todo lo que el cliente no ocultó. */
     public function scopeVisible(Builder $query): Builder

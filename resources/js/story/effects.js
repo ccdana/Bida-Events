@@ -2,8 +2,9 @@
  * Efectos compartidos de las tarjetas:
  * - inclinación: el giroscopio del teléfono (o el ratón en computadora) escribe --tilt-x / --tilt-y
  *   entre -1 y 1 en <html>, y el CSS mueve la foto, sus brillos y los pétalos;
- * - celebración: una lluvia de pétalos desde un punto y una vibración corta. Se dispara con
- *   window.dispatchEvent(new CustomEvent('inv-celebrate', { detail: { rect, amount } })).
+ * - celebración: una lluvia de pétalos (con corazones si variant es «love») desde un punto y una
+ *   vibración corta. Se dispara con
+ *   window.dispatchEvent(new CustomEvent('inv-celebrate', { detail: { rect, amount, variant } })).
  * Todo se apaga con «reducir movimiento».
  */
 
@@ -77,7 +78,7 @@ export function initTilt() {
     }
 }
 
-export function celebrate({ rect = null, amount = 26 } = {}) {
+export function celebrate({ rect = null, amount = 26, variant = 'petals' } = {}) {
     vibrate([20, 50, 20, 50, 40]);
 
     if (prefersReducedMotion()) {
@@ -104,6 +105,12 @@ export function celebrate({ rect = null, amount = 26 } = {}) {
         petal.style.setProperty('--size', `${(0.55 + Math.random() * 0.65).toFixed(2)}rem`);
         petal.style.setProperty('--delay', `${Math.round(Math.random() * 120)}ms`);
         petal.dataset.tone = String(i % 3);
+
+        // «love»: uno de cada tres es un corazón
+        if (variant === 'love' && i % 3 === 0) {
+            petal.dataset.shape = 'heart';
+        }
+
         burst.appendChild(petal);
     }
 

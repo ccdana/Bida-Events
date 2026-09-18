@@ -1,0 +1,218 @@
+/* ── Pide un deseo: diente de león (partials/amor/wish) ─────────────────────
+   Cada semilla vuela con sus propias variables (--dx, --dy, --wobble, --spin,
+   --dur, --delay) que pone dandelionWish al soplar.
+   ──────────────────────────────────────────────────────────────────────── */
+
+.inv-wish {
+    text-align: center;
+}
+
+.inv-wish__flower {
+    width: min(58vw, 14rem);
+    margin: 0 auto;
+    cursor: grab;
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.inv-wish__art {
+    display: block;
+    width: 100%;
+    overflow: visible;
+    transform-origin: 50% 100%;
+    animation: inv-wish-breeze 4.5s ease-in-out infinite;
+}
+
+@keyframes inv-wish-breeze {
+    0%, 100% { rotate: -2deg; }
+    50% { rotate: 2.5deg; }
+}
+
+.inv-wish__stem {
+    fill: none;
+    stroke: var(--amor-leaf);
+    stroke-width: 4;
+    stroke-linecap: round;
+}
+
+.inv-wish__leaf {
+    fill: var(--amor-leaf);
+}
+
+.inv-wish__thread {
+    stroke: color-mix(in srgb, var(--text-color) 30%, transparent);
+    stroke-width: 0.9;
+}
+
+.inv-wish__fluff {
+    fill: none;
+    stroke: color-mix(in srgb, var(--text-color) 22%, #fff);
+    stroke-width: 1.1;
+    stroke-linecap: round;
+}
+
+.inv-wish__core {
+    fill: #e7d9bd;
+    stroke: color-mix(in srgb, var(--text-color) 25%, #e7d9bd);
+    stroke-width: 1;
+}
+
+.inv-wish__seed.is-flying {
+    pointer-events: none;
+    animation: inv-wish-fly var(--dur, 3s) cubic-bezier(0.25, 0.6, 0.4, 1) var(--delay, 0ms) forwards;
+}
+
+@keyframes inv-wish-fly {
+    0% { opacity: 1; translate: 0 0; }
+    35% { translate: calc(var(--dx) * 0.3 + var(--wobble)) calc(var(--dy) * 0.35); }
+    70% { opacity: 0.9; translate: calc(var(--dx) * 0.7 - var(--wobble)) calc(var(--dy) * 0.75); }
+    100% { opacity: 0; translate: var(--dx) var(--dy); }
+}
+
+/* ── Controles ─────────────────────────────────────────────────────────── */
+
+.inv-wish__controls {
+    display: grid;
+    justify-items: center;
+    gap: 0.6rem;
+    margin-top: 1rem;
+}
+
+.inv-wish__hint {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.88rem;
+    color: var(--inv-muted);
+}
+
+.inv-wish__hint svg {
+    width: 1.1rem;
+    height: 1.1rem;
+    animation: inv-wish-nudge 1.6s ease-in-out infinite;
+}
+
+@keyframes inv-wish-nudge {
+    0%, 100% { translate: 0 3px; }
+    50% { translate: 0 -4px; }
+}
+
+.inv-wish__mic,
+.inv-wish__blow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    padding: 0 1.1rem;
+    border: 1px solid var(--inv-line);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--bg-color) 80%, transparent);
+    color: var(--text-color);
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.inv-wish__mic svg {
+    width: 1.1rem;
+    height: 1.1rem;
+}
+
+.inv-wish.is-listening .inv-wish__mic {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--primary-color) 45%, transparent);
+    animation: inv-wish-listen 1.3s ease-out infinite;
+}
+
+@keyframes inv-wish-listen {
+    to { box-shadow: 0 0 0 14px transparent; }
+}
+
+.inv-wish__blow {
+    border: 0;
+    background: none;
+    font-weight: 500;
+    color: var(--inv-muted);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.inv-wish__note {
+    max-width: 22rem;
+    font-size: 0.82rem;
+    color: var(--inv-muted);
+}
+
+/* ── El deseo ──────────────────────────────────────────────────────────── */
+
+html:not(.no-js) .inv-wish:not([data-gate-done]) .inv-wish__message {
+    display: none;
+}
+
+.inv-wish__message {
+    display: grid;
+    justify-items: center;
+    gap: 0.6rem;
+    margin-top: 0.5rem;
+}
+
+.inv-wish[data-gate-done] .inv-wish__message > * {
+    animation: inv-gate-rise 1s var(--inv-ease) both;
+}
+
+.inv-wish[data-gate-done] .inv-wish__message > :nth-child(1) { animation-delay: 0.6s; }
+.inv-wish[data-gate-done] .inv-wish__message > :nth-child(2) { animation-delay: 1s; }
+.inv-wish[data-gate-done] .inv-wish__message > :nth-child(3) { animation-delay: 1.6s; }
+
+.inv-wish__text {
+    max-width: 24rem;
+    font-family: var(--font-titles);
+    font-size: 1.15rem;
+    line-height: 1.7;
+    color: var(--text-color);
+    text-wrap: balance;
+}
+
+.inv-wish__to {
+    font-family: var(--font-script);
+    font-size: clamp(2.4rem, 11vw, 3.2rem);
+    line-height: 1.1;
+    color: var(--inv-accent-ink);
+}
+
+.inv-wish__again {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-height: 2.75rem;
+    padding: 0 1.2rem;
+    border-radius: 999px;
+    background: var(--primary-color);
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.inv-wish__again svg {
+    width: 1.05rem;
+    height: 1.05rem;
+}
+
+/* Atardecer de primavera para la última escena */
+.inv-story-on .inv-amor #deseo {
+    --story-scene-bg:
+        radial-gradient(90% 55% at 50% 100%, color-mix(in srgb, var(--amor-sun) 30%, transparent), transparent 70%),
+        linear-gradient(to bottom, color-mix(in srgb, var(--accent-color) 55%, #ffe3c7), var(--bg-color) 75%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .inv-wish__art,
+    .inv-wish__hint svg,
+    .inv-wish.is-listening .inv-wish__mic {
+        animation: none;
+    }
+}

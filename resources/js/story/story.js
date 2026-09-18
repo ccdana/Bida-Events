@@ -19,6 +19,7 @@ const TAP_MAX_MS = 450;
 const WHEEL_THRESHOLD = 70;
 const WHEEL_PAUSE_MS = 900;
 const DRAG_START = 12;
+const TURN_MS = 950;
 
 const root = document.documentElement;
 
@@ -63,6 +64,8 @@ export function invitationStory({ enabled = true } = {}) {
     let pointer = null;
     let wheelTotal = 0;
     let wheelPausedUntil = 0;
+    let visited = 0;
+    let turnTimer = null;
 
     return {
         ready: false,
@@ -200,6 +203,20 @@ export function invitationStory({ enabled = true } = {}) {
             });
 
             root.dataset.storyDirection = direction ?? 'none';
+            root.dataset.storyIndex = String(this.index);
+
+            // Hasta dónde llegó el recorrido (0 a 1): cada tema lo usa, p. ej. para que el jardín crezca
+            visited = Math.max(visited, this.index);
+            root.style.setProperty('--story-visited', (visited / Math.max(this.count - 1, 1)).toFixed(3));
+
+            // Durante el cambio de escena el tema puede dibujar su transición (html.is-turning)
+            if (direction) {
+                root.classList.remove('is-turning');
+                void root.offsetWidth;
+                root.classList.add('is-turning');
+                clearTimeout(turnTimer);
+                turnTimer = setTimeout(() => root.classList.remove('is-turning'), TURN_MS);
+            }
 
             const scene = this.scene;
             this.announce = `${this.index + 1} de ${this.count}: ${scene.dataset.sceneTitle}`;

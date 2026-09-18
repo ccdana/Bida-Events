@@ -1,0 +1,401 @@
+/* ── Capa viva de la tarjeta de amor (partials/amor/garden, butterfly) ──────
+   - Enredadera: la barra de progreso del modo historia, con un capullo por
+     escena que florece al visitarla.
+   - Ráfaga: pétalos que cruzan la pantalla mientras cambia la escena
+     (html.is-turning; al retroceder cruzan al revés).
+   - Pasto: al pie, florece según --story-visited (0 a 1).
+   - Mariposas escondidas y su aviso.
+   ──────────────────────────────────────────────────────────────────────── */
+
+.inv-amor-sprite {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+}
+
+/* Colores de las flores que reusan #amor-flower */
+.inv-meadow__flower--rose,
+.inv-amor-sprout--rose {
+    --flower-petal: color-mix(in srgb, var(--primary-color) 55%, #fff);
+    --flower-edge: color-mix(in srgb, var(--primary-color) 40%, transparent);
+}
+
+.inv-meadow__flower--daisy,
+.inv-amor-sprout--daisy {
+    --flower-petal: var(--amor-daisy);
+    --flower-edge: rgb(60 40 20 / 0.18);
+}
+
+.inv-meadow__flower--sun,
+.inv-amor-sprout--sun {
+    --flower-petal: var(--amor-sun);
+    --flower-edge: color-mix(in srgb, var(--amor-sun) 70%, #7a4a12);
+    --flower-center: #6b4226;
+    --flower-dot: rgb(255 255 255 / 0.25);
+}
+
+/* ── Enredadera de progreso ────────────────────────────────────────────── */
+
+.inv-amor .inv-story__progress {
+    top: calc(0.3rem + env(safe-area-inset-top));
+    right: 7.25rem;
+    left: 1rem;
+    height: 1.2rem;
+    align-items: center;
+    gap: 0;
+}
+
+.inv-amor .inv-story__progress::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 0;
+    left: 0;
+    height: 2px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--amor-leaf), color-mix(in srgb, var(--amor-leaf) 40%, transparent));
+}
+
+.inv-amor .inv-story__segment {
+    position: relative;
+    display: grid;
+    place-items: center;
+    height: 100%;
+    overflow: visible;
+    background: none;
+}
+
+.inv-amor .inv-story__segment i {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50% 50% 50% 0;
+    background: var(--amor-leaf);
+    rotate: -45deg;
+    transition: width 0.4s ease, height 0.4s ease, rotate 0.4s ease;
+}
+
+.inv-amor .inv-story__segment.is-done i,
+.inv-amor .inv-story__segment.is-current i {
+    width: 1.05rem;
+    height: 1.05rem;
+    border-radius: 0;
+    background: radial-gradient(circle, var(--amor-sun) 0 20%, var(--primary-color) 23%);
+    rotate: 0deg;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cg%3E%3Ccircle cx='10' cy='5' r='4.2'/%3E%3Ccircle cx='15' cy='8.6' r='4.2'/%3E%3Ccircle cx='13' cy='14.6' r='4.2'/%3E%3Ccircle cx='7' cy='14.6' r='4.2'/%3E%3Ccircle cx='5' cy='8.6' r='4.2'/%3E%3Ccircle cx='10' cy='10' r='4'/%3E%3C/g%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cg%3E%3Ccircle cx='10' cy='5' r='4.2'/%3E%3Ccircle cx='15' cy='8.6' r='4.2'/%3E%3Ccircle cx='13' cy='14.6' r='4.2'/%3E%3Ccircle cx='7' cy='14.6' r='4.2'/%3E%3Ccircle cx='5' cy='8.6' r='4.2'/%3E%3Ccircle cx='10' cy='10' r='4'/%3E%3C/g%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.inv-amor .inv-story__segment.is-current i {
+    animation: inv-garden-bloom 0.7s cubic-bezier(0.34, 1.7, 0.5, 1) both, inv-garden-spin 8s linear 0.7s infinite;
+}
+
+@keyframes inv-garden-bloom {
+    from { scale: 0.2; rotate: -90deg; }
+    to { scale: 1; rotate: 0deg; }
+}
+
+@keyframes inv-garden-spin {
+    to { rotate: 360deg; }
+}
+
+/* ── Ráfaga de pétalos entre escenas ───────────────────────────────────── */
+
+.inv-sweep {
+    display: none;
+}
+
+.inv-story-on .inv-sweep {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    display: block;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+html[data-story-direction="back"] .inv-sweep {
+    scale: -1 1;
+}
+
+.inv-sweep i {
+    position: absolute;
+    top: calc(var(--i) * 6% - 4%);
+    left: -12%;
+    width: 1.1rem;
+    height: 1.45rem;
+    border-radius: 80% 0 80% 0;
+    background: color-mix(in srgb, var(--primary-color) 60%, #fff);
+    opacity: 0;
+}
+
+.inv-sweep i:nth-child(3n) {
+    width: 0.8rem;
+    height: 1.05rem;
+    background: var(--amor-daisy);
+    box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.06);
+}
+
+.inv-sweep i:nth-child(4n + 1) {
+    background: var(--accent-color);
+}
+
+.inv-sweep i:nth-child(5n + 2) {
+    width: 1.35rem;
+    height: 1.7rem;
+}
+
+html.is-turning .inv-sweep i {
+    animation: inv-sweep 0.95s cubic-bezier(0.3, 0.5, 0.4, 1) calc(var(--i) * 22ms) both;
+}
+
+html.is-turning .inv-sweep i:nth-child(odd) {
+    animation-duration: 0.8s;
+}
+
+@keyframes inv-sweep {
+    0% { opacity: 0; translate: 0 0; rotate: 0deg; }
+    12% { opacity: 0.95; }
+    100% { opacity: 0; translate: 128vw 12vh; rotate: 540deg; }
+}
+
+/* ── Pasto que florece al avanzar ──────────────────────────────────────── */
+
+.inv-meadow {
+    display: none;
+}
+
+.inv-story-on .inv-meadow {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 31;
+    display: block;
+    height: 4.2rem;
+    pointer-events: none;
+    translate: calc(var(--tilt-x, 0) * -10px) 0;
+}
+
+.inv-story-on body.has-player .inv-meadow {
+    bottom: calc(4.2rem + env(safe-area-inset-bottom));
+}
+
+.inv-meadow__grass {
+    position: absolute;
+    right: -2%;
+    bottom: 0;
+    left: -2%;
+    width: 104%;
+    height: 2.4rem;
+    fill: color-mix(in srgb, var(--amor-leaf) 75%, transparent);
+}
+
+.inv-meadow__flower {
+    position: absolute;
+    bottom: 0.9rem;
+    left: var(--left);
+    display: grid;
+    justify-items: center;
+    transform-origin: 50% 100%;
+    scale: clamp(0, (var(--story-visited, 0) - var(--at)) * 12 + 1, 1);
+    transition: scale 0.9s cubic-bezier(0.34, 1.6, 0.5, 1) calc(var(--i) * 45ms);
+}
+
+.inv-meadow__flower svg {
+    order: -1;
+    width: var(--size);
+    height: var(--size);
+    margin-bottom: -0.25rem;
+    animation: inv-meadow-nod calc(3s + var(--i) * 0.2s) ease-in-out infinite;
+}
+
+.inv-meadow__stem {
+    width: 2px;
+    height: calc(var(--size) * 1.1);
+    border-radius: 2px;
+    background: var(--amor-leaf-dark);
+}
+
+@keyframes inv-meadow-nod {
+    0%, 100% { rotate: -8deg; }
+    50% { rotate: 8deg; }
+}
+
+/* ── Florecitas de la portada ──────────────────────────────────────────── */
+
+.inv-amor-sprout {
+    position: absolute;
+    top: var(--y);
+    left: var(--x);
+    z-index: 2;
+    width: var(--size);
+    height: var(--size);
+    translate: -50% -50%;
+    rotate: var(--turn);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.inv-amor-sprout svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 3px 4px rgb(0 0 0 / 0.18));
+}
+
+html:not(.inv-story-on) .inv-amor-sprout svg,
+.inv-story-on .inv-scene.is-active .inv-amor-sprout svg {
+    animation: inv-sprout-pop 0.8s cubic-bezier(0.34, 1.8, 0.5, 1) calc(var(--i) * 140ms + 1.8s) both;
+}
+
+.inv-amor-sprout.is-spun svg {
+    animation: inv-sprout-spin 0.9s cubic-bezier(0.34, 1.4, 0.5, 1) both !important;
+}
+
+@keyframes inv-sprout-pop {
+    from { scale: 0; rotate: -120deg; }
+    to { scale: 1; rotate: 0deg; }
+}
+
+@keyframes inv-sprout-spin {
+    0% { rotate: 0deg; scale: 1; }
+    50% { scale: 1.35; }
+    100% { rotate: 360deg; scale: 1; }
+}
+
+/* ── Mariposas escondidas ──────────────────────────────────────────────── */
+
+.inv-butterfly {
+    position: absolute;
+    top: var(--by, 20%);
+    left: var(--bx, 80%);
+    z-index: 6;
+    width: 2.75rem;
+    height: 2.75rem;
+    padding: 0.3rem;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.inv-butterfly:focus-visible {
+    outline: 2px solid var(--inv-accent-ink);
+    outline-offset: 2px;
+    border-radius: 999px;
+}
+
+.inv-butterfly.is-caught {
+    display: none;
+}
+
+.inv-butterfly__flight {
+    display: block;
+    width: 100%;
+    height: 100%;
+    animation: inv-butterfly-wander 9s ease-in-out var(--delay, 0s) infinite;
+}
+
+.inv-butterfly.is-flying .inv-butterfly__flight {
+    animation: inv-butterfly-away 1.4s cubic-bezier(0.4, 0, 0.6, 1) forwards;
+}
+
+@keyframes inv-butterfly-wander {
+    0%, 100% { translate: 0 0; rotate: -8deg; }
+    20% { translate: -1.6rem -0.9rem; rotate: -18deg; }
+    45% { translate: -0.5rem 0.8rem; rotate: 6deg; }
+    70% { translate: 1.2rem -0.4rem; rotate: 14deg; }
+    85% { translate: 0.4rem -1.1rem; rotate: 0deg; }
+}
+
+@keyframes inv-butterfly-away {
+    0% { translate: 0 0; scale: 1; opacity: 1; }
+    30% { translate: -1rem 0.6rem; scale: 1.2; }
+    100% { translate: 40vw -70vh; scale: 0.4; opacity: 0; }
+}
+
+.inv-butterfly__art {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    filter: drop-shadow(0 3px 4px rgb(0 0 0 / 0.2));
+}
+
+.inv-butterfly__wing {
+    transform-origin: 24px 20px;
+    animation: inv-butterfly-flap 0.32s ease-in-out infinite alternate;
+}
+
+.inv-butterfly__wing path {
+    fill: var(--amor-sun);
+    stroke: color-mix(in srgb, var(--amor-sun) 50%, #6b3a12);
+    stroke-width: 0.8;
+}
+
+.inv-butterfly__wing path:nth-child(2) {
+    fill: color-mix(in srgb, var(--primary-color) 65%, var(--amor-sun));
+}
+
+.inv-butterfly__wing circle {
+    fill: var(--primary-color);
+}
+
+@keyframes inv-butterfly-flap {
+    from { scale: 1 1; }
+    to { scale: 0.35 1; }
+}
+
+.inv-butterfly__body {
+    fill: #4a2a1d;
+}
+
+.inv-butterfly__antenna {
+    fill: none;
+    stroke: #4a2a1d;
+    stroke-width: 1;
+    stroke-linecap: round;
+}
+
+/* ── Aviso de las mariposas ────────────────────────────────────────────── */
+
+.inv-hunt__toast {
+    position: fixed;
+    top: calc(3.6rem + env(safe-area-inset-top));
+    left: 50%;
+    z-index: 70;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    max-width: min(92vw, 24rem);
+    padding: 0.6rem 1rem 0.6rem 0.7rem;
+    border-radius: 1rem;
+    background: color-mix(in srgb, var(--text-color) 88%, transparent);
+    color: var(--bg-color);
+    font-size: 0.85rem;
+    line-height: 1.35;
+    box-shadow: 0 16px 36px -18px rgb(0 0 0 / 0.5);
+    translate: -50% 0;
+}
+
+.inv-hunt__toast svg {
+    flex: 0 0 auto;
+    width: 1.6rem;
+    height: 1.6rem;
+    fill: var(--amor-sun);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .inv-sweep,
+    .inv-story-on .inv-sweep {
+        display: none;
+    }
+
+    .inv-meadow__flower svg,
+    .inv-butterfly__flight,
+    .inv-butterfly__wing,
+    .inv-amor .inv-story__segment.is-current i {
+        animation: none;
+    }
+}

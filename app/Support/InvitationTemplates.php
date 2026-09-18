@@ -179,7 +179,7 @@ final class InvitationTemplates
             // ── Tarjetas estacionales ─────────────────────────────────────────
             self::TARJETA_AMOR => [
                 'label' => 'Carta de amor',
-                'description' => 'Una carta doblada y atada con una cinta que se abre al tocarla, la foto de los dos, la dedicatoria escrita a mano y el tiempo que llevan juntos.',
+                'description' => 'Un jardín que florece: un capullo que se riega para abrirlo, la foto que se revela, la carta lacrada, una margarita que se deshoja, recuerdos en un tendedero, una flor de respuesta y un diente de león para pedir un deseo.',
                 'event' => 'amor',
                 'palette' => [
                     'primary' => '#A63A50',
@@ -192,9 +192,32 @@ final class InvitationTemplates
                 'copy' => [
                     'hero_eyebrow' => 'Feliz Día del Amor',
                     'menu_heading' => 'Una carta para',
-                    'intro_hint' => 'Toca la cinta para abrir la carta',
+                    'intro_hint' => 'Riégalo con tres toques',
                     'gallery_eyebrow' => 'Nuestros momentos',
                     'footer_pitch' => '¿Te gustó esta carta? Manda la tuya',
+                    'daisy_title' => '¿Me quiere?',
+                    'daisy_hint' => 'Deshoja la margarita, pétalo por pétalo',
+                    'daisy_yes' => 'Me quiere',
+                    'daisy_no' => 'No me quiere',
+                    'daisy_answer' => '¡Me quiere!',
+                    'wish_eyebrow' => 'Antes de irte',
+                    'wish_title' => 'Pide un deseo',
+                    'wish_hint' => 'Desliza hacia arriba para soplar',
+                    'wish_message' => 'Que esta primavera nos encuentre juntos, y todas las que vengan.',
+                    'butterflies_found' => 'Encontraste las tres mariposas: la primavera es toda tuya.',
+                ],
+                // Vistas propias que reemplazan a las comunes solo en esta tarjeta
+                'partials' => [
+                    'juntos_desde' => 'invitations.partials.amor.daisy-milestone',
+                    'galeria' => 'invitations.partials.amor.clothesline',
+                    'respuesta' => 'invitations.partials.amor.flower-reply',
+                ],
+                // Flores para responder: se guardan en guest_contributions.reaction
+                'reactions' => [
+                    'rosa' => ['label' => 'Una rosa', 'meaning' => 'Te quiero'],
+                    'girasol' => ['label' => 'Un girasol', 'meaning' => 'Me haces feliz'],
+                    'tulipan' => ['label' => 'Un tulipán', 'meaning' => 'Amor verdadero'],
+                    'margarita' => ['label' => 'Una margarita', 'meaning' => 'Ternura'],
                 ],
             ],
         ];

@@ -1,10 +1,12 @@
 {{--
     Tarjeta "Carta de amor" (Día del Amor, 21 de septiembre): de una persona a otra.
-    Se abre como una carta atada con una cinta; adentro va la foto, la dedicatoria escrita a mano,
-    el tiempo que llevan juntos, recuerdos y la respuesta del destinatario.
-    Módulos y vocabulario en App\EventProfiles\LoveCardProfile; estilos en resources/css/cards/amor.css.
-    Se recorre en modo historia (partials/story/chrome, resources/js/story): portada, carta con sello
-    que se abre manteniendo presionado, tiempo juntos que se raspa, recuerdos y respuesta con celebración.
+    «Un jardín que florece», por el Día del Amor y la primavera. Se recorre en modo historia
+    (partials/story/chrome, resources/js/story) y cada escena es un gesto distinto:
+    regar un capullo para abrirla, la foto que se revela, la carta con sello (mantener presionado),
+    la margarita que se deshoja, los recuerdos en un tendedero, responder con una flor y soplar un
+    diente de león. Tres mariposas escondidas, pasto que florece al avanzar y ráfagas de pétalos.
+    Módulos y vocabulario en App\EventProfiles\LoveCardProfile; vistas propias en partials/amor
+    (InvitationTemplates, «partials»); estilos en resources/css/cards/amor.css; JS en resources/js/cards/amor.
 --}}
 @php
     $page = new \App\Support\InvitationPage($invitation, $modulos, $guest ?? null, \App\Support\InvitationTemplates::TARJETA_AMOR);
@@ -25,7 +27,7 @@
         @include('invitations.partials.shell.cover-script', ['coverSelector' => '.inv-amor-intro'])
     @endif
 </head>
-<body class="inv-page inv-amor overflow-x-hidden {{ $page->hasPlayer ? 'has-player' : '' }}" x-data="invitationApp()" x-init="init()">
+<body class="inv-page inv-amor overflow-x-hidden {{ $page->hasPlayer ? 'has-player' : '' }}" data-card="amor" x-data="invitationApp()" x-init="init()">
     <a class="inv-skip" href="#contenido">Saltar al contenido</a>
 
     @if($showIntro)
@@ -37,12 +39,18 @@
     {{-- Se recorre por escenas (toque o deslizar); «Ver todo» vuelve a la página con scroll --}}
     @include('invitations.partials.story.chrome', ['storyHint' => 'Toca para seguir leyendo'])
 
+    {{-- Jardín vivo: pasto que florece al avanzar, ráfaga de pétalos y mariposas escondidas --}}
+    @include('invitations.partials.amor.garden')
+
     @include('invitations.partials.music-player', ['musica' => $page->music, 'flags' => array_merge($page->flags, ['musica' => $page->visible('musica')])])
 
     @include('invitations.partials.amor.hero')
 
     <main id="contenido">
         @include('invitations.partials.shell.modules')
+
+        {{-- Cierre: un diente de león para pedir un deseo --}}
+        @include('invitations.partials.amor.wish')
     </main>
 
     @include('invitations.partials.shell.footer', [

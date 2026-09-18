@@ -17,7 +17,12 @@
 @endif
 
 @foreach($page->order as $module)
-    @if($module === 'cuenta_regresiva' && $page->visible('cuenta_regresiva'))
+    @if($page->partialFor($module))
+        {{-- La plantilla trae su propia vista para este módulo (InvitationTemplates, clave «partials») --}}
+        @if($page->visible($module))
+            @include($page->partialFor($module), ['data' => $modulos[$module] ?? []])
+        @endif
+    @elseif($module === 'cuenta_regresiva' && $page->visible('cuenta_regresiva'))
         @include('invitations.partials.countdown', [
             'eventDate' => $page->eventDate->toIso8601String(),
             'eventLabel' => $page->eventLabel,

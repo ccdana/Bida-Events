@@ -78,6 +78,12 @@ final class InvitationPage
 
     public readonly array $copy;
 
+    /** @var array<string, string> Vistas propias de la plantilla que reemplazan a las comunes, por módulo */
+    public readonly array $partials;
+
+    /** @var array<string, array{label: string, meaning: string}> Flores (u otras reacciones) para responder */
+    public readonly array $reactions;
+
     public readonly array $order;
 
     public readonly bool $isPostEvent;
@@ -116,6 +122,8 @@ final class InvitationPage
         $this->dedication = (array) ($modules['dedicatoria'] ?? []);
         $this->music = (array) ($modules['musica'] ?? []);
         $this->copy = $meta['copy'];
+        $this->partials = $meta['partials'] ?? [];
+        $this->reactions = $meta['reactions'] ?? [];
         $this->profile = app(EventProfiles::class)->forTemplate($template);
         // Una tarjeta no tiene «después del evento»: se sigue leyendo igual pasada la fecha
         $this->isPostEvent = $this->profile->kind() === Module::KIND_INVITATION && (bool) $invitation->is_post_event;
@@ -155,6 +163,12 @@ final class InvitationPage
             ->unique()
             ->map(fn (string $family) => 'family='.urlencode($family).(isset(self::FONT_WEIGHTS[$family]) ? ':wght@'.self::FONT_WEIGHTS[$family] : ''))
             ->implode('&');
+    }
+
+    /** Vista propia de la plantilla para un módulo, si la tiene (p. ej. el tendedero de la tarjeta de amor). */
+    public function partialFor(string $module): ?string
+    {
+        return $this->partials[$module] ?? null;
     }
 
     /** Enlaces del menú en el mismo orden en que aparecen las secciones. */
