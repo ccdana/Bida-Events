@@ -2,6 +2,11 @@ import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
 import tailwindcss from '@tailwindcss/vite';
 
+// Dentro de Docker (compose.yaml define BIDA_DOCKER) el servidor tiene que escuchar en todas las
+// interfaces para que el navegador del equipo lo alcance, y buscar los cambios por sondeo: los
+// avisos del sistema de archivos no cruzan el volumen montado en Windows ni en macOS.
+const enDocker = process.env.BIDA_DOCKER === 'true';
+
 export default defineConfig({
     plugins: [
         laravel({
@@ -11,7 +16,10 @@ export default defineConfig({
         tailwindcss(),
     ],
     server: {
+        host: enDocker ? '0.0.0.0' : undefined,
+        hmr: enDocker ? { host: 'localhost' } : undefined,
         watch: {
+            usePolling: enDocker,
             ignored: ['**/storage/framework/views/**'],
         },
     },

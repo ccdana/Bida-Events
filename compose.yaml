@@ -1,0 +1,122 @@
+# Entorno de desarrollo de Bida Events.
+#
+#   docker compose up -d        levanta todo (la primera vez construye la imagen y tarda)
+#   docker compose logs -f app  ver qué está pasando
+#   docker compose down         apagar
+#
+# La aplicación queda en http://localhost:8000 y Vite en el 5173.
+#
+# Las variables DOCKER_* de abajo llevan ese prefijo a propósito: docker compose también lee el
+# archivo .env del proyecto, y si usaran los mismos nombres que Laravel (DB_USERNAME y compañía)
+# un cambio en .env dejaría al contenedor de PostgreSQL con credenciales distintas a las que ya
+# tiene creadas en su volumen. Con el prefijo, cada uno lee lo suyo.
+
+name: bida-events
+
+# Llevan el prefijo BIDA_ y no DB_ a propósito: docker/entrypoint.sh las escribe en el .env en vez
+# de que lleguen como variables de entorno reales. Si llegaran como DB_HOST y compañía, tendrían
+# prioridad sobre el .env y sobre el phpunit.xml, y `php artisan test` correría contra la base de
+# desarrollo en lugar de la de pruebas: RefreshDatabase la borraría entera.
+x-app-env: &app-env
+  BIDA_APP_PORT: ${APP_PORT:-8000}
+  BIDA_DB_HOST: pgsql
+  BIDA_DB_PORT: "5432"
+  BIDA_DB_DATABASE: ${DOCKER_DB_NAME:-bida_events}
+  BIDA_DB_USERNAME: ${DOCKER_DB_USER:-bida}
+  BIDA_DB_PASSWORD: ${DOCKER_DB_PASSWORD:-secret}
+  # `artisan serve` atiende de a una petición por vez; con esto atiende varias.
+  PHP_CLI_SERVER_WORKERS: "4"
+
+x-app: &app
+  build:
+    context: .
+    target: app
+    args:
+      UID: ${UID:-1000}
+      GID: ${GID:-1000}
+  image: bida-events-app:dev
+  volumes:
+    - .:/var/www/html
+    # vendor/ vive en un volumen del contenedor, no en la carpeta del proyecto. Además de ser
+    # mucho más rápido, evita un fallo real de Docker Desktop en Windows: al recorrer un
+    # directorio con miles de archivos sobre el volumen compartido, se pierden entradas por el
+    # camino. Los iconos de Phosphor son 9072 archivos y así se perdían 670, con lo que la
+    # portada terminaba en error 500. El vendor/ que quede en el equipo no estorba: sirve para
+    # que el editor tenga autocompletado.
+    - vendor:/var/www/html/vendor
+  depends_on:
+    pgsql:
+      condition: service_healthy
+  restart: unless-stopped
+
+services:
+  # PHP 8.4. Prepara el proyecto (dependencias, APP_KEY, migraciones) y sirve la aplicación.
+  app:
+    <<: *app
+    environment:
+      <<: *app-env
+      BIDA_BOOTSTRAP: "1"
+    ports:
+      - "${APP_PORT:-8000}:8000"
+
+  # Procesa la cola: los Excel y PDF que piden los clientes desde su panel.
+  queue:
+    <<: *app
+    environment: *app-env
+    command: php artisan queue:work --tries=3 --timeout=120
+
+  # Compila el CSS y el JS, y recarga el navegador al guardar un archivo.
+  vite:
+    build:
+      context: .
+      target: node
+      args:
+        UID: ${UID:-1000}
+        GID: ${GID:-1000}
+    image: bida-events-node:dev
+    environment:
+      # Lo lee vite.config.js para escuchar fuera del contenedor y detectar los cambios
+      # de archivos por sondeo (en Windows y macOS los avisos del sistema no cruzan el volumen).
+      BIDA_DOCKER: "true"
+      HOME: /tmp
+      npm_config_cache: /tmp/.npm
+    ports:
+      - "${VITE_PORT:-5173}:5173"
+    volumes:
+      - .:/var/www/html
+      # node_modules propio del contenedor: los binarios de rollup y esbuild son distintos en
+      # Linux que en el equipo del que desarrolla. El de afuera queda intacto, para el editor.
+      - node-modules:/var/www/html/node_modules
+    command:
+      - sh
+      - -c
+      - |
+        [ -x node_modules/.bin/vite ] || npm install
+        [ -d public/build ] || npm run build
+        exec npm run dev -- --port 5173
+    restart: unless-stopped
+
+  pgsql:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${DOCKER_DB_NAME:-bida_events}
+      POSTGRES_USER: ${DOCKER_DB_USER:-bida}
+      POSTGRES_PASSWORD: ${DOCKER_DB_PASSWORD:-secret}
+    ports:
+      # Para conectar un cliente (DBeaver, TablePlus) desde el equipo, no desde el contenedor.
+      - "${DB_FORWARD_PORT:-5432}:5432"
+    volumes:
+      - pgsql-data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U ${DOCKER_DB_USER:-bida} -d ${DOCKER_DB_NAME:-bida_events}
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+volumes:
+  pgsql-data:
+  node-modules:
+  vendor:
