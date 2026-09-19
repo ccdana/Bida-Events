@@ -231,6 +231,7 @@ function invitationForm(config) {
                     { id: 'collage', label: 'Collage', moduleCode: 'collage', hint: 'Fotos en formas con flores' },
                     { id: 'marcos', label: 'Marcos', moduleCode: 'marcos', hint: 'Fotos con marco y pie' },
                     { id: 'memoria', label: 'Juego', moduleCode: 'memoria', hint: 'Memoria con sus fotos' },
+                    { id: 'aventuras', label: 'Aventuras por vivir', moduleCode: 'aventuras', hint: 'Lo que les falta vivir juntos' },
                 ],
             },
             {
@@ -450,6 +451,9 @@ function invitationForm(config) {
                 case 'memoria':
                     return list(m.memoria?.fotos).length >= 3 ? [] : ['El juego necesita al menos 3 fotos'];
 
+                case 'aventuras':
+                    return list(m.aventuras?.lista).some(item => filled(item?.titulo)) ? [] : ['No hay aventuras'];
+
                 case 'video':
                     return filled(m.video?.video_url) ? [] : ['Falta el video'];
 
@@ -640,6 +644,8 @@ function invitationForm(config) {
             m.historia.capitulos = Array.isArray(m.historia.capitulos) ? m.historia.capitulos : [];
             m.recuerdos = { ...this.plainModuleValue(m.recuerdos) };
             m.recuerdos.recuerdos = Array.isArray(m.recuerdos.recuerdos) ? m.recuerdos.recuerdos : [];
+            m.aventuras = { ...this.plainModuleValue(m.aventuras) };
+            m.aventuras.lista = Array.isArray(m.aventuras.lista) ? m.aventuras.lista : [];
             for (const code of ['collage', 'marcos', 'memoria']) {
                 m[code] = { ...this.plainModuleValue(m[code]) };
                 m[code].fotos = Array.isArray(m[code].fotos) ? m[code].fotos : [];

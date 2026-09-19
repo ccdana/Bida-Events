@@ -113,6 +113,7 @@ temporada `amor`). Suma cinco módulos propios de tarjeta:
 | `collage` | `invitation_gallery_images` (colección `collage`) | Fotos en formas que se turnan (corazón, girasol, fotomatón…) |
 | `marcos` | `invitation_gallery_images` (colección `marcos`) | Fotos con marco; la descripción es el pie |
 | `memoria` | `invitation_gallery_images` (colección `memoria`) + `invitation_sections` | Juego de memoria (3 a 8 fotos) y mensaje al ganar |
+| `aventuras` | `card_entries` (sección `aventuras`, solo el título) | «Aventuras por vivir»: lista editable de hasta 15; sin aventuras no hay hoja |
 
 - En vez de `shell/modules`, la plantilla usa `partials/aventura/book`: una vista por módulo en
   `partials/aventura/pages/{modulo}` que devuelve una o varias hojas (`data-nb-page`). El libro completa
@@ -121,6 +122,17 @@ temporada `amor`). Suma cinco módulos propios de tarjeta:
   hoja van en `cqw` (`resources/css/cards/aventura.css`), así el mismo reparto sirve en cualquier pantalla.
 - La vuelta de página es `page-flip` (npm), cargada desde `resources/js/aventura`. Con «reducir
   movimiento», sin JavaScript o con `?hojas=todas`, las hojas quedan apiladas.
+- No hay botones: la hoja se arrastra con el dedo o el mouse. Hacia la izquierda avanza y hacia la
+  derecha vuelve, empiece donde empiece el gesto; pasa si se arrastró al menos un 15 % de su ancho.
+  `book.js` corrige tres cosas de page-flip:
+  - la dirección la decide por dónde empieza el dedo;
+  - en el teléfono solo pasa la hoja si cruza el lomo;
+  - `flipPrev` no funciona con una sola hoja en pantalla.
+- Es un cuaderno anillado: una espiral fija sobre el lomo (`.nb-spiral`) y perforaciones en cada hoja.
+- La tercera hoja de collage es «libre» (`resources/js/aventura/collage.js`): acomoda las fotos en
+  filas según su forma y las muestra enteras.
+- Para probar las vueltas en el navegador integrado con el panel oculto: `requestAnimationFrame` se
+  detiene y las animaciones de page-flip no terminan, así que parece que las hojas no pasan.
 
 ## Qué no hacer
 

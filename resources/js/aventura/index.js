@@ -5,9 +5,12 @@
  */
 import { initCelebrations } from '../story/effects.js';
 import { initNotebook } from './book.js';
+import { initFreeCollages } from './collage.js';
 import { memoryGame } from './memory-game.js';
 
 window.memoryGame = memoryGame;
 
 initCelebrations();
+// El collage libre se acomoda cuando se conoce la forma de sus fotos (no frena al libro)
+initFreeCollages();
 document.querySelectorAll('[data-notebook]').forEach(initNotebook);

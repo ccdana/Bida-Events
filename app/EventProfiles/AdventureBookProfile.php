@@ -33,12 +33,12 @@ class AdventureBookProfile extends EventProfile
 
     public function modules(): array
     {
-        return ['bienvenida', 'juntos_desde', 'dedicatoria', 'historia', 'recuerdos', 'collage', 'marcos', 'memoria', 'musica', 'respuesta'];
+        return ['bienvenida', 'juntos_desde', 'dedicatoria', 'historia', 'recuerdos', 'collage', 'marcos', 'memoria', 'musica', 'respuesta', 'aventuras'];
     }
 
     public function enabledByDefault(): array
     {
-        return ['bienvenida', 'juntos_desde', 'dedicatoria', 'historia', 'recuerdos', 'collage', 'memoria', 'respuesta'];
+        return ['bienvenida', 'juntos_desde', 'dedicatoria', 'historia', 'recuerdos', 'collage', 'memoria', 'respuesta', 'aventuras'];
     }
 
     /** La tapa lleva la foto y una frase; los nombres van en la dedicatoria. */

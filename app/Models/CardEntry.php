@@ -12,6 +12,9 @@ class CardEntry extends Model
 
     public const SECTION_MEMORIES = 'recuerdos';
 
+    /** «Aventuras por vivir»: solo usa el título. */
+    public const SECTION_ADVENTURES = 'aventuras';
+
     protected $table = 'card_entries';
 
     protected $fillable = ['invitation_id', 'section', 'title', 'happened_on', 'body', 'image_url', 'image_alt', 'sort_order'];

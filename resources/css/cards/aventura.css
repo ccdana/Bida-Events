@@ -381,13 +381,17 @@
     rotate: 8deg;
 }
 
+/* Aviso de la tapa (no es un botón: la tapa se abre arrastrándola) */
 .nb-cover__open {
     position: absolute;
     bottom: 3.4cqw;
     left: 50%;
     z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 1.6cqw;
     translate: -50% 0;
-    padding: 2cqw 5cqw;
+    padding: 2cqw 4.4cqw;
     border-radius: 999px;
     background: var(--nb-yellow);
     color: var(--nb-leather-deep);
@@ -395,12 +399,18 @@
     font-size: 3.2cqw;
     white-space: nowrap;
     box-shadow: 0 1cqw 3cqw -1cqw rgb(0 0 0 / 0.55);
-    animation: nb-pulse 2.4s ease-in-out infinite;
+    pointer-events: none;
 }
 
-.nb-cover__open:focus-visible {
-    outline: 3px solid var(--nb-paper);
-    outline-offset: 3px;
+.nb-cover__open svg {
+    width: 4.2cqw;
+    height: 4.2cqw;
+    animation: nb-nudge 1.6s ease-in-out infinite;
+}
+
+@keyframes nb-nudge {
+    0%, 100% { translate: 0 0; }
+    50% { translate: -1.4cqw 0; }
 }
 
 .nb-cover__end {
@@ -481,26 +491,31 @@
     color: var(--nb-ink);
 }
 
+/* Día marcado: el número en un círculo amarillo, bien legible, y un girasol chico de calcomanía */
 .nb-calendar__day {
     position: relative;
     display: inline-grid;
     place-items: center;
+    width: 6.8cqw;
+    height: 6.8cqw;
+    border-radius: 50%;
+    background: var(--nb-yellow);
+    box-shadow: 0 0 0 0.6cqw color-mix(in srgb, var(--nb-yellow) 35%, transparent);
 }
 
 .nb-calendar__day span {
-    position: relative;
-    z-index: 1;
     font-weight: 700;
     color: var(--nb-leather-deep);
 }
 
 .nb-calendar__flower {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 12cqw;
-    translate: -50% -50%;
-    animation: nb-spin 24s linear infinite;
+    top: -3.2cqw;
+    right: -3.6cqw;
+    width: 5.4cqw;
+    rotate: 18deg;
+    filter: drop-shadow(0 0.4cqw 0.5cqw rgb(60 35 10 / 0.35));
+    pointer-events: none;
 }
 
 @keyframes nb-spin {
@@ -874,75 +889,82 @@
     rotate: 6deg;
 }
 
-/* Girasol: una foto al centro de un girasol y cuatro en forma de flor */
+/*
+   Girasol: la primera foto es el corazón de un girasol grande (40cqw) y las otras cuatro, en forma
+   de flor, van en las esquinas (36cqw) montadas sobre sus pétalos. Llena toda el área (83.5 × 94cqw).
+*/
 .nb-collage__bloom {
     position: absolute;
-    top: 18cqw;
-    left: 11cqw;
-    width: 62cqw;
-    animation: nb-spin 60s linear infinite;
+    top: 8cqw;
+    left: 2.75cqw;
+    width: 78cqw;
+    animation: nb-spin 90s linear infinite;
 }
 
 .nb-collage--girasol .nb-collage__item {
-    width: 30cqw;
-    height: 30cqw;
-    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='30'/%3E%3Ccircle cx='77' cy='50' r='21'/%3E%3Ccircle cx='69.1' cy='69.1' r='21'/%3E%3Ccircle cx='50' cy='77' r='21'/%3E%3Ccircle cx='30.9' cy='69.1' r='21'/%3E%3Ccircle cx='23' cy='50' r='21'/%3E%3Ccircle cx='30.9' cy='30.9' r='21'/%3E%3Ccircle cx='50' cy='23' r='21'/%3E%3Ccircle cx='69.1' cy='30.9' r='21'/%3E%3C/svg%3E") center / contain no-repeat;
+    width: 36cqw;
+    height: 36cqw;
+    filter: drop-shadow(0 1.2cqw 1.6cqw rgb(60 35 10 / 0.35));
+    /* Flor de centro grande y pétalos anchos: recorta poco de la foto */
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='38'/%3E%3Ccircle cx='76' cy='50' r='23'/%3E%3Ccircle cx='68.4' cy='68.4' r='23'/%3E%3Ccircle cx='50' cy='76' r='23'/%3E%3Ccircle cx='31.6' cy='68.4' r='23'/%3E%3Ccircle cx='24' cy='50' r='23'/%3E%3Ccircle cx='31.6' cy='31.6' r='23'/%3E%3Ccircle cx='50' cy='24' r='23'/%3E%3Ccircle cx='68.4' cy='31.6' r='23'/%3E%3C/svg%3E") center / contain no-repeat;
 }
 
 .nb-collage--girasol .nb-collage__item:nth-of-type(1) {
-    top: 33cqw;
-    left: 26cqw;
-    width: 32cqw;
-    height: 32cqw;
+    top: 27cqw;
+    left: 21.75cqw;
+    z-index: 2;
+    width: 40cqw;
+    height: 40cqw;
     mask: none;
-    border: 1.4cqw solid #5a3214;
+    border: 1.6cqw solid #5a3214;
     border-radius: 50%;
     overflow: hidden;
-    z-index: 1;
+    box-shadow: 0 0 0 0.8cqw var(--nb-yellow-deep), 0 1.6cqw 3cqw -1cqw rgb(60 35 10 / 0.55);
+    filter: none;
 }
 
-.nb-collage--girasol .nb-collage__item:nth-of-type(2) { top: 0; left: 0; rotate: -10deg; }
-.nb-collage--girasol .nb-collage__item:nth-of-type(3) { top: 0; right: 0; rotate: 12deg; }
-.nb-collage--girasol .nb-collage__item:nth-of-type(4) { bottom: 0; left: 0; rotate: 8deg; }
-.nb-collage--girasol .nb-collage__item:nth-of-type(5) { right: 0; bottom: 0; rotate: -12deg; }
+.nb-collage--girasol .nb-collage__item:nth-of-type(2) { top: 0; left: 0; rotate: -8deg; }
+.nb-collage--girasol .nb-collage__item:nth-of-type(3) { top: 0; left: 47.5cqw; rotate: 10deg; }
+.nb-collage--girasol .nb-collage__item:nth-of-type(4) { top: 58cqw; left: 0; rotate: 7deg; }
+.nb-collage--girasol .nb-collage__item:nth-of-type(5) { top: 58cqw; left: 47.5cqw; rotate: -9deg; }
 
-/* Fotomatón: dos tiras de papel con dos fotos cada una */
-.nb-collage--fotomaton::before,
-.nb-collage--fotomaton::after {
-    content: '';
-    position: absolute;
-    width: 34cqw;
-    height: 68cqw;
+/*
+   Collage libre: resources/js/aventura/collage.js escribe la posición y el tamaño de cada foto según
+   su forma, para mostrarla entera. Mientras tanto (o sin JavaScript), una grilla de dos columnas.
+*/
+.nb-collage--libre .nb-collage__item {
+    padding: 1.6cqw;
     background: #fffdf7;
-    box-shadow: 0 1.6cqw 3cqw -1.6cqw rgb(60 35 10 / 0.55);
+    box-shadow: 0 1.4cqw 2.6cqw -1.4cqw rgb(60 35 10 / 0.55);
 }
 
-.nb-collage--fotomaton::before {
-    top: 2cqw;
-    left: 6cqw;
-    rotate: -5deg;
+.nb-collage--libre:not(.is-arranged) {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    align-content: center;
+    gap: 3cqw;
 }
 
-.nb-collage--fotomaton::after {
-    top: 20cqw;
-    right: 4cqw;
-    rotate: 4deg;
+.nb-collage--libre:not(.is-arranged) .nb-collage__item {
+    position: relative;
+    aspect-ratio: 1;
 }
 
-.nb-collage--fotomaton .nb-collage__item {
-    z-index: 1;
-    width: 29cqw;
-    height: 29cqw;
+.nb-collage--libre.is-arranged .nb-collage__item {
+    transition: left 0.4s ease, top 0.4s ease, width 0.4s ease, height 0.4s ease;
 }
 
-.nb-collage--fotomaton .nb-collage__item:nth-of-type(1) { top: 4.5cqw; left: 10.5cqw; rotate: -5deg; }
-.nb-collage--fotomaton .nb-collage__item:nth-of-type(2) { top: 35.5cqw; left: 7.8cqw; rotate: -5deg; }
-.nb-collage--fotomaton .nb-collage__item:nth-of-type(3) { top: 22.5cqw; right: 6.2cqw; rotate: 4deg; }
-.nb-collage--fotomaton .nb-collage__item:nth-of-type(4) { top: 53.5cqw; right: 8.4cqw; rotate: 4deg; }
+.nb-collage--libre .nb-collage__item:nth-of-type(odd) { rotate: -1.8deg; }
+.nb-collage--libre .nb-collage__item:nth-of-type(even) { rotate: 2.2deg; }
 
-.nb-collage--fotomaton.nb-collage--n1::after,
-.nb-collage--fotomaton.nb-collage--n2::after {
-    display: none;
+.nb-collage--libre.is-arranged .nb-collage__item img {
+    object-fit: contain;
+}
+
+.nb-collage--libre .nb-tape--a {
+    top: -2.4cqw;
+    left: 30%;
+    rotate: -4deg;
 }
 
 /* Instantáneas encimadas */
@@ -1268,6 +1290,9 @@
 }
 
 .nb-reply-page .inv-reply__input {
+    height: 40cqw;
+    min-height: 0;
+    resize: none;
     background: rgb(255 255 255 / 0.7);
     font-family: var(--nb-hand);
     font-size: 5cqw;
@@ -1290,15 +1315,24 @@
     display: flex;
     align-items: center;
     gap: 3cqw;
-    height: 10cqw;
+    min-height: 10cqw;
+    padding-block: 1.2cqw;
     border-bottom: 1px solid var(--nb-rule);
 }
 
 .nb-todo__box {
+    flex: none;
     width: 4.4cqw;
     height: 4.4cqw;
     border: 0.5cqw solid var(--nb-ink-soft);
     border-radius: 0.8cqw;
+}
+
+.nb-todo__text {
+    font-family: var(--nb-hand);
+    font-size: 5.2cqw;
+    line-height: 1.1;
+    color: var(--nb-ink);
 }
 
 .nb-pressed .nb-page__inner {
@@ -1322,57 +1356,102 @@
     filter: saturate(0.85) sepia(0.15);
 }
 
-/* ── Botones para pasar las hojas ───────────────────────────────────────── */
+/* ── Debajo del libro: dónde vas y cómo pasar la hoja (sin botones) ─────── */
 
 .nb-controls {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-    margin-top: 1.25rem;
+    display: grid;
+    justify-items: center;
+    gap: 0.3rem;
+    margin-top: 1.1rem;
+    text-align: center;
 }
 
 .nb-controls[hidden] {
     display: none;
 }
 
-.nb-controls__btn {
-    display: grid;
-    place-items: center;
-    width: 2.9rem;
-    height: 2.9rem;
-    border-radius: 50%;
-    background: var(--nb-leather);
-    color: var(--nb-paper);
-    box-shadow: 0 6px 14px -8px rgb(40 20 5 / 0.8);
-    transition: opacity 0.2s ease, scale 0.2s ease;
+.nb-controls__status {
+    font-family: var(--nb-type);
+    font-size: 0.85rem;
+    color: var(--nb-ink-soft);
 }
 
-.nb-controls__btn svg {
-    width: 1.3rem;
-    height: 1.3rem;
+.nb-controls__hint {
+    max-width: 22rem;
+    font-family: var(--nb-hand);
+    font-size: 1.05rem;
+    line-height: 1.2;
+    color: var(--primary-color);
 }
 
-.nb-controls__btn:active {
-    scale: 0.94;
+/* La ayuda habla del dedo en pantallas táctiles y del mouse en la computadora */
+.nb-hint-mouse {
+    display: none;
 }
 
-.nb-controls__btn:disabled {
-    opacity: 0.35;
+@media (hover: hover) and (pointer: fine) {
+    .nb-hint-touch {
+        display: none;
+    }
+
+    .nb-hint-mouse {
+        display: inline;
+    }
 }
 
-.nb-controls__btn:focus-visible,
+.nb-book.is-ended .nb-controls__hint {
+    visibility: hidden;
+}
+
 .nb-view-all a:focus-visible {
     outline: 3px solid var(--primary-color);
     outline-offset: 3px;
 }
 
-.nb-controls__status {
-    min-width: 8.5rem;
-    font-family: var(--nb-type);
-    font-size: 0.85rem;
-    text-align: center;
-    color: var(--nb-ink-soft);
+/* Mano que enseña el gesto: arrastra de derecha a izquierda sobre el libro */
+.nb-teach {
+    display: none;
+}
+
+.nb-book--flip .nb-teach {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 30;
+    display: block;
+    width: 3.6rem;
+    color: var(--nb-leather-deep);
+    filter: drop-shadow(0 4px 6px rgb(40 20 5 / 0.35));
+    pointer-events: none;
+    animation: nb-teach 2.2s ease-in-out infinite;
+    transition: opacity 0.5s ease;
+}
+
+.nb-teach svg {
+    width: 100%;
+    fill: var(--nb-paper);
+}
+
+.nb-teach.is-gone {
+    opacity: 0;
+}
+
+@keyframes nb-teach {
+    0% { translate: 3.5rem 0; rotate: 8deg; opacity: 0; }
+    15% { opacity: 1; }
+    70% { translate: -3.5rem 0; rotate: -10deg; opacity: 1; }
+    100% { translate: -3.5rem 0; rotate: -10deg; opacity: 0; }
+}
+
+/* Con el mouse se «agarra» la hoja */
+@media (hover: hover) and (pointer: fine) {
+    .nb-book--flip .stf__block {
+        cursor: grab;
+    }
+
+    .nb-book--flip.is-dragging .stf__block {
+        cursor: grabbing;
+    }
 }
 
 .nb-view-all {
@@ -1430,21 +1509,105 @@
     translate: 25% 0;
 }
 
-/* Lomo: sombra hacia el centro del libro abierto */
-.nb-book--flip .nb-page.--left {
-    box-shadow: inset -16px 0 22px -16px rgb(60 35 10 / 0.5);
+/*
+   Cuaderno anillado. La espiral (.nb-spiral, la pone book.js) queda fija sobre el lomo; cada hoja
+   lleva sus perforaciones del lado del lomo, a la misma distancia que los aros (9cqw), y un canto
+   de hojas apiladas hacia afuera que le da grosor al cuaderno.
+*/
+.nb-book {
+    position: relative;
+    --nb-ring: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 36'%3E%3Cdefs%3E%3ClinearGradient id='m' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23f4f4f6'/%3E%3Cstop offset='.45' stop-color='%23a9a9b0'/%3E%3Cstop offset='1' stop-color='%235c5c63'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cellipse cx='20' cy='19.5' rx='16.5' ry='6' fill='none' stroke='%23000' stroke-opacity='.22' stroke-width='3.6' transform='rotate(-14 20 19.5)'/%3E%3Cellipse cx='20' cy='18' rx='16.5' ry='6' fill='none' stroke='url(%23m)' stroke-width='3.2' transform='rotate(-14 20 18)'/%3E%3Cpath d='M8 20.5 C12 17.5 17 15.5 22 14.5' fill='none' stroke='%23fff' stroke-opacity='.75' stroke-width='1' stroke-linecap='round'/%3E%3C/svg%3E");
 }
 
+.nb-spiral {
+    position: absolute;
+    z-index: 900;
+    width: calc(var(--nb-page-width, 400px) * 0.13);
+    translate: -50% 0;
+    background: var(--nb-ring) center top / 100% calc(var(--nb-page-width, 400px) * 0.09) repeat-y;
+    pointer-events: none;
+}
+
+/* Perforaciones: del lado izquierdo en las hojas de la derecha (y en el teléfono) */
+.nb-page::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 5;
+    width: 6.4cqw;
+    background:
+        radial-gradient(circle at 50% 50%, rgb(58 36 16 / 0.75) 0 1.15cqw, rgb(58 36 16 / 0.25) 1.3cqw, transparent 1.55cqw)
+        center 0 / 100% 9cqw repeat-y;
+    pointer-events: none;
+}
+
+.nb-book--flip .nb-page.--left::before {
+    right: 0;
+    left: auto;
+}
+
+.nb-cover::before {
+    background:
+        radial-gradient(circle at 50% 50%, rgb(20 10 2 / 0.85) 0 1.15cqw, rgb(255 225 170 / 0.25) 1.3cqw, transparent 1.55cqw)
+        center 0 / 100% 9cqw repeat-y;
+}
+
+/* Hojas apiladas (sin JavaScript o «Ver todas las hojas»): un tramo de espiral en cada hoja */
+.nb-page::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -3.2cqw;
+    z-index: 6;
+    width: 13cqw;
+    background: var(--nb-ring) center 0 / 100% 9cqw repeat-y;
+    pointer-events: none;
+}
+
+.nb-book--flip .nb-page::after {
+    display: none;
+}
+
+/* El contenido de la hoja no se mete debajo de los agujeros */
+.nb-page__inner {
+    padding-left: 11cqw;
+}
+
+.nb-book--flip .nb-page.--left .nb-page__inner {
+    padding-right: 11cqw;
+    padding-left: 7cqw;
+}
+
+/* Grosor: canto de hojas apiladas hacia afuera del lomo */
 .nb-book--flip .nb-page.--right {
-    box-shadow: inset 16px 0 22px -16px rgb(60 35 10 / 0.5);
+    border-radius: 0 6px 6px 0;
+    box-shadow:
+        2px 2px 0 #efe4ca,
+        4px 4px 0 #e6d8b8,
+        6px 6px 0 #ddcca7,
+        8px 12px 18px -6px rgb(60 35 10 / 0.45);
+}
+
+.nb-book--flip .nb-page.--left {
+    border-radius: 6px 0 0 6px;
+    box-shadow:
+        -2px 2px 0 #efe4ca,
+        -4px 4px 0 #e6d8b8,
+        -6px 6px 0 #ddcca7,
+        -8px 12px 18px -6px rgb(60 35 10 / 0.45);
 }
 
 .nb-book--flip .nb-cover.--right {
     border-radius: 0 12px 12px 0;
+    box-shadow: 4px 6px 0 #4a2a12, 10px 16px 24px -8px rgb(40 20 5 / 0.6);
 }
 
 .nb-book--flip .nb-cover.--left {
     border-radius: 12px 0 0 12px;
+    box-shadow: -4px 6px 0 #4a2a12, -10px 16px 24px -8px rgb(40 20 5 / 0.6);
 }
 
 /* ── Lluvia de pétalos amarillos ────────────────────────────────────────── */

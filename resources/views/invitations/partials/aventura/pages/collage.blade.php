@@ -1,16 +1,16 @@
 {{--
-    Collage de fotos: se reparten en hojas con diseños que se turnan (corazón, girasol de fotos, tira
-    de fotomatón, instantáneas encimadas y círculos con margaritas), todas con flores amarillas.
+    Collage de fotos: se reparten en hojas con diseños que se turnan (corazón, girasol de fotos, collage
+    libre que se acomoda a las fotos, instantáneas encimadas y círculos con margaritas), todas con flores amarillas.
     Recibe $data (titulo, fotos: [url | {url, alt}]).
 --}}
 @php
     $collagePhotos = array_values(array_filter((array) ($data['fotos'] ?? []), fn ($photo) => is_string($photo) ? trim($photo) !== '' : ! empty($photo['url'] ?? null)));
     // Diseño => cuántas fotos lleva la hoja
-    $collageLayouts = ['corazon' => 3, 'girasol' => 5, 'fotomaton' => 4, 'polaroids' => 3, 'circulos' => 4];
+    $collageLayouts = ['corazon' => 3, 'girasol' => 5, 'libre' => 4, 'polaroids' => 3, 'circulos' => 4];
     $collageCaptions = [
         'corazon' => 'Todo lo que quiero está aquí',
         'girasol' => 'Contigo todo florece',
-        'fotomaton' => 'Una, dos, tres… ¡sonrisa!',
+        'libre' => 'Así nos vemos juntos',
         'polaroids' => 'Momentos que guardo',
         'circulos' => 'Mis fotos favoritas',
     ];
@@ -29,14 +29,15 @@
         <div class="nb-page__inner">
             <p class="nb-eyebrow">{{ $sheetIndex === 0 ? (($data['titulo'] ?? null) ?: 'Nuestro collage') : 'Collage' }}</p>
 
-            <div class="nb-collage nb-collage--{{ $sheet['layout'] }} nb-collage--n{{ count($sheet['photos']) }}">
+            {{-- El collage libre lo acomoda resources/js/aventura/collage.js según la forma de cada foto --}}
+            <div class="nb-collage nb-collage--{{ $sheet['layout'] }} nb-collage--n{{ count($sheet['photos']) }}" @if($sheet['layout'] === 'libre') data-nb-free-collage @endif>
                 @if($sheet['layout'] === 'girasol')
                     @include('invitations.partials.aventura.flower', ['kind' => 'girasol', 'class' => 'nb-collage__bloom'])
                 @endif
 
                 @foreach($sheet['photos'] as $photoIndex => $photo)
                     <figure class="nb-collage__item">
-                        @if(in_array($sheet['layout'], ['polaroids', 'corazon'], true) && $photoIndex > 0)
+                        @if((in_array($sheet['layout'], ['polaroids', 'corazon'], true) && $photoIndex > 0) || ($sheet['layout'] === 'libre' && $photoIndex % 3 === 0))
                             <span class="nb-tape nb-tape--{{ $photoIndex % 2 === 0 ? 'a' : 'b' }}" aria-hidden="true"></span>
                         @endif
                         @include('invitations.partials.aventura.photo', ['photo' => $photo, 'width' => 600, 'alt' => 'Foto del collage'])

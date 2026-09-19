@@ -75,9 +75,10 @@
                                         <td></td>
                                     @elseif($day === $since->day)
                                         <td class="is-marked" aria-current="date">
+                                            {{-- El número va en un círculo amarillo; el girasol, de calcomanía en la esquina --}}
                                             <span class="nb-calendar__day">
-                                                @include('invitations.partials.aventura.flower', ['kind' => 'girasol', 'class' => 'nb-calendar__flower'])
                                                 <span>{{ $day }}</span>
+                                                @include('invitations.partials.aventura.flower', ['kind' => 'girasol', 'class' => 'nb-calendar__flower'])
                                             </span>
                                         </td>
                                     @else

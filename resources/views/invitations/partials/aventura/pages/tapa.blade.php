@@ -28,8 +28,10 @@
         @include('invitations.partials.aventura.flower', ['kind' => 'girasol', 'class' => 'nb-cover__flower'])
         @include('invitations.partials.aventura.flower', ['kind' => 'margarita', 'class' => 'nb-cover__flower nb-cover__flower--small'])
 
-        <button type="button" class="nb-cover__open" data-nb-open data-needs-js>
-            {{ $invCopy['intro_hint'] ?? 'Toca la tapa para abrir el libro' }}
-        </button>
+        {{-- La tapa se abre arrastrándola hacia la izquierda, como un cuaderno de verdad --}}
+        <p class="nb-cover__open" data-needs-js>
+            <span>{{ $invCopy['intro_hint'] ?? 'Desliza la tapa para abrir el libro' }}</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M19 12H5m6-6-6 6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </p>
     </div>
 </article>

@@ -1,5 +1,6 @@
 <?php
 
+use App\Modules\Card\AdventuresModule;
 use App\Modules\Card\CollageModule;
 use App\Modules\Card\DedicationModule;
 use App\Modules\Card\FramesModule;
@@ -69,6 +70,7 @@ return [
         CollageModule::class,
         FramesModule::class,
         MemoryGameModule::class,
+        AdventuresModule::class,
     ],
 
 ];

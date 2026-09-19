@@ -26,7 +26,7 @@ class AdventureBookTest extends TestCase
 {
     use CreatesInvitations, RefreshDatabase;
 
-    private const BOOK_MODULES = ['historia', 'recuerdos', 'collage', 'marcos', 'memoria'];
+    private const BOOK_MODULES = ['historia', 'recuerdos', 'collage', 'marcos', 'memoria', 'aventuras'];
 
     public function test_the_book_modules_save_and_read_back_the_same(): void
     {
@@ -34,7 +34,7 @@ class AdventureBookTest extends TestCase
         $modules = self::sample();
         $book = $this->createBook();
 
-        $this->assertDatabaseCount('card_entries', 6);
+        $this->assertDatabaseCount('card_entries', 12);
         $loaded = $registry->load($book->fresh());
 
         foreach (self::BOOK_MODULES as $code) {
@@ -73,6 +73,17 @@ class AdventureBookTest extends TestCase
             ->assertSee('Aventuras por vivir')
             ->assertDontSee('id="rsvp"', false)
             ->getContent();
+
+        // Las hojas se pasan arrastrándolas: no hay botones de anterior/siguiente ni para abrir la tapa
+        $this->assertStringNotContainsString('data-nb-prev', $html);
+        $this->assertStringNotContainsString('data-nb-next', $html);
+        $this->assertStringNotContainsString('data-nb-open', $html);
+        $this->assertStringContainsString('Desliza la hoja con el dedo', $html);
+
+        // La tercera hoja del collage (la que eran tiras de fotomatón) se acomoda sola a las fotos
+        $this->assertStringContainsString('nb-collage--libre', $html);
+        $this->assertStringContainsString('data-nb-free-collage', $html);
+        $this->assertStringNotContainsString('nb-collage--fotomaton', $html);
 
         // Tapa + hojas + contratapa: siempre par, para que la contratapa cierre sola
         $this->assertSame(0, preg_match_all('/data-nb-page(?!s)/', $html) % 2);
@@ -137,6 +148,38 @@ class AdventureBookTest extends TestCase
         }
     }
 
+    public function test_the_adventures_page_lists_what_is_left_and_disappears_when_empty(): void
+    {
+        $this->createBook(['slug' => 'libro-ana']);
+
+        $html = $this->withoutVite()->get(route('invitation.show', 'libro-ana'))->assertOk()->getContent();
+
+        $this->assertStringContainsString('id="aventuras"', $html);
+        $this->assertStringContainsString('Aprender a bailar salsa', $html);
+        $this->assertSame(6, substr_count($html, 'class="nb-todo__text"'));
+
+        // Sin aventuras no hay hoja, y el libro sigue cerrando con un número par de hojas
+        $modules = self::sample();
+        $modules['aventuras']['lista'] = [];
+        $this->createBook(['slug' => 'libro-sin-aventuras'], $modules);
+
+        $html = $this->withoutVite()->get(route('invitation.show', 'libro-sin-aventuras'))->assertOk()->getContent();
+
+        $this->assertStringNotContainsString('id="aventuras"', $html);
+        $this->assertStringNotContainsString('nb-todo__text', $html);
+        $this->assertSame(0, preg_match_all('/data-nb-page(?!s)/', $html) % 2);
+    }
+
+    public function test_the_adventures_list_has_a_limit(): void
+    {
+        $rules = app(ModuleRegistry::class)->rules('modulos');
+        $items = fn (int $count, string $text = 'Viajar juntos') => ['modulos' => ['aventuras' => ['lista' => array_fill(0, $count, ['titulo' => $text])]]];
+
+        $this->assertTrue(Validator::make($items(15), $rules)->passes());
+        $this->assertTrue(Validator::make($items(16), $rules)->fails());
+        $this->assertTrue(Validator::make($items(1, str_repeat('a', 121)), $rules)->fails());
+    }
+
     public function test_the_memory_game_needs_between_three_and_eight_photos(): void
     {
         $rules = app(ModuleRegistry::class)->rules('modulos');
@@ -189,6 +232,8 @@ class AdventureBookTest extends TestCase
             ->assertSee("activeTab === 'collage'", false)
             ->assertSee("activeTab === 'marcos'", false)
             ->assertSee("activeTab === 'memoria'", false)
+            ->assertSee("activeTab === 'aventuras'", false)
+            ->assertSee("addBookEntry('aventuras', 'lista', 15)", false)
             ->assertSee("uploadBookPhotos('memoria', \$event, 8)", false)
             ->assertSee("uploadBookEntryPhoto('historia', 'capitulos', i, \$event)", false);
     }

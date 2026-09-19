@@ -211,11 +211,11 @@ final class InvitationTemplates
                     'background' => '#F7EEDC',
                 ],
                 // Cada módulo es una o varias páginas del cuaderno, en este orden
-                'order' => ['juntos_desde', 'dedicatoria', 'historia', 'recuerdos', 'collage', 'marcos', 'memoria', 'respuesta'],
+                'order' => ['juntos_desde', 'dedicatoria', 'historia', 'recuerdos', 'collage', 'marcos', 'memoria', 'respuesta', 'aventuras'],
                 'copy' => [
                     'hero_eyebrow' => 'Nuestro libro de aventuras',
                     'menu_heading' => 'Un libro para',
-                    'intro_hint' => 'Toca la tapa para abrir el libro',
+                    'intro_hint' => 'Desliza la tapa para abrir el libro',
                     'footer_pitch' => '¿Te gustó este libro? Arma el tuyo',
                 ],
             ],

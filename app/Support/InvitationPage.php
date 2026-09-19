@@ -55,6 +55,7 @@ final class InvitationPage
         'collage' => 'Collage',
         'marcos' => 'Marcos',
         'memoria' => 'Juego',
+        'aventuras' => 'Aventuras',
     ];
 
     public readonly array $config;

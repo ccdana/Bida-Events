@@ -61,6 +61,7 @@ return [
                 'memoria' => true,
                 'musica' => true,
                 'respuesta' => true,
+                'aventuras' => true,
             ],
             'template' => 'invitations.templates.tarjeta-aventura',
         ],
@@ -138,6 +139,17 @@ return [
         'respuesta' => [
             'titulo' => 'Escríbele a Luis',
             'descripcion' => 'Agrega tu propia hoja a este libro: solo él la va a leer.',
+        ],
+        'aventuras' => [
+            'titulo' => 'Aventuras por vivir',
+            'lista' => [
+                ['titulo' => 'Ver el amanecer juntos en el lago Titicaca'],
+                ['titulo' => 'Aprender a bailar salsa'],
+                ['titulo' => 'Adoptar un perrito'],
+                ['titulo' => 'Acampar bajo las estrellas en el salar de Uyuni'],
+                ['titulo' => 'Cocinar juntos la receta de la abuela'],
+                ['titulo' => 'Escribir la siguiente página de este libro'],
+            ],
         ],
     ],
     'guests' => [],
