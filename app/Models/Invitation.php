@@ -22,7 +22,6 @@ use Illuminate\Support\Carbon;
  * @property Carbon $expires_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property array $modules
  * @property bool $is_post_event
  */
 class Invitation extends Model
@@ -43,12 +42,7 @@ class Invitation extends Model
         'expires_at' => 'date',
     ];
 
-    protected ?array $modulesCache = null;
-
-    // Attributes cache
-    protected $appends = ['modules', 'is_post_event'];
-
-    protected $hidden = ['modulesData'];
+    protected $appends = ['is_post_event'];
 
     /**
      * Cliente dueño de la invitación.
@@ -64,7 +58,8 @@ class Invitation extends Model
     }
 
     /**
-     * Obtiene los módulos/funcionalidades habilitados de forma personalizada para esta invitación.
+     * Módulos con su interruptor de visibilidad (una fila por módulo). Los datos de cada módulo
+     * viven en sus tablas; ver app/Modules.
      */
     public function features(): BelongsToMany
     {
@@ -72,12 +67,47 @@ class Invitation extends Model
             ->withPivot('is_enabled');
     }
 
-    /**
-     * Obtiene los bloques de textos y payloads de datos JSON editados desde el panel.
-     */
-    public function modulesData(): HasMany
+    public function theme(): HasOne
     {
-        return $this->hasMany(InvitationData::class);
+        return $this->hasOne(InvitationTheme::class);
+    }
+
+    public function hero(): HasOne
+    {
+        return $this->hasOne(InvitationHero::class);
+    }
+
+    /** Textos del encabezado de cada sección (título, introducción…). */
+    public function sections(): HasMany
+    {
+        return $this->hasMany(InvitationSection::class);
+    }
+
+    public function hashtag(): HasOne
+    {
+        return $this->hasOne(InvitationHashtag::class);
+    }
+
+    public function rsvpSetting(): HasOne
+    {
+        return $this->hasOne(InvitationRsvpSetting::class);
+    }
+
+    public function bankAccounts(): HasMany
+    {
+        return $this->hasMany(InvitationBankAccount::class)->orderBy('sort_order')->orderBy('id');
+    }
+
+    /** Dedicatoria de una tarjeta estacional. */
+    public function dedication(): HasOne
+    {
+        return $this->hasOne(CardDedication::class);
+    }
+
+    /** Fechas importantes de una tarjeta («juntos desde»). */
+    public function milestones(): HasMany
+    {
+        return $this->hasMany(CardMilestone::class)->orderBy('sort_order')->orderBy('id');
     }
 
     /**
@@ -99,14 +129,6 @@ class Invitation extends Model
     public function pollVotes(): HasMany
     {
         return $this->hasMany(PollVote::class);
-    }
-
-    /**
-     * Configuración visual y visibilidad de módulos. Si existe, los módulos normalizados se leen desde tablas.
-     */
-    public function settings(): HasOne
-    {
-        return $this->hasOne(InvitationSetting::class);
     }
 
     public function itineraryItems(): HasMany
@@ -165,29 +187,7 @@ class Invitation extends Model
 
     public function scopeWithAllData(Builder $query): Builder
     {
-        return $query->with(['eventType', 'user', 'modulesData']);
-    }
-
-    /**
-     * Módulos indexados por feature_code - computed property con cache
-     */
-    public function getModulesAttribute(): array
-    {
-        if ($this->modulesCache !== null) {
-            return $this->modulesCache;
-        }
-
-        $this->modulesCache = $this->modulesData
-            ->keyBy('feature_code')
-            ->map(fn ($item) => $item->json_data)
-            ->toArray();
-
-        return $this->modulesCache;
-    }
-
-    public function clearModulesCache(): void
-    {
-        $this->modulesCache = null;
+        return $query->with(['eventType', 'user']);
     }
 
     public function getIsPostEventAttribute(): bool

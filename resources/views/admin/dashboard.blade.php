@@ -28,9 +28,19 @@
 
         <section class="site-enter" style="--enter-index: 2">
             <div class="flex items-baseline justify-between gap-4">
-                <h2 class="text-xl font-semibold tracking-tight">Invitaciones</h2>
-                <p class="text-sm text-site-muted">{{ $metrics['total'] }} en total</p>
+                <h2 class="text-xl font-semibold tracking-tight">Invitaciones y tarjetas</h2>
+                <p class="text-sm text-site-muted">{{ $invitations->total() }} {{ $kind ? 'en este filtro' : 'en total' }}</p>
             </div>
+
+            <nav class="mt-4 flex flex-wrap gap-2" aria-label="Filtrar por tipo">
+                @foreach($filters as $filter)
+                    <a href="{{ $filter['url'] }}"
+                       class="{{ $filter['kind'] === $kind ? 'admin-primary-button' : 'admin-link-button' }}"
+                       @if($filter['kind'] === $kind) aria-current="page" @endif>
+                        {{ $filter['label'] }}
+                    </a>
+                @endforeach
+            </nav>
 
             <ul class="mt-5 divide-y divide-site-line overflow-hidden rounded-[16px] border border-site-line bg-site-surface">
                 @forelse($items as $row)
@@ -46,8 +56,13 @@
                             </div>
                             <p class="mt-2 flex flex-wrap items-center gap-x-5 gap-y-1.5 text-sm text-site-muted">
                                 <span class="inline-flex items-center gap-1.5">
-                                    <x-phosphor-confetti class="size-4" aria-hidden="true" />
-                                    {{ $row['eventTypeName'] }}
+                                    @if($row['isCard'])
+                                        <x-phosphor-heart class="size-4" aria-hidden="true" />
+                                        Tarjeta · {{ $row['eventTypeName'] }}
+                                    @else
+                                        <x-phosphor-confetti class="size-4" aria-hidden="true" />
+                                        {{ $row['eventTypeName'] }}
+                                    @endif
                                 </span>
                                 @if($row['eventDateLabel'])
                                     <span class="inline-flex items-center gap-1.5">
@@ -55,10 +70,12 @@
                                         {{ $row['eventDateLabel'] }}
                                     </span>
                                 @endif
-                                <span class="inline-flex items-center gap-1.5">
-                                    <x-phosphor-users class="size-4" aria-hidden="true" />
-                                    {{ $row['guestCount'] }} invitados
-                                </span>
+                                @unless($row['isCard'])
+                                    <span class="inline-flex items-center gap-1.5">
+                                        <x-phosphor-users class="size-4" aria-hidden="true" />
+                                        {{ $row['guestCount'] }} invitados
+                                    </span>
+                                @endunless
                                 <span class="font-mono text-xs">/p/{{ $invitation->slug }}</span>
                             </p>
                         </div>
@@ -81,7 +98,7 @@
                 @empty
                     <li class="flex flex-col items-center px-6 py-16 text-center">
                         <x-phosphor-envelope-simple-open-light class="size-12 text-site-accent" aria-hidden="true" />
-                        <h3 class="mt-4 text-lg font-medium">Todavía no hay invitaciones</h3>
+                        <h3 class="mt-4 text-lg font-medium">{{ $kind === 'card' ? 'Todavía no hay tarjetas' : 'Todavía no hay invitaciones' }}</h3>
                         <p class="mt-1 max-w-[40ch] text-site-muted">Crea la primera, asígnale un cliente y compártela cuando esté lista.</p>
                         <a href="{{ route('admin.invitations.create') }}" class="admin-primary-button mt-6">
                             <x-phosphor-plus-bold aria-hidden="true" />

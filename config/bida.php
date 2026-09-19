@@ -34,7 +34,7 @@ return [
     'demo_slug' => env('BIDA_DEMO_SLUG', 'xv-isabella'),
 
     // Invitaciones de muestra (una por plantilla): se prueban en "Plantillas" sin guardar nada y el teléfono de la portada recorre sus aperturas
-    'demo_invitations' => ['xv-isabella', 'boda-camila-andres', 'bautizo-emilia', 'cumple-daniela-30'],
+    'demo_invitations' => ['xv-isabella', 'boda-camila-andres', 'bautizo-emilia', 'cumple-daniela-30', 'tarjeta-ana-luis'],
 
     /*
     | Eventos que rotan en la portada y en el login. Cada uno usa una foto de
@@ -116,6 +116,8 @@ return [
         'xv' => ['image' => 'event-xv', 'focus' => 0.25],
         'bautizo' => ['image' => 'event-bautizo', 'focus' => 0.8],
         'cumple' => ['image' => 'event-cumpleanos', 'focus' => 0.15],
+        // Tarjeta del Día del Amor: sin foto propia todavía, usa la de la pareja
+        'amor' => ['image' => 'event-boda', 'focus' => 0.35],
     ],
 
     /*
@@ -219,6 +221,37 @@ return [
                 ['¿Qué pasa si cambia la hora o el lugar?', 'Se actualiza en el mismo enlace y tus invitados ven siempre la versión correcta.'],
             ],
             'whatsapp' => 'Hola {brand}, quiero una invitación digital para un cumpleaños.',
+        ],
+
+        // ── Tarjetas estacionales: sin paquetes de invitación, el precio se consulta por WhatsApp
+        'tarjetas-dia-del-amor' => [
+            'event' => 'amor',
+            'kind' => 'card',
+            'link' => 'Tarjetas del Día del Amor',
+            'code' => 'AMOR',
+            'demo' => 'tarjeta-ana-luis',
+            'image' => 'event-boda',
+            'label' => 'Día del Amor',
+            'for' => 'decir lo que sientes',
+            'title' => 'Tarjetas digitales para el Día del Amor en Bolivia',
+            'description' => 'Una carta digital para tu pareja este 21 de septiembre: se abre desatando una cinta, lleva su foto, tu mensaje escrito a mano, el tiempo que llevan juntos y su canción. Lista para enviar por WhatsApp.',
+            'heading' => 'Este 21 de septiembre, mándale una carta que se abre',
+            'intro' => 'Una carta atada con una cinta que tu pareja desata con el dedo. Adentro, su foto, lo que le quieres decir, cuánto tiempo llevan juntos y su canción.',
+            'features_note' => 'Y si quiere, te responde desde la misma carta.',
+            'demo_note' => 'Ábrela dentro del teléfono y escribe una respuesta. Es una muestra: nada de lo que hagas se guarda.',
+            'price_note' => 'Precio especial de temporada: escríbenos y te lo pasamos al momento.',
+            'highlights' => [
+                ['icon' => 'envelope-open', 'title' => 'Una carta que se desata', 'text' => 'Tu pareja toca la cinta, se suelta el moño y la carta se despliega.'],
+                ['icon' => 'heart-straight', 'title' => 'Tu mensaje, escrito a mano', 'text' => 'La dedicatoria aparece con letra manuscrita, con tu firma al final.'],
+                ['icon' => 'hourglass-medium', 'title' => 'Juntos desde', 'text' => 'Los años, meses y días que llevan juntos, contados desde su fecha.'],
+                ['icon' => 'chat-circle-text', 'title' => 'Te puede responder', 'text' => 'Su respuesta te llega a tu panel y solo tú la lees.'],
+            ],
+            'faqs' => [
+                ['¿Cuánto tarda en estar lista?', 'Nos mandas la foto, el mensaje y la fecha, y la tenemos el mismo día. Si la pides el 21, escríbenos temprano.'],
+                ['¿Se puede mandar a una amiga o a la familia?', 'Sí. Cambiamos los textos para el Día de la Amistad o para quien quieras.'],
+                ['¿Quién más puede ver la carta?', 'Solo quien tenga el enlace. No aparece en buscadores y la respuesta la lees solo tú.'],
+            ],
+            'whatsapp' => 'Hola {brand}, quiero una tarjeta digital para el Día del Amor.',
         ],
     ],
 

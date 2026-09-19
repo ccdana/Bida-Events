@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Models\EventType;
 use App\Models\Invitation;
-use App\Models\InvitationData;
 use App\Models\InvitationPoll;
 use App\Models\PollVote;
 use App\Services\InvitationModuleService;
@@ -23,7 +22,7 @@ class InvitationStructuredModulesTest extends TestCase
 
         app(InvitationModuleService::class)->syncAllModules($invitation, $modules);
 
-        $this->assertDatabaseCount('invitation_settings', 1);
+        $this->assertDatabaseCount('invitation_themes', 1);
         $this->assertDatabaseCount('invitation_itinerary_items', 6);
         $this->assertDatabaseCount('invitation_gallery_images', 5);
         $this->assertDatabaseCount('invitation_polls', 4);
@@ -58,35 +57,6 @@ class InvitationStructuredModulesTest extends TestCase
 
         $resolved = $service->resolveModules(Invitation::find($invitation->id));
         $this->assertSame('Sorpresa Final', $resolved['itinerario']['eventos'][0]['titulo']);
-    }
-
-    public function test_command_migrates_legacy_json(): void
-    {
-        $invitation = $this->makeInvitation();
-
-        foreach (XvSofiaModuleData::all() as $code => $data) {
-            InvitationData::create(['invitation_id' => $invitation->id, 'feature_code' => $code, 'json_data' => $data]);
-        }
-
-        // Sin migrar todavía: se lee desde JSON
-        $resolved = app(InvitationModuleService::class)->resolveModules(Invitation::find($invitation->id));
-        $this->assertCount(6, $resolved['itinerario']['eventos']);
-
-        $this->artisan('invitations:migrate-json', ['--dry-run' => true])->assertSuccessful();
-        $this->assertDatabaseCount('invitation_settings', 0);
-        $this->assertDatabaseCount('invitation_polls', 0);
-
-        $this->artisan('invitations:migrate-json')->assertSuccessful();
-        $this->assertDatabaseHas('invitation_settings', ['invitation_id' => $invitation->id]);
-        $this->assertDatabaseCount('invitation_itinerary_items', 6);
-        $this->assertNotNull(InvitationPoll::where('poll_key', 'nivel-fiesta')->value('id'));
-        // Los módulos que se normalizaron después también quedan en tablas
-        $this->assertDatabaseCount('invitation_locations', 1);
-        $this->assertGreaterThan(0, $invitation->featuredPeople()->count());
-
-        // Una segunda ejecución omite lo ya migrado
-        $this->artisan('invitations:migrate-json')->assertSuccessful();
-        $this->assertDatabaseCount('invitation_itinerary_items', 6);
     }
 
     public function test_poll_results_are_aggregated_per_poll(): void

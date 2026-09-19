@@ -1,0 +1,186 @@
+/* ── Recuerdos en un tendedero (partials/amor/clothesline) ──────────────────
+   La cuerda se arma con un tramo curvo por foto, así sigue a la fila al deslizar.
+   --swing (-1 a 1) lo pone clothesline.js según la velocidad; --tilt-x, el teléfono.
+   ──────────────────────────────────────────────────────────────────────── */
+
+.inv-line {
+    --rope: #b89274;
+    margin-inline: calc(50% - 50vw);
+}
+
+.inv-line__track {
+    display: flex;
+    margin: 0;
+    padding: 0.5rem max(1.25rem, calc(50vw - 6rem)) 2.25rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    list-style: none;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    cursor: grab;
+    overscroll-behavior-x: contain;
+}
+
+.inv-line__track::-webkit-scrollbar {
+    display: none;
+}
+
+.inv-line__track.is-dragging {
+    cursor: grabbing;
+    scroll-snap-type: none;
+}
+
+.inv-line__track:focus-visible {
+    outline: 2px solid var(--inv-accent-ink);
+    outline-offset: -4px;
+}
+
+.inv-line__item {
+    position: relative;
+    flex: 0 0 auto;
+    width: min(46vw, 12rem);
+    padding: 1.6rem 0.6rem 0;
+    scroll-snap-align: center;
+}
+
+/* Tramo de cuerda de esta foto */
+.inv-line__item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: -1px;
+    left: -1px;
+    height: 2rem;
+    border-bottom: 2px solid var(--rope);
+    border-radius: 0 0 50% 50% / 0 0 100% 100%;
+    pointer-events: none;
+}
+
+.inv-line__card {
+    position: relative;
+    display: grid;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    perspective: 900px;
+    transform-origin: 50% 0;
+    rotate: calc(var(--lean) + var(--swing, 0) * 16deg + var(--tilt-x, 0) * 6deg);
+    transition: rotate 0.9s cubic-bezier(0.34, 1.6, 0.5, 1);
+    animation: inv-line-sway var(--sway, 3.6s) ease-in-out infinite;
+    -webkit-tap-highlight-color: transparent;
+}
+
+@keyframes inv-line-sway {
+    0%, 100% { transform: rotate(-1.4deg); }
+    50% { transform: rotate(1.4deg); }
+}
+
+.inv-line__card:focus-visible {
+    outline: 2px solid var(--inv-accent-ink);
+    outline-offset: 4px;
+}
+
+/* Pinza de madera */
+.inv-line__pin {
+    position: absolute;
+    top: -1.35rem;
+    left: 50%;
+    z-index: 3;
+    width: 0.7rem;
+    height: 2.1rem;
+    border-radius: 2px 2px 3px 3px;
+    background: linear-gradient(90deg, #c89a6c, #e8c79f 45%, #b98a5c);
+    box-shadow: 0 2px 3px rgb(0 0 0 / 0.25);
+    translate: -50% 0;
+}
+
+.inv-line__pin::after {
+    content: '';
+    position: absolute;
+    top: 45%;
+    left: -2px;
+    right: -2px;
+    height: 3px;
+    border-radius: 2px;
+    background: #8a8f96;
+}
+
+.inv-line__face {
+    grid-area: 1 / 1;
+    display: block;
+    backface-visibility: hidden;
+    transition: transform 0.75s var(--inv-ease);
+}
+
+.inv-line__face--front {
+    padding: 0.45rem 0.45rem 1.9rem;
+    background: #fffdfb;
+    box-shadow: 0 16px 30px -18px rgb(0 0 0 / 0.55), 0 1px 3px rgb(0 0 0 / 0.12);
+}
+
+.inv-line__face--front img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    pointer-events: none;
+}
+
+.inv-line__face--back {
+    display: grid;
+    place-items: center;
+    padding: 1rem;
+    background:
+        radial-gradient(circle at 80% 15%, color-mix(in srgb, var(--accent-color) 60%, transparent), transparent 55%),
+        var(--amor-paper);
+    box-shadow: 0 16px 30px -18px rgb(0 0 0 / 0.55), 0 1px 3px rgb(0 0 0 / 0.12);
+    transform: rotateY(-180deg);
+}
+
+.inv-line__note {
+    font-family: var(--font-script);
+    font-size: 1.45rem;
+    line-height: 1.25;
+    color: var(--inv-accent-ink);
+    text-align: center;
+    text-wrap: balance;
+}
+
+.inv-line__card.is-flipped .inv-line__face--front {
+    transform: rotateY(180deg);
+}
+
+.inv-line__card.is-flipped .inv-line__face--back {
+    transform: rotateY(0deg);
+}
+
+/* Al entrar la escena, las fotos bajan una a una hasta la cuerda */
+.inv-story-on .inv-scene.is-active .inv-line__item {
+    animation: inv-line-hang 0.9s cubic-bezier(0.34, 1.5, 0.5, 1) calc(var(--i) * 110ms + 350ms) both;
+}
+
+@keyframes inv-line-hang {
+    from { opacity: 0; translate: 0 -2.5rem; }
+    to { opacity: 1; translate: 0 0; }
+}
+
+.inv-line__hint {
+    font-size: 0.82rem;
+    color: var(--inv-muted);
+    text-align: center;
+}
+
+.inv-story-on .inv-amor #galeria {
+    --story-scene-bg:
+        radial-gradient(70% 40% at 85% 5%, color-mix(in srgb, var(--amor-sun) 32%, transparent), transparent 70%),
+        linear-gradient(to bottom, var(--amor-sky), var(--bg-color) 70%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .inv-line__card {
+        animation: none;
+        rotate: var(--lean);
+    }
+}

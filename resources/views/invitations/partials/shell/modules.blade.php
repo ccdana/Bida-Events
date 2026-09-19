@@ -2,6 +2,8 @@
     Secciones de la invitación en el orden que define cada plantilla (App\Support\InvitationTemplates).
     Hereda de la plantilla: $page, $invitation, $modulos, $guest, $pollResults, $calendarUrl, $playlistSongs y $fotomuralPhotos.
 --}}
+@php($moduleRegistry = app(\App\Modules\ModuleRegistry::class))
+
 @if($page->visible('rsvp') && $guest)
     @include('invitations.partials.guest-banner', ['guest' => $guest])
 @endif
@@ -15,7 +17,12 @@
 @endif
 
 @foreach($page->order as $module)
-    @if($module === 'cuenta_regresiva' && $page->visible('cuenta_regresiva'))
+    @if($page->partialFor($module))
+        {{-- La plantilla trae su propia vista para este módulo (InvitationTemplates, clave «partials») --}}
+        @if($page->visible($module))
+            @include($page->partialFor($module), ['data' => $modulos[$module] ?? []])
+        @endif
+    @elseif($module === 'cuenta_regresiva' && $page->visible('cuenta_regresiva'))
         @include('invitations.partials.countdown', [
             'eventDate' => $page->eventDate->toIso8601String(),
             'eventLabel' => $page->eventLabel,
@@ -83,5 +90,8 @@
         ])
     @elseif($module === 'post_evento' && $page->isPostEvent && $page->visible('post_evento'))
         @include('invitations.partials.post-event', ['postEvento' => $modulos['post_evento'] ?? []])
+    @elseif($page->visible($module) && $moduleRegistry->has($module) && $moduleRegistry->get($module)->partial())
+        {{-- Módulos con vista propia (tarjetas y los que se sumen): app/Modules --}}
+        @include($moduleRegistry->get($module)->partial(), ['data' => $modulos[$module] ?? []])
     @endif
 @endforeach

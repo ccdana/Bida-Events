@@ -19,6 +19,8 @@ final class InvitationTemplates
 
     public const CUMPLE_FIESTA = 'invitations.templates.cumple-fiesta';
 
+    public const TARJETA_AMOR = 'invitations.templates.tarjeta-amor';
+
     public const DEFAULT = self::XV_PREMIUM;
 
     /**
@@ -172,6 +174,50 @@ final class InvitationTemplates
                     'court_women' => 'Familia',
                     'nav_court' => 'Mi gente',
                     'rsvp_declined_intro' => 'Si cambias de planes, escríbeme para actualizar tu respuesta.',
+                ],
+            ],
+            // ── Tarjetas estacionales ─────────────────────────────────────────
+            self::TARJETA_AMOR => [
+                'label' => 'Carta de amor',
+                'description' => 'Un jardín que florece: un capullo que se riega para abrirlo, la foto que se revela, la carta lacrada, una margarita que se deshoja, recuerdos en un tendedero, una flor de respuesta y un diente de león para pedir un deseo.',
+                'event' => 'amor',
+                'palette' => [
+                    'primary' => '#A63A50',
+                    'secondary' => '#6B2433',
+                    'accent' => '#F2D7DB',
+                    'text' => '#2E1A1F',
+                    'background' => '#FFF8F5',
+                ],
+                'order' => ['dedicatoria', 'juntos_desde', 'galeria', 'video', 'respuesta'],
+                'copy' => [
+                    'hero_eyebrow' => 'Feliz Día del Amor',
+                    'menu_heading' => 'Una carta para',
+                    'intro_hint' => 'Riégalo con tres toques',
+                    'gallery_eyebrow' => 'Nuestros momentos',
+                    'footer_pitch' => '¿Te gustó esta carta? Manda la tuya',
+                    'daisy_title' => '¿Me quiere?',
+                    'daisy_hint' => 'Deshoja la margarita, pétalo por pétalo',
+                    'daisy_yes' => 'Me quiere',
+                    'daisy_no' => 'No me quiere',
+                    'daisy_answer' => '¡Me quiere!',
+                    'wish_eyebrow' => 'Antes de irte',
+                    'wish_title' => 'Pide un deseo',
+                    'wish_hint' => 'Desliza hacia arriba para soplar',
+                    'wish_message' => 'Que esta primavera nos encuentre juntos, y todas las que vengan.',
+                    'butterflies_found' => 'Encontraste las tres mariposas: la primavera es toda tuya.',
+                ],
+                // Vistas propias que reemplazan a las comunes solo en esta tarjeta
+                'partials' => [
+                    'juntos_desde' => 'invitations.partials.amor.daisy-milestone',
+                    'galeria' => 'invitations.partials.amor.clothesline',
+                    'respuesta' => 'invitations.partials.amor.flower-reply',
+                ],
+                // Flores para responder: se guardan en guest_contributions.reaction
+                'reactions' => [
+                    'rosa' => ['label' => 'Una rosa', 'meaning' => 'Te quiero'],
+                    'girasol' => ['label' => 'Un girasol', 'meaning' => 'Me haces feliz'],
+                    'tulipan' => ['label' => 'Un tulipán', 'meaning' => 'Amor verdadero'],
+                    'margarita' => ['label' => 'Una margarita', 'meaning' => 'Ternura'],
                 ],
             ],
         ];

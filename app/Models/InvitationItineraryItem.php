@@ -13,12 +13,10 @@ class InvitationItineraryItem extends Model
         'title',
         'icon',
         'description',
-        'meta',
         'sort_order',
     ];
 
     protected $casts = [
-        'meta' => 'array',
         'sort_order' => 'integer',
     ];
 

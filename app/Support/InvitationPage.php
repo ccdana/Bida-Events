@@ -2,8 +2,12 @@
 
 namespace App\Support;
 
+use App\EventProfiles\EventProfile;
+use App\EventProfiles\EventProfiles;
 use App\Models\Guest;
 use App\Models\Invitation;
+use App\Modules\Module;
+use App\Modules\ModuleRegistry;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Str;
 
@@ -43,9 +47,18 @@ final class InvitationPage
         'rsvp' => 'Confirmar asistencia',
         'fotomural' => 'Fotomural',
         'post_evento' => 'Fotos oficiales',
+        'dedicatoria' => 'Dedicatoria',
+        'juntos_desde' => 'Juntos',
+        'respuesta' => 'Responder',
     ];
 
     public readonly array $config;
+
+    /** Dedicatoria de una tarjeta (de, para, mensaje, firma); vacía en invitaciones. */
+    public readonly array $dedication;
+
+    /** Perfil del tipo de evento de la plantilla (vocabulario, módulos, producto). */
+    public readonly EventProfile $profile;
 
     /** Tipo de evento de la plantilla (xv, boda, bautizo, cumple) */
     public readonly string $eventKey;
@@ -64,6 +77,12 @@ final class InvitationPage
     public readonly array $music;
 
     public readonly array $copy;
+
+    /** @var array<string, string> Vistas propias de la plantilla que reemplazan a las comunes, por módulo */
+    public readonly array $partials;
+
+    /** @var array<string, array{label: string, meaning: string}> Flores (u otras reacciones) para responder */
+    public readonly array $reactions;
 
     public readonly array $order;
 
@@ -100,9 +119,14 @@ final class InvitationPage
         );
         $this->flags = (array) ($this->config['modulos'] ?? []);
         $this->welcome = (array) ($modules['bienvenida'] ?? []);
+        $this->dedication = (array) ($modules['dedicatoria'] ?? []);
         $this->music = (array) ($modules['musica'] ?? []);
         $this->copy = $meta['copy'];
-        $this->isPostEvent = (bool) $invitation->is_post_event;
+        $this->partials = $meta['partials'] ?? [];
+        $this->reactions = $meta['reactions'] ?? [];
+        $this->profile = app(EventProfiles::class)->forTemplate($template);
+        // Una tarjeta no tiene «después del evento»: se sigue leyendo igual pasada la fecha
+        $this->isPostEvent = $this->profile->kind() === Module::KIND_INVITATION && (bool) $invitation->is_post_event;
         // Después del evento los recuerdos pasan al frente, sin importar el orden de la plantilla
         $this->order = $this->isPostEvent
             ? array_values(array_unique([...self::POST_EVENT_ORDER, ...$meta['order']]))
@@ -141,6 +165,12 @@ final class InvitationPage
             ->implode('&');
     }
 
+    /** Vista propia de la plantilla para un módulo, si la tiene (p. ej. el tendedero de la tarjeta de amor). */
+    public function partialFor(string $module): ?string
+    {
+        return $this->partials[$module] ?? null;
+    }
+
     /** Enlaces del menú en el mismo orden en que aparecen las secciones. */
     public function navItems(): array
     {
@@ -157,9 +187,11 @@ final class InvitationPage
                 continue;
             }
 
+            $registry = app(ModuleRegistry::class);
+
             $label = $module === 'destacados'
                 ? ($this->copy['nav_court'] ?? self::NAV_LABELS['destacados'])
-                : (self::NAV_LABELS[$module] ?? Str::headline($module));
+                : (self::NAV_LABELS[$module] ?? ($registry->has($module) ? $registry->get($module)->label() : Str::headline($module)));
 
             $items[] = ['id' => str_replace('_', '-', $module), 'label' => $label];
         }
@@ -167,18 +199,32 @@ final class InvitationPage
         return $items;
     }
 
-    /** Separa "Ana & Luis" o "Ana y Luis" en dos nombres; si no hay pareja devuelve uno solo. */
+    /**
+     * Los nombres de la portada. Si están guardados por separado (boda) se usan tal cual; si solo
+     * hay un texto, se separa «Ana & Luis» o «Ana y Luis» como antes.
+     */
     public function names(): array
     {
+        $primary = trim((string) ($this->welcome['nombre'] ?? ''));
+        $secondary = trim((string) ($this->welcome['nombre_pareja'] ?? ''));
+
+        if ($secondary !== '') {
+            return array_values(array_filter([$primary, $secondary], fn (string $name) => $name !== ''));
+        }
+
         $parts = preg_split('/\s+(?:&|\+|y|e)\s+/iu', trim($this->displayName), 2) ?: [];
         $parts = array_values(array_filter(array_map('trim', $parts), fn (string $part) => $part !== ''));
 
         return $parts ?: [$this->displayName];
     }
 
-    /** Edad escrita en el subtítulo ("Mis 30 años" → 30); null si no trae un número. */
+    /** Edad guardada en la portada; si no está, la escrita en el subtítulo ("Mis 30 años" → 30). */
     public function age(): ?int
     {
+        if (is_numeric($this->welcome['edad'] ?? null)) {
+            return (int) $this->welcome['edad'];
+        }
+
         return preg_match('/\b(\d{1,3})\b/u', (string) ($this->welcome['subtitulo'] ?? ''), $match) ? (int) $match[1] : null;
     }
 

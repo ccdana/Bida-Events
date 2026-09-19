@@ -4,7 +4,9 @@ namespace App\ViewModels\Client;
 
 use App\Models\GuestContribution;
 use App\Models\Invitation;
+use App\Modules\Card\ReplyModule;
 use App\Support\CloudinaryImage;
+use App\Support\InvitationTemplates;
 use Illuminate\Support\Collection;
 
 class InvitationDetailViewData
@@ -37,14 +39,20 @@ class InvitationDetailViewData
             'dietaryRestrictions' => $guest->dietary_restrictions ?: 'Sin indicar',
         ])->values();
 
+        // Flores (u otras reacciones) de la plantilla, para decir con qué respondieron la tarjeta
+        $reactions = InvitationTemplates::get($invitation->template)['reactions'] ?? [];
+
         // Fotos y canciones que el cliente puede ocultar de su invitación
         $contributions = ($contributionRows ?? new Collection)->map(fn (GuestContribution $contribution) => [
             'id' => $contribution->id,
             'isPhoto' => $contribution->type === 'live_photo',
+            // Respuesta del destinatario de una tarjeta: se lee completa
+            'isReply' => $contribution->type === ReplyModule::CONTRIBUTION_TYPE,
             'url' => $contribution->type === 'live_photo' ? CloudinaryImage::url($contribution->file_path, 200) : null,
             'text' => $contribution->type === 'live_photo' ? 'Foto del fotomural' : (string) $contribution->content_text,
             'meta' => collect([$contribution->guest?->name, $contribution->created_at?->diffForHumans()])->filter()->implode(' · '),
             'isHidden' => $contribution->moderation_status === GuestContribution::HIDDEN,
+            'reaction' => $contribution->reaction ? ($reactions[$contribution->reaction] ?? null) : null,
         ])->values();
 
         return compact(

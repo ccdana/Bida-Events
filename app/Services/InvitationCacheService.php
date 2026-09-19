@@ -90,8 +90,6 @@ class InvitationCacheService
             return;
         }
 
-        $invitation->clearModulesCache();
-
         $modules = app(InvitationModuleService::class)->resolveModules($invitation);
 
         Cache::put(

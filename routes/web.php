@@ -64,6 +64,8 @@ Route::prefix('p')->name('invitation.')->middleware('cache.public.invitations')-
     Route::get('/{slug}/fotomural', [ContributionController::class, 'listPhotos'])->name('fotomural.list');
     Route::post('/{slug}/fotomural', [ContributionController::class, 'storePhoto'])->middleware('throttle:invitation-photos')->name('fotomural');
     Route::post('/{slug}/polls/{pollId}/vote', [ContributionController::class, 'votePoll'])->middleware('throttle:invitation-votes')->name('poll.vote');
+    // Respuesta del destinatario de una tarjeta estacional
+    Route::post('/{slug}/respuesta', [ContributionController::class, 'storeReply'])->middleware('throttle:invitation-replies')->name('reply');
 });
 
 // Panel administrativo

@@ -27,7 +27,7 @@ class DashboardController extends Controller
 
     public function show(Invitation $invitation, InvitationDetailViewData $viewData)
     {
-        $invitation->loadMissing(['eventType', 'modulesData']);
+        $invitation->loadMissing('eventType');
 
         $guests = $invitation->guests()
             ->select('id', 'invitation_id', 'name', 'status', 'passes_allocated', 'passes_confirmed', 'dietary_restrictions')

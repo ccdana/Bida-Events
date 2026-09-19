@@ -33,7 +33,7 @@
             {{-- Crédito que lleva al sitio de Bida Events en otra pestaña, para que el invitado no pierda la invitación --}}
             <a href="{{ route('home') }}" class="inv-footer__credit" target="_blank" rel="noopener">
                 <span class="inv-footer__pitch">
-                    ¿Te gustó esta invitación? Crea la tuya
+                    {{ $invCopy['footer_pitch'] ?? '¿Te gustó esta invitación? Crea la tuya' }}
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </span>
                 <span class="inv-footer__text">Hecho con cariño por <span class="inv-footer__brand">Bida Events</span></span>

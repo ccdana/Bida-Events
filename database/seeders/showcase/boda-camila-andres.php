@@ -223,7 +223,7 @@ return [
         ],
         'musica' => [
             'titulo' => 'Nuestra canción',
-            'artista' => 'Lady Gaga, Bruno Mars - Die With A Smile ',
+            'artista' => 'Lady Gaga, Bruno Mars - Die With A Smile',
             'audio_url' => 'https://res.cloudinary.com/dwm7mniny/video/upload/v1789366356/bida-events/boda-camila-andres/musica/php4393_c6yqnh.mp3',
             'autoplay' => true,
         ],

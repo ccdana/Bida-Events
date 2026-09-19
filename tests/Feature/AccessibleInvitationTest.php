@@ -106,12 +106,10 @@ class AccessibleInvitationTest extends TestCase
 
     public static function templates(): array
     {
-        return [
-            'XV años' => [InvitationTemplates::XV_PREMIUM],
-            'boda' => [InvitationTemplates::BODA_JARDIN],
-            'bautizo' => [InvitationTemplates::BAUTIZO_CIELO],
-            'cumpleaños' => [InvitationTemplates::CUMPLE_FIESTA],
-        ];
+        // Todas las plantillas del catálogo, incluidas las tarjetas de temporada
+        return collect(InvitationTemplates::all())
+            ->mapWithKeys(fn (array $entry, string $template) => [$entry['label'] => [$template]])
+            ->all();
     }
 
     public function test_a_photo_description_becomes_the_alt_text(): void

@@ -56,8 +56,6 @@ class InvitationController extends Controller
             return $invitation;
         });
 
-        $invitation->load('modulesData');
-        $invitation->clearModulesCache();
         $modulos = $this->moduleService->resolveModules($invitation);
 
         InvitationPreviewSession::seed(
@@ -73,8 +71,7 @@ class InvitationController extends Controller
 
     public function edit(Invitation $invitation)
     {
-        $invitation->loadMissing('modulesData', 'eventType', 'user');
-        $invitation->clearModulesCache();
+        $invitation->loadMissing('eventType', 'user');
         $modulos = $this->modulesFromOldInput() ?? $this->moduleService->resolveModules($invitation);
 
         InvitationPreviewSession::seed(
@@ -108,7 +105,6 @@ class InvitationController extends Controller
         });
 
         $invitation->refresh();
-        $invitation->load('modulesData');
         $modulos = $this->moduleService->resolveModules($invitation);
 
         InvitationPreviewSession::seed(

@@ -10,7 +10,8 @@ const enDocker = process.env.BIDA_DOCKER === 'true';
 export default defineConfig({
     plugins: [
         laravel({
-            input: ['resources/css/app.css', 'resources/js/app.js'],
+            // Cada tarjeta estacional carga su hoja solo en su plantilla (resources/css/cards)
+            input: ['resources/css/app.css', 'resources/js/app.js', 'resources/css/invitation/story.css', 'resources/css/cards/amor.css'],
             refresh: true,
         }),
         tailwindcss(),

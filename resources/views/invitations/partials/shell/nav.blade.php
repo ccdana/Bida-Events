@@ -2,6 +2,7 @@
 @php($navItems = $page->navItems())
 <div x-data="invitationNav(@js(array_column($navItems, 'id')))"
     @keydown.escape.window="close()"
+    @inv-story-change.window="active = $event.detail.id || active"
     @keydown.tab="trapFocus($event)"
     x-effect="document.documentElement.classList.toggle('inv-lock', open)">
     <button type="button"

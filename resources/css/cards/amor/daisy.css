@@ -1,0 +1,334 @@
+/* ── Tiempo juntos: una margarita para deshojar (partials/amor/daisy-milestone) ──
+   Pétalos en rueda sobre el centro; al tocarlos caen girando. Cuando cae el último,
+   la margarita se va y aparece el tiempo juntos ([data-gate-done]).
+   ──────────────────────────────────────────────────────────────────────── */
+
+.inv-daisy {
+    display: grid;
+    justify-items: center;
+    gap: 1rem;
+}
+
+.inv-daisy__stage {
+    display: grid;
+    justify-items: center;
+    gap: 0.5rem;
+}
+
+html:not(.no-js) .inv-daisy[data-gate-done] .inv-daisy__stage {
+    display: none;
+}
+
+html:not(.no-js) .inv-daisy:not([data-gate-done]) .inv-daisy__result {
+    display: none;
+}
+
+/* Lo que dice cada pétalo: alterna dos animaciones iguales para que se repita en cada toque */
+.inv-daisy__word {
+    min-height: 3rem;
+    font-family: var(--font-script);
+    font-size: clamp(2.1rem, 10vw, 2.7rem);
+    line-height: 1.2;
+    color: var(--inv-accent-ink);
+    text-align: center;
+    opacity: 0;
+}
+
+.inv-daisy__word.is-a { animation: inv-daisy-say-a 0.9s var(--inv-ease) both; }
+.inv-daisy__word.is-b { animation: inv-daisy-say-b 0.9s var(--inv-ease) both; }
+
+.inv-daisy__word.is-last {
+    animation: inv-daisy-answer 1s cubic-bezier(0.34, 1.6, 0.5, 1) both;
+    font-size: clamp(2.6rem, 13vw, 3.4rem);
+}
+
+@keyframes inv-daisy-say-a {
+    from { opacity: 0; translate: 0 10px; scale: 0.85; }
+    to { opacity: 1; translate: 0 0; scale: 1; }
+}
+
+@keyframes inv-daisy-say-b {
+    from { opacity: 0; translate: 0 10px; scale: 0.85; }
+    to { opacity: 1; translate: 0 0; scale: 1; }
+}
+
+@keyframes inv-daisy-answer {
+    0% { opacity: 0; scale: 0.4; }
+    100% { opacity: 1; scale: 1; }
+}
+
+.inv-daisy__head {
+    position: relative;
+    width: 14rem;
+    height: 14rem;
+    margin-bottom: 1.5rem;
+    isolation: isolate;
+    animation: inv-daisy-breeze 5s ease-in-out infinite;
+}
+
+@keyframes inv-daisy-breeze {
+    0%, 100% { rotate: -3deg; }
+    50% { rotate: 3deg; }
+}
+
+.inv-daisy__stem {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: -1;
+    width: 5px;
+    height: 9rem;
+    border-radius: 5px;
+    background: linear-gradient(var(--amor-leaf), var(--amor-leaf-dark));
+    translate: -50% 0;
+}
+
+.inv-daisy__stem::after {
+    content: '';
+    position: absolute;
+    top: 55%;
+    left: 3px;
+    width: 2.4rem;
+    height: 1.1rem;
+    border-radius: 0 100% 0 100%;
+    background: var(--amor-leaf);
+    rotate: -20deg;
+    transform-origin: 0 50%;
+}
+
+.inv-daisy__petal {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 2.7rem;
+    height: 6.2rem;
+    padding: 0;
+    border: 0;
+    border-radius: 50% 50% 46% 46% / 64% 64% 36% 36%;
+    background:
+        linear-gradient(90deg, transparent 48%, rgb(0 0 0 / 0.05) 50%, transparent 52%),
+        linear-gradient(to top, #ece4d2, var(--amor-daisy) 45%);
+    box-shadow: inset 0 0 0 1px rgb(60 40 20 / 0.08), 0 8px 16px -10px rgb(0 0 0 / 0.45);
+    transform-origin: 50% 100%;
+    transform: translate(-50%, -100%) rotate(var(--a));
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: scale 0.25s var(--inv-ease), filter 0.25s ease;
+}
+
+.inv-daisy__petal:hover:not(:disabled) {
+    scale: 1.05;
+    filter: brightness(1.03);
+}
+
+.inv-daisy__petal:focus-visible {
+    outline: 2px solid var(--inv-accent-ink);
+    outline-offset: 2px;
+}
+
+/* Al entrar la escena, los pétalos se abren desde el centro */
+.inv-story-on .inv-scene.is-active .inv-daisy__petal:not(.is-plucked) {
+    animation: inv-daisy-open 0.8s cubic-bezier(0.34, 1.5, 0.5, 1) calc(var(--i) * 70ms + 450ms) both;
+}
+
+@keyframes inv-daisy-open {
+    from { scale: 0.2 0.1; opacity: 0; }
+    to { scale: 1; opacity: 1; }
+}
+
+.inv-daisy__petal.is-plucked,
+.inv-story-on .inv-scene.is-active .inv-daisy__petal.is-plucked {
+    pointer-events: none;
+    animation: inv-daisy-fall 1.5s cubic-bezier(0.35, 0.1, 0.65, 1) forwards;
+}
+
+@keyframes inv-daisy-fall {
+    0% { translate: 0 0; rotate: 0deg; opacity: 1; }
+    15% { translate: 0 -16px; rotate: -12deg; }
+    100% { translate: var(--fx) 70vh; rotate: 320deg; opacity: 0; }
+}
+
+/* El centro: amarillo con semillas; con la respuesta late y muestra un corazón */
+.inv-daisy__center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 4.4rem;
+    height: 4.4rem;
+    border-radius: 999px;
+    background:
+        radial-gradient(circle at 30% 30%, rgb(255 255 255 / 0.45) 0 12%, transparent 13%),
+        radial-gradient(circle, rgb(122 74 18 / 0.35) 1.4px, transparent 1.6px) 0 0 / 8px 8px,
+        var(--amor-sun);
+    box-shadow: inset 0 -4px 8px rgb(122 74 18 / 0.25), 0 4px 12px -4px rgb(0 0 0 / 0.35);
+    translate: -50% -50%;
+}
+
+.inv-daisy__heart {
+    width: 2.2rem;
+    height: 2.2rem;
+    fill: var(--primary-color);
+    scale: 0;
+    transition: scale 0.8s cubic-bezier(0.34, 1.8, 0.5, 1) 0.2s;
+}
+
+.inv-daisy.is-answered .inv-daisy__heart {
+    scale: 1;
+}
+
+.inv-daisy.is-answered .inv-daisy__center {
+    animation: inv-daisy-beat 0.9s ease-in-out infinite;
+}
+
+@keyframes inv-daisy-beat {
+    0%, 100% { scale: 1; }
+    20% { scale: 1.15; }
+    40% { scale: 1; }
+    60% { scale: 1.1; }
+}
+
+.inv-daisy__hint {
+    font-size: 0.86rem;
+    color: var(--inv-muted);
+}
+
+.inv-daisy__skip {
+    min-height: 2.75rem;
+    padding: 0 1rem;
+    border: 0;
+    background: none;
+    color: var(--inv-muted);
+    font: inherit;
+    font-size: 0.8rem;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+}
+
+/* ── El resultado ──────────────────────────────────────────────────────── */
+
+.inv-daisy__result {
+    display: grid;
+    justify-items: center;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.inv-daisy[data-gate-done] .inv-daisy__result > * {
+    animation: inv-gate-rise 0.9s var(--inv-ease) both;
+}
+
+.inv-daisy[data-gate-done] .inv-daisy__result > :nth-child(2) { animation-delay: 0.15s; }
+.inv-daisy[data-gate-done] .inv-daisy__result > :nth-child(3) { animation-delay: 0.35s; }
+.inv-daisy[data-gate-done] .inv-daisy__result > :nth-child(4) { animation-delay: 0.5s; }
+.inv-daisy[data-gate-done] .inv-daisy__result > :nth-child(5) { animation-delay: 0.7s; }
+
+.inv-daisy__answer {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--inv-accent-ink);
+}
+
+.inv-daisy__answer svg {
+    width: 1rem;
+    height: 1rem;
+    fill: var(--primary-color);
+    animation: inv-daisy-beat 1s ease-in-out infinite;
+}
+
+.inv-story-on .inv-amor #juntos-desde .inv-daisy__answer {
+    color: var(--accent-color);
+}
+
+.inv-story-on .inv-amor #juntos-desde .inv-daisy__answer svg {
+    fill: var(--accent-color);
+}
+
+.inv-daisy__result-title {
+    font-family: var(--font-script);
+    font-size: clamp(2.3rem, 11vw, 3rem);
+    line-height: 1.1;
+    color: var(--inv-accent-ink);
+}
+
+.inv-daisy__result .inv-milestone__total {
+    margin-top: 0.75rem;
+}
+
+.inv-daisy__facts {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.6rem;
+    margin-top: 1rem;
+    padding: 0;
+    list-style: none;
+}
+
+.inv-daisy__fact {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.95rem 0.5rem 0.6rem;
+    border: 1px solid var(--inv-line);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--accent-color) 22%, transparent);
+    font-size: 0.88rem;
+    color: var(--inv-muted);
+}
+
+.inv-daisy__fact strong {
+    font-family: var(--font-titles);
+    font-size: 1.1rem;
+    color: currentColor;
+    font-variant-numeric: tabular-nums;
+}
+
+.inv-daisy__fact svg {
+    width: 1.6rem;
+    height: 1.6rem;
+    --flower-petal: var(--amor-daisy);
+    --flower-edge: rgb(0 0 0 / 0.08);
+}
+
+.inv-daisy__fact--beat svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    fill: var(--primary-color);
+    animation: inv-daisy-beat 1s ease-in-out infinite;
+}
+
+/* En su escena de color vino, los números y las frases van claros */
+.inv-story-on .inv-amor #juntos-desde .inv-daisy__word,
+.inv-story-on .inv-amor #juntos-desde .inv-daisy__result-title {
+    color: var(--accent-color);
+}
+
+.inv-story-on .inv-amor #juntos-desde .inv-daisy__fact {
+    background: rgb(255 255 255 / 0.1);
+    color: #fff;
+}
+
+.inv-story-on .inv-amor #juntos-desde .inv-daisy__fact--beat svg {
+    fill: var(--accent-color);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .inv-daisy__head,
+    .inv-daisy.is-answered .inv-daisy__center {
+        animation: none;
+    }
+
+    .inv-daisy__petal.is-plucked {
+        animation: none;
+        opacity: 0;
+    }
+}

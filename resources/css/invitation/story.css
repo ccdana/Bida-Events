@@ -1,0 +1,452 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   MODO HISTORIA — escenas a pantalla completa (resources/js/story/story.js)
+
+   Entrada propia de Vite: la carga cada plantilla que usa el modo historia
+   (hoy la tarjeta del Día del Amor). Todo depende de html.inv-story-on, que
+   pone el script: sin JavaScript, o con «Ver todo», la página se lee con scroll.
+
+   Cada escena es una parte existente (#inicio, las secciones y el pie):
+   - .is-active   la que se ve;
+   - .is-past     las anteriores, retiradas hacia la izquierda;
+   - .is-future   las siguientes, esperando a la derecha.
+   Los elementos con [data-step] entran en su turno (--step) al activarse la
+   escena; cada tema puede cambiar la animación con --step-anim.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+html.inv-story-on,
+html.inv-story-on body {
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+}
+
+html.inv-story-on {
+    scroll-behavior: auto;
+}
+
+/* ── Escenas ─────────────────────────────────────────────────────────────── */
+
+.inv-story-on .inv-scene {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: calc(3.75rem + env(safe-area-inset-top)) 0 calc(6rem + env(safe-area-inset-bottom));
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border: 0;
+    background: var(--story-scene-bg, var(--bg-color));
+    outline: none;
+    touch-action: pan-y;
+    scrollbar-width: none;
+    visibility: hidden;
+    opacity: 0;
+    translate: 104% 0;
+    rotate: 5deg;
+    transform-origin: 50% 130%;
+    transition:
+        translate 0.8s var(--inv-ease),
+        rotate 0.8s var(--inv-ease),
+        scale 0.8s var(--inv-ease),
+        opacity 0.5s ease,
+        filter 0.8s var(--inv-ease),
+        visibility 0s linear 0.8s;
+}
+
+.inv-story-on .inv-scene::-webkit-scrollbar {
+    display: none;
+}
+
+.inv-story-on body.has-player .inv-scene {
+    padding-bottom: calc(9.5rem + env(safe-area-inset-bottom));
+}
+
+/* El contenido se centra en la pantalla y, si es largo, se lee con scroll dentro de la escena */
+.inv-story-on .inv-scene > * {
+    margin-block: auto;
+}
+
+.inv-story-on .inv-scene.is-past {
+    translate: -24% 0;
+    rotate: -4deg;
+    scale: 0.9;
+    filter: blur(3px);
+}
+
+.inv-story-on .inv-scene.is-active {
+    z-index: 12;
+    visibility: visible;
+    opacity: 1;
+    translate: 0 0;
+    rotate: 0deg;
+    scale: 1;
+    filter: none;
+    transition-delay: 0s;
+}
+
+/* Arrastre: la escena sigue al dedo antes de soltar */
+.inv-story-on .inv-scene.is-active.is-dragging {
+    translate: var(--story-drag, 0px) 0;
+    rotate: calc(var(--story-drag-ratio, 0) * 8deg);
+    transition: none;
+}
+
+/* Dentro de una escena no hace falta la aparición por scroll */
+.inv-story-on .inv-scene .reveal,
+.inv-story-on .inv-scene.reveal {
+    transform: none;
+    transition-property: translate, rotate, scale, opacity, filter, visibility;
+}
+
+.inv-story-on .inv-scene .reveal {
+    opacity: 1;
+}
+
+/* ── Entradas por turno ──────────────────────────────────────────────────── */
+
+@keyframes inv-story-rise {
+    from { opacity: 0; translate: 0 28px; filter: blur(8px); }
+    to { opacity: 1; translate: 0 0; filter: blur(0); }
+}
+
+.inv-story-on .inv-scene:not(.is-active) [data-step] {
+    opacity: 0;
+}
+
+.inv-story-on .inv-scene.is-active [data-step] {
+    animation: var(--step-anim, inv-story-rise) var(--step-duration, 0.9s) var(--inv-ease) calc(var(--step, 0) * 140ms + 280ms) both;
+}
+
+/* Encabezados de sección: eyebrow, título, filete y ayuda uno tras otro */
+.inv-story-on .inv-scene.is-active .inv-head > * {
+    animation: inv-story-rise 0.9s var(--inv-ease) both;
+}
+
+.inv-story-on .inv-scene.is-active .inv-head > :nth-child(1) { animation-delay: 0.25s; }
+.inv-story-on .inv-scene.is-active .inv-head > :nth-child(2) { animation-delay: 0.38s; }
+.inv-story-on .inv-scene.is-active .inv-head > :nth-child(3) { animation-delay: 0.5s; }
+.inv-story-on .inv-scene.is-active .inv-head > :nth-child(4) { animation-delay: 0.62s; }
+
+/* Mientras la apertura tapa la página, la primera escena espera */
+html.inv-cover-waiting .inv-scene,
+html.inv-cover-waiting .inv-scene * {
+    animation-play-state: paused !important;
+}
+
+/* ── Controles ───────────────────────────────────────────────────────────── */
+
+.inv-story__progress {
+    position: fixed;
+    top: calc(0.45rem + env(safe-area-inset-top));
+    right: 0.85rem;
+    left: 0.85rem;
+    z-index: 50;
+    display: flex;
+    gap: 4px;
+    pointer-events: none;
+}
+
+.inv-story__segment {
+    flex: 1;
+    height: 3px;
+    overflow: hidden;
+    border-radius: 3px;
+    background: color-mix(in srgb, var(--text-color) 15%, transparent);
+}
+
+.inv-story__segment i {
+    display: block;
+    width: 0;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--story-progress, var(--primary-color));
+    transition: width 0.7s var(--inv-ease);
+}
+
+.inv-story__segment.is-done i,
+.inv-story__segment.is-current i {
+    width: 100%;
+}
+
+.inv-story__controls {
+    position: fixed;
+    bottom: calc(1rem + env(safe-area-inset-bottom));
+    left: 50%;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.3rem;
+    border: 1px solid var(--inv-line);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--bg-color) 86%, transparent);
+    box-shadow: 0 14px 36px -18px color-mix(in srgb, var(--text-color) 45%, transparent);
+    translate: -50% 0;
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+}
+
+body.has-player .inv-story__controls,
+body.has-player .inv-story__resume,
+body.has-player .inv-story__hint {
+    margin-bottom: 4.25rem;
+}
+
+.inv-story__btn {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--text-color);
+    cursor: pointer;
+    transition: background-color 0.2s ease, scale 0.2s var(--inv-ease), opacity 0.2s ease;
+}
+
+.inv-story__btn svg {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.inv-story__btn:active {
+    scale: 0.9;
+}
+
+.inv-story__btn:disabled {
+    opacity: 0.3;
+    cursor: default;
+}
+
+.inv-story__btn--next {
+    background: var(--primary-color);
+    color: var(--story-on-primary, #fff);
+}
+
+.inv-story__count {
+    min-width: 2.6rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--inv-muted);
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+.inv-story__all,
+.inv-story__resume {
+    min-height: 2.75rem;
+    padding: 0 1rem;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--text-color);
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.inv-story__all {
+    margin-left: 0.15rem;
+    border-left: 1px solid var(--inv-line);
+    border-radius: 0 999px 999px 0;
+}
+
+.inv-story__resume {
+    position: fixed;
+    right: 1rem;
+    bottom: calc(1rem + env(safe-area-inset-bottom));
+    z-index: 50;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid var(--inv-line);
+    background: color-mix(in srgb, var(--bg-color) 90%, transparent);
+    box-shadow: 0 14px 36px -18px color-mix(in srgb, var(--text-color) 45%, transparent);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+}
+
+.inv-story__resume svg {
+    width: 1.1rem;
+    height: 1.1rem;
+}
+
+.inv-story__btn:focus-visible,
+.inv-story__all:focus-visible,
+.inv-story__resume:focus-visible {
+    outline: 2px solid var(--inv-accent-ink);
+    outline-offset: 2px;
+}
+
+/* Aviso del primer toque: aparece cuando la portada terminó de entrar */
+.inv-story__hint {
+    position: fixed;
+    bottom: calc(4.9rem + env(safe-area-inset-bottom));
+    left: 50%;
+    z-index: 49;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.45rem 0.9rem 0.45rem 0.55rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--text-color) 82%, transparent);
+    color: var(--bg-color);
+    font-size: 0.78rem;
+    font-weight: 500;
+    white-space: nowrap;
+    pointer-events: none;
+    translate: -50% 0;
+    animation: inv-story-hint 0.7s var(--inv-ease) 3.2s both;
+}
+
+html.inv-cover-waiting .inv-story__hint {
+    animation-play-state: paused;
+}
+
+.inv-story__hint-ring {
+    position: relative;
+    width: 1.3rem;
+    height: 1.3rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--bg-color) 30%, transparent);
+}
+
+.inv-story__hint-ring::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 2px solid var(--bg-color);
+    border-radius: inherit;
+    animation: inv-story-tap 1.6s ease-out infinite;
+}
+
+@keyframes inv-story-hint {
+    from { opacity: 0; translate: -50% 12px; }
+    to { opacity: 1; translate: -50% 0; }
+}
+
+@keyframes inv-story-tap {
+    0% { scale: 0.6; opacity: 1; }
+    100% { scale: 1.9; opacity: 0; }
+}
+
+/* ── Pétalos que flotan (solo en modo historia) ──────────────────────────── */
+
+.inv-petals {
+    display: none;
+}
+
+.inv-story-on .inv-petals {
+    position: fixed;
+    inset: 0;
+    z-index: 30;
+    display: block;
+    overflow: hidden;
+    pointer-events: none;
+    translate: calc(var(--tilt-x, 0) * 18px) calc(var(--tilt-y, 0) * 12px);
+}
+
+.inv-petals span {
+    position: absolute;
+    top: -2rem;
+    width: 0.7rem;
+    height: 0.95rem;
+    border-radius: 80% 0 80% 0;
+    background: color-mix(in srgb, var(--story-petal, var(--primary-color)) 55%, transparent);
+    opacity: 0;
+    animation: inv-petal-fall 19s linear infinite;
+}
+
+.inv-petals span:nth-child(1) { left: 8%; animation-delay: 0s; animation-duration: 18s; }
+.inv-petals span:nth-child(2) { left: 22%; animation-delay: 6s; animation-duration: 23s; scale: 0.7; }
+.inv-petals span:nth-child(3) { left: 37%; animation-delay: 11s; animation-duration: 20s; }
+.inv-petals span:nth-child(4) { left: 51%; animation-delay: 3s; animation-duration: 25s; scale: 0.6; }
+.inv-petals span:nth-child(5) { left: 64%; animation-delay: 14s; animation-duration: 19s; }
+.inv-petals span:nth-child(6) { left: 76%; animation-delay: 8s; animation-duration: 22s; scale: 0.8; }
+.inv-petals span:nth-child(7) { left: 88%; animation-delay: 1.5s; animation-duration: 24s; }
+.inv-petals span:nth-child(8) { left: 30%; animation-delay: 17s; animation-duration: 21s; scale: 0.5; }
+.inv-petals span:nth-child(9) { left: 70%; animation-delay: 20s; animation-duration: 26s; scale: 0.65; }
+
+@keyframes inv-petal-fall {
+    0% { opacity: 0; translate: 0 0; rotate: 0deg; }
+    8% { opacity: 0.7; }
+    50% { translate: 3.5rem 55vh; rotate: 200deg; }
+    92% { opacity: 0.55; }
+    100% { opacity: 0; translate: -1.5rem 108vh; rotate: 420deg; }
+}
+
+/* ── Celebración: lluvia de pétalos desde un punto (effects.js) ─────────── */
+
+.inv-burst {
+    position: fixed;
+    z-index: 300;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+}
+
+.inv-burst i {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: var(--size, 0.8rem);
+    height: calc(var(--size, 0.8rem) * 1.3);
+    margin: calc(var(--size, 0.8rem) * -0.65) 0 0 calc(var(--size, 0.8rem) * -0.5);
+    border-radius: 80% 0 80% 0;
+    background: var(--primary-color);
+    animation: inv-burst 1.9s cubic-bezier(0.15, 0.7, 0.3, 1) var(--delay, 0ms) both;
+}
+
+.inv-burst i[data-tone="1"] {
+    background: color-mix(in srgb, var(--primary-color) 45%, var(--accent-color));
+}
+
+.inv-burst i[data-tone="2"] {
+    background: var(--accent-color);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--primary-color) 35%, transparent);
+}
+
+/* Variante «love»: algunos son corazones */
+.inv-burst i[data-shape="heart"] {
+    width: calc(var(--size, 0.8rem) * 1.25);
+    height: calc(var(--size, 0.8rem) * 1.15);
+    border-radius: 0;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 22'%3E%3Cpath d='M12 21S3 15.2 1 10C-.6 5.8 2 1 6.5 1c2.4 0 4 1.4 5.5 3.3C13.5 2.4 15.1 1 17.5 1 22 1 24.6 5.8 23 10c-2 5.2-11 11-11 11z'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 22'%3E%3Cpath d='M12 21S3 15.2 1 10C-.6 5.8 2 1 6.5 1c2.4 0 4 1.4 5.5 3.3C13.5 2.4 15.1 1 17.5 1 22 1 24.6 5.8 23 10c-2 5.2-11 11-11 11z'/%3E%3C/svg%3E") center / contain no-repeat;
+    box-shadow: none;
+}
+
+@keyframes inv-burst {
+    0% { opacity: 0; translate: 0 0; rotate: 0deg; scale: 0.3; }
+    12% { opacity: 1; scale: 1; }
+    55% { translate: var(--dx) var(--dy); }
+    100% { opacity: 0; translate: calc(var(--dx) * 1.15) calc(var(--dy) + 9rem); rotate: var(--turn); scale: 0.8; }
+}
+
+/* ── Movimiento reducido: sin giros ni pétalos, solo fundidos ───────────── */
+
+@media (prefers-reduced-motion: reduce) {
+    .inv-story-on .inv-scene,
+    .inv-story-on .inv-scene.is-past {
+        translate: 0 0;
+        rotate: 0deg;
+        scale: 1;
+        filter: none;
+        transition: opacity 0.3s ease, visibility 0s linear 0.3s;
+    }
+
+    .inv-story-on .inv-scene.is-active {
+        transition: opacity 0.3s ease;
+    }
+
+    .inv-story-on .inv-petals {
+        display: none;
+    }
+}

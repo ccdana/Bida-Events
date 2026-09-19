@@ -105,6 +105,13 @@
                 @include('admin.invitations.panels.agendar')
                 @include('admin.invitations.panels.fotomural')
                 @include('admin.invitations.panels.post-evento')
+
+                {{-- Módulos con panel propio (tarjetas y los que se sumen): app/Modules --}}
+                @foreach(app(\App\Modules\ModuleRegistry::class)->all() as $registeredModule)
+                    @if($registeredModule->panel())
+                        @include($registeredModule->panel())
+                    @endif
+                @endforeach
             </div>
 
             @foreach($moduleCodes as $code)

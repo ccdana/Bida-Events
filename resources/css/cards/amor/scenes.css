@@ -1,0 +1,246 @@
+/* Tarjeta de amor en modo historia: fondos por escena y entradas de la portada. */
+
+/* ── Modo historia (resources/css/invitation/story.css) ─────────────────── */
+
+.inv-amor {
+    --story-petal: var(--primary-color);
+    --story-scene-bg:
+        radial-gradient(120% 55% at 50% 0%, color-mix(in srgb, var(--accent-color) 50%, transparent), transparent 70%),
+        var(--bg-color);
+}
+
+/* Cada escena con su luz: portada rosada, carta sobre papel, el tiempo juntos en vino, respuesta cálida */
+.inv-story-on .inv-amor #dedicatoria {
+    --story-scene-bg:
+        radial-gradient(90% 60% at 20% 100%, color-mix(in srgb, var(--accent-color) 55%, transparent), transparent 70%),
+        color-mix(in srgb, var(--accent-color) 16%, var(--bg-color));
+}
+
+.inv-story-on .inv-amor #juntos-desde {
+    --story-scene-bg:
+        radial-gradient(80% 50% at 50% 30%, color-mix(in srgb, var(--primary-color) 55%, transparent), transparent 75%),
+        var(--secondary-color);
+    --story-on-primary: var(--secondary-color);
+    --inv-muted: color-mix(in srgb, #fff 80%, var(--secondary-color));
+    --inv-soft: color-mix(in srgb, #fff 72%, var(--secondary-color));
+    --inv-accent-ink: var(--accent-color);
+    --inv-accent-deco: #fff;
+    --inv-line: color-mix(in srgb, #fff 18%, var(--secondary-color));
+    color: #fff;
+}
+
+.inv-story-on .inv-amor #juntos-desde .inv-head__title {
+    color: #fff;
+}
+
+.inv-story-on .inv-amor #respuesta {
+    --story-scene-bg:
+        radial-gradient(100% 60% at 80% 0%, color-mix(in srgb, var(--primary-color) 22%, transparent), transparent 70%),
+        color-mix(in srgb, var(--accent-color) 30%, var(--bg-color));
+}
+
+.inv-story-on .inv-amor .inv-amor-footer {
+    --story-scene-bg:
+        radial-gradient(90% 60% at 50% 100%, color-mix(in srgb, var(--accent-color) 70%, transparent), transparent 75%),
+        var(--bg-color);
+}
+
+/* Portada: la foto cae y se asienta, la cinta se pega y el «Para…» se escribe de izquierda a derecha */
+.inv-amor-hero__photo {
+    --step-anim: inv-amor-drop;
+    --step-duration: 1.1s;
+    transform: perspective(900px) rotateY(calc(var(--tilt-x, 0) * 9deg)) rotateX(calc(var(--tilt-y, 0) * -7deg));
+    transform-style: preserve-3d;
+}
+
+.inv-amor-hero__tape {
+    transform: translateZ(18px);
+}
+
+.inv-story-on .inv-scene.is-active .inv-amor-hero__tape {
+    animation: inv-amor-tape 0.5s var(--inv-ease) 1.15s both;
+}
+
+@keyframes inv-amor-drop {
+    0% { opacity: 0; translate: 0 -3.5rem; scale: 1.25; }
+    60% { opacity: 1; translate: 0 0.4rem; scale: 0.98; }
+    100% { opacity: 1; translate: 0 0; scale: 1; }
+}
+
+@keyframes inv-amor-tape {
+    from { opacity: 0; scale: 0 1; }
+    to { opacity: 1; scale: 1 1; }
+}
+
+/* Brillo de la foto que se desliza al inclinar el teléfono */
+.inv-amor-hero__glare {
+    position: absolute;
+    inset: 0.7rem 0.7rem 2.6rem;
+    background: linear-gradient(115deg, transparent 30%, rgb(255 255 255 / 0.38) 48%, transparent 64%);
+    background-size: 260% 100%;
+    background-position: calc(50% + var(--tilt-x, 0) * 45%) 0;
+    mix-blend-mode: soft-light;
+    pointer-events: none;
+}
+
+.inv-amor-hero__to {
+    --step-anim: inv-amor-write;
+    --step-duration: 1.5s;
+}
+
+@keyframes inv-amor-write {
+    from { opacity: 1; clip-path: inset(-20% 100% -20% 0); }
+    to { opacity: 1; clip-path: inset(-20% -5% -20% 0); }
+}
+
+/* En una escena la portada entra entera en la pantalla del teléfono */
+.inv-story-on .inv-amor-hero__inner {
+    gap: 0.85rem;
+}
+
+.inv-story-on .inv-amor-hero__photo {
+    width: min(66vw, 17rem, 34svh);
+    margin: 0.5rem 0 0.25rem;
+    padding: 0.55rem 0.55rem 2rem;
+}
+
+.inv-story-on .inv-amor-hero__glare {
+    inset: 0.55rem 0.55rem 2rem;
+}
+
+.inv-story-on .inv-amor-hero__to {
+    font-size: clamp(2.6rem, 13vw, 3.8rem);
+}
+
+/* En modo historia «Leer la carta» apunta hacia la derecha: la carta es la escena siguiente */
+.inv-story-on .inv-amor-hero__scroll svg {
+    rotate: -90deg;
+}
+
+/* Carta lacrada: doblez de papel con el sello de lacre en el centro */
+.inv-amor .inv-letter-gate__cover {
+    background:
+        linear-gradient(to bottom right, transparent calc(50% - 1px), color-mix(in srgb, var(--text-color) 7%, transparent) 50%, transparent calc(50% + 1px)) top left / 50% 42% no-repeat,
+        linear-gradient(to bottom left, transparent calc(50% - 1px), color-mix(in srgb, var(--text-color) 7%, transparent) 50%, transparent calc(50% + 1px)) top right / 50% 42% no-repeat,
+        linear-gradient(170deg, var(--amor-paper), var(--amor-paper-shade));
+    box-shadow: 0 24px 50px -30px color-mix(in srgb, var(--text-color) 55%, transparent);
+    rotate: -0.6deg;
+}
+
+.inv-amor .inv-seal {
+    --seal: color-mix(in srgb, var(--primary-color) 85%, #000);
+}
+
+.inv-story-on .inv-amor #juntos-desde .inv-milestone__value {
+    font-size: clamp(3.2rem, 17vw, 5rem);
+}
+
+/* ── Portada: instantánea que se revela ──────────────────────────────────── */
+
+.inv-amor-hero {
+    position: relative;
+}
+
+.inv-amor-hero__frame {
+    position: relative;
+}
+
+.inv-amor-hero__film {
+    display: block;
+    overflow: hidden;
+    background: #7a6452;
+}
+
+/* De marrón claro a la foto, como una instantánea recién salida */
+html:not(.inv-story-on) .inv-amor-hero__film img,
+.inv-story-on .inv-scene.is-active .inv-amor-hero__film img {
+    animation: inv-amor-develop 3.8s ease-out 1.1s both;
+}
+
+@keyframes inv-amor-develop {
+    0% { opacity: 0.35; filter: sepia(1) saturate(0.3) brightness(1.5) contrast(0.45) blur(4px); }
+    45% { opacity: 0.8; filter: sepia(0.55) saturate(0.7) brightness(1.2) contrast(0.8) blur(1.5px); }
+    100% { opacity: 1; filter: none; }
+}
+
+.inv-amor-hero__caption {
+    position: absolute;
+    right: 0;
+    bottom: 0.3rem;
+    left: 0;
+    font-family: var(--font-script);
+    font-size: 1.35rem;
+    line-height: 1.2;
+    color: color-mix(in srgb, var(--text-color) 72%, transparent);
+    text-align: center;
+}
+
+.inv-story-on .inv-amor-hero__caption {
+    bottom: 0.1rem;
+    font-size: 1.2rem;
+}
+
+/* ── Carta: la tinta se asienta palabra por palabra (inkLetter en garden.js) ── */
+
+html:not(.no-js) .inv-amor .inv-letter-gate[data-gate-done] .inv-letter.is-inked .inv-letter__body [data-gate-step] {
+    animation: none;
+}
+
+.inv-amor .inv-letter-gate[data-gate-done] .inv-ink {
+    animation: inv-amor-ink 0.9s ease calc(var(--w) * 24ms + 700ms) both;
+}
+
+@keyframes inv-amor-ink {
+    from { opacity: 0; color: var(--primary-color); filter: blur(3px); }
+    60% { opacity: 1; color: color-mix(in srgb, var(--primary-color) 50%, var(--text-color)); filter: blur(0); }
+    to { opacity: 1; color: inherit; filter: none; }
+}
+
+/* La firma llega cuando terminó de escribirse la carta */
+html:not(.no-js) .inv-amor .inv-letter-gate[data-gate-done] .inv-letter.is-inked .inv-letter__footer {
+    animation-delay: calc(var(--words, 0) * 24ms + 1100ms);
+}
+
+html:not(.no-js) .inv-amor .inv-letter-gate[data-gate-done] .inv-letter__to {
+    animation: inv-amor-write 1.4s var(--inv-ease) 0.35s both;
+}
+
+/* Flores prensadas en las esquinas de la carta */
+.inv-amor .inv-letter::before,
+.inv-amor .inv-letter::after {
+    content: '';
+    position: absolute;
+    pointer-events: none;
+    opacity: 0.55;
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+
+.inv-amor .inv-letter::before {
+    top: 0.7rem;
+    right: 0.7rem;
+    width: 3.4rem;
+    height: 3.4rem;
+    rotate: 18deg;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 60'%3E%3Cpath d='M30 58 C 29 46, 31 38, 30 30' stroke='%236f9a5b' stroke-width='1.6' fill='none'/%3E%3Cpath d='M30 46 C 22 44, 18 46, 14 40 C 20 36, 26 39, 30 46 Z' fill='%236f9a5b'/%3E%3Cg fill='%23d9869a'%3E%3Cellipse cx='30' cy='16' rx='5' ry='9'/%3E%3Cellipse cx='30' cy='16' rx='5' ry='9' transform='rotate(72 30 22)'/%3E%3Cellipse cx='30' cy='16' rx='5' ry='9' transform='rotate(144 30 22)'/%3E%3Cellipse cx='30' cy='16' rx='5' ry='9' transform='rotate(216 30 22)'/%3E%3Cellipse cx='30' cy='16' rx='5' ry='9' transform='rotate(288 30 22)'/%3E%3C/g%3E%3Ccircle cx='30' cy='22' r='3.6' fill='%23f2c75c'/%3E%3C/svg%3E");
+}
+
+.inv-amor .inv-letter::after {
+    bottom: 0.6rem;
+    left: 0.6rem;
+    width: 3rem;
+    height: 3rem;
+    rotate: -24deg;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 60'%3E%3Cpath d='M8 54 C 22 40, 34 28, 52 8' stroke='%236f9a5b' stroke-width='1.6' fill='none'/%3E%3Cg fill='%236f9a5b'%3E%3Cpath d='M20 42 C 12 40, 10 34, 12 30 C 18 32, 21 36, 20 42 Z'/%3E%3Cpath d='M22 40 C 26 32, 32 32, 36 34 C 32 40, 27 42, 22 40 Z'/%3E%3Cpath d='M32 30 C 26 26, 26 20, 28 16 C 33 20, 34 25, 32 30 Z'/%3E%3Cpath d='M34 28 C 40 22, 45 22, 48 24 C 44 30, 39 31, 34 28 Z'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .inv-amor .inv-letter-gate[data-gate-done] .inv-ink {
+        animation: none;
+    }
+
+    html:not(.inv-story-on) .inv-amor-hero__film img,
+    .inv-story-on .inv-scene.is-active .inv-amor-hero__film img {
+        animation: none;
+    }
+}

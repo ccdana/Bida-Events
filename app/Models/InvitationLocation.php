@@ -16,14 +16,12 @@ class InvitationLocation extends Model
         'map_url',
         'image_url',
         'note',
-        'meta',
         'sort_order',
     ];
 
     protected $casts = [
         'latitude' => 'float',
         'longitude' => 'float',
-        'meta' => 'array',
         'sort_order' => 'integer',
     ];
 

@@ -1,0 +1,201 @@
+/* ── Responder con una flor (partials/amor/flower-reply, flower-art) ─────── */
+
+.inv-flower {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+}
+
+.inv-flower__stem {
+    fill: none;
+    stroke: var(--amor-leaf);
+    stroke-width: 2.6;
+    stroke-linecap: round;
+}
+
+.inv-flower__leaf {
+    fill: var(--amor-leaf);
+}
+
+.inv-flower__rose-base {
+    fill: var(--primary-color);
+}
+
+.inv-flower__rose-fold {
+    fill: none;
+    stroke: color-mix(in srgb, var(--primary-color) 55%, #000);
+    stroke-width: 1.6;
+    stroke-linecap: round;
+}
+
+.inv-flower__tulip {
+    fill: color-mix(in srgb, var(--primary-color) 45%, #ff8f6b);
+}
+
+.inv-flower__tulip-shade {
+    fill: color-mix(in srgb, var(--primary-color) 65%, #ff8f6b);
+}
+
+.inv-flower--girasol {
+    --flower-petal: var(--amor-sun);
+    --flower-edge: color-mix(in srgb, var(--amor-sun) 70%, #7a4a12);
+    --flower-center: #6b4226;
+    --flower-dot: rgb(255 255 255 / 0.25);
+}
+
+.inv-flower--margarita {
+    --flower-petal: var(--amor-daisy);
+    --flower-edge: rgb(60 40 20 / 0.18);
+    --flower-center: var(--amor-sun);
+}
+
+.inv-flower:not(.inv-flower--rosa, .inv-flower--tulipan, .inv-flower--girasol, .inv-flower--margarita) {
+    --flower-petal: color-mix(in srgb, var(--primary-color) 55%, #fff);
+}
+
+/* ── Elegir la flor ────────────────────────────────────────────────────── */
+
+.inv-bouquet {
+    display: grid;
+    gap: 0.5rem;
+}
+
+.inv-bouquet__field {
+    min-width: 0;
+    margin: 0 0 0.75rem;
+    padding: 0;
+    border: 0;
+}
+
+.inv-bouquet__options {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.inv-bouquet__option {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    gap: 0.25rem;
+    padding: 0.6rem 0.35rem 0.5rem;
+    border: 1px solid var(--inv-line);
+    border-radius: 1rem;
+    background: color-mix(in srgb, var(--bg-color) 70%, transparent);
+    cursor: pointer;
+    transition: translate 0.4s cubic-bezier(0.34, 1.6, 0.5, 1), border-color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.inv-bouquet__option .inv-flower {
+    width: 3.2rem;
+    transform-origin: 50% 100%;
+}
+
+.inv-bouquet__option:has(input:focus-visible) {
+    outline: 2px solid var(--inv-accent-ink);
+    outline-offset: 2px;
+}
+
+.inv-bouquet__option.is-chosen {
+    border-color: var(--primary-color);
+    background: color-mix(in srgb, var(--accent-color) 45%, var(--bg-color));
+    box-shadow: 0 14px 26px -18px color-mix(in srgb, var(--primary-color) 80%, transparent);
+    translate: 0 -0.4rem;
+}
+
+.inv-bouquet__option.is-chosen .inv-flower {
+    animation: inv-bouquet-dance 1.6s ease-in-out infinite;
+}
+
+@keyframes inv-bouquet-dance {
+    0%, 100% { rotate: -6deg; }
+    50% { rotate: 6deg; }
+}
+
+.inv-bouquet__name {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-color);
+    text-transform: capitalize;
+}
+
+.inv-bouquet__meaning {
+    min-height: 2.2rem;
+    margin-top: 0.6rem;
+    font-family: var(--font-script);
+    font-size: 1.7rem;
+    line-height: 1.2;
+    color: var(--inv-accent-ink);
+    text-align: center;
+}
+
+.inv-bouquet__meaning span:first-child {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    color: var(--inv-muted);
+}
+
+.inv-bouquet__optional {
+    font-weight: 400;
+    color: var(--inv-muted);
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+/* Al entrar la escena, las flores brotan una a una */
+.inv-story-on .inv-scene.is-active .inv-bouquet__option {
+    animation: inv-bouquet-sprout 0.8s cubic-bezier(0.34, 1.5, 0.5, 1) calc(var(--i) * 110ms + 500ms) both;
+}
+
+@keyframes inv-bouquet-sprout {
+    from { opacity: 0; translate: 0 1.5rem; scale: 0.7; }
+    to { opacity: 1; translate: 0 0; scale: 1; }
+}
+
+/* ── Enviada ───────────────────────────────────────────────────────────── */
+
+.inv-bouquet__sent {
+    display: grid;
+    justify-items: center;
+    gap: 0.35rem;
+    padding: 1.5rem 1rem;
+    text-align: center;
+}
+
+.inv-bouquet__flight {
+    width: 6rem;
+    margin-bottom: 0.5rem;
+    animation: inv-bouquet-fly 3s cubic-bezier(0.3, 0.8, 0.4, 1) both;
+}
+
+.inv-bouquet__flight .inv-flower {
+    animation: inv-bouquet-dance 2.4s ease-in-out 3s infinite;
+}
+
+@keyframes inv-bouquet-fly {
+    0% { opacity: 0; translate: 0 3rem; scale: 0.4; rotate: -20deg; }
+    30% { opacity: 1; translate: 0 -2.5rem; scale: 1.15; rotate: 10deg; }
+    60% { translate: 0 -0.5rem; scale: 0.95; rotate: -4deg; }
+    100% { opacity: 1; translate: 0 0; scale: 1; rotate: 0deg; }
+}
+
+.inv-story-on .inv-amor #respuesta .inv-wrap {
+    width: min(100%, 28rem);
+}
+
+@media (max-width: 22rem) {
+    .inv-bouquet__options {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .inv-bouquet__option.is-chosen .inv-flower,
+    .inv-bouquet__flight,
+    .inv-bouquet__flight .inv-flower {
+        animation: none;
+    }
+}

@@ -104,6 +104,16 @@ if (document.querySelector('[x-data*="scrollItinerary"]')) {
     loaders.push(import('./itinerary-scroll.js'));
 }
 
+// ── Tarjetas interactivas (~10 kB) — modo historia, sello, raspe y pétalos ─
+if (document.querySelector('[data-story], [x-data*="holdToOpen"], [x-data*="scratchReveal"]')) {
+    loaders.push(import('./story/index.js'));
+}
+
+// ── Tarjeta del Día del Amor — capullo, margarita, tendedero, flor y diente de león ─
+if (document.querySelector('[data-card="amor"]')) {
+    loaders.push(import('./cards/amor/index.js'));
+}
+
 // ── Sitio público (home y login) — animaciones; no retrasa a Alpine ────
 if (document.body.classList.contains('site')) {
     import('./site.js').catch((error) => console.error('[Bida Events] Error al cargar site.js:', error));

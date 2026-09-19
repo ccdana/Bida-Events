@@ -142,6 +142,8 @@ function invitationForm(config) {
         clients: config.clients ?? [],
         eventTypes: config.eventTypes ?? [],
         templateOptions: config.templateOptions ?? [],
+        // Perfil de cada tipo de evento (app/EventProfiles): módulos, vocabulario y datos obligatorios
+        profiles: config.profiles ?? {},
         statusLabels: {
             active: 'Activa',
             inactive: 'Inactiva',
@@ -199,7 +201,7 @@ function invitationForm(config) {
         cropperLastX: 0,
         cropperLastY: 0,
 
-        tabGroups: [
+        allTabGroups: [
             {
                 id: 'config',
                 label: 'Configuración',
@@ -207,6 +209,16 @@ function invitationForm(config) {
                 tabs: [
                     { id: 'general', label: 'General', hint: 'Título, cliente y fechas' },
                     { id: 'estetica', label: 'Estética', hint: 'Colores y tipografías' },
+                ],
+            },
+            {
+                id: 'tarjeta',
+                label: 'Tarjeta',
+                description: 'Lo que dice la carta',
+                tabs: [
+                    { id: 'dedicatoria', label: 'Dedicatoria', moduleCode: 'dedicatoria', hint: 'De, para, mensaje y firma' },
+                    { id: 'juntos_desde', label: 'Juntos desde', moduleCode: 'juntos_desde', hint: 'Fecha y contador de tiempo' },
+                    { id: 'respuesta', label: 'Respuesta', moduleCode: 'respuesta', hint: 'Quien la recibe te responde' },
                 ],
             },
             {
@@ -279,7 +291,7 @@ function invitationForm(config) {
 
         fontSample(roleKey) {
             if (roleKey === 'script') {
-                return this.modules.bienvenida?.nombre_quinceanera || (this.isWeddingTemplate() ? 'Ana & Luis' : (this.isBaptismTemplate() ? 'Mateo Andrés' : (this.isBirthdayTemplate() ? 'Valeria' : 'Sofía Valentina')));
+                return this.modules.bienvenida?.nombre_quinceanera || this.modules.dedicatoria?.para || this.profile.sample?.name || 'Sofía Valentina';
             }
             return roleKey === 'titulos' ? 'Itinerario' : 'Te esperamos a las 18:00';
         },
@@ -296,6 +308,48 @@ function invitationForm(config) {
                 'Great Vibes', 'Parisienne', 'Alex Brush', 'Dancing Script',
                 'Sacramento', 'Allura', 'Tangerine', 'Petit Formal Script',
             ],
+        },
+
+        // ── Perfil del evento ───────────────────────────────────────────────
+        // La plantilla elegida apunta a un perfil; el editor habla su idioma y
+        // solo ofrece sus módulos. Un evento o temporada nueva no toca este archivo.
+
+        get profile() {
+            const option = this.templateOptions.find(item => item.value === String(this.meta.template ?? ''));
+            return this.profiles[option?.event] ?? Object.values(this.profiles)[0] ?? {
+                code: 'xv', kind: 'invitation', modules: [], heroFields: {}, featuredGroups: {}, required: {}, sample: {},
+            };
+        },
+
+        get isCard() {
+            return this.profile.kind === 'card';
+        },
+
+        get tabGroups() {
+            const modules = this.profile.modules ?? [];
+
+            return this.allTabGroups
+                .map(group => ({ ...group, tabs: group.tabs.filter(tab => !tab.moduleCode || modules.includes(tab.moduleCode)) }))
+                .filter(group => group.tabs.length > 0);
+        },
+
+        /** Nombre de un grupo de personas destacadas en este evento: plural (0) o singular (1). */
+        featuredLabel(group, form = 0) {
+            return this.profile.featuredGroups?.[group]?.[form] ?? '';
+        },
+
+        /** Campos de nombre de la portada que pide el perfil (nombre, pareja, edad…). */
+        get heroFields() {
+            return Object.entries(this.profile.heroFields ?? {}).map(([key, field]) => ({ key, ...field }));
+        },
+
+        /** Mantiene el texto completo que leen las plantillas cuando se editan los nombres por separado. */
+        syncHeroName() {
+            const hero = this.modules.bienvenida;
+            const primary = String(hero.nombre ?? '').trim();
+            const secondary = String(hero.nombre_pareja ?? '').trim();
+            hero.nombre_quinceanera = secondary ? [primary, secondary].filter(Boolean).join(' & ') : primary;
+            this.schedulePreview();
         },
 
         get activeGroupData() {
@@ -318,8 +372,18 @@ function invitationForm(config) {
         moduleIssues(tabId) {
             const m = this.modules;
             const list = (value) => Array.isArray(value) ? value : [];
-            const filled = (value) => typeof value === 'string' ? value.trim() !== '' : Boolean(value);
+            const filled = (value) => Array.isArray(value) ? value.length > 0 : (typeof value === 'string' ? value.trim() !== '' : Boolean(value));
             const some = (values) => values.filter(Boolean);
+
+            // Si el perfil del evento dice qué es obligatorio en este módulo, eso es lo que se revisa
+            const moduleCode = this.allTabGroups.flatMap(group => group.tabs).find(tab => tab.id === tabId)?.moduleCode;
+            const required = moduleCode ? this.profile.required?.[moduleCode] : null;
+
+            if (required) {
+                return Object.entries(required)
+                    .filter(([path]) => !filled(path.split('.').reduce((value, key) => value?.[key], m[moduleCode])))
+                    .map(([, message]) => message);
+            }
 
             switch (tabId) {
                 case 'general':
@@ -440,7 +504,10 @@ function invitationForm(config) {
             this.normalizeMetaSelects();
             this.initEventDateFields();
             this.syncActiveGroup();
-            this.$watch('meta.template', v => { if (this.modules.config) this.modules.config.template = v; });
+            this.$watch('meta.template', v => {
+                if (this.modules.config) this.modules.config.template = v;
+                this.applyProfile();
+            });
             this.$watch('modules', () => this.schedulePreview(), { deep: true });
             this.$watch('meta', () => this.schedulePreview(), { deep: true });
             this.$watch('modules.ubicacion.lat', () => this.syncLocationMarker());
@@ -474,6 +541,9 @@ function invitationForm(config) {
         heroDefaults() {
             return {
                 nombre_quinceanera: '',
+                nombre: '',
+                nombre_pareja: '',
+                edad: '',
                 subtitulo: '',
                 mensaje: '',
                 fecha_texto: '',
@@ -486,8 +556,11 @@ function invitationForm(config) {
             const m = this.modules;
             const savedHero = this.plainModuleValue(m.bienvenida);
             m.bienvenida = { ...this.heroDefaults(), ...savedHero };
+            if (!m.bienvenida.nombre && !m.bienvenida.nombre_pareja) {
+                m.bienvenida.nombre = m.bienvenida.nombre_quinceanera ?? '';
+            }
 
-            const objectModules = ['musica', 'video', 'playlist', 'hashtag', 'post_evento', 'rsvp'];
+            const objectModules = ['musica', 'video', 'playlist', 'hashtag', 'post_evento', 'rsvp', 'dedicatoria', 'juntos_desde', 'respuesta'];
             for (const code of objectModules) {
                 m[code] = {
                     ...this.plainModuleValue(m[code]),
@@ -687,6 +760,11 @@ function invitationForm(config) {
         },
 
         defaultModuleVisibility() {
+            // Una invitación nueva nace con los módulos que el perfil enciende por defecto
+            if (this.config.isCreate && Array.isArray(this.profile.enabledByDefault)) {
+                return Object.fromEntries((this.profile.modules ?? []).map(code => [code, this.profile.enabledByDefault.includes(code)]));
+            }
+
             return {
                 bienvenida: true,
                 video: false,
@@ -930,6 +1008,35 @@ function invitationForm(config) {
             this.meta.event_date = `${this.eventDatePart}T${this.eventTimePart || '12:00'}`;
         },
 
+        /**
+         * Al elegir otra plantilla, el tipo de evento se ajusta a su perfil y, si la pestaña abierta
+         * no existe en ese evento, se vuelve a General. En una invitación nueva también se encienden
+         * los módulos del perfil.
+         */
+        applyProfile() {
+            const type = this.eventTypes.find(item => item.code === this.profile.code);
+            if (type) this.meta.event_type_id = String(type.id);
+
+            if (this.config.isCreate) {
+                this.modules.config.modulos = { ...this.modules.config.modulos, ...this.defaultModuleVisibility() };
+            }
+
+            if (!this.tabGroups.some(group => group.tabs.some(tab => tab.id === this.activeTab))) {
+                this.selectTab('general');
+            }
+        },
+
+        /** Plantillas del producto elegido (invitación o tarjeta). */
+        templatesOfKind(kind) {
+            return this.templateOptions.filter(option => (this.profiles[option.event]?.kind ?? 'invitation') === kind);
+        },
+
+        chooseKind(kind) {
+            if ((this.profile.kind ?? 'invitation') === kind) return;
+            const first = this.templatesOfKind(kind)[0];
+            if (first) this.meta.template = first.value;
+        },
+
         getEventTypeName() {
             const id = String(this.meta.event_type_id ?? '');
             return this.eventTypes.find(type => String(type.id) === id)?.name ?? 'Seleccionar tipo';
@@ -938,24 +1045,6 @@ function invitationForm(config) {
         getTemplateLabel() {
             const value = String(this.meta.template ?? '');
             return this.templateOptions.find(option => option.value === value)?.label ?? 'Seleccionar plantilla';
-        },
-
-        // Plantilla de boda: el editor habla de novios, damas y caballeros de honor
-        isWeddingTemplate() {
-            const value = String(this.meta.template ?? '');
-            return this.templateOptions.find(option => option.value === value)?.event === 'boda';
-        },
-
-        // Plantilla de bautizo: el editor habla del bebé, abuelos y tíos
-        isBaptismTemplate() {
-            const value = String(this.meta.template ?? '');
-            return this.templateOptions.find(option => option.value === value)?.event === 'bautizo';
-        },
-
-        // Plantilla de cumpleaños: el editor habla de amigos, familia y anfitriones
-        isBirthdayTemplate() {
-            const value = String(this.meta.template ?? '');
-            return this.templateOptions.find(option => option.value === value)?.event === 'cumple';
         },
 
         getStatusLabel() {

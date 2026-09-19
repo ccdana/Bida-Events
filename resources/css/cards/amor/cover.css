@@ -1,0 +1,314 @@
+/* ── Apertura: un capullo que se riega con tres toques (partials/amor/intro) ──
+   Clases que pone bloomCover: is-drop-1 (brota el tallo), is-drop-2 (hojas),
+   is-bloomed (florece), is-leaving (la flor crece y suelta los pétalos),
+   is-gone (la apertura se desvanece).
+   ──────────────────────────────────────────────────────────────────────── */
+
+.inv-amor-intro {
+    --amor-petal-deep: var(--primary-color);
+    --amor-petal-light: color-mix(in srgb, var(--primary-color) 35%, #fff);
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: grid;
+    place-items: center;
+    padding: 1.5rem;
+    overflow: hidden;
+    background:
+        radial-gradient(70% 45% at 80% 8%, color-mix(in srgb, var(--amor-sun) 30%, transparent), transparent 70%),
+        linear-gradient(to bottom, var(--amor-sky), var(--bg-color) 62%, color-mix(in srgb, var(--accent-color) 45%, var(--bg-color)));
+    color: var(--text-color);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: opacity 0.9s ease 0.3s;
+}
+
+html.inv-cover-skip .inv-amor-intro {
+    display: none;
+}
+
+.inv-amor-intro.is-gone {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Sol de primavera: gira despacio en la esquina */
+.inv-bloom__sun {
+    position: absolute;
+    top: -3.5rem;
+    right: -3.5rem;
+    width: 12rem;
+    height: 12rem;
+    border-radius: 999px;
+    background:
+        radial-gradient(circle, color-mix(in srgb, var(--amor-sun) 85%, #fff) 0 28%, transparent 29%),
+        repeating-conic-gradient(color-mix(in srgb, var(--amor-sun) 38%, transparent) 0 6deg, transparent 6deg 22deg);
+    mask: radial-gradient(circle, #000 35%, transparent 70%);
+    animation: inv-bloom-spin 40s linear infinite;
+}
+
+@keyframes inv-bloom-spin {
+    to { rotate: 360deg; }
+}
+
+.inv-bloom {
+    display: grid;
+    justify-items: center;
+    gap: 0.5rem;
+    width: min(100%, 22rem);
+    transition: scale 1.2s var(--inv-ease), opacity 0.6s ease;
+}
+
+.inv-amor-intro.is-leaving .inv-bloom {
+    scale: 1.08;
+}
+
+.inv-bloom__eyebrow {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--inv-accent-ink);
+    text-align: center;
+    animation: inv-bloom-in 0.9s var(--inv-ease) 0.2s both;
+}
+
+@keyframes inv-bloom-in {
+    from { opacity: 0; translate: 0 12px; }
+    to { opacity: 1; translate: 0 0; }
+}
+
+.inv-bloom__stage {
+    position: relative;
+    width: min(70vw, 16rem);
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.inv-bloom__stage:focus-visible {
+    outline: 2px solid var(--inv-accent-ink);
+    outline-offset: 6px;
+    border-radius: 1rem;
+}
+
+.inv-bloom__art {
+    display: block;
+    width: 100%;
+    overflow: visible;
+}
+
+/* ── La planta ─────────────────────────────────────────────────────────── */
+
+.inv-bloom__plant {
+    translate: 0 128px;
+    transform-origin: 120px 300px;
+    transition: translate 1.1s cubic-bezier(0.34, 1.35, 0.5, 1);
+    animation: inv-bloom-sway 3.6s ease-in-out infinite;
+}
+
+.inv-amor-intro.is-drop-1 .inv-bloom__plant { translate: 0 72px; }
+.inv-amor-intro.is-drop-2 .inv-bloom__plant { translate: 0 24px; }
+.inv-amor-intro.is-bloomed .inv-bloom__plant { translate: 0 0; }
+
+@keyframes inv-bloom-sway {
+    0%, 100% { rotate: -2.5deg; }
+    50% { rotate: 2.5deg; }
+}
+
+.inv-bloom__stem {
+    fill: none;
+    stroke: var(--amor-leaf);
+    stroke-width: 5;
+    stroke-linecap: round;
+}
+
+.inv-bloom__leaf {
+    fill: var(--amor-leaf);
+    stroke: var(--amor-leaf-dark);
+    stroke-width: 1;
+    transform-box: fill-box;
+    scale: 0;
+    transition: scale 0.9s cubic-bezier(0.34, 1.5, 0.5, 1) 0.35s;
+}
+
+.inv-bloom__leaf--left { transform-origin: 100% 100%; }
+.inv-bloom__leaf--right { transform-origin: 0% 100%; }
+
+.inv-amor-intro.is-drop-2 .inv-bloom__leaf {
+    scale: 1;
+}
+
+.inv-amor-intro.is-drop-2 .inv-bloom__leaf--right {
+    transition-delay: 0.55s;
+}
+
+/* Pétalos: juntos como capullo; al florecer cada uno gira a su lugar */
+.inv-bloom__petal {
+    fill: url(#amor-bloom-petal);
+    stroke: color-mix(in srgb, var(--primary-color) 70%, #000);
+    stroke-width: 0.6;
+    transform-origin: 120px 108px;
+    transform: rotate(calc(var(--a) * 0.06 - 10deg)) scale(0.55, 0.85);
+    transition: transform 1s cubic-bezier(0.34, 1.4, 0.5, 1) calc(var(--i) * 45ms), opacity 0.6s ease;
+}
+
+.inv-amor-intro.is-bloomed .inv-bloom__petal {
+    transform: rotate(var(--a)) scale(1);
+}
+
+/* Al irse, los pétalos salen volando hacia afuera */
+.inv-amor-intro.is-leaving .inv-bloom__petal {
+    opacity: 0;
+    transform: rotate(calc(var(--a) + 50deg)) translateY(-90px) scale(1.4);
+    transition-duration: 1.1s;
+    transition-timing-function: cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+.inv-bloom__sepal {
+    fill: var(--amor-leaf);
+    transition: opacity 0.5s ease;
+}
+
+.inv-amor-intro.is-bloomed .inv-bloom__sepal {
+    opacity: 0;
+}
+
+.inv-bloom__center,
+.inv-bloom__center-dot {
+    transform-origin: 120px 108px;
+    scale: 0;
+    transition: scale 0.7s cubic-bezier(0.34, 1.6, 0.5, 1) 0.55s;
+}
+
+.inv-bloom__center {
+    fill: var(--amor-sun);
+    stroke: color-mix(in srgb, var(--amor-sun) 60%, #7a4a12);
+    stroke-width: 1.5;
+}
+
+.inv-bloom__center-dot {
+    fill: color-mix(in srgb, var(--amor-sun) 45%, #7a4a12);
+}
+
+.inv-amor-intro.is-bloomed .inv-bloom__center,
+.inv-amor-intro.is-bloomed .inv-bloom__center-dot {
+    scale: 1;
+}
+
+.inv-bloom__flower {
+    transform-origin: 120px 108px;
+    transition: scale 1.2s var(--inv-ease);
+}
+
+.inv-amor-intro.is-leaving .inv-bloom__flower {
+    scale: 1.6;
+}
+
+.inv-bloom__soil {
+    fill: color-mix(in srgb, #8a5a44 70%, var(--bg-color));
+}
+
+.inv-bloom__tuft {
+    fill: none;
+    stroke: var(--amor-leaf);
+    stroke-width: 2;
+    stroke-linecap: round;
+}
+
+/* ── Gotas ─────────────────────────────────────────────────────────────── */
+
+.inv-bloom__drops {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+.inv-bloom__drop {
+    position: absolute;
+    top: 30%;
+    left: calc(50% + var(--x, 0px));
+    width: 0.8rem;
+    height: 1.1rem;
+    margin-left: -0.4rem;
+    border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%;
+    background: radial-gradient(circle at 35% 35%, #fff 0 18%, #8cc8e8 45%, #4f97c4);
+    box-shadow: 0 2px 6px rgb(40 90 130 / 0.3);
+    animation: inv-bloom-drop 0.85s cubic-bezier(0.5, 0, 0.9, 0.5) forwards;
+}
+
+@keyframes inv-bloom-drop {
+    0% { opacity: 0; translate: 0 -12rem; scale: 0.6 1.2; }
+    15% { opacity: 1; }
+    80% { opacity: 1; translate: 0 var(--land, 3rem); scale: 1 1; }
+    100% { opacity: 0; translate: 0 var(--land, 3rem); scale: 2.4 0.2; }
+}
+
+/* ── Textos ────────────────────────────────────────────────────────────── */
+
+.inv-bloom__caption {
+    display: grid;
+    justify-items: center;
+    min-height: 4.5rem;
+    margin-top: 0.5rem;
+}
+
+.inv-bloom__hint {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    font-size: 0.88rem;
+    color: var(--inv-muted);
+}
+
+.inv-bloom__dots {
+    display: inline-flex;
+    gap: 0.3rem;
+}
+
+.inv-bloom__dots i {
+    width: 0.6rem;
+    height: 0.8rem;
+    border: 1.5px solid #4f97c4;
+    border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%;
+    transition: background-color 0.3s ease, scale 0.4s cubic-bezier(0.34, 1.6, 0.5, 1);
+}
+
+.inv-bloom__dots i.is-full {
+    background: #6fb2d8;
+    scale: 1.2;
+}
+
+.inv-bloom__to {
+    font-family: var(--font-script);
+    font-size: clamp(2.8rem, 13vw, 3.8rem);
+    line-height: 1.05;
+    color: var(--text-color);
+    animation: inv-amor-write 1.4s var(--inv-ease) 0.4s both;
+}
+
+.inv-bloom__skip {
+    min-height: 2.75rem;
+    padding: 0 1rem;
+    border: 0;
+    background: none;
+    color: var(--inv-muted);
+    font: inherit;
+    font-size: 0.8rem;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .inv-bloom__sun,
+    .inv-bloom__plant {
+        animation: none;
+    }
+
+    .inv-bloom__drop {
+        display: none;
+    }
+}

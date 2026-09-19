@@ -10,6 +10,7 @@ use App\Models\PollVote;
 use App\Services\InvitationCacheService;
 use App\Services\InvitationModuleService;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Arr;
 
 /**
  * Invitaciones de muestra (una por plantilla) que se enseñan a los clientes en la portada.
@@ -19,7 +20,7 @@ use Illuminate\Database\Seeder;
  */
 class ShowcaseInvitationsSeeder extends Seeder
 {
-    public const SLUGS = ['xv-isabella', 'boda-camila-andres', 'bautizo-emilia', 'cumple-daniela-30'];
+    public const SLUGS = ['xv-isabella', 'boda-camila-andres', 'bautizo-emilia', 'cumple-daniela-30', 'tarjeta-ana-luis'];
 
     public function run(): void
     {
@@ -36,9 +37,9 @@ class ShowcaseInvitationsSeeder extends Seeder
     protected function seedInvitation(array $data): void
     {
         $attributes = $data['invitation'];
-        $eventType = EventType::firstOrCreate(
+        $eventType = EventType::updateOrCreate(
             ['slug' => $attributes['event_type']['slug']],
-            ['name' => $attributes['event_type']['name']]
+            Arr::only($attributes['event_type'], ['name', 'code', 'kind', 'season'])
         );
 
         $invitation = Invitation::updateOrCreate(['slug' => $attributes['slug']], [

@@ -5,8 +5,9 @@ namespace Tests\Feature;
 use App\Models\GuestContribution;
 use App\Models\Invitation;
 use App\Models\InvitationItineraryItem;
+use App\Modules\Module;
+use App\Modules\ModuleRegistry;
 use App\Services\InvitationModuleService;
-use App\Services\InvitationStructuredDataService;
 use App\Services\MediaUploadService;
 use Database\Seeders\XvSofiaModuleData;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -24,20 +25,17 @@ class ModuleSyncAndRetentionTest extends TestCase
         $service = app(InvitationModuleService::class);
         $service->syncAllModules($invitation, XvSofiaModuleData::all());
 
-        $before = $invitation->modulesData()->where('feature_code', 'bienvenida')->value('json_data');
+        $heroBefore = $invitation->hero()->value('primary_name');
         $itineraryBefore = $invitation->itineraryItems()->count();
 
-        // Si algo falla al guardar las tablas, tampoco debe quedar el JSON nuevo
-        $this->instance(InvitationStructuredDataService::class, new class extends InvitationStructuredDataService
-        {
-            public function sync(Invitation $invitation, array $modules): array
-            {
-                throw new RuntimeException('falla al guardar');
-            }
-        });
+        // Un módulo que falla al final del guardado, después de que la portada ya escribió su fila
+        config(['modules.modules' => [...config('modules.modules'), FailingModule::class]]);
+        $this->app->forgetInstance(ModuleRegistry::class);
+        $this->app->forgetInstance(InvitationModuleService::class);
 
         $modules = XvSofiaModuleData::all();
         $modules['bienvenida']['nombre_quinceanera'] = 'Nombre cambiado';
+        $modules['itinerario']['eventos'] = [];
 
         try {
             app(InvitationModuleService::class)->syncAllModules($invitation->fresh(), $modules);
@@ -46,7 +44,7 @@ class ModuleSyncAndRetentionTest extends TestCase
             // esperado
         }
 
-        $this->assertSame($before, $invitation->modulesData()->where('feature_code', 'bienvenida')->value('json_data'));
+        $this->assertSame($heroBefore, $invitation->hero()->value('primary_name'));
         $this->assertSame($itineraryBefore, $invitation->itineraryItems()->count());
     }
 
@@ -153,5 +151,34 @@ class ModuleSyncAndRetentionTest extends TestCase
         $photo->delete();
 
         $this->assertSame(['https://res.cloudinary.com/demo/image/upload/v1/bida-events/foto.jpg'], $deleted);
+    }
+}
+
+/** Módulo de prueba que siempre falla al guardar. */
+class FailingModule extends Module
+{
+    public function code(): string
+    {
+        return 'falla';
+    }
+
+    public function label(): string
+    {
+        return 'Falla';
+    }
+
+    public function defaults(): array
+    {
+        return [];
+    }
+
+    public function load(Invitation $invitation): array
+    {
+        return [];
+    }
+
+    public function save(Invitation $invitation, array $data): void
+    {
+        throw new RuntimeException('falla al guardar');
     }
 }

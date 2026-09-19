@@ -1,0 +1,32 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   TARJETA — "Carta de amor" (invitations.templates.tarjeta-amor)
+   Un jardín que florece: Día del Amor y primavera (21 de septiembre).
+
+   Se carga solo en esta plantilla (@vite en su cabecera), no en app.css: cada
+   temporada suma su hoja sin engordar las demás páginas. Vite une los @import
+   en un solo archivo.
+
+   Todo va dentro de .inv-amor y lee la paleta del evento (--primary-color,
+   --accent-color…), así el cliente puede cambiar los colores sin romper el
+   tema. Los verdes y el amarillo de primavera (--amor-leaf, --amor-sun) son
+   solo decorativos.
+
+   Partes y su JavaScript (resources/js/cards/amor):
+   - cover        capullo que se riega con tres toques (bloomCover)
+   - base         tokens, portada, módulos y pie
+   - scenes       fondos por escena, foto que se revela, carta con tinta
+   - garden       enredadera de progreso, ráfaga de pétalos, pasto, mariposas
+   - daisy        margarita para deshojar (daisyGate)
+   - clothesline  recuerdos en un tendedero (clothesline)
+   - reply        responder con una flor (flowerReply)
+   - wish         diente de león para pedir un deseo (dandelionWish)
+   ════════════════════════════════════════════════════════════════════════════ */
+
+@import './amor/base.css';
+@import './amor/cover.css';
+@import './amor/scenes.css';
+@import './amor/garden.css';
+@import './amor/daisy.css';
+@import './amor/clothesline.css';
+@import './amor/reply.css';
+@import './amor/wish.css';

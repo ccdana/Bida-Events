@@ -19,13 +19,11 @@ class InvitationGalleryImage extends Model
         'alt_text',
         'is_cover',
         'status',
-        'meta',
         'sort_order',
     ];
 
     protected $casts = [
         'is_cover' => 'boolean',
-        'meta' => 'array',
         'sort_order' => 'integer',
     ];
 

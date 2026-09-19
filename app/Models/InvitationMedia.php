@@ -17,17 +17,16 @@ class InvitationMedia extends Model
         'invitation_id',
         'type',
         'title',
+        'artist',
         'url',
         'poster_url',
         'autoplay',
         'status',
-        'meta',
         'sort_order',
     ];
 
     protected $casts = [
         'autoplay' => 'boolean',
-        'meta' => 'array',
         'sort_order' => 'integer',
     ];
 

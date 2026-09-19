@@ -14,13 +14,11 @@ class InvitationPoll extends Model
         'question',
         'type',
         'is_enabled',
-        'meta',
         'sort_order',
     ];
 
     protected $casts = [
         'is_enabled' => 'boolean',
-        'meta' => 'array',
         'sort_order' => 'integer',
     ];
 
