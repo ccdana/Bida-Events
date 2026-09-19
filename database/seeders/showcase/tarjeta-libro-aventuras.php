@@ -98,7 +98,7 @@ return [
                 [
                     'titulo' => 'El viaje que no olvidamos',
                     'fecha' => '2022-07-20',
-                    'texto' => "Se nos pinchó una llanta a mitad de camino y terminamos viendo el atardecer más lindo sentados sobre la maleta. A veces los mejores planes son los que salen mal.",
+                    'texto' => 'Se nos pinchó una llanta a mitad de camino y terminamos viendo el atardecer más lindo sentados sobre la maleta. A veces los mejores planes son los que salen mal.',
                     'foto' => $gallery[2],
                     'alt' => 'Atardecer en el camino',
                 ],

@@ -1936,3 +1936,15 @@ html.theme-changing *:not(.theme-toggle__icon) {
         transition: none;
     }
 }
+
+/* Diseños para probar en la página por evento: en el teléfono la descripción va debajo del nombre */
+@media (max-width: 639px) {
+    .site-landing .site-template {
+        grid-template-columns: 2.5rem 1fr;
+        row-gap: 0.25rem;
+    }
+
+    .site-landing .site-template__event {
+        grid-column: 2;
+    }
+}

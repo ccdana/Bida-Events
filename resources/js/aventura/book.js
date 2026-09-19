@@ -174,6 +174,35 @@ function turn(flip, forward) {
     settings.disableFlipByClick = keep;
 }
 
+/**
+ * Teléfonos del sitio (?portada=1): la tapa se luce un momento, el libro se abre solo y pasa una hoja.
+ * Con ?reel=1 la muestra se cargó oculta (resources/js/site.js) y espera la señal de que ya se ve.
+ */
+function autoplay(flip) {
+    if (!window.invCoverAutoplay) {
+        return;
+    }
+
+    const standby = new URLSearchParams(window.location.search).has('reel');
+    const play = new Promise((resolve) => {
+        if (!standby) {
+            resolve();
+            return;
+        }
+
+        window.addEventListener('message', (event) => {
+            if (event.origin === window.location.origin && event.data === 'bida:cover-play') {
+                resolve();
+            }
+        });
+    });
+
+    play.then(() => {
+        setTimeout(() => turn(flip, true), 1800);
+        setTimeout(() => turn(flip, true), 5200);
+    });
+}
+
 /** Espiral de alambre fija sobre el lomo: con dos hojas va al centro; con una, a la izquierda. */
 function placeSpiral(flip, block) {
     const area = block.querySelector('.stf__block');
@@ -310,6 +339,8 @@ export function initNotebook(root) {
 
     // Mientras se arrastra, el cursor «agarra» la hoja
     flip.on('changeState', (event) => root.classList.toggle('is-dragging', event.data === USER_FOLD));
+
+    autoplay(flip);
 
     document.addEventListener('keydown', (event) => {
         if (isTyping(document.activeElement) || event.altKey || event.ctrlKey || event.metaKey) {

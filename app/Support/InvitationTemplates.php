@@ -241,6 +241,7 @@ final class InvitationTemplates
             ],
             self::TARJETA_AVENTURA => [
                 'label' => 'Libro de aventuras',
+                'tagline' => 'Un cuaderno de recortes que se hojea, con juego de memoria',
                 'description' => 'Un cuaderno de recortes que se hojea: el mes del aniversario, la carta, su historia por capítulos, recuerdos, collages con flores amarillas, fotos con marco y un juego de memoria.',
                 'event' => 'aventura',
                 'palette' => [

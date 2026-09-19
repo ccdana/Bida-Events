@@ -16,6 +16,7 @@ final class ShowcaseDemos
         'bautizo' => ['Bautizo', 'baby'],
         'cumple' => ['Cumpleaños', 'cake'],
         'amor' => ['Día del Amor', 'heart'],
+        'aventura' => ['Día del Amor', 'book-open'],
     ];
 
     /**
