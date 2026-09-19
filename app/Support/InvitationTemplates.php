@@ -40,7 +40,8 @@ final class InvitationTemplates
     {
         return [
             self::XV_PREMIUM => [
-                'label' => 'XV Años Elegante',
+                'label' => 'Noche de gala',
+                'tagline' => 'Se abre con un telón, entre destellos dorados',
                 'description' => 'Portada a pantalla completa con la foto, partículas doradas y estilo editorial.',
                 'event' => 'xv',
                 // Paleta con la que nace una invitación de este tipo (la misma de la muestra)
@@ -59,7 +60,8 @@ final class InvitationTemplates
                 'copy' => [],
             ],
             self::BODA_JARDIN => [
-                'label' => 'Boda Jardín',
+                'label' => 'Promesa en el jardín',
+                'tagline' => 'Un sobre lacrado entre ramas y pétalos',
                 'description' => 'Sobre que se abre al entrar, foto en arco con ramas que crecen, pétalos y títulos caligráficos.',
                 'event' => 'boda',
                 // Paleta con la que nace una invitación de este tipo (la misma de la muestra)
@@ -97,7 +99,8 @@ final class InvitationTemplates
                 ],
             ],
             self::BAUTIZO_CIELO => [
-                'label' => 'Bautizo Cielo',
+                'label' => 'Entre nubes',
+                'tagline' => 'Agua que cae sobre la pila, nubes y palomas',
                 'description' => 'Nubes que se abren al entrar, foto en medallón con halo y paloma, destellos y secciones separadas por olas.',
                 'event' => 'bautizo',
                 // Paleta con la que nace una invitación de este tipo (la misma de la muestra)
@@ -136,7 +139,8 @@ final class InvitationTemplates
                 ],
             ],
             self::CUMPLE_FIESTA => [
-                'label' => 'Cumpleaños Fiesta',
+                'label' => 'Sopla las velas',
+                'tagline' => 'Un pastel con velas, confeti y globos',
                 'description' => 'Pastel con velas que se soplan al entrar, confeti, globos, banderines y la edad en grande.',
                 'event' => 'cumple',
                 // Paleta con la que nace una invitación de este tipo (la misma de la muestra)
@@ -180,7 +184,7 @@ final class InvitationTemplates
             ],
             // ── Tarjetas estacionales ─────────────────────────────────────────
             self::TARJETA_AMOR => [
-                'label' => 'Carta de amor',
+                'label' => 'Carta que florece',
                 'tagline' => 'Se abre regando una flor y responde con otra',
                 'description' => 'Un jardín que florece: un capullo que se riega para abrirlo, la foto que se revela, la carta lacrada, una margarita que se deshoja, recuerdos en un tendedero, una flor de respuesta y un diente de león para pedir un deseo.',
                 'event' => 'amor',

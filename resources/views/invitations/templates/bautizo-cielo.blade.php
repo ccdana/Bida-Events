@@ -1,5 +1,5 @@
 {{--
-    Plantilla "Bautizo Cielo": mismos módulos que las demás con un lenguaje de bautizo.
+    Plantilla "Entre nubes": mismos módulos que las demás con un lenguaje de bautizo.
     Pila bautismal y jarra de agua que se toca para entrar, foto en medallón con halo y paloma, destellos, burbujas y
     secciones separadas por olas. Estilos en resources/css/invitation/themes/bautizo.css.
 --}}

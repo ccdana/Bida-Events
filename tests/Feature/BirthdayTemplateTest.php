@@ -55,6 +55,6 @@ class BirthdayTemplateTest extends TestCase
 
     public function test_birthday_template_is_offered_in_the_editor(): void
     {
-        $this->assertSame('Cumpleaños Fiesta', InvitationDefaults::templates()[InvitationTemplates::CUMPLE_FIESTA] ?? null);
+        $this->assertSame('Sopla las velas', InvitationDefaults::templates()[InvitationTemplates::CUMPLE_FIESTA] ?? null);
     }
 }

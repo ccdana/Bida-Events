@@ -197,7 +197,7 @@ class AdventureBookTest extends TestCase
         $validator = Validator::make(['modulos' => self::sample()], app(ModuleRegistry::class)->rules('modulos'));
         $this->assertTrue($validator->passes(), json_encode($validator->errors()->all(), JSON_UNESCAPED_UNICODE));
 
-        // La Carta de amor no ofrece las hojas del libro (el editor solo muestra las pestañas del perfil)
+        // La Carta que florece no ofrece las hojas del libro (el editor solo muestra las pestañas del perfil)
         $love = app(EventProfiles::class)->forTemplate(InvitationTemplates::TARJETA_AMOR);
         $this->assertEmpty(array_intersect(self::BOOK_MODULES, $love->modules()));
 

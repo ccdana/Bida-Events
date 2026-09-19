@@ -63,7 +63,7 @@ class HomePageTest extends TestCase
             ->assertSeeInOrder(['id="temporada"', 'Invitaciones digitales'], false)
             // Habla de la temporada y lista sus diseños (hoy, uno)
             ->assertSee('Día del Amor y la Primavera')
-            ->assertSeeInOrder(['Diseños de la temporada', 'Carta de amor'])
+            ->assertSeeInOrder(['Diseños de la temporada', 'Carta que florece'])
             ->assertSeeInOrder(['100 Bs', '75', 'Bs'])
             // Cuenta regresiva ya calculada: faltan 2 días, 11 horas, 59 minutos y 59 segundos
             ->assertSeeInOrder(['02', 'días', '11', 'horas', '59', 'min', '59', 'seg'])
@@ -126,7 +126,7 @@ class HomePageTest extends TestCase
             ->assertOk()
             ->assertSee('id="plantillas"', false)
             ->assertSee('href="#plantillas"', false)
-            ->assertSeeInOrder(['XV Años Elegante', 'Boda Jardín', 'Bautizo Cielo', 'Cumpleaños Fiesta'])
+            ->assertSeeInOrder(['Noche de gala', 'Promesa en el jardín', 'Entre nubes', 'Sopla las velas'])
             // El teléfono de la sección prueba la muestra interactiva; el de la portada recorre las aperturas
             ->assertSee('src="'.route('invitation.demo', 'xv-isabella').'"', false)
             ->assertSee('data-cover-reel', false)

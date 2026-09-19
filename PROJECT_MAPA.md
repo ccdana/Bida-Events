@@ -271,7 +271,7 @@ propósito y responde `no-store`.
 | Archivo | Qué hace |
 | --- | --- |
 | `InvitationPage.php` | Objeto que usa toda plantilla pública: perfil, paleta, fuentes, módulos visibles, orden de secciones, nombres, edad, dedicatoria, iniciales y textos de la plantilla |
-| `InvitationTemplates.php` | Catálogo de plantillas (cuatro invitaciones y la tarjeta «Carta de amor»): etiqueta, descripción, perfil (`event`), paleta por defecto, textos propios y orden de módulos |
+| `InvitationTemplates.php` | Catálogo de plantillas (cuatro invitaciones y las tarjetas «Carta que florece» y «Libro de aventuras»): nombre visible (`label`), frase corta (`tagline`), descripción, perfil (`event`), paleta por defecto, textos propios y orden de módulos |
 | `ColorContrast.php` | Contraste WCAG y las mezclas de color de la invitación; lo usan la página del sistema visual y las pruebas |
 | `InvitationDefaults.php` | Pestañas del editor y resolución de plantilla; códigos, visibilidad y módulos vacíos los toma de `ModuleRegistry` |
 | `InvitationModuleRules.php` | Esquema de validación de cada módulo del editor |
@@ -374,7 +374,7 @@ propósito y responde `no-store`.
 | `seeders/DatabaseSeeder.php` | Crea el administrador y llama a los demás |
 | `seeders/ClientUserSeeder.php` | Cliente de prueba `cliente.prueba` con una invitación de muestra sin dueño; la contraseña sale de `SEED_CLIENT_PASSWORD` o se genera y se muestra una vez |
 | `seeders/EventTypeSeeder.php` | Tipos de evento base con su código, tipo y temporada (incluye Día del Amor) |
-| `seeders/ShowcaseInvitationsSeeder.php` | Recrea las cuatro invitaciones y la tarjeta de muestra completas, con invitados, aportes y votos; es idempotente |
+| `seeders/ShowcaseInvitationsSeeder.php` | Recrea las cuatro invitaciones y las dos tarjetas de muestra completas, con invitados, aportes y votos; es idempotente |
 | `seeders/showcase/xv-isabella.php` | Datos de la muestra de XV años |
 | `seeders/showcase/boda-camila-andres.php` | Datos de la muestra de boda |
 | `seeders/showcase/bautizo-emilia.php` | Datos de la muestra de bautizo |
@@ -420,11 +420,11 @@ propósito y responde `no-store`.
 
 | Archivo | Qué hace |
 | --- | --- |
-| `invitations/templates/xv-premium.blade.php` | XV Años Elegante: telones de apertura, destellos dorados y marco editorial |
-| `invitations/templates/boda-jardin.blade.php` | Boda Jardín: sobre con sello de cera, ramas y pétalos |
-| `invitations/templates/bautizo-cielo.blade.php` | Bautizo Cielo: pila bautismal con jarra, nubes, palomas y burbujas |
-| `invitations/templates/cumple-fiesta.blade.php` | Cumpleaños Fiesta: pastel con velas, confeti, globos y banderines |
-| `invitations/templates/tarjeta-amor.blade.php` | Carta de amor: carta doblada con cinta que se abre, foto con cinta adhesiva, dedicatoria y contador |
+| `invitations/templates/xv-premium.blade.php` | Noche de gala: telones de apertura, destellos dorados y marco editorial |
+| `invitations/templates/boda-jardin.blade.php` | Promesa en el jardín: sobre con sello de cera, ramas y pétalos |
+| `invitations/templates/bautizo-cielo.blade.php` | Entre nubes: pila bautismal con jarra, nubes, palomas y burbujas |
+| `invitations/templates/cumple-fiesta.blade.php` | Sopla las velas: pastel con velas, confeti, globos y banderines |
+| `invitations/templates/tarjeta-amor.blade.php` | Carta que florece: carta doblada con cinta que se abre, foto con cinta adhesiva, dedicatoria y contador |
 | `invitations/partials/amor/intro.blade.php` / `hero.blade.php` | Apertura de la carta y portada de la tarjeta |
 | `invitations/partials/modules/*.blade.php` | Vistas de los módulos registrados (`dedicatoria`, `juntos-desde`, `respuesta`); `shell/modules` las incluye solas |
 

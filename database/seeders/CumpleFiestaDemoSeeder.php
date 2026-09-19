@@ -10,7 +10,7 @@ use App\Support\InvitationTemplates;
 use Illuminate\Database\Seeder;
 
 /**
- * Invitación de ejemplo de la plantilla "Cumpleaños Fiesta" (slug cumple-valeria).
+ * Invitación de ejemplo de la plantilla "Sopla las velas" (slug cumple-valeria).
  *
  * Datos de prueba: los usan los tests (tests/Feature) como invitación completa de esta plantilla.
  * No son las muestras de la portada; esas viven en database/seeders/showcase y ShowcaseInvitationsSeeder.

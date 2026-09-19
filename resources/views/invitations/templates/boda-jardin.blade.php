@@ -1,5 +1,5 @@
 {{--
-    Plantilla "Boda Jardín": mismos módulos que XV Premium con un lenguaje propio de boda.
+    Plantilla "Promesa en el jardín": mismos módulos que «Noche de gala» con un lenguaje propio de boda.
     Sobre de apertura, foto en arco con ramas que crecen, pétalos, títulos caligráficos y
     secciones separadas por ornamentos. Estilos en resources/css/invitation/themes/boda.css.
 --}}

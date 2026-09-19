@@ -50,6 +50,6 @@ class BaptismTemplateTest extends TestCase
 
     public function test_baptism_template_is_offered_in_the_editor(): void
     {
-        $this->assertSame('Bautizo Cielo', InvitationDefaults::templates()[InvitationTemplates::BAUTIZO_CIELO] ?? null);
+        $this->assertSame('Entre nubes', InvitationDefaults::templates()[InvitationTemplates::BAUTIZO_CIELO] ?? null);
     }
 }

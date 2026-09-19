@@ -1,5 +1,5 @@
 {{--
-    Plantilla "Cumpleaños Fiesta": mismos módulos que las demás con un lenguaje de fiesta.
+    Plantilla "Sopla las velas": mismos módulos que las demás con un lenguaje de fiesta.
     Pastel con velas que se soplan al entrar, confeti, globos, banderines, la edad en grande y
     controles con bordes marcados y sombras de color. Estilos en resources/css/invitation/themes/cumple.css.
 --}}

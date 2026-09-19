@@ -1,6 +1,6 @@
 <?php
 
-// Tarjeta de muestra del Día del Amor (plantilla "Carta de amor").
+// Tarjeta de muestra del Día del Amor (plantilla "Carta que florece").
 // Reusa fotos y canción de la muestra de boda, que ya están en Cloudinary.
 
 return [

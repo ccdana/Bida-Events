@@ -1,5 +1,5 @@
 {{--
-    Tarjeta "Carta de amor" (Día del Amor, 21 de septiembre): de una persona a otra.
+    Tarjeta "Carta que florece" (Día del Amor, 21 de septiembre): de una persona a otra.
     «Un jardín que florece», por el Día del Amor y la primavera. Se recorre en modo historia
     (partials/story/chrome, resources/js/story) y cada escena es un gesto distinto:
     regar un capullo para abrirla, la foto que se revela, la carta con sello (mantener presionado),

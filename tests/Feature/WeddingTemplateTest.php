@@ -83,7 +83,7 @@ class WeddingTemplateTest extends TestCase
 
     public function test_wedding_template_is_offered_in_the_editor(): void
     {
-        $this->assertSame('Boda Jardín', InvitationDefaults::templates()[InvitationTemplates::BODA_JARDIN] ?? null);
+        $this->assertSame('Promesa en el jardín', InvitationDefaults::templates()[InvitationTemplates::BODA_JARDIN] ?? null);
         $this->assertSame(InvitationTemplates::BODA_JARDIN, InvitationDefaults::resolveTemplate(InvitationTemplates::BODA_JARDIN));
     }
 }
