@@ -87,8 +87,12 @@ class ModuleRegistryTest extends TestCase
     public function test_card_modules_save_to_their_tables_and_read_back_the_same(): void
     {
         $registry = app(ModuleRegistry::class);
-        $modules = ShowcaseInvitationsSeeder::data('tarjeta-ana-luis')['modules'];
-        $invitation = $this->createInvitation(['template' => InvitationTemplates::TARJETA_AMOR]);
+        // Las dos muestras juntas cubren todos los módulos propios de las tarjetas
+        $modules = array_merge(
+            ShowcaseInvitationsSeeder::data('tarjeta-libro-aventuras')['modules'],
+            ShowcaseInvitationsSeeder::data('tarjeta-ana-luis')['modules'],
+        );
+        $invitation = $this->createInvitation(['template' => InvitationTemplates::TARJETA_AVENTURA]);
 
         $registry->save($invitation, $modules);
 
@@ -103,7 +107,10 @@ class ModuleRegistryTest extends TestCase
 
         // Solo los módulos propios de las tarjetas; los compartidos ya los recorre StructuredModulesRoundTripTest
         $cardOnly = array_keys(array_filter($registry->all(), fn (Module $module) => $module->kinds() === [Module::KIND_CARD]));
-        $this->assertEqualsCanonicalizing(['dedicatoria', 'juntos_desde', 'respuesta'], $cardOnly);
+        $this->assertEqualsCanonicalizing(
+            ['dedicatoria', 'juntos_desde', 'respuesta', 'historia', 'recuerdos', 'collage', 'marcos', 'memoria'],
+            $cardOnly,
+        );
 
         foreach ($cardOnly as $code) {
             foreach ($modules[$code] as $key => $value) {
@@ -115,5 +122,6 @@ class ModuleRegistryTest extends TestCase
         $registry->save($invitation, array_merge($modules, array_fill_keys($cardOnly, [])));
         $this->assertDatabaseMissing('card_dedications', ['invitation_id' => $invitation->id]);
         $this->assertDatabaseMissing('card_milestones', ['invitation_id' => $invitation->id]);
+        $this->assertDatabaseMissing('card_entries', ['invitation_id' => $invitation->id]);
     }
 }

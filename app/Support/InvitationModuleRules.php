@@ -43,11 +43,16 @@ class InvitationModuleRules
         return $decoded;
     }
 
+    /** Los medios deben llegar ya subidos (Cloudinary); una URL blob:/data: significa que la subida no se completó. */
+    public static function urlRules(): array
+    {
+        return ['nullable', 'string', 'max:2048', 'not_regex:/^\s*(blob|data):/i'];
+    }
+
     public static function rules(string $prefix): array
     {
         $p = $prefix;
-        // Los medios deben llegar ya subidos (Cloudinary); una URL blob:/data: significa que la subida no se completó
-        $url = ['nullable', 'string', 'max:2048', 'not_regex:/^\s*(blob|data):/i'];
+        $url = self::urlRules();
         $rules = [$p => ['array']];
 
         foreach (InvitationDefaults::moduleCodes() as $code) {
@@ -109,7 +114,7 @@ class InvitationModuleRules
      * Una foto puede llegar como URL suelta o como {url, alt}: en ambos casos se valida la URL,
      * para que una subida a medias (blob:) no entre por la puerta del objeto.
      */
-    private static function photoEntry(array $urlRules): array
+    public static function photoEntry(array $urlRules): array
     {
         return ['nullable', function (string $attribute, mixed $value, Closure $fail) use ($urlRules) {
             $url = is_array($value) ? ($value['url'] ?? null) : $value;

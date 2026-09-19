@@ -1,0 +1,13 @@
+/**
+ * Tarjeta «Libro de aventuras»: la vuelta de página del cuaderno, el juego de memoria y la lluvia de
+ * pétalos. Lo carga app.js solo si la página tiene [data-notebook], antes de arrancar Alpine, así las
+ * hojas ya están en su lugar cuando Alpine las recorre.
+ */
+import { initCelebrations } from '../story/effects.js';
+import { initNotebook } from './book.js';
+import { memoryGame } from './memory-game.js';
+
+window.memoryGame = memoryGame;
+
+initCelebrations();
+document.querySelectorAll('[data-notebook]').forEach(initNotebook);

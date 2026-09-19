@@ -19,6 +19,12 @@ class MediaUploadService
         'post_evento' => ['width' => 600, 'height' => 600, 'crop' => 'fill', 'quality' => 'auto'],
         'destacados' => ['width' => 300, 'height' => 300, 'crop' => 'thumb', 'gravity' => 'face', 'quality' => 'auto'],
         'regalos_qr' => ['width' => 300, 'height' => 300, 'crop' => 'fill', 'quality' => 'auto'],
+        // Tarjeta «Libro de aventuras»
+        'historia' => ['width' => 900, 'height' => 900, 'crop' => 'limit', 'quality' => 'auto'],
+        'recuerdos' => ['width' => 800, 'height' => 1000, 'crop' => 'fill', 'quality' => 'auto'],
+        'collage' => ['width' => 800, 'height' => 800, 'crop' => 'limit', 'quality' => 'auto'],
+        'marcos' => ['width' => 800, 'height' => 1000, 'crop' => 'fill', 'quality' => 'auto'],
+        'memoria' => ['width' => 400, 'height' => 400, 'crop' => 'fill', 'quality' => 'auto'],
     ];
 
     private const VIDEO_DELIVERY = ['crop' => 'limit', 'width' => 1280, 'height' => 1280, 'quality' => 'auto', 'format' => 'mp4'];

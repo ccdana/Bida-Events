@@ -1,8 +1,13 @@
 <?php
 
+use App\Modules\Card\CollageModule;
 use App\Modules\Card\DedicationModule;
+use App\Modules\Card\FramesModule;
+use App\Modules\Card\MemoriesModule;
+use App\Modules\Card\MemoryGameModule;
 use App\Modules\Card\MilestoneModule;
 use App\Modules\Card\ReplyModule;
+use App\Modules\Card\StoryModule;
 use App\Modules\Invitation\AudioModule;
 use App\Modules\Invitation\ConfigModule;
 use App\Modules\Invitation\DressCodeModule;
@@ -58,6 +63,12 @@ return [
         DedicationModule::class,
         MilestoneModule::class,
         ReplyModule::class,
+        // Tarjeta tipo cuaderno («Libro de aventuras»)
+        StoryModule::class,
+        MemoriesModule::class,
+        CollageModule::class,
+        FramesModule::class,
+        MemoryGameModule::class,
     ],
 
 ];

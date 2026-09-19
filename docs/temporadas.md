@@ -101,6 +101,27 @@ plantilla:
    queda trabado. El contenido va siempre en el HTML debajo de la puerta, para que se lea sin
    JavaScript y con lector de pantalla.
 
+## Ejemplo: «Libro de aventuras» (cuaderno que se hojea)
+
+Segunda tarjeta del Día del Amor (`tarjeta-aventura`, perfil `AdventureBookProfile`, código `aventura`,
+temporada `amor`). Suma cinco módulos propios de tarjeta:
+
+| Módulo | Guarda en | Qué es |
+| --- | --- | --- |
+| `historia` | `card_entries` (sección `historia`) | Capítulos con fecha, texto y foto; un capítulo largo ocupa varias hojas |
+| `recuerdos` | `card_entries` (sección `recuerdos`) | Fotos con título, fecha y una nota corta |
+| `collage` | `invitation_gallery_images` (colección `collage`) | Fotos en formas que se turnan (corazón, girasol, fotomatón…) |
+| `marcos` | `invitation_gallery_images` (colección `marcos`) | Fotos con marco; la descripción es el pie |
+| `memoria` | `invitation_gallery_images` (colección `memoria`) + `invitation_sections` | Juego de memoria (3 a 8 fotos) y mensaje al ganar |
+
+- En vez de `shell/modules`, la plantilla usa `partials/aventura/book`: una vista por módulo en
+  `partials/aventura/pages/{modulo}` que devuelve una o varias hojas (`data-nb-page`). El libro completa
+  un número par de hojas y las numera.
+- El texto largo (carta y capítulos) se reparte con `App\Support\NotebookPaginator`. Las medidas de la
+  hoja van en `cqw` (`resources/css/cards/aventura.css`), así el mismo reparto sirve en cualquier pantalla.
+- La vuelta de página es `page-flip` (npm), cargada desde `resources/js/aventura`. Con «reducir
+  movimiento», sin JavaScript o con `?hojas=todas`, las hojas quedan apiladas.
+
 ## Qué no hacer
 
 - No preguntar en vistas o controladores «¿es boda?» o «¿es tarjeta?» por el nombre de la plantilla:

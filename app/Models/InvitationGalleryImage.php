@@ -11,6 +11,13 @@ class InvitationGalleryImage extends Model
 
     public const COLLECTION_POST_EVENT = 'post_event';
 
+    // Tarjeta «Libro de aventuras»
+    public const COLLECTION_COLLAGE = 'collage';
+
+    public const COLLECTION_FRAMES = 'marcos';
+
+    public const COLLECTION_MEMORY_GAME = 'memoria';
+
     protected $fillable = [
         'invitation_id',
         'collection',
