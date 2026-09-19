@@ -108,9 +108,12 @@ class ModuleRegistryTest extends TestCase
         // Solo los módulos propios de las tarjetas; los compartidos ya los recorre StructuredModulesRoundTripTest
         $cardOnly = array_keys(array_filter($registry->all(), fn (Module $module) => $module->kinds() === [Module::KIND_CARD]));
         $this->assertEqualsCanonicalizing(
-            ['dedicatoria', 'juntos_desde', 'respuesta', 'historia', 'recuerdos', 'collage', 'marcos', 'memoria', 'aventuras'],
+            ['dedicatoria', 'juntos_desde', 'respuesta', 'historia', 'recuerdos', 'collage', 'marcos', 'memoria', 'aventuras', 'relato'],
             $cardOnly,
         );
+
+        // Cada tarjeta prueba su propio ida y vuelta (AdventureBookTest, StoryTemplateTest); aquí, los de esta muestra
+        $cardOnly = array_values(array_intersect($cardOnly, array_keys($modules)));
 
         foreach ($cardOnly as $code) {
             foreach ($modules[$code] as $key => $value) {

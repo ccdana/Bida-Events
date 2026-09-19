@@ -1,0 +1,159 @@
+/* Apertura: un estanque quieto con la luna reflejada; un toque abre ondas desde el dedo (pondCover) */
+
+.story-cover {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    display: grid;
+    place-items: center;
+    padding: 1.5rem;
+    background:
+        radial-gradient(90% 55% at 50% 38%, #142a5e, transparent 70%),
+        var(--story-night);
+    color: var(--text-color);
+    transition: opacity 0.8s var(--story-ease);
+}
+
+.story-cover.is-gone {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.story-cover__inner {
+    display: grid;
+    justify-items: center;
+    gap: 1rem;
+    text-align: center;
+}
+
+.story-cover__to {
+    margin: 0;
+    font-family: var(--story-poet);
+    font-style: italic;
+    font-size: 1.25rem;
+    color: var(--inv-muted);
+}
+
+.story-cover__names {
+    margin: 0 0 1.25rem;
+    font-family: var(--story-poet);
+    font-style: italic;
+    font-size: clamp(2.2rem, 10vw, 3.2rem);
+    line-height: 1.1;
+}
+
+.story-cover__pond {
+    position: relative;
+    width: min(80vw, 21rem);
+    aspect-ratio: 1.7;
+    overflow: hidden;
+    border: 0;
+    border-radius: 50%;
+    padding: 0;
+    background: radial-gradient(ellipse at 50% 35%, #1d3a7a, #0b1838 72%);
+    box-shadow:
+        inset 0 10px 30px rgb(0 0 0 / 0.55),
+        0 0 0 1px color-mix(in srgb, var(--story-moon) 18%, transparent),
+        0 30px 80px -30px color-mix(in srgb, var(--story-moon) 30%, transparent);
+    cursor: pointer;
+    transition: transform 160ms ease-out;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.story-cover__pond:active {
+    transform: scale(0.98);
+}
+
+.story-cover__pond:focus-visible {
+    outline: 2px solid var(--story-moon);
+    outline-offset: 6px;
+}
+
+/* El reflejo de la luna: una elipse que tiembla despacio */
+.story-cover__moon {
+    position: absolute;
+    left: 50%;
+    top: 46%;
+    width: 30%;
+    aspect-ratio: 1 / 0.62;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, #fffbea, var(--story-moon) 55%, transparent 72%);
+    filter: blur(1px);
+    translate: -50% -50%;
+    animation: story-shimmer 3.4s ease-in-out infinite alternate;
+}
+
+.story-cover__ring {
+    position: absolute;
+    left: var(--rx, 50%);
+    top: var(--ry, 50%);
+    width: 22%;
+    aspect-ratio: 1 / 0.42;
+    border: 1.5px solid color-mix(in srgb, var(--story-moon) 75%, transparent);
+    border-radius: 50%;
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.2);
+}
+
+/* Antes del toque, una onda lenta invita a tocar el agua */
+.story-cover:not(.is-touched) .story-cover__ring:first-of-type {
+    animation: story-ring-idle 3.6s ease-out 1.2s infinite;
+}
+
+.story-cover.is-touched .story-cover__ring {
+    animation: story-ring 1.5s var(--story-ease) forwards;
+}
+
+.story-cover.is-touched .story-cover__ring:nth-of-type(3) { animation-delay: 0.16s; }
+.story-cover.is-touched .story-cover__ring:nth-of-type(4) { animation-delay: 0.32s; }
+
+.story-cover.is-touched .story-cover__moon {
+    animation: story-shiver 1s ease-out;
+}
+
+.story-cover__hint {
+    margin: 1.25rem 0 0;
+    font-size: 0.95rem;
+    color: var(--inv-muted);
+    transition: opacity 0.3s ease;
+}
+
+.story-cover.is-touched .story-cover__hint,
+.story-cover.is-touched .story-cover__skip {
+    opacity: 0;
+}
+
+.story-cover__skip {
+    min-height: 2.75rem;
+    padding: 0.5rem 1rem;
+    border: 0;
+    background: none;
+    color: var(--inv-soft);
+    font: inherit;
+    font-size: 0.9rem;
+    text-decoration: underline;
+    text-underline-offset: 0.25em;
+    cursor: pointer;
+}
+
+@keyframes story-shimmer {
+    from { transform: scaleX(1) skewX(0deg); }
+    to { transform: scaleX(1.08) skewX(-3deg); }
+}
+
+@keyframes story-shiver {
+    0% { transform: scaleX(1); }
+    25% { transform: scaleX(1.25) skewX(6deg); }
+    55% { transform: scaleX(0.9) skewX(-4deg); }
+    100% { transform: scaleX(1); }
+}
+
+@keyframes story-ring {
+    0% { opacity: 0.9; transform: translate(-50%, -50%) scale(0.2); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(5); }
+}
+
+@keyframes story-ring-idle {
+    0% { opacity: 0.55; transform: translate(-50%, -50%) scale(0.3); }
+    70%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(2.4); }
+}

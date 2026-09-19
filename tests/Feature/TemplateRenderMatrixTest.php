@@ -48,6 +48,7 @@ class TemplateRenderMatrixTest extends TestCase
             'cumple' => CumpleFiestaDemoSeeder::modules(),
             'amor' => ShowcaseInvitationsSeeder::data('tarjeta-ana-luis')['modules'],
             'aventura' => ShowcaseInvitationsSeeder::data('tarjeta-libro-aventuras')['modules'],
+            'historia' => ShowcaseInvitationsSeeder::data('historia-ana-luis')['modules'],
         };
     }
 

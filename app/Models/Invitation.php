@@ -116,6 +116,18 @@ class Invitation extends Model
         return $this->hasMany(CardEntry::class)->orderBy('sort_order')->orderBy('id');
     }
 
+    /** Relato de la tarjeta «Nuestra historia»: primeras impresiones, anécdota, reflexión y promesa. */
+    public function story(): HasOne
+    {
+        return $this->hasOne(CardStory::class);
+    }
+
+    /** Momentos clave de «Nuestra historia», en orden. */
+    public function storyMoments(): HasMany
+    {
+        return $this->hasMany(CardStoryMoment::class)->orderBy('sort_order')->orderBy('id');
+    }
+
     /**
      * Lista de invitados de este evento.
      */

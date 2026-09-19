@@ -20,7 +20,7 @@ use Illuminate\Support\Arr;
  */
 class ShowcaseInvitationsSeeder extends Seeder
 {
-    public const SLUGS = ['xv-isabella', 'boda-camila-andres', 'bautizo-emilia', 'cumple-daniela-30', 'tarjeta-ana-luis', 'tarjeta-libro-aventuras'];
+    public const SLUGS = ['xv-isabella', 'boda-camila-andres', 'bautizo-emilia', 'cumple-daniela-30', 'tarjeta-ana-luis', 'tarjeta-libro-aventuras', 'historia-ana-luis'];
 
     public function run(): void
     {

@@ -6,6 +6,10 @@ funcionando con HTTPS, correo, respaldos y alertas. Al final están los pasos pa
 versiones nuevas.
 
 > Los precios son aproximados (septiembre de 2026) y en dólares. Confírmalos al contratar.
+>
+> Esta guía instala todo directo en el servidor. Si prefieres contenedores, `docs/docker.md` explica
+> la misma aplicación con Docker; los pasos de dominio, Cloudflare, correo y respaldos (1, 6 y 9) valen
+> igual.
 
 ---
 

@@ -23,6 +23,8 @@ final class InvitationTemplates
 
     public const TARJETA_AVENTURA = 'invitations.templates.tarjeta-aventura';
 
+    public const WE_STORY_TOGETHER = 'invitations.templates.we-story-together';
+
     public const DEFAULT = self::XV_PREMIUM;
 
     /**
@@ -262,6 +264,52 @@ final class InvitationTemplates
                     'menu_heading' => 'Un libro para',
                     'intro_hint' => 'Desliza la tapa para abrir el libro',
                     'footer_pitch' => '¿Te gustó este libro? Arma el tuyo',
+                ],
+            ],
+            // Perfil propio (StoryCardProfile). Cuatro actos fijos en partials/historia: la vista no
+            // recorre «order», que solo arma el menú. Cada texto *_fallback cubre un dato vacío con
+            // algo propio de su acto, para que la cadena de sentido no se rompa.
+            self::WE_STORY_TOGETHER => [
+                'label' => 'Bajo la misma luna',
+                'tagline' => 'Su historia en cuatro actos, de la luna en el agua a un cielo de estrellas',
+                'description' => 'La historia de una pareja en cuatro actos: la luna reflejada en el agua, la marea que sube con cada recuerdo, la luna de frente con la anécdota que lo cambió todo y un cielo estrellado a lo Van Gogh.',
+                'event' => 'historia',
+                // Noche fija: el tema solo toma del cliente la luz de la luna (primary)
+                'palette' => [
+                    'primary' => '#E8C872',
+                    'secondary' => '#1C2B5A',
+                    'accent' => '#3F6FA8',
+                    'text' => '#F3ECDA',
+                    'background' => '#0A1230',
+                ],
+                'order' => ['juntos_desde', 'relato', 'dedicatoria', 'galeria', 'respuesta'],
+                'copy' => [
+                    'menu_heading' => 'La historia de',
+                    'footer_pitch' => '¿Te gustó esta historia? Escribe la tuya',
+                    'cover_hint' => 'Toca el agua para empezar',
+                    'cover_skip' => 'Entrar sin esperar',
+                    'act1_label' => 'El reflejo',
+                    'act2_label' => 'La marea',
+                    'act3_label' => 'De frente',
+                    'act4_label' => 'La constelación',
+                    'act1_title' => 'The story we write together',
+                    'act1_intro_fallback' => 'Toda historia empieza lejos, como la luna en el agua: se la ve antes de entenderla.',
+                    'act1_met_prefix' => 'Nos conocimos el',
+                    'act1_met_fallback' => 'No recordamos el día exacto. Recordamos que después de ese día, todo fue distinto.',
+                    'act1_first_fallback' => 'Al principio fueron cosas pequeñas: una mirada que duró un segundo más, una conversación que no queríamos terminar. No sabíamos que ya estaba empezando.',
+                    'act2_title' => 'Y la marea empezó a subir',
+                    'act2_moments_fallback' => 'Hubo una primera caminata sin rumbo, una primera canción compartida, una primera vez en que el silencio no incomodó. Cada una subió la marea un poco más, hasta que ya no hubo forma de volver a la orilla.',
+                    'act3_title_fallback' => 'Ese momento',
+                    'act3_anecdote_fallback' => 'No hizo falta nada grande. Fue un instante cualquiera en que nos miramos y supimos, sin decirlo, que ya no queríamos mirar hacia otro lado.',
+                    'act3_song_label' => 'La canción que suena cuando pensamos en esto',
+                    'act3_dedication_fallback' => 'Te deseo lo mejor que tenga la vida, y quiero estar cerca para verlo.',
+                    'act3_photos_label' => 'Así nos vemos ahora',
+                    'act4_title' => 'Lo que cambió en nosotros',
+                    'act4_reflection_fallback' => 'Desde que estás, el cielo tiene más estrellas. No cambiaron las noches: cambió la forma en que las miramos.',
+                    'act4_promise_fallback' => 'Seguiremos escribiendo esta historia, una noche a la vez.',
+                    'act4_together' => 'Escribiendo juntos desde hace',
+                    'reply_title' => 'Deja tu estrella',
+                    'reply_intro' => 'Escribe unas palabras para esta historia. Solo las leen quienes la escribieron.',
                 ],
             ],
         ];

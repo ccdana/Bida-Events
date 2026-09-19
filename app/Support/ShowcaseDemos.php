@@ -17,6 +17,7 @@ final class ShowcaseDemos
         'cumple' => ['Cumpleaños', 'cake'],
         'amor' => ['Día del Amor', 'heart'],
         'aventura' => ['Día del Amor', 'book-open'],
+        'historia' => ['Día del Amor', 'moon-stars'],
     ];
 
     /**

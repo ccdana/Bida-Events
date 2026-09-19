@@ -29,6 +29,19 @@ sepa dónde tocar sin romper nada.
 
 ## 1. Cómo se ejecuta
 
+Con Docker, que es la forma recomendada y la única que no pide instalar nada más:
+
+```bash
+docker compose up -d              # levanta PHP, PostgreSQL, la cola y Vite
+docker compose logs -f app        # seguir el arranque hasta "Listo: http://localhost:8000"
+```
+
+La primera vez construye la imagen, instala las dependencias, crea el `.env`, genera la `APP_KEY`,
+migra y carga los datos de ejemplo. Los comandos de abajo se ejecutan con
+`docker compose exec app ...` delante. El detalle está en [`docs/docker.md`](docs/docker.md).
+
+Sin Docker, con PHP 8.4, Composer, Node 22 y PostgreSQL ya instalados:
+
 ```bash
 composer install && npm install
 cp .env.example .env && php artisan key:generate

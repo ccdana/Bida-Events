@@ -119,6 +119,7 @@ return [
         'cumple' => ['image' => 'event-cumpleanos', 'focus' => 0.15],
         // Tarjeta del Día del Amor: sin foto propia todavía, usa la de la pareja
         'amor' => ['image' => 'event-boda', 'focus' => 0.35],
+        'historia' => ['image' => 'event-boda', 'focus' => 0.35],
     ],
 
     /*
@@ -327,7 +328,7 @@ return [
         'price' => 100,
         'promo_price' => 75,
         'promo_label' => 'Promoción de temporada',
-        'templates' => ['tarjeta-ana-luis', 'tarjeta-libro-aventuras'],
+        'templates' => ['tarjeta-ana-luis', 'tarjeta-libro-aventuras', 'historia-ana-luis'],
         'landing' => 'tarjetas-dia-del-amor',
         'whatsapp' => 'Hola {brand}, quiero una tarjeta del Día del Amor ({price} Bs).',
     ],

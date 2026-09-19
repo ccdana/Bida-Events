@@ -4,6 +4,7 @@ use App\EventProfiles\AdventureBookProfile;
 use App\EventProfiles\BaptismProfile;
 use App\EventProfiles\BirthdayProfile;
 use App\EventProfiles\LoveCardProfile;
+use App\EventProfiles\StoryCardProfile;
 use App\EventProfiles\WeddingProfile;
 use App\EventProfiles\XvProfile;
 
@@ -26,4 +27,5 @@ return [
     // Tarjetas estacionales
     LoveCardProfile::class,
     AdventureBookProfile::class,
+    StoryCardProfile::class,
 ];

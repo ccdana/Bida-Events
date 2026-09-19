@@ -8,6 +8,7 @@ use App\Modules\Card\MemoriesModule;
 use App\Modules\Card\MemoryGameModule;
 use App\Modules\Card\MilestoneModule;
 use App\Modules\Card\ReplyModule;
+use App\Modules\Card\StoryActsModule;
 use App\Modules\Card\StoryModule;
 use App\Modules\Invitation\AudioModule;
 use App\Modules\Invitation\ConfigModule;
@@ -71,6 +72,8 @@ return [
         FramesModule::class,
         MemoryGameModule::class,
         AdventuresModule::class,
+        // Tarjeta en cuatro actos («Bajo la misma luna»)
+        StoryActsModule::class,
     ],
 
 ];

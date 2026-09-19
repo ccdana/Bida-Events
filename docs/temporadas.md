@@ -109,6 +109,9 @@ plantilla:
   leer `$page->profile` (vista) o `profile` / `isCard` (editor).
 - No cambiar las claves en español de un módulo existente: las leen las plantillas, el editor y
   los seeders de muestra.
+- No repetir el código de un módulo que ya existe, aunque se trabaje en otra rama: antes de crear
+  uno, buscarlo en `config/modules.php`. («historia» son los capítulos del libro de aventuras;
+  los actos de «Bajo la misma luna» usan «relato».)
 - No reutilizar un módulo cambiándole el sentido (por ejemplo, usar `hashtag` para guardar otra
   cosa): crear uno nuevo.
 - Cuidar imágenes y palabras con doble sentido en el español de Bolivia antes de publicar una
