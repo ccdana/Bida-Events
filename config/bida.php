@@ -20,7 +20,7 @@ return [
     // Solo dígitos, con código de país (591 para Bolivia)
     'whatsapp' => env('BIDA_WHATSAPP', '59170000000'),
 
-    'email' => env('BIDA_EMAIL', 'hola@bidaevents.com'),
+    'email' => env('BIDA_EMAIL', 'hola@bida-events.com'),
 
     // Usuario sin @
     'instagram' => env('BIDA_INSTAGRAM', 'bidaevents'),
