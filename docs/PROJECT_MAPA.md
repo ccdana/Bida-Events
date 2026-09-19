@@ -38,7 +38,9 @@ docker compose logs -f app        # seguir el arranque hasta "Listo: http://loca
 
 La primera vez construye la imagen, instala las dependencias, crea el `.env`, genera la `APP_KEY`,
 migra y carga los datos de ejemplo. Los comandos de abajo se ejecutan con
-`docker compose exec app ...` delante. El detalle está en [`docs/docker.md`](docs/docker.md).
+`docker compose exec app ...` delante. El detalle está en [`docs/docker.md`](docker.md), que también
+explica la puesta en producción con `compose.prod.yaml` (Nginx + PHP-FPM, cola, tareas programadas,
+PostgreSQL y Redis).
 
 Sin Docker, con PHP 8.4, Composer, Node 22 y PostgreSQL ya instalados:
 
@@ -154,8 +156,15 @@ propósito y responde `no-store`.
 | `vite.config.js` | Compilación de `app.css` y `app.js`; separa video.js, lottie-web y motion en chunks propios |
 | `phpunit.xml` | Configuración de pruebas (base SQLite en memoria y entorno de test) |
 | `.env` / `.env.example` | Configuración por entorno. `.env` nunca se versiona; toda variable nueva se documenta en el ejemplo |
+| `Dockerfile` | Imágenes: desarrollo (`app`, `node`) y producción (`deps`, `assets`, `production` con PHP-FPM y `web` con Nginx) |
+| `compose.yaml` / `compose.prod.yaml` | Entorno de desarrollo y puesta en producción con contenedores |
+| `docker/entrypoint.sh` / `docker/entrypoint.prod.sh` | Arranque de los contenedores: `.env`, dependencias y datos de ejemplo en desarrollo; migraciones y cachés en producción |
+| `docker/php.ini` / `docker/php.prod.ini` | PHP de cada entorno (subidas, memoria y OPcache) |
+| `docker/nginx.conf` | Nginx de producción: archivos de `public/`, IP real de Cloudflare y PHP-FPM |
+| `.dockerignore` | Lo que no entra en la imagen |
 | `README.md` | Presentación corta del proyecto |
-| `PROJECT_MAPA.md` | Este documento |
+| `docs/PROJECT_MAPA.md` | Este documento |
+| `docs/docker.md` | Desarrollo y producción con Docker |
 | `docs/rendimiento.md` | Última medición de tiempos, consultas y peso (la genera `php artisan bida:medir --guardar`) |
 | `docs/despliegue.md` | Primera instalación, publicación de una versión, vuelta atrás, cron y worker |
 | `docs/operacion.md` | Registros, alertas de `bida:salud`, respaldos, prueba y procedimiento de restauración |
@@ -178,6 +187,7 @@ propósito y responde `no-store`.
 | `config/logging.php` | Canales de log |
 | `config/mail.php` | Envío de correo |
 | `config/optimizations.php` | Interruptores propios: caché de invitaciones y TTL, retención, límites por minuto de login, RSVP, canciones, fotos, votos y respuestas de tarjeta, y cabeceras HTTP de caché |
+| `config/palettes.php` | Paletas listas de la pestaña «Estética», con los eventos para los que se pensó cada una (`App\Support\ColorPalettes`) |
 | `config/modules.php` | Lista de módulos registrados (`app/Modules`); el orden es el orden de guardado |
 | `config/event_profiles.php` | Perfiles de evento y temporada (`app/EventProfiles`) |
 | `config/operations.php` | Umbral de peticiones lentas, alertas, carpeta y ejecutables de respaldo |
@@ -285,6 +295,7 @@ propósito y responde `no-store`.
 | --- | --- |
 | `InvitationPage.php` | Objeto que usa toda plantilla pública: perfil, paleta, fuentes, módulos visibles, orden de secciones, nombres, edad, dedicatoria, iniciales y textos de la plantilla |
 | `InvitationTemplates.php` | Catálogo de plantillas (cuatro invitaciones y las tarjetas «Carta que florece» y «Libro de aventuras»): nombre visible (`label`), frase corta (`tagline`), descripción, perfil (`event`), paleta por defecto, textos propios y orden de módulos |
+| `ColorPalettes.php` | Paletas que ofrece el editor: la original de cada plantilla y las de `config/palettes.php` |
 | `ColorContrast.php` | Contraste WCAG y las mezclas de color de la invitación; lo usan la página del sistema visual y las pruebas |
 | `InvitationDefaults.php` | Pestañas del editor y resolución de plantilla; códigos, visibilidad y módulos vacíos los toma de `ModuleRegistry` |
 | `InvitationModuleRules.php` | Esquema de validación de cada módulo del editor |

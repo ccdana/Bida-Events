@@ -36,8 +36,42 @@ function musicPlayer(src, autoplay) {
         started: false,
         volume: 0.6,
         _unlockHandler: null,
+        // Sonaba cuando el invitado salió de la página: al volver, sigue sonando
+        _resumeOnReturn: false,
+        _wired: false,
         init() {
-            this.$refs.audio.volume = this.volume;
+            // Alpine llama a init() solo y la vista además lo pide con x-init: sin esto, los
+            // escuchas de abajo se registrarían dos veces y el segundo desharía al primero.
+            if (this._wired) {
+                return;
+            }
+
+            this._wired = true;
+
+            const audio = this.$refs.audio;
+            audio.volume = this.volume;
+
+            // El botón refleja lo que pasa de verdad (también si se pausa desde la pantalla de bloqueo)
+            audio.addEventListener('play', () => { this.playing = true; this.started = true; });
+            audio.addEventListener('pause', () => { this.playing = false; });
+
+            // En el celular, cambiar de app, de pestaña o bloquear la pantalla no deja la música
+            // sonando de fondo: se pausa al salir y retoma al volver si estaba sonando.
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    this._resumeOnReturn = !audio.paused;
+                    audio.pause();
+                } else if (this._resumeOnReturn) {
+                    this._resumeOnReturn = false;
+                    this.play().catch(() => {});
+                }
+            });
+
+            // Al irse del sitio (o guardarse en la caché de ir atrás) se detiene del todo
+            window.addEventListener('pagehide', () => {
+                this._resumeOnReturn = false;
+                audio.pause();
+            });
 
             // En las muestras de la home solo suena si el visitante toca reproducir
             if (!autoplay || window.invDemo) {

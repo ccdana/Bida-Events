@@ -180,6 +180,7 @@ function invitationForm(config) {
         locationMarker: null,
         locationMapReady: false,
         itineraryIcons: config.itineraryIcons,
+        palettes: config.palettes ?? [],
         moduleCodes: [...(config.moduleCodes ?? [])],
         moduleTabMap: config.moduleTabMap ?? {},
 
@@ -1927,182 +1928,34 @@ function invitationForm(config) {
 
         // handleFormSubmit consolidado arriba
 
-        // Funciones para presets de paletas de colores
+        // ── Paletas listas (config/palettes.php, App\Support\ColorPalettes) ──
+        // Primero la original de la plantilla elegida, después las de su tipo de evento y al
+        // final las que sirven para cualquiera.
         getColorPresets() {
-            return [
-                // Modo claro
-                {
-                    mode: 'light',
-                    name: 'Champagne Marfil',
-                    description: 'Dorado clásico sobre marfil',
-                    colors: {
-                        primary: '#B8956B',
-                        secondary: '#3D3228',
-                        accent: '#F3E8D8',
-                        text: '#2A241E',
-                        background: '#FBF7F0',
-                    },
-                },
-                {
-                    mode: 'light',
-                    name: 'Rosa Jardín',
-                    description: 'Rosa polvoriento y crema',
-                    colors: {
-                        primary: '#C97B84',
-                        secondary: '#5C3D42',
-                        accent: '#F8E4E6',
-                        text: '#3A2828',
-                        background: '#FFF8F8',
-                    },
-                },
-                {
-                    mode: 'light',
-                    name: 'Cielo Bautizo',
-                    description: 'Celeste suave y blanco nube',
-                    colors: {
-                        primary: '#6B9AC4',
-                        secondary: '#C9A96E',
-                        accent: '#DCEBF5',
-                        text: '#2E3A46',
-                        background: '#F7FBFE',
-                    },
-                },
-                {
-                    mode: 'light',
-                    name: 'Rosa Bautizo',
-                    description: 'Rosa delicado y marfil',
-                    colors: {
-                        primary: '#D48BA4',
-                        secondary: '#C9A96E',
-                        accent: '#F8E3EA',
-                        text: '#46323A',
-                        background: '#FFF9FB',
-                    },
-                },
-                {
-                    mode: 'light',
-                    name: 'Confeti Coral',
-                    description: 'Coral, amarillo sol y menta',
-                    colors: {
-                        primary: '#F25C54',
-                        secondary: '#F7B32B',
-                        accent: '#9ADBC5',
-                        text: '#2B2D42',
-                        background: '#FFF8F0',
-                    },
-                },
-                {
-                    mode: 'light',
-                    name: 'Fiesta Lila',
-                    description: 'Lila vibrante y amarillo',
-                    colors: {
-                        primary: '#8E6CEF',
-                        secondary: '#FFC93C',
-                        accent: '#E6DDFB',
-                        text: '#2A2440',
-                        background: '#FBF8FF',
-                    },
-                },
-                {
-                    mode: 'light',
-                    name: 'Salvia Serena',
-                    description: 'Verde natural y elegante',
-                    colors: {
-                        primary: '#6B8F71',
-                        secondary: '#2F4535',
-                        accent: '#E2EDE4',
-                        text: '#1E2E24',
-                        background: '#F6FAF7',
-                    },
-                },
-                {
-                    mode: 'light',
-                    name: 'Perla Costera',
-                    description: 'Azul grisáceo sofisticado',
-                    colors: {
-                        primary: '#5B7C99',
-                        secondary: '#2C3E50',
-                        accent: '#DCE8F0',
-                        text: '#1A2832',
-                        background: '#F4F8FB',
-                    },
-                },
-                {
-                    mode: 'light',
-                    name: 'Terracota Luxe',
-                    description: 'Cálido mediterráneo',
-                    colors: {
-                        primary: '#C17A5C',
-                        secondary: '#5C3A2E',
-                        accent: '#F5E6DC',
-                        text: '#342520',
-                        background: '#FDF8F5',
-                    },
-                },
-                // Modo noche
-                {
-                    mode: 'night',
-                    name: 'Noir Dorado',
-                    description: 'Negro y oro de gala',
-                    colors: {
-                        primary: '#D4AF37',
-                        secondary: '#1A1814',
-                        accent: '#3D3528',
-                        text: '#F5F0E6',
-                        background: '#0D0C0A',
-                    },
-                },
-                {
-                    mode: 'night',
-                    name: 'Rosa Terciopelo',
-                    description: 'Noche romántica profunda',
-                    colors: {
-                        primary: '#E8A0B4',
-                        secondary: '#2A1520',
-                        accent: '#4A2A38',
-                        text: '#FCE8EE',
-                        background: '#140A10',
-                    },
-                },
-                {
-                    mode: 'night',
-                    name: 'Zafiro Medianoche',
-                    description: 'Azul noche refinado',
-                    colors: {
-                        primary: '#7EB8DA',
-                        secondary: '#0E1A2B',
-                        accent: '#1E3A5F',
-                        text: '#E3EEF8',
-                        background: '#060D18',
-                    },
-                },
-                {
-                    mode: 'night',
-                    name: 'Esmeralda Soirée',
-                    description: 'Verde gala nocturno',
-                    colors: {
-                        primary: '#7EC9A0',
-                        secondary: '#0F1F18',
-                        accent: '#1A3D2E',
-                        text: '#E0F2E9',
-                        background: '#051510',
-                    },
-                },
-                {
-                    mode: 'night',
-                    name: 'Gala Amatista',
-                    description: 'Púrpura lujoso',
-                    colors: {
-                        primary: '#B8A0D8',
-                        secondary: '#1A1428',
-                        accent: '#352850',
-                        text: '#EDE6F8',
-                        background: '#0A0812',
-                    },
-                },
-            ];
+            const template = String(this.meta.template ?? '');
+            const event = this.profile.code;
+            const rank = (preset) => (preset.template === template ? 0 : (preset.events.includes(event) ? 1 : 2));
+
+            return this.palettes
+                // Las originales de otras plantillas no se ofrecen: confunden más de lo que ayudan
+                .filter((preset) => !preset.template || preset.template === template)
+                .map((preset, index) => ({ preset, index }))
+                .sort((a, b) => rank(a.preset) - rank(b.preset) || a.index - b.index)
+                .map((item) => item.preset);
         },
 
+        /** Las pensadas para este evento (incluida la original de la plantilla). */
+        getEventColorPresets() {
+            const template = String(this.meta.template ?? '');
+            const event = this.profile.code;
+
+            return this.getColorPresets().filter((preset) => preset.template === template || preset.events.includes(event));
+        },
+
+        /** Las que sirven para cualquier evento. */
+        getGeneralColorPresets() {
+            return this.getColorPresets().filter((preset) => !preset.template && preset.events.length === 0);
+        },
         getLightColorPresets() {
             return this.getColorPresets().filter((preset) => preset.mode === 'light');
         },
@@ -2217,9 +2070,11 @@ function invitationForm(config) {
             const hex = this.modules.config.colores[key];
             if (!hex.match(/^#[0-9A-Fa-f]{6}$/)) {
                 // Restaurar color anterior si es inválido
-                const presets = this.getColorPresets();
-                const preset = presets[0]; // Default elegancia clásica
-                this.modules.config.colores[key] = preset.colors[key];
+                const original = this.getColorPresets()[0];
+
+                if (original) {
+                    this.modules.config.colores[key] = original.colors[key];
+                }
             }
             this.schedulePreview();
         },

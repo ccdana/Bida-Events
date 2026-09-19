@@ -9,6 +9,7 @@ use App\Models\Invitation;
 use App\Models\User;
 use App\Services\InvitationPreviewSession;
 use App\Services\MediaUploadService;
+use App\Support\ColorPalettes;
 use App\Support\InvitationDefaults;
 use App\Support\InvitationTemplates;
 use Illuminate\Support\Collection;
@@ -112,6 +113,8 @@ class InvitationEditorViewData
             'mapsSearchUrl' => route('admin.maps.search'),
             'mapsResolveUrl' => route('admin.maps.resolve'),
             'itineraryIcons' => $itineraryIcons,
+            // Paletas listas de «Estética»: la original de cada plantilla, las de su evento y las generales
+            'palettes' => ColorPalettes::all(),
             'cloudinaryConfigured' => $this->mediaUpload->isCloudinaryConfigured(),
             'moduleCodes' => InvitationDefaults::moduleCodes(),
             'moduleTabMap' => InvitationDefaults::moduleTabMap(),

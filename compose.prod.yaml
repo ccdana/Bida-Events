@@ -1,0 +1,120 @@
+# Producción de Bida Events con Docker.
+#
+#   cp .env.example .env            y completá los valores (ver docs/docker.md)
+#   docker compose -f compose.prod.yaml build
+#   docker compose -f compose.prod.yaml up -d
+#
+# Queda escuchando en el puerto 8080 del servidor. Delante va Cloudflare (o Nginx del sistema)
+# poniendo el HTTPS; el contenedor nunca se publica directo a internet en el 80.
+#
+# Diferencias con compose.yaml (desarrollo): el código viaja dentro de la imagen, sirve Nginx con
+# PHP-FPM en vez de `artisan serve`, y hay un servicio para las tareas programadas.
+
+name: bida-events-prod
+
+x-app: &app
+  build:
+    context: .
+    target: production
+  image: bida-events-app:prod
+  env_file: .env
+  environment: &app-env
+    # Dentro de la red de Docker la base y Redis son servicios, no 127.0.0.1. Estas variables
+    # pisan lo que diga el .env, que está escrito para una instalación sin contenedores.
+    DB_CONNECTION: pgsql
+    DB_HOST: pgsql
+    DB_PORT: "5432"
+    DB_DATABASE: ${DB_DATABASE:-bida_events}
+    DB_USERNAME: ${DB_USERNAME:-bida}
+    DB_PASSWORD: ${DB_PASSWORD:?falta DB_PASSWORD en el .env}
+    REDIS_HOST: redis
+    REDIS_PORT: "6379"
+    CACHE_STORE: redis
+    QUEUE_CONNECTION: database
+    APP_ENV: production
+    APP_DEBUG: "false"
+  volumes:
+    # Lo único que la aplicación escribe: fotos sin Cloudinary, exportaciones, respaldos y logs.
+    # Vive fuera de la imagen para que sobreviva a cada despliegue.
+    - storage:/var/www/html/storage
+  depends_on:
+    pgsql:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+  restart: unless-stopped
+
+services:
+  # PHP-FPM. Es el único que prepara la aplicación al arrancar (migraciones y cachés).
+  app:
+    <<: *app
+    environment:
+      <<: *app-env
+      BIDA_RELEASE: "1"
+      # Poné BIDA_MIGRATE=0 si preferís correr las migraciones a mano antes de levantar
+      BIDA_MIGRATE: ${BIDA_MIGRATE:-1}
+
+  # Nginx: archivos de public/ y todo lo demás a PHP-FPM
+  web:
+    build:
+      context: .
+      target: web
+    image: bida-events-web:prod
+    ports:
+      - "${APP_PORT:-8080}:80"
+    volumes:
+      # Para servir las fotos subidas al disco cuando no hay Cloudinary
+      - storage:/var/www/html/storage:ro
+    depends_on:
+      app:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Excel y PDF que piden los clientes desde su panel
+  queue:
+    <<: *app
+    command: php artisan queue:work --tries=3 --timeout=120 --max-time=3600 --sleep=3
+    healthcheck:
+      disable: true
+
+  # Respaldos, limpieza de fotos viejas y revisión de salud (routes/console.php)
+  scheduler:
+    <<: *app
+    command: php artisan schedule:work
+    healthcheck:
+      disable: true
+
+  pgsql:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-bida_events}
+      POSTGRES_USER: ${DB_USERNAME:-bida}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?falta DB_PASSWORD en el .env}
+    volumes:
+      - pgsql-data:/var/lib/postgresql/data
+    # Sin «ports»: la base no se asoma a internet, solo la ven los contenedores
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U ${DB_USERNAME:-bida} -d ${DB_DATABASE:-bida_events}
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --save 60 1 --loglevel warning
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  storage:
+  pgsql-data:
+  redis-data:

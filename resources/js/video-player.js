@@ -118,6 +118,15 @@ const initVideoPlayers = () => {
                 revealToggle();
             };
 
+            // Como la música: el video no sigue sonando si el invitado cambia de app o sale del sitio
+            const pauseInBackground = () => {
+                if (!element.paused) {
+                    element.pause();
+                }
+            };
+            document.addEventListener('visibilitychange', () => document.hidden && pauseInBackground());
+            window.addEventListener('pagehide', pauseInBackground);
+
             toggleButton?.addEventListener('click', (event) => {
                 event.preventDefault();
                 event.stopPropagation();

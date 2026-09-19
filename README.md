@@ -42,8 +42,8 @@ para los reportes.
 
 | Archivo | Qué explica |
 | --- | --- |
-| [`PROJECT_MAPA.md`](PROJECT_MAPA.md) | Qué hace cada archivo, cómo fluye la información, qué conviene mejorar |
-| [`docs/docker.md`](docs/docker.md) | El entorno de desarrollo en detalle |
+| [`PROJECT_MAPA.md`](docs/PROJECT_MAPA.md) | Qué hace cada archivo, cómo fluye la información, qué conviene mejorar |
+| [`docs/docker.md`](docs/docker.md) | Docker: el entorno de desarrollo en detalle y la puesta en producción (`compose.prod.yaml`) |
 | [`docs/despliegue.md`](docs/despliegue.md) | Publicar una versión nueva en el servidor |
 | [`docs/operacion.md`](docs/operacion.md) | Registros, alertas y respaldos |
 | [`docs/rendimiento.md`](docs/rendimiento.md) | Mediciones y optimizaciones |

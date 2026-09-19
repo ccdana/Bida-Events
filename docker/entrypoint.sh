@@ -32,8 +32,25 @@ bootstrap="${BIDA_BOOTSTRAP:-0}"
 
 if [ "$bootstrap" = "1" ]; then
     if [ ! -f .env ]; then
-        log 'No hay .env: se copia de .env.example'
+        # .env.example viene escrito para producción: acá se pasa a desarrollo. Con APP_DEBUG en
+        # false no se verían los errores, y con la cookie de sesión «segura» (solo HTTPS) no se
+        # podría ni iniciar sesión en http://localhost.
+        log 'No hay .env: se copia de .env.example y se ajusta para desarrollo'
         cp .env.example .env
+
+        for ajuste in \
+            'APP_ENV=local' \
+            'APP_DEBUG=true' \
+            'LOG_LEVEL=debug' \
+            'LOG_STACK=single' \
+            'SESSION_ENCRYPT=false' \
+            'SESSION_SECURE_COOKIE=false' \
+            'MAIL_MAILER=log' \
+            'CACHE_STORE=database' \
+            'CACHE_OPTIMIZATIONS_ENABLED=false' \
+            'HTTP_CACHE_ENABLED=false'; do
+            sed -i "s|^${ajuste%%=*}=.*|${ajuste}|" .env
+        done
     fi
 
     # Estos valores los manda compose.yaml y no son negociables dentro de Docker: la base es un

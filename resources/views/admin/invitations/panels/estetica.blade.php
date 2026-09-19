@@ -62,31 +62,44 @@
         </div>
     </section>
 
-    {{-- Paletas completas --}}
-    <section class="admin-card space-y-3 p-4">
+    {{-- Paletas completas: primero las de este tipo de evento (config/palettes.php) --}}
+    <section class="admin-card space-y-4 p-4">
         <div>
             <h3 class="text-sm font-semibold">Paletas listas</h3>
             <p class="mt-0.5 text-xs text-site-muted">Aplica una combinación completa y después ajusta el color que quieras.</p>
         </div>
-        <div class="grid grid-cols-2 gap-2">
-            <template x-for="preset in getColorPresets()" :key="preset.name">
-                <button type="button" @click="applyColorPreset(preset.name)"
-                    class="rounded-[12px] border p-2.5 text-left transition-colors"
-                    :class="isCurrentPreset(preset.name) ? 'border-site-ink bg-site-bg' : 'border-site-line hover:bg-site-bg'"
-                    :aria-pressed="isCurrentPreset(preset.name).toString()">
-                    <span class="flex h-9 items-center gap-1.5 overflow-hidden rounded-md border border-site-line px-1.5" :style="`background:${preset.colors.background}`">
-                        <span class="h-5 flex-1 rounded-sm" :style="`background:${preset.colors.accent}`"></span>
-                        <span class="size-3 shrink-0 rounded-full" :style="`background:${preset.colors.primary}`"></span>
-                        <span class="h-1.5 w-6 shrink-0 rounded-full" :style="`background:${preset.colors.text}`"></span>
-                    </span>
-                    <span class="mt-2 flex items-center justify-between gap-1">
-                        <span class="truncate text-xs font-semibold" x-text="preset.name"></span>
-                        <x-phosphor-check-circle-fill class="size-4 shrink-0 text-site-accent" x-show="isCurrentPreset(preset.name)" aria-hidden="true" />
-                    </span>
-                    <span class="block truncate text-[11px] text-site-muted" x-text="preset.description || ''"></span>
-                </button>
-            </template>
-        </div>
+
+        @foreach([
+            ['fn' => 'getEventColorPresets()', 'title' => 'Para esta plantilla', 'note' => 'La primera son los colores originales del diseño.'],
+            ['fn' => 'getGeneralColorPresets()', 'title' => 'Otras paletas', 'note' => 'Sirven para cualquier evento.'],
+        ] as $group)
+            <div x-show="{{ $group['fn'] }}.length" x-cloak>
+                <p class="text-[11px] font-semibold uppercase tracking-[0.14em] text-site-muted">{{ $group['title'] }}</p>
+                <p class="mt-0.5 text-[11px] text-site-muted">{{ $group['note'] }}</p>
+                <div class="mt-2 grid grid-cols-2 gap-2">
+                    <template x-for="preset in {{ $group['fn'] }}" :key="preset.name">
+                        <button type="button" @click="applyColorPreset(preset.name)"
+                            class="rounded-[12px] border p-2.5 text-left transition-colors"
+                            :class="isCurrentPreset(preset.name) ? 'border-site-ink bg-site-bg' : 'border-site-line hover:bg-site-bg'"
+                            :aria-pressed="isCurrentPreset(preset.name).toString()">
+                            <span class="flex h-9 items-center gap-1.5 overflow-hidden rounded-md border border-site-line px-1.5" :style="`background:${preset.colors.background}`">
+                                <span class="h-5 flex-1 rounded-sm" :style="`background:${preset.colors.accent}`"></span>
+                                <span class="size-3 shrink-0 rounded-full" :style="`background:${preset.colors.primary}`"></span>
+                                <span class="h-1.5 w-6 shrink-0 rounded-full" :style="`background:${preset.colors.text}`"></span>
+                            </span>
+                            <span class="mt-2 flex items-center justify-between gap-1">
+                                <span class="truncate text-xs font-semibold" x-text="preset.name"></span>
+                                <x-phosphor-check-circle-fill class="size-4 shrink-0 text-site-accent" x-show="isCurrentPreset(preset.name)" aria-hidden="true" />
+                            </span>
+                            <span class="flex items-center gap-1.5">
+                                <span class="truncate text-[11px] text-site-muted" x-text="preset.description || ''"></span>
+                                <span class="shrink-0 text-[10px] text-site-muted" x-show="preset.mode === 'night'" x-cloak>· de noche</span>
+                            </span>
+                        </button>
+                    </template>
+                </div>
+            </div>
+        @endforeach
     </section>
 
     {{-- Colores con su uso --}}

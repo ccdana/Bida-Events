@@ -1,19 +1,42 @@
-# El Dockerfile solo necesita la carpeta docker/: el código del proyecto se monta como volumen.
-# Dejar fuera el resto hace que construir la imagen sea cuestión de segundos.
+# Lo que no entra al contexto de construcción.
+#
+# En desarrollo la imagen no lleva el código (compose.yaml lo monta), así que casi todo sobra.
+# En producción el código sí se copia: acá se deja fuera lo que se reinstala o se recompila
+# dentro de la imagen (dependencias y assets) y lo que no tiene por qué viajar a un servidor.
 
+# Control de versiones y automatizaciones
 .git
+.gitattributes
+.gitignore
 .github
+.claude
+skills-lock.json
+
+# Se reinstalan o se recompilan dentro de la imagen
 node_modules
 vendor
 public/build
 public/hot
 public/storage
+public/_preview
+
+# Lo que escribe la aplicación (el contenedor lo crea vacío o va en un volumen)
 storage/app
 storage/framework
 storage/logs
 storage/pail
+*.log
+
+# Secretos: la configuración llega por variables de entorno o por env_file, nunca en la imagen
 .env
 .env.*
-*.log
+
+# Pruebas, documentación y herramientas de desarrollo
+tests
+docs
+scripts
+*.md
 .phpunit.result.cache
 .phpunit.cache
+.editorconfig
+.prettierrc

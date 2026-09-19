@@ -1,24 +1,50 @@
-*.log
-.DS_Store
+# ── Secretos y configuración local ──────────────────────────────────────────
 .env
-.env.backup
-.env.production
-.phpactor.json
-.phpunit.result.cache
-/.fleet
-/.idea
-/.nova
-/.phpunit.cache
-/.vscode
-/.zed
+.env.*
+!.env.example
 /auth.json
+/storage/*.key
+/storage/oauth-*.key
+
+# ── Dependencias y compilados ───────────────────────────────────────────────
+/vendor
 /node_modules
 /public/build
 /public/hot
 /public/storage
-/storage/*.key
+# Vistas previas que se sirven un rato desde public/ (nunca se publican)
+/public/_preview
+
+# ── Datos que genera la aplicación ──────────────────────────────────────────
+*.log
+# Lo que escribe la aplicación dentro de storage/ ya lo ignora storage/app/.gitignore
 /storage/pail
-/vendor
+/storage/debugbar
+# Respaldos y volcados sueltos de la base
+*.sql
+*.sql.gz
+*.dump
+
+# ── Pruebas y herramientas ──────────────────────────────────────────────────
+/.phpunit.cache
+.phpunit.result.cache
+/coverage
+.php-cs-fixer.cache
+/.pint.cache
+
+# ── Editores y sistema ──────────────────────────────────────────────────────
+.phpactor.json
+/.fleet
+/.idea
+/.nova
+/.vscode
+/.zed
+.DS_Store
+Thumbs.db
 Homestead.json
 Homestead.yaml
-Thumbs.db
+
+# ── Claude Code: lo compartido se sube; lo de cada quien, no ────────────────
+/.claude/settings.local.json
+/.claude/projects
+/.claude/todos
