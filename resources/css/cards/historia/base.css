@@ -1,0 +1,616 @@
+/* «The Story We Write Together»: tokens, tipografía, actos y fotos. Ver resources/css/cards/historia.css */
+
+.inv-historia {
+    /* Noche fija; pasa AA con las mezclas de base.css (AccessibleInvitationTest mide esta paleta) */
+    --text-color: #f3ecda;
+    --bg-color: #0a1230;
+    --accent-color: #3f6fa8;
+    --secondary-color: #1c2b5a;
+
+    --story-moon: color-mix(in srgb, var(--primary-color) 68%, #fff6dc);
+    --story-moon-ink: color-mix(in srgb, var(--primary-color) 55%, var(--text-color));
+    --story-night: #060b22;
+    --story-scrim: rgb(6 11 34 / 0.78);
+    --story-poet: 'Cormorant Garamond', var(--font-titles), serif;
+    --story-ease: cubic-bezier(0.23, 1, 0.32, 1);
+
+    background: var(--story-night);
+    font-size: 1.0625rem;
+    line-height: 1.75;
+}
+
+.inv-historia ::selection {
+    background: color-mix(in srgb, var(--primary-color) 45%, transparent);
+    color: var(--text-color);
+}
+
+/* Todo lo que se lee va sobre el escenario fijo */
+.inv-historia #inicio,
+.inv-historia main,
+.inv-historia .story-footer {
+    position: relative;
+    z-index: 1;
+}
+
+/* ── Actos ─────────────────────────────────────────────────────────────── */
+
+.story-act {
+    padding-block: 12vh;
+}
+
+/* Lo que se lee sobre el reflejo o las pinceladas lleva una sombra de noche pegada a la letra */
+.story-mark,
+.story-title,
+.story-met,
+.story-moment,
+.story-quote,
+.story-song,
+.story-now__label,
+.story-together {
+    text-shadow: 0 0 2px var(--story-night), 0 1px 14px var(--story-night);
+}
+
+.story-act__body {
+    display: grid;
+    gap: 2.75rem;
+    width: 100%;
+    max-width: 33rem;
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+    text-align: center;
+}
+
+.story-act--1 {
+    padding-top: 0;
+}
+
+.story-act--4 {
+    padding-bottom: 8vh;
+}
+
+/* Marca del acto: los actos sí son una secuencia, el número la dice */
+.story-mark {
+    display: grid;
+    justify-items: center;
+    gap: 0.1rem;
+    margin: 0;
+    font-family: var(--story-poet);
+    font-style: italic;
+    line-height: 1.2;
+}
+
+.story-mark__number {
+    font-size: 1rem;
+    color: var(--inv-muted);
+}
+
+.story-mark__name {
+    font-size: 1.6rem;
+    color: var(--story-moon-ink);
+}
+
+.story-title {
+    margin: 0;
+    font-family: var(--font-titles);
+    font-size: clamp(1.9rem, 7.4vw, 2.75rem);
+    font-weight: 400;
+    line-height: 1.12;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+}
+
+/* Texto largo: a la izquierda para leerse bien, con una sombra de noche detrás en vez de una tarjeta */
+.story-copy {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    gap: 1.1em;
+    color: color-mix(in srgb, var(--text-color) 92%, transparent);
+    text-wrap: pretty;
+}
+
+.story-copy::before {
+    content: '';
+    position: absolute;
+    inset: -2.5rem -1.75rem;
+    z-index: -1;
+    background: radial-gradient(closest-side, var(--story-scrim), transparent);
+}
+
+.story-copy p {
+    margin: 0;
+}
+
+.story-copy--prose {
+    text-align: start;
+    max-width: 30rem;
+    margin-inline: auto;
+}
+
+/* ── Acto I: nombres sobre el horizonte ────────────────────────────────── */
+
+.story-opening {
+    display: grid;
+    align-content: start;
+    justify-items: center;
+    gap: 1rem;
+    /* El horizonte del agua está al 58 % de la pantalla (stage.css): los nombres quedan en el cielo */
+    min-height: 100svh;
+    padding: calc(13vh + env(safe-area-inset-top)) 1.25rem 0;
+    text-align: center;
+}
+
+.story-opening__title {
+    margin: 0;
+    font-family: var(--story-poet);
+    font-style: italic;
+    font-size: 1.15rem;
+    color: var(--inv-muted);
+}
+
+.story-names {
+    display: grid;
+    justify-items: center;
+    margin: 0;
+    font-family: var(--story-poet);
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(3.1rem, 15vw, 5.25rem);
+    line-height: 0.98;
+    color: var(--text-color);
+    text-shadow: 0 2px 30px var(--story-night);
+}
+
+.story-names__and {
+    font-size: 0.5em;
+    line-height: 1.3;
+    color: var(--story-moon-ink);
+}
+
+.story-opening__intro {
+    max-width: 21rem;
+    margin: 0.5rem 0 0;
+    font-size: 1rem;
+    color: var(--inv-muted);
+    text-wrap: balance;
+}
+
+.story-opening__to {
+    margin: 0;
+    font-family: var(--story-poet);
+    font-style: italic;
+    font-size: 1.2rem;
+    color: var(--story-moon-ink);
+}
+
+.story-met {
+    margin: 0;
+    font-family: var(--story-poet);
+    font-style: italic;
+    font-size: 1.45rem;
+    line-height: 1.35;
+    text-wrap: balance;
+}
+
+.story-met time {
+    display: block;
+    color: var(--story-moon-ink);
+}
+
+/* La primera foto, como vista a través del agua: apagada, azulada, con ondas y el borde inferior hundido */
+.story-underwater {
+    position: relative;
+    width: min(82vw, 26rem);
+    margin: 0 auto;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    border-radius: 999px 999px 0.5rem 0.5rem / 60% 60% 0.5rem 0.5rem;
+    -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent);
+    mask-image: linear-gradient(to bottom, #000 55%, transparent);
+}
+
+.story-underwater img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: saturate(0.5) brightness(0.8) contrast(0.95) blur(0.5px);
+    animation: story-waver 6s ease-in-out infinite alternate;
+}
+
+.story-underwater::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgb(40 80 150 / 0.35), rgb(10 24 64 / 0.55));
+    mix-blend-mode: multiply;
+}
+
+.story-underwater__ripples {
+    position: absolute;
+    inset: -20% 0;
+    z-index: 1;
+    background: repeating-linear-gradient(to bottom, transparent 0 11px, rgb(255 246 220 / 0.07) 11px 13px);
+    animation: story-drift 9s linear infinite;
+}
+
+@keyframes story-waver {
+    from { transform: scale(1.02) translateX(-0.6%); }
+    to { transform: scale(1.03) translateX(0.6%); }
+}
+
+@keyframes story-drift {
+    to { transform: translateY(26px); }
+}
+
+/* ── Acto II: la marea ─────────────────────────────────────────────────── */
+
+.story-tide {
+    position: relative;
+    display: grid;
+    gap: 3.5rem;
+    padding-left: 1.75rem;
+    text-align: start;
+}
+
+/* La línea de marea se llena con la lectura (stage.js escala el relleno) */
+.story-tide__line {
+    position: absolute;
+    top: 0.5rem;
+    bottom: 0;
+    left: 0.25rem;
+    width: 1px;
+    background: var(--inv-line-strong);
+}
+
+.story-tide__fill {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, var(--story-moon), color-mix(in srgb, var(--accent-color) 70%, var(--story-moon)));
+    transform: scaleY(0);
+    transform-origin: top;
+}
+
+.no-js .story-tide__fill {
+    transform: none;
+}
+
+.story-moments {
+    display: grid;
+    gap: 3.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.story-moment {
+    position: relative;
+    display: grid;
+    gap: 0.55rem;
+}
+
+/* Cada momento cuelga de la línea con un punto de luz */
+.story-moment::before {
+    content: '';
+    position: absolute;
+    top: 0.55rem;
+    left: calc(-1.75rem + 0.25rem - 3.5px);
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--story-moon);
+    box-shadow: 0 0 12px color-mix(in srgb, var(--story-moon) 70%, transparent);
+}
+
+.story-moment__when {
+    margin: 0;
+    font-family: var(--story-poet);
+    font-style: italic;
+    font-size: 1.15rem;
+    line-height: 1.3;
+    color: var(--story-moon-ink);
+}
+
+.story-moment__title {
+    margin: 0;
+    font-family: var(--font-titles);
+    font-size: 1.5rem;
+    font-weight: 400;
+    line-height: 1.2;
+}
+
+.story-moment__text {
+    margin: 0;
+    color: var(--inv-muted);
+}
+
+/* La foto sale del agua: sube desde abajo y todavía guarda un brillo acuático */
+.story-moment__photo {
+    position: relative;
+    margin: 0.75rem 0 0;
+    overflow: hidden;
+    border-radius: 0.4rem;
+    aspect-ratio: 4 / 3;
+    background: color-mix(in srgb, var(--accent-color) 25%, var(--bg-color));
+}
+
+.story-moment__photo img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: saturate(0.8);
+}
+
+.story-moment__photo::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgb(63 111 168 / 0.3), transparent 60%);
+    pointer-events: none;
+}
+
+[data-surface] img {
+    clip-path: inset(100% 0 0 0);
+    transform: translateY(12%);
+    transition: clip-path 1.2s var(--story-ease), transform 1.2s var(--story-ease);
+}
+
+[data-surface].is-surfaced img,
+.no-js [data-surface] img {
+    clip-path: inset(0);
+    transform: none;
+}
+
+.story-quote {
+    margin: 0.5rem -0.25rem 0 -1.5rem;
+    text-align: center;
+}
+
+.story-quote blockquote {
+    margin: 0;
+}
+
+.story-quote p {
+    margin: 0;
+    font-family: var(--story-poet);
+    font-style: italic;
+    font-size: clamp(1.6rem, 6.4vw, 2.15rem);
+    line-height: 1.25;
+    text-wrap: balance;
+}
+
+.story-quote figcaption {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: var(--inv-muted);
+}
+
+.story-quote cite {
+    font-style: italic;
+}
+
+/* ── Acto III: de frente ───────────────────────────────────────────────── */
+
+.story-anecdote {
+    display: grid;
+    gap: 2rem;
+}
+
+.story-clear {
+    width: min(86vw, 27rem);
+    margin: 0 auto;
+    overflow: hidden;
+    border-radius: 0.5rem;
+    aspect-ratio: 4 / 5;
+    box-shadow:
+        0 0 0 1px color-mix(in srgb, var(--story-moon) 35%, transparent),
+        0 40px 90px -40px color-mix(in srgb, var(--story-moon) 55%, transparent);
+}
+
+.story-clear img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.story-song {
+    display: grid;
+    gap: 0.2rem;
+    margin: 0;
+}
+
+.story-song__label {
+    font-size: 0.9rem;
+    color: var(--inv-muted);
+}
+
+.story-song__title {
+    font-family: var(--story-poet);
+    font-style: italic;
+    font-size: 1.6rem;
+    line-height: 1.25;
+    color: var(--story-moon-ink);
+}
+
+.story-song__artist {
+    font-size: 0.95rem;
+}
+
+/* La dedicatoria es la voz de uno al otro: se escribe en la cursiva del tema, un poco más grande */
+.story-dedication {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    gap: 1rem;
+    text-align: start;
+    max-width: 30rem;
+    margin-inline: auto;
+    padding-left: 1.25rem;
+    border-left: 1px solid color-mix(in srgb, var(--story-moon) 55%, transparent);
+    scroll-margin-top: 5rem;
+}
+
+.story-dedication::before {
+    content: '';
+    position: absolute;
+    inset: -2rem -1.5rem;
+    z-index: -1;
+    background: radial-gradient(closest-side, var(--story-scrim), transparent);
+}
+
+.story-dedication__to,
+.story-dedication__sign {
+    margin: 0;
+    font-family: var(--story-poet);
+    font-style: italic;
+    font-size: 1.35rem;
+    color: var(--story-moon-ink);
+}
+
+.story-dedication__text {
+    margin: 0;
+    font-family: var(--story-poet);
+    font-size: 1.3rem;
+    line-height: 1.5;
+}
+
+.story-dedication__sign {
+    justify-self: end;
+}
+
+.story-now {
+    display: grid;
+    gap: 1.25rem;
+    scroll-margin-top: 5rem;
+}
+
+.story-now__label {
+    margin: 0;
+    font-family: var(--story-poet);
+    font-style: italic;
+    font-size: 1.35rem;
+}
+
+.story-now__photos {
+    display: grid;
+    gap: 0.6rem;
+}
+
+.story-now__photos--2 {
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+}
+
+.story-now__photos--2 .story-now__photo:last-child {
+    margin-top: 2.5rem;
+}
+
+.story-now__photos--3 {
+    grid-template-columns: 1.4fr 1fr;
+}
+
+.story-now__photos--3 .story-now__photo:first-child {
+    grid-row: span 2;
+}
+
+.story-now__photo {
+    margin: 0;
+    overflow: hidden;
+    border-radius: 0.4rem;
+    transition-delay: calc(var(--i) * 80ms);
+}
+
+.story-now__photo img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 9rem;
+    object-fit: cover;
+}
+
+.story-now__photos--1 .story-now__photo img {
+    aspect-ratio: 4 / 3;
+}
+
+/* ── Acto IV: la constelación ──────────────────────────────────────────── */
+
+.story-promise {
+    margin: 0;
+    font-family: var(--story-poet);
+    font-style: italic;
+    font-size: clamp(1.9rem, 7.6vw, 2.6rem);
+    line-height: 1.2;
+    color: var(--story-moon);
+    text-wrap: balance;
+    text-shadow: 0 2px 24px var(--story-night);
+}
+
+.story-together {
+    display: grid;
+    gap: 0.25rem;
+    margin: 0;
+    color: var(--inv-muted);
+}
+
+.story-together__span {
+    font-family: var(--font-titles);
+    font-size: 1.6rem;
+    line-height: 1.2;
+    color: var(--text-color);
+}
+
+/* La respuesta común (modules/respuesta) sobre el cielo, sin filete ni fondo propio */
+.story-reply {
+    max-width: 33rem;
+    margin: 4rem auto 0;
+}
+
+.inv-historia .story-reply .inv-section {
+    border-top: 0;
+    background: transparent;
+}
+
+.inv-historia .inv-reply__form {
+    position: relative;
+    isolation: isolate;
+}
+
+.inv-historia .inv-reply__form::before {
+    content: '';
+    position: absolute;
+    inset: -2rem -1.25rem;
+    z-index: -1;
+    background: radial-gradient(closest-side, var(--story-scrim), transparent);
+}
+
+.inv-historia .inv-btn {
+    transition: transform 160ms ease-out, background-color 200ms ease;
+}
+
+.inv-historia .inv-btn:active:not(:disabled) {
+    transform: scale(0.97);
+}
+
+/* ── Pie ───────────────────────────────────────────────────────────────── */
+
+.inv-historia .story-footer {
+    border-top: 0;
+    background: linear-gradient(to bottom, transparent, var(--story-night) 55%);
+}
+
+.inv-historia .story-footer .inv-footer__name {
+    font-family: var(--story-poet);
+    font-style: italic;
+}
+
+@media (min-width: 640px) {
+    .story-act__body {
+        gap: 3.5rem;
+    }
+
+    .story-quote {
+        margin-inline: -4rem -2rem;
+    }
+}

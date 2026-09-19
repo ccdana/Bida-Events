@@ -17,6 +17,7 @@ class EventTypeSeeder extends Seeder
             'bautizos' => ['Bautizos', 'bautizo', 'invitation', null],
             'cumpleanos' => ['Cumpleaños', 'cumple', 'invitation', null],
             'dia-del-amor' => ['Día del Amor', 'amor', 'card', 'amor'],
+            'nuestra-historia' => ['Nuestra historia', 'historia', 'card', 'amor'],
         ] as $slug => [$name, $code, $kind, $season]) {
             EventType::updateOrCreate(['slug' => $slug], compact('name', 'code', 'kind', 'season'));
         }

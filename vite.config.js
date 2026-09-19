@@ -11,7 +11,7 @@ export default defineConfig({
     plugins: [
         laravel({
             // Cada tarjeta estacional carga su hoja solo en su plantilla (resources/css/cards)
-            input: ['resources/css/app.css', 'resources/js/app.js', 'resources/css/invitation/story.css', 'resources/css/cards/amor.css'],
+            input: ['resources/css/app.css', 'resources/js/app.js', 'resources/css/invitation/story.css', 'resources/css/cards/amor.css', 'resources/css/cards/historia.css'],
             refresh: true,
         }),
         tailwindcss(),

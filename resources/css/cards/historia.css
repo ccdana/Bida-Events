@@ -1,0 +1,19 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   TARJETA — "The Story We Write Together" (invitations.templates.we-story-together)
+   La historia de una pareja en cuatro actos, de noche: la luna en el agua, la
+   marea, la luna de frente y un cielo a lo Van Gogh.
+
+   Se carga solo en esta plantilla (@vite en su cabecera). La noche es el
+   producto: texto, fondo y acentos van fijos en .inv-historia (así las partes
+   comunes —menú, reproductor, respuesta, pie— también se vuelven nocturnas).
+   Del cliente solo se toma la luz de la luna (--primary-color).
+
+   Partes y su JavaScript (resources/js/cards/historia):
+   - base    tokens, tipografía, actos y fotos
+   - cover   estanque que se toca para empezar (pondCover)
+   - stage   escenario fijo: cielos, Van Gogh, luna y agua (stage.js)
+   ════════════════════════════════════════════════════════════════════════════ */
+
+@import './historia/base.css';
+@import './historia/cover.css';
+@import './historia/stage.css';

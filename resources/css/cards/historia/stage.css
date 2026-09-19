@@ -1,0 +1,315 @@
+/*
+ * Escenario fijo detrás de los actos (partials/historia/stage). stage.js escribe transform y
+ * opacity directo en cada capa (no variables en un ancestro: así no recalcula todo el árbol).
+ * Solo se animan transform y opacity; el cielo de Van Gogh gira y deriva como cajas HTML para
+ * que lo haga el compositor.
+ */
+
+.story-stage {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.story-sky {
+    position: absolute;
+    inset: 0;
+}
+
+/* Actos I y II: la noche sube hacia un horizonte que se va hundiendo */
+.story-sky--dusk {
+    background: linear-gradient(to bottom, #040819 0%, #0b1740 40%, #1a2f66 100%);
+}
+
+/* Actos I-II: unas pocas estrellas quietas para que los lados no queden vacíos junto a nombres/luna.
+   Sin animación y sin halo: la elaboración (parpadeo, remolinos) se reserva para el Acto IV, así el
+   cielo «cobra vida» ahí y no antes. La cubre progresivamente el cielo profundo del Acto III. */
+.story-sky--ambient {
+    opacity: 0.8;
+}
+
+.story-dot {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    width: calc(0.3rem * var(--s));
+    aspect-ratio: 1;
+    translate: -50% -50%;
+    border-radius: 50%;
+    background: #fff6dc;
+    opacity: calc(0.35 * var(--s));
+    box-shadow: 0 0 calc(0.7rem * var(--s)) rgb(255 246 220 / 0.3);
+}
+
+/* Acto III: noche profunda, con la luz de la luna alrededor */
+.story-sky--deep {
+    opacity: 0;
+    background:
+        radial-gradient(70% 45% at 50% 24%, color-mix(in srgb, var(--primary-color) 18%, transparent), transparent 70%),
+        linear-gradient(to bottom, #03061a, #0a1230);
+}
+
+/* Acto IV: el cielo de «La noche estrellada», en azul cobalto */
+.story-sky--starry {
+    opacity: 0;
+    background: linear-gradient(to bottom, #0b1a4a 0%, #16347a 45%, #1d3f86 72%, #0c1b45 100%);
+}
+
+.story-vg__wind,
+.story-vg__land {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.story-vg__wind {
+    inset: 0 -6%;
+    width: 112%;
+    animation: story-wind 26s ease-in-out infinite alternate;
+}
+
+/* Pinceladas: trazos cortos y redondos, como el empaste del cuadro */
+.story-vg__wind path,
+.story-vg__vortex path {
+    fill: none;
+    stroke-linecap: round;
+}
+
+.story-vg__wind .is-pale { stroke: #d6e2f5; stroke-width: 4; stroke-dasharray: 11 9; opacity: 0.32; }
+.story-vg__wind .is-mid { stroke: #8daee3; stroke-width: 7; stroke-dasharray: 18 7; opacity: 0.38; }
+.story-vg__wind .is-deep { stroke: #4f76c2; stroke-width: 9; stroke-dasharray: 22 10; opacity: 0.55; }
+
+/* translate, rotate y scale por separado: el giro queda alrededor del centro del remolino */
+.story-vg__vortex {
+    position: absolute;
+    aspect-ratio: 1;
+    translate: -50% -50%;
+    scale: 0.88;
+    opacity: 0;
+    transition: scale 2.6s var(--story-ease), opacity 2.6s var(--story-ease);
+}
+
+.story-vg__vortex--big {
+    left: 42%;
+    top: 36%;
+    width: min(118vw, 52rem);
+}
+
+.story-vg__vortex--small {
+    left: 16%;
+    top: 20%;
+    width: min(52vw, 22rem);
+}
+
+.story-vg__vortex .is-pale { stroke: #e3ecf9; stroke-width: 2.2; stroke-dasharray: 6 7; opacity: 0.4; }
+.story-vg__vortex .is-mid { stroke: #9dbbe9; stroke-width: 3.6; stroke-dasharray: 11 6; opacity: 0.45; }
+.story-vg__vortex .is-deep { stroke: #5c84c9; stroke-width: 5; stroke-dasharray: 4 9; opacity: 0.6; }
+
+/* El giro va en la caja que envuelve al svg (una capa del compositor), no en sus trazos */
+.story-stage.is-starry .story-vg__vortex {
+    opacity: 1;
+    scale: 1;
+}
+
+.story-stage.is-starry .story-vg__vortex--big { animation: story-turn 120s linear infinite; }
+.story-stage.is-starry .story-vg__vortex--small { animation: story-turn 80s linear infinite reverse; }
+
+.story-star {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    width: calc(2.6rem * var(--s));
+    aspect-ratio: 1;
+    translate: -50% -50%;
+}
+
+.story-star svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+
+.story-star__halo { fill: none; stroke: #f2c94c; stroke-width: 2; stroke-dasharray: 4 5; opacity: 0.45; }
+.story-star__ring { fill: none; stroke: #f6d66b; stroke-width: 2.5; opacity: 0.7; }
+.story-star__core { fill: #fff3b8; }
+
+.story-stage.is-starry .story-star {
+    animation: story-twinkle 4.2s ease-in-out var(--d) infinite alternate;
+}
+
+.story-vg__hills { fill: #0a1536; }
+
+.story-vg__cypress {
+    fill: #0b1a1c;
+    stroke: #1d3a2c;
+    stroke-width: 3;
+    stroke-dasharray: 10 8;
+}
+
+/* ── Luna ──────────────────────────────────────────────────────────────── */
+
+.story-moon {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: min(44vw, 15rem);
+    aspect-ratio: 1;
+    /* Primera escena (medio hundida en el horizonte); stage.js la reemplaza con su recorrido */
+    transform: translate3d(-50%, 48vh, 0) scale(0.42);
+    opacity: 0.92;
+    will-change: transform, opacity;
+}
+
+.story-moon__halo {
+    position: absolute;
+    inset: -70%;
+    border-radius: 50%;
+    background: radial-gradient(circle, color-mix(in srgb, var(--story-moon) 34%, transparent) 0%, transparent 62%);
+    opacity: 0.25;
+    will-change: opacity;
+}
+
+.story-moon__disc {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    /* Mares lunares difusos, no cráteres: manchas grandes, suaves y tenues */
+    background:
+        radial-gradient(ellipse 26% 20% at 60% 36%, rgb(140 120 80 / 0.16), transparent),
+        radial-gradient(ellipse 30% 22% at 38% 60%, rgb(140 120 80 / 0.13), transparent),
+        radial-gradient(ellipse 16% 12% at 64% 68%, rgb(140 120 80 / 0.1), transparent),
+        radial-gradient(circle at 36% 32%, #fffbea 0%, var(--story-moon) 52%, color-mix(in srgb, var(--story-moon) 86%, #8a7a52) 100%);
+    box-shadow: 0 0 60px color-mix(in srgb, var(--story-moon) 45%, transparent);
+}
+
+/* ── Agua y reflejo ────────────────────────────────────────────────────── */
+
+.story-water {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 58%;
+    bottom: -20vh;
+    background: linear-gradient(to bottom, #16306a 0%, #0b1740 22%, #050a1c 100%);
+    box-shadow: 0 -1px 0 color-mix(in srgb, var(--story-moon) 40%, transparent);
+    will-change: transform, opacity;
+}
+
+/* Ondas tenues en toda la superficie: dan textura a los lados sin competir con el camino de luz
+   de la luna (story-glade), que sigue siendo el único brillo fuerte del agua */
+.story-water::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(to bottom, transparent 0 15px, color-mix(in srgb, var(--story-moon) 65%, #fff) 15px 16px);
+    opacity: 0.055;
+    animation: story-ripple-drift 12s ease-in-out infinite alternate;
+}
+
+/* El camino de luz de la luna sobre el agua: trazos que se mecen */
+.story-glade {
+    position: absolute;
+    top: 1.5rem;
+    left: 50%;
+    display: grid;
+    justify-items: center;
+    gap: clamp(7px, 1.6vh, 14px);
+    width: min(46vw, 15rem);
+    translate: -50% 0;
+}
+
+.story-glade i {
+    display: block;
+    width: var(--w);
+    height: 3px;
+    border-radius: 3px;
+    background: color-mix(in srgb, var(--story-moon) 85%, #fff);
+    opacity: calc(0.95 - var(--i) * 0.06);
+    animation: story-glint 3.4s ease-in-out infinite alternate;
+    animation-delay: calc(var(--i) * -0.41s);
+}
+
+/* Acto II: el mar se agita */
+.story-stage[data-sea='rough'] .story-glade i {
+    animation-name: story-glint-rough;
+    animation-duration: 1.5s;
+}
+
+html.inv-cover-waiting .story-glade i,
+html.inv-cover-waiting .story-underwater img,
+html.inv-cover-waiting .story-underwater__ripples {
+    animation-play-state: paused;
+}
+
+/* Estrella fugaz al enviar la respuesta */
+.story-shooting-star {
+    position: absolute;
+    top: 16%;
+    left: 105%;
+    width: 9rem;
+    height: 2px;
+    border-radius: 2px;
+    background: linear-gradient(to right, #fffbea, transparent);
+    opacity: 0;
+    transform: rotate(-18deg);
+}
+
+.story-shooting-star.is-shooting {
+    animation: story-shoot 1.2s var(--story-ease) forwards;
+}
+
+@keyframes story-glint {
+    from { transform: translateX(-8%) scaleX(0.82); }
+    to { transform: translateX(8%) scaleX(1.12); }
+}
+
+@keyframes story-glint-rough {
+    from { transform: translateX(-22%) scaleX(0.6); }
+    to { transform: translateX(22%) scaleX(1.3); }
+}
+
+@keyframes story-ripple-drift {
+    from { opacity: 0.035; transform: translateY(0); }
+    to { opacity: 0.065; transform: translateY(7px); }
+}
+
+@keyframes story-wind {
+    from { transform: translateX(-2.5%); }
+    to { transform: translateX(2.5%); }
+}
+
+@keyframes story-turn {
+    to { rotate: 360deg; }
+}
+
+@keyframes story-twinkle {
+    from { opacity: 0.7; transform: scale(0.92); }
+    to { opacity: 1; transform: scale(1.06); }
+}
+
+@keyframes story-shoot {
+    0% { opacity: 0; transform: rotate(-18deg) translateX(0); }
+    12% { opacity: 1; }
+    100% { opacity: 0; transform: rotate(-18deg) translateX(-150vw); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .story-glade i,
+    .story-vg__wind,
+    .story-stage.is-starry .story-vg__vortex,
+    .story-stage.is-starry .story-star,
+    .story-underwater img,
+    .story-underwater__ripples,
+    .story-water::before {
+        animation: none;
+    }
+
+    .story-vg__vortex {
+        scale: 1;
+        transition: opacity 0.6s ease;
+    }
+}

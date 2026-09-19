@@ -34,7 +34,7 @@ return [
     'demo_slug' => env('BIDA_DEMO_SLUG', 'xv-isabella'),
 
     // Invitaciones de muestra (una por plantilla): se prueban en "Plantillas" sin guardar nada y el teléfono de la portada recorre sus aperturas
-    'demo_invitations' => ['xv-isabella', 'boda-camila-andres', 'bautizo-emilia', 'cumple-daniela-30', 'tarjeta-ana-luis'],
+    'demo_invitations' => ['xv-isabella', 'boda-camila-andres', 'bautizo-emilia', 'cumple-daniela-30', 'tarjeta-ana-luis', 'historia-ana-luis'],
 
     /*
     | Eventos que rotan en la portada y en el login. Cada uno usa una foto de
@@ -118,6 +118,7 @@ return [
         'cumple' => ['image' => 'event-cumpleanos', 'focus' => 0.15],
         // Tarjeta del Día del Amor: sin foto propia todavía, usa la de la pareja
         'amor' => ['image' => 'event-boda', 'focus' => 0.35],
+        'historia' => ['image' => 'event-boda', 'focus' => 0.35],
     ],
 
     /*

@@ -3,6 +3,7 @@
 use App\Modules\Card\DedicationModule;
 use App\Modules\Card\MilestoneModule;
 use App\Modules\Card\ReplyModule;
+use App\Modules\Card\StoryModule;
 use App\Modules\Invitation\AudioModule;
 use App\Modules\Invitation\ConfigModule;
 use App\Modules\Invitation\DressCodeModule;
@@ -58,6 +59,7 @@ return [
         DedicationModule::class,
         MilestoneModule::class,
         ReplyModule::class,
+        StoryModule::class,
     ],
 
 ];

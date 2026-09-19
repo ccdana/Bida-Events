@@ -103,7 +103,10 @@ class ModuleRegistryTest extends TestCase
 
         // Solo los módulos propios de las tarjetas; los compartidos ya los recorre StructuredModulesRoundTripTest
         $cardOnly = array_keys(array_filter($registry->all(), fn (Module $module) => $module->kinds() === [Module::KIND_CARD]));
-        $this->assertEqualsCanonicalizing(['dedicatoria', 'juntos_desde', 'respuesta'], $cardOnly);
+        $this->assertEqualsCanonicalizing(['dedicatoria', 'juntos_desde', 'respuesta', 'historia'], $cardOnly);
+
+        // «historia» no está en la carta de amor: su ida y vuelta la prueba StoryTemplateTest
+        $cardOnly = array_values(array_intersect($cardOnly, array_keys($modules)));
 
         foreach ($cardOnly as $code) {
             foreach ($modules[$code] as $key => $value) {

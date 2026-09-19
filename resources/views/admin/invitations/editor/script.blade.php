@@ -216,6 +216,7 @@ function invitationForm(config) {
                 label: 'Tarjeta',
                 description: 'Lo que dice la carta',
                 tabs: [
+                    { id: 'historia', label: 'Nuestra historia', moduleCode: 'historia', hint: 'Momentos, anécdota y reflexión' },
                     { id: 'dedicatoria', label: 'Dedicatoria', moduleCode: 'dedicatoria', hint: 'De, para, mensaje y firma' },
                     { id: 'juntos_desde', label: 'Juntos desde', moduleCode: 'juntos_desde', hint: 'Fecha y contador de tiempo' },
                     { id: 'respuesta', label: 'Respuesta', moduleCode: 'respuesta', hint: 'Quien la recibe te responde' },
@@ -560,12 +561,13 @@ function invitationForm(config) {
                 m.bienvenida.nombre = m.bienvenida.nombre_quinceanera ?? '';
             }
 
-            const objectModules = ['musica', 'video', 'playlist', 'hashtag', 'post_evento', 'rsvp', 'dedicatoria', 'juntos_desde', 'respuesta'];
+            const objectModules = ['musica', 'video', 'playlist', 'hashtag', 'post_evento', 'rsvp', 'dedicatoria', 'juntos_desde', 'respuesta', 'historia'];
             for (const code of objectModules) {
                 m[code] = {
                     ...this.plainModuleValue(m[code]),
                 };
             }
+            m.historia.momentos = Array.isArray(m.historia.momentos) ? m.historia.momentos : [];
 
             m.config ??= { colores: {}, tipografias: {}, modulos: {}, template: this.meta.template };
             m.config.colores ??= {};
