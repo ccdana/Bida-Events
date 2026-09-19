@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Http\Controllers\EventLandingController;
 use App\Services\InvitationModuleService;
 use App\Support\LeadSource;
 use Database\Seeders\ShowcaseInvitationsSeeder;
@@ -97,7 +98,7 @@ class SharingAndCampaignsTest extends TestCase
                 ->assertSee('<title>'.e($landing['title']).' | '.config('bida.brand').'</title>', false)
                 ->assertSee(e($landing['heading']), false)
                 // Muestra embebida y su apertura
-                ->assertSee(route('invitation.demo', $landing['demo']), false)
+                ->assertSee(route('invitation.demo', EventLandingController::demoSlugs($landing)[0]), false)
                 // Preguntas marcadas para buscadores
                 ->assertSee('"@type":"FAQPage"', false)
                 ->assertSee(e($landing['faqs'][0][0]), false)

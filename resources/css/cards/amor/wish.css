@@ -121,14 +121,11 @@
     height: 1.1rem;
 }
 
+/* Escuchando: el anillo crece con la fuerza del soplido (--level, 0 a 1) */
 .inv-wish.is-listening .inv-wish__mic {
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 0 color-mix(in srgb, var(--primary-color) 45%, transparent);
-    animation: inv-wish-listen 1.3s ease-out infinite;
-}
-
-@keyframes inv-wish-listen {
-    to { box-shadow: 0 0 0 14px transparent; }
+    box-shadow: 0 0 0 calc(3px + var(--level, 0) * 14px) color-mix(in srgb, var(--primary-color) 30%, transparent);
+    transition: box-shadow 0.08s linear;
 }
 
 .inv-wish__blow {

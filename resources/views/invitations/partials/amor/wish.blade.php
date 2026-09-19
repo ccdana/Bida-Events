@@ -52,7 +52,7 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 {{ $invCopy['wish_hint'] ?? 'Desliza hacia arriba para soplar' }}
             </p>
-            <button type="button" class="inv-wish__mic" @click="listening ? stopListening() : listen()" x-show="micAvailable">
+            <button type="button" class="inv-wish__mic" @click="listening ? stopListening() : listen()" x-show="micAvailable" :style="`--level: ${level.toFixed(2)}`" :aria-pressed="listening.toString()">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3" stroke-linecap="round"/></svg>
                 <span x-text="listening ? 'Sopla hacia el teléfono…' : 'Soplar de verdad'">Soplar de verdad</span>
             </button>

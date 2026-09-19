@@ -46,5 +46,11 @@
                 </li>
             @endforeach
         </ol>
+
+        {{-- Solo en modo historia (story.css): pasa a la página completa con scroll --}}
+        <button type="button" class="inv-nav__story" @click="close(false); window.dispatchEvent(new CustomEvent('inv-story-leave'))">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 6h14M5 12h14M5 18h9" stroke-linecap="round"/></svg>
+            Ver todo en una página
+        </button>
     </nav>
 </div>

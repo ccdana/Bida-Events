@@ -6,7 +6,7 @@
  * - Rotador: la palabra del evento y su foto cambian juntas ([data-rotator]).
  * - Botones magnéticos en escritorio ([data-magnetic]).
  * - Cabecera con fondo al dejar la parte superior ([data-site-header]).
- * - Teléfono de la portada que recorre las aperturas de cada plantilla ([data-cover-reel]).
+ * - Teléfonos que recorren las aperturas de las muestras sin quedar en blanco ([data-cover-reel]).
  *
  * Las entradas, el scroll-driven y los hovers viven en resources/css/site/site.css.
  * No usa listeners de scroll: todo se basa en IntersectionObserver.
@@ -141,38 +141,140 @@ function initHeaderState() {
 }
 
 /**
- * Teléfono de la portada: cada muestra abre su apertura sola (?portada=1). Pasado un rato, el teléfono
- * se desvanece y carga la plantilla siguiente. Solo avanza mientras se ve y la pestaña está activa.
+ * Teléfonos que recorren aperturas ([data-cover-reel] con la lista de muestras en JSON): la portada,
+ * la temporada y cada página por evento. Cada muestra abre su apertura sola (?portada=1).
+ *
+ * Para que la pantalla nunca quede en blanco mientras carga la muestra siguiente, hay dos iframes:
+ * el que se ve y uno oculto detrás donde se va cargando la próxima con «&reel=1» (así espera quieta).
+ * Cuando ya cargó y se cumplió el tiempo, se le avisa que empiece (postMessage) y se cruzan. Con una
+ * sola muestra y [data-cover-reel-replay], la apertura se repite igual. Solo avanza mientras se ve.
+ * Evento «reel:go» (detail = índice): cambia a esa muestra en cuanto esté lista.
  */
-function initCoverReel() {
-    const reel = document.querySelector('[data-cover-reel]');
-    const frame = reel?.querySelector('[data-cover-reel-frame]');
-    const items = reel ? JSON.parse(reel.dataset.coverReel || '[]') : [];
+function initCoverReels() {
+    document.querySelectorAll('[data-cover-reel]').forEach(initCoverReel);
+}
 
-    if (!frame || items.length < 2 || reducedMotion) {
+function frameIsLoaded(frame) {
+    try {
+        const doc = frame.contentDocument;
+
+        return Boolean(doc && doc.readyState === 'complete' && doc.location.href !== 'about:blank');
+    } catch {
+        return true;
+    }
+}
+
+function standbyUrl(url) {
+    const target = new URL(url, window.location.href);
+    target.searchParams.set('reel', '1');
+
+    return target.toString();
+}
+
+function initCoverReel(reel) {
+    const first = reel.querySelector('[data-cover-reel-frame]');
+    const items = JSON.parse(reel.dataset.coverReel || '[]');
+
+    if (!first || !items.length) {
+        return;
+    }
+
+    // La primera muestra aparece con un fundido cuando ya pintó su apertura
+    const reveal = () => first.classList.add('is-shown');
+    frameIsLoaded(first) ? reveal() : first.addEventListener('load', reveal, { once: true });
+
+    const loops = items.length > 1 || reel.hasAttribute('data-cover-reel-replay');
+
+    if (reducedMotion || !loops) {
         return;
     }
 
     const label = reel.querySelector('[data-cover-reel-label]');
-    // La apertura espera, se abre y la invitación se luce unos segundos antes de cambiar
-    const dwell = 9500;
+    const rotator = reel.closest('[data-rotator]');
+    // La apertura espera, se abre y la muestra se luce unos segundos antes de cambiar
+    const dwell = Number(reel.dataset.coverReelDwell) || 9500;
+    let shown = first;
+    let standby = null;
     let index = 0;
+    let pending = null;
+    let ready = false;
+    let due = false;
     let timer = null;
     let inView = false;
+
+    // Los dos iframes se turnan: el que termina de cargar detrás queda listo para entrar
+    const listen = (frame) => frame.addEventListener('load', () => {
+        if (frame === standby && pending !== null && frameIsLoaded(frame)) {
+            ready = true;
+
+            if (due) {
+                swap();
+            }
+        } else if (frame === shown) {
+            schedule();
+        }
+    });
+
+    const createStandby = () => {
+        const frame = document.createElement('iframe');
+        frame.title = first.title;
+        frame.tabIndex = -1;
+        frame.setAttribute('aria-hidden', 'true');
+        frame.setAttribute('data-cover-reel-frame', '');
+        listen(frame);
+        first.after(frame);
+
+        return frame;
+    };
+
+    const preload = (target, force = false) => {
+        if (!force && (!inView || document.hidden)) {
+            return;
+        }
+
+        if (pending === target && standby) {
+            return;
+        }
+
+        standby ??= createStandby();
+        pending = target;
+        ready = false;
+        standby.src = standbyUrl(items[target].url);
+    };
 
     const stop = () => {
         clearTimeout(timer);
         timer = null;
     };
 
-    const rotator = reel.closest('[data-rotator]');
+    const schedule = () => {
+        stop();
 
-    const next = () => {
-        index = (index + 1) % items.length;
-        reel.classList.add('is-switching');
+        if (inView && !document.hidden) {
+            timer = setTimeout(() => {
+                due = true;
+                ready ? swap() : preload((index + 1) % items.length);
+            }, dwell);
+        }
+    };
 
-        // Foto, palabra y etiqueta cambian en el mismo instante en que el teléfono empieza a cambiar
-        if (rotator && items[index].rotator !== null && items[index].rotator !== undefined) {
+    function swap() {
+        const incoming = standby;
+        const outgoing = shown;
+
+        due = false;
+        ready = false;
+        index = pending;
+        pending = null;
+
+        incoming.contentWindow?.postMessage('bida:cover-play', window.location.origin);
+        incoming.classList.add('is-shown');
+        outgoing.classList.remove('is-shown');
+        shown = incoming;
+        standby = outgoing;
+
+        // Foto, palabra y etiqueta cambian en el mismo instante que el teléfono
+        if (rotator && Number.isInteger(items[index].rotator)) {
             rotator.dispatchEvent(new CustomEvent('rotator:show', { detail: items[index].rotator }));
         }
 
@@ -180,35 +282,51 @@ function initCoverReel() {
             label.textContent = items[index].label;
         }
 
-        // La muestra nueva se carga cuando el teléfono terminó de desvanecerse
+        // Pasado el fundido, la que salió carga en silencio la muestra siguiente
         setTimeout(() => {
-            frame.src = items[index].url;
-        }, 450);
-    };
+            if (standby === outgoing && pending === null) {
+                preload((index + 1) % items.length);
+            }
+        }, 900);
 
-    const schedule = () => {
-        stop();
-
-        if (inView && !document.hidden) {
-            timer = setTimeout(next, dwell);
-        }
-    };
-
-    frame.addEventListener('load', () => {
-        reel.classList.remove('is-switching');
         schedule();
+    }
+
+    reel.addEventListener('reel:go', (event) => {
+        const target = Number(event.detail);
+
+        if (!Number.isInteger(target) || target < 0 || target >= items.length) {
+            return;
+        }
+
+        stop();
+        due = true;
+
+        if (pending === target && ready) {
+            swap();
+        } else {
+            pending = null;
+            preload(target, true);
+        }
     });
+
+    const start = () => {
+        schedule();
+        preload((index + 1) % items.length);
+    };
+
+    listen(first);
 
     new IntersectionObserver(([entry]) => {
         inView = entry.isIntersecting;
-        inView ? schedule() : stop();
+        inView ? start() : stop();
     }).observe(reel);
 
-    document.addEventListener('visibilitychange', () => (document.hidden ? stop() : schedule()));
+    document.addEventListener('visibilitychange', () => (document.hidden ? stop() : start()));
 }
 
 initReveal();
 initRotators();
 initMagnetic();
 initHeaderState();
-initCoverReel();
+initCoverReels();

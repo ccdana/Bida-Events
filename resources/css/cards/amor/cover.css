@@ -102,6 +102,11 @@ html.inv-cover-skip .inv-amor-intro {
 
 /* ── La planta ─────────────────────────────────────────────────────────── */
 
+.inv-amor-intro {
+    --amor-petal-mid: color-mix(in srgb, var(--primary-color) 55%, #ffd6de);
+    --amor-leaf-light: color-mix(in srgb, var(--amor-leaf) 70%, #e9f5c9);
+}
+
 .inv-bloom__plant {
     translate: 0 128px;
     transform-origin: 120px 300px;
@@ -118,17 +123,15 @@ html.inv-cover-skip .inv-amor-intro {
     50% { rotate: 2.5deg; }
 }
 
+/* Tallo redondo: degradado de lado a lado */
 .inv-bloom__stem {
     fill: none;
-    stroke: var(--amor-leaf);
-    stroke-width: 5;
+    stroke: url(#amor-bloom-stem);
+    stroke-width: 5.5;
     stroke-linecap: round;
 }
 
 .inv-bloom__leaf {
-    fill: var(--amor-leaf);
-    stroke: var(--amor-leaf-dark);
-    stroke-width: 1;
     transform-box: fill-box;
     scale: 0;
     transition: scale 0.9s cubic-bezier(0.34, 1.5, 0.5, 1) 0.35s;
@@ -145,57 +148,97 @@ html.inv-cover-skip .inv-amor-intro {
     transition-delay: 0.55s;
 }
 
-/* Pétalos: juntos como capullo; al florecer cada uno gira a su lugar */
+.inv-bloom__leaf-blade {
+    fill: url(#amor-bloom-leaf);
+}
+
+.inv-bloom__leaf-vein {
+    fill: none;
+    stroke: color-mix(in srgb, var(--amor-leaf-light) 80%, #fff);
+    stroke-width: 1;
+    stroke-linecap: round;
+    opacity: 0.7;
+}
+
+/* Pétalos: juntos como capullo; al florecer cada uno gira a su lugar, primero la corona de afuera */
 .inv-bloom__petal {
-    fill: url(#amor-bloom-petal);
-    stroke: color-mix(in srgb, var(--primary-color) 70%, #000);
-    stroke-width: 0.6;
     transform-origin: 120px 108px;
-    transform: rotate(calc(var(--a) * 0.06 - 10deg)) scale(0.55, 0.85);
-    transition: transform 1s cubic-bezier(0.34, 1.4, 0.5, 1) calc(var(--i) * 45ms), opacity 0.6s ease;
+    transform: rotate(calc(var(--a) * 0.05 - 8deg)) scale(calc(var(--s) * 0.5), calc(var(--s) * 0.86));
+    transition: transform 1.05s cubic-bezier(0.34, 1.35, 0.5, 1) calc(var(--i) * 40ms), opacity 0.6s ease;
+}
+
+.inv-bloom__petal use {
+    fill: url(#amor-bloom-petal);
+    stroke: color-mix(in srgb, var(--primary-color) 60%, #5a0f1f);
+    stroke-width: 0.5;
+    stroke-opacity: 0.45;
+}
+
+.inv-bloom__petal--inner use {
+    fill: url(#amor-bloom-petal-inner);
+}
+
+.inv-bloom__petal-vein {
+    fill: none;
+    stroke: color-mix(in srgb, #fff 55%, var(--amor-petal-light));
+    stroke-width: 0.9;
+    stroke-linecap: round;
+    opacity: 0.55;
 }
 
 .inv-amor-intro.is-bloomed .inv-bloom__petal {
-    transform: rotate(var(--a)) scale(1);
+    transform: rotate(var(--a)) scale(var(--s));
+}
+
+.inv-amor-intro.is-bloomed .inv-bloom__petal--inner {
+    transition-delay: calc(var(--i) * 40ms + 0.18s);
 }
 
 /* Al irse, los pétalos salen volando hacia afuera */
 .inv-amor-intro.is-leaving .inv-bloom__petal {
     opacity: 0;
-    transform: rotate(calc(var(--a) + 50deg)) translateY(-90px) scale(1.4);
+    transform: rotate(calc(var(--a) + 50deg)) translateY(-90px) scale(calc(var(--s) * 1.35));
     transition-duration: 1.1s;
     transition-timing-function: cubic-bezier(0.2, 0.7, 0.3, 1);
 }
 
+/* Cáliz: abraza el capullo y se abre hacia abajo al florecer */
 .inv-bloom__sepal {
-    fill: var(--amor-leaf);
-    transition: opacity 0.5s ease;
+    fill: url(#amor-bloom-leaf);
+    transform-origin: 120px 114px;
+    transition: transform 0.8s var(--inv-ease), opacity 0.6s ease 0.2s;
 }
 
-.inv-amor-intro.is-bloomed .inv-bloom__sepal {
+.inv-amor-intro.is-bloomed .inv-bloom__sepal--left {
+    transform: rotate(-70deg) scale(0.8);
     opacity: 0;
 }
 
-.inv-bloom__center,
-.inv-bloom__center-dot {
+.inv-amor-intro.is-bloomed .inv-bloom__sepal--right {
+    transform: rotate(70deg) scale(0.8);
+    opacity: 0;
+}
+
+/* Corazón de la flor: centro dorado con estambres */
+.inv-bloom__heart {
     transform-origin: 120px 108px;
     scale: 0;
     transition: scale 0.7s cubic-bezier(0.34, 1.6, 0.5, 1) 0.55s;
 }
 
-.inv-bloom__center {
-    fill: var(--amor-sun);
-    stroke: color-mix(in srgb, var(--amor-sun) 60%, #7a4a12);
-    stroke-width: 1.5;
-}
-
-.inv-bloom__center-dot {
-    fill: color-mix(in srgb, var(--amor-sun) 45%, #7a4a12);
-}
-
-.inv-amor-intro.is-bloomed .inv-bloom__center,
-.inv-amor-intro.is-bloomed .inv-bloom__center-dot {
+.inv-amor-intro.is-bloomed .inv-bloom__heart {
     scale: 1;
+}
+
+.inv-bloom__stamen {
+    fill: #fff4c9;
+    stroke: #c9791f;
+    stroke-width: 0.5;
+}
+
+.inv-bloom__stamen-core {
+    fill: #fff;
+    opacity: 0.45;
 }
 
 .inv-bloom__flower {
@@ -207,14 +250,27 @@ html.inv-cover-skip .inv-amor-intro {
     scale: 1.6;
 }
 
+/* Tierra: montículo con sombra, piedritas y pasto */
 .inv-bloom__soil {
-    fill: color-mix(in srgb, #8a5a44 70%, var(--bg-color));
+    fill: url(#amor-bloom-earth);
+}
+
+.inv-bloom__soil-shade {
+    fill: none;
+    stroke: rgb(255 255 255 / 0.12);
+    stroke-width: 2;
+    stroke-linecap: round;
+}
+
+.inv-bloom__pebbles ellipse {
+    fill: #c9b19e;
+    opacity: 0.8;
 }
 
 .inv-bloom__tuft {
     fill: none;
     stroke: var(--amor-leaf);
-    stroke-width: 2;
+    stroke-width: 2.2;
     stroke-linecap: round;
 }
 

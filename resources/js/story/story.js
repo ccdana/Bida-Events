@@ -102,6 +102,8 @@ export function invitationStory({ enabled = true } = {}) {
             document.addEventListener('click', (event) => this.onLinkClick(event), true);
             window.addEventListener('keydown', (event) => this.onKey(event));
             window.addEventListener('wheel', (event) => this.onWheel(event), { passive: true });
+            // «Ver todo en una página» del menú
+            window.addEventListener('inv-story-leave', () => this.on && this.leave());
 
             this.ready = true;
 

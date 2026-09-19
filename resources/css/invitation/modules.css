@@ -1274,6 +1274,7 @@ div.inv-gift {
 
 .inv-reply__input {
     min-height: 7rem;
+    resize: none;
 }
 
 .inv-reply__sent {
@@ -1323,23 +1324,34 @@ div.inv-gift {
     to { opacity: 1; translate: 0 0; filter: blur(0); }
 }
 
-/* Carta lacrada: doblada a una altura fija con el sello encima */
+/* Carta en su sobre: mientras está cerrada solo se ve el sobre con el sello.
+   Al abrir ([data-gate-done]), en orden: el sello se parte, la solapa gira, la hoja
+   asoma, el sobre se desvanece y la carta aparece. La visibilidad del sobre solo
+   tiene retraso al abrirse: si lo tuviera siempre, al entrar a la escena la carta
+   se vería un instante antes que el sobre. */
 .inv-letter-gate {
+    --env-front: color-mix(in srgb, var(--accent-color) 22%, #fffdfa);
+    --env-side: color-mix(in srgb, var(--accent-color) 34%, #fbf5ef);
+    --env-flap: color-mix(in srgb, var(--accent-color) 42%, #f6ece4);
+    --env-liner: color-mix(in srgb, var(--primary-color) 22%, var(--accent-color));
+    --env-ink: color-mix(in srgb, var(--primary-color) 55%, var(--text-color));
     position: relative;
 }
 
 html:not(.no-js) .inv-letter-gate .inv-letter {
     max-height: 21rem;
     overflow: hidden;
-    transition: max-height 1.2s var(--inv-ease);
+    opacity: 0;
+    transition: max-height 1.2s var(--inv-ease) 1.6s, opacity 0.8s ease 1.6s;
 }
 
 html:not(.no-js) .inv-letter-gate[data-gate-done] .inv-letter {
     max-height: var(--gate-full, none);
+    opacity: 1;
 }
 
 html:not(.no-js) .inv-letter-gate[data-gate-done] [data-gate-step] {
-    animation: inv-gate-rise 0.9s var(--inv-ease) calc(var(--step, 0) * 260ms + 420ms) both;
+    animation: inv-gate-rise 0.9s var(--inv-ease) calc(var(--step, 0) * 260ms + 1.9s) both;
 }
 
 .inv-letter-gate__cover {
@@ -1349,35 +1361,31 @@ html:not(.no-js) .inv-letter-gate[data-gate-done] [data-gate-step] {
     display: grid;
     align-content: center;
     justify-items: center;
-    gap: 1.1rem;
-    padding: 1.5rem;
-    border-radius: var(--inv-radius);
-    background: color-mix(in srgb, var(--accent-color) 30%, var(--bg-color));
-    transform-origin: 50% 0;
-    transition: opacity 0.6s ease 0.35s, rotate 0.9s var(--inv-ease) 0.25s, translate 0.9s var(--inv-ease) 0.25s, visibility 0s linear 1.2s;
+    gap: 0.9rem;
+    padding: 1rem 0.5rem;
+    transition: opacity 0.6s ease;
 }
 
 .inv-letter-gate[data-gate-done] .inv-letter-gate__cover {
     visibility: hidden;
     opacity: 0;
-    translate: 0 -2rem;
-    rotate: x 70deg;
     pointer-events: none;
+    transition: opacity 0.7s ease 1.5s, visibility 0s linear 2.2s;
 }
 
 .inv-letter-gate__label {
     font-family: var(--font-script);
-    font-size: clamp(1.8rem, 8vw, 2.3rem);
+    font-size: clamp(1.9rem, 8.5vw, 2.4rem);
     line-height: 1.1;
     color: var(--inv-accent-ink);
     text-align: center;
 }
 
 .inv-letter-gate__hint {
-    font-size: 0.8rem;
+    font-size: 0.82rem;
     font-weight: 500;
-    letter-spacing: 0.04em;
     color: var(--inv-muted);
+    text-align: center;
 }
 
 .inv-letter-gate.is-nudged .inv-seal {
@@ -1385,98 +1393,295 @@ html:not(.no-js) .inv-letter-gate[data-gate-done] [data-gate-step] {
 }
 
 @keyframes inv-seal-shake {
-    0%, 100% { translate: 0 0; }
-    20% { translate: -5px 0; }
-    40% { translate: 5px 0; }
-    60% { translate: -3px 0; }
-    80% { translate: 3px 0; }
+    0%, 100% { translate: -50% 0; }
+    20% { translate: calc(-50% - 5px) 0; }
+    40% { translate: calc(-50% + 5px) 0; }
+    60% { translate: calc(-50% - 3px) 0; }
+    80% { translate: calc(-50% + 3px) 0; }
 }
 
-/* Sello de lacre: se llena el anillo mientras se mantiene y se parte en dos al abrir */
-.inv-seal {
-    --seal: var(--primary-color);
+/* ── El sobre ─────────────────────────────────────────────────────────── */
+
+.inv-envelope {
+    --env-w: min(82vw, 19.5rem);
     position: relative;
+    width: var(--env-w);
+    height: calc(var(--env-w) * 0.64);
+    margin-top: 0.5rem;
+    perspective: 900px;
+    filter: drop-shadow(0 22px 26px color-mix(in srgb, var(--text-color) 22%, transparent));
+    animation: inv-envelope-float 5s ease-in-out infinite;
+}
+
+@keyframes inv-envelope-float {
+    0%, 100% { translate: 0 0; rotate: -1.5deg; }
+    50% { translate: 0 -5px; rotate: 0.5deg; }
+}
+
+.inv-letter-gate[data-gate-done] .inv-envelope {
+    animation: none;
+}
+
+/* Interior con forro de rayas finas */
+.inv-envelope__back {
+    position: absolute;
+    inset: 0;
+    border-radius: 0.6rem;
+    background:
+        repeating-linear-gradient(135deg, transparent 0 7px, color-mix(in srgb, #fff 35%, transparent) 7px 9px),
+        var(--env-liner);
+}
+
+/* La hoja adentro: asoma al abrir */
+.inv-envelope__paper {
+    position: absolute;
+    top: 7%;
+    right: 8%;
+    left: 8%;
+    z-index: 1;
     display: grid;
-    place-items: center;
-    width: 6.25rem;
-    height: 6.25rem;
+    align-content: start;
+    gap: 0.45rem;
+    height: 84%;
+    padding: 0.9rem 1rem;
+    border-radius: 0.3rem;
+    background: color-mix(in srgb, var(--accent-color) 8%, #fffefc);
+    box-shadow: 0 2px 6px rgb(0 0 0 / 0.08);
+    transition: translate 0.9s cubic-bezier(0.3, 0.9, 0.3, 1) 0.95s;
+}
+
+.inv-envelope__paper b {
+    font-family: var(--font-script);
+    font-size: 1.35rem;
+    font-weight: 400;
+    color: var(--env-ink);
+}
+
+.inv-envelope__paper i {
+    display: block;
+    height: 2px;
+    border-radius: 2px;
+    background: color-mix(in srgb, var(--text-color) 12%, transparent);
+}
+
+.inv-envelope__paper i:nth-of-type(2) { width: 84%; }
+.inv-envelope__paper i:nth-of-type(3) { width: 62%; }
+
+.inv-letter-gate[data-gate-done] .inv-envelope__paper {
+    translate: 0 -48%;
+}
+
+/* Bolsillo delantero: se corta en V arriba y los costados llevan su pliegue */
+.inv-envelope__front {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    border-radius: 0.6rem;
+    background: var(--env-front);
+    clip-path: polygon(0 0, 50% 56%, 100% 0, 100% 100%, 0 100%);
+}
+
+.inv-envelope__front::before,
+.inv-envelope__front::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--env-side);
+}
+
+.inv-envelope__front::before {
+    clip-path: polygon(0 0, 50% 58%, 0 100%);
+}
+
+.inv-envelope__front::after {
+    clip-path: polygon(100% 0, 50% 58%, 100% 100%);
+    filter: brightness(0.98);
+}
+
+.inv-envelope__to {
+    position: absolute;
+    right: 9%;
+    bottom: 11%;
+    z-index: 1;
+    font-family: var(--font-script);
+    font-size: 1.45rem;
+    color: var(--env-ink);
+    rotate: -4deg;
+}
+
+/* Solapa: gira sobre su borde de arriba y pasa detrás de la hoja */
+.inv-envelope__flap {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 4;
+    height: 60%;
+    background:
+        linear-gradient(to bottom, color-mix(in srgb, #fff 30%, transparent), transparent 70%),
+        var(--env-flap);
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+    border-radius: 0.6rem 0.6rem 0 0;
+    /* Borde sombreado de la solapa: se lee como papel doblado sobre el sobre */
+    box-shadow: inset 0 -18px 22px -18px color-mix(in srgb, var(--text-color) 30%, transparent);
+    transform-origin: 50% 0;
+    transition: rotate 0.75s cubic-bezier(0.4, 0.1, 0.3, 1) 0.4s, z-index 0s linear 0.78s;
+}
+
+.inv-letter-gate[data-gate-done] .inv-envelope__flap {
+    z-index: 0;
+    rotate: x 178deg;
+}
+
+/* Ramita seca bajo el sello */
+.inv-envelope__sprig {
+    position: absolute;
+    top: calc(60% - 3.3rem);
+    left: calc(50% - 5.6rem);
+    z-index: 5;
+    width: 6.4rem;
+    rotate: -18deg;
+    transition: opacity 0.4s ease;
+}
+
+.inv-envelope__sprig-stem {
+    fill: none;
+    stroke: var(--amor-leaf-dark, #56794a);
+    stroke-width: 1.6;
+    stroke-linecap: round;
+}
+
+.inv-envelope__sprig-leaf {
+    fill: var(--amor-leaf, #6f9a5b);
+}
+
+.inv-envelope__sprig-bud {
+    fill: color-mix(in srgb, var(--primary-color) 45%, #c9a2d6);
+}
+
+.inv-letter-gate[data-gate-done] .inv-envelope__sprig {
+    opacity: 0;
+}
+
+/* ── Sello de lacre ───────────────────────────────────────────────────── */
+
+.inv-seal {
+    --seal: color-mix(in srgb, var(--primary-color) 88%, #000);
+    --seal-light: color-mix(in srgb, var(--primary-color) 55%, #fff);
+    --seal-dark: color-mix(in srgb, var(--primary-color) 45%, #000);
+    position: absolute;
+    top: calc(60% - 2.6rem);
+    left: 50%;
+    z-index: 6;
+    width: 5.2rem;
+    height: 5.2rem;
     padding: 0;
     border: 0;
     border-radius: 999px;
     background: none;
-    color: #fff;
     cursor: pointer;
+    translate: -50% 0;
     touch-action: none;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
-    scale: calc(1 - var(--hold, 0) * 0.08);
+    scale: calc(1 - var(--hold, 0) * 0.07);
     transition: scale 0.15s ease;
 }
 
 .inv-seal:focus-visible {
     outline: 2px solid var(--inv-accent-ink);
-    outline-offset: 6px;
+    outline-offset: 8px;
 }
 
+/* Anillo de avance mientras se mantiene presionado */
 .inv-seal__ring {
     position: absolute;
-    inset: -0.7rem;
-    width: calc(100% + 1.4rem);
-    height: calc(100% + 1.4rem);
+    inset: -0.65rem;
+    width: calc(100% + 1.3rem);
+    height: calc(100% + 1.3rem);
     rotate: -90deg;
     overflow: visible;
+    pointer-events: none;
 }
 
 .inv-seal__ring circle {
     fill: none;
-    stroke: color-mix(in srgb, var(--seal) 18%, transparent);
-    stroke-width: 3;
+    stroke: color-mix(in srgb, var(--seal) 14%, transparent);
+    stroke-width: 2.5;
 }
 
 .inv-seal__ring .inv-seal__ring-fill {
-    stroke: var(--seal);
+    stroke: color-mix(in srgb, var(--amor-sun, #d9a441) 80%, var(--seal));
     stroke-linecap: round;
     stroke-dasharray: 1;
     stroke-dashoffset: calc(1 - var(--hold, 0));
 }
 
-.inv-seal__half {
-    position: absolute;
-    inset: 0;
-    display: grid;
-    place-items: center;
-    border-radius: 999px;
-    background:
-        radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--seal) 70%, #fff) 0, transparent 38%),
-        radial-gradient(circle, var(--seal) 58%, color-mix(in srgb, var(--seal) 75%, #000) 100%);
-    box-shadow: 0 10px 22px -10px color-mix(in srgb, var(--seal) 80%, #000);
-    transition: translate 0.7s var(--inv-ease), rotate 0.7s var(--inv-ease), opacity 0.5s ease 0.2s;
+.inv-seal__wax {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    filter: drop-shadow(0 6px 6px color-mix(in srgb, var(--seal-dark) 55%, transparent));
 }
 
-.inv-seal__half--left {
-    clip-path: polygon(0 0, 54% 0, 44% 38%, 56% 62%, 46% 100%, 0 100%);
+.inv-seal__blob,
+.inv-seal__drip {
+    fill: url(#inv-seal-gloss);
 }
 
-.inv-seal__half--right {
-    clip-path: polygon(54% 0, 100% 0, 100% 100%, 46% 100%, 56% 62%, 44% 38%);
+.inv-seal__groove {
+    fill: none;
+    stroke: var(--seal-dark);
+    stroke-width: 2.2;
+    opacity: 0.75;
 }
 
-.inv-seal__mark {
+.inv-seal__groove-light {
+    fill: none;
+    stroke: var(--seal-light);
+    stroke-width: 1;
+    opacity: 0.45;
+}
+
+.inv-seal__bead {
+    fill: var(--seal-dark);
+    opacity: 0.55;
+}
+
+.inv-seal__initial {
     font-family: var(--font-script);
-    font-size: 2.8rem;
-    line-height: 1;
-    color: color-mix(in srgb, var(--seal) 55%, #fff);
-    text-shadow: 0 -1px 0 color-mix(in srgb, var(--seal) 60%, #000);
+    font-size: 36px;
+    fill: var(--seal-dark);
 }
 
-.inv-seal__mark--heart {
-    width: 2.2rem;
-    height: 2.2rem;
+.inv-seal__initial--light {
+    fill: var(--seal-light);
+    opacity: 0.6;
 }
 
-.inv-letter-gate.is-holding .inv-seal__half {
+.inv-seal__heart {
+    fill: var(--seal-dark);
+    stroke: var(--seal-light);
+    stroke-width: 0.8;
+    stroke-opacity: 0.5;
+}
+
+.inv-seal__shine {
+    fill: #fff;
+    opacity: 0.22;
+}
+
+.inv-seal__half {
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: translate 0.6s cubic-bezier(0.3, 0.7, 0.4, 1), rotate 0.6s cubic-bezier(0.3, 0.7, 0.4, 1), opacity 0.45s ease 0.25s;
+}
+
+/* Mientras se mantiene presionado, el lacre late */
+.inv-letter-gate.is-holding .inv-seal__wax {
     animation: inv-seal-beat 0.55s ease-in-out infinite;
 }
 
@@ -1486,15 +1691,31 @@ html:not(.no-js) .inv-letter-gate[data-gate-done] [data-gate-step] {
 }
 
 .inv-letter-gate[data-gate-done] .inv-seal__half--left {
-    translate: -2.4rem 1rem;
-    rotate: -24deg;
+    translate: -14px 10px;
+    rotate: -22deg;
     opacity: 0;
 }
 
 .inv-letter-gate[data-gate-done] .inv-seal__half--right {
-    translate: 2.4rem 1rem;
-    rotate: 24deg;
+    translate: 14px 10px;
+    rotate: 22deg;
     opacity: 0;
+}
+
+.inv-letter-gate[data-gate-done] .inv-seal__ring {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .inv-envelope {
+        animation: none;
+    }
+
+    html:not(.no-js) .inv-letter-gate .inv-letter,
+    .inv-letter-gate[data-gate-done] .inv-letter-gate__cover {
+        transition-delay: 0s;
+    }
 }
 
 /* Raspar para revelar */

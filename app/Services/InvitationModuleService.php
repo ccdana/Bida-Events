@@ -19,8 +19,10 @@ class InvitationModuleService
     ) {}
 
     /**
-     * Completa la forma de todos los módulos y resuelve qué se muestra: un módulo encendido se
-     * muestra, y uno apagado también si tiene contenido cargado.
+     * Completa la forma de todos los módulos y resuelve qué se muestra. El interruptor del editor
+     * manda: un módulo apagado no se muestra aunque tenga contenido (el contenido se conserva para
+     * volver a encenderlo). Sin interruptor guardado, se muestra si tiene contenido o según su valor
+     * por defecto.
      */
     public function normalizeModules(array $modules): array
     {
@@ -30,16 +32,14 @@ class InvitationModuleService
         $normalized['regalos'] = $this->coerceGiftModule($normalized['regalos'] ?? []);
 
         foreach ($this->registry->visibilityDefaults() as $code => $default) {
-            $data = is_array($normalized[$code] ?? null) ? $normalized[$code] : [];
-            $hasContent = $this->registry->get($code)->hasContent($data);
-
             if (is_array($rawVisibility) && array_key_exists($code, $rawVisibility)) {
-                $normalized['config']['modulos'][$code] = (bool) $rawVisibility[$code] || $hasContent;
+                $normalized['config']['modulos'][$code] = (bool) $rawVisibility[$code];
 
                 continue;
             }
 
-            $normalized['config']['modulos'][$code] = $hasContent ?: $default;
+            $data = is_array($normalized[$code] ?? null) ? $normalized[$code] : [];
+            $normalized['config']['modulos'][$code] = $this->registry->get($code)->hasContent($data) ?: $default;
         }
 
         return $normalized;

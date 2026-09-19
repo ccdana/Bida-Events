@@ -38,7 +38,8 @@ class SecurityHeaders
         $response->headers->set('X-Content-Type-Options', 'nosniff');
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
         $response->headers->set('X-Frame-Options', 'SAMEORIGIN');
-        $response->headers->set('Permissions-Policy', 'camera=(self), microphone=(), geolocation=(), payment=(), interest-cohort=()');
+        // Micrófono solo para el propio sitio: el diente de león de la tarjeta de amor se sopla de verdad
+        $response->headers->set('Permissions-Policy', 'camera=(self), microphone=(self), geolocation=(), payment=(), interest-cohort=()');
 
         if (config('security.csp.enabled', true)) {
             $header = config('security.csp.enforce', false)

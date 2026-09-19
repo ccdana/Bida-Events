@@ -1,11 +1,33 @@
 {{-- Precios. Recibe $packages (con su enlace de WhatsApp) y $contactUrl. --}}
+@php
+    // Con la promoción de inauguración, cuánto se ahorra en el paquete más caro
+    $launchSaving = collect($packages)->map(fn (array $package) => ($package['old_price'] ?? 0) - ($package['final_price'] ?? $package['price']))->max();
+@endphp
 <section id="precios" class="scroll-mt-20 border-t border-site-line bg-site-surface">
     <div class="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-28">
-        <p class="text-[0.95rem] font-medium text-site-accent" data-reveal>Precios</p>
-        <h2 class="mt-4 text-3xl font-semibold leading-[1.1] tracking-tight md:text-5xl" data-reveal>Elige tu paquete</h2>
-        <p class="mt-5 max-w-[52ch] text-lg leading-relaxed text-site-muted" data-reveal>
-            Pago único por invitación, en bolivianos. Cada paquete incluye todo lo del anterior.
-        </p>
+        <div class="grid gap-8 lg:grid-cols-12 lg:items-end lg:gap-8">
+            <div class="lg:col-span-7">
+                <p class="text-[0.95rem] font-medium text-site-accent" data-reveal>Precios</p>
+                <h2 class="mt-4 text-3xl font-semibold leading-[1.1] tracking-tight md:text-5xl" data-reveal>Elige tu paquete</h2>
+                <p class="mt-5 max-w-[52ch] text-lg leading-relaxed text-site-muted" data-reveal>
+                    Pago único por invitación, en bolivianos. Cada paquete incluye todo lo del anterior.
+                </p>
+            </div>
+
+            @if($launchSaving > 0)
+                {{-- Promoción de inauguración: un talón de entrada, con el ahorro máximo --}}
+                <div class="site-launch lg:col-span-5" data-reveal style="--reveal-index: 1">
+                    <p class="site-launch__stub">
+                        <span>Precio de</span>
+                        <b>apertura</b>
+                    </p>
+                    <p class="site-launch__text">
+                        <strong>{{ config('bida.launch_promo.label') }}.</strong>
+                        Estrenamos {{ $bida['brand'] }} y todos los paquetes bajan de precio: ahorras hasta {{ $launchSaving }} Bs.
+                    </p>
+                </div>
+            @endif
+        </div>
 
         <div class="site-plans mt-14">
             @foreach($packages as $index => $package)
@@ -27,10 +49,19 @@
                         @endif
                     </div>
 
-                    <p class="mt-7 flex items-baseline gap-2">
-                        <span class="site-plan__price">{{ $package['price'] }}</span>
-                        <span class="text-xl text-site-muted">Bs</span>
+                    <p class="site-plan__amount">
+                        @if(! empty($package['old_price']))
+                            <del class="site-plan__old"><span class="sr-only">Antes </span>{{ $package['old_price'] }} Bs</del>
+                            <span class="sr-only">, ahora</span>
+                        @endif
+                        <span class="flex items-baseline gap-2">
+                            <span class="site-plan__price">{{ $package['final_price'] ?? $package['price'] }}</span>
+                            <span class="text-xl text-site-muted">Bs</span>
+                        </span>
                     </p>
+                    @if(! empty($package['old_price']))
+                        <p class="site-plan__saving">Ahorras {{ $package['old_price'] - $package['final_price'] }} Bs</p>
+                    @endif
 
                     <p class="mt-4 max-w-[36ch] leading-relaxed text-site-muted">{{ $package['summary'] }}</p>
 

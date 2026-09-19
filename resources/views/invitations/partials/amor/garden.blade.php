@@ -6,14 +6,27 @@
     - el aviso de las mariposas encontradas (butterflyHunt en resources/js/cards/amor/garden.js).
     Todo es decorativo: sin JavaScript no se ve nada de esto salvo el dibujo reutilizado.
 --}}
+{{--
+    Flor reutilizable: ocho pétalos con muesca en la punta, un brillo en cada uno y un centro con
+    estambres. Los colores llegan por variables: --flower-petal, --flower-petal-light, --flower-edge,
+    --flower-center y --flower-dot (ver garden.css y reply.css).
+--}}
 <svg class="inv-amor-sprite" width="0" height="0" aria-hidden="true" focusable="false">
     <symbol id="amor-flower" viewBox="0 0 40 40">
-        @foreach([0, 60, 120, 180, 240, 300] as $angle)
-            <ellipse cx="20" cy="10.5" rx="6" ry="9.5" transform="rotate({{ $angle }} 20 20)" style="fill: var(--flower-petal, currentColor); stroke: var(--flower-edge, transparent); stroke-width: 0.8" />
+        <path id="amor-flower-petal" d="M20 20 C 15.2 16.8, 13.3 11, 15.3 6.2 C 16.2 3.8, 17.9 4.1, 19 2.8 C 19.6 3.7, 20.4 3.7, 21 2.8 C 22.1 4.1, 23.8 3.8, 24.7 6.2 C 26.7 11, 24.8 16.8, 20 20 Z"
+            style="fill: var(--flower-petal, currentColor); stroke: var(--flower-edge, rgb(0 0 0 / 0.12)); stroke-width: 0.5" />
+        @foreach([45, 90, 135, 180, 225, 270, 315] as $angle)
+            <use href="#amor-flower-petal" transform="rotate({{ $angle }} 20 20)" />
         @endforeach
-        <circle cx="20" cy="20" r="5.6" style="fill: var(--flower-center, #f2c75c)" />
-        <circle cx="18.4" cy="18.6" r="1.1" style="fill: var(--flower-dot, rgb(122 74 18 / 0.45))" />
-        <circle cx="21.8" cy="20.8" r="0.9" style="fill: var(--flower-dot, rgb(122 74 18 / 0.45))" />
+        @foreach([0, 45, 90, 135, 180, 225, 270, 315] as $angle)
+            <path d="M20 17 C 18.4 14, 18.3 9.5, 19.6 6.5 C 19.9 9.5, 20.3 13.5, 20 17 Z" transform="rotate({{ $angle }} 20 20)"
+                style="fill: var(--flower-petal-light, rgb(255 255 255 / 0.4))" />
+        @endforeach
+        <circle cx="20" cy="20" r="4.6" style="fill: var(--flower-center, #f2c75c); stroke: var(--flower-center-edge, rgb(160 90 20 / 0.45)); stroke-width: 0.5" />
+        @foreach([0, 45, 90, 135, 180, 225, 270, 315] as $angle)
+            <circle cx="{{ round(20 + 2.9 * cos(deg2rad($angle)), 2) }}" cy="{{ round(20 + 2.9 * sin(deg2rad($angle)), 2) }}" r="0.62" style="fill: var(--flower-dot, rgb(122 74 18 / 0.5))" />
+        @endforeach
+        <circle cx="19.2" cy="19.1" r="1.3" style="fill: rgb(255 255 255 / 0.45)" />
     </symbol>
 </svg>
 

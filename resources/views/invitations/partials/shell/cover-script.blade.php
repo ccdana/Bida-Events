@@ -12,9 +12,25 @@
             return;
         }
 
-        // Teléfono de la portada de la home: la apertura se luce un momento y se abre sola
+        // Teléfonos del sitio: la apertura se luce un momento y se abre sola. Con ?reel=1 la muestra se
+        // cargó oculta detrás de otra (resources/js/site.js) y espera la señal de que ya se ve.
         if (window.invCoverAutoplay) {
-            window.addEventListener('load', () => {
+            const standby = new URLSearchParams(window.location.search).has('reel');
+
+            window.invCoverPlay = new Promise((resolve) => {
+                if (!standby) {
+                    window.addEventListener('load', () => resolve(), { once: true });
+                    return;
+                }
+
+                window.addEventListener('message', (event) => {
+                    if (event.origin === window.location.origin && event.data === 'bida:cover-play') {
+                        resolve();
+                    }
+                });
+            });
+
+            window.invCoverPlay.then(() => {
                 setTimeout(() => document.querySelector('[data-cover-trigger]')?.click(), 2200);
             });
         }

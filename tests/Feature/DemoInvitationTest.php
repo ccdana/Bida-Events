@@ -51,9 +51,15 @@ class DemoInvitationTest extends TestCase
     public function test_only_configured_showcase_invitations_have_a_demo(): void
     {
         $this->seed(ShowcaseInvitationsSeeder::class);
-        config(['bida.demo_invitations' => ['xv-isabella']]);
+        config(['bida.demo_invitations' => ['xv-isabella'], 'bida.landings' => [], 'bida.season.templates' => []]);
 
         $this->get(route('invitation.demo', 'boda-camila-andres'))->assertNotFound();
+        $this->get(route('invitation.demo', 'tarjeta-ana-luis'))->assertNotFound();
+
+        // La tarjeta de temporada tiene su muestra aunque no esté entre las de la portada
+        config(['bida.season.templates' => ['tarjeta-ana-luis']]);
+
+        $this->withoutVite()->get(route('invitation.demo', ['slug' => 'tarjeta-ana-luis', 'portada' => 1]))->assertOk();
     }
 
     public function test_real_invitations_keep_their_normal_behavior(): void

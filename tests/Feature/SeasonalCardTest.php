@@ -11,6 +11,7 @@ use App\Services\InvitationModuleService;
 use App\Support\InvitationTemplates;
 use Database\Seeders\ShowcaseInvitationsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Js;
 use Illuminate\Support\Str;
 use Tests\Concerns\CreatesInvitations;
@@ -37,7 +38,7 @@ class SeasonalCardTest extends TestCase
             ->assertSee('id="dedicatoria"', false)
             ->assertSee('id="juntos-desde"', false)
             ->assertSee('id="respuesta"', false)
-            ->assertSee('x-data="cardReply(', false)
+            ->assertSee('x-data="flowerReply(', false)
             ->assertDontSee('id="rsvp"', false)
             ->assertDontSee('id="itinerario"', false)
             ->assertDontSee('id="ubicacion"', false);
@@ -58,10 +59,16 @@ class SeasonalCardTest extends TestCase
             ->assertSee('class="inv-letter-gate__cover" data-needs-js', false)
             ->assertSee('Gracias por las mañanas de café')
             ->assertSee('Mantén presionado el sello para abrir la carta')
-            // El tiempo juntos ya viene calculado debajo de la lámina para raspar
-            ->assertSee('x-data="scratchReveal(', false)
-            ->assertSee('data-needs-js aria-hidden="true"', false)
-            ->assertSee('Mostrar sin raspar')
+            // El sobre con el sello de lacre (la carta queda debajo, oculta solo con JavaScript)
+            ->assertSee('class="inv-envelope"', false)
+            // El tiempo juntos ya viene calculado debajo de la margarita, con primaveras y latidos
+            ->assertSee('x-data="daisyGate(', false)
+            ->assertSee('Ver la respuesta sin deshojar')
+            ->assertSee('primaveras juntos')
+            ->assertSee('millones de latidos')
+            // Respuesta con flor y su significado, y el deseo del final
+            ->assertSee('Me haces feliz')
+            ->assertSee('id="deseo"', false)
             ->assertSeeInOrder(['id="inicio"', 'id="dedicatoria"', 'id="juntos-desde"', 'id="galeria"', 'id="respuesta"'], false);
     }
 
@@ -122,6 +129,8 @@ class SeasonalCardTest extends TestCase
 
         $this->postJson(route('invitation.reply', $card->slug), ['content_text' => ''])->assertUnprocessable();
         $this->postJson(route('invitation.reply', $card->slug), ['content_text' => str_repeat('a', 501)])->assertUnprocessable();
+        // Solo las flores que ofrece la plantilla
+        $this->postJson(route('invitation.reply', $card->slug), ['reaction' => 'cactus'])->assertUnprocessable();
 
         $this->postJson(route('invitation.reply', $card->slug), ['content_text' => 'Solo para esta carta'])->assertOk();
 
@@ -157,8 +166,10 @@ class SeasonalCardTest extends TestCase
             ->assertJson(['success' => false, 'message' => self::THROTTLE_MESSAGE]);
     }
 
-    public function test_the_card_campaign_page_asks_for_the_price_and_links_its_demo(): void
+    public function test_the_card_campaign_page_shows_the_season_price_and_links_its_demo(): void
     {
+        config(['bida.season.ends_at' => '2026-09-21 23:59:59']);
+        $this->travelTo(Carbon::parse('2026-09-19 10:00', 'America/La_Paz'));
         $this->seed(ShowcaseInvitationsSeeder::class);
         $landing = config('bida.landings.tarjetas-dia-del-amor');
 
@@ -166,8 +177,33 @@ class SeasonalCardTest extends TestCase
             ->get(route('landing', 'tarjetas-dia-del-amor'))
             ->assertOk()
             ->assertSee(e($landing['heading']), false)
-            ->assertSee(route('invitation.demo', $landing['demo']), false)
-            ->assertSee('Pedir precio');
+            // Las muestras son las de la temporada
+            ->assertSee(route('invitation.demo', config('bida.season.templates')[0]), false)
+            ->assertSeeInOrder(['100 Bs', '75', 'Bs'])
+            ->assertSee('La quiero por 75 Bs');
+
+        // Pasada la temporada ya no se vende: queda el contacto
+        $this->travelTo(Carbon::parse('2026-09-22 08:00', 'America/La_Paz'));
+
+        $this->withoutVite()
+            ->get(route('landing', 'tarjetas-dia-del-amor'))
+            ->assertOk()
+            ->assertDontSee('La quiero por 75 Bs')
+            ->assertSee('La temporada terminó');
+    }
+
+    public function test_a_reply_flower_has_its_meaning_for_the_client(): void
+    {
+        $client = User::factory()->create(['is_admin' => false]);
+        $card = $this->createCard(['user_id' => $client->id]);
+
+        $this->postJson(route('invitation.reply', $card->slug), ['reaction' => 'tulipan'])->assertOk();
+
+        $this->actingAs($client)
+            ->get(route('client.invitation.show', $card))
+            ->assertOk()
+            ->assertSee('Te respondió con un tulipán')
+            ->assertSee('Amor sincero');
     }
 
     public function test_the_editor_offers_cards_with_their_own_profile(): void

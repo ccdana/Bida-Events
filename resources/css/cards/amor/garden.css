@@ -177,6 +177,16 @@ html.is-turning .inv-sweep i:nth-child(odd) {
     translate: calc(var(--tilt-x, 0) * -10px) 0;
 }
 
+/* En la escena con formulario el pasto baja y deja libre el botón de enviar */
+.inv-story-on .inv-meadow {
+    transition: translate 0.6s var(--inv-ease), opacity 0.4s ease;
+}
+
+.inv-story-on:has(#respuesta.is-active) .inv-meadow {
+    translate: 0 110%;
+    opacity: 0;
+}
+
 .inv-story-on body.has-player .inv-meadow {
     bottom: calc(4.2rem + env(safe-area-inset-bottom));
 }

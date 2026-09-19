@@ -141,6 +141,11 @@ function invitationNav(sectionIds) {
             }
 
             const observer = new IntersectionObserver((entries) => {
+                // En modo historia las escenas están apiladas: la activa la avisa «inv-story-change»
+                if (document.documentElement.classList.contains('inv-story-on')) {
+                    return;
+                }
+
                 entries.forEach((entry) => {
                     if (entry.isIntersecting) {
                         this.active = entry.target.id;

@@ -110,7 +110,7 @@ Todas están en `routes/web.php`.
 | `GET /` | `home` | `HomeController` | Portada pública; middleware `lead.source` |
 | `GET /invitaciones-de-boda`, `/invitaciones-xv-anos`, `/invitaciones-de-bautizo`, `/invitaciones-de-cumpleanos`, `/tarjetas-dia-del-amor` | `landing` | `EventLandingController` | Página por tipo de evento (contenido en `config/bida.php`, clave `landings`); middleware `lead.source` |
 | `GET /sitemap.xml` | `sitemap` | `EventLandingController@sitemap` | Portada y páginas por evento |
-| `GET /muestra/{slug}` | `invitation.demo` | `Public\InvitationController@demo` | Solo las invitaciones de `bida.demo_invitations`; nada se guarda; `noindex` |
+| `GET /muestra/{slug}` | `invitation.demo` | `Public\InvitationController@demo` | Solo las muestras de `ShowcaseDemos::allowedSlugs()` (portada, temporada y `demos` de cada página por evento); nada se guarda; `noindex`; con `?portada=1` la apertura se abre sola y con `&reel=1` espera la señal del teléfono |
 | `GET /dashboard` | `dashboard` | Cierre en rutas | Redirige a admin o cliente según el rol |
 | `GET/POST /login`, `POST /logout` | `login`, `logout` | `Auth\LoginController` | `throttle:login` |
 | `GET /p/{slug}` | `invitation.show` | `Public\InvitationController@show` | Invitación general |
@@ -157,7 +157,7 @@ propósito y responde `no-store`.
 | `bootstrap/providers.php` | Lista de proveedores propios (`AppServiceProvider`) |
 | `config/app.php` | Nombre, entorno, zona horaria e idioma (`es`) |
 | `config/auth.php` | Guard de sesión y proveedor de usuarios |
-| `config/bida.php` | **Datos públicos del negocio**: marca, ciudad, WhatsApp, correo, Instagram, Facebook, TikTok, invitación de portada, invitaciones de muestra, eventos que rotan, tipos de evento, fotos del sitio y paquetes con precios |
+| `config/bida.php` | **Datos públicos del negocio**: marca, ciudad, WhatsApp, correo, Instagram, Facebook, TikTok, invitación de portada, invitaciones de muestra, eventos que rotan, tipos de evento, fotos del sitio, paquetes con precio y precio de promoción (`launch_promo`, `BIDA_LAUNCH_PROMO`) y la temporada (`season`: precio, muestras y cierre en `BIDA_SEASON_ENDS_AT`); servicios de la portada (`services`) y páginas por evento (`landings`, con sus `demos`) |
 | `config/cache.php` | Almacenes de caché disponibles |
 | `config/cloudinary.php` | Credenciales y opciones de Cloudinary |
 | `config/database.php` | Conexiones MySQL/MariaDB/SQLite |
@@ -279,7 +279,8 @@ propósito y responde `no-store`.
 | `CloudinaryImage.php` | Arma variantes responsivas (`f_auto`, `q_auto`, ancho), `srcset` y el recorte 1200×630 en JPG para compartir |
 | `ShareMeta.php` | Título, descripción e imagen Open Graph de invitaciones, tarjetas («Para Ana, de Luis»), portada y páginas por evento |
 | `LeadSource.php` | Origen de campaña y código corto del mensaje de WhatsApp (`Ref. BODA-FB-MAYO`) |
-| `ShowcaseDemos.php` | Invitaciones de muestra activas, para la portada y las páginas por evento |
+| `ShowcaseDemos.php` | Invitaciones de muestra activas, para la portada y las páginas por evento; `allowedSlugs()` dice cuáles se abren en `/muestra` |
+| `Offers.php` | Precios de hoy: promoción de inauguración de los paquetes y temporada vigente (o `null` si ya cerró) |
 | `SiteImage.php` | Fotos del sitio público; si el archivo no existe usa un marcador |
 | `MapsLinkParser.php` | Interpreta enlaces de Google Maps y extrae coordenadas |
 | `YouTubeHelper.php` | Detecta enlaces de YouTube y da formato a las canciones sugeridas |

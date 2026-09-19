@@ -189,6 +189,40 @@ html.inv-cover-waiting .inv-scene * {
     backdrop-filter: blur(12px);
 }
 
+/* La barra no se ve: se avanza tocando o deslizando. Aparece solo al llegar con el teclado */
+.inv-story__controls:not(:focus-within) {
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
+    border: 0;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+/* «Ver todo» vive en el menú mientras se recorre como historia */
+.inv-story-on .inv-nav__story {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    min-height: 2.75rem;
+    margin-top: 1.5rem;
+    padding: 0 1.1rem;
+    border: 1px solid var(--inv-line);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--text-color);
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.inv-nav__story svg {
+    width: 1.1rem;
+    height: 1.1rem;
+}
+
 body.has-player .inv-story__controls,
 body.has-player .inv-story__resume,
 body.has-player .inv-story__hint {

@@ -3,14 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Support\LeadSource;
+use App\Support\Offers;
 use App\Support\ShareMeta;
 use App\Support\ShowcaseDemos;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 /**
- * Páginas por tipo de evento (/invitaciones-de-boda, /invitaciones-xv-anos…): una muestra
- * embebida, lo propio de ese evento, preguntas y WhatsApp con su código de origen.
+ * Páginas por tipo de evento (/invitaciones-de-boda, /tarjetas-dia-del-amor…): sus muestras para
+ * probar, lo propio de ese evento, precio, preguntas y WhatsApp con su código de origen.
  * El contenido vive en config('bida.landings').
  */
 class EventLandingController extends Controller
@@ -30,7 +31,10 @@ class EventLandingController extends Controller
             'page' => $page,
             'contactUrl' => $whatsapp($page['whatsapp']),
             'packages' => HomeController::packages($bida['packages'], $whatsapp),
-            'demo' => ShowcaseDemos::find([$page['demo']])[0] ?? null,
+            'fromPrice' => Offers::lowestPackagePrice(),
+            // Las tarjetas de temporada se venden a su precio mientras dure la temporada
+            'season' => ($page['kind'] ?? null) === 'card' ? HomeController::season($request) : null,
+            'demos' => ShowcaseDemos::find(self::demoSlugs($page)),
             'landings' => HomeController::landingLinks(),
             'share' => ShareMeta::make(
                 $page['title'],
@@ -39,6 +43,14 @@ class EventLandingController extends Controller
                 route('landing', $landing),
             ),
         ]);
+    }
+
+    /** Muestras de la página: las suyas o, en las tarjetas, las de la temporada. */
+    public static function demoSlugs(array $page): array
+    {
+        return ($page['kind'] ?? null) === 'card'
+            ? ($page['demos'] ?? config('bida.season.templates') ?? [])
+            : ($page['demos'] ?? []);
     }
 
     /** Mapa del sitio con las páginas públicas que sí deben aparecer en buscadores. */

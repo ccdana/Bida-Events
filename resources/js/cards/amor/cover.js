@@ -23,7 +23,9 @@ export function bloomCover(timing) {
 
             // Teléfono de la portada de la home: se riega solo (el clic automático de cover-script se ignora)
             if (!this.closed && window.invCoverAutoplay) {
-                [900, 1500, 2100].forEach((delay) => setTimeout(() => this.water(), delay));
+                (window.invCoverPlay ?? Promise.resolve()).then(() => {
+                    [900, 1500, 2100].forEach((delay) => setTimeout(() => this.water(), delay));
+                });
             }
         },
 

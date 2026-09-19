@@ -43,10 +43,16 @@
                         @endforeach
                     </div>
 
-                    <p class="inv-bouquet__meaning" aria-live="polite">
-                        <span x-show="!reaction">Cada flor dice algo distinto</span>
-                        <span x-show="reaction" x-cloak x-text="reaction ? `«${flowers[reaction].meaning}»` : ''"></span>
-                    </p>
+                    {{-- Lo que dice la flor elegida; se vuelve a animar con cada cambio --}}
+                    <div class="inv-bouquet__meaning" aria-live="polite">
+                        <p class="inv-bouquet__meaning-empty" x-show="!reaction">Cada flor dice algo distinto: elige la tuya</p>
+                        <template x-for="code in (reaction ? [reaction] : [])" :key="code">
+                            <div class="inv-bouquet__card">
+                                <p class="inv-bouquet__card-title" x-text="flowers[code].meaning"></p>
+                                <p class="inv-bouquet__card-text" x-text="flowers[code].phrase"></p>
+                            </div>
+                        </template>
+                    </div>
                 </fieldset>
             @endif
 

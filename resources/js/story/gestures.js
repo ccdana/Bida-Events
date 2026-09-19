@@ -154,7 +154,7 @@ export function holdToOpen({ duration = 1100 } = {}) {
             if (letter) {
                 // En la carta y no en el contenedor: Alpine reescribe el style del contenedor con cada avance del anillo
                 letter.style.setProperty('--gate-full', `${letter.scrollHeight}px`);
-                setTimeout(() => letter.style.setProperty('--gate-full', 'none'), 1400);
+                setTimeout(() => letter.style.setProperty('--gate-full', 'none'), 3200);
             }
 
             this.holding = false;

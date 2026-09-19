@@ -19,6 +19,21 @@ final class ShowcaseDemos
     ];
 
     /**
+     * Invitaciones que se pueden abrir como muestra (/muestra/{slug}): las de la portada, las de
+     * la temporada y las que enseña cada página por evento.
+     *
+     * @return list<string>
+     */
+    public static function allowedSlugs(): array
+    {
+        return array_values(array_unique(array_filter([
+            ...config('bida.demo_invitations', []),
+            ...(config('bida.season.templates') ?? []),
+            ...array_merge(...array_values(array_map(fn (array $landing) => $landing['demos'] ?? [], config('bida.landings', [])))),
+        ])));
+    }
+
+    /**
      * Muestras activas en el orden recibido; las que no existen se omiten.
      *
      * @param  list<string>  $slugs
@@ -54,6 +69,8 @@ final class ShowcaseDemos
                     'title' => $invitation->title,
                     'label' => $template['label'],
                     'description' => $template['description'],
+                    // Una línea para las listas de diseños (la temporada de la portada)
+                    'tagline' => $template['tagline'] ?? null,
                     'event' => $event,
                     'eventKey' => $template['event'],
                     'icon' => $icon,

@@ -65,6 +65,9 @@ class SecurityHardeningTest extends TestCase
         $response->assertHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
         $response->assertHeader('X-Frame-Options', 'SAMEORIGIN');
         $this->assertStringContainsString('camera=(self)', $response->headers->get('Permissions-Policy'));
+        // El micrófono se permite solo al propio sitio (el diente de león de la tarjeta se sopla)
+        $this->assertStringContainsString('microphone=(self)', $response->headers->get('Permissions-Policy'));
+        $this->assertStringContainsString('geolocation=()', $response->headers->get('Permissions-Policy'));
 
         // Empieza en modo solo reporte para medir antes de bloquear
         $this->assertNotNull($response->headers->get('Content-Security-Policy-Report-Only'));

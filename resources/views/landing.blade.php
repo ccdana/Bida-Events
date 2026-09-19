@@ -1,28 +1,33 @@
 @extends('layouts.site')
 
-{{-- Página por tipo de evento. El contenido vive en config/bida.php (landings); ver EventLandingController --}}
+{{--
+    Página por tipo de evento o de tarjeta. El contenido vive en config/bida.php (landings); ver
+    EventLandingController. No repite la portada: arriba se prueba la muestra (con un selector si hay
+    varios diseños), luego lo propio del evento, el precio y las preguntas. Las muestras salen de
+    «demos» o, en las tarjetas, de la temporada, así sumar un diseño no cambia esta vista.
+--}}
 @section('title', $page['title'].' | '.$bida['brand'])
 @section('description', $page['description'])
 
 @php
-    $navLinks = array_filter([
-        '#muestra' => $demo ? 'Pruébala' : null,
+    $isCard = ($page['kind'] ?? null) === 'card';
+    $navLinks = [
         '#incluye' => 'Qué incluye',
         '#precios' => 'Precios',
         '#preguntas' => 'Preguntas',
-    ]);
+    ];
     $accountUrl = $user ? route('dashboard') : route('login');
     $accountLabel = $user ? 'Mi panel' : 'Ingresar';
     $faqs = array_merge($page['faqs'], [
-        ['¿Mis invitados necesitan instalar algo?', 'No. La invitación se abre en el navegador del celular desde el enlace que compartes por WhatsApp.'],
-        ['¿Cómo se realiza el pago?', 'Coordinamos el pago por WhatsApp cuando eliges tu paquete, antes de empezar el diseño.'],
+        [$isCard ? '¿Quien la recibe necesita instalar algo?' : '¿Mis invitados necesitan instalar algo?', 'No. Se abre en el navegador del celular desde el enlace que compartes por WhatsApp.'],
+        ['¿Cómo se realiza el pago?', $isCard ? 'Coordinamos el pago por WhatsApp cuando nos pides la tarjeta, antes de armarla.' : 'Coordinamos el pago por WhatsApp cuando eliges tu paquete, antes de empezar el diseño.'],
     ]);
     $socials = array_values(array_filter([
         ! empty($bida['instagram']) ? ['label' => 'Instagram', 'url' => 'https://www.instagram.com/'.$bida['instagram'].'/', 'icon' => 'instagram-logo'] : null,
         ! empty($bida['facebook']) ? ['label' => 'Facebook', 'url' => 'https://www.facebook.com/'.$bida['facebook'], 'icon' => 'facebook-logo'] : null,
         ! empty($bida['tiktok']) ? ['label' => 'TikTok', 'url' => 'https://www.tiktok.com/@'.$bida['tiktok'], 'icon' => 'tiktok-logo'] : null,
     ]));
-    $otherLandings = collect($landings)->reject(fn (array $landing) => $landing['slug'] === $slug)->values();
+    $noun = $isCard ? 'tarjeta' : 'invitación';
     // Datos estructurados: Google puede mostrar las preguntas directamente en los resultados
     $faqSchema = [
         '@context' => 'https://schema.org',
@@ -43,130 +48,145 @@
     @include('site.partials.header', ['navLinks' => $navLinks])
 
     <main>
-        {{-- ═══ Portada: la foto del evento y el teléfono con la apertura de su plantilla ═══ --}}
-        <section class="mx-auto grid max-w-7xl items-center gap-12 px-5 pb-16 pt-8 md:pt-14 lg:min-h-[calc(100dvh-72px)] lg:grid-cols-[1.1fr_0.9fr] lg:gap-12 lg:px-8 lg:py-12">
-            <div>
-                <nav class="site-enter text-sm text-site-muted" aria-label="Ruta">
-                    <a href="{{ route('home') }}" class="site-nav-link hover:text-site-ink">{{ $bida['brand'] }}</a>
-                    <span class="mx-2" aria-hidden="true">/</span>
-                    <span class="text-site-ink">{{ $page['link'] }}</span>
-                </nav>
-                <h1 class="site-enter mt-5 max-w-[18ch] text-[2.4rem] font-semibold leading-[1.06] tracking-tight sm:text-5xl xl:text-[3.4rem]" style="--enter-index: 1">
-                    {{ $page['heading'] }}
-                </h1>
-                <p class="site-enter mt-6 max-w-[44ch] text-lg leading-relaxed text-site-muted" style="--enter-index: 2">
-                    {{ $page['intro'] }}
-                </p>
-                <div class="site-enter mt-9 flex flex-col gap-3 sm:flex-row" style="--enter-index: 3">
-                    <a href="{{ $contactUrl }}" target="_blank" rel="noopener" class="site-btn site-btn--lg justify-center" data-magnetic>
-                        <x-phosphor-whatsapp-logo aria-hidden="true" />
-                        Escríbenos
-                    </a>
-                    <a href="{{ $demo ? '#muestra' : '#precios' }}" class="site-btn site-btn--ghost site-btn--lg justify-center">
-                        {{ $demo ? 'Probar la invitación' : 'Ver precios' }}
-                        <x-phosphor-arrow-down class="site-btn__arrow" aria-hidden="true" />
-                    </a>
-                </div>
-                <p class="site-enter mt-6 text-sm text-site-muted" style="--enter-index: 4">
-                    @if(! empty($page['price_note']))
-                        Lista el mismo día · Se manda por WhatsApp
-                    @else
-                        Paquetes desde {{ collect($bida['packages'])->min('price') }} Bs · Pago único por invitación
-                    @endif
-                </p>
-            </div>
+        {{-- ═══ Portada: el texto del evento y la muestra para probar ahí mismo, con sus diseños ═══ --}}
+        <section class="site-landing" @if(count($demos)) x-data="{ active: 0, loading: true, demos: @js($demos) }" @endif>
+            <div class="mx-auto grid max-w-7xl items-center gap-12 px-5 pb-16 pt-8 md:pt-14 lg:min-h-[calc(100dvh-72px)] lg:grid-cols-12 lg:gap-8 lg:px-8 lg:py-12">
+                <div class="lg:col-span-6">
+                    <nav class="site-enter text-sm text-site-muted" aria-label="Ruta">
+                        <a href="{{ route('home') }}" class="site-nav-link hover:text-site-ink">{{ $bida['brand'] }}</a>
+                        <span class="mx-2" aria-hidden="true">/</span>
+                        <span class="text-site-ink">{{ $page['link'] }}</span>
+                    </nav>
+                    <h1 class="site-enter mt-5 max-w-[18ch] text-[2.4rem] font-semibold leading-[1.06] tracking-tight sm:text-5xl xl:text-[3.4rem]" style="--enter-index: 1">
+                        {{ $page['heading'] }}
+                    </h1>
+                    <p class="site-enter mt-6 max-w-[44ch] text-lg leading-relaxed text-site-muted" style="--enter-index: 2">
+                        {{ $page['intro'] }}
+                    </p>
 
-            <div class="relative mx-auto w-full max-w-[22rem] pb-10 sm:max-w-md lg:max-w-none lg:pb-12">
-                <div class="site-stage ml-auto aspect-[4/5] w-[80%] lg:w-[76%]">
-                    <x-site.image :key="$page['image']" :priority="true" class="is-active" />
-                </div>
-
-                @if($demo)
-                    <div class="site-phone absolute bottom-0 left-0">
-                        <div class="site-phone__screen">
-                            <iframe src="{{ $demo['coverUrl'] }}" title="Apertura de la invitación de muestra" tabindex="-1" aria-hidden="true"></iframe>
+                    @if(count($demos) > 1)
+                        <div class="site-enter mt-9" style="--enter-index: 3">
+                            <p class="text-sm font-medium text-site-muted" id="disenos-titulo">Diseños para probar</p>
+                            <ol class="site-template-list mt-3" role="tablist" aria-labelledby="disenos-titulo">
+                                @foreach($demos as $index => $demo)
+                                    <li>
+                                        <button type="button" role="tab" id="diseno-tab-{{ $index }}" aria-controls="diseno-vista"
+                                            aria-selected="{{ $index === 0 ? 'true' : 'false' }}"
+                                            :aria-selected="(active === {{ $index }}).toString()"
+                                            @click="if (active !== {{ $index }}) { active = {{ $index }}; loading = true }"
+                                            @class(['site-template', 'is-active' => $index === 0])
+                                            :class="{ 'is-active': active === {{ $index }} }">
+                                            <span class="site-template__num">{{ str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) }}</span>
+                                            <span class="site-template__name">{{ $demo['label'] }}</span>
+                                            <span class="site-template__event">{{ $demo['tagline'] ?? $demo['event'] }}</span>
+                                        </button>
+                                    </li>
+                                @endforeach
+                            </ol>
                         </div>
-                        <p class="site-phone__tag" aria-hidden="true">
-                            <span class="site-phone__tag-dot"></span>
-                            <span>{{ $demo['label'] }}</span>
+                    @endif
+
+                    <div class="site-enter mt-9 flex flex-col gap-3 sm:flex-row" style="--enter-index: 4">
+                        <a href="{{ $isCard && $season ? $season['whatsappUrl'] : $contactUrl }}" target="_blank" rel="noopener" class="site-btn site-btn--lg justify-center" data-magnetic>
+                            <x-phosphor-whatsapp-logo aria-hidden="true" />
+                            {{ $isCard && $season ? 'La quiero por '.$season['final_price'].' Bs' : 'Escríbenos' }}
+                        </a>
+                        <a href="#precios" class="site-btn site-btn--ghost site-btn--lg justify-center">
+                            Ver precios
+                            <x-phosphor-arrow-down class="site-btn__arrow" aria-hidden="true" />
+                        </a>
+                    </div>
+                    <p class="site-enter mt-6 text-sm text-site-muted" style="--enter-index: 5">
+                        @if($isCard)
+                            @if($season)
+                                <del>{{ $season['old_price'] }} Bs</del> <strong class="text-site-ink">{{ $season['final_price'] }} Bs</strong> por temporada · Lista el mismo día · Se manda por WhatsApp
+                            @else
+                                Lista el mismo día · Se manda por WhatsApp
+                            @endif
+                        @else
+                            Paquetes desde {{ $fromPrice }} Bs · Pago único por invitación
+                        @endif
+                    </p>
+                </div>
+
+                @if(count($demos))
+                    {{-- Muestra interactiva: nada se guarda. La foto del evento queda detrás del teléfono --}}
+                    <div class="site-landing__stage lg:col-span-5 lg:col-start-8">
+                        <div class="site-landing__photo" aria-hidden="true">
+                            <x-site.image :key="$page['image']" :priority="true" />
+                        </div>
+                        <div class="site-phone site-phone--showcase">
+                            <div id="diseno-vista" @if(count($demos) > 1) role="tabpanel" aria-labelledby="diseno-tab-0" :aria-labelledby="'diseno-tab-' + active" @endif
+                                class="site-phone__screen" :class="{ 'is-loading': loading }">
+                                <iframe src="{{ $demos[0]['demoUrl'] }}" :src="demos[active].demoUrl"
+                                    title="{{ ucfirst($noun) }} de muestra: {{ $demos[0]['title'] }}" :title="'{{ ucfirst($noun) }} de muestra: ' + demos[active].title"
+                                    @load="loading = false"></iframe>
+                            </div>
+                        </div>
+                        <p class="site-landing__hint">
+                            {{ $page['demo_note'] ?? 'Pruébala como un invitado: confirma, vota o sugiere una canción. Es una muestra, nada se guarda.' }}
+                            <a href="{{ $demos[0]['demoUrl'] }}" :href="demos[active].demoUrl" target="_blank" rel="noopener">Abrir en pantalla completa</a>
                         </p>
+                    </div>
+                @else
+                    <div class="site-photo aspect-[4/5] w-full lg:col-span-5 lg:col-start-8">
+                        <x-site.image :key="$page['image']" :priority="true" />
                     </div>
                 @endif
             </div>
         </section>
 
-        {{-- ═══ Qué incluye: filas numeradas con lo propio de este evento ═══ --}}
+        {{-- ═══ Qué incluye: lo propio de este evento, en una grilla de filetes ═══ --}}
         <section id="incluye" class="scroll-mt-20 border-t border-site-line">
-            <div class="mx-auto grid max-w-7xl gap-12 px-5 py-20 lg:grid-cols-12 lg:gap-8 lg:px-8 lg:py-28">
-                <div class="lg:col-span-5">
-                    <div class="lg:sticky lg:top-28">
-                        <h2 class="max-w-[16ch] text-3xl font-semibold leading-[1.1] tracking-tight md:text-5xl" data-reveal>
-                            Pensada para {{ $page['for'] ?? (collect($bida['showcase'])->firstWhere('event', $page['event'])['phrase'] ?? 'tu evento') }}
-                        </h2>
-                        <p class="mt-5 max-w-[42ch] text-lg leading-relaxed text-site-muted" data-reveal>
-                            {{ $page['features_note'] ?? 'Además de la cuenta regresiva, el itinerario y el mapa que lleva toda invitación.' }}
-                        </p>
-                    </div>
+            <div class="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-28">
+                <div class="grid gap-6 lg:grid-cols-12 lg:items-end lg:gap-8">
+                    <h2 class="max-w-[18ch] text-3xl font-semibold leading-[1.1] tracking-tight md:text-5xl lg:col-span-7" data-reveal>
+                        Pensada para {{ $page['for'] ?? (collect($bida['showcase'])->firstWhere('event', $page['event'])['phrase'] ?? 'tu evento') }}
+                    </h2>
+                    <p class="max-w-[42ch] text-lg leading-relaxed text-site-muted lg:col-span-4 lg:col-start-9" data-reveal>
+                        {{ $page['features_note'] ?? 'Además de la cuenta regresiva, el itinerario y el mapa que lleva toda invitación.' }}
+                    </p>
                 </div>
 
-                <ol class="site-features lg:col-span-6 lg:col-start-7">
+                <ul class="site-grid-features mt-14">
                     @foreach($page['highlights'] as $index => $highlight)
-                        <li class="site-feature" data-reveal>
-                            <span class="site-feature__num">{{ str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) }}</span>
-                            <div>
-                                <h3 class="site-feature__title">{{ $highlight['title'] }}</h3>
-                                <p class="site-feature__text">{{ $highlight['text'] }}</p>
-                            </div>
-                            <x-dynamic-component :component="'phosphor-'.$highlight['icon'].'-light'" class="site-feature__icon" aria-hidden="true" />
+                        <li data-reveal style="--reveal-index: {{ $index % 2 }}">
+                            <x-dynamic-component :component="'phosphor-'.$highlight['icon'].'-light'" class="site-grid-features__icon" aria-hidden="true" />
+                            <h3>{{ $highlight['title'] }}</h3>
+                            <p>{{ $highlight['text'] }}</p>
                         </li>
                     @endforeach
-                </ol>
+                </ul>
             </div>
         </section>
 
-        {{-- ═══ Muestra interactiva: la misma de la portada, nada se guarda ═══ --}}
-        @if($demo)
-            <section id="muestra" class="scroll-mt-20 border-t border-site-line bg-site-surface" x-data="{ loading: true }">
-                <div class="mx-auto grid max-w-7xl gap-14 px-5 py-20 lg:grid-cols-12 lg:items-center lg:gap-8 lg:px-8 lg:py-28">
-                    <div class="lg:col-span-6">
-                        <p class="text-[0.95rem] font-medium text-site-accent" data-reveal>{{ $demo['label'] }}</p>
-                        <h2 class="mt-4 max-w-[18ch] text-3xl font-semibold leading-[1.1] tracking-tight md:text-5xl" data-reveal>
-                            {{ ($page['kind'] ?? 'invitation') === 'card' ? 'Ábrela como si fuera para ti' : 'Pruébala como un invitado' }}
-                        </h2>
-                        <p class="mt-5 max-w-[46ch] text-lg leading-relaxed text-site-muted" data-reveal>
-                            {{ $page['demo_note'] ?? 'Ábrela dentro del teléfono, confirma tu asistencia, vota o sugiere una canción. Es una muestra: nada de lo que hagas se guarda.' }}
-                        </p>
-                        <p class="mt-6 max-w-[46ch] leading-relaxed text-site-muted" data-reveal>
-                            {{ $demo['description'] }}
-                            <span class="text-site-ink">Ejemplo: {{ $demo['title'] }}.</span>
-                        </p>
-                        <a href="{{ $demo['demoUrl'] }}" target="_blank" rel="noopener" class="site-btn site-btn--ghost site-btn--lg mt-8" data-reveal>
-                            Abrir en pantalla completa
-                            <x-phosphor-arrow-up-right class="site-btn__arrow" aria-hidden="true" />
-                        </a>
-                    </div>
-
-                    <div class="flex flex-col items-center gap-4 lg:col-span-5 lg:col-start-8" data-reveal style="--reveal-index: 1">
-                        <div class="site-phone site-phone--showcase">
-                            <div class="site-phone__screen" :class="{ 'is-loading': loading }">
-                                <iframe src="{{ $demo['demoUrl'] }}" title="Invitación de muestra: {{ $demo['title'] }}" loading="lazy" @load="loading = false"></iframe>
-                            </div>
-                        </div>
-                        <p class="text-sm text-site-muted">Toca y desliza dentro del teléfono</p>
-                    </div>
-                </div>
-            </section>
-        @endif
-
-        @if(! empty($page['price_note']))
-            {{-- Tarjetas de temporada: sin paquetes de invitación, el precio se consulta --}}
+        @if($isCard)
+            {{-- Tarjetas de temporada: precio de temporada tachado y rebajado; pasada la fecha, se consulta --}}
             <section id="precios" class="scroll-mt-20 border-t border-site-line bg-site-surface">
-                <div class="mx-auto flex max-w-7xl flex-col items-start gap-6 px-5 py-16 lg:flex-row lg:items-center lg:justify-between lg:px-8" data-reveal>
-                    <p class="max-w-[40ch] text-2xl font-semibold leading-snug tracking-tight md:text-3xl">{{ $page['price_note'] }}</p>
-                    <a href="{{ $contactUrl }}" target="_blank" rel="noopener" class="site-btn site-btn--lg" data-magnetic>
-                        <x-phosphor-whatsapp-logo aria-hidden="true" />
-                        Pedir precio
-                    </a>
+                <div class="mx-auto flex max-w-7xl flex-col items-start gap-8 px-5 py-20 lg:flex-row lg:items-end lg:justify-between lg:px-8" data-reveal>
+                    @if($season)
+                        <div>
+                            <p class="text-[0.95rem] font-medium text-site-accent">Precio de temporada</p>
+                            <p class="mt-4 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                                <del class="site-plan__old"><span class="sr-only">Antes </span>{{ $season['old_price'] }} Bs</del>
+                                <span class="site-plan__price">{{ $season['final_price'] }}</span>
+                                <span class="text-xl text-site-muted">Bs por tarjeta</span>
+                            </p>
+                            <p class="mt-3 text-site-muted">
+                                {{ $season['promo_label'] }} hasta el {{ $season['endsAt']->locale('es')->translatedFormat('l j \d\e F') }}. Todos los diseños de la temporada cuestan lo mismo.
+                            </p>
+                        </div>
+                        <a href="{{ $season['whatsappUrl'] }}" target="_blank" rel="noopener" class="site-btn site-btn--lg" data-magnetic>
+                            <x-phosphor-whatsapp-logo aria-hidden="true" />
+                            La quiero por {{ $season['final_price'] }} Bs
+                        </a>
+                    @else
+                        <p class="max-w-[40ch] text-2xl font-semibold leading-snug tracking-tight md:text-3xl">La temporada terminó. Escríbenos y te avisamos de la próxima.</p>
+                        <a href="{{ $contactUrl }}" target="_blank" rel="noopener" class="site-btn site-btn--lg" data-magnetic>
+                            <x-phosphor-whatsapp-logo aria-hidden="true" />
+                            Escríbenos
+                        </a>
+                    @endif
                 </div>
             </section>
         @else
@@ -174,39 +194,6 @@
         @endif
 
         @include('site.partials.faqs', ['faqs' => $faqs])
-
-        {{-- ═══ Contacto y otros eventos ═══ --}}
-        <section class="border-t border-site-line bg-site-surface">
-            <div class="mx-auto grid max-w-7xl gap-14 px-5 py-20 lg:grid-cols-12 lg:gap-8 lg:px-8 lg:py-28">
-                <div class="lg:col-span-6" data-reveal>
-                    <h2 class="max-w-[15ch] text-4xl font-semibold leading-[1.04] tracking-tight md:text-6xl">¿Ya tienes la fecha?</h2>
-                    <p class="mt-6 max-w-[42ch] text-lg leading-relaxed text-site-muted">
-                        Escríbenos por WhatsApp con la fecha y el lugar, y te ayudamos a elegir el paquete.
-                    </p>
-                    <a href="{{ $contactUrl }}" target="_blank" rel="noopener" class="site-btn site-btn--lg mt-9" data-magnetic>
-                        <x-phosphor-whatsapp-logo aria-hidden="true" />
-                        Escríbenos
-                    </a>
-                </div>
-
-                @if($otherLandings->isNotEmpty())
-                    <div class="lg:col-span-5 lg:col-start-8" data-reveal style="--reveal-index: 1">
-                        <p class="text-[0.95rem] font-medium text-site-accent">También diseñamos</p>
-                        <ul class="site-contact mt-4">
-                            @foreach($otherLandings as $landing)
-                                <li>
-                                    <a href="{{ $landing['url'] }}" class="site-contact__row">
-                                        <x-dynamic-component :component="'phosphor-'.(['boda' => 'heart', 'xv' => 'crown-simple', 'bautizo' => 'baby', 'cumple' => 'cake'][$landing['event']] ?? 'sparkle').'-light'" class="site-contact__icon" aria-hidden="true" />
-                                        <span class="site-contact__value col-span-2 !text-left">{{ $landing['label'] }}</span>
-                                        <x-phosphor-arrow-right class="site-contact__arrow" aria-hidden="true" />
-                                    </a>
-                                </li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
-            </div>
-        </section>
     </main>
 
     @include('site.partials.footer', ['navLinks' => $navLinks, 'socials' => $socials])

@@ -115,6 +115,36 @@ class InvitationEditorTest extends TestCase
             ->assertSee('Sin publicar: solo la ves tú', false);
     }
 
+    public function test_turning_off_a_module_with_content_hides_it_and_keeps_its_content(): void
+    {
+        $this->actingAs($this->admin)->post(route('admin.invitations.store'), $this->payload(XvSofiaModuleData::all()));
+        $invitation = Invitation::where('slug', 'xv-editor')->firstOrFail();
+
+        // Galería con fotos, apagada desde el editor
+        $modules = XvSofiaModuleData::all();
+        $modules['config']['modulos']['galeria'] = false;
+
+        $this->actingAs($this->admin)
+            ->put(route('admin.invitations.update', $invitation), $this->payload($modules))
+            ->assertRedirect(route('admin.invitations.edit', $invitation));
+
+        $resolved = app(InvitationModuleService::class)->resolveModules($invitation->fresh());
+        $this->assertFalse($resolved['config']['modulos']['galeria']);
+        $this->assertNotEmpty($resolved['galeria']['fotos']);
+        $this->withoutVite()->get(route('invitation.show', 'xv-editor'))->assertOk()->assertDontSee('id="galeria"', false);
+
+        // La vista previa respeta el interruptor sin guardar
+        $modules['config']['modulos']['galeria'] = true;
+        $this->actingAs($this->admin)
+            ->postJson(route('admin.preview.store'), ['preview_key' => 'invitation.'.$invitation->id, 'template' => $invitation->template, 'modulos' => $modules])
+            ->assertOk();
+        $this->withoutVite()->get(route('admin.preview.frame', ['key' => 'invitation.'.$invitation->id]))->assertOk()->assertSee('id="galeria"', false);
+
+        $modules['config']['modulos']['galeria'] = false;
+        $this->postJson(route('admin.preview.store'), ['preview_key' => 'invitation.'.$invitation->id, 'template' => $invitation->template, 'modulos' => $modules]);
+        $this->withoutVite()->get(route('admin.preview.frame', ['key' => 'invitation.'.$invitation->id]))->assertOk()->assertDontSee('id="galeria"', false);
+    }
+
     protected function payload(array $modules): array
     {
         return [

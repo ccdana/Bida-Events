@@ -32,8 +32,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Si la petición web incluye la palabra "ngrok", fuerza las URLs internas a HTTPS
-        if (str_contains(request()->getHost(), 'ngrok-free.dev')) {
+        // En producción y en túneles de ngrok las URLs internas van siempre por HTTPS
+        if ($this->app->isProduction() || str_contains(request()->getHost(), 'ngrok-free.dev')) {
             URL::forceScheme('https');
         }
 

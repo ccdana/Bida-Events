@@ -84,6 +84,11 @@
     line-height: 1.05;
 }
 
+/* «Ver todo en una página»: solo se muestra en modo historia (resources/css/invitation/story.css) */
+.inv-nav__story {
+    display: none;
+}
+
 .inv-nav__list {
     margin: 1.75rem 0 0;
     padding: 0;

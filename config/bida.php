@@ -33,8 +33,9 @@ return [
     // Invitación activa que se muestra como vista previa en la portada (vacío para usar una imagen)
     'demo_slug' => env('BIDA_DEMO_SLUG', 'xv-isabella'),
 
-    // Invitaciones de muestra (una por plantilla): se prueban en "Plantillas" sin guardar nada y el teléfono de la portada recorre sus aperturas
-    'demo_invitations' => ['xv-isabella', 'boda-camila-andres', 'bautizo-emilia', 'cumple-daniela-30', 'tarjeta-ana-luis'],
+    // Invitaciones de muestra (una por plantilla): se prueban en "Plantillas" sin guardar nada y el teléfono de la portada recorre sus aperturas.
+    // Las tarjetas de temporada no van aquí: tienen su sección propia (clave «season»).
+    'demo_invitations' => ['xv-isabella', 'boda-camila-andres', 'bautizo-emilia', 'cumple-daniela-30'],
 
     /*
     | Eventos que rotan en la portada y en el login. Cada uno usa una foto de
@@ -130,15 +131,15 @@ return [
             'event' => 'boda',
             'link' => 'Invitaciones de boda',
             'code' => 'BODA',
-            'demo' => 'boda-camila-andres',
+            'demos' => ['boda-camila-andres'],
             'image' => 'event-boda',
             'label' => 'Bodas',
             'title' => 'Invitaciones digitales de boda en Bolivia',
-            'description' => 'Invitación web para tu boda con sobre que se abre, confirmación de asistencia por invitado, padrinos, mesa de regalos y mapa. Lista para enviar por WhatsApp.',
+            'description' => 'Invitación web para tu boda con confirmación de asistencia por invitado, padrinos, mesa de regalos y mapa. Lista para enviar por WhatsApp.',
             'heading' => 'Invitaciones de boda que tus invitados abren desde WhatsApp',
-            'intro' => 'Un sobre que se abre al entrar, su foto en arco y todo lo que sus invitados necesitan saber: cuándo, dónde, qué ponerse y cómo confirmar.',
+            'intro' => 'Todo lo que sus invitados necesitan saber en un enlace: cuándo, dónde, qué ponerse y cómo confirmar. Eligen el diseño y lo armamos con sus fotos y sus colores.',
             'highlights' => [
-                ['icon' => 'envelope-open', 'title' => 'Un sobre que se abre', 'text' => 'La invitación empieza como un sobre sellado que el invitado toca para abrir.'],
+                ['icon' => 'map-pin', 'title' => 'Ceremonia y recepción', 'text' => 'Cada momento con su hora y cada lugar con su mapa y el botón para llegar.'],
                 ['icon' => 'users-three', 'title' => 'Padrinos y cortejo', 'text' => 'Presenten a quienes los acompañan, con nombre y el papel de cada uno.'],
                 ['icon' => 'gift', 'title' => 'Mesa de regalos', 'text' => 'Datos de la cuenta con QR, lluvia de sobres o el enlace a su lista de regalos.'],
                 ['icon' => 'qr-code', 'title' => 'Confirmación con pase', 'text' => 'Cada invitado confirma cuántas personas van y recibe un pase QR para la entrada.'],
@@ -154,23 +155,23 @@ return [
             'event' => 'xv',
             'link' => 'Invitaciones de XV años',
             'code' => 'XV',
-            'demo' => 'xv-isabella',
+            'demos' => ['xv-isabella'],
             'image' => 'event-xv',
             'label' => 'XV años',
             'title' => 'Invitaciones digitales de XV años en Bolivia',
-            'description' => 'Invitación web para quince años con telón que se abre, chambelanes y damas, playlist, encuestas y confirmación con pase QR. Lista para enviar por WhatsApp.',
-            'heading' => 'Invitaciones de XV años con telón, música y pase de entrada',
-            'intro' => 'Un telón que se abre al entrar, su foto a pantalla completa y una invitación donde los invitados también participan: votan, sugieren canciones y suben fotos.',
+            'description' => 'Invitación web para quince años con chambelanes y padrinos, playlist, encuestas, fotomural y confirmación con pase QR. Lista para enviar por WhatsApp.',
+            'heading' => 'Invitaciones de XV años con música, juegos y pase de entrada',
+            'intro' => 'Una invitación donde los invitados también participan: votan, sugieren canciones y suben fotos. Eliges el diseño y lo armamos con tus fotos y tus colores.',
             'highlights' => [
-                ['icon' => 'crown-simple', 'title' => 'Un telón que se abre', 'text' => 'La invitación empieza con un telón que el invitado toca para descubrir a la quinceañera.'],
                 ['icon' => 'users-three', 'title' => 'Chambelanes y padrinos', 'text' => 'Presenta a tu corte y a tus padrinos, cada uno con su papel en la fiesta.'],
                 ['icon' => 'music-notes', 'title' => 'Playlist y encuestas', 'text' => 'Tus invitados sugieren las canciones del baile y votan en juegos antes de la fiesta.'],
                 ['icon' => 'camera', 'title' => 'Fotomural en vivo', 'text' => 'Durante la fiesta suben fotos desde el celular y todos las ven al instante.'],
+                ['icon' => 'qr-code', 'title' => 'Pase de entrada', 'text' => 'Cada invitado confirma desde su enlace y recibe un pase QR para la puerta.'],
             ],
             'faqs' => [
                 ['¿Se puede poner el vals y la ceremonia de velas en el itinerario?', 'Sí. Cada momento lleva su hora, un ícono y una descripción corta.'],
                 ['¿Mis papás pueden ver quién confirmó?', 'Sí. Tienen un panel con la lista de invitados, cuántos confirmaron y el reporte en PDF o Excel.'],
-                ['¿Puede sonar mi canción al abrir la invitación?', 'Sí. La música empieza cuando el invitado abre el telón y puede pausarla cuando quiera.'],
+                ['¿Puede sonar mi canción al abrir la invitación?', 'Sí. La música empieza cuando el invitado abre la invitación y puede pausarla cuando quiera.'],
             ],
             'whatsapp' => 'Hola {brand}, quiero una invitación digital para unos XV años.',
         ],
@@ -178,17 +179,17 @@ return [
             'event' => 'bautizo',
             'link' => 'Invitaciones de bautizo',
             'code' => 'BAUT',
-            'demo' => 'bautizo-emilia',
+            'demos' => ['bautizo-emilia'],
             'image' => 'event-bautizo',
             'label' => 'Bautizos',
             'title' => 'Invitaciones digitales de bautizo en Bolivia',
-            'description' => 'Invitación web para bautizo con nubes que se abren, padrinos, horario de la misa y la recepción, mapa y confirmación de asistencia. Lista para enviar por WhatsApp.',
+            'description' => 'Invitación web para bautizo con padrinos, horario de la misa y la recepción, mapa y confirmación de asistencia. Lista para enviar por WhatsApp.',
             'heading' => 'Invitaciones de bautizo tranquilas, claras y fáciles de compartir',
-            'intro' => 'Una pila bautismal que se llena al entrar, la foto del bebé en un medallón y los datos que la familia necesita: la misa, la recepción, los padrinos y cómo llegar.',
+            'intro' => 'Los datos que la familia necesita, claros y en un solo enlace: la misa, la recepción, los padrinos y cómo llegar. Eligen el diseño y lo armamos con sus fotos.',
             'highlights' => [
-                ['icon' => 'drop', 'title' => 'Una apertura con agua', 'text' => 'La invitación empieza con una jarra que vierte agua sobre la pila al tocarla.'],
                 ['icon' => 'hands-praying', 'title' => 'Padrinos primero', 'text' => 'Los padrinos encabezan la sección de familia, con su nombre y un mensaje.'],
                 ['icon' => 'map-pin', 'title' => 'Misa y recepción', 'text' => 'Horario de la iglesia y de la recepción, con mapa y botón para llegar a cada lugar.'],
+                ['icon' => 'check-circle', 'title' => 'Confirmación sencilla', 'text' => 'Los invitados confirman desde el celular, sin instalar nada ni crear cuentas.'],
                 ['icon' => 'images', 'title' => 'Fotos para la familia', 'text' => 'Después del bautizo, la misma invitación reúne las fotos del día.'],
             ],
             'faqs' => [
@@ -202,22 +203,22 @@ return [
             'event' => 'cumple',
             'link' => 'Invitaciones de cumpleaños',
             'code' => 'CUMP',
-            'demo' => 'cumple-daniela-30',
+            'demos' => ['cumple-daniela-30'],
             'image' => 'event-cumpleanos',
             'label' => 'Cumpleaños',
             'title' => 'Invitaciones digitales de cumpleaños en Bolivia',
-            'description' => 'Invitación web de cumpleaños con pastel y velas que se soplan, confeti, playlist, juegos y confirmación de asistencia. Lista para enviar por WhatsApp.',
+            'description' => 'Invitación web de cumpleaños con playlist, juegos, dress code y confirmación de asistencia. Lista para enviar por WhatsApp.',
             'heading' => 'Invitaciones de cumpleaños para que la fiesta empiece antes',
-            'intro' => 'Un pastel con velas que el invitado sopla al entrar, confeti y una invitación con juegos, playlist y todo lo necesario para llegar a la fiesta.',
+            'intro' => 'Una invitación con juegos, playlist y todo lo necesario para llegar a la fiesta. Eliges el diseño y lo armamos con tus fotos, tus colores y el tema de tu cumple.',
             'highlights' => [
-                ['icon' => 'cake', 'title' => 'Velas que se soplan', 'text' => 'La invitación empieza con un pastel: el invitado lo toca y se apagan las velas.'],
                 ['icon' => 'chart-bar', 'title' => 'Juegos antes de la fiesta', 'text' => 'Encuestas divertidas que tus invitados responden y ven los resultados al instante.'],
                 ['icon' => 'music-notes', 'title' => 'Playlist entre todos', 'text' => 'Cada invitado sugiere la canción que no puede faltar en la pista.'],
                 ['icon' => 't-shirt', 'title' => 'Dress code con ejemplos', 'text' => 'Colores de la fiesta y sugerencias con foto, para que todos combinen.'],
+                ['icon' => 'qr-code', 'title' => 'Confirmación con pase', 'text' => 'Sabes quién va y cuántas personas; cada invitado recibe su pase QR.'],
             ],
             'faqs' => [
                 ['¿Sirve para cumpleaños infantiles?', 'Sí. Adaptamos colores, textos y secciones a la edad y al tema de la fiesta.'],
-                ['¿Puede mostrar la edad que cumplo?', 'Sí. La plantilla pone la edad en grande sobre el pastel.'],
+                ['¿Puede mostrar la edad que cumplo?', 'Sí. La edad puede ir en grande en la portada, junto a tu nombre.'],
                 ['¿Qué pasa si cambia la hora o el lugar?', 'Se actualiza en el mismo enlace y tus invitados ven siempre la versión correcta.'],
             ],
             'whatsapp' => 'Hola {brand}, quiero una invitación digital para un cumpleaños.',
@@ -229,27 +230,26 @@ return [
             'kind' => 'card',
             'link' => 'Tarjetas del Día del Amor',
             'code' => 'AMOR',
-            'demo' => 'tarjeta-ana-luis',
+            // Las muestras son las de la temporada: config('bida.season.templates')
             'image' => 'event-boda',
             'label' => 'Día del Amor',
             'for' => 'decir lo que sientes',
             'title' => 'Tarjetas digitales para el Día del Amor en Bolivia',
-            'description' => 'Una carta digital para tu pareja este 21 de septiembre: se abre desatando una cinta, lleva su foto, tu mensaje escrito a mano, el tiempo que llevan juntos y su canción. Lista para enviar por WhatsApp.',
-            'heading' => 'Este 21 de septiembre, mándale una carta que se abre',
-            'intro' => 'Una carta atada con una cinta que tu pareja desata con el dedo. Adentro, su foto, lo que le quieres decir, cuánto tiempo llevan juntos y su canción.',
-            'features_note' => 'Y si quiere, te responde desde la misma carta.',
+            'description' => 'Tarjetas digitales para el 21 de septiembre: tu foto y tu mensaje en una tarjeta que se abre con un gesto y responde con una flor. Para tu pareja, tus amigos o tu familia. Lista para enviar por WhatsApp.',
+            'heading' => 'Tarjetas digitales para el Día del Amor y la Primavera',
+            'intro' => 'Para tu pareja, tu mejor amiga o tu familia. Nos mandas tu foto y tu mensaje, eliges el diseño y la tarjeta llega por WhatsApp el mismo día.',
+            'features_note' => 'Cada diseño se abre a su manera; esto lo tienen todos.',
             'demo_note' => 'Ábrela dentro del teléfono y escribe una respuesta. Es una muestra: nada de lo que hagas se guarda.',
-            'price_note' => 'Precio especial de temporada: escríbenos y te lo pasamos al momento.',
             'highlights' => [
-                ['icon' => 'envelope-open', 'title' => 'Una carta que se desata', 'text' => 'Tu pareja toca la cinta, se suelta el moño y la carta se despliega.'],
-                ['icon' => 'heart-straight', 'title' => 'Tu mensaje, escrito a mano', 'text' => 'La dedicatoria aparece con letra manuscrita, con tu firma al final.'],
-                ['icon' => 'hourglass-medium', 'title' => 'Juntos desde', 'text' => 'Los años, meses y días que llevan juntos, contados desde su fecha.'],
-                ['icon' => 'chat-circle-text', 'title' => 'Te puede responder', 'text' => 'Su respuesta te llega a tu panel y solo tú la lees.'],
+                ['icon' => 'image', 'title' => 'Tu foto y tu mensaje', 'text' => 'La tarjeta lleva su foto, tu carta y los recuerdos que quieras compartir.'],
+                ['icon' => 'hand-tap', 'title' => 'Se abre con un gesto', 'text' => 'Cada diseño tiene su sorpresa: tocar, mantener presionado, deslizar o soplar.'],
+                ['icon' => 'chat-circle-text', 'title' => 'Te puede responder', 'text' => 'Quien la recibe te deja una respuesta desde la misma tarjeta. Solo tú la lees.'],
+                ['icon' => 'lock-simple', 'title' => 'Solo para quien la recibe', 'text' => 'Se abre con su enlace y no aparece en buscadores.'],
             ],
             'faqs' => [
                 ['¿Cuánto tarda en estar lista?', 'Nos mandas la foto, el mensaje y la fecha, y la tenemos el mismo día. Si la pides el 21, escríbenos temprano.'],
                 ['¿Se puede mandar a una amiga o a la familia?', 'Sí. Cambiamos los textos para el Día de la Amistad o para quien quieras.'],
-                ['¿Quién más puede ver la carta?', 'Solo quien tenga el enlace. No aparece en buscadores y la respuesta la lees solo tú.'],
+                ['¿Quién más puede ver la tarjeta?', 'Solo quien tenga el enlace. No aparece en buscadores y la respuesta la lees solo tú.'],
             ],
             'whatsapp' => 'Hola {brand}, quiero una tarjeta digital para el Día del Amor.',
         ],
@@ -274,11 +274,70 @@ return [
         'qr' => 'QR',
     ],
 
+    /*
+    | Promoción de inauguración: los paquetes muestran su precio normal tachado y
+    | cobran promo_price. Se apaga con BIDA_LAUNCH_PROMO=false.
+    */
+    'launch_promo' => [
+        'active' => (bool) env('BIDA_LAUNCH_PROMO', true),
+        'label' => 'Promoción de inauguración',
+    ],
+
+    /*
+    | Lo que ofrece la marca, en la sección «Servicios» de la portada. «price» toma el
+    | precio de hoy: «packages» (el paquete más barato) o «season» (la temporada vigente).
+    | «href» acepta un ancla, «season» (la temporada o su página) o una URL.
+    */
+    'services' => [
+        [
+            'key' => 'invitaciones',
+            'name' => 'Invitaciones digitales',
+            'text' => 'La invitación web de tu evento: se abre con una animación, tus invitados confirman asistencia desde su enlace y tú sigues la lista desde tu panel.',
+            'occasions' => ['Bodas', 'XV años', 'Bautizos', 'Cumpleaños', 'Y cualquier celebración'],
+            'price' => 'packages',
+            'href' => '#plantillas',
+            'cta' => 'Ver las plantillas',
+        ],
+        [
+            'key' => 'tarjetas',
+            'name' => 'Tarjetas digitales',
+            'text' => 'Un detalle para una fecha especial: tu foto y tu mensaje en una tarjeta que se abre con un gesto. Salen por temporadas y cada fecha trae sus diseños.',
+            'occasions' => ['Día del Amor y la Primavera', 'Próximas fechas especiales'],
+            'price' => 'season',
+            'href' => 'season',
+            'cta' => 'Ver las tarjetas',
+        ],
+    ],
+
+    /*
+    | Temporada: tarjetas que se venden solo por unos días (hoy, Día del Amor y la
+    | Primavera). Tienen su sección arriba de la portada, con cuenta regresiva hasta
+    | BIDA_SEASON_ENDS_AT (hora de La Paz); al llegar esa fecha la sección desaparece.
+    | Para sumar plantillas de la temporada, agrega su muestra a «templates».
+    */
+    'season' => [
+        'key' => 'amor',
+        'code' => 'AMOR',
+        'name' => 'Día del Amor y la Primavera',
+        'date' => '21 de septiembre',
+        'title' => 'Día del Amor y la Primavera',
+        'text' => 'Tarjetas digitales para decirle lo que sientes a tu pareja, a tu mejor amiga o a tu familia. Llevan tu foto y tu mensaje, se abren con un gesto y llegan por WhatsApp.',
+        'more_note' => 'Durante la temporada vamos sumando diseños.',
+        'ends_at' => env('BIDA_SEASON_ENDS_AT', '2026-09-21 23:59:59'),
+        'price' => 100,
+        'promo_price' => 75,
+        'promo_label' => 'Promoción de temporada',
+        'templates' => ['tarjeta-ana-luis'],
+        'landing' => 'tarjetas-dia-del-amor',
+        'whatsapp' => 'Hola {brand}, quiero una tarjeta del Día del Amor ({price} Bs).',
+    ],
+
     'packages' => [
         [
             'key' => 'basico',
             'name' => 'Básico',
             'price' => 200,
+            'promo_price' => 150,
             'summary' => 'Lo esencial para invitar con estilo y que nadie se pierda.',
             'features' => [
                 'Portada con foto, nombre y mensaje',
@@ -292,6 +351,7 @@ return [
             'key' => 'estandar',
             'name' => 'Estándar',
             'price' => 400,
+            'promo_price' => 300,
             'featured' => true,
             'summary' => 'La invitación completa, con confirmación de asistencia por invitado.',
             'features' => [
@@ -306,6 +366,7 @@ return [
             'key' => 'premium',
             'name' => 'Premium',
             'price' => 700,
+            'promo_price' => 500,
             'premium' => true,
             'summary' => 'Para que tus invitados participen antes, durante y después del evento.',
             'features' => [

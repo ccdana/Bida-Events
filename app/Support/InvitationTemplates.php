@@ -179,6 +179,7 @@ final class InvitationTemplates
             // ── Tarjetas estacionales ─────────────────────────────────────────
             self::TARJETA_AMOR => [
                 'label' => 'Carta de amor',
+                'tagline' => 'Se abre regando una flor y responde con otra',
                 'description' => 'Un jardín que florece: un capullo que se riega para abrirlo, la foto que se revela, la carta lacrada, una margarita que se deshoja, recuerdos en un tendedero, una flor de respuesta y un diente de león para pedir un deseo.',
                 'event' => 'amor',
                 'palette' => [
@@ -214,10 +215,26 @@ final class InvitationTemplates
                 ],
                 // Flores para responder: se guardan en guest_contributions.reaction
                 'reactions' => [
-                    'rosa' => ['label' => 'Una rosa', 'meaning' => 'Te quiero'],
-                    'girasol' => ['label' => 'Un girasol', 'meaning' => 'Me haces feliz'],
-                    'tulipan' => ['label' => 'Un tulipán', 'meaning' => 'Amor verdadero'],
-                    'margarita' => ['label' => 'Una margarita', 'meaning' => 'Ternura'],
+                    'rosa' => [
+                        'label' => 'Una rosa',
+                        'meaning' => 'Te amo',
+                        'phrase' => 'La flor de los enamorados: te quiero con todo el corazón.',
+                    ],
+                    'girasol' => [
+                        'label' => 'Un girasol',
+                        'meaning' => 'Me haces feliz',
+                        'phrase' => 'Siempre busca el sol, como yo te busco a ti: contigo todo brilla.',
+                    ],
+                    'tulipan' => [
+                        'label' => 'Un tulipán',
+                        'meaning' => 'Amor sincero',
+                        'phrase' => 'Es una declaración: lo que siento por ti es de verdad.',
+                    ],
+                    'margarita' => [
+                        'label' => 'Una margarita',
+                        'meaning' => 'Ternura',
+                        'phrase' => 'Sencilla y dulce, como un «te quiero» dicho al oído.',
+                    ],
                 ],
             ],
         ];

@@ -9,6 +9,7 @@ use App\Services\InvitationCacheService;
 use App\Services\InvitationModuleService;
 use App\Support\CloudinaryImage;
 use App\Support\InvitationDefaults;
+use App\Support\ShowcaseDemos;
 use App\Support\YouTubeHelper;
 use Illuminate\Http\Request;
 
@@ -43,11 +44,12 @@ class InvitationController extends Controller
     /**
      * Invitación de muestra para los teléfonos de la home: se ve como la de un invitado real (confirmación,
      * encuestas, playlist, fotomural), pero las respuestas se simulan en el navegador y nada se guarda.
-     * Solo existe para config('bida.demo_invitations'). Con ?portada=1 la apertura se abre sola.
+     * Solo existe para las muestras de la portada, la temporada y las páginas por evento
+     * (ShowcaseDemos::allowedSlugs). Con ?portada=1 la apertura se abre sola.
      */
     public function demo(Request $request, string $slug)
     {
-        abort_unless(in_array($slug, config('bida.demo_invitations', []), true), 404);
+        abort_unless(in_array($slug, ShowcaseDemos::allowedSlugs(), true), 404);
 
         $autoplay = $request->boolean('portada');
 

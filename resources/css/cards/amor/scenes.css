@@ -117,18 +117,18 @@
     rotate: -90deg;
 }
 
-/* Carta lacrada: doblez de papel con el sello de lacre en el centro */
-.inv-amor .inv-letter-gate__cover {
-    background:
-        linear-gradient(to bottom right, transparent calc(50% - 1px), color-mix(in srgb, var(--text-color) 7%, transparent) 50%, transparent calc(50% + 1px)) top left / 50% 42% no-repeat,
-        linear-gradient(to bottom left, transparent calc(50% - 1px), color-mix(in srgb, var(--text-color) 7%, transparent) 50%, transparent calc(50% + 1px)) top right / 50% 42% no-repeat,
-        linear-gradient(170deg, var(--amor-paper), var(--amor-paper-shade));
-    box-shadow: 0 24px 50px -30px color-mix(in srgb, var(--text-color) 55%, transparent);
-    rotate: -0.6deg;
+/* El sobre de la carta en los tonos de la tarjeta: papel crema, forro rosado y lacre vino */
+.inv-amor .inv-letter-gate {
+    --env-front: color-mix(in srgb, var(--accent-color) 16%, #fffdf9);
+    --env-side: color-mix(in srgb, var(--accent-color) 36%, #fbf3ec);
+    --env-flap: color-mix(in srgb, var(--accent-color) 62%, #f1dfd6);
+    --env-liner: color-mix(in srgb, var(--primary-color) 30%, var(--accent-color));
 }
 
 .inv-amor .inv-seal {
-    --seal: color-mix(in srgb, var(--primary-color) 85%, #000);
+    --seal: color-mix(in srgb, var(--primary-color) 80%, #3a0d17);
+    --seal-light: color-mix(in srgb, var(--primary-color) 50%, #ffd9df);
+    --seal-dark: color-mix(in srgb, var(--primary-color) 40%, #1f0509);
 }
 
 .inv-story-on .inv-amor #juntos-desde .inv-milestone__value {
@@ -187,7 +187,7 @@ html:not(.no-js) .inv-amor .inv-letter-gate[data-gate-done] .inv-letter.is-inked
 }
 
 .inv-amor .inv-letter-gate[data-gate-done] .inv-ink {
-    animation: inv-amor-ink 0.9s ease calc(var(--w) * 24ms + 700ms) both;
+    animation: inv-amor-ink 0.9s ease calc(var(--w) * 24ms + 2.1s) both;
 }
 
 @keyframes inv-amor-ink {
@@ -198,11 +198,11 @@ html:not(.no-js) .inv-amor .inv-letter-gate[data-gate-done] .inv-letter.is-inked
 
 /* La firma llega cuando terminó de escribirse la carta */
 html:not(.no-js) .inv-amor .inv-letter-gate[data-gate-done] .inv-letter.is-inked .inv-letter__footer {
-    animation-delay: calc(var(--words, 0) * 24ms + 1100ms);
+    animation-delay: calc(var(--words, 0) * 24ms + 2.5s);
 }
 
 html:not(.no-js) .inv-amor .inv-letter-gate[data-gate-done] .inv-letter__to {
-    animation: inv-amor-write 1.4s var(--inv-ease) 0.35s both;
+    animation: inv-amor-write 1.4s var(--inv-ease) 1.8s both;
 }
 
 /* Flores prensadas en las esquinas de la carta */

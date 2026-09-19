@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Support\SiteImage;
 use Database\Seeders\ShowcaseInvitationsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\File;
 use Tests\TestCase;
 
@@ -21,12 +22,77 @@ class HomePageTest extends TestCase
 
         $response->assertOk()
             ->assertSee('Invitaciones digitales para bodas, bautizos, cumpleaños y XV años')
-            ->assertSeeInOrder(['200', 'Bs', '400', 'Bs', '700', 'Bs'])
+            // Promoción de inauguración: el precio normal tachado y el de hoy
+            ->assertSeeInOrder(['200 Bs', '150', 'Bs', '400 Bs', '300', 'Bs', '700 Bs', '500', 'Bs'])
+            ->assertSee('Promoción de inauguración')
+            ->assertSee('Ahorras 50 Bs')
+            // Servicios: las invitaciones y las tarjetas, cada una con su precio de hoy
+            ->assertSee('id="servicios"', false)
+            ->assertSeeInOrder(['Invitaciones digitales', 'desde', '150 Bs', 'Tarjetas digitales'])
+            // Los recuerdos en vivo van dentro de lo que incluye la invitación, y ya no hay sección de contacto
+            ->assertSeeInOrder(['id="incluye"', 'Recuerdos en vivo', 'id="precios"'], false)
+            ->assertDontSee('¿Ya tienes fecha')
             ->assertSee('https://wa.me/59171234567?text=', false)
-            ->assertSee(rawurlencode('me interesa el paquete Estándar (400 Bs)'), false)
+            ->assertSee(rawurlencode('me interesa el paquete Estándar (300 Bs)'), false)
             ->assertSee(route('login'), false)
             ->assertSee('Ingresar')
             ->assertSee('https://www.facebook.com/bidaeventsbo', false);
+    }
+
+    public function test_without_the_launch_promo_the_packages_show_their_normal_price(): void
+    {
+        config(['bida.launch_promo.active' => false]);
+
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertDontSee('Promoción de inauguración')
+            ->assertDontSee('<del class="site-plan__old">', false)
+            ->assertSee(rawurlencode('me interesa el paquete Estándar (400 Bs)'), false);
+    }
+
+    public function test_the_season_opens_the_home_with_its_countdown_and_promo_price(): void
+    {
+        config(['bida.season.ends_at' => '2026-09-21 23:59:59', 'bida.whatsapp' => '+591 7123-4567']);
+        $this->travelTo(Carbon::parse('2026-09-19 12:00:00', 'America/La_Paz'));
+        $this->seed(ShowcaseInvitationsSeeder::class);
+
+        $response = $this->withoutVite()->get(route('home'))->assertOk();
+
+        $response
+            // Va antes que la portada, como gancho
+            ->assertSeeInOrder(['id="temporada"', 'Invitaciones digitales'], false)
+            // Habla de la temporada y lista sus diseños (hoy, uno)
+            ->assertSee('Día del Amor y la Primavera')
+            ->assertSeeInOrder(['Diseños de la temporada', 'Carta de amor'])
+            ->assertSeeInOrder(['100 Bs', '75', 'Bs'])
+            // Cuenta regresiva ya calculada: faltan 2 días, 11 horas, 59 minutos y 59 segundos
+            ->assertSeeInOrder(['02', 'días', '11', 'horas', '59', 'min', '59', 'seg'])
+            ->assertSee('seasonOffer(', false)
+            // WhatsApp con el precio y el código de la campaña
+            ->assertSee(rawurlencode('quiero una tarjeta del Día del Amor (75 Bs)'), false)
+            ->assertSee(rawurlencode('Ref. AMOR'), false)
+            // El teléfono abre la tarjeta sola
+            ->assertSee(route('invitation.demo', ['slug' => 'tarjeta-ana-luis', 'portada' => 1]), false)
+            ->assertSee('href="#temporada"', false);
+
+        // La tarjeta no se mezcla con las plantillas de invitación
+        $this->assertStringNotContainsString(
+            'plantilla-tab-4',
+            $response->getContent(),
+        );
+    }
+
+    public function test_the_season_disappears_when_its_date_passes(): void
+    {
+        config(['bida.season.ends_at' => '2026-09-21 23:59:59']);
+        $this->travelTo(Carbon::parse('2026-09-22 00:00:01', 'America/La_Paz'));
+        $this->seed(ShowcaseInvitationsSeeder::class);
+
+        $this->withoutVite()
+            ->get(route('home'))
+            ->assertOk()
+            ->assertDontSee('id="temporada"', false)
+            ->assertDontSee('href="#temporada"', false);
     }
 
     public function test_home_lists_every_configured_event_type_and_the_brand_logo(): void
