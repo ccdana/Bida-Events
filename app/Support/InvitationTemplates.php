@@ -21,6 +21,8 @@ final class InvitationTemplates
 
     public const TARJETA_AMOR = 'invitations.templates.tarjeta-amor';
 
+    public const TARJETA_AVENTURA = 'invitations.templates.tarjeta-aventura';
+
     public const DEFAULT = self::XV_PREMIUM;
 
     /**
@@ -235,6 +237,26 @@ final class InvitationTemplates
                         'meaning' => 'Ternura',
                         'phrase' => 'Sencilla y dulce, como un «te quiero» dicho al oído.',
                     ],
+                ],
+            ],
+            self::TARJETA_AVENTURA => [
+                'label' => 'Libro de aventuras',
+                'description' => 'Un cuaderno de recortes que se hojea: el mes del aniversario, la carta, su historia por capítulos, recuerdos, collages con flores amarillas, fotos con marco y un juego de memoria.',
+                'event' => 'aventura',
+                'palette' => [
+                    'primary' => '#8A4B1F',
+                    'secondary' => '#5A3214',
+                    'accent' => '#F2C230',
+                    'text' => '#2B1D12',
+                    'background' => '#F7EEDC',
+                ],
+                // Cada módulo es una o varias páginas del cuaderno, en este orden
+                'order' => ['juntos_desde', 'dedicatoria', 'historia', 'recuerdos', 'collage', 'marcos', 'memoria', 'respuesta', 'aventuras'],
+                'copy' => [
+                    'hero_eyebrow' => 'Nuestro libro de aventuras',
+                    'menu_heading' => 'Un libro para',
+                    'intro_hint' => 'Desliza la tapa para abrir el libro',
+                    'footer_pitch' => '¿Te gustó este libro? Arma el tuyo',
                 ],
             ],
         ];

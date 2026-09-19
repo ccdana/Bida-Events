@@ -50,6 +50,12 @@ final class InvitationPage
         'dedicatoria' => 'Dedicatoria',
         'juntos_desde' => 'Juntos',
         'respuesta' => 'Responder',
+        'historia' => 'Nuestra historia',
+        'recuerdos' => 'Recuerdos',
+        'collage' => 'Collage',
+        'marcos' => 'Marcos',
+        'memoria' => 'Juego',
+        'aventuras' => 'Aventuras',
     ];
 
     public readonly array $config;

@@ -47,6 +47,7 @@ class TemplateRenderMatrixTest extends TestCase
             'bautizo' => BautizoCieloDemoSeeder::modules(),
             'cumple' => CumpleFiestaDemoSeeder::modules(),
             'amor' => ShowcaseInvitationsSeeder::data('tarjeta-ana-luis')['modules'],
+            'aventura' => ShowcaseInvitationsSeeder::data('tarjeta-libro-aventuras')['modules'],
         };
     }
 
@@ -69,8 +70,9 @@ class TemplateRenderMatrixTest extends TestCase
         $profile = app(EventProfiles::class)->forTemplate($template);
 
         // Lo que se ve depende del perfil: una tarjeta no tiene confirmación ni itinerario
+        // (la galería, solo si el perfil la ofrece: el libro de aventuras la reemplaza por collages)
         $expected = $profile->kind() === Module::KIND_CARD
-            ? ['id="dedicatoria"', 'id="galeria"', 'id="respuesta"']
+            ? ['id="dedicatoria"', 'id="respuesta"', ...(in_array('galeria', $profile->modules(), true) ? ['id="galeria"'] : ['id="collage"'])]
             : ['id="itinerario"', 'id="ubicacion"', 'id="galeria"', 'id="rsvp"'];
 
         foreach ($expected as $section) {

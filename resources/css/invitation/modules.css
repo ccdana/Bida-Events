@@ -1272,6 +1272,7 @@ div.inv-gift {
     gap: 0.5rem;
 }
 
+/* Tamaño fijo: quien responde no puede estirar el cuadro y romper el diseño */
 .inv-reply__input {
     min-height: 7rem;
     resize: none;

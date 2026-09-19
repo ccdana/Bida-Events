@@ -114,6 +114,11 @@ if (document.querySelector('[data-card="amor"]')) {
     loaders.push(import('./cards/amor/index.js'));
 }
 
+// ── Libro de aventuras (~40 kB con page-flip) — hojas que se pasan y juego de memoria ─
+if (document.querySelector('[data-notebook]')) {
+    loaders.push(import('./aventura/index.js'));
+}
+
 // ── Sitio público (home y login) — animaciones; no retrasa a Alpine ────
 if (document.body.classList.contains('site')) {
     import('./site.js').catch((error) => console.error('[Bida Events] Error al cargar site.js:', error));

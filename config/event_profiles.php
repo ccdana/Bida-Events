@@ -1,5 +1,6 @@
 <?php
 
+use App\EventProfiles\AdventureBookProfile;
 use App\EventProfiles\BaptismProfile;
 use App\EventProfiles\BirthdayProfile;
 use App\EventProfiles\LoveCardProfile;
@@ -24,4 +25,5 @@ return [
     BirthdayProfile::class,
     // Tarjetas estacionales
     LoveCardProfile::class,
+    AdventureBookProfile::class,
 ];

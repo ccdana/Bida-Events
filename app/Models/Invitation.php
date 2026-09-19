@@ -110,6 +110,12 @@ class Invitation extends Model
         return $this->hasMany(CardMilestone::class)->orderBy('sort_order')->orderBy('id');
     }
 
+    /** Capítulos y recuerdos de una tarjeta tipo cuaderno, separados por sección. */
+    public function cardEntries(): HasMany
+    {
+        return $this->hasMany(CardEntry::class)->orderBy('sort_order')->orderBy('id');
+    }
+
     /**
      * Lista de invitados de este evento.
      */

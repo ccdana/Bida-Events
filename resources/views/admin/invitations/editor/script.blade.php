@@ -222,6 +222,19 @@ function invitationForm(config) {
                 ],
             },
             {
+                id: 'libro',
+                label: 'Libro',
+                description: 'Las hojas del libro de aventuras',
+                tabs: [
+                    { id: 'historia', label: 'Nuestra historia', moduleCode: 'historia', hint: 'Capítulos con fecha, texto y foto' },
+                    { id: 'recuerdos', label: 'Recuerdos', moduleCode: 'recuerdos', hint: 'Fotos con una nota' },
+                    { id: 'collage', label: 'Collage', moduleCode: 'collage', hint: 'Fotos en formas con flores' },
+                    { id: 'marcos', label: 'Marcos', moduleCode: 'marcos', hint: 'Fotos con marco y pie' },
+                    { id: 'memoria', label: 'Juego', moduleCode: 'memoria', hint: 'Memoria con sus fotos' },
+                    { id: 'aventuras', label: 'Aventuras por vivir', moduleCode: 'aventuras', hint: 'Lo que les falta vivir juntos' },
+                ],
+            },
+            {
                 id: 'presentacion',
                 label: 'Presentación',
                 description: 'Primera impresión del evento',
@@ -425,6 +438,22 @@ function invitationForm(config) {
                 case 'galeria':
                     return list(m.galeria?.fotos).length ? [] : ['No hay fotos'];
 
+                case 'historia':
+                    return list(m.historia?.capitulos).length ? [] : ['No hay capítulos'];
+
+                case 'recuerdos':
+                    return list(m.recuerdos?.recuerdos).length ? [] : ['No hay recuerdos'];
+
+                case 'collage':
+                case 'marcos':
+                    return list(m[tabId]?.fotos).length ? [] : ['No hay fotos'];
+
+                case 'memoria':
+                    return list(m.memoria?.fotos).length >= 3 ? [] : ['El juego necesita al menos 3 fotos'];
+
+                case 'aventuras':
+                    return list(m.aventuras?.lista).some(item => filled(item?.titulo)) ? [] : ['No hay aventuras'];
+
                 case 'video':
                     return filled(m.video?.video_url) ? [] : ['Falta el video'];
 
@@ -610,6 +639,17 @@ function invitationForm(config) {
             m.destacados.padrinos ??= [];
             m.galeria ??= { fotos: [] };
             m.galeria.fotos ??= [];
+            // Libro de aventuras: listas de capítulos, recuerdos y fotos
+            m.historia = { ...this.plainModuleValue(m.historia) };
+            m.historia.capitulos = Array.isArray(m.historia.capitulos) ? m.historia.capitulos : [];
+            m.recuerdos = { ...this.plainModuleValue(m.recuerdos) };
+            m.recuerdos.recuerdos = Array.isArray(m.recuerdos.recuerdos) ? m.recuerdos.recuerdos : [];
+            m.aventuras = { ...this.plainModuleValue(m.aventuras) };
+            m.aventuras.lista = Array.isArray(m.aventuras.lista) ? m.aventuras.lista : [];
+            for (const code of ['collage', 'marcos', 'memoria']) {
+                m[code] = { ...this.plainModuleValue(m[code]) };
+                m[code].fotos = Array.isArray(m[code].fotos) ? m[code].fotos : [];
+            }
             m.musica ??= {};
             m.video ??= {};
             m.playlist ??= {};
@@ -708,6 +748,22 @@ function invitationForm(config) {
                 data.fotos = await Promise.all(
                     data.fotos.map((url) => this.blobUrlToDataUrl(url))
                 );
+            }
+
+            // Libro de aventuras: fotos sueltas (URL o {url, alt}) y fotos de capítulos y recuerdos
+            if (['collage', 'marcos', 'memoria'].includes(code) && Array.isArray(data.fotos)) {
+                data.fotos = await Promise.all(data.fotos.map(async (photo) => (
+                    typeof photo === 'string'
+                        ? this.blobUrlToDataUrl(photo)
+                        : { ...photo, url: await this.blobUrlToDataUrl(photo?.url) }
+                )));
+            }
+
+            const entryLists = { historia: 'capitulos', recuerdos: 'recuerdos' };
+            if (entryLists[code] && Array.isArray(data[entryLists[code]])) {
+                data[entryLists[code]] = await Promise.all(data[entryLists[code]].map(async (entry) => (
+                    entry?.foto ? { ...entry, foto: await this.blobUrlToDataUrl(entry.foto) } : entry
+                )));
             }
 
             if (code === 'post_evento' && Array.isArray(data.fotos)) {
@@ -1120,7 +1176,14 @@ function invitationForm(config) {
                 case 'video-poster':
                     return 16 / 9;
                 case 'bienvenida':
+                case 'recuerdos':
+                case 'marcos':
                     return 4 / 5;
+                case 'memoria':
+                case 'collage':
+                    return 1;
+                case 'historia':
+                    return 16 / 10;
                 case 'ubicacion':
                     return 3 / 2;
                 default:
@@ -1425,6 +1488,78 @@ function invitationForm(config) {
         removeGalleryPhoto(index) {
             this.clearMediaUrl(this.photoUrl(this.modules.galeria.fotos[index]));
             this.modules.galeria.fotos.splice(index, 1);
+        },
+
+        // ── Libro de aventuras ──────────────────────────────────────────────
+        // Fotos sueltas (collage, marcos, memoria) y listas de entradas con foto
+        // (capítulos de la historia y recuerdos). Se suben al guardar, como la galería.
+
+        uploadBookPhotos(code, event, max) {
+            const files = [...(event.target.files || [])];
+            const list = this.modules[code].fotos;
+            for (const file of files) {
+                if (max && list.length >= max) break;
+                const blobUrl = URL.createObjectURL(file);
+                list.push(blobUrl);
+                this.pendingUploads.push({
+                    file,
+                    type: 'image',
+                    context: code,
+                    blobUrl,
+                    apply: this.replaceInListApplier(() => this.modules[code].fotos, blobUrl),
+                });
+            }
+            event.target.value = '';
+            this.schedulePreview();
+        },
+
+        removeBookPhoto(code, index) {
+            this.clearMediaUrl(this.photoUrl(this.modules[code].fotos[index]));
+            this.modules[code].fotos.splice(index, 1);
+            this.schedulePreview();
+        },
+
+        moveBookItem(list, index, step) {
+            const target = index + step;
+            if (target < 0 || target >= list.length) return;
+            [list[index], list[target]] = [list[target], list[index]];
+            this.schedulePreview();
+        },
+
+        addBookEntry(code, key, max) {
+            const list = this.modules[code][key];
+            if (max && list.length >= max) return;
+            list.push({ titulo: '', fecha: '', texto: '', foto: '', alt: '' });
+            this.schedulePreview();
+        },
+
+        removeBookEntry(code, key, index) {
+            const entry = this.modules[code][key][index];
+            if (entry?.foto) this.clearMediaUrl(entry.foto);
+            this.modules[code][key].splice(index, 1);
+            this.schedulePreview();
+        },
+
+        uploadBookEntryPhoto(code, key, index, event) {
+            const file = event.target.files?.[0];
+            event.target.value = '';
+            if (!file) return;
+            const entry = this.modules[code][key][index];
+            if (entry.foto) this.clearMediaUrl(entry.foto);
+            const blobUrl = URL.createObjectURL(file);
+            entry.foto = blobUrl;
+            this.pendingUploads.push({
+                file,
+                type: 'image',
+                context: code,
+                blobUrl,
+                // Se busca la entrada por su foto: si se reordenan antes de guardar, el índice cambia
+                apply: (url) => {
+                    const target = this.modules[code][key].find(item => item.foto === blobUrl);
+                    if (target) target.foto = url;
+                },
+            });
+            this.schedulePreview();
         },
 
         uploadPostEventPhotos(event) {

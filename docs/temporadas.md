@@ -103,26 +103,6 @@ plantilla:
    queda trabado. El contenido va siempre en el HTML debajo de la puerta, para que se lea sin
    JavaScript y con lector de pantalla.
 
-## Receta 4: vender la temporada en la portada
-
-La portada abre con una sección propia de la temporada (`site/partials/season`): precio normal
-tachado, precio de promoción, cuenta regresiva y un teléfono donde la tarjeta se abre sola.
-
-- La sección habla de la temporada (`name`, `date`, `title`, `text`) y lista sus diseños con su
-  `label` y su `tagline` (en `InvitationTemplates`); `more_note` avisa que vendrán más.
-- El teléfono se turna entre dos iframes (`data-cover-reel` en `resources/js/site.js`): la muestra
-  siguiente carga oculta con `&reel=1` y espera la señal `bida:cover-play` para abrirse, así nunca
-  queda la pantalla en blanco.
-- Las tarjetas también aparecen en «Servicios» de la portada (`config('bida.services')`).
-- Todo se configura en `config('bida.season')`: textos, `price` y `promo_price`, código de campaña
-  (`code`, sale en el WhatsApp como «Ref. AMOR»), página por evento (`landing`) y las muestras de la
-  temporada en `templates`. Para sumar otra plantilla de la misma temporada, agrega su muestra ahí.
-- La fecha de cierre viene de `BIDA_SEASON_ENDS_AT` (hora de La Paz). Pasada esa fecha la sección
-  desaparece sola y la página por evento deja de ofrecer el precio.
-- Las muestras de la temporada no van en `demo_invitations` (esas son las invitaciones de la
-  portada); igual se pueden abrir en `/muestra/{slug}` (`ShowcaseDemos::allowedSlugs`).
-- Los precios los calcula `App\Support\Offers`. La promoción de inauguración de los paquetes
-  (`promo_price` y `BIDA_LAUNCH_PROMO`) usa la misma clase.
 ## Qué no hacer
 
 - No preguntar en vistas o controladores «¿es boda?» o «¿es tarjeta?» por el nombre de la plantilla:

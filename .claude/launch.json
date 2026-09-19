@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "bida-events",
+      "runtimeExecutable": "C:\\laragon\\bin\\php\\php-8.4.24-Win32-vs17-x64\\php.exe",
+      "runtimeArgs": ["artisan", "serve", "--port=8123"],
+      "port": 8123
+    }
+  ]
+}
