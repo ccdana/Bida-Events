@@ -114,6 +114,11 @@ if (document.querySelector('[data-card="amor"]')) {
     loaders.push(import('./cards/amor/index.js'));
 }
 
+// ── Tarjeta «Sobre lacrado» — sobre con lacre, lluvia de flores, vinilo y respuesta ─
+if (document.querySelector('[data-card="sobre"]')) {
+    loaders.push(import('./cards/sobre/index.js'));
+}
+
 // ── Sitio público (home y login) — animaciones; no retrasa a Alpine ────
 if (document.body.classList.contains('site')) {
     import('./site.js').catch((error) => console.error('[Bida Events] Error al cargar site.js:', error));

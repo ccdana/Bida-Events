@@ -21,6 +21,8 @@ final class InvitationTemplates
 
     public const TARJETA_AMOR = 'invitations.templates.tarjeta-amor';
 
+    public const TARJETA_SOBRE = 'invitations.templates.tarjeta-sobre';
+
     public const DEFAULT = self::XV_PREMIUM;
 
     /**
@@ -210,6 +212,57 @@ final class InvitationTemplates
                 'partials' => [
                     'juntos_desde' => 'invitations.partials.amor.daisy-milestone',
                     'galeria' => 'invitations.partials.amor.clothesline',
+                    'respuesta' => 'invitations.partials.amor.flower-reply',
+                ],
+                // Flores para responder: se guardan en guest_contributions.reaction
+                'reactions' => [
+                    'rosa' => ['label' => 'Una rosa', 'meaning' => 'Te quiero'],
+                    'girasol' => ['label' => 'Un girasol', 'meaning' => 'Me haces feliz'],
+                    'tulipan' => ['label' => 'Un tulipán', 'meaning' => 'Amor verdadero'],
+                    'margarita' => ['label' => 'Una margarita', 'meaning' => 'Ternura'],
+                ],
+            ],
+            self::TARJETA_SOBRE => [
+                'label' => 'Sobre lacrado',
+                'description' => 'Un sobre rojo con sello de lacre que se rompe al tocarlo y suelta una lluvia de flores: la foto en portada, el mensaje en un marco de luz, los recuerdos en polaroids, la película de sus videos, la carta escrita a mano y el vinilo con su canción.',
+                'event' => 'amor',
+                // Vino profundo con rosa empolvado: el texto claro sobre el fondo oscuro pasa AA
+                'palette' => [
+                    'primary' => '#F2A5B6',
+                    'secondary' => '#2E060C',
+                    'accent' => '#F2D7DB',
+                    'text' => '#FDF3EE',
+                    'background' => '#4A0D14',
+                ],
+                'order' => ['galeria', 'video', 'dedicatoria', 'musica', 'respuesta'],
+                'copy' => [
+                    'hero_eyebrow' => 'Feliz Día del Amor y la Amistad',
+                    'menu_heading' => 'Una carta para',
+                    'intro_title' => '¡Te llegó una carta!',
+                    'intro_hint' => 'Toca el lacre para abrir',
+                    'note_title' => '¡Feliz día, mi persona favorita!',
+                    'gallery_eyebrow' => 'Nuestros momentos',
+                    'gallery_title' => 'Todo lo que llevamos juntos',
+                    'gallery_hint' => 'Toca una polaroid para verla en grande',
+                    'film_eyebrow' => 'En movimiento',
+                    'film_title' => 'Mi persona favorita',
+                    'film_shout' => '¡Te quiero muchísimo!',
+                    'film_note' => 'Te escribí algo',
+                    'letter_eyebrow' => 'Escrito a mano',
+                    'letter_closing' => 'Con todo mi cariño,',
+                    'vinyl_eyebrow' => 'Dale al botón',
+                    'vinyl_title' => 'Esta canción me recuerda a ti',
+                    'vinyl_hint' => 'Toca el obturador para dar vuelta el álbum',
+                    'reply_eyebrow' => 'Tu turno',
+                    'footer_pitch' => '¿Te gustó esta carta? Manda la tuya',
+                    'photo_caption' => 'Tú y yo',
+                ],
+                // Vistas propias que reemplazan a las comunes solo en esta tarjeta
+                'partials' => [
+                    'galeria' => 'invitations.partials.sobre.gallery',
+                    'video' => 'invitations.partials.sobre.film',
+                    'dedicatoria' => 'invitations.partials.sobre.letter',
+                    'musica' => 'invitations.partials.sobre.vinyl',
                     'respuesta' => 'invitations.partials.amor.flower-reply',
                 ],
                 // Flores para responder: se guardan en guest_contributions.reaction

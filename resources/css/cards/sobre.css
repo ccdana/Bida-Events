@@ -1,0 +1,366 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   TARJETA — "Sobre lacrado" (invitations.templates.tarjeta-sobre)
+   Día del Amor y la Amistad (21 de septiembre): un sobre rojo con lacre que se
+   rompe y suelta una lluvia de flores. Fondo vino, letra manuscrita y papel.
+
+   Se carga solo en esta plantilla (@vite en su cabecera). Todo va dentro de
+   .inv-sobre y lee la paleta del evento (--primary-color, --bg-color…).
+   Partes: cover (sobre), fall (lluvia), hero, note, polaroids, film, sheets, vinyl.
+   La respuesta con flor reutiliza amor/reply.css.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+@import './amor/reply.css';
+
+.inv-sobre {
+    --amor-leaf: #7fae6a;
+    --amor-sun: #f6d98c;
+    --amor-daisy: #fffdf8;
+    --sobre-red: #a3202b;
+    --sobre-red-dark: #6e121b;
+    --sobre-paper: #fffaf3;
+    --sobre-ink: #4a1218;
+    --story-petal: var(--primary-color);
+    --story-scene-bg: radial-gradient(120% 60% at 50% 0%, color-mix(in srgb, var(--sobre-red) 45%, transparent), transparent 70%), var(--bg-color);
+    background: var(--bg-color);
+}
+
+.inv-sobre-sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+.inv-sobre .inv-section { border-top-color: color-mix(in srgb, var(--primary-color) 22%, var(--bg-color)); }
+.inv-sobre .inv-head__title { font-family: var(--font-script); font-weight: 400; font-size: clamp(2.2rem, 9vw, 3rem); }
+.inv-sobre .inv-btn { border-radius: 999px; }
+.inv-sobre-footer .inv-footer__name { font-family: var(--font-script); font-size: 2.4rem; font-weight: 400; }
+
+/* ── Apertura: sobre con sello de lacre ─────────────────────────────────── */
+
+.inv-sobre-intro {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: 1.25rem;
+    padding: 1.5rem;
+    overflow: hidden;
+    background: radial-gradient(90% 60% at 50% 30%, #7a4a6e, #3d1f3f 55%, #26122c);
+    color: #fff;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: opacity 0.9s ease 0.3s;
+}
+
+html.inv-cover-skip .inv-sobre-intro { display: none; }
+.inv-sobre-intro.is-gone { opacity: 0; pointer-events: none; }
+
+.inv-mail__eyebrow { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.28em; text-transform: uppercase; color: #f2d7db; animation: inv-sobre-in 0.9s var(--inv-ease) 0.2s both; }
+.inv-mail__title { font-family: var(--font-script); font-size: clamp(2.6rem, 12vw, 3.6rem); line-height: 1; text-align: center; text-shadow: 0 2px 18px rgb(255 255 255 / 0.35); animation: inv-sobre-in 0.9s var(--inv-ease) 0.35s both; }
+
+@keyframes inv-sobre-in { from { opacity: 0; translate: 0 14px; } to { opacity: 1; translate: 0 0; } }
+
+.inv-mail { perspective: 900px; transition: scale 1.2s var(--inv-ease); }
+.inv-sobre-intro.is-leaving .inv-mail { scale: 1.25; }
+
+.inv-mail__envelope {
+    position: relative;
+    display: block;
+    width: min(78vw, 20rem);
+    aspect-ratio: 4 / 3;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    transform-style: preserve-3d;
+    animation: inv-mail-float 3.4s ease-in-out infinite;
+}
+
+@keyframes inv-mail-float { 0%, 100% { translate: 0 0; rotate: -1deg; } 50% { translate: 0 -8px; rotate: 1deg; } }
+.inv-sobre-intro.is-cracked .inv-mail__envelope { animation: none; }
+.inv-mail__envelope:focus-visible { outline: 2px solid #fff; outline-offset: 8px; }
+
+/* Cuerpo del sobre: las dos solapas laterales y la de abajo */
+.inv-mail__front {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    border-radius: 6px;
+    background: linear-gradient(160deg, var(--sobre-red), var(--sobre-red-dark));
+    clip-path: polygon(0 0, 50% 52%, 100% 0, 100% 100%, 0 100%);
+    box-shadow: 0 30px 50px -20px rgb(0 0 0 / 0.6);
+}
+
+/* Solapa de arriba: gira hacia atrás al abrir */
+.inv-mail__flap {
+    position: absolute;
+    inset: 0 0 auto;
+    z-index: 4;
+    height: 56%;
+    background: linear-gradient(200deg, #c22f3b, var(--sobre-red));
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+    transform-origin: 50% 0;
+    transition: transform 0.9s var(--inv-ease) 0.25s, z-index 0s linear 0.5s;
+}
+
+.inv-sobre-intro.is-cracked .inv-mail__flap { transform: rotateX(180deg); z-index: 1; }
+
+/* Carta que asoma del sobre */
+.inv-mail__letter {
+    position: absolute;
+    inset: 8% 8% 6%;
+    z-index: 2;
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    gap: 0.4rem;
+    padding: 1rem;
+    border-radius: 4px;
+    background: var(--sobre-paper);
+    transition: translate 1s var(--inv-ease) 0.7s;
+}
+
+.inv-sobre-intro.is-cracked .inv-mail__letter { translate: 0 -62%; }
+.inv-mail__line { width: 100%; height: 4px; border-radius: 2px; background: color-mix(in srgb, var(--sobre-red) 28%, transparent); }
+.inv-mail__line:nth-child(2) { width: 80%; }
+.inv-mail__line:nth-child(3) { width: 90%; }
+.inv-mail__heart { width: 1.6rem; fill: var(--sobre-red); }
+
+/* Lacre: dos mitades que se separan al romperse */
+.inv-wax {
+    position: absolute;
+    top: 52%;
+    left: 50%;
+    z-index: 5;
+    display: flex;
+    width: 4.6rem;
+    height: 4.6rem;
+    translate: -50% -50%;
+    filter: drop-shadow(0 6px 8px rgb(0 0 0 / 0.45));
+    animation: inv-wax-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes inv-wax-pulse { 0%, 100% { scale: 1; } 50% { scale: 1.08; } }
+.inv-sobre-intro.is-cracked .inv-wax { animation: none; }
+
+.inv-wax__half {
+    display: grid;
+    place-items: center;
+    width: 50%;
+    height: 100%;
+    background: radial-gradient(circle at 35% 30%, #f0e6a0, #b9a24a 55%, #857227);
+    color: #5b4d12;
+    transition: translate 0.7s var(--inv-ease), rotate 0.7s var(--inv-ease), opacity 0.6s ease 0.3s;
+}
+
+.inv-wax__half--left { border-radius: 100% 0 0 100% / 50% 0 0 50%; transform-origin: 0 100%; }
+.inv-wax__half--right { border-radius: 0 100% 100% 0 / 0 50% 50% 0; transform-origin: 100% 100%; }
+.inv-wax__half--left .inv-wax__mark { translate: 50% 0; }
+.inv-wax__half--right .inv-wax__mark { translate: -50% 0; }
+.inv-wax__mark { font-family: var(--font-script); font-size: 2rem; line-height: 1; }
+.inv-wax__mark--heart { width: 1.8rem; fill: currentColor; }
+
+.inv-sobre-intro.is-cracked .inv-wax__half--left { translate: -1.6rem 1.2rem; rotate: -28deg; opacity: 0; }
+.inv-sobre-intro.is-cracked .inv-wax__half--right { translate: 1.6rem 1.2rem; rotate: 28deg; opacity: 0; }
+
+.inv-mail__caption { display: grid; justify-items: center; min-height: 3.5rem; }
+.inv-mail__hint { display: inline-flex; align-items: center; gap: 0.7rem; font-size: 0.9rem; color: #f2d7db; }
+.inv-mail__tap { width: 1.2rem; height: 1.2rem; border: 2px solid #fff; border-radius: 999px; animation: inv-mail-tap 1.6s ease-out infinite; }
+@keyframes inv-mail-tap { 0% { scale: 0.6; opacity: 1; } 100% { scale: 1.6; opacity: 0; } }
+.inv-mail__to { font-family: var(--font-script); font-size: clamp(2.4rem, 11vw, 3.2rem); animation: inv-sobre-in 1s var(--inv-ease) 0.3s both; }
+
+/* ── Lluvia de flores ───────────────────────────────────────────────────── */
+
+.inv-fall { position: fixed; inset: 0; z-index: 30; overflow: hidden; pointer-events: none; }
+.inv-fall__flower {
+    position: absolute;
+    top: -3rem;
+    left: var(--left);
+    width: var(--size);
+    color: color-mix(in srgb, var(--primary-color) 70%, #fff);
+    opacity: 0;
+    animation: inv-fall var(--duration) linear var(--delay) infinite;
+}
+.inv-fall__flower[data-tone="1"], .inv-shower__flower[data-tone="1"] { color: #d6394a; }
+.inv-fall__flower[data-tone="2"], .inv-shower__flower[data-tone="2"] { color: #fff; }
+.inv-fall__flower svg, .inv-shower__flower svg { display: block; width: 100%; height: auto; }
+
+@keyframes inv-fall {
+    0% { opacity: 0; translate: 0 0; rotate: 0deg; }
+    8% { opacity: 0.85; }
+    100% { opacity: 0; translate: calc(var(--spin) * 4rem) 108vh; rotate: calc(var(--spin) * 300deg); }
+}
+
+.inv-shower { position: fixed; inset: 0; z-index: 250; overflow: hidden; pointer-events: none; }
+.inv-shower__flower {
+    position: absolute;
+    top: -4rem;
+    left: var(--left);
+    width: var(--size);
+    color: color-mix(in srgb, var(--primary-color) 70%, #fff);
+    filter: drop-shadow(0 2px 4px rgb(0 0 0 / 0.25));
+    animation: inv-shower var(--dur) cubic-bezier(0.3, 0.1, 0.6, 1) var(--delay) both;
+}
+@keyframes inv-shower {
+    0% { translate: 0 0; rotate: 0deg; opacity: 0; }
+    10% { opacity: 1; }
+    100% { translate: var(--drift) 115vh; rotate: var(--turn); opacity: 1; }
+}
+
+/* ── Portada: foto velada en vino y frase manuscrita ────────────────────── */
+
+html.inv-cover-waiting .inv-sobre .inv-sobre-hero *,
+html.inv-cover-waiting .inv-sobre .inv-fall * { animation-play-state: paused !important; }
+
+.inv-sobre-hero {
+    position: relative;
+    display: grid;
+    min-height: 100svh;
+    place-items: center;
+    padding: calc(4.5rem + env(safe-area-inset-top)) 1.25rem 4rem;
+    text-align: center;
+    overflow: hidden;
+}
+
+.inv-sobre-hero__photo { position: absolute; inset: 0; }
+.inv-sobre-hero__photo::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, color-mix(in srgb, var(--sobre-red) 55%, transparent), color-mix(in srgb, var(--bg-color) 82%, transparent));
+}
+.inv-sobre-hero__photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    translate: calc(var(--tilt-x, 0) * -12px) 0;
+    animation: inv-sobre-zoom 14s ease-out both;
+}
+@keyframes inv-sobre-zoom { from { scale: 1.2; } to { scale: 1.06; } }
+
+.inv-sobre-hero__inner { position: relative; display: grid; justify-items: center; gap: 0.8rem; max-width: 30rem; }
+.inv-sobre-hero__eyebrow { font-size: 0.74rem; font-weight: 600; letter-spacing: 0.3em; text-transform: uppercase; color: #fff; }
+.inv-sobre-hero__title { display: grid; justify-items: center; gap: 0.2rem; font-weight: 400; }
+.inv-sobre-hero__script { font-family: var(--font-script); font-size: clamp(3.4rem, 17vw, 5.4rem); line-height: 1; color: #fff; text-shadow: 0 3px 24px rgb(0 0 0 / 0.4); text-wrap: balance; }
+.inv-sobre-hero__flourish { width: 9rem; color: #fff; stroke-dasharray: 400; animation: inv-sobre-draw 2.4s ease 1.2s both; }
+@keyframes inv-sobre-draw { from { stroke-dashoffset: 400; } to { stroke-dashoffset: 0; } }
+.inv-sobre-hero__to { font-family: var(--font-script); font-size: clamp(2.4rem, 12vw, 3.4rem); color: #fff; }
+.inv-sobre-hero__from { font-family: var(--font-titles); font-size: 1.2rem; font-style: italic; color: #f2d7db; }
+.inv-sobre-hero__scroll { display: inline-flex; align-items: center; gap: 0.45rem; min-height: 2.75rem; margin-top: 0.75rem; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: #fff; text-decoration: none; }
+.inv-sobre-hero__scroll svg { width: 1rem; height: 1rem; animation: inv-sobre-nudge 2s ease-in-out infinite; }
+.inv-story-on .inv-sobre-hero__scroll svg { rotate: -90deg; }
+@keyframes inv-sobre-nudge { 0%, 100% { translate: 0 0; } 50% { translate: 0 4px; } }
+.inv-story-on .inv-sobre-hero { min-height: 0; padding-top: 0; padding-bottom: 0; }
+
+/* ── Mensaje en marco de luz, entre dos fotos ───────────────────────────── */
+
+.inv-note__grid { display: grid; grid-template-columns: 1fr 1.5fr 1fr; align-items: center; gap: 0.75rem; max-width: 46rem; margin-inline: auto; padding-inline: 1rem; }
+.inv-note__frame {
+    grid-column: 2;
+    grid-row: 1;
+    position: relative;
+    padding: 1.6rem 1.1rem 1.4rem;
+    border: 2px solid color-mix(in srgb, #fff 85%, transparent);
+    border-radius: 1.4rem;
+    text-align: center;
+    box-shadow: 0 0 0 5px color-mix(in srgb, #fff 20%, transparent), 0 0 40px color-mix(in srgb, var(--primary-color) 45%, transparent), inset 0 0 26px color-mix(in srgb, var(--primary-color) 25%, transparent);
+    animation: inv-note-glow 3.4s ease-in-out infinite;
+}
+@keyframes inv-note-glow { 50% { box-shadow: 0 0 0 5px color-mix(in srgb, #fff 32%, transparent), 0 0 60px color-mix(in srgb, var(--primary-color) 65%, transparent), inset 0 0 34px color-mix(in srgb, var(--primary-color) 35%, transparent); } }
+.inv-note__crest { position: absolute; top: -1.05rem; left: 50%; width: 4.5rem; padding: 0 0.5rem; background: var(--bg-color); color: #fff; translate: -50% 0; }
+.inv-note__title { margin-bottom: 0.7rem; font-family: var(--font-titles); font-size: clamp(1.1rem, 4.5vw, 1.5rem); font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+.inv-note__text { font-size: clamp(0.9rem, 3.4vw, 1.02rem); line-height: 1.7; }
+.inv-note__photo { grid-row: 1; overflow: hidden; border-radius: 1rem; box-shadow: 0 16px 30px -14px rgb(0 0 0 / 0.6); }
+.inv-note__photo img { display: block; width: 100%; aspect-ratio: 3 / 4; object-fit: cover; }
+.inv-note__photo--0 { grid-column: 1; rotate: -3deg; }
+.inv-note__photo--1 { grid-column: 3; rotate: 3deg; margin-top: 2.5rem; }
+@media (max-width: 34rem) {
+    .inv-note__grid { grid-template-columns: 1fr 1fr; }
+    .inv-note__frame { grid-column: 1 / -1; grid-row: 2; }
+    .inv-note__photo--0 { grid-column: 1; }
+    .inv-note__photo--1 { grid-column: 2; margin-top: 1.2rem; }
+}
+
+/* ── Polaroids ──────────────────────────────────────────────────────────── */
+
+.inv-polaroids__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(8.2rem, 1fr)); gap: 1.6rem 1rem; margin: 1.5rem 0 0; padding: 0; list-style: none; }
+.inv-polaroids__item { position: relative; rotate: var(--lean); transition: rotate 0.5s var(--inv-ease), scale 0.5s var(--inv-ease); animation: inv-polaroid-in 0.8s var(--inv-ease) calc(var(--i) * 90ms + 300ms) both; }
+@keyframes inv-polaroid-in { from { opacity: 0; translate: 0 2rem; scale: 0.85; } }
+.inv-polaroids__item.is-lifted { z-index: 5; rotate: 0deg; scale: 1.55; }
+.inv-polaroids__card { display: block; width: 100%; padding: 0.45rem 0.45rem 1.6rem; border: 0; background: #fff; box-shadow: 0 14px 26px -12px rgb(0 0 0 / 0.65); cursor: zoom-in; }
+.inv-polaroids__item.is-lifted .inv-polaroids__card { cursor: zoom-out; }
+.inv-polaroids__card img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; }
+.inv-polaroids__caption { position: absolute; right: 0.4rem; bottom: 0.3rem; left: 0.4rem; font-family: var(--font-script); font-size: 1.1rem; color: var(--sobre-ink); }
+.inv-polaroids__hint { margin-top: 1.6rem; font-size: 0.8rem; color: var(--inv-muted); text-align: center; }
+
+/* ── Tira de película ───────────────────────────────────────────────────── */
+
+.inv-film .inv-wrap { display: grid; justify-items: center; gap: 1.2rem; }
+.inv-film__shout { font-family: var(--font-titles); font-size: clamp(1rem, 4vw, 1.3rem); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; text-align: center; }
+.inv-film__strip {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 1.6rem 0.7rem;
+    background: #101010;
+    rotate: -2deg;
+    box-shadow: 0 24px 40px -18px rgb(0 0 0 / 0.7);
+}
+.inv-film__frame { overflow: hidden; background: #000; }
+.inv-film__media { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; }
+.inv-film__media--empty { background: #222; }
+.inv-film__letter { display: inline-flex; align-items: center; gap: 0.6rem; min-height: 2.75rem; color: var(--text-color); font-family: var(--font-script); font-size: 1.7rem; text-decoration: none; }
+.inv-film__letter svg { width: 2.4rem; fill: var(--sobre-paper); stroke: var(--sobre-red); stroke-width: 2; animation: inv-sobre-nudge 2s ease-in-out infinite; }
+
+/* ── Dos hojas de papel: foto y carta ───────────────────────────────────── */
+
+.inv-sheets__pair { display: grid; grid-template-columns: 1fr 1.25fr; gap: 0.8rem; max-width: 46rem; margin-inline: auto; padding-inline: 1rem; }
+.inv-sheet { position: relative; padding: 1.3rem 1.1rem; background: linear-gradient(170deg, var(--sobre-paper), #f3e9dc); color: var(--sobre-ink); box-shadow: 0 20px 34px -16px rgb(0 0 0 / 0.65); clip-path: polygon(0 0, 88% 0, 100% 7%, 100% 100%, 0 100%); }
+.inv-sheet--photo { display: grid; align-content: start; justify-items: center; gap: 1.2rem; rotate: -1.4deg; }
+.inv-sheet--text { rotate: 1deg; font-family: var(--font-titles); font-size: clamp(0.92rem, 3.6vw, 1.12rem); line-height: 1.55; }
+.inv-sheet__tape { position: absolute; top: 0.6rem; left: 50%; z-index: 1; width: 4.6rem; height: 1.3rem; background: color-mix(in srgb, var(--sobre-red) 85%, #fff); translate: -50% 0; }
+.inv-sheet__polaroid { display: block; margin-top: 1.2rem; padding: 0.4rem 0.4rem 1.4rem; background: #fff; box-shadow: 0 8px 16px -8px rgb(0 0 0 / 0.5); }
+.inv-sheet__polaroid img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; }
+.inv-sheet__hearts { display: flex; gap: 0.5rem; }
+.inv-sheet__hearts svg { width: 1.1rem; fill: var(--sobre-red); animation: inv-sheet-beat 1.6s ease-in-out infinite; }
+.inv-sheet__hearts svg:nth-child(2) { animation-delay: 0.2s; }
+.inv-sheet__hearts svg:nth-child(3) { animation-delay: 0.4s; }
+@keyframes inv-sheet-beat { 50% { scale: 1.3; } }
+.inv-sheet__to { margin-bottom: 0.6rem; font-size: 1.25em; font-weight: 700; }
+.inv-sheet__p + .inv-sheet__p { margin-top: 0.7rem; }
+.inv-sheet__closing { margin-top: 1rem; }
+.inv-sheet__signature { font-family: var(--font-script); font-size: 2.2rem; line-height: 1.1; color: var(--sobre-red); }
+@media (max-width: 34rem) { .inv-sheets__pair { grid-template-columns: 1fr; } .inv-sheet--photo { display: none; } }
+
+/* ── Vinilo ─────────────────────────────────────────────────────────────── */
+
+.inv-vinyl__stage { position: relative; display: grid; justify-items: center; gap: 1.2rem; margin-top: 1.5rem; }
+.inv-vinyl__record {
+    display: grid;
+    place-items: center;
+    width: min(64vw, 15rem);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: repeating-radial-gradient(circle, #151515 0 2px, #222 2px 4px), #111;
+    box-shadow: 0 24px 40px -16px rgb(0 0 0 / 0.75);
+    animation: inv-vinyl-spin 5s linear infinite paused;
+}
+.inv-vinyl.is-playing .inv-vinyl__record { animation-play-state: running; }
+@keyframes inv-vinyl-spin { to { rotate: 360deg; } }
+.inv-vinyl__label { display: grid; place-items: center; width: 34%; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle, #fff 0 8%, var(--primary-color) 9%); }
+.inv-vinyl__label svg { width: 40%; fill: var(--sobre-red-dark); }
+.inv-vinyl__card { padding: 0.8rem 1.4rem; border: 1px solid var(--inv-line-strong); border-radius: 0.8rem; background: color-mix(in srgb, var(--sobre-red) 25%, var(--bg-color)); text-align: center; }
+.inv-vinyl__song { font-family: var(--font-titles); font-size: 1.1rem; font-weight: 700; }
+.inv-vinyl__artist { margin-top: 0.15rem; font-size: 0.85rem; color: var(--inv-muted); }
+.inv-vinyl__play { display: block; min-height: 2.9rem; margin: 1.4rem auto 0; padding: 0 2rem; border: 0; border-radius: 999px; background: var(--primary-color); color: var(--secondary-color); font: inherit; font-weight: 700; letter-spacing: 0.05em; cursor: pointer; }
+.inv-vinyl__play:active { scale: 0.96; }
+
+/* ── Modo historia: fondos por escena ───────────────────────────────────── */
+
+.inv-story-on .inv-sobre #dedicatoria { --story-scene-bg: radial-gradient(90% 60% at 20% 100%, color-mix(in srgb, var(--sobre-red) 55%, transparent), transparent 70%), var(--bg-color); }
+.inv-story-on .inv-sobre #musica { --story-scene-bg: radial-gradient(80% 50% at 50% 40%, color-mix(in srgb, var(--sobre-red) 60%, transparent), transparent 75%), var(--secondary-color); }
+.inv-story-on .inv-sobre .inv-sobre-footer { --story-scene-bg: radial-gradient(90% 60% at 50% 100%, color-mix(in srgb, var(--sobre-red) 50%, transparent), transparent 75%), var(--bg-color); }
+
+@media (prefers-reduced-motion: reduce) {
+    .inv-fall, .inv-shower { display: none; }
+    .inv-sobre *, .inv-sobre-intro * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
+}
