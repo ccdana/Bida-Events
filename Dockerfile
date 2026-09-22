@@ -67,6 +67,8 @@ RUN set -eux; \
         pdo_pgsql \
         pdo_sqlite \
         zip; \
+    pecl install redis; \
+    docker-php-ext-enable redis; \
     apt-get purge -y --auto-remove gnupg; \
     apt-get clean; \
     rm -rf /var/lib/apt/lists/*
@@ -114,8 +116,16 @@ COPY composer.json composer.lock ./
 RUN composer install --no-dev --no-interaction --prefer-dist --no-progress --no-scripts --no-autoloader
 
 COPY . .
-RUN composer dump-autoload --no-dev --optimize --classmap-authoritative
 
+RUN set -eux; \
+    mkdir -p \
+        bootstrap/cache \
+        storage/app/public \
+        storage/framework/cache/data \
+        storage/framework/sessions \
+        storage/framework/views \
+        storage/logs; \
+    composer dump-autoload --no-dev --optimize --classmap-authoritative
 
 # --- assets: el CSS y el JS compilados por Vite -----------------------------------------------
 FROM node:22-bookworm-slim AS assets
@@ -163,6 +173,8 @@ RUN set -eux; \
         pcntl \
         pdo_pgsql \
         zip; \
+    pecl install redis; \
+    docker-php-ext-enable redis; \
     apt-get purge -y --auto-remove gnupg; \
     apt-get clean; \
     rm -rf /var/lib/apt/lists/*

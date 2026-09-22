@@ -48,3 +48,4 @@ Homestead.yaml
 /.claude/settings.local.json
 /.claude/projects
 /.claude/todos
+docker/nginx/certs/
