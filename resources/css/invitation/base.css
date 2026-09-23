@@ -8,7 +8,7 @@
 
 .inv-page {
     /* Los tonos de texto guardan 4.5:1 contra el fondo en las cuatro paletas (AA).
-       Si cambias las mezclas, revisa /admin/sistema-visual, que mide el contraste real. */
+       Si cambias las mezclas, corre las pruebas de contraste (AccessibleInvitationTest). */
     --inv-muted: color-mix(in srgb, var(--text-color) 78%, var(--bg-color));
     --inv-soft: color-mix(in srgb, var(--text-color) 70%, var(--bg-color));
     --inv-line: color-mix(in srgb, var(--text-color) 11%, var(--bg-color));

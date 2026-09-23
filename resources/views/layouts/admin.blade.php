@@ -17,11 +17,11 @@
                         'font-medium text-site-ink' => request()->routeIs('admin.dashboard'),
                         'text-site-muted hover:text-site-ink' => ! request()->routeIs('admin.dashboard'),
                     ])>Invitaciones</a>
-                    <a href="{{ route('admin.design-system') }}" @class([
+                    <a href="{{ route('admin.settings') }}" @class([
                         'site-nav-link',
-                        'font-medium text-site-ink' => request()->routeIs('admin.design-system'),
-                        'text-site-muted hover:text-site-ink' => ! request()->routeIs('admin.design-system'),
-                    ])>Sistema visual</a>
+                        'font-medium text-site-ink' => request()->routeIs('admin.settings'),
+                        'text-site-muted hover:text-site-ink' => ! request()->routeIs('admin.settings'),
+                    ])>Ajustes</a>
                 </nav>
             </div>
 
@@ -48,5 +48,7 @@
     <main class="mx-auto max-w-7xl px-5 py-8 lg:px-8 lg:py-12">
         @yield('content')
     </main>
+
+    @include('layouts.partials.copy-script')
 </body>
 </html>

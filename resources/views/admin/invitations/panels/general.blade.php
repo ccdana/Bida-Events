@@ -149,7 +149,7 @@
                         <dd class="flex min-w-0 items-center gap-1">
                             <template x-if="getAssignedClient().password">
                                 <span class="flex items-center gap-1">
-                                    <code class="font-mono text-sm font-semibold" x-text="showPassword ? getAssignedClient().password : '••••-••••'"></code>
+                                    <code class="font-mono text-sm font-semibold" x-text="showPassword ? getAssignedClient().password : getAssignedClient().password.replace(/./g, '•')"></code>
                                     <button type="button" class="admin-icon-button" @click="showPassword = !showPassword"
                                         :aria-label="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'" :title="showPassword ? 'Ocultar' : 'Mostrar'">
                                         <x-phosphor-eye x-show="!showPassword" aria-hidden="true" />

@@ -136,6 +136,12 @@ class Invitation extends Model
         return $this->hasMany(Guest::class);
     }
 
+    /** Archivos (Excel y PDF) que pidió el cliente desde su panel. */
+    public function exports(): HasMany
+    {
+        return $this->hasMany(InvitationExport::class);
+    }
+
     /**
      * Interacciones en tiempo real de los invitados (Playlist, fotos en vivo).
      */

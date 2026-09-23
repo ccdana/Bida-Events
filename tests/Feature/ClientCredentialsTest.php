@@ -23,7 +23,7 @@ class ClientCredentialsTest extends TestCase
             ->assertJsonPath('client.username', 'maria.valenzuela2');
 
         $password = $response->json('client.password');
-        $this->assertMatchesRegularExpression('/^[a-z2-9]{4}-[a-z2-9]{4}$/', $password);
+        $this->assertMatchesRegularExpression('/^[a-z]{3,12}-[a-z]{3,12}-[1-9][0-9]{2}$/', $password);
 
         $client = User::where('username', 'maria.valenzuela2')->firstOrFail();
         $this->assertFalse($client->isAdmin());
@@ -48,7 +48,7 @@ class ClientCredentialsTest extends TestCase
             ->assertOk()
             ->json('client.password');
 
-        $this->assertMatchesRegularExpression('/^[a-z2-9]{4}-[a-z2-9]{4}$/', $password);
+        $this->assertMatchesRegularExpression('/^[a-z]{3,12}-[a-z]{3,12}-[1-9][0-9]{2}$/', $password);
 
         auth()->logout();
         $this->post('/login', ['username' => 'familia.perez', 'password' => $password])

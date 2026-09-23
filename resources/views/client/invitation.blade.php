@@ -10,7 +10,8 @@
         </a>
         <div class="mt-4 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
             <div class="min-w-0">
-                <h1 class="truncate text-3xl font-semibold tracking-tight md:text-4xl">{{ $invitation->title }}</h1>
+                <p class="text-sm text-site-muted">{{ $typeLabel }} · {{ $templateLabel }}</p>
+                <h1 class="mt-1 truncate text-3xl font-semibold tracking-tight md:text-4xl">{{ $invitation->title }}</h1>
                 @if($invitation->event_date)
                     <p class="mt-2 inline-flex items-center gap-2 text-site-muted">
                         <x-phosphor-calendar-blank class="size-5 shrink-0" aria-hidden="true" />
@@ -18,121 +19,90 @@
                     </p>
                 @endif
             </div>
-            <div class="flex flex-wrap gap-2">
-                @include('client.partials.export-buttons', ['invitation' => $invitation])
-            </div>
+        </div>
+
+        {{-- Lo primero que el cliente busca aquí: abrir su página y mandarla --}}
+        <div class="mt-5 flex flex-wrap items-center gap-2">
+            @if($publicUrl)
+                <a href="{{ $publicUrl }}" target="_blank" rel="noopener" class="admin-primary-button">
+                    <x-phosphor-arrow-square-out aria-hidden="true" />
+                    Abrir mi {{ mb_strtolower($kindLabel) }}
+                </a>
+                <x-ui.copy-button :text="$publicUrl" label="Copiar enlace" />
+            @else
+                <span class="inline-flex items-center gap-2 text-sm text-site-muted">
+                    <x-phosphor-info class="size-4" aria-hidden="true" />
+                    {{ $unavailableReason }}
+                </span>
+            @endif
         </div>
     </header>
 
+    @if(session('success'))
+        <p class="site-enter mt-6 flex items-center gap-2 rounded-[12px] border border-site-line bg-site-surface px-4 py-3 text-sm">
+            <x-phosphor-check-circle class="size-5 text-site-accent" aria-hidden="true" />
+            {{ session('success') }}
+        </p>
+    @endif
+
+    {{-- Al agregar un invitado, lo útil es su enlace personal: se copia de una vez --}}
+    @if(session('guest'))
+        <div class="site-enter mt-6 rounded-[12px] border border-site-line bg-site-surface p-4">
+            <p class="flex items-center gap-2 font-medium">
+                <x-phosphor-check-circle class="size-5 text-site-accent" aria-hidden="true" />
+                {{ session('guest')['name'] }} ya está en tu lista
+            </p>
+            <p class="mt-1 text-sm text-site-muted">Este es su enlace personal: al abrirlo verá su nombre y podrá confirmar.</p>
+            <div class="mt-3 flex flex-wrap items-center gap-2">
+                <code class="truncate rounded-[8px] bg-site-tint px-2.5 py-1.5 font-mono text-xs">{{ session('guest')['link'] }}</code>
+                <x-ui.copy-button :text="session('guest')['link']" label="Copiar su enlace" />
+                <a href="https://wa.me/?text={{ rawurlencode(session('guest')['link']) }}" target="_blank" rel="noopener" class="admin-link-button">
+                    <x-phosphor-whatsapp-logo aria-hidden="true" />
+                    Enviar por WhatsApp
+                </a>
+            </div>
+        </div>
+    @endif
+
     @include('client.partials.export-status')
 
-    <dl class="site-enter mt-10 grid grid-cols-2 gap-y-6 border-y border-site-line py-6 lg:grid-cols-4" style="--enter-index: 1">
-        @foreach([
-            'Confirmados' => $confirmed->count(),
-            'Pases confirmados' => $totalPasses,
-            'Pendientes' => $pending->count(),
-            'Pases cubiertos' => $confirmationRate.'%',
-        ] as $label => $value)
-            <div class="lg:border-l lg:border-site-line lg:px-6 lg:first:border-l-0 lg:first:pl-0">
-                <dt class="admin-metric-label">{{ $label }}</dt>
-                <dd class="admin-metric-value">{{ $value }}</dd>
-            </div>
-        @endforeach
-    </dl>
+    @unless($isCard)
+        <section class="site-enter mt-10" style="--enter-index: 1">
+            <h2 class="border-b border-site-line pb-3 text-xl font-semibold tracking-tight">Cómo va tu evento</h2>
+            <dl class="grid grid-cols-2 gap-y-6 border-b border-site-line py-6 lg:grid-cols-4">
+                @foreach([
+                    'Personas confirmadas' => $totalPasses,
+                    'Invitados que confirmaron' => $confirmed->count(),
+                    'Sin responder' => $pending->count(),
+                    'Pases usados' => $confirmationRate.'%',
+                ] as $label => $value)
+                    <div class="lg:border-l lg:border-site-line lg:px-6 lg:first:border-l-0 lg:first:pl-0">
+                        <dt class="admin-metric-label">{{ $label }}</dt>
+                        <dd class="admin-metric-value">{{ $value }}</dd>
+                    </div>
+                @endforeach
+            </dl>
+        </section>
 
-    <section class="site-enter mt-10 overflow-hidden rounded-[16px] border border-site-line bg-site-surface" style="--enter-index: 2">
-        <div class="overflow-x-auto">
-            <table class="adm-table">
-                <thead>
-                    <tr>
-                        <th scope="col">Invitado</th>
-                        <th scope="col">Estado</th>
-                        <th scope="col">Pases</th>
-                        <th scope="col">Alimentación</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($rows as $row)
-                        <tr>
-                            <td class="font-medium">{{ $row['guest']->name }}</td>
-                            <td>
-                                <span class="admin-status-badge {{ $row['statusClass'] }}">
-                                    <span class="admin-status-dot"></span>
-                                    {{ $row['statusLabel'] }}
-                                </span>
-                            </td>
-                            <td class="tabular-nums">{{ $row['passesLabel'] }}</td>
-                            <td class="text-site-muted">{{ $row['dietaryRestrictions'] }}</td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="4">
-                                <div class="flex flex-col items-center py-12 text-center">
-                                    <x-phosphor-users-three-light class="size-12 text-site-accent" aria-hidden="true" />
-                                    <p class="mt-4 font-medium">Todavía no hay invitados</p>
-                                    <p class="mt-1 text-site-muted">Cuando el equipo los agregue, verás aquí sus confirmaciones.</p>
-                                </div>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+        @include('client.partials.guest-list')
+    @endunless
+
+    @if($isCard || $replies->isNotEmpty())
+        @include('client.partials.replies')
+    @endif
+
+    @if($media->isNotEmpty())
+        @include('client.partials.contributions')
+    @endif
+
+    {{-- Los archivos se piden al final: primero se mira, después se descarga --}}
+    <section class="site-enter mt-10 rounded-[16px] border border-site-line bg-site-surface p-5" style="--enter-index: 5">
+        <h2 class="text-lg font-semibold tracking-tight">Descargar</h2>
+        <p class="mt-1 text-sm text-site-muted">
+            {{ $isCard ? 'Guarda tu tarjeta lista para imprimir.' : 'La lista de invitados para el salón y el catering, y tu invitación lista para imprimir.' }}
+        </p>
+        <div class="mt-4 flex flex-wrap gap-2">
+            @include('client.partials.export-buttons', ['invitation' => $invitation, 'isCard' => $isCard])
         </div>
     </section>
-
-    @if($contributions->isNotEmpty())
-        {{-- Lo que suben los invitados: se puede ocultar sin borrarlo --}}
-        <section class="site-enter mt-10 overflow-hidden rounded-[16px] border border-site-line bg-site-surface" style="--enter-index: 3">
-            <div class="border-b border-site-line px-5 py-4">
-                <h2 class="text-lg font-semibold tracking-tight">{{ $contributions->every(fn ($item) => $item['isReply']) ? 'Respuestas a tu tarjeta' : 'Fotos y canciones de tus invitados' }}</h2>
-                <p class="mt-1 text-sm text-site-muted">
-                    Si algo no te gusta, ocúltalo y deja de verse en la invitación. No se borra: puedes volver a mostrarlo.
-                </p>
-            </div>
-
-            <ul class="divide-y divide-site-line">
-                @foreach($contributions as $item)
-                    <li class="flex items-center gap-4 px-5 py-3 {{ $item['isHidden'] ? 'opacity-60' : '' }}">
-                        @if($item['url'])
-                            <img src="{{ $item['url'] }}" alt="" class="size-14 shrink-0 rounded-[10px] object-cover" loading="lazy" decoding="async">
-                        @else
-                            <span class="grid size-14 shrink-0 place-items-center rounded-[10px] bg-site-tint text-site-accent">
-                                @if($item['isReply'])
-                                    <x-phosphor-chat-circle-text class="size-6" aria-hidden="true" />
-                                @else
-                                    <x-phosphor-music-notes class="size-6" aria-hidden="true" />
-                                @endif
-                            </span>
-                        @endif
-
-                        <div class="min-w-0 flex-1">
-                            @if($item['reaction'])
-                                <p class="flex flex-wrap items-center gap-x-2 text-sm font-medium text-site-accent">
-                                    <x-phosphor-flower-tulip class="size-4" aria-hidden="true" />
-                                    Te respondió con {{ mb_strtolower($item['reaction']['label']) }}
-                                    <span class="font-normal text-site-muted">· {{ $item['reaction']['meaning'] }}</span>
-                                </p>
-                            @endif
-                            @if($item['text'] !== '')
-                                <p @class(['font-medium', 'truncate' => ! $item['isReply'], 'whitespace-pre-line' => $item['isReply']])>{{ $item['text'] }}</p>
-                            @endif
-                            <p class="mt-0.5 text-sm text-site-muted">
-                                {{ $item['meta'] }}
-                                @if($item['isHidden'])
-                                    <span class="font-medium text-site-ink">· Oculto</span>
-                                @endif
-                            </p>
-                        </div>
-
-                        <form method="POST" action="{{ route('client.contributions.update', [$invitation, $item['id']]) }}">
-                            @csrf
-                            @method('PATCH')
-                            <input type="hidden" name="moderation_status" value="{{ $item['isHidden'] ? 'visible' : 'hidden' }}">
-                            <button type="submit" class="admin-link-button">{{ $item['isHidden'] ? 'Mostrar' : 'Ocultar' }}</button>
-                        </form>
-                    </li>
-                @endforeach
-            </ul>
-        </section>
-    @endif
 @endsection

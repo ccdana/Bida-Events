@@ -277,12 +277,18 @@ return [
 
     /*
     | Promoción de inauguración: los paquetes muestran su precio normal tachado y
-    | cobran promo_price. Se apaga con BIDA_LAUNCH_PROMO=false.
+    | cobran promo_price. Se apaga con BIDA_LAUNCH_PROMO=false, y «ends_at» le pone fecha de
+    | término (al pasar, los precios vuelven solos a los normales). Se maneja desde el panel:
+    | Ajustes (App\Support\SiteSettings) pisa estos valores.
     */
     'launch_promo' => [
         'active' => (bool) env('BIDA_LAUNCH_PROMO', true),
+        'ends_at' => env('BIDA_LAUNCH_PROMO_ENDS_AT'),
         'label' => 'Promoción de inauguración',
     ],
+
+    // Plantillas que hoy no se ofrecen (se apagan desde Ajustes); las invitaciones ya creadas siguen igual
+    'templates_disabled' => [],
 
     /*
     | Lo que ofrece la marca, en la sección «Servicios» de la portada. «price» toma el

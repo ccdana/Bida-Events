@@ -53,12 +53,15 @@ final class ShowcaseDemos
             report: false,
         );
 
+        // Las plantillas apagadas desde Ajustes dejan de ofrecerse en el sitio
+        $disabled = (array) config('bida.templates_disabled', []);
+
         return collect($slugs)
-            ->map(function (string $slug) use ($invitations): ?array {
+            ->map(function (string $slug) use ($invitations, $disabled): ?array {
                 $invitation = $invitations->get($slug);
                 $template = $invitation ? (InvitationTemplates::all()[$invitation->template] ?? null) : null;
 
-                if (! $template) {
+                if (! $template || in_array($invitation->template, $disabled, true)) {
                     return null;
                 }
 

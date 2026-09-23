@@ -4,7 +4,6 @@ namespace App\Support;
 
 use Carbon\CarbonInterface;
 use Illuminate\Support\Carbon;
-use Throwable;
 
 /**
  * Precios con promoción y temporada vigente, para la portada y las páginas por evento.
@@ -14,9 +13,26 @@ use Throwable;
  */
 final class Offers
 {
-    public static function launchPromoActive(): bool
+    /** La promoción vale mientras esté encendida y no se haya pasado su fecha de término. */
+    public static function launchPromoActive(?CarbonInterface $now = null): bool
     {
-        return (bool) config('bida.launch_promo.active', false);
+        if (! config('bida.launch_promo.active', false)) {
+            return false;
+        }
+
+        $endsAt = self::date(config('bida.launch_promo.ends_at'));
+
+        return $endsAt === null || ($now ?? now())->lessThan($endsAt);
+    }
+
+    /** Fecha de la configuración (o del panel) en la hora de Bolivia; null si está vacía o mal escrita. */
+    public static function date(mixed $value): ?CarbonInterface
+    {
+        if (! is_string($value) || trim($value) === '') {
+            return null;
+        }
+
+        return rescue(fn () => Carbon::parse($value, config('app.timezone')), null, report: false);
     }
 
     /**
@@ -62,18 +78,9 @@ final class Offers
     public static function season(?CarbonInterface $now = null): ?array
     {
         $season = config('bida.season');
+        $endsAt = is_array($season) ? self::date($season['ends_at'] ?? null) : null;
 
-        if (! is_array($season) || empty($season['ends_at'])) {
-            return null;
-        }
-
-        try {
-            $endsAt = Carbon::parse($season['ends_at'], config('app.timezone'));
-        } catch (Throwable) {
-            return null;
-        }
-
-        if (($now ?? now())->greaterThanOrEqualTo($endsAt)) {
+        if ($endsAt === null || ($now ?? now())->greaterThanOrEqualTo($endsAt)) {
             return null;
         }
 

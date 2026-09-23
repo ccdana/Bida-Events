@@ -5,9 +5,12 @@ namespace Tests\Feature;
 use App\Exports\GuestReportExport;
 use App\Models\Invitation;
 use App\Models\User;
+use App\Support\InvitationTemplates;
 use App\Support\Pdf\PdfAssets;
+use App\Support\Pdf\PdfTemplateStyle;
 use App\ViewModels\Client\GuestReportData;
 use App\ViewModels\Client\InvitationPrintData;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Database\Seeders\XvSofiaModuleData;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\File;
@@ -113,7 +116,86 @@ class ClientExportsTest extends TestCase
         $this->assertCount(3, $print['honor']['godparents']);
         $this->assertSame('#2c1810', $print['colors']['ink']);
         $this->assertStringStartsWith('data:image/svg+xml;base64,', $print['rsvp']['qr']);
-        $this->assertNull($print['hero']['photo']);
+        // Las fotos no van al papel: el PDF se imprime y la galería vive en la invitación digital
+        $this->assertArrayNotHasKey('photo', $print['hero']);
+    }
+
+    /**
+     * Lo que el cliente imprime tiene que verse como su invitación, no como un documento
+     * cualquiera: cada plantilla trae su portada y su adorno.
+     */
+    public function test_each_template_prints_its_own_cover(): void
+    {
+        $covers = [];
+
+        foreach (array_keys(InvitationTemplates::all()) as $template) {
+            $invitation = $this->createInvitation(['template' => $template]);
+            $print = app(InvitationPrintData::class)->make($invitation, XvSofiaModuleData::all());
+
+            $this->assertTrue(view()->exists($print['style']['view']), "Falta la portada de «{$template}»");
+            $this->assertSame(InvitationTemplates::get($template)['label'], $print['style']['label']);
+            $this->assertStringStartsWith('data:image/svg+xml;base64,', $print['motifs']['main']);
+            $this->assertIsInt($print['cover']['fill']);
+
+            $covers[$template] = $print['style']['cover'];
+        }
+
+        // Dos plantillas no pueden salir impresas igual: es lo que hace reconocible a cada una
+        $this->assertSame(count($covers), count(array_unique($covers)), 'Hay plantillas que comparten portada: '.json_encode($covers));
+
+        // Una plantilla nueva sin estilo propio hereda la portada de su tipo de evento
+        $this->assertSame('gala', PdfTemplateStyle::for('invitations.templates.xv-lo-que-venga')['cover']);
+    }
+
+    /** La invitación impresa siempre sale en dos hojas: la invitación y sus detalles. */
+    public function test_the_printed_invitation_always_fits_in_two_pages(): void
+    {
+        foreach ([XvSofiaModuleData::all(), $this->crowdedModules()] as $modules) {
+            foreach (array_keys(InvitationTemplates::all()) as $template) {
+                $invitation = $this->createInvitation(['template' => $template]);
+                $pdf = Pdf::loadView(
+                    'client.exports.invitation-pdf',
+                    app(InvitationPrintData::class)->make($invitation, $modules)
+                )->setPaper('a4')->output();
+
+                $this->assertLessThanOrEqual(
+                    2,
+                    preg_match_all('#/Type\s*/Page[^s]#', $pdf),
+                    "«{$template}» se pasó de dos hojas"
+                );
+            }
+        }
+    }
+
+    /** Una invitación con todo lleno y textos largos: el caso que antes se iba a una tercera hoja. */
+    private function crowdedModules(): array
+    {
+        $long = 'Un texto largo de los que se escriben cuando se quiere contar todo en la invitación, '
+            .'con detalles, agradecimientos y la recomendación de llegar temprano.';
+
+        $modules = XvSofiaModuleData::all();
+        $modules['config']['modulos'] = array_fill_keys(array_keys($modules['config']['modulos'] ?? []), true);
+        $modules['bienvenida']['mensaje'] = $long.' '.$long;
+        $modules['ubicacion']['nota'] = $long;
+        $modules['itinerario']['eventos'] = array_map(
+            fn (int $i) => ['hora' => sprintf('%02d:00', 8 + $i), 'titulo' => "Momento número {$i}", 'descripcion' => $long],
+            range(1, 12)
+        );
+        $modules['destacados']['padrinos'] = array_map(
+            fn (int $i) => ['rol' => "Padrinos {$i}", 'nombres' => "Sr. Nombre Apellido y Sra. Nombre Apellido {$i}"],
+            range(1, 8)
+        );
+        $modules['destacados']['chambelanes'] = array_map(fn (int $i) => ['nombre' => "Chambelán Nombre Apellido {$i}"], range(1, 20));
+        $modules['destacados']['damitas'] = array_map(fn (int $i) => ['nombre' => "Damita Nombre Apellido {$i}"], range(1, 20));
+        $modules['dress_code']['descripcion'] = $long;
+        $modules['dress_code']['sugerencias'] = array_map(
+            fn (int $i) => ['para' => "Para {$i}", 'titulo' => "Sugerencia {$i}", 'descripcion' => $long],
+            range(1, 6)
+        );
+        $modules['regalos']['opciones'] = array_map(fn (int $i) => ['titulo' => "Regalo {$i}", 'descripcion' => $long], range(1, 6));
+        $modules['regalos']['sobres'] = ['titulo' => 'Lluvia de sobres', 'direccion' => $long];
+
+        return $modules;
     }
 
     private function createGuests(Invitation $invitation): void

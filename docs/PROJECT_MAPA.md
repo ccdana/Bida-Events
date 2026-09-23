@@ -112,7 +112,8 @@ módulos nuevos: `docs/temporadas.md`.
 6. **Interacción del invitado.** RSVP, votos, canciones, fotos y respuestas de tarjeta entran por
    `Public\RsvpController` y `Public\ContributionController`, con límite de peticiones por ruta.
    Cada aporte dispara eventos que vuelven a invalidar la caché.
-7. **Seguimiento.** El cliente ve sus invitados en su panel y exporta Excel o PDF.
+7. **Seguimiento.** En su panel, el cliente abre su página, agrega invitados, lee las respuestas
+   y descarga el Excel de invitados o los PDF (el reporte y la invitación lista para imprimir).
 
 ---
 
@@ -135,7 +136,8 @@ Todas están en `routes/web.php`.
 | `GET/POST /p/{slug}/fotomural` | `invitation.fotomural*` | `Public\ContributionController` | `throttle:invitation-photos` |
 | `POST /p/{slug}/polls/{pollId}/vote` | `invitation.poll.vote` | `Public\ContributionController@votePoll` | `throttle:invitation-votes` |
 | `POST /p/{slug}/respuesta` | `invitation.reply` | `Public\ContributionController@storeReply` | `throttle:invitation-replies`; 404 si el módulo `respuesta` está apagado |
-| `GET /admin/sistema-visual` | `admin.design-system` | `Admin\DesignSystemController` | Referencia interna de colores, tipografía y componentes |
+| `GET/PUT /admin/ajustes` | `admin.settings`, `admin.settings.update` | `Admin\SettingsController` | Precios, promociones y plantillas de temporada, sin tocar el código |
+| `DELETE /admin/invitations/{invitation}` | `admin.invitations.destroy` | `Admin\InvitationController@destroy` | Borra la invitación con todo lo suyo (policy `delete`: solo administración) |
 | `/admin/**` | `admin.*` | `Admin\*` | Middleware `auth` + `admin` |
 | `/client/**` | `client.*` | `Client\*` | Middleware `auth` + `client`, con policies |
 
@@ -210,13 +212,14 @@ propósito y responde `no-store`.
 | `Public/RsvpController.php` | Confirmación de asistencia por invitado y generación del pase |
 | `Public/ContributionController.php` | Lista y recibe canciones y fotos, y registra votos de encuestas |
 | `Admin/DashboardController.php` | Panel del administrador con el estado de las invitaciones |
-| `Admin/DesignSystemController.php` | Página interna del sistema visual: tokens, tipografía, componentes y contraste de cada tema |
+| `Admin/SettingsController.php` | Ajustes del sitio: precios de los paquetes y de la temporada, promoción con fecha de término y qué plantillas de temporada se ofrecen |
 | `Admin/InvitationController.php` | Crear, editar y actualizar invitaciones; crear el usuario cliente |
 | `Admin/GuestController.php` | Alta, edición y baja de invitados de una invitación |
 | `Admin/MediaUploadController.php` | Subida de imágenes y videos a Cloudinary desde el editor |
 | `Admin/MapsController.php` | Búsqueda y resolución de enlaces de Google Maps |
 | `Admin/PreviewController.php` | Vista previa del editor sin guardar (usa la sesión) |
-| `Client/DashboardController.php` | Panel del cliente: sus invitaciones e invitados |
+| `Client/DashboardController.php` | Panel del cliente: sus eventos por sección, con buscador, y el detalle de cada uno |
+| `Client/GuestController.php` | El cliente agrega invitados a su evento y quita a los que aún no respondieron |
 | `Client/ExportController.php` | Exporta invitados en Excel y PDF, y la invitación en PDF |
 | `Client/ContributionController.php` | El cliente oculta o vuelve a mostrar una foto o una canción de sus invitados (no borra nada) |
 | `Client/ExportController.php` | Pide un archivo, consulta su estado y lo descarga cuando está listo |
@@ -237,7 +240,8 @@ propósito y responde `no-store`.
 | `app/Http/Requests/Admin/Invitation/StoreClientRequest.php` | Validación al crear el usuario cliente |
 | `app/Http/Requests/Admin/Guest/StoreGuestRequest.php` | Validación al crear un invitado |
 | `app/Http/Requests/Admin/Guest/UpdateGuestRequest.php` | Validación al editar un invitado |
-| `app/Policies/InvitationPolicy.php` | Permisos por invitación: `before` (el admin puede todo), `view`, `export`, `update`, `manageGuests` |
+| `app/Http/Requests/Client/StoreGuestRequest.php` | Validación cuando el cliente agrega un invitado desde su panel |
+| `app/Policies/InvitationPolicy.php` | Permisos por invitación: `before` (el admin puede todo), `view`, `export`, `update`, `manageGuests` y `manageOwnGuests` (el dueño arma su lista; las tarjetas no tienen) |
 
 ### 5.5 Modelos
 
@@ -308,19 +312,23 @@ propósito y responde `no-store`.
 | `SiteImage.php` | Fotos del sitio público; si el archivo no existe usa un marcador |
 | `MapsLinkParser.php` | Interpreta enlaces de Google Maps y extrae coordenadas |
 | `YouTubeHelper.php` | Detecta enlaces de YouTube y da formato a las canciones sugeridas |
-| `ClientCredentials.php` | Genera usuario y contraseña del cliente al crearlo desde el editor |
+| `ClientCredentials.php` | Usuario del cliente y contraseña fácil de dictar y recordar («luna-brillante-473») |
+| `SiteSettings.php` | Lo que el panel cambia (precios, promociones, plantillas de temporada) aplicado sobre `config/bida.php` al arrancar |
 | `Pdf/PdfAssets.php` | Incrusta fuentes e imágenes en los PDF, porque DomPDF no descarga archivos remotos |
+| `Pdf/PdfTemplateStyle.php` | Cómo se imprime cada plantilla: su portada, su adorno, su marco y el recorte de la foto |
+| `Pdf/PdfMotifs.php` | Los adornos en SVG (destellos, ramas, nubes, banderines, flor, brújula, luna) con los colores del cliente |
+| `Pdf/PrintLayout.php` | Reparte las dos hojas: achica la portada y acomoda los complementos en dos columnas para no pasarse |
 
 ### 5.8 Vistas de datos, exportaciones, eventos y consola
 
 | Archivo | Qué hace |
 | --- | --- |
-| `ViewModels/Admin/DashboardViewData.php` | Cifras y listas del panel admin |
+| `ViewModels/Admin/DashboardViewData.php` | El panel admin: secciones por tipo de evento, filtros y la ficha de cada invitación (cliente, invitados, enlaces) |
 | `ViewModels/Admin/InvitationEditorViewData.php` | Todo lo que necesita el editor en una sola estructura |
-| `ViewModels/Client/DashboardViewData.php` | Resumen del panel del cliente |
-| `ViewModels/Client/InvitationDetailViewData.php` | Detalle de una invitación para el cliente |
+| `ViewModels/Client/DashboardViewData.php` | Los eventos del cliente separados en invitaciones y tarjetas, con sus cifras |
+| `ViewModels/Client/InvitationDetailViewData.php` | Detalle de un evento: invitados con su enlace, respuestas de la tarjeta y aportes |
 | `ViewModels/Client/GuestReportData.php` | Cifras y grupos del reporte de invitados (Excel y PDF) |
-| `ViewModels/Client/InvitationPrintData.php` | Contenido de la invitación impresa en PDF |
+| `ViewModels/Client/InvitationPrintData.php` | Contenido de la invitación impresa: colores, adornos, foto recortada y recortes para que entre en dos hojas |
 | `Exports/GuestReportExport.php` | Libro de Excel con varias hojas |
 | `Exports/Sheets/ReportSheet.php` | Base común de las hojas (estilos y utilidades) |
 | `Exports/Sheets/SummarySheet.php` | Hoja de resumen |
@@ -381,6 +389,7 @@ propósito y responde `no-store`.
 | `2026_09_15_000007_create_invitation_media_table` | Canción y video de la invitación |
 | `2026_09_15_000008_drop_textual_poll_id_from_poll_votes_table` | El voto apunta a la encuesta por su fila |
 | `2026_09_15_000009_create_invitation_exports_table` | Pedidos de Excel y PDF generados en segundo plano |
+| `2026_09_22_000001_create_site_settings_table` | Precios, promociones y plantillas de temporada que se manejan desde Ajustes |
 | `2026_09_17_000001_add_catalog_columns_to_event_types_table` | `code`, `kind` y `season` en los tipos de evento |
 | `2026_09_17_000002_create_invitation_themes_table` | Colores y tipografías |
 | `2026_09_17_000003_create_invitation_heroes_table` | Portada con nombres separados |
@@ -516,7 +525,9 @@ propósito y responde `no-store`.
 
 | Archivo | Qué hace |
 | --- | --- |
-| `admin/dashboard.blade.php` | Listado y estado de invitaciones y tarjetas, con filtro por tipo (`?tipo=invitation` / `card`) |
+| `admin/dashboard.blade.php` | Los eventos por secciones de tipo, con buscador (`?q=`) y filtros (`?tipo=` por tipo de evento, o `invitation` / `card`) |
+| `admin/partials/invitation-row.blade.php` | Cada invitación con su ficha desplegable: evento, cliente, invitados, enlace y borrado |
+| `admin/settings.blade.php` | Ajustes: promoción, precios de los tres paquetes, temporada y plantillas de temporada |
 | `admin/invitations/create.blade.php` / `edit.blade.php` / `_form.blade.php` | Alta y edición de la invitación |
 | `admin/invitations/editor/layout.blade.php` | Estructura del editor, con recorte de imágenes |
 | `admin/invitations/editor/sidebar.blade.php` | Datos principales enlazados a Alpine |
@@ -534,12 +545,20 @@ propósito y responde `no-store`.
 
 | Archivo | Qué hace |
 | --- | --- |
-| `client/dashboard.blade.php` | Resumen de sus invitaciones |
-| `client/invitation.blade.php` | Detalle con invitados y confirmaciones |
+| `client/dashboard.blade.php` | Sus eventos por sección, con buscador y enlace a su página |
+| `client/invitation.blade.php` | Detalle por secciones: cómo va, invitados, respuestas, aportes y descargas |
+| `client/partials/guest-list.blade.php` | Lista de invitados con buscador, alta y enlace personal de cada uno |
+| `client/partials/replies.blade.php` | Respuestas a una tarjeta, leídas completas |
+| `client/partials/contributions.blade.php` | Fotos y canciones de los invitados, con el botón de ocultar |
 | `client/exports/guests-pdf.blade.php` | PDF de invitados, con títulos que no se separan de su tabla |
-| `client/exports/invitation-pdf.blade.php` | PDF de la invitación |
+| `client/exports/invitation-pdf.blade.php` | PDF de la invitación en dos hojas; los estilos comunes de las portadas |
+| `client/exports/pdf/covers/*.blade.php` | Una portada por plantilla (gala, jardín, nubes, fiesta, carta, cuaderno, luna y la neutra) |
+| `client/exports/pdf/details/*.blade.php` | Los bloques de la hoja 2: cómo llegar, itinerario, padrinos, vestimenta, regalos y hashtag |
+| `client/exports/pdf/partials/*.blade.php` | Lo que comparten todas las portadas: cuándo y dónde, y la franja del QR |
 | `client/partials/export-buttons.blade.php` | Botones para pedir cada archivo |
 | `client/partials/export-status.blade.php` | Aviso del archivo en preparación, con su enlace de descarga |
+| `client/partials/copy-script.blade.php` | Copiar al portapapeles también sin https, que es como se usa desde el celular |
+| `components/client/copy-button.blade.php` | Botón «copiar» con confirmación, para los enlaces |
 
 ### 5.11 Estilos y scripts
 
@@ -594,7 +613,6 @@ propósito y responde `no-store`.
 | `tests/Feature/ModuleSyncAndRetentionTest.php` | Guardado todo o nada, reutilización de filas y purga de fotos viejas |
 | `tests/Feature/AdminPanelPerformanceTest.php` | El panel pagina, cuenta en la base y no crece en consultas |
 | `tests/Feature/AccessibleInvitationTest.php` | Lectura sin JavaScript, foco del menú, contraste de todas las paletas del catálogo y `alt` por foto |
-| `tests/Feature/DesignSystemPageTest.php` | La referencia visual se ve completa y solo la abre administración |
 | `tests/Feature/SharingAndCampaignsTest.php` | Vista previa al compartir, páginas por evento, `sitemap.xml` y código de origen en WhatsApp |
 | `tests/Feature/InvitationPolicyMatrixTest.php` | Cada método de la policy, en la regla y en sus rutas, frente a otro cliente |
 | `tests/Feature/ConcurrencyAndLimitsTest.php` | Votos y confirmaciones simultáneos, subidas prohibidas y 429 con su mensaje |
@@ -603,7 +621,10 @@ propósito y responde `no-store`.
 | `tests/Feature/OperationsTest.php` | Revisión de salud, registro de peticiones lentas y cliente de prueba |
 | `tests/Feature/AccessControlTest.php` | Separación de admin y cliente |
 | `tests/Feature/ClientCredentialsTest.php` | Alta y acceso del cliente |
-| `tests/Feature/ClientExportsTest.php` | Exportaciones Excel y PDF |
+| `tests/Feature/ClientExportsTest.php` | Exportaciones Excel y PDF; cada plantilla imprime su portada y nunca pasa de dos hojas |
+| `tests/Feature/ClientPortalTest.php` | Panel del cliente: secciones, buscador, enlace público y alta de invitados |
+| `tests/Feature/AdminPanelTest.php` | Panel admin: secciones por tipo, buscador, ficha con el cliente y borrado de una invitación |
+| `tests/Feature/SiteSettingsTest.php` | Ajustes: los precios y las plantillas de temporada que se guardan son los que muestra la página |
 | `tests/Feature/InvitationEditorTest.php` | Guardado del editor |
 | `tests/Feature/InvitationStructuredModulesTest.php` | Módulos normalizados en sus tablas |
 | `tests/Feature/PublicInteractionsTest.php` | RSVP, votos, canciones y fotos |
@@ -655,8 +676,8 @@ verificar** que quedó bien. La etiqueta indica impacto y esfuerzo estimado.
 
 Lo que ya está bien y conviene no romper: los resultados de encuestas se calculan con una sola
 consulta agrupada (`InvitationModuleService::pollResultsFor`), los endpoints públicos tienen límite
-por IP e invitación (`AppServiceProvider::configureRateLimiting`), el panel del cliente pagina con
-`withCount`, la caché se invalida por eventos y las muestras de la home no escriben nada.
+por IP e invitación (`AppServiceProvider::configureRateLimiting`), el panel del cliente
+cuenta en la base con `withCount` en vez de traer las filas, la caché se invalida por eventos y las muestras de la home no escriben nada.
 
 ### 7.1 Seguridad — implementada
 
@@ -773,7 +794,7 @@ comportamiento: con 25 invitaciones y 500 invitados hace menos de 15 consultas y
 | 23 | Enlace «Saltar al contenido», anillo de foco con contraste suficiente, y el menú devuelve el foco al botón al cerrarse y atrapa el tabulador mientras tapa la página | `templates/*`, `shell/nav`, `shell/scripts` |
 | 23 | Cada foto de la galería y del post evento puede llevar descripción, que se guarda en `alt_text` y llega al `alt` de la invitación | panel de galería y post evento, `InvitationModuleRules`, `gallery-stack`, `post-event` |
 | 23 | El panel de Estética mide el contraste de los tonos derivados, no solo texto sobre fondo, y avisa cuál no se lee | `panels/estetica`, `contrastChecks()` en el editor |
-| 24 | Página interna `/admin/sistema-visual` con los colores del sitio, la tipografía, los componentes que ya existen y las cuatro paletas con su contraste medido | `Admin\DesignSystemController`, `admin/design-system.blade.php`, `Support\ColorContrast` |
+| 24 | La página interna del sistema visual se retiró del panel; el contraste de cada paleta se sigue midiendo en las pruebas (`AccessibleInvitationTest`, `EditorPanelsTest`) | `Support\ColorContrast`, `Support\ColorPalettes` |
 | 25 | El editor marca con un punto los apartados incompletos y resume, encima de los botones, todo lo que falta, con un atajo a cada apartado | `editor/sidebar`, `moduleIssues()`/`pendingIssues` en el editor |
 | 25 | Publicar dejó de ser un selector escondido en General: hay botón de publicar y de despublicar, con el estado en texto claro | `editor/sidebar`, `publish()`/`unpublish()` |
 

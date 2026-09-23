@@ -2,8 +2,10 @@
 
 namespace App\Policies;
 
+use App\EventProfiles\EventProfiles;
 use App\Models\Invitation;
 use App\Models\User;
+use App\Modules\Module;
 
 class InvitationPolicy
 {
@@ -33,6 +35,22 @@ class InvitationPolicy
     public function manageGuests(User $user, Invitation $invitation): bool
     {
         return false;
+    }
+
+    /** Borrar una invitación es solo del administrador (pasa por before); el cliente no. */
+    public function delete(User $user, Invitation $invitation): bool
+    {
+        return false;
+    }
+
+    /**
+     * El dueño arma la lista de invitados de su evento desde su panel. Las tarjetas se mandan
+     * a una sola persona: no tienen lista, así que ahí nadie agrega invitados.
+     */
+    public function manageOwnGuests(User $user, Invitation $invitation): bool
+    {
+        return $this->view($user, $invitation)
+            && app(EventProfiles::class)->forTemplate($invitation->template)->kind() === Module::KIND_INVITATION;
     }
 
     /** El cliente puede ocultar o volver a mostrar las fotos y canciones de su propia invitación. */

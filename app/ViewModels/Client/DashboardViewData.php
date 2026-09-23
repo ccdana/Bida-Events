@@ -2,25 +2,98 @@
 
 namespace App\ViewModels\Client;
 
+use App\EventProfiles\EventProfiles;
 use App\Models\Invitation;
-use Illuminate\Pagination\LengthAwarePaginator;
+use App\Modules\Module;
+use App\Support\InvitationTemplates;
+use Illuminate\Support\Collection;
 
+/**
+ * Panel del cliente: sus eventos separados en secciones (invitaciones y tarjetas, lo que viene
+ * y lo que ya pasó) con lo mínimo para decidir qué hacer con cada uno.
+ */
 class DashboardViewData
 {
-    public function make(LengthAwarePaginator $invitations): array
+    public function __construct(private EventProfiles $profiles) {}
+
+    public function make(Collection $invitations, string $search = ''): array
     {
-        $items = collect($invitations->items())->map(fn (Invitation $invitation) => [
-            'invitation' => $invitation,
-            'confirmed' => $invitation->guests->where('status', 'confirmed')->count(),
-            'pending' => $invitation->guests->where('status', 'pending')->count(),
-            'declined' => $invitation->guests->where('status', 'declined')->count(),
-            'statusLabel' => $invitation->status === 'active' ? 'Activa' : 'Inactiva',
-            'statusClass' => $invitation->status === 'active' ? 'is-success' : 'is-primary',
-        ])->values();
+        $rows = $invitations->map(fn (Invitation $invitation) => $this->row($invitation));
+
+        // Primero lo que todavía no pasó y, dentro de eso, lo más cercano
+        $sort = fn (Collection $group) => $group
+            ->sortBy(fn (array $row) => [$row['isPast'] ? 1 : 0, $row['isPast'] ? -$row['timestamp'] : $row['timestamp']])
+            ->values();
+
+        $sections = collect([
+            [
+                'key' => 'invitaciones',
+                'title' => 'Mis invitaciones',
+                'description' => 'Eventos con lista de invitados y confirmaciones.',
+                'rows' => $sort($rows->where('isCard', false)),
+            ],
+            [
+                'key' => 'tarjetas',
+                'title' => 'Mis tarjetas',
+                'description' => 'Tarjetas que enviaste y las respuestas que te dejaron.',
+                'rows' => $sort($rows->where('isCard', true)),
+            ],
+        ])->filter(fn (array $section) => $section['rows']->isNotEmpty())->values();
 
         return [
-            'invitations' => $invitations,
-            'items' => $items,
+            'sections' => $sections,
+            'search' => $search,
+            'total' => $rows->count(),
+        ];
+    }
+
+    private function row(Invitation $invitation): array
+    {
+        $profile = $this->profiles->forTemplate($invitation->template);
+        $isCard = $profile->kind() === Module::KIND_CARD;
+        $guests = $invitation->guests;
+        $isPublished = $invitation->status === 'active'
+            && (! $invitation->expires_at || ! $invitation->expires_at->isBefore(now()->startOfDay()));
+
+        return [
+            'invitation' => $invitation,
+            'isCard' => $isCard,
+            'isPast' => (bool) $invitation->is_post_event,
+            'timestamp' => $invitation->event_date?->getTimestamp() ?? 0,
+            'kindLabel' => $isCard ? 'Tarjeta' : 'Invitación',
+            'typeLabel' => $profile->label(),
+            'templateLabel' => InvitationTemplates::get($invitation->template)['label'],
+            'publicUrl' => $isPublished ? route('invitation.show', $invitation->slug) : null,
+            // Por qué no se puede abrir la página: es lo que el cliente nos preguntaría
+            'unavailableReason' => $isPublished
+                ? null
+                : ($invitation->status === 'active' ? 'El enlace venció: escríbenos para renovarlo.' : 'Todavía sin publicar: la estamos preparando.'),
+            'metrics' => $isCard ? $this->cardMetrics($invitation) : $this->guestMetrics($guests),
+            'guestsCount' => $guests->count(),
+        ];
+    }
+
+    /** @return array<int, array{label: string, value: int|string, note?: string}> */
+    private function guestMetrics(Collection $guests): array
+    {
+        $confirmed = $guests->where('status', 'confirmed');
+
+        return [
+            ['label' => 'Personas confirmadas', 'value' => (int) $confirmed->sum('passes_confirmed'), 'note' => $confirmed->count().' de '.$guests->count().' invitados'],
+            ['label' => 'Sin responder', 'value' => $guests->where('status', 'pending')->count()],
+            ['label' => 'No asisten', 'value' => $guests->where('status', 'declined')->count()],
+        ];
+    }
+
+    /** @return array<int, array{label: string, value: int|string, note?: string}> */
+    private function cardMetrics(Invitation $invitation): array
+    {
+        $replies = (int) ($invitation->replies_count ?? 0);
+        $others = max(0, (int) ($invitation->contributions_count ?? 0) - $replies);
+
+        return [
+            ['label' => 'Respuestas', 'value' => $replies, 'note' => $replies === 0 ? 'Todavía nadie respondió' : null],
+            ['label' => 'Fotos y canciones', 'value' => $others],
         ];
     }
 }

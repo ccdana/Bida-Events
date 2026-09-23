@@ -1,16 +1,17 @@
 <?php
 
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
-use App\Http\Controllers\Admin\DesignSystemController;
 use App\Http\Controllers\Admin\GuestController as AdminGuestController;
 use App\Http\Controllers\Admin\InvitationController as AdminInvitationController;
 use App\Http\Controllers\Admin\MapsController;
 use App\Http\Controllers\Admin\MediaUploadController;
 use App\Http\Controllers\Admin\PreviewController;
+use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Client\ContributionController as ClientContributionController;
 use App\Http\Controllers\Client\DashboardController as ClientDashboardController;
 use App\Http\Controllers\Client\ExportController;
+use App\Http\Controllers\Client\GuestController as ClientGuestController;
 use App\Http\Controllers\EventLandingController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Public\ContributionController;
@@ -72,8 +73,9 @@ Route::prefix('p')->name('invitation.')->middleware('cache.public.invitations')-
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
 
-    // Referencia interna de colores, tipografía y componentes
-    Route::get('/sistema-visual', [DesignSystemController::class, 'index'])->name('design-system');
+    // Precios, promociones y plantillas de temporada, sin tocar el código
+    Route::get('/ajustes', [SettingsController::class, 'edit'])->name('settings');
+    Route::put('/ajustes', [SettingsController::class, 'update'])->name('settings.update');
     Route::get('/invitations/create', [AdminInvitationController::class, 'create'])->name('invitations.create');
     Route::post('/invitations', [AdminInvitationController::class, 'store'])->name('invitations.store');
     Route::post('/clients', [AdminInvitationController::class, 'storeClient'])->name('clients.store');
@@ -85,6 +87,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::post('/maps/resolve', [MapsController::class, 'resolve'])->name('maps.resolve');
     Route::get('/invitations/{invitation}/edit', [AdminInvitationController::class, 'edit'])->can('update', 'invitation')->name('invitations.edit');
     Route::put('/invitations/{invitation}', [AdminInvitationController::class, 'update'])->can('update', 'invitation')->name('invitations.update');
+    Route::delete('/invitations/{invitation}', [AdminInvitationController::class, 'destroy'])->can('delete', 'invitation')->name('invitations.destroy');
 
     // scopeBindings: el invitado debe pertenecer a la invitación de la URL (404 si no)
     Route::scopeBindings()->middleware('can:manageGuests,invitation')->group(function () {
@@ -100,6 +103,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
 Route::prefix('client')->name('client.')->middleware(['auth', 'client'])->group(function () {
     Route::get('/', [ClientDashboardController::class, 'index'])->name('dashboard');
     Route::get('/invitations/{invitation}', [ClientDashboardController::class, 'show'])->can('view', 'invitation')->name('invitation.show');
+
+    // El cliente arma su lista de invitados; el invitado debe pertenecer a su invitación (scopeBindings)
+    Route::scopeBindings()->middleware('can:manageOwnGuests,invitation')->group(function () {
+        Route::post('/invitations/{invitation}/guests', [ClientGuestController::class, 'store'])->name('guests.store');
+        Route::delete('/invitations/{invitation}/guests/{guest}', [ClientGuestController::class, 'destroy'])->name('guests.destroy');
+    });
 
     // Ocultar o volver a mostrar una foto o una canción de invitados (no se borra nada)
     Route::patch('/invitations/{invitation}/contributions/{contribution}', [ClientContributionController::class, 'update'])

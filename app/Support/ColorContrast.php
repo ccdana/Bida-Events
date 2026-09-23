@@ -8,7 +8,7 @@ namespace App\Support;
  * La invitación no pinta los colores del cliente tal cual: los tonos apagados salen de
  * mezclar el texto con el fondo (ver las variables --inv-* en resources/css/invitation/base.css).
  * Aquí se repiten esas mezclas para poder medir lo que de verdad lee el invitado, tanto en
- * la página del sistema visual (/admin/sistema-visual) como en las pruebas.
+ * el editor (aviso de contraste) como en las pruebas.
  */
 final class ColorContrast
 {

@@ -14,12 +14,18 @@ class InvitationExport extends Model
 
     public const FAILED = 'failed';
 
-    /** Tipo de archivo => [etiqueta, prefijo del nombre, extensión] */
+    /**
+     * Tipo de archivo => [etiqueta, prefijo del nombre, extensión].
+     * La etiqueta se lee dentro de una frase: «Preparando tu lista de invitados…».
+     */
     public const TYPES = [
-        'guests-excel' => ['Excel de invitados', 'invitados', 'xlsx'],
-        'guests-pdf' => ['PDF de invitados', 'reporte-invitados', 'pdf'],
-        'invitation-pdf' => ['PDF de la invitación', 'invitacion', 'pdf'],
+        'guests-excel' => ['lista de invitados en Excel', 'invitados', 'xlsx'],
+        'guests-pdf' => ['reporte de invitados en PDF', 'reporte-invitados', 'pdf'],
+        'invitation-pdf' => ['invitación para imprimir', 'invitacion', 'pdf'],
     ];
+
+    /** Los archivos de invitados no tienen sentido en una tarjeta: se manda a una sola persona. */
+    public const CARD_TYPES = ['invitation-pdf'];
 
     protected $fillable = ['invitation_id', 'user_id', 'type', 'status', 'path', 'error'];
 

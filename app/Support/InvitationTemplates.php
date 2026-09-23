@@ -28,8 +28,8 @@ final class InvitationTemplates
     public const DEFAULT = self::XV_PREMIUM;
 
     /**
-     * Paleta por defecto de una plantilla. La usa la página del sistema visual
-     * (/admin/sistema-visual) para medir el contraste de cada tema.
+     * Paleta por defecto de una plantilla. La usan el editor y las pruebas de contraste
+     * para medir que cada tema se lea.
      *
      * @return array<string, string>
      */

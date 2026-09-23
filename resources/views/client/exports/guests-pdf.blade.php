@@ -6,6 +6,7 @@
         ['label' => 'No asistirán', 'value' => $s['declinedGuests'], 'color' => '#9b4a3f'],
     ])->filter(fn (array $segment) => $segment['value'] > 0);
     $total = max(1, $s['totalGuests']);
+    $statusTag = ['confirmed' => 'is-yes', 'declined' => 'is-no', 'pending' => 'is-wait'];
 @endphp
 <!DOCTYPE html>
 <html lang="es">
@@ -53,7 +54,12 @@
         .strong { font-weight: bold; }
         .small { font-size: 7.5pt; color: #6c6e73; }
         .empty { color: #6c6e73; }
-        .tag { padding: 0.4mm 1.6mm; background: #f3ead4; color: #735817; font-size: 7.5pt; }
+        /* El estado se lee de un vistazo sin tener que cruzar columnas */
+        .tag { padding: 0.4mm 1.6mm; font-size: 7.5pt; white-space: nowrap; }
+        .tag.is-yes { background: #f3ead4; color: #735817; }
+        .tag.is-no { background: #f6e3e1; color: #9b2c22; }
+        .tag.is-wait { background: #efefec; color: #6c6e73; }
+        .diet { background: #f3ead4; color: #735817; }
     </style>
 </head>
 <body>
@@ -69,7 +75,7 @@
     <table class="top">
         <tr>
             <td class="brand"><img src="{{ $logo }}" alt=""><span>{{ config('bida.brand') }}</span></td>
-            <td class="doc-type"><strong>Reporte de invitados</strong>Generado el {{ $generatedAt }}</td>
+            <td class="doc-type"><strong>Invitados</strong>Al {{ $generatedAt }}</td>
         </tr>
     </table>
 
@@ -88,22 +94,22 @@
             <td>
                 <p class="kpi-value">{{ $s['confirmedPeople'] }}</p>
                 <p class="kpi-label">Personas confirmadas</p>
-                <p class="kpi-note">de {{ $s['allocatedPasses'] }} pases asignados</p>
+                <p class="kpi-note">de {{ $s['allocatedPasses'] }} pases repartidos</p>
             </td>
             <td class="sep">
                 <p class="kpi-value">{{ $s['responseRate'] }}%</p>
-                <p class="kpi-label">Respondieron</p>
+                <p class="kpi-label">Ya respondieron</p>
                 <p class="kpi-note">{{ $s['respondedGuests'] }} de {{ $s['totalGuests'] }} invitados</p>
             </td>
             <td class="sep">
                 <p class="kpi-value">{{ $s['pendingGuests'] }}</p>
-                <p class="kpi-label">Sin responder</p>
+                <p class="kpi-label">Faltan responder</p>
                 <p class="kpi-note">hasta {{ $s['pendingPeople'] }} personas más</p>
             </td>
             <td class="sep">
-                <p class="kpi-value">{{ $s['declinedGuests'] }}</p>
-                <p class="kpi-label">No asistirán</p>
-                <p class="kpi-note">{{ $s['releasedPasses'] }} pases libres</p>
+                <p class="kpi-value">{{ $s['maxPeople'] }}</p>
+                <p class="kpi-label">Máximo de personas</p>
+                <p class="kpi-note">si vienen todos los que faltan</p>
             </td>
         </tr>
     </table>
@@ -132,114 +138,88 @@
         </ul>
     </div>
 
-    {{-- Las listas cortas no se cortan entre páginas: el título queda junto a su tabla --}}
+    {{-- Lo accionable primero: a quién hay que escribirle. Las listas cortas no se parten en dos hojas --}}
     <div @class(['section' => $groups['pending']->count() <= 15])>
-    <h2>Por contactar</h2>
-    <p class="section-note">Invitados que aún no respondieron, primero los que tienen más pases.</p>
-    <table class="list">
-        <thead>
-            <tr>
-                <th>Invitado</th>
-                <th>Teléfono</th>
-                <th class="num">Pases</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse($groups['pending'] as $row)
-                <tr>
-                    <td class="strong">{{ $row['name'] }}</td>
-                    <td>{{ $row['phone'] ?? 'Sin teléfono' }}</td>
-                    <td class="num">{{ $row['allocated'] }}</td>
-                </tr>
-            @empty
-                <tr><td colspan="3" class="empty">Todos los invitados ya respondieron.</td></tr>
-            @endforelse
-        </tbody>
-    </table>
-    </div>
-
-    <div @class(['section' => $groups['confirmed']->count() <= 15])>
-    <h2>Confirmados</h2>
-    <p class="section-note">{{ $s['confirmedGuests'] }} invitados, {{ $s['confirmedPeople'] }} personas.</p>
-    <table class="list">
-        <thead>
-            <tr>
-                <th>Invitado</th>
-                <th class="num">Personas</th>
-                <th>Mesa</th>
-                <th>Alimentación</th>
-                <th class="num">Confirmó</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse($groups['confirmed'] as $row)
-                <tr>
-                    <td class="strong">{{ $row['name'] }}</td>
-                    <td class="num">{{ $row['confirmed'] }} de {{ $row['allocated'] }}</td>
-                    <td>{{ $row['table'] ?? '-' }}</td>
-                    <td>
-                        @if($row['dietary'])
-                            <span class="tag">{{ $row['dietary'] }}</span>
-                        @else
-                            <span class="small">Sin indicar</span>
-                        @endif
-                    </td>
-                    <td class="num small">{{ $row['confirmedAt']?->format('d/m/Y') }}</td>
-                </tr>
-            @empty
-                <tr><td colspan="5" class="empty">Todavía nadie confirmó.</td></tr>
-            @endforelse
-        </tbody>
-    </table>
-    </div>
-
-    <div @class(['section' => $groups['declined']->count() <= 15])>
-    <h2>No asistirán</h2>
-    <p class="section-note">Sus pases quedan libres para reasignar.</p>
-    <table class="list">
-        <thead>
-            <tr>
-                <th>Invitado</th>
-                <th>Teléfono</th>
-                <th class="num">Pases libres</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse($groups['declined'] as $row)
-                <tr>
-                    <td class="strong">{{ $row['name'] }}</td>
-                    <td>{{ $row['phone'] ?? 'Sin teléfono' }}</td>
-                    <td class="num">{{ $row['allocated'] }}</td>
-                </tr>
-            @empty
-                <tr><td colspan="3" class="empty">Nadie avisó que no asistirá.</td></tr>
-            @endforelse
-        </tbody>
-    </table>
-    </div>
-
-    @if($tables->isNotEmpty())
-        <div class="section">
-        <h2>Mesas</h2>
-        <p class="section-note">Invitados confirmados con mesa asignada.</p>
+        <h2>Por contactar</h2>
+        <p class="section-note">Todavía no respondieron; primero los que tienen más pases.</p>
         <table class="list">
             <thead>
                 <tr>
-                    <th>Mesa</th>
-                    <th class="num">Invitados</th>
-                    <th class="num">Personas</th>
+                    <th>Invitado</th>
+                    <th>Teléfono</th>
+                    <th class="num">Pases</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach($tables as $table)
+                @forelse($groups['pending'] as $row)
                     <tr>
-                        <td class="strong">{{ $table['table'] }}</td>
-                        <td class="num">{{ $table['guests'] }}</td>
-                        <td class="num">{{ $table['people'] }}</td>
+                        <td class="strong">{{ $row['name'] }}</td>
+                        <td>{{ $row['phone'] ?? 'Sin teléfono' }}</td>
+                        <td class="num">{{ $row['allocated'] }}</td>
                     </tr>
-                @endforeach
+                @empty
+                    <tr><td colspan="3" class="empty">Todos los invitados ya respondieron.</td></tr>
+                @endforelse
             </tbody>
         </table>
+    </div>
+
+    {{-- Una sola lista con todos: nadie aparece dos veces en el reporte --}}
+    <h2>Todos los invitados</h2>
+    <p class="section-note">{{ $s['totalGuests'] }} en total. «Personas» es cuántas confirmó cada uno.</p>
+    <table class="list">
+        <thead>
+            <tr>
+                <th>Invitado</th>
+                <th>Estado</th>
+                <th class="num">Personas</th>
+                <th>Mesa</th>
+                <th>Alimentación</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse($rows as $row)
+                <tr>
+                    <td class="strong">{{ $row['name'] }}</td>
+                    <td><span class="tag {{ $statusTag[$row['status']] }}">{{ $row['statusLabel'] }}</span></td>
+                    <td class="num">{{ $row['status'] === 'confirmed' ? $row['confirmed'].' de '.$row['allocated'] : $row['allocated'].' pases' }}</td>
+                    <td>{{ $row['table'] ?? '-' }}</td>
+                    <td>
+                        @if($row['dietary'])
+                            <span class="tag diet">{{ $row['dietary'] }}</span>
+                        @else
+                            <span class="small">-</span>
+                        @endif
+                    </td>
+                </tr>
+            @empty
+                <tr><td colspan="5" class="empty">Todavía no hay invitados en la lista.</td></tr>
+            @endforelse
+        </tbody>
+    </table>
+
+    @if($tables->isNotEmpty())
+        <div class="section">
+            <h2>Mesas</h2>
+            <p class="section-note">Invitados confirmados con mesa asignada.</p>
+            <table class="list">
+                <thead>
+                    <tr>
+                        <th>Mesa</th>
+                        <th class="num">Invitados</th>
+                        <th class="num">Personas</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($tables as $table)
+                        <tr>
+                            <td class="strong">{{ $table['table'] }}</td>
+                            <td class="num">{{ $table['guests'] }}</td>
+                            <td class="num">{{ $table['people'] }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
         </div>
     @endif
 </body>

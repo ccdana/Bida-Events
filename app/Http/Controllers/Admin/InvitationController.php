@@ -8,7 +8,9 @@ use App\Http\Requests\Admin\Invitation\StoreClientRequest;
 use App\Http\Requests\Admin\Invitation\StoreInvitationRequest;
 use App\Http\Requests\Admin\Invitation\UpdateInvitationRequest;
 use App\Models\Invitation;
+use App\Models\InvitationExport;
 use App\Models\User;
+use App\Services\InvitationCacheService;
 use App\Services\InvitationModuleService;
 use App\Services\InvitationPreviewSession;
 use App\Support\ClientCredentials;
@@ -116,6 +118,28 @@ class InvitationController extends Controller
         return redirect()
             ->route('admin.invitations.edit', $invitation)
             ->with('success', 'Invitación actualizada correctamente.');
+    }
+
+    /**
+     * Borra una invitación o tarjeta. La base se lleva en cascada todo lo suyo (invitados,
+     * módulos, confirmaciones y aportes); aquí solo hay que limpiar los archivos que quedaron
+     * en el disco de los reportes que pidió el cliente.
+     */
+    public function destroy(Invitation $invitation)
+    {
+        $title = $invitation->title;
+
+        DB::transaction(function () use ($invitation) {
+            $invitation->exports->each(fn (InvitationExport $export) => $export->deleteFile());
+            $invitation->delete();
+        });
+
+        // La caché se limpia, no se recalienta: la invitación ya no existe
+        InvitationCacheService::invalidate($invitation);
+
+        return redirect()
+            ->route('admin.dashboard')
+            ->with('success', "«{$title}» se eliminó con todos sus datos.");
     }
 
     /** Crea un cliente solo con su nombre: el usuario y la contraseña se generan aquí. */

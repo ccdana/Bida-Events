@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\EventProfiles\EventProfiles;
 use App\Modules\ModuleRegistry;
+use App\Support\SiteSettings;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Middleware\TrustProxies;
 use Illuminate\Http\Request;
@@ -36,6 +37,9 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->isProduction() || str_contains(request()->getHost(), 'ngrok-free.dev')) {
             URL::forceScheme('https');
         }
+
+        // Precios, promociones y plantillas de temporada que el administrador maneja desde el panel
+        SiteSettings::apply();
 
         $this->configureTrustedProxies();
         $this->configureRateLimiting();

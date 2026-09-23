@@ -46,19 +46,17 @@ class SummarySheet extends ReportSheet implements FromArray, WithColumnWidths, W
             [],
         ];
 
-        $this->addSection($rows, 'Resumen', ['Indicador', 'Valor', 'Qué significa']);
+        // Seis cifras, las que se usan para decidir; el detalle por invitado está en las otras hojas
+        $this->addSection($rows, 'En una mirada', ['Dato', 'Valor', 'Para qué sirve']);
         $from = count($rows) + 1;
 
         foreach ([
-            ['Invitados registrados', $stats['totalGuests'], 'Familias o personas que recibieron un enlace personal.'],
-            ['Respondieron', $stats['responseRate'] / 100, "{$stats['respondedGuests']} de {$stats['totalGuests']} invitados ya confirmaron o avisaron que no irán."],
-            ['Personas confirmadas', $stats['confirmedPeople'], 'Base para comida, sillas, mesas y recuerdos.'],
-            ['Personas por confirmar', $stats['pendingPeople'], 'Pases de los invitados que todavía no responden.'],
-            ['Asistencia máxima posible', $stats['maxPeople'], 'Si todos los pendientes asisten con todos sus pases.'],
-            ['Invitados sin responder', $stats['pendingGuests'], 'Contáctalos: están en la hoja "Por contactar".'],
-            ['No asistirán', $stats['declinedGuests'], 'Invitados que avisaron que no irán.'],
-            ['Pases libres', $stats['releasedPasses'], 'Lugares que puedes reasignar a otros invitados.'],
-            ['Días para el evento', $daysLeft !== null && $daysLeft >= 0 ? $daysLeft : 'El evento ya pasó', 'Tiempo para cerrar la lista con el lugar y el catering.'],
+            ['Personas confirmadas', $stats['confirmedPeople'], 'Con esta cifra se piden comida, sillas y recuerdos.'],
+            ['Respondieron', $stats['responseRate'] / 100, "{$stats['respondedGuests']} de {$stats['totalGuests']} invitados ya contestaron."],
+            ['Faltan responder', $stats['pendingGuests'], 'Están en la hoja «Por contactar», con su teléfono.'],
+            ['Personas que podrían sumarse', $stats['pendingPeople'], "Si todos ellos vienen, serían {$stats['maxPeople']} personas en total."],
+            ['Pases libres', $stats['releasedPasses'], 'Lugares que puedes dar a otro invitado.'],
+            ['Días para el evento', $daysLeft !== null && $daysLeft >= 0 ? $daysLeft : 'El evento ya pasó', 'Tiempo que queda para cerrar la lista.'],
         ] as $index => $kpi) {
             $rows[] = $kpi;
 
