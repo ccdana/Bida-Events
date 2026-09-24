@@ -125,7 +125,11 @@ Todas están en `routes/web.php`.
 | --- | --- | --- | --- |
 | `GET /` | `home` | `HomeController` | Portada pública; middleware `lead.source` |
 | `GET /invitaciones-de-boda`, `/invitaciones-xv-anos`, `/invitaciones-de-bautizo`, `/invitaciones-de-cumpleanos`, `/tarjetas-dia-del-amor` | `landing` | `EventLandingController` | Página por tipo de evento (contenido en `config/bida.php`, clave `landings`); middleware `lead.source` |
-| `GET /sitemap.xml` | `sitemap` | `EventLandingController@sitemap` | Portada y páginas por evento |
+| `GET /sitemap.xml` | `sitemap` | `SeoController@sitemap` | Portada, guía, Hazlo tú, páginas por evento y legales, con `lastmod` |
+| `GET /llms.txt` | `llms` | `SeoController@llms` | Resumen en Markdown para motores de IA con los precios de hoy |
+| `GET /guia-invitaciones-digitales` | `guide` | `PublicPagesController@guide` | Guía pública (SEO/GEO, ver `docs/geo-estrategia.md`) |
+| `GET /hazlo-tu` | `diy` | `PublicPagesController@diy` | Planes mensuales «Hazlo tú» (`/para-profesionales` redirige aquí) |
+| `GET /puerta/{doorToken}` y `/entrada/{slug}/{token}` | `door.*` | `Public\DoorController` | Control de entrada el día del evento (escáner, código corto, deshacer) |
 | `GET /muestra/{slug}` | `invitation.demo` | `Public\InvitationController@demo` | Solo las muestras de `ShowcaseDemos::allowedSlugs()` (portada, temporada y `demos` de cada página por evento); nada se guarda; `noindex`; con `?portada=1` la apertura se abre sola y con `&reel=1` espera la señal del teléfono |
 | `GET /dashboard` | `dashboard` | Cierre en rutas | Redirige a admin o cliente según el rol |
 | `GET/POST /login`, `POST /logout` | `login`, `logout` | `Auth\LoginController` | `throttle:login` |
@@ -206,7 +210,8 @@ propósito y responde `no-store`.
 | --- | --- |
 | `app/Http/Controllers/Controller.php` | Controlador base |
 | `HomeController.php` | Portada: paquetes con enlace de WhatsApp prellenado y código de origen, invitación de la portada, muestras y tarjeta para compartir |
-| `EventLandingController.php` | Páginas por tipo de evento y `sitemap.xml` |
+| `EventLandingController.php` | Páginas por tipo de evento |
+| `SeoController.php` | `sitemap.xml` y `llms.txt` armados con la configuración de hoy; `PRIVATE_PATHS` es la lista que sigue `public/robots.txt` |
 | `Auth/LoginController.php` | Formulario de acceso, login con límite de intentos, regeneración de sesión y salida |
 | `Public/InvitationController.php` | Renderiza la invitación pública: carga módulos (tablas o JSON), resultados de encuestas, playlist, fotomural y URL de calendario. También sirve `/muestra/{slug}` con un invitado ficticio que no se guarda |
 | `Public/RsvpController.php` | Confirmación de asistencia por invitado y generación del pase |
@@ -607,7 +612,8 @@ propósito y responde `no-store`.
 | --- | --- |
 | `public/index.php` | Entrada HTTP |
 | `public/.htaccess` | Reescritura de URLs |
-| `public/robots.txt` | Reglas para buscadores |
+| `public/robots.txt` | Reglas para buscadores y `Sitemap:` (estático: lo sirve nginx y lo usa el healthcheck de Docker) |
+| `resources/views/seo/llms.blade.php` | Contenido de `/llms.txt` |
 | `public/images/share/*.jpg` | Tarjetas de 1200×630 para compartir la portada y cada tipo de evento (las genera `bida:imagenes-compartir`) |
 | `public/favicon.svg` / `favicon.ico` | Íconos del sitio |
 | `public/images/site/event-*.webp` | Fotos de los cuatro eventos de la portada |
@@ -703,7 +709,7 @@ Los once puntos de seguridad ya están en el código. Queda solo lo que depende 
 
 | # | Qué se hizo | Dónde |
 | --- | --- | --- |
-| 1 | Las invitaciones y las muestras no se indexan: `robots.txt` las bloquea y cada plantilla envía `noindex, nofollow` | `public/robots.txt`, `shell/head.blade.php` |
+| 1 | Las invitaciones y las muestras no se indexan: `robots.txt` las bloquea y cada plantilla envía `noindex, nofollow` | `SeoController::PRIVATE_PATHS`, `shell/head.blade.php` |
 | 2 | El enlace personal se marca `private` con `Vary: Cookie`; solo el enlace general puede guardarse en una caché compartida | `CachePublicInvitations` |
 | 3 | Solo se confía en los proxies declarados en `TRUSTED_PROXIES`; vacío = ninguno | `config/security.php`, `AppServiceProvider::configureTrustedProxies` |
 | 4 | Dos votos simultáneos ya no revientan: la violación de la clave única se traduce en "ya votaste" | `Public\ContributionController@votePoll` |
@@ -844,7 +850,7 @@ comportamiento: con 25 invitaciones y 500 invitados hace menos de 15 consultas y
 | 26 | Sin foto de portada, la invitación usa la tarjeta de su tipo de evento. La portada del sitio y las páginas por evento tienen su propia tarjeta, recortada de las fotos del sitio | `public/images/share`, `bida:imagenes-compartir`, `layouts/site` |
 | 27 | Cuatro páginas por tipo de evento con la apertura de su plantilla en el teléfono, lo propio de ese evento, la muestra interactiva, precios, preguntas marcadas con `FAQPage` y enlaces entre ellas | `EventLandingController`, `landing.blade.php`, `config/bida.php` (`landings`) |
 | 27 | Cabecera, precios, preguntas y pie salieron de la portada a parciales, para no duplicarlos. La portada enlaza cada página desde su plantilla y desde el pie | `site/partials/*`, `home.blade.php` |
-| 27 | `sitemap.xml` con la portada y las páginas por evento; las invitaciones y las muestras siguen fuera | `EventLandingController@sitemap` |
+| 27 | `sitemap.xml` con la portada y las páginas por evento; las invitaciones y las muestras siguen fuera | `SeoController@sitemap` |
 | 28 | Los botones de WhatsApp agregan al final del mensaje un código con la página, la fuente y la campaña: `Ref. BODA-FB-MAYO`. El origen (`utm_*` o `?ref=` para impresos y QR) se recuerda 30 días | `LeadSource`, `CaptureLeadSource`, `config/bida.php` (`lead_sources`) |
 | 28 | Un comando arma el enlace de cada campaña y muestra el código que va a llegar | `bida:enlace-campana` |
 
@@ -864,8 +870,8 @@ comportamiento: con 25 invitaciones y 500 invitados hace menos de 15 consultas y
 - **Probar la tarjeta en un chat real.** WhatsApp solo lee la vista previa de una dirección pública con
   HTTPS: hay que hacerlo en producción (o con el depurador de Facebook, que usa las mismas etiquetas).
   WhatsApp guarda la tarjeta en caché: si se cambia la foto de portada, puede tardar en actualizarse.
-- **Declarar el mapa del sitio.** Agregar `Sitemap: https://<dominio>/sitemap.xml` a `public/robots.txt`
-  con el dominio definitivo y enviarlo en Google Search Console.
+- **Enviar el mapa del sitio.** `public/robots.txt` ya declara `Sitemap: https://bida-events.com/sitemap.xml`
+  (si el dominio cambia, se corrige ahí); falta enviarlo en Google Search Console y Bing Webmaster Tools.
 - **`APP_URL` en producción.** Los enlaces de `sitemap.xml`, las imágenes para compartir y el comando de
   campañas usan `APP_URL`; en local sale `http://localhost`.
 - **Medir resultados.** El código llega en el mensaje, pero nadie lo anota: conviene llevar una hoja con
@@ -947,7 +953,7 @@ comportamiento: con 25 invitaciones y 500 invitados hace menos de 15 consultas y
 | Al elegir plantilla en una invitación nueva se aplican su paleta y sus letras | `InvitationEditorViewData` (`templateOptions`), `applyProfile()` |
 | La temporada ya no ocupa la portada: botón flotante abajo a la derecha que abre un panel; el teléfono carga la muestra recién al abrirlo | `site/partials/season.blade.php`, `site.css` («Temporada»), `site.js` (`reel:wake`) |
 | Los ajustes de temporada se guardan con su clave: los del Día del Amor no se heredan a Halloween | `SiteSettings::applySeason`, `Admin\SettingsController` |
-| Publicidad para profesionales con planes, comparación y muestras | `/para-profesionales`, `PublicPagesController`, `professionals.blade.php` (código `PRO`) |
+| «Hazlo tú» (antes «Para profesionales»): beneficios en detalle, para quién es, cuentas claras, planes con descuento y comparación | `/hazlo-tu`, `PublicPagesController::diy`, `hazlo-tu.blade.php` (código `HAZLO`) |
 | Privacidad, cookies y términos, con aviso de cookies en el sitio | `/legal/{privacidad,cookies,terminos}`, `Support/LegalPages.php`, `legal/show.blade.php`, `layouts/partials/cookie-notice.blade.php` |
 
 **Pendiente**
@@ -957,6 +963,20 @@ comportamiento: con 25 invitaciones y 500 invitados hace menos de 15 consultas y
 - **Temporadas independientes:** Día del Amor y Halloween se encienden, apagan y cambian de precio y fecha por separado en Ajustes (`config('bida.seasons')`, `Offers::seasons()`); cada una vigente tiene su botón en la portada.
 - **Tipo de evento y plantilla:** el editor solo ofrece las plantillas del tipo elegido y el guardado rechaza una combinación que no corresponde (`ValidatesInvitationModules::after`).
 - **Accesos de cliente:** todos los planes los crean, hasta el cupo mensual de invitaciones del plan (`ResellerSubscription::canCreateClients`).
+
+### 7.10 Entrega de septiembre (USD, Hazlo tú, puerta, paneles, editor, SEO/GEO)
+
+| Qué | Dónde |
+| --- | --- |
+| Precios en dólares: `Money::format()` («US$ 29»), migración que convirtió los precios guardados en Ajustes (tasa `bida.currency.bob_rate`) y `subscription_payments.currency` | `Support/Money.php`, `config/bida.php` (`currency`), migración `2026_09_25_000001_switch_prices_to_dollars` |
+| Descuento por plan de revendedor (`promo_price`), editable en Ajustes | `Offers::resellerPlans()`, `Offers::planPrice()`, `SiteSettings`, `admin/settings.blade.php` |
+| Control de entrada: enlace de puerta por invitación, escáner con la cámara o código corto, un pase no sirve dos veces, deshacer | `Public/DoorController.php`, `Client/DoorAccessController.php`, `Support/GuestPass.php`, `views/door/*`, migración `2026_09_25_000002_add_door_check_in` |
+| Barra lateral con filtros (qué es, estado, quién la armó, orden) en el panel del administrador y del revendedor | `Support/InvitationFilters.php`, `layouts/partials/panel-sidebar.blade.php`, `layouts/admin.blade.php`, `layouts/client.blade.php` |
+| Ajustes por pestañas (paquetes, temporadas, Hazlo tú) con barra de guardado fija | `admin/settings.blade.php`, `admin.css` («Ajustes») |
+| Editor: lista única de secciones con estado (lista, falta algo, oculta) e interruptor, progreso, «Anterior/Siguiente», secciones sin tarjetas; en el celular la lista es un cajón y la vista previa va a pantalla completa | `editor/sidebar.blade.php`, `editor/preview.blade.php`, `editor/script.blade.php` (`flatTabs`, `tabStatus`, `progress`), `admin.css` («Editor») |
+| Todos los textos editables, también los nombres del menú (`nav_{módulo}`), «Desliza», etiquetas de portada | `Support/EditableTexts.php`, `InvitationPage::NAV_LABELS` |
+| Portada rediseñada, pie por columnas, un solo botón de temporadas con pestañas | `home.blade.php`, `site/home.css`, `site/partials/{footer,season,season-panel}.blade.php` |
+| SEO/GEO: guía pública, `llms.txt` y `sitemap.xml` dinámicos, `robots.txt` con la puerta y el sitemap, datos estructurados con `Article` | `docs/geo-estrategia.md`, `SeoController.php`, `guia.blade.php`, `site/partials/structured-data.blade.php` |
 
 ---
 
@@ -968,7 +988,7 @@ comportamiento: con 25 invitaciones y 500 invitados hace menos de 15 consultas y
 | **2. Datos** | ✔ Hecho | Todo en tablas relacionadas, sin columnas JSON; módulos con contrato propio; voto por relación real; guardado que reutiliza filas; borrado y retención de archivos (ver 7.2 y 7.8) |
 | **3. Rendimiento** | ✔ Hecho | Paginación y conteos en la base, caché con candado, exportaciones en cola, imágenes por tamaño y comando de medición. Falta encender la caché y correr un worker en producción |
 | **4. Experiencia** | ✔ Hecho en parte | Lectura sin JavaScript, contraste AA, foco con teclado, `alt` por foto, sistema visual y editor con avisos y botón de publicar (ver 7.4) y limpieza de código sin uso (7.7) |
-| **5. Crecimiento** | ✔ Hecho en parte | Vista previa al compartir, páginas por evento con `sitemap.xml`, código de origen en WhatsApp (ver 7.5) y tarjetas de temporada (7.8). Falta declarar el sitemap con el dominio, llevar la cuenta de contactos por campaña y definir el precio de las tarjetas |
+| **5. Crecimiento** | ✔ Hecho en parte | Vista previa al compartir, páginas por evento con `sitemap.xml`, código de origen en WhatsApp (ver 7.5) y tarjetas de temporada (7.8). Falta enviar el sitemap en Search Console y llevar la cuenta de contactos por campaña |
 | **6. Calidad y operación** | ✔ Hecho | Pruebas de permisos, concurrencia, subidas, límites y plantillas; respaldos con restauración probada; alertas; CI (ver 7.6). Falta copiar los respaldos fuera del servidor y configurar el correo de alertas |
 
 ---

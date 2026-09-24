@@ -7,8 +7,8 @@
         <header class="site-enter">
             <h1 class="text-3xl font-semibold tracking-tight md:text-4xl">Invitaciones</h1>
             <p class="mt-2 max-w-[56ch] text-site-muted">
-                Todos los eventos separados por tipo. Abre la ficha de cualquiera para ver su cliente,
-                sus enlaces y cómo van las confirmaciones sin entrar al editor.
+                Todos los eventos separados por tipo. Filtra desde la barra lateral y abre la ficha de cualquiera
+                para ver su cliente, sus enlaces y cómo van las confirmaciones sin entrar al editor.
             </p>
         </header>
 
@@ -29,41 +29,13 @@
             @endforeach
         </dl>
 
-        <div class="site-enter grid gap-4" style="--enter-index: 2">
-            {{-- Buscar por nombre del evento, enlace o cliente; viaja en la URL con el filtro --}}
-            <form method="GET" class="flex flex-wrap items-center gap-2">
-                @if($type !== '')
-                    <input type="hidden" name="tipo" value="{{ $type }}">
-                @endif
-                <label for="buscar-evento" class="sr-only">Buscar evento o cliente</label>
-                <div class="relative min-w-[16rem] flex-1">
-                    <x-phosphor-magnifying-glass class="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-site-muted" aria-hidden="true" />
-                    <input id="buscar-evento" type="search" name="q" value="{{ $search }}" autocomplete="off"
-                        class="admin-input has-icon" placeholder="Buscar por evento, enlace o cliente">
-                </div>
-                <button type="submit" class="admin-link-button">Buscar</button>
-                @if($search !== '')
-                    <a href="{{ route('admin.dashboard', array_filter(['tipo' => $type])) }}" class="admin-link-button">Limpiar</a>
-                @endif
-            </form>
-
-            <nav class="flex flex-wrap gap-2" aria-label="Filtrar por tipo de evento">
-                @foreach($filters as $filter)
-                    <a href="{{ $filter['url'] }}"
-                       class="{{ $filter['slug'] === $type ? 'admin-primary-button' : 'admin-link-button' }}"
-                       @if($filter['slug'] === $type) aria-current="page" @endif>
-                        {{ $filter['label'] }}
-                        <span class="tabular-nums opacity-70">{{ $filter['total'] }}</span>
-                    </a>
-                @endforeach
-            </nav>
-
-            @if($search !== '')
-                <p class="text-sm text-site-muted">
-                    {{ $invitations->total() }} {{ $invitations->total() === 1 ? 'resultado' : 'resultados' }} para «{{ $search }}»
-                </p>
-            @endif
-        </div>
+        @if($isFiltered)
+            <p class="site-enter text-sm text-site-muted" style="--enter-index: 2">
+                {{ $invitations->total() }} {{ $invitations->total() === 1 ? 'invitación coincide' : 'invitaciones coinciden' }} con los filtros
+                @if($search !== '') y la búsqueda «{{ $search }}» @endif.
+                <a href="{{ route('admin.dashboard') }}" class="font-medium text-site-ink underline underline-offset-4">Ver todo</a>
+            </p>
+        @endif
 
         @forelse($sections as $index => $section)
             <section class="site-enter" style="--enter-index: {{ $index + 3 }}">
@@ -89,7 +61,7 @@
         @empty
             <div class="site-enter admin-card flex flex-col items-center px-6 py-16 text-center" style="--enter-index: 3">
                 <x-phosphor-envelope-simple-open-light class="size-12 text-site-accent" aria-hidden="true" />
-                @if($search !== '' || $type !== '')
+                @if($isFiltered)
                     <h2 class="mt-4 text-lg font-medium">Nada coincide con esa búsqueda</h2>
                     <p class="mt-1 max-w-[40ch] text-site-muted">Prueba con otro nombre, o quita el filtro de tipo de evento.</p>
                     <a href="{{ route('admin.dashboard') }}" class="admin-link-button mt-6">Ver todo</a>

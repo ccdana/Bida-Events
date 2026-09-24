@@ -66,7 +66,28 @@ final class Offers
         }, $packages ?? config('bida.packages', []));
     }
 
-    /** El paquete más barato al precio de hoy («Paquetes desde 150 Bs»). */
+    /**
+     * Planes mensuales con su precio de hoy (final_price) y el normal tachado (old_price) si tienen
+     * descuento. El descuento de un plan vale mientras esté cargado en Ajustes.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    public static function resellerPlans(?array $plans = null): array
+    {
+        return array_map(function (array $plan): array {
+            $price = self::price($plan, true);
+
+            return $plan + ['final_price' => $price['final'], 'old_price' => $price['regular']];
+        }, $plans ?? config('bida.reseller_plans', []));
+    }
+
+    /** Precio de hoy de un plan (con su descuento, si tiene). */
+    public static function planPrice(?array $plan): int
+    {
+        return $plan ? self::price($plan, true)['final'] : 0;
+    }
+
+    /** El paquete más barato al precio de hoy («Paquetes desde US$ 22»). */
     public static function lowestPackagePrice(): int
     {
         return (int) collect(self::packages())->min('final_price');

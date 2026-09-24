@@ -1,228 +1,119 @@
 {{--
-    Una temporada en la portada (Día del Amor, Halloween…): un botón que acompaña el scroll abajo a la
-    derecha, con el nombre, el precio y los días que quedan. Cada temporada que se vende tiene el suyo,
-    apilados ($seasonIndex); se encienden y apagan por separado desde Ajustes. Al tocarlo se abre el
-    panel de la temporada (diseños,
-    precio tachado y de promoción, cuenta regresiva y un teléfono donde el diseño elegido se abre solo),
-    así la portada no se satura. «#temporada-{clave}» abre la suya y «#temporada», la primera.
-    El panel habla de la temporada, no de un diseño: los diseños se listan y se van sumando en
-    config('bida.seasons.{clave}.templates'). La cuenta llega hasta su «ends_at»; al terminar,
-    el botón se oculta solo y pasada la fecha el servidor ya no lo manda.
-    Recibe $season y $seasonIndex (HomeController::seasons). El teléfono carga su muestra recién al abrir el panel
-    (data-lazy-src, resources/js/site.js). Estilos: resources/css/site/site.css («Temporada»).
+    Temporadas en la portada (Día del Amor, Halloween…): un solo botón discreto abajo a la derecha que
+    acompaña el scroll. Muestra la temporada (o cuántas hay) con su color y los días que quedan; al
+    tocarlo se abre una hoja con el panel de cada temporada (site/partials/season-panel). Con varias
+    temporadas, arriba se elige cuál ver. «#temporada» abre la primera y «#temporada-{clave}», la suya.
+
+    Recibe $seasons (HomeController::seasons). Cada panel carga su muestra recién al mostrarse
+    (data-lazy-src, «reel:wake» en resources/js/site.js). Estilos: site.css («Temporada»).
 --}}
 @php
-    $seasonLeft = now()->diff($season['endsAt']);
-    $seasonUnits = [
-        'days' => ['value' => (int) $seasonLeft->days, 'label' => 'días'],
-        'hours' => ['value' => $seasonLeft->h, 'label' => 'horas'],
-        'minutes' => ['value' => $seasonLeft->i, 'label' => 'min'],
-        'seconds' => ['value' => $seasonLeft->s, 'label' => 'seg'],
-    ];
-    $seasonUntil = $season['endsAt']->locale('es')->translatedFormat('l j \d\e F');
-    $seasonDemos = $season['demos'];
-    $seasonReel = array_map(fn (array $demo) => ['url' => $demo['coverUrl'], 'label' => $demo['label']], $seasonDemos);
-    $seasonProduct = $season['product'] ?? 'tarjeta';
-    $seasonPlural = $seasonProduct === 'tarjeta' ? 'Tarjetas' : 'Invitaciones';
-    // Ícono del botón según la temporada; las que no tengan uno propio usan una estrella
-    $seasonIcon = ['halloween' => 'ghost', 'amor' => 'heart'][$season['key'] ?? ''] ?? 'star-four';
-    $seasonIndex ??= 0;
-    $seasonId = 'temporada-'.$season['key'];
+    $seasonIcons = ['halloween' => 'ghost', 'amor' => 'heart'];
+    $soonest = collect($seasons)->sortBy(fn (array $season) => $season['endsAt']->getTimestamp())->first();
 @endphp
 
-<div class="site-season site-season--{{ $season['key'] ?? 'temporada' }}"
-    x-data="seasonOffer(@js($season['endsAt']->toIso8601String()), @js(array_column($seasonDemos, 'demoUrl')), @js($seasonId), @js($seasonIndex === 0))"
-    x-show="!expired"
-    @keydown.escape.window="open && close()"
-    @hashchange.window="fromHash()">
+<div class="site-seasons" x-data="seasonDock(@js(array_column($seasons, 'key')), @js($soonest['endsAt']->toIso8601String()))"
+    @keydown.escape.window="open && close()" @hashchange.window="fromHash()">
 
-    {{-- Botón flotante: sigue al scroll y abre la temporada --}}
-    <button type="button" class="site-season-fab" x-ref="fab" @click="show()" style="--fab-index: {{ $seasonIndex }}"
-        aria-controls="{{ $seasonId }}" :aria-expanded="open.toString()" aria-expanded="false"
-        x-show="!open" x-transition.opacity.duration.200ms>
-        <span class="site-season-fab__icon" aria-hidden="true">
-            <x-dynamic-component :component="'phosphor-'.$seasonIcon.'-fill'" />
+    {{-- Botón: el color de cada temporada, su nombre y cuánto falta para que termine la más próxima --}}
+    <button type="button" class="site-seasons__fab" x-ref="fab" @click="show()" x-show="!open" x-transition.opacity.duration.200ms
+        aria-controls="temporadas" :aria-expanded="open.toString()" aria-expanded="false">
+        <span class="site-seasons__orbs" aria-hidden="true">
+            @foreach($seasons as $season)
+                <span class="site-seasons__orb site-seasons__orb--{{ $season['key'] }}">
+                    <x-dynamic-component :component="'phosphor-'.($seasonIcons[$season['key']] ?? 'star-four').'-fill'" />
+                </span>
+            @endforeach
         </span>
-        <span class="site-season-fab__text">
-            <span class="site-season-fab__name">{{ $season['name'] }}</span>
-            <span class="site-season-fab__meta">
-                {{ $season['final_price'] }} Bs ·
-                <span x-text="left.days > 0 ? `quedan ${left.days} ${left.days === 1 ? 'día' : 'días'}` : 'último día'">quedan {{ $seasonUnits['days']['value'] }} días</span>
-            </span>
+        <span class="site-seasons__label">
+            <span class="site-seasons__kicker">{{ count($seasons) === 1 ? 'De temporada' : count($seasons).' temporadas' }}</span>
+            <span class="site-seasons__name">{{ collect($seasons)->pluck('name')->join(' · ') }}</span>
+        </span>
+        <span class="site-seasons__days">
+            <span x-text="left.days > 0 ? left.days : 'Hoy'">{{ max(0, (int) now()->diffInDays($soonest['endsAt'])) }}</span>
+            <small x-show="left.days > 0">días</small>
         </span>
     </button>
 
     <div class="site-season__backdrop" x-show="open" x-cloak x-transition.opacity @click="close()"></div>
 
-    <section id="{{ $seasonId }}" class="site-season__sheet" role="dialog" aria-modal="true" aria-labelledby="{{ $seasonId }}-titulo"
-        x-show="open" x-cloak x-ref="sheet"
+    <section id="temporadas" class="site-season__sheet" role="dialog" aria-modal="true" aria-label="Diseños de temporada"
+        x-show="open" x-cloak
         x-transition:enter="site-season__sheet--enter" x-transition:enter-start="is-from" x-transition:enter-end="is-to"
         x-transition:leave="site-season__sheet--leave" x-transition:leave-start="is-to" x-transition:leave-end="is-from">
-        <div class="site-season__panel">
-            <span class="site-season__decor" aria-hidden="true">
-                @for($piece = 0; $piece < 9; $piece++)
-                    <i style="--i: {{ $piece }}"></i>
-                @endfor
-            </span>
 
-            <button type="button" class="site-season__close" x-ref="close" @click="close()" aria-label="Cerrar la temporada">
-                <x-phosphor-x aria-hidden="true" />
-            </button>
-
-            <div class="site-season__copy">
-                <p class="site-season__eyebrow">{{ $seasonPlural }} de temporada · {{ $season['date'] ?? $seasonUntil }}</p>
-                <h2 id="{{ $seasonId }}-titulo" class="site-season__title">{{ $season['title'] }}</h2>
-                <p class="site-season__text">{{ $season['text'] }}</p>
-
-                <div class="site-season__designs">
-                    <p class="site-season__label">Diseños de la temporada</p>
-                    <ol role="list">
-                        @foreach($seasonDemos as $index => $demo)
-                            <li>
-                                <button type="button" @class(['site-season__design', 'is-active' => $index === 0])
-                                    :class="{ 'is-active': active === {{ $index }} }"
-                                    aria-pressed="{{ $index === 0 ? 'true' : 'false' }}"
-                                    :aria-pressed="(active === {{ $index }}).toString()"
-                                    @click="choose({{ $index }})">
-                                    <span class="site-season__design-num">{{ str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) }}</span>
-                                    <span class="site-season__design-name">{{ $demo['label'] }}</span>
-                                    @if($demo['tagline'])
-                                        <span class="site-season__design-line">{{ $demo['tagline'] }}</span>
-                                    @endif
-                                </button>
-                            </li>
-                        @endforeach
-                    </ol>
-                    @if(! empty($season['more_note']))
-                        <p class="site-season__more-note">{{ $season['more_note'] }}</p>
-                    @endif
-                </div>
-
-                <div class="site-season__offer">
-                    <p class="site-season__price">
-                        <span class="site-season__label">Cada {{ $seasonProduct }}</span>
-                        <span class="site-season__amount">
-                            @if($season['old_price'])
-                                <del><span class="sr-only">Antes </span>{{ $season['old_price'] }} Bs</del>
-                                <span class="sr-only">, ahora</span>
-                            @endif
-                            <strong>{{ $season['final_price'] }}</strong>
-                            <span class="site-season__currency">Bs</span>
-                        </span>
-                    </p>
-
-                    <div class="site-season__countdown" role="timer" aria-label="Tiempo que queda para pedirla">
-                        <span class="site-season__label">Quedan</span>
-                        <span class="site-season__units">
-                            @foreach($seasonUnits as $key => $unit)
-                                <span class="site-season__unit">
-                                    <b x-text="pad(left.{{ $key }})">{{ str_pad((string) $unit['value'], 2, '0', STR_PAD_LEFT) }}</b>
-                                    <small>{{ $unit['label'] }}</small>
-                                </span>
-                            @endforeach
-                        </span>
-                        <span class="site-season__until">Hasta el {{ $seasonUntil }}</span>
-                    </div>
-                </div>
-
-                <div class="site-season__actions">
-                    <a href="{{ $season['whatsappUrl'] }}" target="_blank" rel="noopener" class="site-btn site-btn--lg site-season__cta" data-magnetic>
-                        <x-phosphor-whatsapp-logo aria-hidden="true" />
-                        La quiero por {{ $season['final_price'] }} Bs
-                    </a>
-                    <a href="{{ $seasonDemos[0]['demoUrl'] }}" :href="demos[active]" target="_blank" rel="noopener" class="site-season__link">
-                        Abrirla en pantalla completa
-                        <x-phosphor-arrow-up-right aria-hidden="true" />
-                    </a>
-                    @if($season['landingUrl'])
-                        <a href="{{ $season['landingUrl'] }}" class="site-season__link">Ver todo sobre {{ $season['name'] }}</a>
-                    @endif
-                </div>
+        @if(count($seasons) > 1)
+            <div class="site-seasons__tabs" role="tablist" aria-label="Temporadas">
+                @foreach($seasons as $season)
+                    <button type="button" role="tab" @click="select(@js($season['key']))"
+                        :aria-selected="(current === @js($season['key'])).toString()" aria-selected="{{ $loop->first ? 'true' : 'false' }}"
+                        :class="{ 'is-active': current === @js($season['key']) }" @class(['site-seasons__tab', 'is-active' => $loop->first])>
+                        {{ $season['name'] }}
+                    </button>
+                @endforeach
             </div>
+        @endif
 
-            <div class="site-season__stage">
-                <div class="site-phone site-phone--season" x-ref="reel"
-                    data-cover-reel="{{ json_encode($seasonReel, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) }}"
-                    data-cover-reel-replay data-cover-reel-dwell="15000">
-                    <div class="site-phone__screen">
-                        <iframe data-lazy-src="{{ $seasonDemos[0]['coverUrl'] }}" tabindex="-1" aria-hidden="true" data-cover-reel-frame
-                            title="Muestra de la temporada"></iframe>
-                    </div>
-                </div>
-            </div>
-        </div>
+        @foreach($seasons as $season)
+            @include('site.partials.season-panel', ['season' => $season])
+        @endforeach
     </section>
 </div>
 
 @once
 <script>
     /*
-     * Temporada: el botón abre el panel (también un enlace a «#temporada»), la cuenta regresiva corre
-     * y el teléfono carga su muestra la primera vez que se abre («reel:wake», resources/js/site.js).
+     * Botón de temporadas: abre la hoja (también un enlace a «#temporada» o «#temporada-{clave}»),
+     * elige qué temporada se ve y despierta su teléfono la primera vez que se muestra.
      */
-    function seasonOffer(endsAt, demos, id, first) {
+    function seasonDock(keys, endsAt) {
         const end = new Date(endsAt).getTime();
 
         return {
-            demos,
-            id,
-            active: 0,
+            keys,
+            current: keys[0],
             open: false,
-            woke: false,
-            expired: false,
-            left: { days: 0, hours: 0, minutes: 0, seconds: 0 },
+            left: { days: 0 },
+            woken: {},
             timer: null,
 
             init() {
                 this.tick();
-                this.timer = setInterval(() => this.tick(), 1000);
+                this.timer = setInterval(() => this.tick(), 60000);
                 this.fromHash();
             },
 
             tick() {
-                const ms = Math.max(end - Date.now(), 0);
-
-                if (ms === 0) {
-                    this.expired = true;
-                    this.close();
-                    clearInterval(this.timer);
-                    return;
-                }
-
-                const seconds = Math.floor(ms / 1000);
-                this.left = {
-                    days: Math.floor(seconds / 86400),
-                    hours: Math.floor(seconds % 86400 / 3600),
-                    minutes: Math.floor(seconds % 3600 / 60),
-                    seconds: seconds % 60,
-                };
+                this.left = { days: Math.floor(Math.max(end - Date.now(), 0) / 86400000) };
             },
 
-            // «#temporada-{clave}» abre esta temporada; «#temporada» (el enlace de servicios), la primera
-            ownsHash() {
-                const hash = window.location.hash;
+            keyFromHash() {
+                const hash = window.location.hash.replace('#', '');
 
-                return hash === `#${this.id}` || (first && hash === '#temporada');
+                if (hash === 'temporada' || hash === 'temporadas') return this.keys[0];
+
+                return this.keys.find((key) => hash === `temporada-${key}`) ?? null;
             },
 
             fromHash() {
-                if (this.ownsHash()) {
-                    this.show();
-                }
+                const key = this.keyFromHash();
+                if (key) this.show(key);
             },
 
-            show() {
-                if (this.expired) return;
-
+            show(key = this.current) {
+                this.select(key);
                 this.open = true;
                 document.documentElement.classList.add('site-season-open');
+                this.$nextTick(() => this.$el.querySelector(`[data-season="${this.current}"] .site-season__close`)?.focus());
+            },
 
-                if (!this.woke) {
-                    this.woke = true;
-                    this.$refs.reel.dispatchEvent(new CustomEvent('reel:wake'));
+            select(key) {
+                this.current = key;
+
+                if (!this.woken[key]) {
+                    this.woken[key] = true;
+                    this.$nextTick(() => this.$el.querySelector(`[data-season="${key}"] [data-cover-reel]`)?.dispatchEvent(new CustomEvent('reel:wake')));
                 }
-
-                this.$nextTick(() => this.$refs.close?.focus());
             },
 
             close() {
@@ -231,12 +122,43 @@
                 this.open = false;
                 document.documentElement.classList.remove('site-season-open');
 
-                // Se quita el ancla de la dirección para poder volver a abrirla con el mismo enlace
-                if (this.ownsHash()) {
+                // Se quita el ancla de la dirección para poder volver a abrir con el mismo enlace
+                if (this.keyFromHash()) {
                     history.replaceState(null, '', window.location.pathname + window.location.search);
                 }
 
                 this.$nextTick(() => this.$refs.fab?.focus());
+            },
+
+            destroy() {
+                clearInterval(this.timer);
+            },
+        };
+    }
+
+    /* Panel de una temporada: cuenta regresiva y el diseño elegido en su teléfono (evento «reel:go») */
+    function seasonOffer(endsAt, demos) {
+        const end = new Date(endsAt).getTime();
+
+        return {
+            demos,
+            active: 0,
+            left: { days: 0, hours: 0, minutes: 0, seconds: 0 },
+            timer: null,
+
+            init() {
+                this.tick();
+                this.timer = setInterval(() => this.tick(), 1000);
+            },
+
+            tick() {
+                const seconds = Math.floor(Math.max(end - Date.now(), 0) / 1000);
+                this.left = {
+                    days: Math.floor(seconds / 86400),
+                    hours: Math.floor(seconds % 86400 / 3600),
+                    minutes: Math.floor(seconds % 3600 / 60),
+                    seconds: seconds % 60,
+                };
             },
 
             choose(index) {

@@ -50,7 +50,7 @@
         <p class="inv-boda-hero__date-text inv-fade-up inv-fade-up--3">{{ $heroDateText }}</p>
 
         <a href="#contenido" class="inv-hero__scroll inv-boda-hero__scroll">
-            Desliza
+            {{ $invCopy['scroll_hint'] ?? 'Desliza' }}
             <span class="inv-hero__scroll-line" aria-hidden="true"></span>
         </a>
     </div>

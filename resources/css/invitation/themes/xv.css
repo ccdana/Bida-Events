@@ -70,13 +70,29 @@ html.inv-cover-skip .inv-xv-intro {
 }
 
 .inv-xv-intro__curtain {
-    --fold: 90deg;
     --edge: -26px;
     position: absolute;
     top: 0;
     bottom: 0;
     width: 50.5%;
-    transition: opacity 0.7s ease 1.6s;
+    /* Un solo paño por lado: los pliegues son un degradado que se repite y se comprime al recogerse,
+       y el borde interior se curva hacia el lazo con un recorte continuo (sin franjas ni escalones) */
+    background:
+        linear-gradient(180deg, rgb(0 0 0 / 0.34), transparent 22%, transparent 70%, rgb(0 0 0 / 0.42)),
+        linear-gradient(90deg,
+            rgb(0 0 0 / 0.34) 0,
+            rgb(255 255 255 / 0.06) 35%,
+            rgb(0 0 0 / 0.2) 57%,
+            rgb(255 255 255 / 0.09) 78%,
+            rgb(0 0 0 / 0.34) 100%) 0 0 / 8rem 100% repeat-x,
+        var(--xv-curtain);
+    box-shadow: inset var(--edge) 0 30px -22px rgb(0 0 0 / 0.7);
+    clip-path: polygon(0 0, 100% 0%, 100% 4.17%, 100% 8.33%, 100% 12.5%, 100% 16.67%, 100% 20.83%, 100% 25%, 100% 29.17%, 100% 33.33%, 100% 37.5%, 100% 41.67%, 100% 45.83%, 100% 50%, 100% 54.17%, 100% 58.33%, 100% 62.5%, 100% 66.67%, 100% 70.83%, 100% 75%, 100% 79.17%, 100% 83.33%, 100% 87.5%, 100% 91.67%, 100% 95.83%, 100% 100%, 0 100%);
+    will-change: clip-path;
+    transition:
+        clip-path 1.45s cubic-bezier(0.6, 0, 0.2, 1),
+        background-size 1.45s cubic-bezier(0.6, 0, 0.2, 1),
+        opacity 0.7s ease 1.6s;
 }
 
 .inv-xv-intro__curtain--left {
@@ -84,50 +100,28 @@ html.inv-cover-skip .inv-xv-intro {
 }
 
 .inv-xv-intro__curtain--right {
-    --fold: 270deg;
     --edge: 26px;
     right: 0;
-}
-
-/* Cada franja lleva los mismos pliegues (sombras y brillos translúcidos sobre el terciopelo) y su sombra de altura */
-.inv-xv-intro__curtain i {
-    position: absolute;
-    top: calc(var(--r) * 100% / 60);
-    right: 0;
-    left: 0;
-    height: calc(100% / 60 + 3px);
-    background:
-        linear-gradient(rgb(0 0 0 / var(--shade)), rgb(0 0 0 / var(--shade))),
-        repeating-linear-gradient(var(--fold),
-            rgb(0 0 0 / 0.34) 0,
-            rgb(255 255 255 / 0.06) 2.8rem,
-            rgb(0 0 0 / 0.2) 4.6rem,
-            rgb(255 255 255 / 0.09) 6.2rem,
-            rgb(0 0 0 / 0.34) 8rem),
-        var(--xv-curtain);
-    box-shadow: inset var(--edge) 0 30px -22px rgb(0 0 0 / 0.7);
-    transform-origin: 0 50%;
-    transition: transform 1.45s cubic-bezier(0.6, 0, 0.2, 1) var(--delay);
-}
-
-.inv-xv-intro__curtain--right i {
-    transform-origin: 100% 50%;
+    background-position: 0 0, 100% 0, 0 0;
+    clip-path: polygon(100% 0, 0% 0%, 0% 4.17%, 0% 8.33%, 0% 12.5%, 0% 16.67%, 0% 20.83%, 0% 25%, 0% 29.17%, 0% 33.33%, 0% 37.5%, 0% 41.67%, 0% 45.83%, 0% 50%, 0% 54.17%, 0% 58.33%, 0% 62.5%, 0% 66.67%, 0% 70.83%, 0% 75%, 0% 79.17%, 0% 83.33%, 0% 87.5%, 0% 91.67%, 0% 95.83%, 0% 100%, 100% 100%);
 }
 
 /* Al tocar, la tela se tensa un instante antes de correrse */
-.inv-xv-intro.is-opening .inv-xv-intro__curtain i {
-    transform: scaleX(0.97);
-    transition-duration: 0.35s;
+.inv-xv-intro.is-opening .inv-xv-intro__curtain {
+    background-size: 100% 100%, 7.6rem 100%, auto;
+    transition-duration: 0.35s, 0.35s, 0.7s;
 }
 
-/* Los telones se recogen: los pliegues se comprimen y el borde interior se curva hacia el lazo */
-.inv-xv-intro.is-parting .inv-xv-intro__curtain i {
-    transform: scaleX(var(--gather));
-    transition-duration: 1.45s;
-}
-
+/* Los telones se recogen: los pliegues se juntan y el borde interior se curva hacia el lazo */
 .inv-xv-intro.is-parting .inv-xv-intro__curtain {
+    background-size: 100% 100%, 2.4rem 100%, auto;
+    clip-path: polygon(0 0, 37% 0%, 34.85% 4.17%, 32.75% 8.33%, 30.71% 12.5%, 28.73% 16.67%, 26.81% 20.83%, 24.96% 25%, 23.17% 29.17%, 21.47% 33.33%, 19.85% 37.5%, 18.33% 41.67%, 16.91% 45.83%, 15.61% 50%, 14.47% 54.17%, 13.53% 58.33%, 13.04% 62.5%, 13.73% 66.67%, 14.73% 70.83%, 15.91% 75%, 17.24% 79.17%, 18.68% 83.33%, 20.23% 87.5%, 21.87% 91.67%, 23.59% 95.83%, 25.39% 100%, 0 100%);
+    transition-duration: 1.45s, 1.45s, 0.7s;
     opacity: 0;
+}
+
+.inv-xv-intro.is-parting .inv-xv-intro__curtain--right {
+    clip-path: polygon(100% 0, 63% 0%, 65.15% 4.17%, 67.25% 8.33%, 69.29% 12.5%, 71.27% 16.67%, 73.19% 20.83%, 75.04% 25%, 76.83% 29.17%, 78.53% 33.33%, 80.15% 37.5%, 81.67% 41.67%, 83.09% 45.83%, 84.39% 50%, 85.53% 54.17%, 86.47% 58.33%, 86.96% 62.5%, 86.27% 66.67%, 85.27% 70.83%, 84.09% 75%, 82.76% 79.17%, 81.32% 83.33%, 79.77% 87.5%, 78.13% 91.67%, 76.41% 95.83%, 74.61% 100%, 100% 100%);
 }
 
 /* Lazo dorado donde queda recogido cada paño */

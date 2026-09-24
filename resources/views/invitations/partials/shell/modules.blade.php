@@ -40,7 +40,7 @@
                 ])
                 <div class="inv-actions">
                     <button type="button" class="inv-btn inv-btn--block" data-url="{{ $calendarUrl }}" onclick="openCalendar(this.dataset.url)">
-                        Agregar a Google Calendar
+                        {{ $invCopy['calendar_add'] ?? 'Agregar a Google Calendar' }}
                     </button>
                 </div>
             </div>

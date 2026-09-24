@@ -15,7 +15,7 @@
 
     <div class="inv-player__meta">
         <span class="inv-player__title">{{ $musica['titulo'] ?? 'Música de fondo' }}</span>
-        <span class="inv-player__artist" x-text="playing || started ? @js($musica['artista'] ?? 'Sonando ahora') : 'Toca para escuchar'">Toca para escuchar</span>
+        <span class="inv-player__artist" x-text="playing || started ? @js($musica['artista'] ?? 'Sonando ahora') : 'Toca para escuchar'">{{ $invCopy['music_hint'] ?? 'Toca para escuchar' }}</span>
     </div>
 
     <span class="inv-player__eq" :class="{ 'is-playing': playing }" aria-hidden="true"><i></i><i></i><i></i></span>

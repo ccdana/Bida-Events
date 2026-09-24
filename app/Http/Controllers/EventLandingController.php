@@ -69,15 +69,4 @@ class EventLandingController extends Controller
 
         return collect(config('bida.seasons', []))->firstWhere('landing', $landing)['templates'] ?? [];
     }
-
-    /** Mapa del sitio con las páginas públicas que sí deben aparecer en buscadores. */
-    public function sitemap()
-    {
-        $urls = collect([route('home')])
-            ->merge(collect(config('bida.landings', []))->keys()->map(fn (string $slug) => route('landing', $slug)));
-
-        return response()
-            ->view('sitemap', ['urls' => $urls])
-            ->header('Content-Type', 'application/xml; charset=utf-8');
-    }
 }

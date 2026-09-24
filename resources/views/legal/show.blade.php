@@ -2,7 +2,7 @@
 
 {{--
     Página legal (privacidad, cookies o términos). El contenido vive en App\Support\LegalPages;
-    esta vista solo lo dibuja: índice a la izquierda en pantallas anchas y las secciones numeradas.
+    esta vista solo lo dibuja: índice a la izquierda en pantallas anchas y las secciones a la derecha.
 --}}
 @section('title', $content['title'].' | '.$bida['brand'])
 @section('description', $content['description'])
@@ -10,7 +10,7 @@
 @php
     $navLinks = [
         route('home') => 'Inicio',
-        route('professionals') => 'Para profesionales',
+        route('diy') => 'Hazlo tú',
     ];
     $accountUrl = $user ? route('dashboard') : route('login');
     $accountLabel = $user ? 'Mi panel' : 'Ingresar';
@@ -33,7 +33,7 @@
         <div class="mt-8 grid gap-12 lg:grid-cols-12 lg:gap-8">
             <header class="lg:col-span-4">
                 <div class="lg:sticky lg:top-28">
-                    <h1 class="max-w-[14ch] text-4xl font-semibold leading-[1.05] tracking-tight md:text-5xl">{{ $content['title'] }}</h1>
+                    <h1 class="site-display site-display--md max-w-[14ch]">{{ $content['title'] }}</h1>
                     @if($updatedAt)
                         <p class="mt-4 text-sm text-site-muted">
                             Actualizada el {{ \Illuminate\Support\Carbon::parse($updatedAt)->locale('es')->translatedFormat('j \d\e F \d\e Y') }}
@@ -44,7 +44,6 @@
                         @foreach($content['sections'] as $index => $section)
                             <li>
                                 <a href="#seccion-{{ $index + 1 }}">
-                                    <span>{{ str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) }}</span>
                                     {{ $section['title'] }}
                                 </a>
                             </li>
@@ -59,7 +58,6 @@
                 @foreach($content['sections'] as $index => $section)
                     <section id="seccion-{{ $index + 1 }}" class="site-legal__section">
                         <h2>
-                            <span class="site-legal__num">{{ str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) }}</span>
                             {{ $section['title'] }}
                         </h2>
                         @foreach($section['paragraphs'] ?? [] as $paragraph)

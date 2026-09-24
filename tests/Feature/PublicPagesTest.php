@@ -16,25 +16,29 @@ class PublicPagesTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_the_professionals_page_lists_every_plan_with_its_current_price(): void
+    public function test_the_diy_page_lists_every_plan_with_its_current_price_and_discount(): void
     {
         config(['bida.whatsapp' => '+591 7123-4567']);
         $this->seed(ShowcaseInvitationsSeeder::class);
 
         // El administrador subió el precio del plan Aliado desde Ajustes
-        SiteSettings::put('reseller_plans', ['aliado' => ['price' => 135, 'quota_per_month' => 9]]);
+        SiteSettings::put('reseller_plans', ['aliado' => ['price' => 20, 'promo_price' => 16, 'quota_per_month' => 9]]);
         SiteSettings::apply();
 
-        $this->withoutVite()->get(route('professionals'))
+        $this->withoutVite()->get(route('diy'))
             ->assertOk()
-            ->assertSee('Invitaciones digitales con tu nombre, para tus clientes')
-            ->assertSeeInOrder(['Inicial', '60', 'Bs al mes', 'Aliado', '135', 'Bs al mes', '9 invitaciones al mes', 'Emprendedor', '250', 'Agencia', '500', 'Invitaciones sin tope'])
+            ->assertSee('Tu propio panel para crear invitaciones digitales')
+            // Beneficios explicados, con la entrada por QR
+            ->assertSee('Qué obtienes con Hazlo tú')
+            ->assertSee('Control de entrada el día del evento')
+            ->assertSee('Cuentas claras')
+            ->assertSeeInOrder(['Inicial', '9', 'USD al mes', 'Aliado', 'US$ 20', '16', 'USD al mes', '9 invitaciones al mes', 'Emprendedor', 'Agencia', 'Invitaciones sin tope'])
             // La comparación dice qué desbloquea cada plan
-            ->assertSeeInOrder(['Plantilla en blanco', 'Plantillas clásicas', 'Temáticas y de temporada', 'Accesos para tus clientes al mes', 'Tu marca al pie'])
+            ->assertSeeInOrder(['Accesos para clientes al mes', 'Plantilla en blanco', 'Plantillas clásicas', 'Temáticas y de temporada', 'Tu marca al pie'])
             ->assertSee('Noche de calabazas')
             // WhatsApp con el plan y el código de la página
-            ->assertSee(rawurlencode('me interesa el plan Aliado (135 Bs al mes)'), false)
-            ->assertSee(rawurlencode('Ref. PRO'), false)
+            ->assertSee(rawurlencode('quiero el plan Aliado de Hazlo tú (US$ 16 al mes)'), false)
+            ->assertSee(rawurlencode('Ref. HAZLO'), false)
             // Las muestras del teléfono se pueden abrir
             ->assertSee(route('invitation.demo', 'lienzo-casa-molina'), false);
 
@@ -61,7 +65,7 @@ class PublicPagesTest extends TestCase
             ->assertSee(route('legal', 'privacidad'), false)
             ->assertSee(route('legal', 'cookies'), false)
             ->assertSee(route('legal', 'terminos'), false)
-            ->assertSee(route('professionals'), false);
+            ->assertSee(route('diy'), false);
     }
 
     public function test_the_site_shows_the_cookie_notice_but_the_invitations_do_not(): void
@@ -82,7 +86,7 @@ class PublicPagesTest extends TestCase
     {
         $reseller = User::factory()->reseller('aliado')->create();
 
-        $this->actingAs($reseller)->withoutVite()->get(route('professionals'))
+        $this->actingAs($reseller)->withoutVite()->get(route('diy'))
             ->assertOk()
             ->assertSee('Mi panel');
     }

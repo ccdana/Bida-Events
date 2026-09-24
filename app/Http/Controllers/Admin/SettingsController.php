@@ -63,6 +63,7 @@ class SettingsController extends Controller
             ->only(array_keys(config('bida.reseller_plans', [])))
             ->map(fn (array $plan) => [
                 'price' => (int) $plan['price'],
+                'promo_price' => ($plan['promo_price'] ?? '') === '' ? null : (int) $plan['promo_price'],
                 'quota_per_month' => ($plan['quota_per_month'] ?? '') === '' ? null : (int) $plan['quota_per_month'],
             ])
             ->all());

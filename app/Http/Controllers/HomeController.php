@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Invitation;
 use App\Support\LeadSource;
+use App\Support\Money;
 use App\Support\Offers;
 use App\Support\ShareMeta;
 use App\Support\ShowcaseDemos;
@@ -32,8 +33,8 @@ class HomeController extends Controller
             'demos' => $demos,
             'landings' => self::landingLinks(),
             'share' => ShareMeta::make(
-                "{$bida['brand']} | Invitaciones y tarjetas digitales para tus eventos",
-                "Invitaciones digitales para bodas, bautizos, cumpleaños y XV años, con confirmación de asistencia, música, fotos y mapa. Paquetes desde {$fromPrice} Bs.",
+                "{$bida['brand']} | Invitaciones digitales para bodas, XV años, bautizos y graduaciones",
+                'Invitaciones digitales con confirmación de asistencia, pase QR y control de entrada, música, fotos y mapa. Se comparten por WhatsApp. Paquetes desde '.Money::format($fromPrice).'.',
                 ShareMeta::siteImage('inicio'),
                 route('home'),
             ),
@@ -44,7 +45,7 @@ class HomeController extends Controller
     public static function packages(array $packages, \Closure $whatsapp): array
     {
         return collect(Offers::packages($packages))->map(fn (array $package): array => $package + [
-            'whatsapp' => $whatsapp("Hola {brand}, me interesa el paquete {$package['name']} ({$package['final_price']} Bs) para mi invitación."),
+            'whatsapp' => $whatsapp("Hola {brand}, me interesa el paquete {$package['name']} (".Money::format($package['final_price']).') para mi invitación.'),
         ])->all();
     }
 
@@ -60,7 +61,7 @@ class HomeController extends Controller
 
     private static function withContact(Request $request, array $season): array
     {
-        $message = str_replace('{price}', (string) $season['final_price'], $season['whatsapp']);
+        $message = str_replace('{price}', Money::format($season['final_price']), $season['whatsapp']);
 
         return $season + [
             'whatsappUrl' => LeadSource::whatsappUrl($request, $message, $season['code']),

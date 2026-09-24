@@ -12,7 +12,7 @@
         @click="toggle()"
         :aria-expanded="open.toString()"
         aria-controls="inv-nav-panel">
-        <span x-text="open ? 'Cerrar' : 'Menú'">Menú</span>
+        <span x-text="open ? 'Cerrar' : 'Menú'">{{ $invCopy['menu_label'] ?? 'Menú' }}</span>
         <span class="inv-nav__bars" aria-hidden="true"><span></span><span></span></span>
     </button>
 

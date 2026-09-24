@@ -30,21 +30,21 @@
         ! empty($bida['tiktok']) ? ['label' => 'TikTok', 'url' => 'https://www.tiktok.com/@'.$bida['tiktok'], 'icon' => 'tiktok-logo'] : null,
     ]));
     $noun = $isCard ? 'tarjeta' : 'invitación';
-    // Datos estructurados: Google puede mostrar las preguntas directamente en los resultados
-    $faqSchema = [
-        '@context' => 'https://schema.org',
-        '@type' => 'FAQPage',
-        'mainEntity' => array_map(fn (array $faq) => [
-            '@type' => 'Question',
-            'name' => $faq[0],
-            'acceptedAnswer' => ['@type' => 'Answer', 'text' => $faq[1]],
-        ], $faqs),
-    ];
 @endphp
 
-@section('content')
-    <script type="application/ld+json">{!! json_encode($faqSchema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG) !!}</script>
+@push('head')
+    {{-- Preguntas, ruta de navegación y precio de esta página para buscadores y motores de respuesta --}}
+    @include('site.partials.structured-data', [
+        'faqs' => $faqs,
+        'serviceName' => $page['title'],
+        'breadcrumbs' => [[$bida['brand'], route('home')], [$page['link'], route('landing', $slug)]],
+        'offers' => $isSeasonal
+            ? ($season ? [['name' => $page['link'], 'price' => $season['final_price'], 'description' => $page['description']]] : [])
+            : null,
+    ])
+@endpush
 
+@section('content')
     <div data-header-sentinel class="pointer-events-none absolute inset-x-0 top-0 h-4" aria-hidden="true"></div>
 
     @include('site.partials.header', ['navLinks' => $navLinks])
@@ -59,7 +59,7 @@
                         <span class="mx-2" aria-hidden="true">/</span>
                         <span class="text-site-ink">{{ $page['link'] }}</span>
                     </nav>
-                    <h1 class="site-enter mt-5 max-w-[18ch] text-[2.4rem] font-semibold leading-[1.06] tracking-tight sm:text-5xl xl:text-[3.4rem]" style="--enter-index: 1">
+                    <h1 class="site-enter site-display mt-5 max-w-[16ch]" style="--enter-index: 1">
                         {{ $page['heading'] }}
                     </h1>
                     <p class="site-enter mt-6 max-w-[44ch] text-lg leading-relaxed text-site-muted" style="--enter-index: 2">
@@ -78,7 +78,6 @@
                                             @click="if (active !== {{ $index }}) { active = {{ $index }}; loading = true }"
                                             @class(['site-template', 'is-active' => $index === 0])
                                             :class="{ 'is-active': active === {{ $index }} }">
-                                            <span class="site-template__num">{{ str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) }}</span>
                                             <span class="site-template__name">{{ $demo['label'] }}</span>
                                             <span class="site-template__event">{{ $demo['tagline'] ?? $demo['event'] }}</span>
                                         </button>
@@ -91,7 +90,7 @@
                     <div class="site-enter mt-9 flex flex-col gap-3 sm:flex-row" style="--enter-index: 4">
                         <a href="{{ $isSeasonal && $season ? $season['whatsappUrl'] : $contactUrl }}" target="_blank" rel="noopener" class="site-btn site-btn--lg justify-center" data-magnetic>
                             <x-phosphor-whatsapp-logo aria-hidden="true" />
-                            {{ $isSeasonal && $season ? 'La quiero por '.$season['final_price'].' Bs' : 'Escríbenos' }}
+                            {{ $isSeasonal && $season ? 'La quiero por '.\App\Support\Money::format($season['final_price']) : 'Escríbenos' }}
                         </a>
                         <a href="#precios" class="site-btn site-btn--ghost site-btn--lg justify-center">
                             Ver precios
@@ -101,12 +100,12 @@
                     <p class="site-enter mt-6 text-sm text-site-muted" style="--enter-index: 5">
                         @if($isSeasonal)
                             @if($season)
-                                @if($season['old_price'])<del>{{ $season['old_price'] }} Bs</del> @endif<strong class="text-site-ink">{{ $season['final_price'] }} Bs</strong> por temporada · {{ $isCard ? 'Lista el mismo día' : 'Con confirmación de asistencia' }} · Se manda por WhatsApp
+                                @if($season['old_price'])<del>{{ \App\Support\Money::format($season['old_price']) }}</del> @endif<strong class="text-site-ink">{{ \App\Support\Money::format($season['final_price']) }}</strong> por temporada · {{ $isCard ? 'Lista el mismo día' : 'Con confirmación de asistencia' }} · Se manda por WhatsApp
                             @else
                                 {{ $isCard ? 'Lista el mismo día' : 'Con confirmación de asistencia' }} · Se manda por WhatsApp
                             @endif
                         @else
-                            Paquetes desde {{ $fromPrice }} Bs · Pago único por invitación
+                            Paquetes desde {{ \App\Support\Money::format($fromPrice) }} · Pago único por invitación
                         @endif
                     </p>
                 </div>
@@ -171,10 +170,10 @@
                             <p class="text-[0.95rem] font-medium text-site-accent">Precio de temporada</p>
                             <p class="mt-4 flex flex-wrap items-baseline gap-x-3 gap-y-1">
                                 @if($season['old_price'])
-                                    <del class="site-plan__old"><span class="sr-only">Antes </span>{{ $season['old_price'] }} Bs</del>
+                                    <del class="site-plan__old"><span class="sr-only">Antes </span>{{ \App\Support\Money::format($season['old_price']) }}</del>
                                 @endif
                                 <span class="site-plan__price">{{ $season['final_price'] }}</span>
-                                <span class="text-xl text-site-muted">Bs por {{ $noun }}</span>
+                                <span class="text-xl text-site-muted">{{ \App\Support\Money::code() }} por {{ $noun }}</span>
                             </p>
                             <p class="mt-3 text-site-muted">
                                 {{ $season['promo_label'] }} hasta el {{ $season['endsAt']->locale('es')->translatedFormat('l j \d\e F') }}. Todos los diseños de la temporada cuestan lo mismo.
@@ -182,7 +181,7 @@
                         </div>
                         <a href="{{ $season['whatsappUrl'] }}" target="_blank" rel="noopener" class="site-btn site-btn--lg" data-magnetic>
                             <x-phosphor-whatsapp-logo aria-hidden="true" />
-                            La quiero por {{ $season['final_price'] }} Bs
+                            La quiero por {{ \App\Support\Money::format($season['final_price']) }}
                         </a>
                     @else
                         <p class="max-w-[40ch] text-2xl font-semibold leading-snug tracking-tight md:text-3xl">La temporada terminó. Escríbenos y te avisamos de la próxima.</p>

@@ -43,7 +43,7 @@
         @endif
 
         <div class="inv-hw-ticket inv-fade-up inv-fade-up--3">
-            <span class="inv-hw-ticket__label">La noche del</span>
+            <span class="inv-hw-ticket__label">{{ $invCopy['hero_ticket_label'] ?? 'La noche del' }}</span>
             <span class="inv-hw-ticket__day">{{ $heroDay }}</span>
             <span class="inv-hw-ticket__time">{{ $page->eventDate->format('H:i') }}</span>
         </div>
@@ -56,7 +56,7 @@
     </div>
 
     <a href="#contenido" class="inv-hero__scroll inv-hw-hero__scroll">
-        Desliza
+        {{ $invCopy['scroll_hint'] ?? 'Desliza' }}
         <span class="inv-hero__scroll-line" aria-hidden="true"></span>
     </a>
 </header>

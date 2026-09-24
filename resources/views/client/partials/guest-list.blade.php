@@ -121,7 +121,12 @@
                                     {{ $row['statusLabel'] }}
                                 </span>
                             </td>
-                            <td class="tabular-nums">{{ $row['passesLabel'] }}</td>
+                            <td class="tabular-nums">
+                                {{ $row['passesLabel'] }}
+                                @if($row['guest']->checked_in_at)
+                                    <span class="mt-0.5 block text-xs text-site-muted">Ingresó {{ $row['guest']->checked_in_passes }} · {{ $row['guest']->checked_in_at->timezone(config('app.timezone'))->format('H:i') }}</span>
+                                @endif
+                            </td>
                             <td class="text-site-muted">{{ $row['dietaryRestrictions'] }}</td>
                             <td>
                                 <div class="flex justify-end gap-1">

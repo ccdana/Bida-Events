@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Client\ContributionController as ClientContributionController;
 use App\Http\Controllers\Client\DashboardController as ClientDashboardController;
+use App\Http\Controllers\Client\DoorAccessController;
 use App\Http\Controllers\Client\ExportController;
 use App\Http\Controllers\Client\GuestController as ClientGuestController;
 use App\Http\Controllers\Client\InvitationController as ClientInvitationController;
@@ -18,20 +19,29 @@ use App\Http\Controllers\Client\ResellerClientController;
 use App\Http\Controllers\EventLandingController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Public\ContributionController;
+use App\Http\Controllers\Public\DoorController;
 use App\Http\Controllers\Public\InvitationController as PublicInvitationController;
 use App\Http\Controllers\Public\RsvpController;
 use App\Http\Controllers\PublicPagesController;
+use App\Http\Controllers\SeoController;
 use App\Models\Invitation;
 use App\Support\LegalPages;
+use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Http\Request;
+use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Route;
+use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 // Sitio público: la portada y las páginas por tipo de evento recuerdan el origen de campaña (utm_*, ?ref=)
 Route::middleware('lead.source')->group(function () {
     Route::get('/', HomeController::class)->name('home');
 
-    // Publicidad para profesionales de eventos (revendedores con suscripción mensual)
-    Route::get('/para-profesionales', [PublicPagesController::class, 'professionals'])->name('professionals');
+    // «Hazlo tú»: planes mensuales para armar invitaciones propias (revendedores con suscripción)
+    Route::get('/hazlo-tu', [PublicPagesController::class, 'diy'])->name('diy');
+
+    // Guía pública sobre invitaciones digitales (contenido pensado para buscadores y respuestas de IA)
+    Route::get('/guia-invitaciones-digitales', [PublicPagesController::class, 'guide'])->name('guide');
+    Route::permanentRedirect('/para-profesionales', '/hazlo-tu');
 
     // Privacidad, cookies y términos (App\Support\LegalPages)
     Route::get('/legal/{page}', [PublicPagesController::class, 'legal'])
@@ -44,7 +54,23 @@ Route::middleware('lead.source')->group(function () {
         ->name('landing');
 });
 
-Route::get('/sitemap.xml', [EventLandingController::class, 'sitemap'])->name('sitemap');
+// Para buscadores y motores de respuesta: se arman con la configuración de hoy (SeoController). Sin
+// sesión ni cookies: los pide un rastreador y así cualquier caché intermedia puede guardarlos.
+// robots.txt es estático (public/robots.txt)
+Route::withoutMiddleware([StartSession::class, ShareErrorsFromSession::class, ValidateCsrfToken::class])->group(function () {
+    Route::get('/sitemap.xml', [SeoController::class, 'sitemap'])->name('sitemap');
+    Route::get('/llms.txt', [SeoController::class, 'llms'])->name('llms');
+});
+
+// Control de entrada el día del evento (teléfono del personal de la puerta). Fuera de /p para que
+// ninguna caché de invitaciones guarde una respuesta que depende del teléfono que la pide
+Route::middleware('throttle:door')->name('door.')->group(function () {
+    Route::get('/puerta/{doorToken}', [DoorController::class, 'open'])->name('open');
+    Route::post('/puerta/{doorToken}/codigo', [DoorController::class, 'lookup'])->name('lookup');
+    Route::get('/entrada/{slug}/{token}', [DoorController::class, 'entry'])->name('entry');
+    Route::post('/entrada/{slug}/{token}', [DoorController::class, 'checkIn'])->name('check-in');
+    Route::post('/entrada/{slug}/{token}/deshacer', [DoorController::class, 'undo'])->name('undo');
+});
 
 // Invitaciones de muestra de la home: se pueden recorrer y probar, pero nada se guarda
 Route::get('/muestra/{slug}', [PublicInvitationController::class, 'demo'])->name('invitation.demo');
@@ -152,6 +178,10 @@ Route::prefix('client')->name('client.')->middleware(['auth', 'client'])->group(
         Route::post('/invitations/{invitation}/guests', [ClientGuestController::class, 'store'])->name('guests.store');
         Route::delete('/invitations/{invitation}/guests/{guest}', [ClientGuestController::class, 'destroy'])->name('guests.destroy');
     });
+
+    // Control de entrada: el enlace de puerta que se comparte con quien recibe a los invitados
+    Route::post('/invitations/{invitation}/puerta', [DoorAccessController::class, 'store'])->can('manageOwnGuests', 'invitation')->name('door.store');
+    Route::delete('/invitations/{invitation}/puerta', [DoorAccessController::class, 'destroy'])->can('manageOwnGuests', 'invitation')->name('door.destroy');
 
     // Ocultar o volver a mostrar una foto o una canción de invitados (no se borra nada)
     Route::patch('/invitations/{invitation}/contributions/{contribution}', [ClientContributionController::class, 'update'])

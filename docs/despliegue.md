@@ -742,6 +742,9 @@ Después de publicar:
 - [Google Search Console](https://search.google.com/search-console): agrega el dominio (la
   verificación por DNS se hace con un registro TXT en Cloudflare) y envía
   `https://bida-events.com/sitemap.xml`.
+  Haz lo mismo en [Bing Webmaster Tools](https://www.bing.com/webmasters) (alimenta a Copilot y a
+  otros motores de respuesta). `public/robots.txt` ya declara el sitemap (si el dominio cambia, se corrige ahí) y `/llms.txt` resume el negocio para
+  las IA; ver `docs/geo-estrategia.md`.
 - [Google Business Profile](https://business.google.com): perfil del negocio con el enlace a la
   web y el WhatsApp.
 - Revisa cómo se ve el enlace al compartir con el

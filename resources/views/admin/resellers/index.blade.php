@@ -115,7 +115,7 @@
                                         {{ $row['renewsLabel'] }}
                                         @if($row['lastPayment'])
                                             <span class="mt-0.5 block text-xs text-site-muted">
-                                                Último pago: {{ number_format((float) $row['lastPayment']->amount, 0, ',', '.') }} Bs, {{ $row['lastPayment']->paid_at->format('d/m/Y') }}
+                                                Último pago: {{ \App\Support\Money::format($row['lastPayment']->amount, $row['lastPayment']->currency) }}, {{ $row['lastPayment']->paid_at->format('d/m/Y') }}
                                             </span>
                                             {{-- Un pago cargado por error se anula y la fecha vuelve a la anterior --}}
                                             <form method="POST" action="{{ route('admin.resellers.payments.destroy', [$row['reseller'], $row['lastPayment']]) }}"
@@ -141,12 +141,12 @@
                                                 <label class="admin-label" for="plan-{{ $row['reseller']->id }}">Plan</label>
                                                 <select id="plan-{{ $row['reseller']->id }}" name="plan" class="admin-input">
                                                     @foreach($plans as $key => $plan)
-                                                        <option value="{{ $key }}" @selected($key === $row['planKey'])>{{ $plan['name'] }} · {{ $plan['price'] }} Bs</option>
+                                                        <option value="{{ $key }}" @selected($key === $row['planKey'])>{{ $plan['name'] }} · {{ \App\Support\Money::format(\App\Support\Offers::planPrice($plan)) }}</option>
                                                     @endforeach
                                                 </select>
                                             </div>
                                             <div>
-                                                <label class="admin-label" for="monto-{{ $row['reseller']->id }}">Monto (Bs)</label>
+                                                <label class="admin-label" for="monto-{{ $row['reseller']->id }}">Monto ({{ \App\Support\Money::code() }})</label>
                                                 <input id="monto-{{ $row['reseller']->id }}" type="number" name="amount" min="0" step="0.01" required class="admin-input"
                                                     value="{{ $row['planPrice'] }}">
                                             </div>
@@ -196,7 +196,7 @@
                         <select id="reseller-plan" name="plan" class="admin-input">
                             @foreach($plans as $key => $plan)
                                 <option value="{{ $key }}" @selected(old('plan') === $key)>
-                                    {{ $plan['name'] }} · {{ $plan['price'] }} Bs · {{ $plan['quota_per_month'] ?? 'sin tope de' }} invitaciones/mes{{ $plan['white_label'] ? ' · marca blanca' : '' }}
+                                    {{ $plan['name'] }} · {{ \App\Support\Money::format(\App\Support\Offers::planPrice($plan)) }} · {{ $plan['quota_per_month'] ?? 'sin tope de' }} invitaciones/mes{{ $plan['white_label'] ? ' · marca blanca' : '' }}
                                 </option>
                             @endforeach
                         </select>

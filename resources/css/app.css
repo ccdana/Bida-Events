@@ -16,6 +16,7 @@
 @import './invitation/themes/halloween.css';
 @import './site/brand.css';
 @import './site/site.css';
+@import './site/home.css';
 @import './admin/admin.css';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';

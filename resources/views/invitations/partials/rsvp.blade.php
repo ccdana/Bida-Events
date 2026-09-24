@@ -1,5 +1,5 @@
 @php
-    use SimpleSoftwareIO\QrCode\Facades\QrCode;
+    use App\Support\GuestPass;
 
     $maxPasses = max(1, (int) $guest->passes_allocated);
 @endphp
@@ -7,7 +7,7 @@
     x-data="rsvpForm(@js($slug), @js($guest->qr_code_token), {{ $maxPasses }}, @js($guest->status ?? ''), {{ (int) ($guest->passes_confirmed ?? 0) }})">
     @if(! empty($isDemo))
         {{-- Pase de la muestra: se muestra al confirmar sin llamar al servidor --}}
-        <template x-ref="demoQr">{!! QrCode::size(200)->margin(1)->generate($guest->qr_code_token) !!}</template>
+        <template x-ref="demoQr">{!! GuestPass::svg($slug, $guest) !!}</template>
     @endif
 
     <div class="inv-wrap">
@@ -25,19 +25,19 @@
             <div class="inv-pass">
                 <div class="inv-pass__qr">
                     @if($guest->status === 'confirmed')
-                        {!! QrCode::size(200)->margin(1)->generate($guest->qr_code_token) !!}
+                        {!! GuestPass::svg($slug, $guest) !!}
                     @endif
                     <div x-show="qrSvg" x-cloak x-html="qrSvg"></div>
                 </div>
 
                 <dl class="inv-pass__facts">
                     <div>
-                        <dt class="inv-label">Personas</dt>
+                        <dt class="inv-label">{{ $invCopy['rsvp_pass_people'] ?? 'Personas' }}</dt>
                         <dd x-text="passesConfirmed">{{ $guest->passes_confirmed ?? 1 }}</dd>
                     </div>
                     <div>
-                        <dt class="inv-label">Código</dt>
-                        <dd>{{ strtoupper(substr($guest->qr_code_token, 0, 8)) }}</dd>
+                        <dt class="inv-label">{{ $invCopy['rsvp_pass_code'] ?? 'Código' }}</dt>
+                        <dd>{{ GuestPass::code($guest) }}</dd>
                     </div>
                 </dl>
             </div>
@@ -99,7 +99,7 @@
 
                 <div class="inv-rsvp__submit">
                     <button type="submit" class="inv-btn inv-btn--block" :disabled="attending === null || loading">
-                        <span x-text="loading ? 'Enviando…' : (attending === false ? 'Enviar respuesta' : @js($invCopy['rsvp_submit'] ?? 'Confirmar asistencia'))">{{ $invCopy['rsvp_submit'] ?? 'Confirmar asistencia' }}</span>
+                        <span x-text="loading ? 'Enviando…' : (attending === false ? @js($invCopy['rsvp_submit_decline'] ?? 'Enviar respuesta') : @js($invCopy['rsvp_submit'] ?? 'Confirmar asistencia'))">{{ $invCopy['rsvp_submit'] ?? 'Confirmar asistencia' }}</span>
                     </button>
                     <p class="inv-help" x-show="attending === null">Elige una opción para continuar.</p>
                     <p class="inv-status is-error" x-show="error" x-cloak x-text="error" aria-live="assertive"></p>

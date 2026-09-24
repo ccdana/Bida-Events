@@ -154,6 +154,9 @@ function invitationForm(config) {
         slugManual: config.slugManual ?? false,
         activeTab: 'general',
         activeGroup: 'config',
+        // Celular: la lista de secciones y la vista previa se abren a pantalla completa
+        railOpen: false,
+        previewOpen: false,
         previewUrl: config.previewUrl,
         previewStoreUrl: config.previewStoreUrl,
         previewKey: config.previewKey ?? 'draft',
@@ -373,6 +376,37 @@ function invitationForm(config) {
 
         get activeGroupTabs() {
             return this.activeGroupData?.tabs ?? [];
+        },
+
+        /** Todas las secciones en el orden de la lista, para recorrerlas con «Anterior» y «Siguiente». */
+        get flatTabs() {
+            return this.tabGroups.flatMap(group => group.tabs);
+        },
+
+        get currentTab() {
+            return this.flatTabs.find(tab => tab.id === this.activeTab) ?? null;
+        },
+
+        get prevTab() {
+            const index = this.flatTabs.findIndex(tab => tab.id === this.activeTab);
+            return index > 0 ? this.flatTabs[index - 1] : null;
+        },
+
+        get nextTab() {
+            const index = this.flatTabs.findIndex(tab => tab.id === this.activeTab);
+            return index >= 0 && index < this.flatTabs.length - 1 ? this.flatTabs[index + 1] : null;
+        },
+
+        /** Estado de una sección en la lista: oculta, le falta algo o lista. */
+        tabStatus(tab) {
+            if (!this.isTabEnabled(tab)) return 'off';
+            return this.tabIssues(tab).length > 0 ? 'issue' : 'ok';
+        },
+
+        /** Cuántas de las secciones que se ven en la invitación ya tienen lo que necesitan. */
+        get progress() {
+            const visible = this.flatTabs.filter(tab => this.isTabEnabled(tab));
+            return { done: visible.filter(tab => this.tabIssues(tab).length === 0).length, total: visible.length };
         },
 
         get activeModulesCount() {
@@ -822,6 +856,8 @@ function invitationForm(config) {
         selectTab(tabId) {
             this.activeTab = tabId;
             this.syncActiveGroup();
+            // Cada sección empieza arriba: al cambiar no se queda a mitad de la anterior
+            this.$nextTick(() => document.getElementById('invitation-form')?.scrollTo({ top: 0 }));
         },
 
         groupActiveCount(groupId) {

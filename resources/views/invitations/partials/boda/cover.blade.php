@@ -56,7 +56,7 @@
 
         <p class="inv-boda-cover__hint">
             <span class="inv-boda-cover__hint-dot" aria-hidden="true"></span>
-            Toca el sello para abrir
+            {{ $invCopy['intro_hint'] ?? 'Toca el sello para abrir' }}
         </p>
     </div>
 </div>

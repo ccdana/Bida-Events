@@ -17,11 +17,11 @@
 
         <dl class="inv-guest__facts">
             <div>
-                <dt class="inv-label">Pases</dt>
+                <dt class="inv-label">{{ $invCopy['guest_banner_passes'] ?? 'Pases' }}</dt>
                 <dd>{{ $passes }} {{ $passes === 1 ? 'persona' : 'personas' }}</dd>
             </div>
             <div>
-                <dt class="inv-label">Asistencia</dt>
+                <dt class="inv-label">{{ $invCopy['guest_banner_attendance'] ?? 'Asistencia' }}</dt>
                 <dd>{{ $statusLabel }}</dd>
             </div>
         </dl>

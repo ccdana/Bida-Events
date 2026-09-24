@@ -17,6 +17,14 @@ return [
 
     'city' => env('BIDA_CITY', 'Cochabamba, Bolivia'),
 
+    // Moneda de todos los precios (App\Support\Money). Los precios se guardan en esta moneda;
+    // «bob_rate» es el tipo de cambio oficial con el que se pasaron los precios desde bolivianos.
+    'currency' => [
+        'code' => 'USD',
+        'symbol' => 'US$',
+        'bob_rate' => 6.96,
+    ],
+
     // Datos de la empresa para las páginas legales (App\Support\LegalPages). (Supuesto) Sin razón
     // social ni NIT cargados todavía: se muestra la marca hasta completarlos en .env.
     'legal' => [
@@ -45,7 +53,7 @@ return [
     // Las tarjetas de temporada no van aquí: tienen su sección propia (clave «season»).
     'demo_invitations' => ['xv-isabella', 'boda-camila-andres', 'bautizo-emilia', 'cumple-daniela-30', 'graduacion-mariana'],
 
-    // Página para profesionales (/para-profesionales): las muestras que se prueban en su teléfono
+    // Página «Hazlo tú» (/hazlo-tu, planes mensuales): las muestras que se prueban en su teléfono
     'professionals' => [
         'demos' => ['lienzo-casa-molina', 'graduacion-mariana', 'halloween-noche-diego'],
     ],
@@ -60,6 +68,7 @@ return [
         ['phrase' => 'tu bautizo', 'label' => 'bautizos', 'image' => 'event-bautizo', 'event' => 'bautizo'],
         ['phrase' => 'tu cumpleaños', 'label' => 'cumpleaños', 'image' => 'event-cumpleanos', 'event' => 'cumple'],
         ['phrase' => 'tus XV años', 'label' => 'XV años', 'image' => 'event-xv', 'event' => 'xv'],
+        ['phrase' => 'tu graduación', 'label' => 'graduaciones', 'image' => 'event-graduacion', 'event' => 'graduacion'],
     ],
 
     // Franja de tipos de evento (ícono de Phosphor sin prefijo)
@@ -89,8 +98,8 @@ return [
         'event-bautizo' => [
             'path' => 'images/site/event-bautizo.webp',
             'size' => [1200, 1500],
-            'stock' => 537001736,
-            'alt' => 'Bebé vestido de blanco durante su bautizo en la iglesia',
+            'stock' => 383518502,
+            'alt' => 'Bebé envuelto en su manta blanca el día de su bautizo',
         ],
         'event-cumpleanos' => [
             'path' => 'images/site/event-cumpleanos.webp',
@@ -101,8 +110,14 @@ return [
         'event-xv' => [
             'path' => 'images/site/event-xv.webp',
             'size' => [1200, 1500],
-            'stock' => 469198040,
-            'alt' => 'Quinceañera con vestido de gala en un jardín',
+            'stock' => 624942002,
+            'alt' => 'Quinceañera con vestido de gala rosa al aire libre',
+        ],
+        'event-graduacion' => [
+            'path' => 'images/site/event-graduacion.webp',
+            'size' => [1200, 1500],
+            'stock' => 427428198,
+            'alt' => 'Graduada con toga, birrete y su diploma el día de su graduación',
         ],
         'servicio-enlace' => [
             'path' => 'images/site/servicio-enlace.webp',
@@ -134,10 +149,10 @@ return [
         'amor' => ['image' => 'event-boda', 'focus' => 0.35],
         'historia' => ['image' => 'event-boda', 'focus' => 0.35],
         // Sin foto propia todavía: la de la invitación en el celular
-        'graduacion' => ['image' => 'servicio-enlace', 'focus' => 0.45],
+        'graduacion' => ['image' => 'event-graduacion', 'focus' => 0.3],
         'halloween' => ['image' => 'servicio-enlace', 'focus' => 0.45],
         'lienzo' => ['image' => 'servicio-enlace', 'focus' => 0.45],
-        'profesionales' => ['image' => 'servicio-enlace', 'focus' => 0.45],
+        'hazlo' => ['image' => 'servicio-enlace', 'focus' => 0.45],
     ],
 
     /*
@@ -248,8 +263,7 @@ return [
             'link' => 'Invitaciones de graduación',
             'code' => 'GRAD',
             'demos' => ['graduacion-mariana'],
-            // (Supuesto) Sin foto propia de graduación todavía: la de la invitación en el celular
-            'image' => 'servicio-enlace',
+            'image' => 'event-graduacion',
             'label' => 'Graduación',
             'for' => 'tu graduación',
             'title' => 'Invitaciones digitales de graduación en Bolivia',
@@ -389,12 +403,12 @@ return [
             'cta' => 'Ver la temporada',
         ],
         [
-            'key' => 'profesionales',
-            'name' => 'Para profesionales de eventos',
-            'text' => 'Si eres fotógrafo, organizador o decorador, arma invitaciones con nuestras plantillas para tus clientes desde tu propio panel, con un plan mensual.',
-            'occasions' => ['Fotógrafos', 'Wedding planners', 'Decoradores', 'Salones de eventos'],
+            'key' => 'hazlo',
+            'name' => 'Hazlo tú',
+            'text' => 'Tu propio panel para armar invitaciones con nuestras plantillas, cuando quieras y para quien quieras: tu familia, tus clientes o tu negocio. Un plan al mes, sin comisión por invitación.',
+            'occasions' => ['Si organizas varios eventos', 'Fotógrafos y salones', 'Emprendedores de eventos'],
             'price' => 'reseller',
-            'href' => '/para-profesionales',
+            'href' => '/hazlo-tu',
             'cta' => 'Ver los planes',
         ],
     ],
@@ -407,7 +421,7 @@ return [
     | desaparece solo. «product» dice qué se vende (invitación o tarjeta) para los textos y
     | «landing» es su página de campaña. Para sumar diseños, agrega su muestra a «templates».
     |
-    | (Supuesto) Precio de la invitación de Halloween: 180 Bs, 140 Bs de promoción.
+    | Precios en dólares (config «currency»). (Supuesto) Halloween: US$ 26, US$ 20 de promoción.
     */
     'seasons' => [
         'amor' => [
@@ -421,12 +435,12 @@ return [
             'active' => true,
             // BIDA_SEASON_ENDS_AT era la fecha de la única temporada que había (esta)
             'ends_at' => env('BIDA_SEASON_AMOR_ENDS_AT', env('BIDA_SEASON_ENDS_AT', '2026-09-21 23:59:59')),
-            'price' => 100,
-            'promo_price' => 75,
+            'price' => 14,
+            'promo_price' => 11,
             'promo_label' => 'Promoción de temporada',
             'templates' => ['tarjeta-ana-luis', 'tarjeta-libro-aventuras', 'historia-ana-luis'],
             'landing' => 'tarjetas-dia-del-amor',
-            'whatsapp' => 'Hola {brand}, quiero una tarjeta del Día del Amor ({price} Bs).',
+            'whatsapp' => 'Hola {brand}, quiero una tarjeta del Día del Amor ({price}).',
         ],
         'halloween' => [
             'code' => 'HALLO',
@@ -438,12 +452,12 @@ return [
             'more_note' => 'Durante la temporada vamos sumando diseños.',
             'active' => true,
             'ends_at' => env('BIDA_SEASON_HALLOWEEN_ENDS_AT', '2026-10-31 23:59:59'),
-            'price' => 180,
-            'promo_price' => 140,
+            'price' => 26,
+            'promo_price' => 20,
             'promo_label' => 'Promoción de temporada',
             'templates' => ['halloween-noche-diego'],
             'landing' => 'invitaciones-de-halloween',
-            'whatsapp' => 'Hola {brand}, quiero una invitación para mi fiesta de Halloween ({price} Bs).',
+            'whatsapp' => 'Hola {brand}, quiero una invitación para mi fiesta de Halloween ({price}).',
         ],
     ],
 
@@ -451,8 +465,8 @@ return [
         [
             'key' => 'basico',
             'name' => 'Básico',
-            'price' => 200,
-            'promo_price' => 150,
+            'price' => 29,
+            'promo_price' => 22,
             'summary' => 'Lo esencial para invitar con estilo y que nadie se pierda.',
             'features' => [
                 'Portada con foto, nombre y mensaje',
@@ -465,8 +479,8 @@ return [
         [
             'key' => 'estandar',
             'name' => 'Estándar',
-            'price' => 400,
-            'promo_price' => 300,
+            'price' => 57,
+            'promo_price' => 43,
             'featured' => true,
             'summary' => 'La invitación completa, con confirmación de asistencia por invitado.',
             'features' => [
@@ -475,13 +489,14 @@ return [
                 'Dress code, padrinos y cortejo',
                 'Enlace personal para cada invitado',
                 'Confirmación con pase QR',
+                'Control de entrada: el portero escanea el pase',
             ],
         ],
         [
             'key' => 'premium',
             'name' => 'Premium',
-            'price' => 700,
-            'promo_price' => 500,
+            'price' => 99,
+            'promo_price' => 72,
             'premium' => true,
             'summary' => 'Para que tus invitados participen antes, durante y después del evento.',
             'features' => [
@@ -506,7 +521,8 @@ return [
     | las invitaciones que el plan permite crear (ResellerSubscription::canCreateClients).
     |  - «white_label»: el pie de sus invitaciones lleva su nombre comercial en vez de Bida Events.
     | «cycle_months» es cuánto extiende la suscripción cada pago; «templates» (opcional) recorta
-    | todavía más el catálogo con una lista de plantillas. Precio y cupo se cambian en Ajustes.
+    | todavía más el catálogo con una lista de plantillas. «promo_price» es el precio con descuento
+    | (null = sin descuento): se muestra el normal tachado. Precio, descuento y cupo se cambian en Ajustes.
     | No se cobra automáticamente: el administrador registra cada pago desde Revendedores.
     |
     | (Supuesto) Precios, cupos y qué incluye cada plan, pendientes de confirmar con el dueño.
@@ -514,7 +530,8 @@ return [
     'reseller_plans' => [
         'inicial' => [
             'name' => 'Inicial',
-            'price' => 60,
+            'price' => 9,
+            'promo_price' => null,
             'quota_per_month' => 3,
             'collections' => ['lienzo'],
             'white_label' => false,
@@ -525,7 +542,8 @@ return [
         ],
         'aliado' => [
             'name' => 'Aliado',
-            'price' => 120,
+            'price' => 17,
+            'promo_price' => 14,
             'quota_per_month' => 8,
             'collections' => ['lienzo', 'clasica'],
             'white_label' => false,
@@ -536,7 +554,8 @@ return [
         ],
         'emprendedor' => [
             'name' => 'Emprendedor',
-            'price' => 250,
+            'price' => 36,
+            'promo_price' => 29,
             'quota_per_month' => 20,
             'collections' => ['lienzo', 'clasica', 'tematica'],
             'white_label' => true,
@@ -547,7 +566,8 @@ return [
         ],
         'agencia' => [
             'name' => 'Agencia',
-            'price' => 500,
+            'price' => 72,
+            'promo_price' => 59,
             'quota_per_month' => null,
             'collections' => ['lienzo', 'clasica', 'tematica'],
             'white_label' => true,

@@ -6,7 +6,7 @@
         'moduleKey' => 'galeria', 'countExpr' => '`${modules.galeria.fotos.length} fotos`',
     ])
 --}}
-<section class="admin-card space-y-3 p-4">
+<section class="ed-intro space-y-3">
     <div class="flex items-start justify-between gap-3">
         <div class="min-w-0">
             <p class="admin-eyebrow">{{ $eyebrow }}</p>

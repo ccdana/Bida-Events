@@ -101,8 +101,8 @@ class NewTemplatesAndSeasonTest extends TestCase
         $this->withoutVite()->get(route('landing', 'invitaciones-de-halloween'))
             ->assertOk()
             ->assertSee(route('invitation.demo', 'halloween-noche-diego'), false)
-            ->assertSeeInOrder(['180 Bs', '140', 'Bs por invitación'])
-            ->assertSee('La quiero por 140 Bs')
+            ->assertSeeInOrder(['US$ 26', '20', 'USD por invitación'])
+            ->assertSee('La quiero por US$ 20')
             ->assertDontSee('Elige tu paquete');
 
         // Mientras se vende Halloween, la página del Día del Amor ya no ofrece su precio
@@ -115,7 +115,7 @@ class NewTemplatesAndSeasonTest extends TestCase
 
         $this->withoutVite()->get(route('landing', 'invitaciones-de-halloween'))
             ->assertOk()
-            ->assertDontSee('La quiero por 140 Bs')
+            ->assertDontSee('La quiero por US$ 20')
             ->assertSee('La temporada terminó');
     }
 
@@ -129,7 +129,7 @@ class NewTemplatesAndSeasonTest extends TestCase
         SiteSettings::put('season', ['price' => 100, 'promo_price' => 75, 'ends_at' => '2026-09-30 23:59:00']);
         SiteSettings::apply();
 
-        $this->assertSame(140, Offers::season('halloween')['final_price']);
+        $this->assertSame(20, Offers::season('halloween')['final_price']);
         $this->assertSame('2026-10-31', Offers::season('halloween')['endsAt']->toDateString());
         $this->assertSame(75, config('bida.seasons.amor.promo_price'));
         $this->assertSame('2026-09-30 23:59:00', config('bida.seasons.amor.ends_at'));

@@ -31,7 +31,7 @@
         <div class="inv-footer__bar">
             <a href="#inicio" class="inv-footer__top">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                Volver al inicio
+                {{ $invCopy['back_to_top'] ?? 'Volver al inicio' }}
             </a>
 
             {{-- Crédito del pie (InvitationPage::footerBrand): el de Bida Events, que lleva a su sitio en otra

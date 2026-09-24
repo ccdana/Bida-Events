@@ -100,6 +100,11 @@ class AppServiceProvider extends ServiceProvider
             ->by('reseller-uploads|'.$request->user()?->id)
             ->response($tooManyAttempts));
 
+        // Control de entrada: por teléfono (IP) y por invitación
+        RateLimiter::for('door', fn (Request $request) => Limit::perMinute((int) config('optimizations.rate_limits.door', 90))
+            ->by('door|'.$request->ip().'|'.($request->route('slug') ?? $request->route('doorToken')))
+            ->response($tooManyAttempts));
+
         RateLimiter::for('login', fn (Request $request) => Limit::perMinute((int) config('optimizations.rate_limits.login'))
             ->by(Str::lower((string) $request->input('username')).'|'.$request->ip())
             ->response(fn () => back()->withErrors(['username' => $message])->onlyInput('username')));

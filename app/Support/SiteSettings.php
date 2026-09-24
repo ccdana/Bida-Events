@@ -76,6 +76,7 @@ final class SiteSettings
                     'name' => $plan['name'],
                     'summary' => $plan['summary'] ?? '',
                     'price' => (int) $plan['price'],
+                    'promo_price' => isset($plan['promo_price']) ? (int) $plan['promo_price'] : null,
                     'quota_per_month' => isset($plan['quota_per_month']) ? (int) $plan['quota_per_month'] : null,
                 ])
                 ->values()
@@ -166,6 +167,11 @@ final class SiteSettings
 
             if (array_key_exists('price', $values)) {
                 config(["bida.reseller_plans.{$key}.price" => (int) $values['price']]);
+            }
+
+            if (array_key_exists('promo_price', $values)) {
+                $promo = $values['promo_price'];
+                config(["bida.reseller_plans.{$key}.promo_price" => $promo === null || $promo === '' ? null : (int) $promo]);
             }
 
             if (array_key_exists('quota_per_month', $values)) {

@@ -30,10 +30,15 @@ final class EditableTexts
      */
     public static function catalog(): array
     {
-        return [
+        return self::withMenuNames([
             self::GENERAL => [
                 'menu_heading' => ['Encabezado del menú', 'Invitación de'],
                 'footer_pitch' => ['Invitación a crear la propia (al pie)', '¿Te gustó esta invitación? Crea la tuya'],
+                'menu_label' => ['Botón del menú', 'Menú'],
+                'nav_inicio' => ['Primer enlace del menú', 'Inicio'],
+                'scroll_hint' => ['Indicación para bajar (portada)', 'Desliza'],
+                'back_to_top' => ['Enlace para volver arriba (pie)', 'Volver al inicio'],
+                'skip_link' => ['Enlace para saltar al contenido (lectores de pantalla)', 'Saltar al contenido'],
             ],
             'bienvenida' => [
                 'hero_eyebrow' => ['Frase sobre el nombre (si no hay subtítulo)', 'Mis XV Años'],
@@ -43,6 +48,7 @@ final class EditableTexts
                 'countdown_title' => ['Título', 'Faltan'],
                 'countdown_done_eyebrow' => ['Frase cuando llega el día', 'Llegó el momento'],
                 'countdown_done_title' => ['Título cuando llega el día', '¡Hoy es el gran día!'],
+                'countdown_calendar' => ['Botón para agendar', 'Agendar en mi calendario'],
             ],
             'ubicacion' => [
                 'location_eyebrow' => ['Frase sobre el título', '¿Dónde nos vemos?'],
@@ -92,6 +98,7 @@ final class EditableTexts
                 'playlist_button' => ['Botón', 'Sugerir'],
                 'playlist_help' => ['Ayuda del campo', 'Escribe el nombre y el artista, o pega un enlace de YouTube.'],
                 'playlist_empty' => ['Mientras nadie sugiere', 'Sé la primera persona en sugerir una canción.'],
+                'playlist_list_title' => ['Título de la lista', 'Canciones sugeridas'],
             ],
             'encuestas' => [
                 'polls_eyebrow' => ['Frase sobre el título', 'Tu opinión cuenta'],
@@ -108,6 +115,8 @@ final class EditableTexts
             'rsvp' => [
                 'guest_banner_eyebrow' => ['Saludo al invitado', 'Esta invitación es para'],
                 'guest_cta' => ['Botón del saludo', 'Confirmar asistencia'],
+                'guest_banner_attendance' => ['Saludo: rótulo de la asistencia', 'Asistencia'],
+                'guest_banner_passes' => ['Saludo: rótulo de los pases', 'Pases'],
                 'guest_help' => ['Ayuda del saludo', 'Te toma menos de un minuto y nos ayuda a organizar la noche.', true],
                 'rsvp_eyebrow' => ['Frase sobre el título', 'Confirma tu asistencia'],
                 'rsvp_attend_question' => ['Primera pregunta', '¿Asistirás?'],
@@ -116,10 +125,19 @@ final class EditableTexts
                 'rsvp_people_question' => ['Pregunta por las personas', '¿Cuántas personas vendrán?'],
                 'rsvp_dietary_label' => ['Campo de alimentación', 'Alergias o restricciones alimentarias (opcional)'],
                 'rsvp_submit' => ['Botón para confirmar', 'Confirmar asistencia'],
+                'rsvp_submit_decline' => ['Botón al decir que no', 'Enviar respuesta'],
+                'rsvp_pass_people' => ['Pase: rótulo de las personas', 'Personas'],
+                'rsvp_pass_code' => ['Pase: rótulo del código', 'Código'],
                 'rsvp_confirmed_eyebrow' => ['Frase al confirmar', 'Asistencia confirmada'],
                 'rsvp_tip' => ['Consejo del pase', 'Toma una captura de pantalla por si no tienes señal en el lugar.', true],
                 'rsvp_declined_eyebrow' => ['Frase al decir que no', 'Respuesta enviada'],
                 'rsvp_declined_intro' => ['Texto al decir que no', 'Si cambias de planes, comunícate con la familia para actualizar tu respuesta.', true],
+            ],
+            'musica' => [
+                'music_hint' => ['Ayuda del reproductor', 'Toca para escuchar'],
+            ],
+            'agendar' => [
+                'calendar_add' => ['Botón de Google Calendar', 'Agregar a Google Calendar'],
             ],
             'fotomural' => [
                 'mural_eyebrow' => ['Frase sobre el título', 'Recuerdos en vivo'],
@@ -133,7 +151,22 @@ final class EditableTexts
                 'post_button' => ['Botón de la galería completa', 'Ver galería completa'],
                 'post_empty' => ['Mientras no haya fotos', 'Las fotos oficiales se publicarán muy pronto.'],
             ],
-        ];
+        ]);
+    }
+
+    /**
+     * Cada sección que aparece en el menú de la invitación tiene su nombre editable («nav_{módulo}»),
+     * en el grupo de su módulo. Los invitados de honor ya tienen el suyo (nav_court).
+     */
+    private static function withMenuNames(array $catalog): array
+    {
+        foreach (InvitationPage::NAV_LABELS as $module => $label) {
+            if ($module !== 'destacados') {
+                $catalog[$module]['nav_'.$module] = ['Nombre en el menú', $label];
+            }
+        }
+
+        return $catalog;
     }
 
     /**
@@ -148,6 +181,8 @@ final class EditableTexts
         'daisy_no' => 'Margarita: pétalo que no', 'daisy_answer' => 'Margarita: respuesta final',
         'wish_eyebrow' => 'Deseo: frase', 'wish_title' => 'Deseo: título', 'wish_hint' => 'Deseo: ayuda', 'wish_message' => 'Deseo: mensaje',
         'butterflies_found' => 'Mensaje de las mariposas encontradas',
+        'hero_ticket_label' => 'Portada: rótulo de la fecha', 'hero_day_label' => 'Portada: rótulo del día',
+        'hero_time_label' => 'Portada: rótulo de la hora', 'hero_class_label' => 'Portada: rótulo del año',
         'reply_title' => 'Respuesta: título', 'reply_intro' => 'Respuesta: introducción',
         'act1_label' => 'Acto 1: nombre', 'act1_title' => 'Acto 1: título', 'act1_intro_fallback' => 'Acto 1: introducción si no hay texto',
         'act1_met_prefix' => 'Acto 1: antes de la fecha', 'act1_met_fallback' => 'Acto 1: si no hay fecha', 'act1_first_fallback' => 'Acto 1: primeras impresiones si no hay texto',

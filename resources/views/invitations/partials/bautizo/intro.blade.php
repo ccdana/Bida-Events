@@ -131,7 +131,7 @@
 
             <p class="inv-bautizo-intro__hint">
                 <span class="inv-bautizo-intro__hint-dot" aria-hidden="true"></span>
-                Toca la jarra para verter el agua
+                {{ $invCopy['intro_hint'] ?? 'Toca la jarra para verter el agua' }}
             </p>
         </div>
     </div>

@@ -27,7 +27,7 @@
         <p class="inv-status" :class="{ 'is-error': error }" x-text="message" aria-live="polite"></p>
 
         <div class="inv-playlist__head">
-            <span class="inv-label" x-text="songs.length === 1 ? '1 canción sugerida' : songs.length + ' canciones sugeridas'">Canciones sugeridas</span>
+            <span class="inv-label" x-text="songs.length === 1 ? '1 canción sugerida' : songs.length + ' canciones sugeridas'">{{ $invCopy['playlist_list_title'] ?? 'Canciones sugeridas' }}</span>
             <button type="button" class="inv-link" @click="refresh()">Actualizar</button>
         </div>
 

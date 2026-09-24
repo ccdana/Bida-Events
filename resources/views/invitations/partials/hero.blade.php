@@ -45,7 +45,7 @@
     </div>
 
     <a href="#contenido" class="inv-hero__scroll">
-        Desliza
+        {{ $invCopy['scroll_hint'] ?? 'Desliza' }}
         <span class="inv-hero__scroll-line" aria-hidden="true"></span>
     </a>
 </header>

@@ -1,60 +1,64 @@
-<div class="flex h-full w-full shrink-0 flex-col border-r border-site-line bg-site-bg lg:w-[620px] xl:w-[680px]">
-    <div class="shrink-0 border-b border-site-line px-5 py-4">
+{{--
+    Columna de edición. Arriba: el nombre, el estado y cuánto falta. A la izquierda: todas las secciones
+    en una sola lista agrupada (lo básico, la portada, el contenido…), cada una con su estado (lista, le
+    falta algo u oculta) y su interruptor. Al centro: la sección abierta, sin tarjetas, con «Anterior» y
+    «Siguiente» al pie para recorrerla en orden. En el celular la lista se abre desde «Secciones» y la
+    vista previa desde su botón. Estilos: admin.css («Editor»).
+--}}
+<div class="ed-col flex h-full w-full shrink-0 flex-col border-r border-site-line bg-site-bg lg:w-[680px] xl:w-[760px]">
+    <div class="ed-head">
         <div class="flex items-start justify-between gap-3">
             <div class="min-w-0">
                 <p class="text-xs text-site-muted" x-text="config.isCreate ? 'Nueva invitación' : 'Editando invitación'"></p>
                 <h1 class="truncate text-xl font-semibold tracking-tight" x-text="meta.title || 'Invitación sin título'"></h1>
             </div>
-            <span class="admin-status-badge shrink-0"
-                :class="{ 'is-active': meta.status === 'active' }">
+            <span class="admin-status-badge shrink-0" :class="{ 'is-active': meta.status === 'active' }">
                 <span class="admin-status-dot"></span>
                 <span x-text="statusLabels[meta.status] ?? meta.status"></span>
             </span>
         </div>
-        <p class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-site-muted">
-            <span class="inline-flex items-center gap-1.5">
-                <x-phosphor-squares-four class="size-4" aria-hidden="true" />
-                <span x-text="`${activeModulesCount} módulos activos`"></span>
-            </span>
-            <span x-text="activeGroupData.description"></span>
-        </p>
+
+        {{-- Progreso: cuántas secciones encendidas ya tienen lo que necesitan --}}
+        <div class="ed-progress" :aria-label="`${progress.done} de ${progress.total} secciones listas`">
+            <span class="ed-progress__bar"><i :style="`width: ${progress.total ? Math.round(progress.done / progress.total * 100) : 0}%`"></i></span>
+            <span class="ed-progress__text" x-text="progress.done === progress.total ? 'Todo listo para publicar' : `${progress.done} de ${progress.total} secciones listas`"></span>
+        </div>
+
+        {{-- Celular: la lista de secciones y la vista previa, cada una a un toque --}}
+        <div class="ed-mobile-bar">
+            <button type="button" class="admin-link-button" @click="railOpen = true">
+                <x-phosphor-list aria-hidden="true" />
+                <span x-text="currentTab?.label ?? 'Secciones'"></span>
+            </button>
+            <button type="button" class="admin-link-button" @click="previewOpen = true">
+                <x-phosphor-device-mobile aria-hidden="true" />
+                Vista previa
+            </button>
+        </div>
     </div>
 
-    <div class="flex min-h-0 flex-1">
-        <aside class="flex w-44 shrink-0 flex-col border-r border-site-line xl:w-52">
-            <nav class="shrink-0 space-y-0.5 border-b border-site-line p-2" aria-label="Apartados del editor">
-                <template x-for="group in tabGroups" :key="group.id">
-                    <button type="button" @click="selectGroup(group.id)"
-                        class="admin-editor-group-btn"
-                        :class="activeGroup === group.id ? 'is-active' : ''"
-                        :aria-current="activeGroup === group.id ? 'true' : null">
-                        <span class="truncate" x-text="group.label"></span>
-                        <span class="flex shrink-0 items-center gap-1">
-                            <span class="admin-editor-warn" x-show="groupIssueCount(group.id) > 0" x-cloak
-                                :title="groupIssueCount(group.id) === 1 ? 'Falta 1 dato' : `Faltan ${groupIssueCount(group.id)} datos`"
-                                aria-hidden="true"></span>
-                            <span class="admin-editor-group-count"
-                                x-show="group.id !== 'config'"
-                                x-text="`${groupActiveCount(group.id)}/${group.tabs.length}`"></span>
-                        </span>
-                    </button>
-                </template>
-            </nav>
-
-            <div class="admin-editor-scroll flex-1 overflow-y-auto p-2">
-                <p class="px-2 pb-2 pt-1 text-xs font-medium text-site-muted" x-text="activeGroupData.label"></p>
-                <div class="space-y-0.5">
-                    <template x-for="tab in activeGroupTabs" :key="tab.id">
-                        <div class="admin-editor-feature-row" :class="activeTab === tab.id ? 'is-active' : ''">
-                            <button type="button" @click="selectTab(tab.id)" class="admin-editor-feature-btn"
+    <div class="relative flex min-h-0 flex-1">
+        <aside class="ed-rail admin-editor-scroll" :class="{ 'is-open': railOpen }" aria-label="Secciones de la invitación">
+            <div class="ed-rail__close">
+                <p class="font-semibold">Secciones</p>
+                <button type="button" class="admin-icon-button" @click="railOpen = false" aria-label="Cerrar la lista de secciones">
+                    <x-phosphor-x aria-hidden="true" />
+                </button>
+            </div>
+            <template x-for="group in tabGroups" :key="group.id">
+                <div class="ed-rail__group">
+                    <p class="ed-rail__label" x-text="group.label"></p>
+                    <template x-for="tab in group.tabs" :key="tab.id">
+                        <div class="ed-rail__row" :class="{ 'is-active': activeTab === tab.id, 'is-off': !isTabEnabled(tab) }">
+                            <button type="button" class="ed-rail__btn" @click="selectTab(tab.id); railOpen = false"
                                 :aria-current="activeTab === tab.id ? 'true' : null">
-                                <span class="flex items-center gap-1.5">
-                                    <span class="admin-editor-warn" x-show="tabIssues(tab).length > 0" x-cloak aria-hidden="true"></span>
-                                    <span class="truncate text-sm font-medium" x-text="tab.label"></span>
+                                <span class="ed-rail__state" :class="`is-${tabStatus(tab)}`" aria-hidden="true"></span>
+                                <span class="min-w-0">
+                                    <span class="block truncate text-sm font-medium" x-text="tab.label"></span>
+                                    <span class="block truncate text-xs"
+                                        :class="tabStatus(tab) === 'issue' ? 'text-site-danger' : 'text-site-muted'"
+                                        x-text="tabStatus(tab) === 'issue' ? tabIssues(tab)[0] : (tabStatus(tab) === 'off' ? 'Oculta en la invitación' : tab.hint)"></span>
                                 </span>
-                                <span class="mt-0.5 block truncate text-xs"
-                                    :class="tabIssues(tab).length > 0 ? 'text-site-danger' : 'text-site-muted'"
-                                    x-text="tabIssues(tab).length > 0 ? tabIssues(tab)[0] : tab.hint"></span>
                             </button>
                             <template x-if="tab.moduleCode">
                                 <button type="button" role="switch"
@@ -63,13 +67,14 @@
                                     :class="isTabEnabled(tab) ? 'is-on' : ''"
                                     :aria-checked="isTabEnabled(tab).toString()"
                                     :aria-label="`Mostrar ${tab.label} en la invitación`"
-                                    :title="isTabEnabled(tab) ? 'Visible en la invitación' : 'Oculto en la invitación'"></button>
+                                    :title="isTabEnabled(tab) ? 'Visible en la invitación' : 'Oculta en la invitación'"></button>
                             </template>
                         </div>
                     </template>
                 </div>
-            </div>
+            </template>
         </aside>
+        <div class="ed-rail__backdrop" x-show="railOpen" x-cloak x-transition.opacity @click="railOpen = false"></div>
 
         <form id="invitation-form" method="POST" action="{{ $formAction }}" class="admin-editor-scroll flex flex-1 flex-col overflow-y-auto" @submit.prevent="handleFormSubmit($event)">
             @csrf
@@ -114,6 +119,18 @@
                         @include($registeredModule->panel())
                     @endif
                 @endforeach
+
+                {{-- Recorrido en orden: la sección anterior y la siguiente --}}
+                <nav class="ed-pager" aria-label="Recorrer las secciones">
+                    <button type="button" class="ed-pager__btn" x-show="prevTab" x-cloak @click="selectTab(prevTab.id)">
+                        <x-phosphor-arrow-left aria-hidden="true" />
+                        <span><small>Anterior</small><span x-text="prevTab?.label"></span></span>
+                    </button>
+                    <button type="button" class="ed-pager__btn ed-pager__btn--next" x-show="nextTab" x-cloak @click="selectTab(nextTab.id)">
+                        <span><small>Siguiente</small><span x-text="nextTab?.label"></span></span>
+                        <x-phosphor-arrow-right aria-hidden="true" />
+                    </button>
+                </nav>
             </div>
 
             @foreach($moduleCodes as $code)

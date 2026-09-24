@@ -67,7 +67,9 @@ final class InvitationTemplates
                     'cuenta_regresiva', 'ubicacion', 'itinerario', 'rsvp', 'dress_code', 'video', 'galeria',
                     'destacados', 'regalos', 'playlist', 'encuestas', 'hashtag', 'fotomural', 'post_evento',
                 ],
-                'copy' => [],
+                'copy' => [
+                    'intro_hint' => 'Toca para abrir los telones',
+                ],
             ],
             self::BODA_JARDIN => [
                 'label' => 'Promesa en el jardín',
@@ -90,6 +92,7 @@ final class InvitationTemplates
                 ],
                 'copy' => [
                     'hero_eyebrow' => 'Nos casamos',
+                    'intro_hint' => 'Toca el sello para abrir',
                     'menu_heading' => 'La boda de',
                     'cover_eyebrow' => 'Tienes una invitación',
                     'guest_help' => 'Te toma menos de un minuto y nos ayuda a preparar cada detalle.',
@@ -131,6 +134,7 @@ final class InvitationTemplates
                 ],
                 'copy' => [
                     'hero_eyebrow' => 'Mi bautizo',
+                    'intro_hint' => 'Toca la jarra para verter el agua',
                     'menu_heading' => 'El bautizo de',
                     'guest_help' => 'Te toma menos de un minuto y nos ayuda a preparar este día tan especial.',
                     'gallery_eyebrow' => 'Mis primeros momentos',
@@ -173,6 +177,7 @@ final class InvitationTemplates
                 ],
                 'copy' => [
                     'hero_eyebrow' => '¡Celebremos juntos!',
+                    'hero_ticket_label' => 'Fiesta',
                     'menu_heading' => 'El cumpleaños de',
                     'intro_eyebrow' => '¡Estás invitado!',
                     'intro_hint' => 'Toca el pastel para soplar las velas',
@@ -220,6 +225,9 @@ final class InvitationTemplates
                 ],
                 'copy' => [
                     'hero_eyebrow' => 'Me gradúo',
+                    'hero_day_label' => 'Día',
+                    'hero_time_label' => 'Hora',
+                    'hero_class_label' => 'Promoción',
                     'menu_heading' => 'La graduación de',
                     'intro_eyebrow' => 'Tienes una invitación',
                     'intro_hint' => 'Toca la cinta para abrir el diploma',
@@ -311,6 +319,7 @@ final class InvitationTemplates
                 ],
                 'copy' => [
                     'hero_eyebrow' => 'Fiesta de Halloween',
+                    'hero_ticket_label' => 'La noche del',
                     'menu_heading' => 'Fiesta de',
                     'intro_eyebrow' => 'Te espera una noche de miedo',
                     'intro_hint' => 'Toca la calabaza para encenderla',

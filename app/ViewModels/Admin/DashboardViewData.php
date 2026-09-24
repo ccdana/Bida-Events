@@ -55,7 +55,6 @@ class DashboardViewData
             'invitations' => $invitations,
             'type' => $type,
             'search' => $search,
-            'filters' => $this->filters($total, $search),
         ];
     }
 
@@ -115,39 +114,5 @@ class DashboardViewData
                     'total' => (int) ($counts[$eventType->id] ?? 0),
                 ]);
         });
-    }
-
-    /** @return array<int, array{slug: string, label: string, total: int|null, url: string}> */
-    private function filters(int $total, string $search): array
-    {
-        // El filtro no pierde lo que se estaba buscando
-        $url = fn (string $slug) => route('admin.dashboard', array_filter(['tipo' => $slug, 'q' => $search]));
-
-        $byKind = $this->eventTypes()->groupBy(fn (array $eventType) => $eventType['isCard'] ? Module::KIND_CARD : Module::KIND_INVITATION);
-
-        return [
-            ['slug' => '', 'label' => 'Todo', 'total' => $total, 'url' => $url('')],
-            // Los dos productos enteros: invitaciones de evento y tarjetas de temporada
-            ...collect([Module::KIND_INVITATION => 'Invitaciones', Module::KIND_CARD => 'Tarjetas'])
-                ->map(fn (string $label, string $kind) => [
-                    'slug' => $kind,
-                    'label' => $label,
-                    'total' => (int) $byKind->get($kind, collect())->sum('total'),
-                    'url' => $url($kind),
-                ])
-                ->filter(fn (array $filter) => $filter['total'] > 0)
-                ->values()
-                ->all(),
-            ...$this->eventTypes()
-                ->filter(fn (array $eventType) => $eventType['total'] > 0)
-                ->map(fn (array $eventType) => [
-                    'slug' => $eventType['slug'],
-                    'label' => $eventType['name'],
-                    'total' => $eventType['total'],
-                    'url' => $url($eventType['slug']),
-                ])
-                ->values()
-                ->all(),
-        ];
     }
 }

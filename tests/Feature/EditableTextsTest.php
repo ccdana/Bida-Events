@@ -31,6 +31,11 @@ class EditableTextsTest extends TestCase
 
         foreach (EditableTexts::catalog() as $module => $texts) {
             foreach (array_keys($texts) as $key) {
+                // Los nombres del menú los lee InvitationPage::navItems por su módulo («nav_{módulo}»)
+                if (str_starts_with($key, 'nav_') && str_contains($sources, "copy['nav_'.\$module]")) {
+                    continue;
+                }
+
                 $this->assertTrue(
                     str_contains($sources, "Copy['{$key}']") || str_contains($sources, "copy['{$key}']"),
                     "El texto «{$module}.{$key}» está en el catálogo pero ninguna vista lo usa",

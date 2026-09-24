@@ -25,10 +25,14 @@ class Guest extends Model
         'confirmed_at',
     ];
 
+    // checked_in_passes y checked_in_at no van en fillable: solo los escribe la puerta (DoorController)
+
     protected $casts = [
         'passes_allocated' => 'integer',
         'passes_confirmed' => 'integer',
         'confirmed_at' => 'datetime',
+        'checked_in_passes' => 'integer',
+        'checked_in_at' => 'datetime',
     ];
 
     protected static function booted(): void

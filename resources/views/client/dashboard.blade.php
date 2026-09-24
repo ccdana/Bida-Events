@@ -64,7 +64,7 @@
     @endif
 
     {{-- Buscador: viaja en la URL, así el cliente puede volver al mismo resultado --}}
-    @if($total > 0 || $search !== '')
+    @if(empty($filterGroups) && ($total > 0 || $search !== ''))
         <form method="GET" class="site-enter mt-8 flex flex-wrap items-center gap-2" style="--enter-index: 1">
             <label for="buscar-evento" class="sr-only">Buscar entre mis eventos</label>
             <div class="relative min-w-[14rem] flex-1">

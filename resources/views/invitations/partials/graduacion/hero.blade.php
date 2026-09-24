@@ -44,22 +44,22 @@
 
         <dl class="inv-grad-diploma inv-fade-up inv-fade-up--3">
             <div>
-                <dt>Día</dt>
+                <dt>{{ $invCopy['hero_day_label'] ?? 'Día' }}</dt>
                 <dd>{{ $heroDay }}</dd>
             </div>
             <div>
-                <dt>Hora</dt>
+                <dt>{{ $invCopy['hero_time_label'] ?? 'Hora' }}</dt>
                 <dd>{{ $page->eventDate->format('H:i') }}</dd>
             </div>
             <div>
-                <dt>Promoción</dt>
+                <dt>{{ $invCopy['hero_class_label'] ?? 'Promoción' }}</dt>
                 <dd>{{ $page->eventDate->format('Y') }}</dd>
             </div>
         </dl>
     </div>
 
     <a href="#contenido" class="inv-hero__scroll inv-grad-hero__scroll">
-        Desliza
+        {{ $invCopy['scroll_hint'] ?? 'Desliza' }}
         <span class="inv-hero__scroll-line" aria-hidden="true"></span>
     </a>
 </header>

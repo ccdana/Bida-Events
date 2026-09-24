@@ -76,8 +76,8 @@ class SiteSettingsTest extends TestCase
         // Y así se ven: el precio normal tachado y el de hoy al lado
         $this->get(route('home'))
             ->assertOk()
-            ->assertSeeInOrder(['250 Bs', '199', 'Bs', '450', 'Bs', '800 Bs', '650'])
-            ->assertSee('Ahorras 150 Bs');
+            ->assertSeeInOrder(['US$ 250', '199', 'USD', '450', 'USD', 'US$ 800', '650'])
+            ->assertSee('Ahorras US$ 150');
     }
 
     public function test_the_promotion_ends_by_itself_on_the_chosen_date(): void
@@ -144,7 +144,7 @@ class SiteSettingsTest extends TestCase
             ->assertSessionHasErrors(['packages.basico.promo_price', 'seasons.amor.promo_price']);
 
         SiteSettings::apply();
-        $this->assertSame(150, Offers::packages()[0]['final_price']);
+        $this->assertSame(22, Offers::packages()[0]['final_price']);
     }
 
     /** Lo que manda el formulario completo; cada prueba cambia solo lo suyo. */

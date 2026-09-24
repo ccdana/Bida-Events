@@ -20,7 +20,7 @@ use Illuminate\Support\Carbon;
  */
 class SubscriptionPayment extends Model
 {
-    protected $fillable = ['user_id', 'plan', 'amount', 'paid_at', 'renews_until', 'registered_by', 'note', 'request_token'];
+    protected $fillable = ['user_id', 'plan', 'amount', 'currency', 'paid_at', 'renews_until', 'registered_by', 'note', 'request_token'];
 
     protected $casts = [
         'amount' => 'decimal:2',

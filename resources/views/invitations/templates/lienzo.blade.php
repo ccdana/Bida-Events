@@ -14,7 +14,7 @@
     @include('invitations.partials.shell.head')
 </head>
 <body class="inv-page inv-lienzo overflow-x-hidden {{ $page->hasPlayer ? 'has-player' : '' }}" x-data="invitationApp()" x-init="init()">
-    <a class="inv-skip" href="#contenido">Saltar al contenido</a>
+    <a class="inv-skip" href="#contenido">{{ $invCopy['skip_link'] ?? 'Saltar al contenido' }}</a>
 
     @include('invitations.partials.shell.nav')
 

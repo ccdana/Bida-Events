@@ -148,6 +148,7 @@ final class LegalPages
                     'items' => [
                         'Sesión: mantiene abierta tu cuenta mientras navegas por el panel. Dura mientras la sesión esté activa ('.(int) config('session.lifetime', 120).' minutos sin uso).',
                         'Protección de formularios (XSRF-TOKEN): evita que otro sitio envíe formularios en tu nombre, por ejemplo una confirmación de asistencia. Dura lo mismo que la sesión.',
+                        'Control de entrada (bida_puerta_…): solo en el teléfono de quien controla la entrada de un evento, después de abrir el enlace de puerta que le compartió el organizador. Permite registrar el ingreso de los invitados y dura 16 horas.',
                     ],
                 ],
                 [

@@ -51,7 +51,7 @@
         @endif
 
         <div class="inv-cumple-ticket inv-cumple-pop" style="--d: 0.95s">
-            <span class="inv-cumple-ticket__label">Fiesta</span>
+            <span class="inv-cumple-ticket__label">{{ $invCopy['hero_ticket_label'] ?? 'Fiesta' }}</span>
             <span class="inv-cumple-ticket__main">
                 <span class="inv-cumple-ticket__day">{{ $heroDay }}</span>
                 <span class="inv-cumple-ticket__year">{{ $page->eventDate->format('Y') }}</span>
@@ -60,7 +60,7 @@
         </div>
 
         <a href="#contenido" class="inv-hero__scroll inv-cumple-hero__scroll">
-            Desliza
+            {{ $invCopy['scroll_hint'] ?? 'Desliza' }}
             <span class="inv-hero__scroll-line" aria-hidden="true"></span>
         </a>
     </div>

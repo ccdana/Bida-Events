@@ -100,6 +100,10 @@
         </section>
 
         @include('client.partials.guest-list')
+
+        @can('manageOwnGuests', $invitation)
+            @include('client.partials.door', ['doorStats' => \App\Http\Controllers\Public\DoorController::stats($invitation)])
+        @endcan
     @endunless
 
     @if($isCard || $replies->isNotEmpty())

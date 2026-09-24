@@ -33,7 +33,7 @@ final class InvitationPage
         'Creepster' => '400',
     ];
 
-    private const NAV_LABELS = [
+    public const NAV_LABELS = [
         'cuenta_regresiva' => 'Cuenta regresiva',
         'video' => 'Video',
         'galeria' => 'Galería',
@@ -183,7 +183,7 @@ final class InvitationPage
     /** Enlaces del menú en el mismo orden en que aparecen las secciones. */
     public function navItems(): array
     {
-        $items = [['id' => 'inicio', 'label' => 'Inicio']];
+        $items = [['id' => 'inicio', 'label' => $this->copy['nav_inicio'] ?? 'Inicio']];
 
         if ($this->visible('rsvp') && $this->guest) {
             $items[] = ['id' => 'guest-banner', 'label' => 'Tu invitación'];
@@ -200,7 +200,7 @@ final class InvitationPage
 
             $label = $module === 'destacados'
                 ? ($this->copy['nav_court'] ?? self::NAV_LABELS['destacados'])
-                : (self::NAV_LABELS[$module] ?? ($registry->has($module) ? $registry->get($module)->label() : Str::headline($module)));
+                : ($this->copy['nav_'.$module] ?? self::NAV_LABELS[$module] ?? ($registry->has($module) ? $registry->get($module)->label() : Str::headline($module)));
 
             $items[] = ['id' => str_replace('_', '-', $module), 'label' => $label];
         }

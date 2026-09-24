@@ -19,7 +19,7 @@
     @endif
 </head>
 <body class="inv-page inv-graduacion overflow-x-hidden {{ $page->hasPlayer ? 'has-player' : '' }}" x-data="invitationApp()" x-init="init()">
-    <a class="inv-skip" href="#contenido">Saltar al contenido</a>
+    <a class="inv-skip" href="#contenido">{{ $invCopy['skip_link'] ?? 'Saltar al contenido' }}</a>
 
     @if($showIntro)
         @include('invitations.partials.graduacion.intro')

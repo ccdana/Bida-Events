@@ -22,20 +22,20 @@ class HomePageTest extends TestCase
         $response = $this->get(route('home'));
 
         $response->assertOk()
-            ->assertSee('Invitaciones digitales para bodas, bautizos, cumpleaños y XV años')
+            ->assertSee('Invitaciones digitales para bodas, XV años, bautizos, cumpleaños y graduaciones')
             // Promoción de inauguración: el precio normal tachado y el de hoy
-            ->assertSeeInOrder(['200 Bs', '150', 'Bs', '400 Bs', '300', 'Bs', '700 Bs', '500', 'Bs'])
+            ->assertSeeInOrder(['US$ 29', '22', 'USD', 'US$ 57', '43', 'USD', 'US$ 99', '72', 'USD'])
             ->assertSee('Promoción de inauguración')
-            ->assertSee('Ahorras 50 Bs')
-            // Servicios: las invitaciones, lo de temporada y los planes para profesionales, cada uno con su precio de hoy
+            ->assertSee('Ahorras US$ 7')
+            // Servicios: las invitaciones, lo de temporada y «Hazlo tú», cada uno con su precio de hoy (en dólares)
             ->assertSee('id="servicios"', false)
-            ->assertSeeInOrder(['Invitaciones digitales', 'desde', '150 Bs', 'Diseños de temporada', 'Para profesionales de eventos', 'desde', '60 Bs', 'al mes'])
-            ->assertSee(route('professionals'), false)
+            ->assertSeeInOrder(['Invitaciones digitales', 'Desde', 'US$ 22', 'Diseños de temporada', 'Hazlo tú', 'Desde', 'US$ 9', 'al mes'])
+            ->assertSee(route('diy'), false)
             // Los recuerdos en vivo van dentro de lo que incluye la invitación, y ya no hay sección de contacto
-            ->assertSeeInOrder(['id="incluye"', 'Recuerdos en vivo', 'id="precios"'], false)
+            ->assertSeeInOrder(['id="incluye"', 'Pase QR y control de entrada', 'Fotomural en vivo', 'id="precios"'], false)
             ->assertDontSee('¿Ya tienes fecha')
             ->assertSee('https://wa.me/59171234567?text=', false)
-            ->assertSee(rawurlencode('me interesa el paquete Estándar (300 Bs)'), false)
+            ->assertSee(rawurlencode('me interesa el paquete Estándar (US$ 43)'), false)
             ->assertSee(route('login'), false)
             ->assertSee('Ingresar')
             ->assertSee('https://www.facebook.com/bidaeventsbo', false);
@@ -49,7 +49,7 @@ class HomePageTest extends TestCase
             ->assertOk()
             ->assertDontSee('Promoción de inauguración')
             ->assertDontSee('<del class="site-plan__old">', false)
-            ->assertSee(rawurlencode('me interesa el paquete Estándar (400 Bs)'), false);
+            ->assertSee(rawurlencode('me interesa el paquete Estándar (US$ 57)'), false);
     }
 
     public function test_the_season_waits_behind_a_floating_button_with_its_countdown_and_promo_price(): void
@@ -62,17 +62,17 @@ class HomePageTest extends TestCase
 
         $response
             // Ya no va arriba de la portada: un botón que sigue al scroll abre el panel
-            ->assertSeeInOrder(['Invitaciones digitales', 'site-season-fab', 'id="temporada-halloween"'], false)
-            ->assertSeeInOrder(['Halloween', '140 Bs', 'quedan 3 días'])
+            ->assertSeeInOrder(['Invitaciones digitales', 'site-seasons__fab', 'id="temporada-halloween"'], false)
+            ->assertSeeInOrder(['De temporada', 'Halloween', '3', 'días'])
             // El panel habla de la temporada y lista sus diseños (hoy, uno)
             ->assertSee('Tu fiesta de Halloween empieza en la invitación')
             ->assertSeeInOrder(['Diseños de la temporada', 'Noche de calabazas'])
-            ->assertSeeInOrder(['180 Bs', '140', 'Bs'])
+            ->assertSeeInOrder(['US$ 26', '20', 'USD'])
             // Cuenta regresiva ya calculada: faltan 3 días, 11 horas, 59 minutos y 59 segundos
             ->assertSeeInOrder(['03', 'días', '11', 'horas', '59', 'min', '59', 'seg'])
             ->assertSee('seasonOffer(', false)
             // WhatsApp con el precio y el código de la campaña
-            ->assertSee(rawurlencode('quiero una invitación para mi fiesta de Halloween (140 Bs)'), false)
+            ->assertSee(rawurlencode('quiero una invitación para mi fiesta de Halloween (US$ 20)'), false)
             ->assertSee(rawurlencode('Ref. HALLO'), false)
             // El teléfono carga la muestra recién al abrir el panel
             ->assertSee('data-lazy-src="'.route('invitation.demo', ['slug' => 'halloween-noche-diego', 'portada' => 1]).'"', false)
@@ -95,7 +95,7 @@ class HomePageTest extends TestCase
         $this->withoutVite()
             ->get(route('home'))
             ->assertOk()
-            ->assertDontSee('site-season-fab', false)
+            ->assertDontSee('site-seasons__fab', false)
             ->assertDontSee('id="temporada-halloween"', false)
             ->assertDontSee('href="#temporada"', false);
     }
@@ -109,12 +109,13 @@ class HomePageTest extends TestCase
         $this->travelTo(Carbon::parse('2026-10-20 12:00:00', 'America/La_Paz'));
         $this->seed(ShowcaseInvitationsSeeder::class);
 
-        // Las dos a la vez: un botón para cada una, apilados
+        // Las dos a la vez: un solo botón que las agrupa, y se elige cuál ver dentro de la hoja
         $this->withoutVite()->get(route('home'))
             ->assertOk()
             ->assertSee('id="temporada-amor"', false)
             ->assertSee('id="temporada-halloween"', false)
-            ->assertSee('--fab-index: 1', false)
+            ->assertSee('2 temporadas')
+            ->assertSee('site-seasons__tab', false)
             ->assertSee('Ahora: Día del Amor y la Primavera y Halloween');
 
         // Apagar la del Día del Amor no toca a Halloween

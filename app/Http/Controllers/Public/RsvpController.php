@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Public;
 use App\Http\Controllers\Controller;
 use App\Models\Guest;
 use App\Models\Invitation;
+use App\Support\GuestPass;
 use Illuminate\Http\Request;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class RsvpController extends Controller
 {
@@ -49,7 +49,8 @@ class RsvpController extends Controller
         if ($request->wantsJson()) {
             $qrSvg = null;
             if ($guest->status === 'confirmed') {
-                $qrSvg = QrCode::size(200)->margin(1)->generate($guest->qr_code_token);
+                // El QR lleva el enlace de entrada: lo lee la cámara del personal de la puerta
+                $qrSvg = GuestPass::svg($slug, $guest);
             }
 
             return response()->json([

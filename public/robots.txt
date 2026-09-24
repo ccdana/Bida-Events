@@ -1,8 +1,15 @@
-# Las invitaciones y los paneles no se indexan: llevan datos de clientes e invitados.
+# Las invitaciones, los paneles y el control de entrada no se indexan: llevan datos de clientes e invitados.
+# Mantener igual a SeoController::PRIVATE_PATHS (lo revisa tests/Feature/SeoResourcesTest.php).
+# Es un archivo estático a propósito: nginx lo sirve directo y el healthcheck de Docker lo usa.
 User-agent: *
 Disallow: /p/
 Disallow: /muestra/
 Disallow: /admin/
 Disallow: /client/
+Disallow: /puerta/
+Disallow: /entrada/
 Disallow: /login
+Disallow: /dashboard
 Allow: /
+
+Sitemap: https://bida-events.com/sitemap.xml

@@ -179,8 +179,8 @@ class SeasonalCardTest extends TestCase
             ->assertSee(e($landing['heading']), false)
             // Las muestras son las de la temporada
             ->assertSee(route('invitation.demo', config('bida.seasons.amor.templates')[0]), false)
-            ->assertSeeInOrder(['100 Bs', '75', 'Bs'])
-            ->assertSee('La quiero por 75 Bs');
+            ->assertSeeInOrder(['US$ 14', '11', 'USD'])
+            ->assertSee('La quiero por US$ 11');
 
         // Pasada la temporada ya no se vende: queda el contacto
         $this->travelTo(Carbon::parse('2026-09-22 08:00', 'America/La_Paz'));
@@ -188,7 +188,7 @@ class SeasonalCardTest extends TestCase
         $this->withoutVite()
             ->get(route('landing', 'tarjetas-dia-del-amor'))
             ->assertOk()
-            ->assertDontSee('La quiero por 75 Bs')
+            ->assertDontSee('La quiero por US$ 11')
             ->assertSee('La temporada terminó');
     }
 

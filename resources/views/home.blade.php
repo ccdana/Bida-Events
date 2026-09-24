@@ -1,17 +1,23 @@
 @extends('layouts.site')
 
-@section('title', $bida['brand'].' | Invitaciones y tarjetas digitales para tus eventos')
-@section('description', 'Invitaciones digitales para bodas, bautizos, cumpleaños y XV años, con confirmación de asistencia, música, fotos y mapa. Paquetes desde '.$fromPrice.' Bs.')
+{{--
+    Portada. Mobile first: cada bloque se lee primero en el celular y se abre en columnas en pantallas
+    anchas. Sin numeraciones ni grillas de tarjetas: jerarquía con tipografía (serif editorial para los
+    titulares), filetes finos y fotos. Datos: HomeController (paquetes, temporadas, servicios, muestras).
+    Estilos: resources/css/site/site.css y resources/css/site/home.css.
+--}}
+@section('title', $bida['brand'].' | Invitaciones digitales para bodas, XV años, bautizos y graduaciones')
+@section('description', 'Invitaciones digitales con confirmación de asistencia, pase QR y control de entrada, música, fotos y mapa. Se comparten por WhatsApp. Paquetes desde '.\App\Support\Money::format($fromPrice).'.')
 
 @php
     $sections = array_filter([
-        'servicios' => 'Servicios',
         'plantillas' => count($demos) ? 'Plantillas' : null,
+        'incluye' => 'Qué incluye',
         'precios' => 'Precios',
         'preguntas' => 'Preguntas',
     ]);
     $navLinks = collect($sections)->mapWithKeys(fn (string $label, string $id) => ['#'.$id => $label])->all()
-        + [route('professionals') => 'Profesionales'];
+        + [route('diy') => 'Hazlo tú'];
     $accountUrl = $user ? route('dashboard') : route('login');
     $accountLabel = $user ? 'Mi panel' : 'Ingresar';
     $showcase = $bida['showcase'];
@@ -29,34 +35,43 @@
         }
         $showcase = array_merge($ordered, array_values($showcase));
     }
-    // Qué puede incluir una invitación, ordenado por el momento del evento en que se usa
-    $features = [
-        ['when' => 'Antes del evento', 'icon' => 'link-simple', 'title' => 'Tu invitación, en un enlace', 'text' => 'Portada, cuenta regresiva, itinerario y mapa. Se abre desde cualquier celular sin instalar nada.'],
-        ['when' => 'Antes del evento', 'icon' => 'qr-code', 'title' => 'Confirmación con pase QR', 'text' => 'Cada invitado confirma desde su enlace y recibe un pase para la entrada. Tú ves la lista al día y la descargas en PDF o Excel.'],
-        ['when' => 'Antes del evento', 'icon' => 'music-notes', 'title' => 'Música, fotos y video', 'text' => 'Tu canción de fondo, una galería que se desliza con el dedo y el video de tu save the date.'],
-        ['when' => 'Antes del evento', 'icon' => 'chart-bar', 'title' => 'Encuestas y playlist', 'text' => 'Tus invitados votan, sugieren las canciones de la pista y participan antes de la fiesta.'],
-        ['when' => 'Durante la fiesta', 'icon' => 'camera', 'title' => 'Recuerdos en vivo', 'text' => 'Tus invitados suben fotos desde su celular y todos las ven al instante en el fotomural.'],
-        ['when' => 'Después', 'icon' => 'images', 'title' => 'Las fotos, en el mismo enlace', 'text' => 'Pasado el evento, la invitación reúne las fotos oficiales y las que subieron tus invitados.'],
+    // Qué puede incluir una invitación, agrupado por el momento del evento en que se usa
+    $moments = [
+        'Antes del evento' => [
+            ['icon' => 'link-simple', 'title' => 'Un enlace que se abre en cualquier celular', 'text' => 'Portada, cuenta regresiva, itinerario y mapa con «Cómo llegar». Sin instalar nada.'],
+            ['icon' => 'check-circle', 'title' => 'Confirmación en un toque', 'text' => 'Cada invitado tiene su enlace personal: dice si va, con cuántas personas y si tiene alguna restricción alimentaria.'],
+            ['icon' => 'music-notes', 'title' => 'Música, fotos y video', 'text' => 'Tu canción de fondo, una galería que se desliza con el dedo y el video de tu save the date.'],
+            ['icon' => 'chart-bar', 'title' => 'Encuestas y playlist', 'text' => 'Tus invitados votan y sugieren las canciones de la pista antes de la fiesta.'],
+        ],
+        'En la puerta' => [
+            ['icon' => 'qr-code', 'title' => 'Pase QR y control de entrada', 'text' => 'Quien recibe a los invitados escanea el pase con su teléfono: ve si confirmó, cuántas personas entran y si ese pase ya se usó.'],
+        ],
+        'Durante y después' => [
+            ['icon' => 'camera', 'title' => 'Fotomural en vivo', 'text' => 'Tus invitados suben fotos desde su celular y todos las ven al instante.'],
+            ['icon' => 'images', 'title' => 'Las fotos, en el mismo enlace', 'text' => 'Pasado el evento, la invitación reúne las fotos oficiales y las de tus invitados.'],
+            ['icon' => 'file-text', 'title' => 'Tu lista, lista para imprimir', 'text' => 'Invitados, confirmaciones y alimentación en PDF o Excel para el salón y el catering.'],
+        ],
     ];
     $steps = [
         ['icon' => 'chat-circle-text', 'title' => 'Nos escribes', 'text' => 'Cuéntanos qué celebras, la fecha y el lugar. Te ayudamos a elegir el paquete por WhatsApp.'],
         ['icon' => 'pencil-simple-line', 'title' => 'Diseñamos contigo', 'text' => 'Armamos tu invitación con tus fotos, colores y textos. Revisas la vista previa y pides cambios.'],
         ['icon' => 'paper-plane-tilt', 'title' => 'Compartes tu enlace', 'text' => 'Recibes el enlace general y, según tu paquete, uno personal para cada invitado.'],
-        ['icon' => 'list-checks', 'title' => 'Sigues las confirmaciones', 'text' => 'Ves en tu panel quién confirmó y cuántas personas asistirán.'],
+        ['icon' => 'list-checks', 'title' => 'Sigues las confirmaciones', 'text' => 'Ves en tu panel quién confirmó, cuántas personas asistirán y, el día del evento, quién ya llegó.'],
     ];
     $faqs = [
-        ['¿Para qué tipo de eventos sirve?', 'Bodas, bautizos, cumpleaños, XV años, graduaciones y cualquier celebración. Adaptamos los textos y las secciones a tu evento.'],
-        ['¿Mis invitados necesitan instalar algo?', 'No. La invitación se abre en el navegador del celular desde el enlace que compartes por WhatsApp.'],
+        ['¿Qué es una invitación digital?', 'Es una página web con los datos de tu evento (fecha, lugar, itinerario, fotos y música) que tus invitados abren desde un enlace, por lo general enviado por WhatsApp. A diferencia de una imagen, permite confirmar asistencia, ver el mapa y recibir un pase de entrada con código QR.'],
+        ['¿Para qué tipo de eventos sirve?', 'Bodas, XV años, bautizos, cumpleaños, graduaciones, fiestas de temporada como Halloween y cualquier celebración. Adaptamos los textos y las secciones a tu evento.'],
+        ['¿Mis invitados necesitan instalar algo?', 'No. La invitación se abre en el navegador del celular desde el enlace que compartes.'],
+        ['¿Cómo confirman asistencia y cómo se controla la entrada?', 'Desde el paquete Estándar, cada invitado recibe su enlace personal, indica cuántas personas van y obtiene un pase con código QR. El día del evento, quien recibe a los invitados escanea ese pase con su teléfono y ve si puede pasar.'],
         ['¿Puedo hacer cambios después de compartirla?', 'Sí. Horarios, ubicación y textos se actualizan en el mismo enlace, así tus invitados siempre ven la versión correcta.'],
-        ['¿Cómo confirman asistencia mis invitados?', 'Desde el paquete Estándar, cada invitado recibe su propio enlace, indica cuántas personas van y obtiene un pase con código QR.'],
         ['¿Cuánto tardan en entregarla?', 'Depende del paquete y de cuándo nos envíes las fotos y los datos. Te damos una fecha de entrega al confirmar tu pedido.'],
-        ['¿Hacen algo además de invitaciones?', 'Sí. También hacemos diseños de temporada, como las invitaciones de Halloween y las tarjetas del Día del Amor. Salen por unos días y cada fecha trae sus diseños.'],
-        ['¿Cómo se realiza el pago?', 'Coordinamos el pago por WhatsApp cuando eliges tu paquete, antes de empezar el diseño.'],
+        ['¿Puedo armar mis propias invitaciones?', 'Sí. Con Hazlo tú tienes tu propio panel y nuestras plantillas por un plan mensual, sin comisión por invitación. Sirve si organizas varios eventos o si vendes invitaciones a tus clientes.'],
+        ['¿Cómo se realiza el pago?', 'Coordinamos el pago por WhatsApp (transferencia o QR) cuando eliges tu paquete, antes de empezar el diseño. Los precios están en dólares.'],
     ];
     $socials = array_values(array_filter([
-        ! empty($bida['instagram']) ? ['label' => 'Instagram', 'value' => '@'.$bida['instagram'], 'url' => 'https://www.instagram.com/'.$bida['instagram'].'/', 'icon' => 'instagram-logo'] : null,
-        ! empty($bida['facebook']) ? ['label' => 'Facebook', 'value' => 'facebook.com/'.$bida['facebook'], 'url' => 'https://www.facebook.com/'.$bida['facebook'], 'icon' => 'facebook-logo'] : null,
-        ! empty($bida['tiktok']) ? ['label' => 'TikTok', 'value' => '@'.$bida['tiktok'], 'url' => 'https://www.tiktok.com/@'.$bida['tiktok'], 'icon' => 'tiktok-logo'] : null,
+        ! empty($bida['instagram']) ? ['label' => 'Instagram', 'url' => 'https://www.instagram.com/'.$bida['instagram'].'/', 'icon' => 'instagram-logo'] : null,
+        ! empty($bida['facebook']) ? ['label' => 'Facebook', 'url' => 'https://www.facebook.com/'.$bida['facebook'], 'icon' => 'facebook-logo'] : null,
+        ! empty($bida['tiktok']) ? ['label' => 'TikTok', 'url' => 'https://www.tiktok.com/@'.$bida['tiktok'], 'icon' => 'tiktok-logo'] : null,
     ]));
     // El teléfono de la portada recorre la apertura de cada plantilla (se abren solas)
     $coverReel = array_map(function (array $demo) use ($showcase): array {
@@ -64,7 +79,12 @@
 
         return ['url' => $demo['coverUrl'], 'label' => $demo['label'], 'rotator' => $position === false ? null : $position];
     }, $demos);
+    [$mainService, $otherServices] = [$services[0] ?? null, array_slice($services, 1)];
 @endphp
+
+@push('head')
+    @include('site.partials.structured-data', ['faqs' => $faqs])
+@endpush
 
 @section('content')
     <div data-header-sentinel class="pointer-events-none absolute inset-x-0 top-0 h-4" aria-hidden="true"></div>
@@ -72,16 +92,15 @@
     @include('site.partials.header', ['navLinks' => $navLinks])
 
     <main>
-        {{-- ═══ Portada: el teléfono recorre las aperturas y la palabra y la foto del evento cambian con él ═══ --}}
-        <section data-rotator data-rotator-interval="3200" @if(count($demos)) data-rotator-driven @endif
-            class="mx-auto grid max-w-7xl items-center gap-12 px-5 pb-16 pt-8 md:pt-14 lg:min-h-[calc(100dvh-72px)] lg:grid-cols-[1.1fr_0.9fr] lg:gap-12 lg:px-8 lg:py-12">
-            <div>
-                <h1 class="site-enter text-[2.5rem] font-semibold leading-[1.06] tracking-tight sm:text-5xl lg:text-[3rem] xl:text-[3.5rem]">
-                    <span class="sr-only">Invitaciones digitales para bodas, bautizos, cumpleaños y XV años</span>
+        {{-- ═══ Portada: la palabra del evento y la foto cambian con la apertura que muestra el teléfono ═══ --}}
+        <section data-rotator data-rotator-interval="3200" @if(count($demos)) data-rotator-driven @endif class="site-hero">
+            <div class="site-hero__copy">
+                <h1 class="site-enter site-display">
+                    <span class="sr-only">Invitaciones digitales para bodas, XV años, bautizos, cumpleaños y graduaciones</span>
                     <span aria-hidden="true">
                         Invitaciones digitales
-                        <span class="sm:whitespace-nowrap">para
-                            <span class="site-rotator text-site-accent" data-rotator-group>
+                        <span class="site-hero__for">para
+                            <span class="site-rotator site-hero__word" data-rotator-group>
                                 @foreach($showcase as $index => $event)
                                     <span @class(['is-active' => $index === 0])>{{ $event['phrase'] }}</span>
                                 @endforeach
@@ -89,44 +108,40 @@
                         </span>
                     </span>
                 </h1>
-                <p class="site-enter mt-6 max-w-[40ch] text-lg leading-relaxed text-site-muted" style="--enter-index: 1">
-                    Diseñamos la invitación web de tu evento, con confirmación de asistencia, música, fotos y mapa. Lista para enviar por WhatsApp.
+                <p class="site-enter site-hero__lead" style="--enter-index: 1">
+                    Tus invitados la abren desde WhatsApp, confirman en un toque y entran a la fiesta con su pase QR.
                 </p>
-                <div class="site-enter mt-9 flex flex-col gap-3 sm:flex-row" style="--enter-index: 2">
-                    <a href="{{ $contactUrl }}" target="_blank" rel="noopener" class="site-btn site-btn--lg justify-center" data-magnetic>
-                        <x-phosphor-whatsapp-logo aria-hidden="true" />
-                        Escríbenos
-                    </a>
-                    <a href="{{ count($demos) ? '#plantillas' : '#precios' }}" class="site-btn site-btn--ghost site-btn--lg justify-center">
+                <div class="site-enter site-hero__actions" style="--enter-index: 2">
+                    <a href="{{ count($demos) ? '#plantillas' : '#precios' }}" class="site-btn site-btn--lg">
                         {{ count($demos) ? 'Probar una invitación' : 'Ver precios' }}
                         <x-phosphor-arrow-down class="site-btn__arrow" aria-hidden="true" />
                     </a>
+                    <a href="{{ $contactUrl }}" target="_blank" rel="noopener" class="site-btn site-btn--ghost site-btn--lg">
+                        <x-phosphor-whatsapp-logo aria-hidden="true" />
+                        Escríbenos
+                    </a>
                 </div>
-                <p class="site-enter mt-7 text-site-muted" style="--enter-index: 3">
-                    También hacemos
-                    <a href="#servicios" class="font-medium text-site-ink underline decoration-site-line underline-offset-4 hover:decoration-site-accent">diseños de temporada</a>
-                    y tenemos
-                    <a href="{{ route('professionals') }}" class="font-medium text-site-ink underline decoration-site-line underline-offset-4 hover:decoration-site-accent">planes para profesionales</a>.
-                </p>
+                <ul class="site-enter site-hero__facts" style="--enter-index: 3">
+                    <li>Desde {{ \App\Support\Money::format($fromPrice) }}</li>
+                    <li>Sin instalar nada</li>
+                    <li>Pase QR en la puerta</li>
+                </ul>
             </div>
 
-            <div class="relative mx-auto w-full max-w-[22rem] pb-10 sm:max-w-md lg:max-w-none lg:pb-12">
-                <div class="site-stage ml-auto aspect-[4/5] w-[80%] lg:w-[76%]" data-rotator-group>
+            <div class="site-hero__stage">
+                <div class="site-stage site-hero__photo" data-rotator-group>
                     @foreach($showcase as $index => $event)
                         <x-site.image :key="$event['image']" :priority="$index === 0" :class="$index === 0 ? 'is-active' : ''" />
                     @endforeach
                 </div>
 
-                <div class="site-phone absolute bottom-0 left-0"
+                <div class="site-phone site-hero__phone"
                     @if(count($demos)) data-cover-reel="{{ json_encode($coverReel, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) }}" @endif>
                     <div class="site-phone__screen">
                         @if(count($demos))
                             <iframe src="{{ $demos[0]['coverUrl'] }}" title="Apertura de las invitaciones de muestra" tabindex="-1" aria-hidden="true" data-cover-reel-frame></iframe>
                         @elseif($demoUrl)
                             <iframe src="{{ $demoUrl }}" title="Vista previa de una invitación de ejemplo" loading="lazy" tabindex="-1" aria-hidden="true"></iframe>
-                        @else
-                            {{-- TODO: captura real de una invitación en celular, 390x844 --}}
-                            <img src="https://picsum.photos/seed/bida-invitacion-celular/390/844?grayscale" alt="" width="390" height="844" loading="lazy">
                         @endif
                     </div>
 
@@ -141,14 +156,14 @@
         </section>
 
         {{-- ═══ Tipos de evento ═══ --}}
-        <section class="border-y border-site-line py-7 lg:py-9" aria-label="Eventos para los que diseñamos">
+        <section class="border-y border-site-line py-6 lg:py-8" aria-label="Eventos para los que diseñamos">
             <div class="site-marquee">
                 <div class="site-marquee__track">
                     @foreach([false, true] as $isCopy)
                         <ul class="site-marquee__list" @if($isCopy) aria-hidden="true" @endif>
                             @foreach($bida['event_types'] as $name => $icon)
-                                <li class="flex items-center gap-3 whitespace-nowrap text-2xl font-medium tracking-tight lg:text-3xl">
-                                    <x-dynamic-component :component="'phosphor-'.$icon.'-light'" class="size-7 text-site-accent lg:size-8" aria-hidden="true" />
+                                <li class="site-marquee__item">
+                                    <x-dynamic-component :component="'phosphor-'.$icon.'-light'" aria-hidden="true" />
                                     {{ $name }}
                                 </li>
                             @endforeach
@@ -158,143 +173,85 @@
             </div>
         </section>
 
-        {{-- ═══ Servicios: lo principal son las invitaciones; las tarjetas salen por temporada (config «bida.services») ═══ --}}
-        <section id="servicios" class="scroll-mt-20">
-            <div class="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-28">
-                <div class="grid gap-6 lg:grid-cols-12 lg:items-end lg:gap-8">
-                    <h2 class="max-w-[20ch] text-3xl font-semibold leading-[1.1] tracking-tight md:text-5xl lg:col-span-7" data-reveal>
-                        Invitaciones para tu evento y tarjetas para las fechas que importan
-                    </h2>
-                    <p class="max-w-[40ch] text-lg leading-relaxed text-site-muted lg:col-span-4 lg:col-start-9" data-reveal>
-                        Todo se abre desde el celular, se comparte por WhatsApp y lo diseñamos contigo.
+        {{-- ═══ Lo que ofrecemos: la invitación hecha por el equipo, lo de temporada y el panel propio ═══ --}}
+        @if($mainService)
+            <section id="servicios" class="site-offer scroll-mt-20" aria-labelledby="servicios-titulo">
+                <div class="site-offer__intro">
+                    <h2 id="servicios-titulo" class="site-display site-display--md" data-reveal>Tres maneras de tener tu invitación</h2>
+                    <p class="site-muted-lead" data-reveal>La diseñamos contigo, la eliges de la temporada o la armas tú mismo.</p>
+                </div>
+
+                <div class="site-offer__grid">
+                    <a href="{{ $mainService['url'] ?? $contactUrl }}" class="site-offer__main" data-reveal>
+                        <figure class="site-offer__photo">
+                            <x-site.image key="servicio-enlace" />
+                        </figure>
+                        <div class="site-offer__body">
+                            <p class="site-overline">Te la diseñamos</p>
+                            <h3 class="site-offer__name">{{ $mainService['name'] }}</h3>
+                            <p class="site-offer__text">{{ $mainService['text'] }}</p>
+                            <p class="site-offer__meta">
+                                @if($mainService['fromPrice'])
+                                    <span>Desde <b>{{ \App\Support\Money::format($mainService['fromPrice']) }}</b></span>
+                                @endif
+                                <span class="site-link-arrow">{{ $mainService['cta'] }} <x-phosphor-arrow-right aria-hidden="true" /></span>
+                            </p>
+                        </div>
+                    </a>
+
+                    <div class="site-offer__side">
+                        @foreach($otherServices as $service)
+                            <a href="{{ $service['url'] ?? $contactUrl }}" class="site-offer__row" data-reveal style="--reveal-index: {{ $loop->index + 1 }}"
+                                @unless($service['url']) target="_blank" rel="noopener" @endunless>
+                                <p class="site-overline">
+                                    @if($service['live'])
+                                        <span class="site-live-dot" aria-hidden="true"></span> Ahora: {{ $service['live'] }}
+                                    @else
+                                        {{ $service['key'] === 'hazlo' ? 'Tu propio panel' : 'Por temporada' }}
+                                    @endif
+                                </p>
+                                <h3 class="site-offer__name site-offer__name--sm">{{ $service['name'] }}</h3>
+                                <p class="site-offer__text">{{ $service['text'] }}</p>
+                                <p class="site-offer__meta">
+                                    @if($service['fromPrice'])
+                                        <span>Desde <b>{{ \App\Support\Money::format($service['fromPrice']) }}</b>@if($service['priceSuffix'] ?? null) {{ $service['priceSuffix'] }}@endif</span>
+                                    @endif
+                                    <span class="site-link-arrow">{{ $service['cta'] }} <x-phosphor-arrow-right aria-hidden="true" /></span>
+                                </p>
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+            </section>
+        @endif
+
+        {{-- ═══ Probar como invitado: fichas que se deslizan en el celular y el teléfono justo debajo ═══ --}}
+        @if(count($demos))
+            <section id="plantillas" class="site-tester scroll-mt-20" aria-labelledby="plantillas-titulo"
+                x-data="{ active: 0, loading: true, demos: @js($demos), choose(index) { if (this.active !== index) { this.active = index; this.loading = true; } } }">
+                <div class="site-tester__head">
+                    <h2 id="plantillas-titulo" class="site-display site-display--md" data-reveal>Pruébala como invitado</h2>
+                    <p class="site-muted-lead" data-reveal>
+                        Elige un diseño y úsalo dentro del teléfono: confirma, vota, sugiere una canción. Es una muestra, nada se guarda.
                     </p>
                 </div>
 
-                <ol class="site-services mt-14">
-                    @foreach($services as $index => $service)
-                        <li data-reveal style="--reveal-index: {{ $index }}">
-                            <a href="{{ $service['url'] ?? $contactUrl }}" @class(['site-service', 'site-service--main' => $index === 0])
-                                @unless($service['url']) target="_blank" rel="noopener" @endunless>
-                                <span class="site-service__num">{{ str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) }}</span>
-                                <span class="site-service__body">
-                                    <span class="site-service__name">{{ $service['name'] }}</span>
-                                    <span class="site-service__text">{{ $service['text'] }}</span>
-                                    <span class="site-service__for">
-                                        @foreach($service['occasions'] as $occasion)
-                                            <span>{{ $occasion }}</span>
-                                        @endforeach
-                                    </span>
-                                </span>
-                                <span class="site-service__side">
-                                    @if($service['live'])
-                                        <span class="site-service__live">Ahora: {{ $service['live'] }}</span>
-                                    @endif
-                                    @if($service['fromPrice'])
-                                        <span class="site-service__price">desde <b>{{ $service['fromPrice'] }} Bs</b>@if($service['priceSuffix'] ?? null) {{ $service['priceSuffix'] }}@endif</span>
-                                    @endif
-                                    <span class="site-service__cta">
-                                        {{ $service['cta'] }}
-                                        <x-phosphor-arrow-right aria-hidden="true" />
-                                    </span>
-                                </span>
-                            </a>
-                        </li>
+                <div class="site-tester__picker" role="tablist" aria-label="Diseños para probar">
+                    @foreach($demos as $index => $demo)
+                        <button type="button" role="tab" id="plantilla-tab-{{ $index }}" aria-controls="plantilla-vista"
+                            aria-selected="{{ $index === 0 ? 'true' : 'false' }}"
+                            :aria-selected="(active === {{ $index }}).toString()"
+                            @click="choose({{ $index }}); $el.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' })"
+                            @class(['site-chip', 'is-active' => $index === 0])
+                            :class="{ 'is-active': active === {{ $index }} }">
+                            <span class="site-chip__event">{{ $demo['event'] }}</span>
+                            <span class="site-chip__name">{{ $demo['label'] }}</span>
+                        </button>
                     @endforeach
-                </ol>
-            </div>
-        </section>
-
-        {{-- ═══ Qué incluye: por momento del evento, junto a la foto de los recuerdos en vivo ═══ --}}
-        <section id="incluye" class="scroll-mt-20 border-t border-site-line">
-            <div class="mx-auto grid max-w-7xl gap-12 px-5 py-20 lg:grid-cols-12 lg:gap-8 lg:px-8 lg:py-28">
-                <div class="lg:col-span-5">
-                    <div class="lg:sticky lg:top-28">
-                        <h2 class="max-w-[16ch] text-3xl font-semibold leading-[1.1] tracking-tight md:text-5xl" data-reveal>
-                            Todo lo que tu invitación puede incluir
-                        </h2>
-                        <p class="mt-5 max-w-[42ch] text-lg leading-relaxed text-site-muted" data-reveal>
-                            Antes, durante y después de tu evento. Eliges lo que necesitas y todo se ve bien en el celular.
-                        </p>
-                        <figure class="site-photo site-photo--caption mt-10 aspect-[4/3] lg:aspect-[4/5]" data-reveal>
-                            <x-site.image key="servicio-fotomural" />
-                            <figcaption>
-                                <span>Durante la fiesta</span>
-                                Las fotos de tus invitados, al instante en el fotomural.
-                            </figcaption>
-                        </figure>
-                    </div>
                 </div>
 
-                <ol class="site-features lg:col-span-6 lg:col-start-7">
-                    @foreach($features as $index => $feature)
-                        @if($index === 0 || $features[$index - 1]['when'] !== $feature['when'])
-                            <li class="site-features__when" data-reveal>{{ $feature['when'] }}</li>
-                        @endif
-                        <li class="site-feature" data-reveal>
-                            <span class="site-feature__num">{{ str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) }}</span>
-                            <div>
-                                <h3 class="site-feature__title">{{ $feature['title'] }}</h3>
-                                <p class="site-feature__text">{{ $feature['text'] }}</p>
-                            </div>
-                            <x-dynamic-component :component="'phosphor-'.$feature['icon'].'-light'" class="site-feature__icon" aria-hidden="true" />
-                        </li>
-                    @endforeach
-                </ol>
-            </div>
-        </section>
-
-        {{-- ═══ Plantillas: el visitante elige un evento y prueba la invitación de muestra (nada se guarda) ═══ --}}
-        @if(count($demos))
-            <section id="plantillas" class="scroll-mt-20 border-t border-site-line bg-site-surface"
-                x-data="{ active: 0, loading: true, demos: @js($demos) }">
-                <div class="mx-auto grid max-w-7xl gap-14 px-5 py-20 lg:grid-cols-12 lg:items-center lg:gap-8 lg:px-8 lg:py-28">
-                    <div class="lg:col-span-6">
-                        <p class="text-[0.95rem] font-medium text-site-accent" data-reveal>Plantillas</p>
-                        <h2 class="mt-4 max-w-[18ch] text-3xl font-semibold leading-[1.1] tracking-tight md:text-5xl" data-reveal>
-                            Pruébala como un invitado
-                        </h2>
-                        <p class="mt-5 max-w-[46ch] text-lg leading-relaxed text-site-muted" data-reveal>
-                            Ábrela dentro del teléfono, confirma tu asistencia, vota, sugiere una canción o sube una foto. Es una muestra: nada de lo que hagas se guarda.
-                        </p>
-
-                        <ol class="site-template-list mt-10" role="tablist" aria-label="Plantillas de invitación" data-reveal>
-                            @foreach($demos as $index => $demo)
-                                <li>
-                                    <button type="button" role="tab" id="plantilla-tab-{{ $index }}" aria-controls="plantilla-vista"
-                                        aria-selected="{{ $index === 0 ? 'true' : 'false' }}"
-                                        :aria-selected="(active === {{ $index }}).toString()"
-                                        @click="if (active !== {{ $index }}) { active = {{ $index }}; loading = true }"
-                                        @class(['site-template', 'is-active' => $index === 0])
-                                        :class="{ 'is-active': active === {{ $index }} }">
-                                        <span class="site-template__num">{{ str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) }}</span>
-                                        <span class="site-template__name">{{ $demo['label'] }}</span>
-                                        <span class="site-template__event">{{ $demo['event'] }}</span>
-                                    </button>
-                                </li>
-                            @endforeach
-                        </ol>
-
-                        @foreach($demos as $index => $demo)
-                            <div class="mt-8" x-show="active === {{ $index }}" @if($index > 0) x-cloak @endif>
-                                <p class="max-w-[46ch] leading-relaxed text-site-muted">
-                                    {{ $demo['description'] }}
-                                    <span class="text-site-ink">Ejemplo: {{ $demo['title'] }}.</span>
-                                </p>
-                                <a href="{{ $demo['demoUrl'] }}" target="_blank" rel="noopener" class="site-btn site-btn--ghost site-btn--lg mt-6">
-                                    Abrir en pantalla completa
-                                    <x-phosphor-arrow-up-right class="site-btn__arrow" aria-hidden="true" />
-                                </a>
-                                @php($eventLanding = collect($landings)->firstWhere('event', $demo['eventKey']))
-                                @if($eventLanding)
-                                    <a href="{{ $eventLanding['url'] }}" class="mt-5 block w-fit font-medium text-site-ink underline decoration-site-line underline-offset-4 hover:decoration-site-accent">
-                                        {{ $eventLanding['label'] }}
-                                    </a>
-                                @endif
-                            </div>
-                        @endforeach
-                    </div>
-
-                    <div class="flex flex-col items-center gap-4 lg:col-span-5 lg:col-start-8" data-reveal style="--reveal-index: 1">
+                <div class="site-tester__body">
+                    <div class="site-tester__device" data-reveal>
                         <div class="site-phone site-phone--showcase">
                             <div id="plantilla-vista" role="tabpanel" aria-labelledby="plantilla-tab-0"
                                 :aria-labelledby="'plantilla-tab-' + active"
@@ -304,26 +261,85 @@
                                     loading="lazy" @load="loading = false"></iframe>
                             </div>
                         </div>
-                        <p class="text-sm text-site-muted">Toca y desliza dentro del teléfono</p>
+                    </div>
+
+                    <div class="site-tester__info">
+                        @foreach($demos as $index => $demo)
+                            <div x-show="active === {{ $index }}" @if($index > 0) x-cloak @endif>
+                                <p class="site-overline">{{ $demo['event'] }}</p>
+                                <h3 class="site-tester__name">{{ $demo['label'] }}</h3>
+                                <p class="site-tester__text">{{ $demo['description'] }}</p>
+                                <div class="site-tester__actions">
+                                    <a href="{{ $demo['demoUrl'] }}" target="_blank" rel="noopener" class="site-btn site-btn--ghost">
+                                        Abrir en pantalla completa
+                                        <x-phosphor-arrow-up-right class="site-btn__arrow" aria-hidden="true" />
+                                    </a>
+                                    @php($eventLanding = collect($landings)->firstWhere('event', $demo['eventKey']))
+                                    @if($eventLanding)
+                                        <a href="{{ $eventLanding['url'] }}" class="site-link-arrow">
+                                            {{ $eventLanding['label'] }} <x-phosphor-arrow-right aria-hidden="true" />
+                                        </a>
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                        <p class="site-tester__hint">
+                            <x-phosphor-hand-tap aria-hidden="true" />
+                            Toca y desliza dentro del teléfono
+                        </p>
                     </div>
                 </div>
             </section>
         @endif
+
+        {{-- ═══ Qué incluye: agrupado por el momento del evento en que se usa ═══ --}}
+        <section id="incluye" class="site-include scroll-mt-20" aria-labelledby="incluye-titulo">
+            <div class="site-include__aside">
+                <div class="lg:sticky lg:top-28">
+                    <h2 id="incluye-titulo" class="site-display site-display--md" data-reveal>Todo lo que tu invitación puede hacer</h2>
+                    <p class="site-muted-lead" data-reveal>Antes, en la puerta y después del evento. Eliges lo que necesitas; todo se ve bien en el celular.</p>
+                    <figure class="site-photo site-photo--caption mt-8 aspect-[4/3] lg:aspect-[4/5]" data-reveal>
+                        <x-site.image key="servicio-fotomural" />
+                        <figcaption>
+                            <span>Durante la fiesta</span>
+                            Las fotos de tus invitados, al instante en el fotomural.
+                        </figcaption>
+                    </figure>
+                </div>
+            </div>
+
+            <div class="site-include__list">
+                @foreach($moments as $moment => $items)
+                    <div class="site-include__moment">
+                        <h3 class="site-overline" data-reveal>{{ $moment }}</h3>
+                        <ul>
+                            @foreach($items as $item)
+                                <li class="site-include__item" data-reveal>
+                                    <x-dynamic-component :component="'phosphor-'.$item['icon'].'-light'" class="site-include__icon" aria-hidden="true" />
+                                    <div>
+                                        <p class="site-include__title">{{ $item['title'] }}</p>
+                                        <p class="site-include__text">{{ $item['text'] }}</p>
+                                    </div>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endforeach
+            </div>
+        </section>
 
         {{-- ═══ Cómo trabajamos: la línea se dibuja con el scroll ═══ --}}
         <section class="border-t border-site-line">
             <div class="mx-auto grid max-w-7xl gap-12 px-5 py-20 lg:grid-cols-12 lg:gap-8 lg:px-8 lg:py-28">
                 <div class="lg:col-span-5">
                     <div class="lg:sticky lg:top-32">
-                        <h2 class="text-3xl font-semibold leading-[1.1] tracking-tight md:text-5xl" data-reveal>Así trabajamos</h2>
-                        <p class="mt-5 max-w-[38ch] text-lg leading-relaxed text-site-muted" data-reveal>
-                            De tu primer mensaje a las confirmaciones de tus invitados, en cuatro pasos.
-                        </p>
+                        <h2 class="site-display site-display--md" data-reveal>Así trabajamos</h2>
+                        <p class="site-muted-lead" data-reveal>De tu primer mensaje a las confirmaciones de tus invitados.</p>
                     </div>
                 </div>
 
                 <ol class="site-steps grid gap-12 lg:col-span-6 lg:col-start-7 lg:gap-16">
-                    @foreach($steps as $index => $step)
+                    @foreach($steps as $step)
                         <li class="grid grid-cols-[3rem_1fr] gap-5 sm:gap-7" data-reveal>
                             <span class="site-step__node">
                                 <x-dynamic-component :component="'phosphor-'.$step['icon'].'-light'" class="size-6" aria-hidden="true" />
@@ -345,8 +361,8 @@
 
     @include('site.partials.footer', ['navLinks' => $navLinks, 'socials' => $socials])
 
-    {{-- ═══ Temporadas: un botón flotante por cada una que se vende hoy (abajo a la derecha, apilados) ═══ --}}
-    @foreach($seasons as $seasonIndex => $season)
-        @include('site.partials.season', ['season' => $season, 'seasonIndex' => $seasonIndex])
-    @endforeach
+    {{-- ═══ Temporadas: un botón discreto abajo a la derecha que abre las que se venden hoy ═══ --}}
+    @if(count($seasons))
+        @include('site.partials.season', ['seasons' => $seasons])
+    @endif
 @endsection

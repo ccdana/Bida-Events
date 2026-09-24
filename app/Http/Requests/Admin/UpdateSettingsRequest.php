@@ -34,6 +34,7 @@ class UpdateSettingsRequest extends FormRequest
             // Planes de revendedor: precio mensual y cupo (vacío = sin tope)
             'reseller_plans' => ['array'],
             'reseller_plans.*.price' => ['required', 'integer', 'min:0', 'max:100000'],
+            'reseller_plans.*.promo_price' => ['nullable', 'integer', 'min:0', 'max:100000'],
             'reseller_plans.*.quota_per_month' => ['nullable', 'integer', 'min:1', 'max:10000'],
 
             // Las plantillas de temporada que siguen ofreciéndose
@@ -51,6 +52,13 @@ class UpdateSettingsRequest extends FormRequest
                     if (($package['promo_price'] ?? null) !== null && $package['promo_price'] !== ''
                         && (int) $package['promo_price'] >= (int) ($package['price'] ?? 0)) {
                         $validator->errors()->add("packages.{$key}.promo_price", 'El precio con descuento tiene que ser menor que el normal.');
+                    }
+                }
+
+                foreach ((array) $this->input('reseller_plans', []) as $key => $plan) {
+                    if (($plan['promo_price'] ?? '') !== '' && ($plan['promo_price'] ?? null) !== null
+                        && (int) $plan['promo_price'] >= (int) ($plan['price'] ?? 0)) {
+                        $validator->errors()->add("reseller_plans.{$key}.promo_price", 'El precio con descuento tiene que ser menor que el normal.');
                     }
                 }
 

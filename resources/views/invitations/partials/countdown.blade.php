@@ -24,7 +24,7 @@
             <div class="inv-actions inv-countdown__actions">
                 <button type="button" class="inv-btn inv-btn--ghost" data-url="{{ $calendarUrl }}" onclick="openCalendar(this.dataset.url)">
                     @include('invitations.partials.lottie-icon', ['name' => 'calendar', 'class' => 'inv-countdown__lottie'])
-                    Agendar en mi calendario
+                    {{ $invCopy['countdown_calendar'] ?? 'Agendar en mi calendario' }}
                 </button>
             </div>
         @endif

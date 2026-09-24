@@ -29,9 +29,11 @@ class SecurityHardeningTest extends TestCase
             ->assertOk()
             ->assertSee('<meta name="robots" content="noindex, nofollow">', false);
 
+        // Además de las invitaciones, robots.txt esconde la puerta del evento
         $robots = file_get_contents(public_path('robots.txt'));
         $this->assertStringContainsString('Disallow: /p/', $robots);
         $this->assertStringContainsString('Disallow: /muestra/', $robots);
+        $this->assertStringContainsString('Disallow: /entrada/', $robots);
     }
 
     public function test_the_personal_invitation_is_never_cached_as_public(): void

@@ -8,6 +8,8 @@ use App\Http\Requests\Admin\Reseller\StoreResellerRequest;
 use App\Models\SubscriptionPayment;
 use App\Models\User;
 use App\Support\ClientCredentials;
+use App\Support\Money;
+use App\Support\Offers;
 use App\Support\ResellerSubscription;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
@@ -91,6 +93,7 @@ class ResellerController extends Controller
                 'user_id' => $reseller->id,
                 'plan' => $plan,
                 'amount' => $request->validated('amount'),
+                'currency' => Money::code(),
                 'paid_at' => now()->toDateString(),
                 'renews_until' => $renewsUntil->toDateString(),
                 'registered_by' => $request->user()->id,
@@ -164,7 +167,8 @@ class ResellerController extends Controller
             'reseller' => $reseller,
             'planKey' => $reseller->reseller_plan,
             'planName' => $plan['name'] ?? 'Sin plan',
-            'planPrice' => (int) ($plan['price'] ?? 0),
+            // Lo que se cobra hoy: con el descuento del plan, si tiene
+            'planPrice' => Offers::planPrice($plan),
             'statusLabel' => $statusLabel,
             'statusClass' => $statusClass,
             'daysLeft' => $daysLeft,
@@ -187,6 +191,6 @@ class ResellerController extends Controller
         };
 
         return "Hola {$reseller->name}, te escribimos de ".config('bida.brand').": tu suscripción {$when}. "
-            .'Para seguir creando invitaciones, el plan '.($plan['name'] ?? '').' cuesta '.($plan['price'] ?? '').' Bs al mes.';
+            .'Para seguir creando invitaciones, el plan '.($plan['name'] ?? '').' cuesta '.Money::format(Offers::planPrice($plan)).' al mes.';
     }
 }

@@ -37,6 +37,8 @@ return [
         'photos' => env('RATE_LIMIT_PHOTOS', 10),
         'votes' => env('RATE_LIMIT_VOTES', 30),
         'replies' => env('RATE_LIMIT_REPLIES', 5),
+        // Puerta del evento: un teléfono escanea muchos pases seguidos, pero no más de uno por segundo
+        'door' => env('RATE_LIMIT_DOOR', 90),
     ],
 
     'http' => [
