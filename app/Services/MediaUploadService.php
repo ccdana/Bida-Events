@@ -13,7 +13,8 @@ class MediaUploadService
     // Transformaciones según contexto de imagen
     private const IMAGE_TRANSFORMS = [
         'bienvenida' => ['width' => 800, 'height' => 800, 'crop' => 'fill', 'quality' => 'auto'],
-        'ubicacion' => ['width' => 600, 'height' => 400, 'crop' => 'fill', 'quality' => 'auto'],
+        // Misma proporción que el espacio de la invitación (16:10, App\Support\ImageFrames): el recorte del editor no se vuelve a cortar
+        'ubicacion' => ['width' => 1600, 'height' => 1000, 'crop' => 'fill', 'quality' => 'auto'],
         'galeria' => ['width' => 600, 'height' => 600, 'crop' => 'fill', 'quality' => 'auto'],
         'fotomural' => ['width' => 500, 'height' => 500, 'crop' => 'fill', 'quality' => 'auto'],
         'post_evento' => ['width' => 600, 'height' => 600, 'crop' => 'fill', 'quality' => 'auto'],

@@ -16,6 +16,9 @@ use Illuminate\Support\Facades\Hash;
  * El cliente de un evento del revendedor: un acceso (usuario y contraseña dictables) para que la
  * familia vea sus invitados y descargue sus reportes. Uno por evento y, por mes, no más que las
  * invitaciones del plan; si se creó mal, se elimina y se crea otro (el borrado no cuenta). El revendedor sigue siendo quien edita la invitación.
+ *
+ * Si el evento es del propio revendedor (su cumpleaños, la boda de su hermana), él mismo queda como
+ * cliente: ve la lista de invitados desde su panel y no gasta ningún acceso del mes.
  */
 class ResellerClientController extends Controller
 {
@@ -56,12 +59,30 @@ class ResellerClientController extends Controller
             ->with('client_credentials', ['name' => $client->name, 'username' => $client->username, 'password' => $password]);
     }
 
+    public function assignSelf(Invitation $invitation): RedirectResponse
+    {
+        if ($invitation->user_id !== null) {
+            return back()->withErrors(['client' => 'Este evento ya tiene su cliente. Elimínalo primero si el evento es tuyo.']);
+        }
+
+        $invitation->update(['user_id' => auth()->id()]);
+
+        return back()->with('success', 'Listo: este evento es tuyo. Sus invitados y reportes están en esta misma página.');
+    }
+
     public function destroy(Invitation $invitation): RedirectResponse
     {
         $client = $invitation->user;
 
         if (! $client) {
             return back();
+        }
+
+        // El evento era del propio revendedor: solo deja de estar a su nombre
+        if ((int) $client->id === (int) auth()->id()) {
+            $invitation->update(['user_id' => null]);
+
+            return back()->with('success', 'El evento ya no está a tu nombre. Ahora puedes crear el acceso de tu cliente.');
         }
 
         // Solo se elimina un cliente que creó este revendedor; los que creó el equipo no se tocan

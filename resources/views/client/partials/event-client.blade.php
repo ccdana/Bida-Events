@@ -1,10 +1,12 @@
 {{--
     El cliente de este evento (solo lo ve el revendedor que armó la invitación): un acceso para que
     la familia vea sus invitados y descargue sus reportes. Uno por evento; si se creó mal, se elimina
-    y se crea otro. Recibe $invitation.
+    y se crea otro. Si el evento es del propio revendedor, queda a su nombre sin gastar un acceso.
+    Recibe $invitation.
 --}}
 @php
     $eventClient = $invitation->user;
+    $isOwnEvent = $eventClient && (int) $eventClient->id === (int) auth()->id();
     $canCreateClients = App\Support\ResellerSubscription::canCreateClients(auth()->user());
     $clientsLeft = App\Support\ResellerSubscription::clientsLeft(auth()->user());
 @endphp
@@ -41,7 +43,22 @@
         </div>
     @endif
 
-    @if($eventClient)
+    @if($isOwnEvent)
+        <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
+            <p class="flex items-center gap-2">
+                <x-phosphor-user-circle class="size-5 text-site-accent" aria-hidden="true" />
+                <span><span class="font-medium">Este evento es tuyo.</span> <span class="text-sm text-site-muted">Sus invitados y reportes están en esta página.</span></span>
+            </p>
+            <form method="POST" action="{{ route('client.invitations.client.destroy', $invitation) }}">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="admin-link-button">
+                    <x-phosphor-arrow-u-up-left aria-hidden="true" />
+                    Es de un cliente
+                </button>
+            </form>
+        </div>
+    @elseif($eventClient)
         <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
             <p>
                 <span class="font-medium">{{ $eventClient->name }}</span>
@@ -84,4 +101,16 @@
     @else
         <p class="mt-4 text-sm text-site-muted">Ya creaste todos los accesos de cliente de este mes (tantos como las invitaciones de tu plan). El mes que viene puedes crear más, o pasar a un plan con más invitaciones.</p>
     @endif
+
+    {{-- Sin cliente todavía: también puede ser un evento del propio revendedor --}}
+    @unless($eventClient)
+        <form method="POST" action="{{ route('client.invitations.client.self', $invitation) }}" class="mt-4 flex flex-wrap items-center gap-3 border-t border-site-line pt-4">
+            @csrf
+            <p class="text-sm text-site-muted">¿Es un evento tuyo?</p>
+            <button type="submit" class="admin-link-button">
+                <x-phosphor-user-circle aria-hidden="true" />
+                Es mío, no necesito un acceso
+            </button>
+        </form>
+    @endunless
 </section>

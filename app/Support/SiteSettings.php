@@ -8,7 +8,8 @@ use Illuminate\Support\Facades\Cache;
 /**
  * Lo que el administrador maneja desde el panel sin tocar el código: los precios de los paquetes,
  * la promoción y hasta cuándo dura, cada temporada (encendida o no, precio y fecha, por separado),
- * qué plantillas de temporada se ofrecen hoy y el precio y el cupo de cada plan de revendedor.
+ * qué plantillas de temporada se ofrecen hoy, el precio y el cupo de cada plan de revendedor y los
+ * datos de contacto (WhatsApp, correo y redes sociales) que se ven en todo el sitio.
  *
  * Lo guardado se aplica sobre config/bida.php al arrancar (AppServiceProvider), así que el resto
  * del código sigue leyendo config('bida.…') y no se entera de nada. Lo que no se haya tocado
@@ -19,7 +20,10 @@ final class SiteSettings
     private const CACHE_KEY = 'bida.site-settings';
 
     /** Grupos que se guardan; cualquier otro nombre se ignora. */
-    public const GROUPS = ['promo', 'packages', 'season', 'templates', 'reseller_plans'];
+    public const GROUPS = ['promo', 'packages', 'season', 'templates', 'reseller_plans', 'contact'];
+
+    /** Datos de contacto que se cambian desde Ajustes (claves de config/bida.php). */
+    public const CONTACT_FIELDS = ['whatsapp', 'email', 'instagram', 'facebook', 'tiktok'];
 
     /** Aplica lo guardado sobre la configuración. Si la base no responde, queda la config del archivo. */
     public static function apply(): void
@@ -34,6 +38,7 @@ final class SiteSettings
         self::applyPromo($stored['promo'] ?? []);
         self::applySeasons($stored['season'] ?? []);
         self::applyResellerPlans($stored['reseller_plans'] ?? []);
+        self::applyContact($stored['contact'] ?? []);
 
         config(['bida.templates_disabled' => $stored['templates']['disabled'] ?? []]);
     }
@@ -70,6 +75,7 @@ final class SiteSettings
                 ->values()
                 ->all(),
             'templates' => ['disabled' => (array) config('bida.templates_disabled', [])],
+            'contact' => collect(self::CONTACT_FIELDS)->mapWithKeys(fn (string $field) => [$field => (string) config("bida.{$field}", '')])->all(),
             'reseller_plans' => collect(config('bida.reseller_plans', []))
                 ->map(fn (array $plan, string $key) => [
                     'key' => $key,
@@ -154,6 +160,19 @@ final class SiteSettings
 
         if (array_key_exists('ends_at', $promo)) {
             config(['bida.launch_promo.ends_at' => $promo['ends_at'] ?: null]);
+        }
+    }
+
+    /**
+     * WhatsApp, correo y redes. Un campo vacío es a propósito (esa red no se muestra), así que se
+     * aplica tal cual; solo se ignora lo que nunca se guardó.
+     */
+    private static function applyContact(array $contact): void
+    {
+        foreach (self::CONTACT_FIELDS as $field) {
+            if (array_key_exists($field, $contact)) {
+                config(["bida.{$field}" => (string) ($contact[$field] ?? '')]);
+            }
         }
     }
 

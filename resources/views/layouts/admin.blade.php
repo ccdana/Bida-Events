@@ -15,6 +15,8 @@
         'primary' => ['label' => 'Nueva invitación', 'url' => route('admin.invitations.create')],
         'nav' => [
             ['label' => 'Invitaciones', 'url' => route('admin.dashboard'), 'icon' => 'envelope-simple', 'active' => request()->routeIs('admin.dashboard')],
+            ['label' => 'Muestras', 'url' => route('admin.showcase'), 'icon' => 'presentation', 'active' => request()->routeIs('admin.showcase')],
+            ['label' => 'Clientes', 'url' => route('admin.clients.index'), 'icon' => 'users', 'active' => request()->routeIs('admin.clients.index')],
             ['label' => 'Revendedores', 'url' => route('admin.resellers.index'), 'icon' => 'storefront', 'active' => request()->routeIs('admin.resellers.*'),
                 'badge' => $resellersDue ?: null, 'badgeTitle' => $resellersDue.' por vencer o vencidos'],
             ['label' => 'Ajustes', 'url' => route('admin.settings'), 'icon' => 'sliders-horizontal', 'active' => request()->routeIs('admin.settings')],
@@ -22,7 +24,7 @@
         ],
         'filterGroups' => $filterGroups ?? null,
         'filterValues' => $filterValues ?? [],
-        'filterRoute' => 'admin.dashboard',
+        'filterRoute' => $filterRoute ?? 'admin.dashboard',
     ])
 
     <div class="panel-main">

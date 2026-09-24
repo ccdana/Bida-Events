@@ -68,7 +68,7 @@ módulos nuevos: `docs/temporadas.md`.
 | `php artisan optimize:clear` | Limpiar caché de vistas, rutas y configuración |
 | `php artisan invitations:purge-contributions --dry-run` | Ver qué fotos viejas se borrarían |
 | `php artisan bida:medir --guardar` | Medir las pantallas públicas y guardar el resultado |
-| `php artisan bida:imagenes-compartir` | Regenerar las tarjetas para compartir después de cambiar una foto del sitio |
+| `php artisan bida:imagenes-compartir` | Revisar que exista la imagen con el logo para compartir (`public/images/share/bida.jpg`, 1200×630) |
 | `php artisan bida:enlace-campana invitaciones-de-boda --fuente=facebook --medio=anuncio --campana=mayo` | Armar el enlace de una campaña y ver su código |
 | `php artisan queue:work` | Procesar los archivos que piden los clientes (en producción, con supervisor) |
 | `php artisan db:seed --class=ClientUserSeeder` | Crear el cliente de prueba `cliente.prueba` (muestra la contraseña una vez) |
@@ -356,7 +356,7 @@ propósito y responde `no-store`.
 | `Console/Commands/TestBackupRestore.php` | Comando `bida:probar-respaldo`: restaura en una base temporal y compara filas |
 | `Console/Commands/HealthCheck.php` | Comando `bida:salud`: trabajos fallidos, cola, exportaciones, respaldos y disco; avisa por correo |
 | `Console/Commands/PurgeOldContributions.php` | Comando `invitations:purge-contributions`: borra fotos de eventos viejos (con su archivo en Cloudinary) y exportaciones vencidas |
-| `Console/Commands/GenerateShareImages.php` | Comando `bida:imagenes-compartir`: recorta las tarjetas de 1200×630 en `public/images/share` |
+| `Console/Commands/GenerateShareImages.php` | Comando `bida:imagenes-compartir`: revisa la imagen con el logo para compartir (lo llama el arranque de producción) |
 | `Console/Commands/CampaignLink.php` | Comando `bida:enlace-campana`: arma un enlace con UTM y muestra el código que llegará por WhatsApp |
 | `Console/Commands/MeasurePerformance.php` | Comando `bida:medir`: tiempo, consultas, memoria y peso del HTML de las pantallas públicas |
 | `Jobs/GenerateInvitationExport.php` | Arma en segundo plano el Excel o el PDF que pidió el cliente |
@@ -614,7 +614,7 @@ propósito y responde `no-store`.
 | `public/.htaccess` | Reescritura de URLs |
 | `public/robots.txt` | Reglas para buscadores y `Sitemap:` (estático: lo sirve nginx y lo usa el healthcheck de Docker) |
 | `resources/views/seo/llms.blade.php` | Contenido de `/llms.txt` |
-| `public/images/share/*.jpg` | Tarjetas de 1200×630 para compartir la portada y cada tipo de evento (las genera `bida:imagenes-compartir`) |
+| `public/images/share/bida.jpg` | El logo de Bida en 1200×630: lo que se ve al compartir el sitio o una invitación sin foto de portada |
 | `public/favicon.svg` / `favicon.ico` | Íconos del sitio |
 | `public/images/site/event-*.webp` | Fotos de los cuatro eventos de la portada |
 | `public/images/site/servicio-enlace.webp` / `servicio-fotomural.webp` | Fotos de la sección de servicios |
@@ -847,7 +847,7 @@ comportamiento: con 25 invitaciones y 500 invitados hace menos de 15 consultas y
 | # | Qué se hizo | Dónde |
 | --- | --- | --- |
 | 26 | Cada invitación comparte su nombre, fecha, lugar y foto de portada recortada por Cloudinary a 1200×630 en JPG. El enlace personal nombra al invitado; la muestra de la home no, porque su invitado es ficticio | `ShareMeta`, `InvitationPage::share()`, `CloudinaryImage::card()`, `shell/head` |
-| 26 | Sin foto de portada, la invitación usa la tarjeta de su tipo de evento. La portada del sitio y las páginas por evento tienen su propia tarjeta, recortada de las fotos del sitio | `public/images/share`, `bida:imagenes-compartir`, `layouts/site` |
+| 26 | Al compartir, el sitio muestra el logo de Bida y cada invitación o tarjeta la foto principal de su portada (sin foto, el logo) | `ShareMeta::defaultImage()`, `public/images/share/bida.jpg`, `layouts/site` |
 | 27 | Cuatro páginas por tipo de evento con la apertura de su plantilla en el teléfono, lo propio de ese evento, la muestra interactiva, precios, preguntas marcadas con `FAQPage` y enlaces entre ellas | `EventLandingController`, `landing.blade.php`, `config/bida.php` (`landings`) |
 | 27 | Cabecera, precios, preguntas y pie salieron de la portada a parciales, para no duplicarlos. La portada enlaza cada página desde su plantilla y desde el pie | `site/partials/*`, `home.blade.php` |
 | 27 | `sitemap.xml` con la portada y las páginas por evento; las invitaciones y las muestras siguen fuera | `SeoController@sitemap` |
@@ -990,6 +990,22 @@ comportamiento: con 25 invitaciones y 500 invitados hace menos de 15 consultas y
 | Fotos del sitio con `?v=` por fecha de archivo (un cambio de foto no queda en la caché) | `Support/SiteImage.php` |
 | Halloween ilustrado: calabaza con volumen y luz interior, luna con relieve y nubes, paisaje en silueta, estrellas y hojas de otoño | `partials/halloween/{defs,pumpkin,bat,landscape}.blade.php`, `themes/halloween.css` |
 | Partículas por tipo reutilizables (hojas, plumas, serpentinas, destellos, luces, estrellas); cada plantilla tiene al menos dos tipos | `partials/drift.blade.php`, `invitation/ambient.css`, `TemplateParticlesTest` |
+
+### 7.12 Historias, contacto, clientes, recortador y graduación
+
+| Qué | Dónde |
+| --- | --- |
+| Invitaciones «como historias de Instagram» (todos los paquetes): cada parte de la página es una historia vertical 9:16 que avanza sola, con barras arriba, foto y nombre, pausa, sonido y cerrar; tocar pasa o vuelve, mantener pausa. Se abre con el círculo de la esquina, desde el menú o con `?historias` en el enlace (el cliente lo copia desde su panel). Las tarjetas siguen con su propio modo historia | `partials/story/instagram.blade.php`, `js/story/story.js` (`optIn`, `autoplay`), `js/story/instagram.js`, `invitation/story.css` («Historias») |
+| WhatsApp, correo, Instagram, Facebook y TikTok se cambian en Ajustes › Contacto y redes (se guarda el usuario limpio; vacío = esa red no se muestra) | `Support/SiteSettings.php` (grupo `contact`), `Admin/SettingsController`, `UpdateSettingsRequest`, `admin/settings.blade.php` |
+| «Tres maneras» con foto real (Adobe Stock 309980423) y la burbuja de confirmación por WhatsApp encima | `public/images/site/servicio-pareja.webp`, `config/bida.php` (`images.servicio-pareja`), `home.blade.php`, `site/home.css` |
+| Música automática de verdad: empieza con el primer gesto que el navegador acepta (no se gasta en un deslizar) y se pausa al cambiar de pestaña, de app o de ventana; vuelve si estaba sonando | `partials/music-player.blade.php` |
+| Recortador con la medida real de cada espacio (por plantilla en la portada: arco, óvalo, círculo…), lo de afuera atenuado, calidad de la foto, pellizco y flechas; se abre solo al elegir una foto y también recorta fotos ya guardadas. La foto del lugar se guarda en 16:10 también en Cloudinary | `Support/ImageFrames.php`, `editor/layout.blade.php`, `editor/script.blade.php` (`imageFrame`, `openImageCropper`), `admin.css` (`admin-crop-*`), `MediaUploadService` |
+| Página «Clientes» del administrador: los del equipo y los de cada revendedor, con sus eventos, filtros y contraseña nueva | `Admin/ClientController.php`, `admin/clients/index.blade.php`, `User::createdByReseller()` |
+| El revendedor como cliente: un evento puede ser suyo («Es mío», sin gastar un acceso) y en su panel cada evento dice de quién es; el editor del administrador marca qué clientes son revendedores o de un revendedor | `ResellerClientController::assignSelf`, `client/partials/event-client.blade.php`, `Client/DashboardViewData::ownerLabel` |
+| Tipo de evento en el editor agrupado (todo el año · primaveral y romántico · tenebroso) y solo lo que el administrador dejó encendido (temporada apagada o terminada, plantilla apagada: se ve con el motivo y no se elige; también se valida al guardar) | `Support/TemplateAvailability.php`, `config/bida.php` (`seasons.*.category`), `ValidatesInvitationModules`, `panels/general.blade.php` |
+| Página del evento del cliente: descargar y control de entrada arriba; fotos del fotomural y canciones o videos por separado | `client/invitation.blade.php`, `client/partials/contribution-{photos,songs}.blade.php` |
+| Invitaciones de muestra aparte: «Muestras» en el panel (las de config: portada, temporadas, «Hazlo tú», páginas por evento y demo_slug); «Invitaciones» y sus cifras solo cuentan las de clientes | `Admin/DashboardController` (`showcase`), `ShowcaseDemos::slugs()`, `DashboardViewData::make($scope)`, `admin/dashboard.blade.php` |
+| Graduación: diploma bajo un haz de luz con polvo dorado, lazo que se suelta, sello que cae, confeti y siete birretes; en la portada el filete del arco se dibuja, la foto se revela, el birrete cae y su borla se mece, brillo en el nombre, pie del diploma que se traza y laureles en los títulos | `partials/graduacion/{intro,hero,cap}.blade.php`, `themes/graduacion.css` |
 
 ---
 

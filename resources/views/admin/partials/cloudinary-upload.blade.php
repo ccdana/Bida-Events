@@ -39,10 +39,14 @@
                 <button type="button"
                     x-show="{{ $previewExpr }}"
                     x-cloak
-                    @click="openImageCropper({{ $previewExpr }}, '{{ $context }}')"
-                    class="text-[11px] text-stone-600 hover:text-stone-900">
-                    Recortar imagen según tarjeta
+                    @click="openImageCropper({{ $previewExpr }}, '{{ $context }}', url => { {{ $previewExpr }} = url; {{ $afterExpr }} })"
+                    :disabled="cropperLoading"
+                    class="inline-flex items-center gap-1 text-xs font-medium text-stone-700 hover:text-stone-900">
+                    <x-phosphor-crop class="w-3.5 h-3.5" aria-hidden="true" />
+                    <span x-text="cropperLoading ? 'Abriendo…' : 'Encuadrar'">Encuadrar</span>
                 </button>
+                <p x-show="{{ $previewExpr }}" x-cloak class="text-[11px] leading-snug text-stone-500"
+                    x-text="'Espacio ' + frameShapeLabel(imageFrame('{{ $context }}')) + ' · se guarda en ' + imageFrame('{{ $context }}').width + ' × ' + imageFrame('{{ $context }}').height + ' px'"></p>
             @endif
             <button type="button" x-show="{{ $previewExpr }}" x-cloak
                 @click="clearMediaUrl({{ $previewExpr }}); {{ $clear }}; schedulePreview()"

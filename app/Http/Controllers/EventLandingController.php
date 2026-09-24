@@ -39,7 +39,7 @@ class EventLandingController extends Controller
             'share' => ShareMeta::make(
                 $page['title'],
                 $page['description'],
-                ShareMeta::siteImage($page['event']),
+                ShareMeta::defaultImage(),
                 route('landing', $landing),
             ),
         ]);

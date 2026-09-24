@@ -556,7 +556,7 @@ textarea.admin-input {
 }
 
 .admin-accordion-panel {
-    max-height: 14rem;
+    max-height: 20rem;
     overflow-y: auto;
     padding: 0.4rem;
     border-top: 1px solid var(--site-line);
@@ -586,6 +586,31 @@ textarea.admin-input {
     border-color: var(--site-ink);
     background: var(--site-bg);
     font-weight: 600;
+}
+
+/* Lo que el administrador apagó en Ajustes (o su temporada terminó): se ve con el motivo, no se elige */
+.admin-accordion-option:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+
+.admin-accordion-option:disabled:hover {
+    background: transparent;
+}
+
+/* Título de grupo dentro de una lista (tipos de evento: todo el año, primaveral y romántico, tenebroso) */
+.admin-accordion-group {
+    padding: 0.7rem 0.75rem 0.3rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--site-muted);
+}
+
+.admin-accordion-panel > div:first-child > .admin-accordion-group,
+.admin-accordion-panel > template:first-child + div > .admin-accordion-group {
+    padding-top: 0.3rem;
 }
 
 /* ── Editor: navegación lateral ─────────────────────────────────────────── */
@@ -887,6 +912,8 @@ html[data-theme='dark'] .adm-device {
 .admin-crop-panel {
     width: 100%;
     max-width: 32rem;
+    max-height: calc(100dvh - 2rem);
+    overflow-y: auto;
     border: 1px solid var(--site-line);
     border-radius: 20px;
     background: var(--site-surface);
@@ -894,19 +921,126 @@ html[data-theme='dark'] .adm-device {
     box-shadow: var(--site-shadow);
 }
 
+@media (max-width: 479px) {
+    .admin-crop-backdrop {
+        padding: 0.5rem;
+    }
+
+    .admin-crop-panel {
+        max-height: calc(100dvh - 1rem);
+        padding: 1rem;
+    }
+}
+
+/* Escenario oscuro: el marco al centro y, alrededor, la parte de la foto que queda fuera, atenuada */
+.admin-crop-stage {
+    position: relative;
+    display: grid;
+    place-items: center;
+    height: min(58dvh, 27rem);
+    overflow: hidden;
+    border-radius: 14px;
+    background: #0e0e0f;
+    cursor: grab;
+    touch-action: none;
+    outline: none;
+}
+
+.admin-crop-stage:active {
+    cursor: grabbing;
+}
+
+.admin-crop-stage:focus-visible {
+    box-shadow: 0 0 0 2px var(--site-surface), 0 0 0 4px var(--site-accent);
+}
+
 .admin-crop-frame {
     position: relative;
-    width: 100%;
-    overflow: hidden;
-    border-radius: 12px;
-    background: #0e0e0f;
+    --crop-radius: 4px;
+}
+
+/* El velo de afuera sigue la forma del espacio: arco, círculo u óvalo como en la plantilla */
+.admin-crop-frame::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    border-radius: var(--crop-radius);
+    box-shadow: 0 0 0 100vmax rgb(14 14 15 / 0.66);
+    outline: 1.5px solid rgb(255 255 255 / 0.9);
+    pointer-events: none;
+}
+
+.admin-crop-frame.is-rounded {
+    --crop-radius: 12px;
+}
+
+.admin-crop-frame.is-arch {
+    /* Medio círculo arriba, como el arco de la plantilla (el ancho lo pone el editor en --crop-w) */
+    --crop-radius: calc(var(--crop-w, 200px) / 2) calc(var(--crop-w, 200px) / 2) 8px 8px;
+}
+
+.admin-crop-frame.is-oval,
+.admin-crop-frame.is-circle {
+    --crop-radius: 50%;
 }
 
 .admin-crop-image {
     position: absolute;
+    z-index: 1;
     user-select: none;
     -webkit-user-drag: none;
-    will-change: transform;
+}
+
+.admin-crop-thirds {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    border-radius: var(--crop-radius);
+    background:
+        linear-gradient(to right, transparent calc(33.33% - 0.5px), rgb(255 255 255 / 0.55) calc(33.33% - 0.5px), rgb(255 255 255 / 0.55) calc(33.33% + 0.5px), transparent calc(33.33% + 0.5px), transparent calc(66.66% - 0.5px), rgb(255 255 255 / 0.55) calc(66.66% - 0.5px), rgb(255 255 255 / 0.55) calc(66.66% + 0.5px), transparent calc(66.66% + 0.5px)),
+        linear-gradient(to bottom, transparent calc(33.33% - 0.5px), rgb(255 255 255 / 0.55) calc(33.33% - 0.5px), rgb(255 255 255 / 0.55) calc(33.33% + 0.5px), transparent calc(33.33% + 0.5px), transparent calc(66.66% - 0.5px), rgb(255 255 255 / 0.55) calc(66.66% - 0.5px), rgb(255 255 255 / 0.55) calc(66.66% + 0.5px), transparent calc(66.66% + 0.5px));
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+}
+
+.admin-crop-frame.is-moving .admin-crop-thirds {
+    opacity: 1;
+}
+
+.admin-crop-loading {
+    position: absolute;
+    color: #fff;
+    font-size: 0.875rem;
+}
+
+.admin-crop-quality {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-weight: 500;
+}
+
+.admin-crop-quality::before {
+    content: '';
+    width: 0.5rem;
+    height: 0.5rem;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.admin-crop-quality.is-good {
+    color: var(--site-accent);
+}
+
+.admin-crop-quality.is-fair {
+    color: var(--site-muted);
+}
+
+.admin-crop-quality.is-low {
+    color: var(--site-danger);
 }
 
 .scrollbar-hide {

@@ -117,6 +117,39 @@ html.inv-cover-skip .inv-grad-intro {
     display: none;
 }
 
+/* Haz de luz dorada que gira muy despacio detrás del diploma */
+.inv-grad-intro__rays {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 170vmax;
+    height: 170vmax;
+    translate: -50% -50%;
+    background: repeating-conic-gradient(
+        from 0deg,
+        color-mix(in srgb, var(--inv-grad-gold) 13%, transparent) 0deg 5deg,
+        transparent 5deg 18deg
+    );
+    -webkit-mask-image: radial-gradient(closest-side, #000 8%, transparent 62%);
+    mask-image: radial-gradient(closest-side, #000 8%, transparent 62%);
+    opacity: 0.8;
+    animation: inv-grad-spin 70s linear infinite;
+}
+
+/* Polvo dorado suspendido en el haz */
+.inv-grad-intro__dust i {
+    position: absolute;
+    top: var(--y);
+    left: var(--x);
+    width: var(--s);
+    height: var(--s);
+    border-radius: 50%;
+    background: var(--inv-grad-gold);
+    box-shadow: 0 0 6px color-mix(in srgb, var(--inv-grad-gold) 70%, transparent);
+    opacity: 0;
+    animation: inv-grad-dust var(--d) ease-in-out var(--delay) infinite;
+}
+
 .inv-grad-intro__content {
     position: relative;
     z-index: 1;
@@ -146,7 +179,9 @@ html.inv-cover-skip .inv-grad-intro {
     background: none;
     color: inherit;
     cursor: pointer;
-    animation: inv-fade-up 1s var(--inv-grad-ease) 0.3s both;
+    animation:
+        inv-fade-up 1s var(--inv-grad-ease) 0.3s both,
+        inv-grad-hover 4.5s ease-in-out 1.4s infinite;
 }
 
 .inv-grad-scroll:focus-visible {
@@ -166,12 +201,21 @@ html.inv-cover-skip .inv-grad-intro {
     gap: 0.6rem;
     padding: 1.5rem 1.25rem;
     background:
+        radial-gradient(90% 70% at 50% 40%, #fff 0%, transparent 70%) padding-box,
         linear-gradient(var(--inv-grad-paper), var(--inv-grad-paper)) padding-box,
         linear-gradient(135deg, var(--inv-grad-gold), color-mix(in srgb, var(--inv-grad-gold) 40%, var(--inv-grad-paper)), var(--inv-grad-gold)) border-box;
     border: 3px double transparent;
     box-shadow: 0 18px 40px -22px color-mix(in srgb, var(--inv-grad-robe) 70%, transparent);
     clip-path: inset(44% 0 44% 0);
-    transition: clip-path 1.1s var(--inv-grad-ease) 0.35s;
+    transition: clip-path 1.2s var(--inv-grad-ease) 0.45s;
+}
+
+/* Lo escrito aparece renglón por renglón cuando el papel ya se abrió */
+.inv-grad-scroll__line,
+.inv-grad-scroll__name {
+    opacity: 0;
+    translate: 0 8px;
+    transition: opacity 0.6s ease, translate 0.8s var(--inv-grad-ease);
 }
 
 .inv-grad-scroll__line {
@@ -190,6 +234,46 @@ html.inv-cover-skip .inv-grad-intro {
     overflow-wrap: anywhere;
 }
 
+/* Sello dorado: cae sobre el diploma y deja una onda */
+.inv-grad-scroll__seal {
+    position: absolute;
+    right: 0.9rem;
+    bottom: 0.7rem;
+    width: 3rem;
+    opacity: 0;
+    scale: 2.4;
+    rotate: -30deg;
+}
+
+.inv-grad-scroll__seal::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 2px solid var(--inv-grad-gold);
+    border-radius: 50%;
+    opacity: 0;
+}
+
+.inv-grad-scroll__seal svg {
+    display: block;
+    width: 100%;
+    filter: drop-shadow(0 4px 5px rgb(0 0 0 / 0.25));
+}
+
+.inv-grad-scroll__seal-edge {
+    fill: var(--inv-grad-gold);
+}
+
+.inv-grad-scroll__seal-ring {
+    fill: none;
+    stroke: color-mix(in srgb, #fff 55%, var(--inv-grad-gold));
+    stroke-width: 1.2;
+}
+
+.inv-grad-scroll__seal-star {
+    fill: color-mix(in srgb, #fff 70%, var(--inv-grad-gold));
+}
+
 /* Rodillos del diploma: empiezan juntos al centro y se separan al abrir */
 .inv-grad-scroll__roll {
     position: absolute;
@@ -204,7 +288,28 @@ html.inv-cover-skip .inv-grad-intro {
             #fff 45%,
             color-mix(in srgb, var(--inv-grad-paper) 80%, #000) 100%);
     box-shadow: 0 6px 14px -8px rgb(0 0 0 / 0.45), inset 0 0 0 1px color-mix(in srgb, var(--inv-grad-gold) 45%, transparent);
-    transition: top 1.1s var(--inv-grad-ease) 0.35s;
+    transition: top 1.2s var(--inv-grad-ease) 0.45s;
+}
+
+/* Puntas doradas de los rodillos */
+.inv-grad-scroll__roll::before,
+.inv-grad-scroll__roll::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 0.7rem;
+    height: 0.7rem;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #fff, var(--inv-grad-gold) 60%);
+    translate: 0 -50%;
+}
+
+.inv-grad-scroll__roll::before {
+    left: -0.3rem;
+}
+
+.inv-grad-scroll__roll::after {
+    right: -0.3rem;
 }
 
 .inv-grad-scroll__roll--top {
@@ -221,7 +326,6 @@ html.inv-cover-skip .inv-grad-intro {
     left: 50%;
     width: 5.5rem;
     translate: -50% -58%;
-    transition: transform 0.6s cubic-bezier(0.5, 0, 0.75, 0), opacity 0.4s ease 0.2s;
 }
 
 .inv-grad-scroll__ribbon svg {
@@ -240,6 +344,25 @@ html.inv-cover-skip .inv-grad-intro {
 
 .inv-grad-scroll__tail {
     fill: color-mix(in srgb, var(--inv-grad-gold) 78%, #000);
+}
+
+/* Cada parte del lazo se mueve desde su propio centro */
+.inv-grad-scroll__ribbon :is(path, rect) {
+    transform-box: fill-box;
+    transform-origin: 50% 50%;
+    transition: transform 0.7s cubic-bezier(0.3, 0, 0.3, 1), opacity 0.5s ease 0.25s;
+}
+
+.inv-grad-scroll__loop--left {
+    transform-origin: 100% 60%;
+}
+
+.inv-grad-scroll__loop--right {
+    transform-origin: 0% 60%;
+}
+
+.inv-grad-scroll__tail {
+    transform-origin: 50% 0%;
 }
 
 /* Anillo que invita a tocar */
@@ -268,14 +391,32 @@ html.inv-cover-skip .inv-grad-intro {
     position: absolute;
     bottom: 38%;
     left: 50%;
+    z-index: 2;
     width: 3.4rem;
     margin-left: -1.7rem;
     opacity: 0;
 }
 
+/* Confeti: papelitos dorados y azules que salen del diploma y caen girando */
+.inv-grad-intro__confetti i {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 2;
+    width: var(--w);
+    height: calc(var(--w) * 1.8);
+    border-radius: 1px;
+    background: var(--inv-grad-gold);
+    opacity: 0;
+}
+
+.inv-grad-intro__confetti i.is-robe {
+    background: var(--inv-grad-robe);
+}
+
 .inv-grad-intro__cheer {
     position: absolute;
-    top: 16%;
+    top: 14%;
     left: 50%;
     z-index: 3;
     margin: 0;
@@ -284,31 +425,83 @@ html.inv-cover-skip .inv-grad-intro {
     font-size: clamp(2.4rem, 11vw, 3.6rem);
     white-space: nowrap;
     color: var(--inv-accent-deco);
-    animation: inv-grad-cheer 0.8s var(--inv-grad-ease) 0.5s both;
+    text-shadow: 0 6px 24px color-mix(in srgb, var(--inv-grad-gold) 45%, transparent);
+    animation: inv-grad-cheer 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) 1.35s both;
 }
 
-/* Abierta: el lazo cae, el papel se despliega, los birretes vuelan y la apertura se va */
+/* Abierta: el nudo se suelta, los lazos se abren y caen, el papel se despliega con lo escrito,
+   cae el sello, estalla el confeti, vuelan los birretes y la apertura se aleja */
 .inv-grad-intro.is-open {
     pointer-events: none;
-    animation: inv-grad-intro-out 0.7s ease 1.8s forwards;
+    animation: inv-grad-intro-out 0.9s ease 2.35s forwards;
 }
 
-.inv-grad-intro.is-open .inv-grad-scroll__ribbon {
-    transform: translateY(9rem) rotate(28deg);
-    opacity: 0;
-}
-
-.inv-grad-intro.is-open .inv-grad-scroll__ribbon svg,
-.inv-grad-intro.is-open .inv-grad-scroll__tap {
+.inv-grad-intro.is-open .inv-grad-scroll {
     animation: none;
 }
 
+.inv-grad-intro.is-open .inv-grad-scroll__ribbon svg {
+    animation: none;
+}
+
+.inv-grad-intro.is-open .inv-grad-scroll__knot {
+    transform: scale(1.35);
+    opacity: 0;
+    transition: transform 0.25s ease-out, opacity 0.3s ease 0.2s;
+}
+
+.inv-grad-intro.is-open .inv-grad-scroll__loop--left {
+    transform: translate(-14px, 30px) rotate(-70deg) scale(0.8);
+    opacity: 0;
+}
+
+.inv-grad-intro.is-open .inv-grad-scroll__loop--right {
+    transform: translate(14px, 30px) rotate(70deg) scale(0.8);
+    opacity: 0;
+}
+
+.inv-grad-intro.is-open .inv-grad-scroll__tail--left {
+    transform: translate(-10px, 60px) rotate(-40deg);
+    opacity: 0;
+}
+
+.inv-grad-intro.is-open .inv-grad-scroll__tail--right {
+    transform: translate(10px, 60px) rotate(40deg);
+    opacity: 0;
+}
+
 .inv-grad-intro.is-open .inv-grad-scroll__tap {
     opacity: 0;
+    animation: none;
 }
 
 .inv-grad-intro.is-open .inv-grad-scroll__paper {
     clip-path: inset(0 0 0 0);
+}
+
+.inv-grad-intro.is-open :is(.inv-grad-scroll__line, .inv-grad-scroll__name) {
+    opacity: 1;
+    translate: 0 0;
+}
+
+.inv-grad-intro.is-open .inv-grad-scroll__line:first-child {
+    transition-delay: 1s;
+}
+
+.inv-grad-intro.is-open .inv-grad-scroll__name {
+    transition-delay: 1.12s;
+}
+
+.inv-grad-intro.is-open .inv-grad-scroll__line:nth-child(3) {
+    transition-delay: 1.24s;
+}
+
+.inv-grad-intro.is-open .inv-grad-scroll__seal {
+    animation: inv-grad-stamp 0.55s cubic-bezier(0.5, 0, 0.75, 0) 1.45s forwards;
+}
+
+.inv-grad-intro.is-open .inv-grad-scroll__seal::after {
+    animation: inv-grad-ripple 0.8s ease-out 2s both;
 }
 
 .inv-grad-intro.is-open .inv-grad-scroll__roll--top {
@@ -326,7 +519,29 @@ html.inv-cover-skip .inv-grad-intro {
 }
 
 .inv-grad-intro.is-open .inv-grad-intro__caps span {
-    animation: inv-grad-toss 1.5s cubic-bezier(0.2, 0.7, 0.3, 1) calc(0.5s + var(--delay)) forwards;
+    animation: inv-grad-toss 1.6s cubic-bezier(0.2, 0.7, 0.3, 1) calc(1.3s + var(--delay)) forwards;
+}
+
+.inv-grad-intro.is-open .inv-grad-intro__confetti i {
+    animation: inv-grad-confetti 1.9s cubic-bezier(0.15, 0.7, 0.3, 1) calc(1.25s + var(--delay)) forwards;
+}
+
+.inv-grad-intro.is-open .inv-grad-intro__rays {
+    animation: inv-grad-spin 70s linear infinite, inv-grad-flash 1.2s ease-out 1.2s both;
+}
+
+@keyframes inv-grad-spin {
+    to { rotate: 1turn; }
+}
+
+@keyframes inv-grad-dust {
+    0%, 100% { opacity: 0; translate: 0 0; }
+    50% { opacity: 0.7; translate: 6px -14px; }
+}
+
+@keyframes inv-grad-hover {
+    0%, 100% { translate: 0 0; }
+    50% { translate: 0 -6px; }
 }
 
 @keyframes inv-grad-sway {
@@ -340,18 +555,42 @@ html.inv-cover-skip .inv-grad-intro {
 }
 
 @keyframes inv-grad-toss {
+    0% { opacity: 0; transform: translate(0, 0) rotate(0deg) scale(0.6); }
+    12% { opacity: 1; }
+    100% { opacity: 0; transform: translate(var(--x), var(--y)) rotate(calc(var(--r) * 6)) scale(1); }
+}
+
+@keyframes inv-grad-confetti {
     0% { opacity: 0; transform: translate(0, 0) rotate(0deg); }
-    15% { opacity: 1; }
-    100% { opacity: 0; transform: translate(var(--x), var(--y)) rotate(calc(var(--r) * 6)); }
+    10% { opacity: 1; }
+    55% { transform: translate(var(--dx), var(--dy)) rotate(calc(var(--r) * 0.6)); }
+    100% { opacity: 0; transform: translate(calc(var(--dx) * 1.15), calc(var(--dy) + 14rem)) rotate(var(--r)); }
+}
+
+@keyframes inv-grad-stamp {
+    0% { opacity: 0; scale: 2.4; rotate: -30deg; }
+    70% { opacity: 1; scale: 0.9; rotate: -8deg; }
+    100% { opacity: 1; scale: 1; rotate: -12deg; }
+}
+
+@keyframes inv-grad-ripple {
+    from { opacity: 0.8; scale: 1; }
+    to { opacity: 0; scale: 2; }
+}
+
+@keyframes inv-grad-flash {
+    0% { opacity: 0.8; scale: 1; }
+    30% { opacity: 1; scale: 1.15; filter: brightness(1.5); }
+    100% { opacity: 0.8; scale: 1; }
 }
 
 @keyframes inv-grad-cheer {
-    from { opacity: 0; transform: translateY(12px) scale(0.85); }
+    from { opacity: 0; transform: translateY(18px) scale(0.7); }
     to { opacity: 1; transform: none; }
 }
 
 @keyframes inv-grad-intro-out {
-    to { opacity: 0; visibility: hidden; }
+    to { opacity: 0; scale: 1.06; visibility: hidden; }
 }
 
 /* Mientras el diploma espera, la portada no empieza sus animaciones */
@@ -379,7 +618,7 @@ html.inv-cover-waiting .inv-grad-hero * {
     padding: 5.5rem 1.5rem 8rem;
 }
 
-/* Cinta con puntas en cola de golondrina: la carrera o el colegio */
+/* Cinta con puntas en cola de golondrina: la carrera o el colegio. Se despliega desde el centro */
 .inv-grad-ribbon {
     display: inline-block;
     margin: 0;
@@ -393,10 +632,34 @@ html.inv-cover-waiting .inv-grad-hero * {
     clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 50%, 100% 100%, 0 100%, 10px 50%);
 }
 
+.inv-grad-ribbon.inv-fade-up {
+    animation: inv-grad-unfurl 1.1s var(--inv-grad-ease) 0.15s both;
+}
+
 .inv-grad-arch {
     position: relative;
     width: min(66vw, 16rem);
     margin: 2.25rem 0 1.75rem;
+}
+
+/* Luz dorada que gira despacio detrás del arco */
+.inv-grad-arch__glow {
+    position: absolute;
+    top: 42%;
+    left: 50%;
+    z-index: -1;
+    width: 190%;
+    aspect-ratio: 1;
+    translate: -50% -50%;
+    background: repeating-conic-gradient(
+        from 0deg,
+        color-mix(in srgb, var(--inv-grad-gold) 16%, transparent) 0deg 4deg,
+        transparent 4deg 15deg
+    );
+    -webkit-mask-image: radial-gradient(closest-side, #000 20%, transparent 70%);
+    mask-image: radial-gradient(closest-side, #000 20%, transparent 70%);
+    pointer-events: none;
+    animation: inv-grad-spin 90s linear infinite, inv-fade-in 1.6s ease 0.9s both;
 }
 
 .inv-grad-arch__frame {
@@ -408,34 +671,73 @@ html.inv-cover-waiting .inv-grad-hero * {
     overflow: hidden;
     border-radius: 999px 999px 6px 6px;
     background: color-mix(in srgb, var(--inv-grad-robe) 10%, var(--bg-color));
-    box-shadow:
-        0 0 0 3px var(--bg-color),
-        0 0 0 4px var(--inv-grad-gold),
-        0 0 0 8px var(--bg-color),
-        0 0 0 9px color-mix(in srgb, var(--inv-grad-gold) 55%, transparent),
-        0 30px 50px -30px color-mix(in srgb, var(--inv-grad-robe) 80%, transparent);
+    box-shadow: 0 30px 50px -30px color-mix(in srgb, var(--inv-grad-robe) 80%, transparent);
 }
 
+/* La foto se revela: de desenfocada y cerca, a nítida en su lugar */
 .inv-grad-arch__frame img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    animation: inv-grad-develop 1.8s var(--inv-grad-ease) 0.7s both;
 }
 
 .inv-grad-arch__initials {
     font-family: var(--font-script);
     font-size: 4rem;
     color: var(--inv-accent-deco);
+    animation: inv-grad-develop 1.6s var(--inv-grad-ease) 0.7s both;
 }
 
+/* Doble filete dorado que se dibuja alrededor del arco */
+.inv-grad-arch__filet {
+    position: absolute;
+    top: -9px;
+    left: -9px;
+    width: calc(100% + 18px);
+    height: calc(100% + 18px);
+    overflow: visible;
+    pointer-events: none;
+}
+
+.inv-grad-arch__line {
+    fill: none;
+    stroke: var(--inv-grad-gold);
+    stroke-width: 0.5;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: inv-grad-draw 1.8s var(--inv-grad-ease) 0.5s forwards;
+}
+
+.inv-grad-arch__line--outer {
+    stroke: color-mix(in srgb, var(--inv-grad-gold) 55%, transparent);
+    animation-delay: 0.75s;
+}
+
+/* El birrete cae en su esquina, rebota y se queda flotando; la borla se mece */
 .inv-grad-arch__cap {
     position: absolute;
     top: -1.6rem;
     right: -1.4rem;
+    z-index: 1;
     width: 5rem;
     rotate: 16deg;
     filter: drop-shadow(0 8px 10px rgb(0 0 0 / 0.22));
-    animation: inv-grad-float 5s ease-in-out infinite;
+    animation:
+        inv-grad-cap-drop 1s cubic-bezier(0.34, 1.4, 0.64, 1) 1.5s both,
+        inv-grad-float 5s ease-in-out 2.6s infinite;
+}
+
+.inv-grad-cap__swing {
+    transform-box: view-box;
+    transform-origin: 55px 21px;
+    animation: inv-grad-tassel 3.2s ease-in-out infinite;
+}
+
+.inv-grad-cap__fringe {
+    fill: none;
+    stroke: color-mix(in srgb, var(--inv-grad-gold) 70%, #000);
+    stroke-width: 0.6;
 }
 
 .inv-grad-spark {
@@ -453,6 +755,35 @@ html.inv-cover-waiting .inv-grad-hero * {
     50% { translate: 0 -6px; rotate: 10deg; }
 }
 
+@keyframes inv-grad-tassel {
+    0%, 100% { rotate: -7deg; }
+    50% { rotate: 9deg; }
+}
+
+@keyframes inv-grad-cap-drop {
+    from { opacity: 0; translate: 1.5rem -5rem; rotate: -35deg; }
+    to { opacity: 1; translate: 0 0; rotate: 16deg; }
+}
+
+@keyframes inv-grad-develop {
+    from { opacity: 0; scale: 1.14; filter: blur(12px) saturate(0.4); }
+    to { opacity: 1; scale: 1; filter: none; }
+}
+
+@keyframes inv-grad-draw {
+    to { stroke-dashoffset: 0; }
+}
+
+@keyframes inv-grad-unfurl {
+    from { opacity: 0; clip-path: polygon(50% 0, 50% 0, 50% 50%, 50% 100%, 50% 100%, 50% 50%); }
+    to { opacity: 1; clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 50%, 100% 100%, 0 100%, 10px 50%); }
+}
+
+@keyframes inv-fade-in {
+    from { opacity: 0; }
+}
+
+/* El nombre recibe un brillo dorado que lo recorre al aparecer y, de vez en cuando, otra vez */
 .inv-grad-hero__name {
     margin: 0;
     font-family: var(--font-script);
@@ -461,6 +792,25 @@ html.inv-cover-waiting .inv-grad-hero * {
     line-height: 1.05;
     text-wrap: balance;
     overflow-wrap: anywhere;
+}
+
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+    .inv-grad-hero__name {
+        background: linear-gradient(105deg, var(--text-color) 42%, var(--inv-grad-gold) 50%, color-mix(in srgb, var(--inv-grad-gold) 40%, #fff) 52%, var(--text-color) 60%);
+        background-size: 260% 100%;
+        background-position: 100% 0;
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        animation:
+            inv-fade-up 1s var(--inv-grad-ease) 0.35s both,
+            inv-grad-shine 9s ease-in-out 1.8s infinite;
+    }
+}
+
+@keyframes inv-grad-shine {
+    0% { background-position: 100% 0; }
+    22%, 100% { background-position: 0% 0; }
 }
 
 .inv-grad-hero__message {
@@ -472,23 +822,54 @@ html.inv-cover-waiting .inv-grad-hero * {
     text-wrap: pretty;
 }
 
-/* El pie del diploma: tres datos entre filetes dorados */
+/* El pie del diploma: tres datos entre filetes dorados que se trazan desde el centro */
 .inv-grad-diploma {
+    position: relative;
     display: grid;
     grid-template-columns: 1.6fr 1fr 1fr;
     width: 100%;
     max-width: 24rem;
     margin: 2rem 0 0;
+}
+
+.inv-grad-diploma::before,
+.inv-grad-diploma::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    left: 0;
+    height: 4px;
     border-block: 1px solid var(--inv-grad-gold);
-    box-shadow: 0 -4px 0 -3px color-mix(in srgb, var(--inv-grad-gold) 50%, transparent), 0 4px 0 -3px color-mix(in srgb, var(--inv-grad-gold) 50%, transparent);
+    border-bottom-color: color-mix(in srgb, var(--inv-grad-gold) 50%, transparent);
+    scale: 0 1;
+    animation: inv-grad-rule 1.2s var(--inv-grad-ease) 1.1s forwards;
+}
+
+.inv-grad-diploma::before {
+    top: -4px;
+    border-top-color: color-mix(in srgb, var(--inv-grad-gold) 50%, transparent);
+    border-bottom-color: var(--inv-grad-gold);
+}
+
+.inv-grad-diploma::after {
+    bottom: -4px;
 }
 
 .inv-grad-diploma > div {
     padding: 0.85rem 0.5rem;
+    animation: inv-fade-up 0.8s var(--inv-grad-ease) both;
 }
+
+.inv-grad-diploma > div:nth-child(1) { animation-delay: 1.35s; }
+.inv-grad-diploma > div:nth-child(2) { animation-delay: 1.5s; }
+.inv-grad-diploma > div:nth-child(3) { animation-delay: 1.65s; }
 
 .inv-grad-diploma > div + div {
     border-left: 1px solid color-mix(in srgb, var(--inv-grad-gold) 45%, transparent);
+}
+
+@keyframes inv-grad-rule {
+    to { scale: 1 1; }
 }
 
 .inv-grad-diploma dt {
@@ -522,12 +903,56 @@ html.inv-cover-waiting .inv-grad-hero * {
     letter-spacing: 0.04em;
 }
 
-/* Filete doble, como los del diploma */
+/* Filete doble, como los del diploma, con dos ramitas de laurel que brotan a los lados al aparecer */
 .inv-graduacion .inv-head__rule {
+    position: relative;
+    overflow: visible;
     width: 3.5rem;
     height: 4px;
     background: none;
     border-block: 1px solid var(--inv-grad-gold);
+    transition: scale 1s var(--inv-grad-ease) 0.2s;
+}
+
+.inv-graduacion .inv-head__rule::before,
+.inv-graduacion .inv-head__rule::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 2.1rem;
+    height: 1.2rem;
+    background: var(--inv-grad-gold);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 18'%3E%3Cpath d='M1 9h30' stroke='%23000' stroke-width='1.2' fill='none'/%3E%3Cpath d='M8 9c-1-3.5 1-6 4-6.5-.5 3.2-1.8 5.4-4 6.5zm0 0c-1 3.5 1 6 4 6.5-.5-3.2-1.8-5.4-4-6.5zm8 0c-1-3.5 1-6 4-6.5-.5 3.2-1.8 5.4-4 6.5zm0 0c-1 3.5 1 6 4 6.5-.5-3.2-1.8-5.4-4-6.5zm8 0c-.8-2.8.8-4.8 3.2-5.2-.4 2.6-1.4 4.3-3.2 5.2zm0 0c-.8 2.8.8 4.8 3.2 5.2-.4-2.6-1.4-4.3-3.2-5.2z'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 18'%3E%3Cpath d='M1 9h30' stroke='%23000' stroke-width='1.2' fill='none'/%3E%3Cpath d='M8 9c-1-3.5 1-6 4-6.5-.5 3.2-1.8 5.4-4 6.5zm0 0c-1 3.5 1 6 4 6.5-.5-3.2-1.8-5.4-4-6.5zm8 0c-1-3.5 1-6 4-6.5-.5 3.2-1.8 5.4-4 6.5zm0 0c-1 3.5 1 6 4 6.5-.5-3.2-1.8-5.4-4-6.5zm8 0c-.8-2.8.8-4.8 3.2-5.2-.4 2.6-1.4 4.3-3.2 5.2zm0 0c-.8 2.8.8 4.8 3.2 5.2-.4-2.6-1.4-4.3-3.2-5.2z'/%3E%3C/svg%3E") center / contain no-repeat;
+    transition: scale 0.9s var(--inv-grad-ease) 0.55s, opacity 0.6s ease 0.55s;
+}
+
+.inv-graduacion .inv-head__rule::before {
+    right: calc(100% + 0.35rem);
+    translate: 0 -50%;
+    transform-origin: 100% 50%;
+    scale: -1 1;
+}
+
+.inv-graduacion .inv-head__rule::after {
+    left: calc(100% + 0.35rem);
+    translate: 0 -50%;
+    transform-origin: 0% 50%;
+}
+
+/* Antes de entrar en pantalla: el filete y el laurel esperan recogidos */
+.inv-graduacion .reveal:not(.is-visible) .inv-head__rule {
+    scale: 0 1;
+}
+
+.inv-graduacion .reveal:not(.is-visible) .inv-head__rule::before {
+    scale: 0 1;
+    opacity: 0;
+}
+
+.inv-graduacion .reveal:not(.is-visible) .inv-head__rule::after {
+    scale: 0 1;
+    opacity: 0;
 }
 
 .inv-graduacion #contenido > .inv-section:nth-of-type(even) {
@@ -543,18 +968,41 @@ html.inv-cover-waiting .inv-grad-hero * {
 
 @media (prefers-reduced-motion: reduce) {
     .inv-grad-ambient,
-    .inv-grad-scroll__tap {
+    .inv-grad-scroll__tap,
+    .inv-grad-intro__rays,
+    .inv-grad-intro__dust,
+    .inv-grad-intro__confetti,
+    .inv-grad-arch__glow {
         display: none;
     }
 
     .inv-grad-arch__cap,
     .inv-grad-spark,
-    .inv-grad-scroll__ribbon svg {
+    .inv-grad-scroll,
+    .inv-grad-scroll__ribbon svg,
+    .inv-grad-cap__swing,
+    .inv-grad-arch__frame img,
+    .inv-grad-arch__initials,
+    .inv-grad-hero__name,
+    .inv-grad-diploma > div {
         animation: none;
     }
 
+    .inv-grad-arch__line {
+        animation: none;
+        stroke-dashoffset: 0;
+    }
+
+    .inv-grad-diploma::before,
+    .inv-grad-diploma::after {
+        animation: none;
+        scale: 1 1;
+    }
+
     .inv-grad-scroll__paper,
-    .inv-grad-scroll__roll {
+    .inv-grad-scroll__roll,
+    .inv-grad-scroll__line,
+    .inv-grad-scroll__name {
         transition-duration: 0.01s;
         transition-delay: 0s;
     }

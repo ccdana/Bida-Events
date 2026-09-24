@@ -94,6 +94,8 @@ function invitationNav(sectionIds) {
     return {
         open: false,
         active: sectionIds[0] ?? 'inicio',
+        // Las invitaciones se pueden ver como historias (partials/story/instagram)
+        hasStories: false,
 
         toggle() {
             this.open ? this.close() : this.show();
@@ -136,6 +138,8 @@ function invitationNav(sectionIds) {
         },
 
         init() {
+            this.hasStories = Boolean(document.querySelector('[data-ig-stories]'));
+
             if (!('IntersectionObserver' in window)) {
                 return;
             }

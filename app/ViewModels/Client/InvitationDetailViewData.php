@@ -9,12 +9,13 @@ use App\Modules\Card\ReplyModule;
 use App\Modules\Module;
 use App\Support\CloudinaryImage;
 use App\Support\InvitationTemplates;
+use App\Support\YouTubeHelper;
 use Illuminate\Support\Collection;
 
 /**
  * Página de un evento en el panel del cliente. Separa lo que el cliente mira por separado:
- * sus invitados (con su enlace personal), las respuestas a su tarjeta y las fotos o canciones
- * que suben los invitados.
+ * sus invitados (con su enlace personal), las respuestas a su tarjeta, las fotos del fotomural y
+ * las canciones (videos de YouTube o títulos) que sugieren los invitados.
  */
 class InvitationDetailViewData
 {
@@ -61,6 +62,8 @@ class InvitationDetailViewData
         // Fotos y canciones que el cliente puede ocultar de su invitación
         $contributions = ($contributionRows ?? new Collection)->map(fn (GuestContribution $contribution) => [
             'id' => $contribution->id,
+            // Las canciones suelen ser un enlace de YouTube: se muestran con la miniatura del video
+            'youtubeId' => $contribution->type === 'song_request' ? YouTubeHelper::extractVideoId((string) $contribution->content_text) : null,
             'isPhoto' => $contribution->type === 'live_photo',
             // Respuesta del destinatario de una tarjeta: se lee completa
             'isReply' => $contribution->type === ReplyModule::CONTRIBUTION_TYPE,
@@ -75,6 +78,9 @@ class InvitationDetailViewData
 
         $replies = $contributions->where('isReply', true)->values();
         $media = $contributions->where('isReply', false)->values();
+        // Se miran por separado: las fotos en una grilla y las canciones o videos en una lista
+        $photos = $media->where('isPhoto', true)->values();
+        $songs = $media->where('isPhoto', false)->values();
 
         $isPublished = $invitation->status === 'active'
             && (! $invitation->expires_at || ! $invitation->expires_at->isBefore(now()->startOfDay()));
@@ -85,6 +91,8 @@ class InvitationDetailViewData
             'contributions',
             'replies',
             'media',
+            'photos',
+            'songs',
             'confirmed',
             'declined',
             'pending',

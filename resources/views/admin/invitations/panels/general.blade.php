@@ -12,7 +12,7 @@
             <template x-for="kind in [{ value: 'invitation', label: 'Invitación', hint: 'Boda, XV, bautizo, cumpleaños, graduación, Halloween' }, { value: 'card', label: 'Tarjeta', hint: 'Día del Amor y otras fechas' }]" :key="kind.value">
                 <button type="button" role="radio" @click="chooseKind(kind.value)"
                     :aria-checked="((profile.kind ?? 'invitation') === kind.value).toString()"
-                    :disabled="templatesOfKind(kind.value).length === 0"
+                    :disabled="!kindAvailable(kind.value) && (profile.kind ?? 'invitation') !== kind.value"
                     class="rounded-[12px] border p-3 text-left transition-colors disabled:opacity-50"
                     :class="(profile.kind ?? 'invitation') === kind.value ? 'border-site-ink bg-site-bg' : 'border-site-line hover:bg-site-bg'">
                     <span class="block text-sm font-semibold" x-text="kind.label"></span>
@@ -70,11 +70,21 @@
                     <x-phosphor-caret-down class="size-4 shrink-0 text-site-muted" x-bind:class="{ 'rotate-180': open }" aria-hidden="true" />
                 </button>
                 <div x-show="open" x-cloak class="admin-accordion-panel">
-                    <template x-for="type in eventTypesOfKind(profile.kind ?? 'invitation')" :key="type.id">
-                        <button type="button" @click="chooseEventType(type); open = false"
-                            class="admin-accordion-option" :class="String(meta.event_type_id) === String(type.id) ? 'is-selected' : ''">
-                            <span x-text="type.name"></span>
-                        </button>
+                    {{-- Por grupo: todo el año, primaveral y romántico, tenebroso. Lo que el administrador apagó se ve, pero no se elige --}}
+                    <template x-for="group in eventTypeGroups(profile.kind ?? 'invitation')" :key="group.name">
+                        <div role="group" :aria-label="group.name">
+                            <p class="admin-accordion-group" x-text="group.name"></p>
+                            <template x-for="type in group.types" :key="type.id">
+                                <button type="button" @click="chooseEventType(type); if (!eventTypeDisabledReason(type)) open = false"
+                                    :disabled="!!eventTypeDisabledReason(type) && String(meta.event_type_id) !== String(type.id)"
+                                    class="admin-accordion-option" :class="String(meta.event_type_id) === String(type.id) ? 'is-selected' : ''">
+                                    <span class="min-w-0 text-left">
+                                        <span class="block" x-text="type.name"></span>
+                                        <span class="block text-xs font-normal text-site-muted" x-show="eventTypeDisabledReason(type)" x-text="eventTypeDisabledReason(type)"></span>
+                                    </span>
+                                </button>
+                            </template>
+                        </div>
                     </template>
                 </div>
             </div>
@@ -90,11 +100,12 @@
                 <div x-show="open" x-cloak class="admin-accordion-panel">
                     {{-- Solo las plantillas del tipo de evento elegido --}}
                     <template x-for="option in templatesForEventType()" :key="option.value">
-                        <button type="button" @click="meta.template = option.value; open = false"
+                        <button type="button" @click="if (!option.disabledReason) { meta.template = option.value; open = false }"
+                            :disabled="!!option.disabledReason && meta.template !== option.value"
                             class="admin-accordion-option" :class="meta.template === option.value ? 'is-selected' : ''">
                             <span class="min-w-0 text-left">
                                 <span class="block" x-text="option.label"></span>
-                                <span class="block text-xs font-normal text-site-muted" x-text="option.description"></span>
+                                <span class="block text-xs font-normal text-site-muted" x-text="option.disabledReason || option.description"></span>
                             </span>
                         </button>
                     </template>
@@ -146,7 +157,7 @@
                     <button type="button" @click="meta.user_id = client.id; open = false"
                         class="admin-accordion-option" :class="String(meta.user_id) === String(client.id) ? 'is-selected' : ''">
                         <span class="block font-medium" x-text="client.name"></span>
-                        <span class="block text-xs font-normal text-site-muted" x-text="`Usuario: ${client.username}`"></span>
+                        <span class="block text-xs font-normal text-site-muted" x-text="`Usuario: ${client.username}` + (client.origin ? ` · ${client.origin}` : '')"></span>
                     </button>
                 </template>
             </div>

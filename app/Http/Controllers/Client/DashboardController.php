@@ -27,6 +27,8 @@ class DashboardController extends Controller
             ->select('id', 'user_id', 'reseller_id', 'event_type_id', 'slug', 'template', 'package', 'title', 'event_date', 'status', 'expires_at', 'created_at')
             ->with([
                 'eventType:id,name,slug',
+                // El revendedor ve de qué cliente es cada evento
+                'user:id,name',
                 'guests:id,invitation_id,status,passes_confirmed',
             ])
             ->withCount([

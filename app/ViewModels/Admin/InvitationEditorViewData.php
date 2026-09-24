@@ -11,10 +11,12 @@ use App\Services\InvitationPreviewSession;
 use App\Services\MediaUploadService;
 use App\Support\ColorPalettes;
 use App\Support\EditableTexts;
+use App\Support\ImageFrames;
 use App\Support\InvitationDefaults;
 use App\Support\InvitationTemplates;
 use App\Support\Packages;
 use App\Support\ResellerSubscription;
+use App\Support\TemplateAvailability;
 use Illuminate\Support\Collection;
 
 /**
@@ -41,7 +43,7 @@ class InvitationEditorViewData
             : collect(InvitationDefaults::templates());
         $itineraryIcons = InvitationDefaults::itineraryIcons();
         $eventTypes = EventType::orderBy('name')->get();
-        $clients = $isReseller ? new Collection : User::where('is_admin', false)->orderBy('name')->get();
+        $clients = $isReseller ? new Collection : User::where('is_admin', false)->with('createdByReseller:id,name,business_name')->orderBy('name')->get();
 
         $clientList = $clients;
         if (! $isReseller && $invitation?->user_id && ! $clientList->contains('id', $invitation->user_id)) {
@@ -93,12 +95,17 @@ class InvitationEditorViewData
 
         return [
             'modules' => $modulos,
+            // Agrupados (todo el año, primaveral y romántico, tenebroso) y con el motivo si hoy no se ofrecen;
+            // el de la invitación que se edita siempre se puede mantener
             'eventTypes' => $eventTypes->map(fn ($type) => [
                 'id' => (string) $type->id,
                 'name' => $type->name,
                 'code' => $type->code,
                 'kind' => $type->kind,
+                'category' => TemplateAvailability::category($type->season),
+                'disabledReason' => (int) $invitation?->event_type_id === (int) $type->id ? null : TemplateAvailability::seasonReason($type->season),
             ])->values(),
+            'eventCategories' => TemplateAvailability::categoryOrder(),
             // Perfil de cada tipo de evento: el editor arma pestañas, rótulos y avisos con él
             'profiles' => collect(app(EventProfiles::class)->all())->map(fn (EventProfile $profile) => $profile->toArray()),
             'templateOptions' => $templates->map(fn ($label, $value) => [
@@ -109,6 +116,8 @@ class InvitationEditorViewData
                 // Colores y letras con los que nace una invitación nueva de esta plantilla
                 'palette' => InvitationTemplates::get($value)['palette'],
                 'fonts' => InvitationTemplates::get($value)['fonts'] ?? null,
+                // Apagada en Ajustes o de una temporada que no está a la venta (la actual se conserva)
+                'disabledReason' => $value === $invitation?->template ? null : TemplateAvailability::templateReason($value),
             ])->values(),
             // La contraseña no viaja: solo se ve la que se acaba de crear o regenerar en el editor
             'clients' => $clientList->map(fn ($client) => [
@@ -116,11 +125,20 @@ class InvitationEditorViewData
                 'name' => $client->name,
                 'username' => $client->username,
                 'password' => null,
+                // De dónde viene: un revendedor también puede ser cliente de una invitación del equipo
+                'origin' => match (true) {
+                    (bool) $client->is_reseller => 'Revendedor',
+                    $client->createdByReseller !== null => 'Cliente de '.($client->createdByReseller->business_name ?: $client->createdByReseller->name),
+                    default => null,
+                },
             ])->values(),
             'meta' => [
                 'title' => $invitation?->title ?? '',
                 'slug' => $invitation?->slug ?? '',
-                'template' => $invitation?->template ?? array_key_first($templates->all()),
+                // Una nueva arranca en la primera plantilla que hoy se ofrece
+                'template' => $invitation?->template
+                    ?? $templates->keys()->first(fn (string $key) => TemplateAvailability::templateReason($key) === null)
+                    ?? array_key_first($templates->all()),
                 'event_type_id' => $invitation?->event_type_id ? (string) $invitation->event_type_id : (string) ($eventTypes->first()?->id ?? ''),
                 'user_id' => $invitation?->user_id ? (string) $invitation->user_id : '',
                 'event_date' => $defaultEventDate,
@@ -136,6 +154,8 @@ class InvitationEditorViewData
             'itineraryIcons' => $itineraryIcons,
             // Paletas listas de «Estética»: la original de cada plantilla, las de su evento y las generales
             'palettes' => ColorPalettes::all(),
+            // Medida y forma real de cada espacio de foto: el recortador encuadra con ellas
+            'imageFrames' => ImageFrames::forEditor(),
             // Qué incluye cada paquete: el editor apaga y marca lo que el paquete elegido no trae
             'packageOptions' => collect(config('bida.packages', []))->map(fn (array $package) => ['value' => $package['key'], 'label' => $package['name'], 'hint' => $package['summary'] ?? ''])->values(),
             'packageOrder' => Packages::ORDER,

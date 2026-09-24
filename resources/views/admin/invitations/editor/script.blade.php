@@ -187,10 +187,13 @@ function invitationForm(config) {
         moduleCodes: [...(config.moduleCodes ?? [])],
         moduleTabMap: config.moduleTabMap ?? {},
 
-        // Cropper de imágenes
+        // Recortador de imágenes: la foto en el marco real del espacio donde va (App\Support\ImageFrames)
         cropperOpen: false,
         cropperBlobUrl: null,
-        cropperPendingIndex: null,
+        cropperEntry: null,
+        cropperFrame: null,
+        cropperLoading: false,
+        cropperPinch: null,
         cropperAspect: 1,
         cropperScale: 1,
         cropperOffsetX: 0,
@@ -1222,9 +1225,14 @@ function invitationForm(config) {
             return this.templateOptions.filter(option => (this.profiles[option.event]?.kind ?? 'invitation') === kind);
         },
 
+        /** Hay algo que elegir en ese producto (plantillas apagadas o fuera de temporada no cuentan). */
+        kindAvailable(kind) {
+            return this.templatesOfKind(kind).some(option => !option.disabledReason);
+        },
+
         chooseKind(kind) {
             if ((this.profile.kind ?? 'invitation') === kind) return;
-            const first = this.templatesOfKind(kind)[0];
+            const first = this.templatesOfKind(kind).find(option => !option.disabledReason);
             if (first) this.meta.template = first.value;
             // Las tarjetas no se venden por paquete: tienen su precio de temporada
             if (kind === 'card') this.meta.package = '';
@@ -1242,6 +1250,24 @@ function invitationForm(config) {
                 && (!type.code || this.templateOptions.some(option => option.event === type.code)));
         },
 
+        /**
+         * Los tipos de evento del producto agrupados como en Ajustes: los de todo el año y cada
+         * temporada con su ánimo (primaveral y romántico, tenebroso). Un grupo vacío no se muestra.
+         */
+        eventTypeGroups(kind) {
+            const types = this.eventTypesOfKind(kind);
+            return (this.config.eventCategories ?? [])
+                .map(name => ({ name, types: types.filter(type => type.category === name) }))
+                .filter(group => group.types.length);
+        },
+
+        /** Motivo por el que un tipo no se puede elegir: su temporada o todas sus plantillas apagadas. */
+        eventTypeDisabledReason(type) {
+            if (type.disabledReason) return type.disabledReason;
+            const options = this.templateOptions.filter(option => option.event === type.code);
+            return options.length && options.every(option => option.disabledReason) ? options[0].disabledReason : null;
+        },
+
         /** Plantillas del tipo de evento elegido (un tipo sin código ve todas las de su producto). */
         templatesForEventType() {
             const code = this.selectedEventType?.code;
@@ -1252,11 +1278,12 @@ function invitationForm(config) {
 
         /** Al cambiar el tipo de evento, la plantilla pasa a la primera de ese evento si la actual no le corresponde. */
         chooseEventType(type) {
+            if (this.eventTypeDisabledReason(type) && String(this.meta.event_type_id) !== String(type.id)) return;
             this.meta.event_type_id = String(type.id);
             const current = this.templateOptions.find(option => option.value === String(this.meta.template ?? ''));
 
             if (type.code && current?.event !== type.code) {
-                const first = this.templateOptions.find(option => option.event === type.code);
+                const first = this.templateOptions.find(option => option.event === type.code && !option.disabledReason);
                 if (first) this.meta.template = first.value;
             }
         },
@@ -1313,6 +1340,11 @@ function invitationForm(config) {
             setUrl(blobUrl);
             this.schedulePreview();
             event.target.value = '';
+
+            // Una foto para un espacio fijo se encuadra apenas se elige (el QR del banco se deja tal cual)
+            if (type === 'image' && context !== 'qr-banco') {
+                this.$nextTick(() => this.openImageCropper(blobUrl, context));
+            }
         },
 
         clearMediaUrl(url) {
@@ -1343,29 +1375,6 @@ function invitationForm(config) {
             return data.url;
         },
 
-        getCropAspectForContext(context) {
-            switch (context) {
-                case 'galeria':
-                case 'gallery':
-                    return 4 / 3;
-                case 'video-poster':
-                    return 16 / 9;
-                case 'bienvenida':
-                case 'recuerdos':
-                case 'marcos':
-                    return 4 / 5;
-                case 'memoria':
-                case 'collage':
-                    return 1;
-                case 'historia':
-                    return 16 / 10;
-                case 'ubicacion':
-                    return 3 / 2;
-                default:
-                    return 1;
-            }
-        },
-
         // ── Fotos con descripción ───────────────────────────────────────────
         // Una foto es su URL a secas o {url, alt}: solo se convierte en objeto
         // cuando el cliente escribe una descripción, para no ensuciar los datos.
@@ -1390,34 +1399,83 @@ function invitationForm(config) {
             this.schedulePreview();
         },
 
-        openImageCropperFromGallery(index) {
-            this.openImageCropper(this.photoUrl(this.modules.galeria.fotos[index]), 'gallery');
+        /**
+         * Marco real del espacio donde va la foto (App\Support\ImageFrames): la portada depende de la
+         * plantilla elegida y el resto del módulo. {width, height, shape, label}.
+         */
+        imageFrame(context) {
+            const frames = this.config.imageFrames ?? {};
+            if (context === 'hero') {
+                return frames.hero?.[String(this.meta.template ?? '')] ?? { width: 1080, height: 1350, shape: 'rect', label: 'Foto de portada' };
+            }
+            return frames.contexts?.[context] ?? { width: 1200, height: 1200, shape: 'rect', label: 'Foto' };
         },
 
-        openImageCropper(url, contextOverride = null) {
-            if (!url || !String(url).startsWith('blob:')) return;
-            const idx = this.pendingUploads.findIndex(p => p.blobUrl === url);
-            if (idx === -1) return;
-            const entry = this.pendingUploads[idx];
-            const context = contextOverride || entry.context;
-            this.cropperPendingIndex = idx;
-            this.cropperBlobUrl = url;
-            this.cropperAspect = this.getCropAspectForContext(context);
+        /** Proporción en palabras, para que se entienda sin saber qué es 4:5. */
+        frameShapeLabel(frame) {
+            const ratio = frame.width / frame.height;
+            const orientation = Math.abs(ratio - 1) < 0.02 ? 'cuadrada' : (ratio < 1 ? 'vertical' : 'horizontal');
+            const known = [[9, 16], [3, 4], [4, 5], [1, 1], [4, 3], [16, 10], [16, 9], [10, 11]]
+                .find(([w, h]) => Math.abs(w / h - ratio) < 0.01);
+            return known ? `${orientation} ${known[0]}:${known[1]}` : orientation;
+        },
+
+        openImageCropperFromGallery(index) {
+            const photo = this.modules.galeria.fotos[index];
+            this.openImageCropper(this.photoUrl(photo), 'gallery', this.replaceInListApplier(() => this.modules.galeria.fotos, this.photoUrl(photo)));
+        },
+
+        /**
+         * Abre el recortador. Una foto recién elegida ya está esperando en pendingUploads; una que ya
+         * estaba guardada se descarga para poder recortarla y, si se aplica el recorte, se vuelve a
+         * subir al guardar (setUrl dice dónde va la foto nueva).
+         */
+        async openImageCropper(url, contextOverride = null, setUrl = null) {
+            if (!url || this.cropperLoading) return;
+
+            let entry = this.pendingUploads.find(p => p.blobUrl === url) ?? null;
+
+            if (!entry) {
+                if (typeof setUrl !== 'function') return;
+                this.cropperLoading = true;
+                try {
+                    const response = await fetch(url, { mode: 'cors', credentials: 'omit' });
+                    if (!response.ok) throw new Error(String(response.status));
+                    const blob = await response.blob();
+                    if (!blob.type.startsWith('image/')) throw new Error('No es una imagen');
+                    const file = new File([blob], 'foto.' + (blob.type.split('/')[1] || 'jpg'), { type: blob.type });
+                    entry = { file, type: 'image', context: contextOverride || 'general', blobUrl: URL.createObjectURL(file), apply: setUrl, isDraft: true };
+                } catch (error) {
+                    alert('No se pudo abrir esta foto para recortarla. Súbela de nuevo desde tu equipo y podrás encuadrarla.');
+                    return;
+                } finally {
+                    this.cropperLoading = false;
+                }
+            }
+
+            const frame = this.imageFrame(contextOverride || entry.context);
+            this.cropperEntry = entry;
+            this.cropperBlobUrl = entry.blobUrl;
+            this.cropperFrame = frame;
+            this.cropperAspect = frame.width / frame.height;
             this.cropperScale = this.cropperMinScale;
             this.cropperOffsetX = 0;
             this.cropperOffsetY = 0;
             this.cropperImageNaturalWidth = 0;
             this.cropperImageNaturalHeight = 0;
             this.cropperDragging = false;
+            this.cropperPinch = null;
             this.cropperOpen = true;
-            this.$nextTick(() => {
-                this.syncCropperFrameSize();
-            });
+            this.$nextTick(() => this.syncCropperFrameSize());
         },
 
         closeImageCropper() {
+            // Una foto guardada que se abrió y no se recortó: su copia temporal no se usa
+            if (this.cropperEntry?.isDraft) URL.revokeObjectURL(this.cropperEntry.blobUrl);
+            this.cropperEntry = null;
             this.cropperOpen = false;
             this.cropperDragging = false;
+            this.cropperPinch = null;
         },
 
         onCropperImageLoad(event) {
@@ -1431,11 +1489,19 @@ function invitationForm(config) {
             this.cropperOffsetY = 0;
         },
 
+        /** El marco ocupa lo que permite el escenario con su proporción exacta; alrededor se ve el resto de la foto. */
         syncCropperFrameSize() {
-            const frame = this.$refs.cropperFrame;
-            if (!frame) return;
-            this.cropperFrameWidth = frame.clientWidth || 0;
-            this.cropperFrameHeight = frame.clientHeight || 0;
+            const stage = this.$refs.cropperStage;
+            if (!stage || !stage.clientWidth) return;
+            const aspect = this.cropperAspect || 1;
+            let width = stage.clientWidth * 0.8;
+            let height = width / aspect;
+            if (height > stage.clientHeight * 0.84) {
+                height = stage.clientHeight * 0.84;
+                width = height * aspect;
+            }
+            this.cropperFrameWidth = Math.round(width);
+            this.cropperFrameHeight = Math.round(height);
             this.clampCropperOffsets();
         },
 
@@ -1448,6 +1514,7 @@ function invitationForm(config) {
                 return { renderW: 0, renderH: 0, maxOffsetX: 0, maxOffsetY: 0 };
             }
 
+            // Al 100 % la foto cubre el marco justo (como object-fit: cover en la invitación)
             const imageAspect = iw / ih;
             const frameAspect = fw / fh;
             const baseW = imageAspect > frameAspect ? fh * imageAspect : fw;
@@ -1472,14 +1539,58 @@ function invitationForm(config) {
         cropperImageStyle() {
             const m = this.getCropperRenderMetrics();
             if (!m.renderW || !m.renderH) {
-                return '';
+                return 'opacity:0';
             }
             const left = (this.cropperFrameWidth / 2) - (m.renderW / 2) + this.cropperOffsetX;
             const top = (this.cropperFrameHeight / 2) - (m.renderH / 2) + this.cropperOffsetY;
             return `width:${m.renderW}px;height:${m.renderH}px;left:${left}px;top:${top}px;`;
         },
 
+        /** Parte de la foto original que entra en el marco, en píxeles reales. */
+        cropperSourceRect() {
+            const m = this.getCropperRenderMetrics();
+            const iw = this.cropperImageNaturalWidth;
+            const ih = this.cropperImageNaturalHeight;
+            if (!m.renderW || !iw) return null;
+            const left = (this.cropperFrameWidth / 2) - (m.renderW / 2) + this.cropperOffsetX;
+            const top = (this.cropperFrameHeight / 2) - (m.renderH / 2) + this.cropperOffsetY;
+            const scale = iw / m.renderW;
+            const x = Math.max(0, -left * scale);
+            const y = Math.max(0, -top * scale);
+            return {
+                x,
+                y,
+                width: Math.min(iw - x, this.cropperFrameWidth * scale),
+                height: Math.min(ih - y, this.cropperFrameHeight * (ih / m.renderH)),
+            };
+        },
+
+        /** Tamaño con el que se guarda: el del espacio, o menos si la foto no alcanza (nunca se estira). */
+        cropperOutputSize() {
+            const frame = this.cropperFrame;
+            const source = this.cropperSourceRect();
+            if (!frame || !source) return null;
+            const factor = Math.min(1, source.width / frame.width);
+            return { width: Math.round(frame.width * factor), height: Math.round(frame.height * factor) };
+        },
+
+        /** Si la parte elegida alcanza para verse nítida en ese espacio. */
+        cropperQuality() {
+            const frame = this.cropperFrame;
+            const source = this.cropperSourceRect();
+            if (!frame || !source) return null;
+            const ratio = source.width / frame.width;
+            if (ratio >= 0.85) return { level: 'good', text: 'Se verá nítida' };
+            if (ratio >= 0.5) return { level: 'fair', text: 'Se verá bien en el celular' };
+            return { level: 'low', text: 'La foto es chica para este espacio: puede verse borrosa. Aléjala o usa una más grande.' };
+        },
+
         startCropDrag(event) {
+            if (event.touches?.length === 2) {
+                this.cropperDragging = false;
+                this.cropperPinch = { distance: this.touchDistance(event.touches), scale: this.cropperScale };
+                return;
+            }
             const point = event.touches ? event.touches[0] : event;
             this.cropperDragging = true;
             this.cropperLastX = point.clientX;
@@ -1487,13 +1598,17 @@ function invitationForm(config) {
         },
 
         onCropDrag(event) {
+            // Dos dedos: pellizcar para acercar o alejar, como en la galería del teléfono
+            if (this.cropperPinch && event.touches?.length === 2) {
+                const ratio = this.touchDistance(event.touches) / (this.cropperPinch.distance || 1);
+                this.cropperScale = Math.max(this.cropperMinScale, Math.min(this.cropperMaxScale, this.cropperPinch.scale * ratio));
+                return;
+            }
             if (!this.cropperDragging) return;
             const point = event.touches ? (event.touches[0] || event.changedTouches?.[0]) : event;
             if (!point) return;
-            const dx = point.clientX - this.cropperLastX;
-            const dy = point.clientY - this.cropperLastY;
-            this.cropperOffsetX += dx;
-            this.cropperOffsetY += dy;
+            this.cropperOffsetX += point.clientX - this.cropperLastX;
+            this.cropperOffsetY += point.clientY - this.cropperLastY;
             this.clampCropperOffsets();
             this.cropperLastX = point.clientX;
             this.cropperLastY = point.clientY;
@@ -1501,84 +1616,93 @@ function invitationForm(config) {
 
         endCropDrag() {
             this.cropperDragging = false;
+            this.cropperPinch = null;
+        },
+
+        touchDistance(touches) {
+            return Math.hypot(touches[0].clientX - touches[1].clientX, touches[0].clientY - touches[1].clientY);
         },
 
         onCropWheel(event) {
-            const delta = event.deltaY > 0 ? -0.1 : 0.1;
+            const delta = event.deltaY > 0 ? -0.08 : 0.08;
             this.cropperScale = Math.max(this.cropperMinScale, Math.min(this.cropperMaxScale, this.cropperScale + delta));
         },
 
+        /** Flechas para mover de a poco y + / − para acercar, sin mouse. */
+        onCropKey(event) {
+            const step = event.shiftKey ? 20 : 6;
+            const moves = { ArrowLeft: [step, 0], ArrowRight: [-step, 0], ArrowUp: [0, step], ArrowDown: [0, -step] };
+            if (moves[event.key]) {
+                event.preventDefault();
+                this.cropperOffsetX += moves[event.key][0];
+                this.cropperOffsetY += moves[event.key][1];
+                this.clampCropperOffsets();
+            } else if (event.key === '+' || event.key === '=') {
+                this.cropperScale = Math.min(this.cropperMaxScale, this.cropperScale + 0.1);
+            } else if (event.key === '-') {
+                this.cropperScale = Math.max(this.cropperMinScale, this.cropperScale - 0.1);
+            }
+        },
+
         async applyImageCrop() {
+            const entry = this.cropperEntry;
             try {
-                const idx = this.cropperPendingIndex;
-                if (idx == null || idx < 0 || idx >= this.pendingUploads.length) {
-                    this.closeImageCropper();
-                    return;
-                }
-                const entry = this.pendingUploads[idx];
                 if (!entry || !entry.file || !this.cropperBlobUrl) {
                     this.closeImageCropper();
                     return;
                 }
 
                 const image = new Image();
-                image.crossOrigin = 'anonymous';
-                const src = this.cropperBlobUrl;
-                const loadPromise = new Promise((resolve, reject) => {
-                    image.onload = () => resolve();
-                    image.onerror = (e) => reject(e);
+                const loaded = new Promise((resolve, reject) => {
+                    image.onload = resolve;
+                    image.onerror = reject;
                 });
-                image.src = src;
-                await loadPromise;
-
-                const targetWidth = 800;
-                const targetHeight = targetWidth / this.cropperAspect;
-                const canvas = document.createElement('canvas');
-                canvas.width = targetWidth;
-                canvas.height = targetHeight;
-                const ctx = canvas.getContext('2d');
-                if (!ctx) {
-                    this.closeImageCropper();
-                    return;
-                }
+                image.src = this.cropperBlobUrl;
+                await loaded;
 
                 this.clampCropperOffsets();
-                const m = this.getCropperRenderMetrics();
-                if (!m.renderW || !m.renderH || !this.cropperFrameWidth || !this.cropperFrameHeight) {
+                const source = this.cropperSourceRect();
+                const output = this.cropperOutputSize();
+                if (!source || !output) {
                     this.closeImageCropper();
                     return;
                 }
 
-                const left = (this.cropperFrameWidth / 2) - (m.renderW / 2) + this.cropperOffsetX;
-                const top = (this.cropperFrameHeight / 2) - (m.renderH / 2) + this.cropperOffsetY;
-                const srcX = Math.max(0, (0 - left) * (image.width / m.renderW));
-                const srcY = Math.max(0, (0 - top) * (image.height / m.renderH));
-                const srcW = Math.min(image.width - srcX, this.cropperFrameWidth * (image.width / m.renderW));
-                const srcH = Math.min(image.height - srcY, this.cropperFrameHeight * (image.height / m.renderH));
+                const canvas = document.createElement('canvas');
+                canvas.width = output.width;
+                canvas.height = output.height;
+                const ctx = canvas.getContext('2d');
+                ctx.imageSmoothingQuality = 'high';
+                ctx.drawImage(image, source.x, source.y, source.width, source.height, 0, 0, output.width, output.height);
 
-                ctx.drawImage(image, srcX, srcY, srcW, srcH, 0, 0, targetWidth, targetHeight);
-
-                const mimeType = entry.file.type && entry.file.type.startsWith('image/')
-                    ? entry.file.type
-                    : 'image/jpeg';
-
+                // PNG y WebP conservan su formato (un QR o un logo con fondo transparente); el resto va en JPG
+                const mimeType = ['image/png', 'image/webp'].includes(entry.file.type) ? entry.file.type : 'image/jpeg';
                 const blob = await new Promise((resolve) => canvas.toBlob(resolve, mimeType, 0.9));
                 if (!blob) {
                     this.closeImageCropper();
                     return;
                 }
 
-                const newFile = new File([blob], entry.file.name || 'crop.jpg', { type: blob.type });
+                const extension = mimeType.split('/')[1].replace('jpeg', 'jpg');
+                const baseName = (entry.file.name || 'foto').replace(/\.[^.]+$/, '');
+                const newFile = new File([blob], `${baseName}.${extension}`, { type: blob.type });
                 const newBlobUrl = URL.createObjectURL(newFile);
 
-                // Actualizar entry y vista previa
                 URL.revokeObjectURL(entry.blobUrl);
                 entry.file = newFile;
                 entry.blobUrl = newBlobUrl;
+
+                // Una foto que ya estaba guardada pasa a subirse de nuevo, recortada, al guardar
+                if (entry.isDraft) {
+                    delete entry.isDraft;
+                    this.pendingUploads.push(entry);
+                }
+
                 if (typeof entry.apply === 'function') {
                     entry.apply(newBlobUrl);
                 }
 
+                this.cropperEntry = null;
                 this.closeImageCropper();
                 this.schedulePreview();
             } catch (e) {

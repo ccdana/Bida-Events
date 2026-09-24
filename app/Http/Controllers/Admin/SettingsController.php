@@ -68,6 +68,17 @@ class SettingsController extends Controller
             ])
             ->all());
 
+        // Contacto y redes: se guardan limpios (solo dígitos en el WhatsApp, el usuario sin @ ni dirección)
+        if ($request->has('contact')) {
+            SiteSettings::put('contact', [
+                'whatsapp' => preg_replace('/\D+/', '', (string) $request->input('contact.whatsapp')),
+                'email' => trim((string) $request->input('contact.email')),
+                'instagram' => $this->handle($request->input('contact.instagram'), 'instagram.com'),
+                'facebook' => $this->handle($request->input('contact.facebook'), 'facebook.com'),
+                'tiktok' => $this->handle($request->input('contact.tiktok'), 'tiktok.com'),
+            ]);
+        }
+
         // Llegan las encendidas; se guardan las apagadas, para que una plantilla nueva nazca visible
         $enabled = (array) $request->input('templates', []);
         SiteSettings::put('templates', [
@@ -105,6 +116,18 @@ class SettingsController extends Controller
 
             return $profile->kind() === Module::KIND_CARD || $profile->season() !== null;
         }, false, report: false);
+    }
+
+    /**
+     * El usuario de una red a partir de lo que se pegue: «@bidaevents», «bidaevents» o la dirección
+     * completa («https://www.instagram.com/bidaevents/») quedan como «bidaevents».
+     */
+    private function handle(?string $value, string $domain): string
+    {
+        $value = trim((string) $value);
+        $value = preg_replace('#^(https?://)?(www\.|m\.)?'.preg_quote($domain, '#').'/#i', '', $value);
+
+        return trim(ltrim((string) $value, '@'), '/ ');
     }
 
     /** Las fechas del formulario llegan como «2026-09-21T23:59»; se guardan con segundos. */

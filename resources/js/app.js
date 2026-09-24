@@ -109,6 +109,11 @@ if (document.querySelector('[data-story], [x-data*="holdToOpen"], [x-data*="scra
     loaders.push(import('./story/index.js'));
 }
 
+// ── Invitaciones como historias de Instagram (~4 kB) — el mismo motor, a pedido y con avance solo ─
+if (document.querySelector('[data-ig-stories]') && !document.querySelector('[data-story]')) {
+    loaders.push(import('./story/instagram.js'));
+}
+
 // ── Tarjeta del Día del Amor — capullo, margarita, tendedero, flor y diente de león ─
 if (document.querySelector('[data-card="amor"]')) {
     loaders.push(import('./cards/amor/index.js'));

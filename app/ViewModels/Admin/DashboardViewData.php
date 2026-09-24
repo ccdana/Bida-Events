@@ -9,6 +9,7 @@ use App\Modules\Module;
 use App\Support\InvitationTemplates;
 use App\Support\Packages;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -21,7 +22,8 @@ class DashboardViewData
     /** Filtros rápidos por producto entero, además de los tipos de evento. */
     public const KINDS = [Module::KIND_INVITATION, Module::KIND_CARD];
 
-    public function make(LengthAwarePaginator $invitations, string $type = '', string $search = ''): array
+    /** $scope: las invitaciones de esta lista (las de clientes o las de muestra); sin él, todas. */
+    public function make(LengthAwarePaginator $invitations, string $type = '', string $search = '', ?Builder $scope = null): array
     {
         $items = collect($invitations->items())->map(fn (Invitation $invitation) => $this->row($invitation));
 
@@ -38,15 +40,16 @@ class DashboardViewData
             $sections->push(['slug' => '', 'name' => 'Sin tipo de evento', 'isCard' => false, 'total' => $orphans->count(), 'rows' => $orphans]);
         }
 
-        // Las cifras son de todas las invitaciones, no solo de la página que se muestra
-        $total = Invitation::count();
-        $active = Invitation::where('status', 'active')->count();
+        // Las cifras son de toda la lista (no solo de la página que se muestra)
+        $scope ??= Invitation::query();
+        $total = (clone $scope)->count();
+        $active = (clone $scope)->where('status', 'active')->count();
 
         $metrics = [
             'total' => $total,
             'active' => $active,
             'inactive' => $total - $active,
-            'guests' => Guest::count(),
+            'guests' => Guest::whereIn('invitation_id', (clone $scope)->select('id'))->count(),
         ];
 
         return [

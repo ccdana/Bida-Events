@@ -32,7 +32,7 @@
         <div class="pt-1 flex items-center justify-between gap-3 border-t border-stone-100 mt-2">
             <span class="min-w-0">
                 <span class="block text-sm font-semibold text-stone-700">Reproducir automáticamente</span>
-                <span class="block text-[11px] leading-relaxed text-stone-400">Los navegadores bloquean el sonido automático: la música empezará con el primer toque del invitado.</span>
+                <span class="block text-[11px] leading-relaxed text-stone-400">Suena al abrir la invitación: los navegadores esperan el primer toque del invitado (por ejemplo, al abrir la portada). Se pausa sola si cambia de pestaña o de app, y sigue al volver.</span>
             </span>
             <label class="relative inline-flex items-center cursor-pointer">
                 <input type="checkbox" x-model="modules.musica.autoplay" @change="schedulePreview()" class="sr-only peer">

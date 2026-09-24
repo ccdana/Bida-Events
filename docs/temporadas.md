@@ -41,7 +41,7 @@ Ejemplo: una tarjeta de Navidad con portada, dedicatoria, galería y música.
 6. **Pruebas.** `TemplateRenderMatrixTest::completeContent()` necesita su contenido de prueba (la
    plantilla entra sola a la matriz y falla hasta tenerlo).
 7. **Campaña (opcional).** Página en `config('bida.landings')` con `kind => 'card'`, su código de
-   WhatsApp, preguntas frecuentes e imagen en `config('bida.share_images')`. Sus muestras son las de
+   WhatsApp y preguntas frecuentes (al compartir se ve el logo de Bida). Sus muestras son las de
    la temporada (o una lista propia en `demos`); con varias, la página muestra un selector de diseños.
    Los textos hablan del evento, no de un diseño, para que sumar diseños no obligue a reescribirlos.
 

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\ClientController as AdminClientController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\GuestController as AdminGuestController;
 use App\Http\Controllers\Admin\InvitationController as AdminInvitationController;
@@ -112,10 +113,15 @@ Route::prefix('p')->name('invitation.')->middleware('cache.public.invitations')-
 // Panel administrativo
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
+    // Las invitaciones de muestra del sitio, aparte de las de clientes
+    Route::get('/muestras', [AdminDashboardController::class, 'showcase'])->name('showcase');
 
     // Precios, promociones y plantillas de temporada, sin tocar el código
     Route::get('/ajustes', [SettingsController::class, 'edit'])->name('settings');
     Route::put('/ajustes', [SettingsController::class, 'update'])->name('settings.update');
+
+    // Clientes: los del equipo y los que crea cada revendedor
+    Route::get('/clientes', [AdminClientController::class, 'index'])->name('clients.index');
 
     // Revendedores: alta y pagos de su suscripción (el cobro es manual, no hay pasarela)
     Route::get('/revendedores', [ResellerController::class, 'index'])->name('resellers.index');
@@ -161,6 +167,8 @@ Route::prefix('client')->name('client.')->middleware(['auth', 'client'])->group(
 
         // El acceso del cliente de cada evento: uno por evento, se elimina si se creó mal
         Route::post('/invitations/{invitation}/cliente', [ResellerClientController::class, 'store'])->can('update', 'invitation')->name('invitations.client.store');
+        // O el evento es del propio revendedor: él mismo es el cliente y no gasta un acceso
+        Route::post('/invitations/{invitation}/cliente/yo', [ResellerClientController::class, 'assignSelf'])->can('update', 'invitation')->name('invitations.client.self');
         Route::delete('/invitations/{invitation}/cliente', [ResellerClientController::class, 'destroy'])->can('update', 'invitation')->name('invitations.client.destroy');
 
         // Herramientas del editor: los mismos controladores que usa el administrador, con límite por minuto

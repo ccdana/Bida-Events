@@ -3,8 +3,8 @@
 @section('title', 'Ajustes')
 
 {{--
-    Ajustes del sitio, en tres pestañas: lo que se cobra por invitación (paquetes y promoción), las
-    temporadas (cada una por separado) y «Hazlo tú» (planes mensuales). Un solo formulario: las
+    Ajustes del sitio, en cuatro pestañas: lo que se cobra por invitación (paquetes y promoción), las
+    temporadas (cada una por separado), «Hazlo tú» (planes mensuales) y el contacto con las redes. Un solo formulario: las
     pestañas solo ordenan la pantalla, se guarda todo junto desde la barra fija de abajo. Si al
     guardar algo no pasa la validación, se abre la pestaña donde está el error.
 --}}
@@ -15,9 +15,10 @@
     $startTab = match (true) {
         $errorKeys->contains(fn ($key) => str_starts_with($key, 'seasons')) => 'temporadas',
         $errorKeys->contains(fn ($key) => str_starts_with($key, 'reseller_plans')) => 'hazlo',
+        $errorKeys->contains(fn ($key) => str_starts_with($key, 'contact')) => 'contacto',
         default => 'paquetes',
     };
-    $tabs = ['paquetes' => 'Paquetes y promoción', 'temporadas' => 'Temporadas', 'hazlo' => 'Hazlo tú'];
+    $tabs = ['paquetes' => 'Paquetes y promoción', 'temporadas' => 'Temporadas', 'hazlo' => 'Hazlo tú', 'contacto' => 'Contacto y redes'];
     $enabledTemplates = collect(old('templates', collect($seasonalTemplates)->filter(fn ($t) => $t['enabled'])->keys()->all()));
     $statusLabels = [
         'selling' => ['En el sitio', 'is-success'],
@@ -34,7 +35,7 @@
             <h1 class="text-3xl font-semibold tracking-tight md:text-4xl">Ajustes</h1>
             <p class="mt-2 max-w-[62ch] text-site-muted">
                 Los precios que ve la gente, hasta cuándo dura cada promoción, qué temporadas se ofrecen y los planes de
-                Hazlo tú. Todo en dólares ({{ $currency }}) y se aplica al instante, sin tocar el código.
+                Hazlo tú, y el WhatsApp y las redes del sitio. Los precios van en dólares ({{ $currency }}) y todo se aplica al instante, sin tocar el código.
             </p>
         </header>
 
@@ -267,9 +268,69 @@
                 </section>
             </div>
 
+            {{-- ══ Contacto y redes: lo que se ve en el pie, los botones de WhatsApp y las páginas legales ══ --}}
+            <div id="panel-contacto" role="tabpanel" aria-labelledby="ajustes-contacto" x-show="tab === 'contacto'" @if($startTab !== 'contacto') x-cloak @endif>
+                <section class="set-block">
+                    <div class="set-block__head">
+                        <div>
+                            <h2 class="set-block__title">Teléfono y WhatsApp</h2>
+                            <p class="set-block__text">
+                                El número al que escriben desde todos los botones «Escríbenos» del sitio, las temporadas y las
+                                páginas legales. Con el código de país (591 para Bolivia).
+                            </p>
+                        </div>
+                    </div>
+                    <div class="mt-5 grid gap-4 sm:grid-cols-2">
+                        <div>
+                            <label for="contacto-whatsapp" class="admin-label">WhatsApp</label>
+                            <input id="contacto-whatsapp" type="tel" inputmode="tel" name="contact[whatsapp]" required maxlength="30" class="admin-input font-mono"
+                                value="{{ old('contact.whatsapp', $settings['contact']['whatsapp']) }}" placeholder="59170000000">
+                            @error('contact.whatsapp')
+                                <p class="mt-1.5 text-sm text-site-danger">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        <div>
+                            <label for="contacto-email" class="admin-label">Correo <span class="font-normal text-site-muted">(opcional)</span></label>
+                            <input id="contacto-email" type="email" name="contact[email]" maxlength="120" class="admin-input"
+                                value="{{ old('contact.email', $settings['contact']['email']) }}" placeholder="hola@bida-events.com">
+                            @error('contact.email')
+                                <p class="mt-1.5 text-sm text-site-danger">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
+                </section>
+
+                <section class="set-block">
+                    <div class="set-block__head">
+                        <div>
+                            <h2 class="set-block__title">Redes sociales</h2>
+                            <p class="set-block__text">
+                                Escribe el usuario o pega la dirección de la página: se guarda solo el usuario. Si dejas una vacía,
+                                esa red deja de aparecer en el sitio.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="mt-5 grid gap-4 sm:grid-cols-3">
+                        @foreach(['instagram' => ['Instagram', 'instagram.com/', 'instagram-logo'], 'facebook' => ['Facebook', 'facebook.com/', 'facebook-logo'], 'tiktok' => ['TikTok', 'tiktok.com/@', 'tiktok-logo']] as $network => [$networkLabel, $networkPrefix, $networkIcon])
+                            <div>
+                                <label for="contacto-{{ $network }}" class="admin-label">
+                                    <span class="inline-flex items-center gap-1.5">
+                                        <x-dynamic-component :component="'phosphor-'.$networkIcon" class="size-4" aria-hidden="true" />
+                                        {{ $networkLabel }}
+                                    </span>
+                                </label>
+                                <input id="contacto-{{ $network }}" type="text" name="contact[{{ $network }}]" maxlength="150" class="admin-input"
+                                    value="{{ old('contact.'.$network, $settings['contact'][$network]) }}" placeholder="bidaevents" autocomplete="off" spellcheck="false">
+                                <p class="mt-1.5 truncate text-xs text-site-muted">{{ $networkPrefix }}<span class="font-medium text-site-ink">{{ $settings['contact'][$network] ?: '…' }}</span></p>
+                            </div>
+                        @endforeach
+                    </div>
+                </section>
+            </div>
+
             {{-- Barra fija: se guarda todo junto, esté en la pestaña que esté --}}
             <div class="set-savebar">
-                <p class="text-sm text-site-muted">Se guardan las tres pestañas juntas y se ve al instante en el sitio.</p>
+                <p class="text-sm text-site-muted">Se guardan las cuatro pestañas juntas y se ve al instante en el sitio.</p>
                 <button type="submit" class="admin-primary-button">
                     <x-phosphor-check-bold aria-hidden="true" />
                     Guardar ajustes

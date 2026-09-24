@@ -32,8 +32,8 @@
                             <button type="button" @click.stop="removeBookPhoto('{{ $code }}', i)"
                                 class="w-6 h-6 rounded-full bg-red-600 text-white text-xs shadow" :aria-label="'Quitar la foto ' + (i + 1)">×</button>
                         </div>
-                        <button type="button" x-show="String(photoUrl(foto)).startsWith('blob:')"
-                            @click.stop="openImageCropper(photoUrl(foto), '{{ $code }}')"
+                        <button type="button"
+                            @click.stop="openImageCropper(photoUrl(foto), '{{ $code }}', replaceInListApplier(() => modules.{{ $code }}.fotos, photoUrl(foto)))"
                             class="inline-flex items-center justify-center gap-1 px-1.5 py-1 rounded-md bg-white/95 text-[11px] font-medium text-stone-700 shadow">
                             <x-phosphor-crop class="w-3.5 h-3.5" aria-hidden="true" />
                             Recortar

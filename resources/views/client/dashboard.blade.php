@@ -92,7 +92,7 @@
                     <article class="admin-card p-6 lg:p-8">
                         <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                             <div class="min-w-0">
-                                <p class="text-sm text-site-muted">{{ $row['typeLabel'] }} · {{ $row['templateLabel'] }}</p>
+                                <p class="text-sm text-site-muted">{{ $row['typeLabel'] }} · {{ $row['templateLabel'] }}@if($row['ownerLabel']) · <span class="text-site-ink">{{ $row['ownerLabel'] }}</span>@endif</p>
                                 <h3 class="mt-1 truncate text-2xl font-semibold tracking-tight">{{ $invitation->title }}</h3>
                                 @if($invitation->event_date)
                                     <p class="mt-2 inline-flex items-center gap-2 text-site-muted">

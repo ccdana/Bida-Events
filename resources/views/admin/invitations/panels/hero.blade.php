@@ -82,6 +82,6 @@
             'accept' => 'image/jpeg,image/png,image/webp',
             'previewExpr' => 'modules.bienvenida.imagen_hero',
         ])
-        <p class="text-xs text-stone-500">Recomendado: imagen vertical o cuadrada en alta resolución (JPG, PNG o WebP).</p>
+        <p class="text-xs text-stone-500">Al elegirla se abre el encuadre con la forma y la medida del espacio de esta plantilla. Mejor en alta resolución (JPG, PNG o WebP).</p>
     </section>
 </div>

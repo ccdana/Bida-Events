@@ -67,7 +67,7 @@ class PublicPagesController extends Controller
             'share' => ShareMeta::make(
                 "Hazlo tú: crea tus propias invitaciones digitales | {$bida['brand']}",
                 'Tu propio panel para crear invitaciones digitales con plantillas profesionales, confirmación de asistencia, pase QR y control de entrada. Planes mensuales desde '.Money::format(collect($plans)->min('final_price')).', sin comisión por invitación.',
-                ShareMeta::siteImage('hazlo'),
+                ShareMeta::defaultImage(),
                 route('diy'),
             ),
         ]);
@@ -94,7 +94,7 @@ class PublicPagesController extends Controller
             'share' => ShareMeta::make(
                 "Invitaciones digitales: qué son, cuánto cuestan y cómo elegir | {$bida['brand']}",
                 'Guía clara para elegir tu invitación digital: qué debe incluir, precios de referencia desde '.Money::format(collect($packages)->min('final_price')).', confirmación de asistencia y control de entrada con código QR.',
-                ShareMeta::siteImage('inicio'),
+                ShareMeta::defaultImage(),
                 route('guide'),
             ),
         ]);
@@ -118,7 +118,7 @@ class PublicPagesController extends Controller
             'share' => ShareMeta::make(
                 "{$content['title']} | {$bida['brand']}",
                 $content['description'],
-                ShareMeta::siteImage('inicio'),
+                ShareMeta::defaultImage(),
                 route('legal', $page),
             ),
         ]);

@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -77,6 +78,12 @@ class User extends Authenticatable
     public function resellerClients(): HasMany
     {
         return $this->hasMany(User::class, 'created_by_reseller_id');
+    }
+
+    /** El revendedor que creó este cliente (null: lo creó el equipo). */
+    public function createdByReseller(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by_reseller_id');
     }
 
     /** Pagos de suscripción registrados por el administrador (solo revendedores). */

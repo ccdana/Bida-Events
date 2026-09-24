@@ -35,7 +35,7 @@
         <div class="grid grid-cols-2 gap-3">
             <template x-for="(foto, i) in modules.galeria.fotos" :key="i">
                 <div class="space-y-1">
-                <div class="relative group aspect-[4/3] rounded-xl overflow-hidden border border-stone-200 bg-stone-100">
+                <div class="relative group aspect-[4/5] rounded-xl overflow-hidden border border-stone-200 bg-stone-100">
                     <img :src="photoUrl(foto)" :alt="photoAlt(foto)" class="w-full h-full object-cover select-none" draggable="false">
                     <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition pointer-events-none"></div>
                     <div class="absolute inset-1 flex flex-col justify-between opacity-0 group-hover:opacity-100 transition pointer-events-none">

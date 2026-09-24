@@ -20,7 +20,7 @@ class DashboardViewData
 
     public function make(Collection $invitations, string $search = '', ?User $user = null): array
     {
-        $rows = $invitations->map(fn (Invitation $invitation) => $this->row($invitation, (bool) $user?->isReseller()));
+        $rows = $invitations->map(fn (Invitation $invitation) => $this->row($invitation, (bool) $user?->isReseller(), $user));
 
         // Primero lo que todavía no pasó y, dentro de eso, lo más cercano
         $sort = fn (Collection $group) => $group
@@ -91,7 +91,7 @@ class DashboardViewData
         ];
     }
 
-    private function row(Invitation $invitation, bool $forReseller = false): array
+    private function row(Invitation $invitation, bool $forReseller = false, ?User $user = null): array
     {
         $profile = $this->profiles->forTemplate($invitation->template);
         $isCard = $profile->kind() === Module::KIND_CARD;
@@ -119,7 +119,25 @@ class DashboardViewData
                 },
             'metrics' => $isCard ? $this->cardMetrics($invitation) : $this->guestMetrics($guests),
             'guestsCount' => $guests->count(),
+            'ownerLabel' => $forReseller && $user ? $this->ownerLabel($invitation, $user) : null,
         ];
+    }
+
+    /**
+     * Para el revendedor, de quién es cada evento: de un cliente suyo, suyo propio, todavía sin
+     * cliente, o una invitación que le armó el equipo (ahí él es el cliente y no la edita).
+     */
+    private function ownerLabel(Invitation $invitation, User $user): string
+    {
+        $ownsIt = (int) $invitation->reseller_id === (int) $user->id;
+        $isClient = (int) $invitation->user_id === (int) $user->id;
+
+        return match (true) {
+            ! $ownsIt => 'Te la armó el equipo',
+            $isClient => 'Evento tuyo',
+            $invitation->user_id === null => 'Sin cliente todavía',
+            default => 'Cliente: '.($invitation->user?->name ?? 'sin nombre'),
+        };
     }
 
     /** @return array<int, array{label: string, value: int|string, note?: string}> */

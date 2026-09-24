@@ -24,6 +24,17 @@ final class ShowcaseDemos
     ];
 
     /**
+     * Todas las invitaciones de muestra: las que se abren en /muestra y la vista previa de la portada.
+     * El panel del administrador las lista aparte (sección «Muestras») para no mezclarlas con las de clientes.
+     *
+     * @return list<string>
+     */
+    public static function slugs(): array
+    {
+        return array_values(array_unique(array_filter([...self::allowedSlugs(), config('bida.demo_slug')])));
+    }
+
+    /**
      * Invitaciones que se pueden abrir como muestra (/muestra/{slug}): las de la portada, las de
      * la temporada y las que enseña cada página por evento.
      *

@@ -31,6 +31,8 @@
     @include('invitations.partials.drift', ['kind' => 'star', 'count' => 12, 'mobile' => 7, 'seed' => 6, 'class' => 'inv-drift--dorado'])
 
     @include('invitations.partials.shell.nav')
+    {{-- También se puede ver como historias de Instagram (el círculo de la esquina o ?historias) --}}
+    @include('invitations.partials.story.instagram')
 
     @include('invitations.partials.music-player', ['musica' => $page->music, 'flags' => array_merge($page->flags, ['musica' => $page->visible('musica')])])
 
@@ -51,7 +53,8 @@
 
     @if($showIntro)
         <script>
-        // Diploma de apertura: al tocar la cinta se suelta el lazo, el papel se despliega y vuelan los birretes
+        // Diploma de apertura: al tocar la cinta se suelta el lazo, el papel se despliega, cae el sello,
+        // estalla el confeti y vuelan los birretes; después la portada se arma sobre el diploma que se va
         function graduationIntro() {
             return {
                 opened: false,
@@ -78,11 +81,11 @@
                     const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
                     // La portada empieza a animarse mientras el diploma se abre y los birretes vuelan
-                    setTimeout(() => root.classList.remove('inv-cover-waiting'), reduced ? 0 : 1700);
+                    setTimeout(() => root.classList.remove('inv-cover-waiting'), reduced ? 0 : 2300);
                     setTimeout(() => {
                         this.closed = true;
                         root.classList.remove('inv-lock');
-                    }, reduced ? 150 : 2500);
+                    }, reduced ? 150 : 3200);
                 },
             };
         }

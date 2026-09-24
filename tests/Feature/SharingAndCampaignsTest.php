@@ -56,7 +56,7 @@ class SharingAndCampaignsTest extends TestCase
             ->assertDontSee('Invitación para Familia Pérez', false);
     }
 
-    public function test_an_invitation_without_cover_photo_uses_the_card_of_its_event(): void
+    public function test_an_invitation_without_cover_photo_shares_the_bida_logo(): void
     {
         $invitation = $this->createInvitation(['slug' => 'xv-sin-foto']);
         $modules = XvSofiaModuleData::all();
@@ -66,23 +66,37 @@ class SharingAndCampaignsTest extends TestCase
         $this->withoutVite()
             ->get(route('invitation.show', 'xv-sin-foto'))
             ->assertOk()
-            ->assertSee('<meta property="og:image" content="'.asset('images/share/xv.jpg').'">', false);
+            ->assertSee('<meta property="og:image" content="'.asset('images/share/bida.jpg').'">', false);
     }
 
-    public function test_the_share_cards_exist_for_the_home_and_every_event(): void
+    public function test_an_invitation_with_cover_photo_shares_that_photo(): void
     {
-        foreach (array_keys(config('bida.share_images')) as $name) {
-            $path = public_path("images/share/{$name}.jpg");
-            $this->assertFileExists($path, "Falta la tarjeta {$name}.jpg: corre php artisan bida:imagenes-compartir");
+        $invitation = $this->createInvitation(['slug' => 'xv-con-foto']);
+        $modules = XvSofiaModuleData::all();
+        $modules['bienvenida']['imagen_hero'] = 'https://res.cloudinary.com/demo/image/upload/v1/bida/portada.jpg';
+        app(InvitationModuleService::class)->syncAllModules($invitation, $modules);
 
-            [$width, $height] = getimagesize($path);
-            $this->assertSame([1200, 630], [$width, $height]);
-        }
+        $this->withoutVite()
+            ->get(route('invitation.show', 'xv-con-foto'))
+            ->assertOk()
+            ->assertSee('res.cloudinary.com/demo/image/upload/', false)
+            ->assertSee('bida/portada.jpg', false)
+            ->assertDontSee('images/share/bida.jpg', false);
+    }
+
+    public function test_the_site_shares_the_bida_logo(): void
+    {
+        $path = public_path('images/share/bida.jpg');
+        $this->assertFileExists($path);
+        [$width, $height] = getimagesize($path);
+        $this->assertSame([1200, 630], [$width, $height]);
 
         $this->withoutVite()
             ->get(route('home'))
             ->assertOk()
-            ->assertSee('<meta property="og:image" content="'.asset('images/share/inicio.jpg').'">', false);
+            ->assertSee('<meta property="og:image" content="'.asset('images/share/bida.jpg').'">', false);
+
+        $this->artisan('bida:imagenes-compartir')->assertSuccessful();
     }
 
     // ── 27. Páginas por tipo de evento ───────────────────────────────────────
@@ -102,7 +116,7 @@ class SharingAndCampaignsTest extends TestCase
                 // Preguntas marcadas para buscadores
                 ->assertSee('"@type":"FAQPage"', false)
                 ->assertSee(e($landing['faqs'][0][0]), false)
-                ->assertSee('<meta property="og:image" content="'.asset("images/share/{$landing['event']}.jpg").'">', false)
+                ->assertSee('<meta property="og:image" content="'.asset('images/share/bida.jpg').'">', false)
                 // Enlazado entre páginas de evento
                 ->assertSee(route('landing', collect(config('bida.landings'))->keys()->reject(fn ($key) => $key === $slug)->first()), false);
         }

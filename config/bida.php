@@ -5,8 +5,9 @@
 | Datos públicos de Bida Events
 |--------------------------------------------------------------------------
 |
-| Los usan la página de inicio y el login. Los datos de contacto se pueden
-| cambiar desde .env sin tocar las vistas; los paquetes, los tipos de evento
+| Los usan la página de inicio y el login. El WhatsApp, el correo y las redes
+| se cambian desde el panel (Ajustes › Contacto y redes); lo de .env es el
+| valor inicial; los paquetes, los tipos de evento
 | y las fotos se editan aquí.
 |
 */
@@ -125,6 +126,13 @@ return [
             'stock' => 520355428,
             'alt' => 'Mujer sonriendo mientras mira una invitación en su celular',
         ],
+        // «Tres maneras de tener tu invitación» (portada)
+        'servicio-pareja' => [
+            'path' => 'images/site/servicio-pareja.webp',
+            'size' => [1400, 933],
+            'stock' => 309980423,
+            'alt' => 'Pareja sonriendo mientras mira su invitación en el celular',
+        ],
         'servicio-fotomural' => [
             'path' => 'images/site/servicio-fotomural.webp',
             'size' => [900, 900],
@@ -133,27 +141,8 @@ return [
         ],
     ],
 
-    /*
-    | Tarjetas de 1200×630 que se ven al compartir un enlace en WhatsApp o Facebook.
-    | Se recortan de las fotos de "images" con `php artisan bida:imagenes-compartir`
-    | y quedan en public/images/share/{nombre}.jpg. "focus" es el punto vertical del
-    | recorte: 0 arriba, 1 abajo. Las invitaciones sin foto de portada usan la de su evento.
-    */
-    'share_images' => [
-        'inicio' => ['image' => 'servicio-enlace', 'focus' => 0.45],
-        'boda' => ['image' => 'event-boda', 'focus' => 0.35],
-        'xv' => ['image' => 'event-xv', 'focus' => 0.25],
-        'bautizo' => ['image' => 'event-bautizo', 'focus' => 0.8],
-        'cumple' => ['image' => 'event-cumpleanos', 'focus' => 0.15],
-        // Tarjeta del Día del Amor: sin foto propia todavía, usa la de la pareja
-        'amor' => ['image' => 'event-boda', 'focus' => 0.35],
-        'historia' => ['image' => 'event-boda', 'focus' => 0.35],
-        // Sin foto propia todavía: la de la invitación en el celular
-        'graduacion' => ['image' => 'event-graduacion', 'focus' => 0.3],
-        'halloween' => ['image' => 'servicio-enlace', 'focus' => 0.45],
-        'lienzo' => ['image' => 'servicio-enlace', 'focus' => 0.45],
-        'hazlo' => ['image' => 'servicio-enlace', 'focus' => 0.45],
-    ],
+    // Al compartir un enlace se ve el logo de Bida (public/images/share/bida.jpg) y, en una
+    // invitación o tarjeta, la foto de su portada (App\Support\ShareMeta)
 
     /*
     | Páginas por tipo de evento (/invitaciones-de-boda, etc.). Cada una tiene su
@@ -427,6 +416,8 @@ return [
         'amor' => [
             'code' => 'AMOR',
             'name' => 'Día del Amor y la Primavera',
+            // Grupo en el que aparecen sus tipos de evento dentro del editor (App\Support\TemplateAvailability)
+            'category' => 'Primaveral y romántico',
             'product' => 'tarjeta',
             'date' => '21 de septiembre',
             'title' => 'Día del Amor y la Primavera',
@@ -445,6 +436,7 @@ return [
         'halloween' => [
             'code' => 'HALLO',
             'name' => 'Halloween',
+            'category' => 'Tenebroso',
             'product' => 'invitación',
             'date' => '31 de octubre',
             'title' => 'Tu fiesta de Halloween empieza en la invitación',

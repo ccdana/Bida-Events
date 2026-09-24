@@ -28,15 +28,24 @@
     <audio x-ref="audio" src="{{ $musica['audio_url'] }}" loop preload="none"></audio>
 </div>
 <script>
+/*
+ * Música de fondo. Con «reproducir automáticamente» intenta sonar apenas carga la página; los
+ * navegadores lo bloquean hasta que el invitado toca algo, así que se queda escuchando los toques y
+ * empieza con el primero que el navegador acepta (abrir la portada, tocar un botón, una tecla). Un
+ * toque que el navegador no cuenta (deslizar, apoyar el dedo) no gasta el intento: sigue esperando.
+ * Al cambiar de pestaña, minimizar, pasar a otra app o bloquear el teléfono se pausa, y al volver
+ * sigue sonando si estaba sonando. Si el invitado la pausó él mismo, no vuelve sola.
+ */
 function musicPlayer(src, autoplay) {
-    const unlockEvents = ['click', 'touchstart', 'keydown', 'scroll'];
+    // Gestos que los navegadores aceptan para empezar a sonar
+    const unlockEvents = ['pointerup', 'touchend', 'click', 'keydown'];
 
     return {
         playing: false,
         started: false,
         volume: 0.6,
         _unlockHandler: null,
-        // Sonaba cuando el invitado salió de la página: al volver, sigue sonando
+        // Sonaba cuando el invitado salió: al volver, sigue sonando
         _resumeOnReturn: false,
         _wired: false,
         init() {
@@ -55,17 +64,35 @@ function musicPlayer(src, autoplay) {
             audio.addEventListener('play', () => { this.playing = true; this.started = true; });
             audio.addEventListener('pause', () => { this.playing = false; });
 
-            // En el celular, cambiar de app, de pestaña o bloquear la pantalla no deja la música
-            // sonando de fondo: se pausa al salir y retoma al volver si estaba sonando.
-            document.addEventListener('visibilitychange', () => {
-                if (document.hidden) {
-                    this._resumeOnReturn = !audio.paused;
+            const leave = () => {
+                if (!audio.paused) {
+                    this._resumeOnReturn = true;
                     audio.pause();
-                } else if (this._resumeOnReturn) {
+                }
+            };
+            const comeBack = () => {
+                if (this._resumeOnReturn && !document.hidden) {
                     this._resumeOnReturn = false;
                     this.play().catch(() => {});
                 }
-            });
+            };
+
+            // Otra pestaña, otra app, pantalla bloqueada o ventana minimizada
+            document.addEventListener('visibilitychange', () => (document.hidden ? leave() : comeBack()));
+
+            // Otra ventana del escritorio encima (el navegador sigue visible pero ya no es el que se usa).
+            // Dentro del editor la invitación es un iframe: ahí no, porque tocar el editor la pausaría.
+            if (window.top === window) {
+                window.addEventListener('blur', () => {
+                    // Si el foco pasó a un video de la propia invitación (un iframe), no es irse
+                    setTimeout(() => {
+                        if (!document.hasFocus() && document.activeElement?.tagName !== 'IFRAME') {
+                            leave();
+                        }
+                    }, 0);
+                });
+                window.addEventListener('focus', comeBack);
+            }
 
             // Al irse del sitio (o guardarse en la caché de ir atrás) se detiene del todo
             window.addEventListener('pagehide', () => {
@@ -78,14 +105,26 @@ function musicPlayer(src, autoplay) {
                 return;
             }
 
-            this.play().catch(() => {
-                // El navegador bloquea el autoplay hasta la primera interacción
-                this._unlockHandler = () => {
-                    this.play().catch(() => {});
+            this.play().catch(() => this.waitForGesture());
+        },
+        /** Espera un gesto que el navegador acepte; se retira recién cuando la música empezó. */
+        waitForGesture() {
+            if (this._unlockHandler) {
+                return;
+            }
+
+            this._unlockHandler = (event) => {
+                // El botón del reproductor ya decide solo (tocarlo para pausar no debe hacerla sonar)
+                if (event.target?.closest?.('.inv-player__toggle') || this.started) {
                     this.clearUnlock();
-                };
-                unlockEvents.forEach((event) => document.addEventListener(event, this._unlockHandler, { once: true, passive: true }));
-            });
+                    return;
+                }
+
+                this.play().then(() => this.clearUnlock()).catch(() => {});
+            };
+
+            // En captura: se entera del toque aunque el botón que lo recibe corte su propagación
+            unlockEvents.forEach((name) => document.addEventListener(name, this._unlockHandler, { capture: true, passive: true }));
         },
         play() {
             return this.$refs.audio.play().then(() => {
@@ -98,10 +137,12 @@ function musicPlayer(src, autoplay) {
                 return;
             }
 
-            unlockEvents.forEach((event) => document.removeEventListener(event, this._unlockHandler));
+            unlockEvents.forEach((name) => document.removeEventListener(name, this._unlockHandler, { capture: true }));
             this._unlockHandler = null;
         },
         toggle() {
+            this._resumeOnReturn = false;
+
             if (this.playing) {
                 this.$refs.audio.pause();
                 this.playing = false;

@@ -29,6 +29,10 @@
                     Abrir mi {{ mb_strtolower($kindLabel) }}
                 </a>
                 <x-ui.copy-button :text="$publicUrl" label="Copiar enlace" />
+                @unless($isCard)
+                    {{-- La misma invitación, pero se abre directo como historias de Instagram --}}
+                    <x-ui.copy-button :text="$publicUrl.'?historias'" label="Copiar enlace en historias" />
+                @endunless
             @else
                 <span class="inline-flex items-center gap-2 text-sm text-site-muted">
                     <x-phosphor-info class="size-4" aria-hidden="true" />
@@ -74,6 +78,27 @@
 
     @include('client.partials.export-status')
 
+    {{-- Lo que más se busca, arriba: descargar la lista y la invitación, y el enlace de la puerta --}}
+    @can('export', $invitation)
+        <section class="site-enter mt-8 rounded-[16px] border border-site-line bg-site-surface p-5" style="--enter-index: 1" aria-labelledby="descargar">
+            <h2 id="descargar" class="text-lg font-semibold tracking-tight">Descargar</h2>
+            <p class="mt-1 text-sm text-site-muted">
+                {{ $isCard ? 'Guarda tu tarjeta lista para imprimir.' : 'La lista de invitados para el salón y el catering, y tu invitación lista para imprimir.' }}
+            </p>
+            <div class="mt-4 flex flex-wrap gap-2">
+                @include('client.partials.export-buttons', ['invitation' => $invitation, 'isCard' => $isCard])
+            </div>
+        </section>
+    @endcan
+
+    @unless($isCard)
+        @can('manageOwnGuests', $invitation)
+            @if(\App\Support\Packages::allows($invitation->package, 'door'))
+                @include('client.partials.door', ['doorStats' => \App\Http\Controllers\Public\DoorController::stats($invitation)])
+            @endif
+        @endcan
+    @endunless
+
     {{-- El revendedor que armó el evento maneja el acceso de su cliente --}}
     @can('update', $invitation)
         @unless(auth()->user()->isAdmin())
@@ -82,7 +107,7 @@
     @endcan
 
     @unless($isCard)
-        <section class="site-enter mt-10" style="--enter-index: 1">
+        <section class="site-enter mt-10" style="--enter-index: 2">
             <h2 class="border-b border-site-line pb-3 text-xl font-semibold tracking-tight">Cómo va tu evento</h2>
             <dl class="grid grid-cols-2 gap-y-6 border-b border-site-line py-6 lg:grid-cols-4">
                 @foreach([
@@ -100,28 +125,17 @@
         </section>
 
         @include('client.partials.guest-list')
-
-        @can('manageOwnGuests', $invitation)
-            @include('client.partials.door', ['doorStats' => \App\Http\Controllers\Public\DoorController::stats($invitation)])
-        @endcan
     @endunless
 
     @if($isCard || $replies->isNotEmpty())
         @include('client.partials.replies')
     @endif
 
-    @if($media->isNotEmpty())
-        @include('client.partials.contributions')
+    @if($photos->isNotEmpty())
+        @include('client.partials.contribution-photos')
     @endif
 
-    {{-- Los archivos se piden al final: primero se mira, después se descarga --}}
-    <section class="site-enter mt-10 rounded-[16px] border border-site-line bg-site-surface p-5" style="--enter-index: 5">
-        <h2 class="text-lg font-semibold tracking-tight">Descargar</h2>
-        <p class="mt-1 text-sm text-site-muted">
-            {{ $isCard ? 'Guarda tu tarjeta lista para imprimir.' : 'La lista de invitados para el salón y el catering, y tu invitación lista para imprimir.' }}
-        </p>
-        <div class="mt-4 flex flex-wrap gap-2">
-            @include('client.partials.export-buttons', ['invitation' => $invitation, 'isCard' => $isCard])
-        </div>
-    </section>
+    @if($songs->isNotEmpty())
+        @include('client.partials.contribution-songs')
+    @endif
 @endsection

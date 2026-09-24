@@ -8,7 +8,7 @@
     @include('layouts.partials.share-meta', ['share' => $share ?? \App\Support\ShareMeta::make(
         config('bida.brand').' | Invitaciones digitales',
         'Invitaciones digitales para bodas, bautizos, cumpleaños y todos tus eventos en Bolivia.',
-        \App\Support\ShareMeta::siteImage('inicio'),
+        \App\Support\ShareMeta::defaultImage(),
         url()->current(),
     )])
     <meta name="theme-color" content="#f4f4f2" media="(prefers-color-scheme: light)">

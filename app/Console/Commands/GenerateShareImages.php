@@ -2,72 +2,43 @@
 
 namespace App\Console\Commands;
 
+use App\Support\ShareMeta;
 use Illuminate\Console\Command;
 
 /**
- * Tarjetas de 1200×630 para la vista previa al compartir un enlace (WhatsApp, Facebook).
+ * Revisa la imagen que se ve al compartir un enlace (WhatsApp, Facebook).
  *
- * Se recortan de las fotos del sitio (config bida.images) y se guardan en JPG, porque
- * WhatsApp no siempre muestra WebP. Se generan una vez y se suben con el resto de public/.
+ * Ya no se recortan tarjetas de las fotos del sitio: todo el sitio comparte el logo de Bida
+ * (public/images/share/bida.jpg, 1200×630, se sube con el resto de public/) y cada invitación o
+ * tarjeta, la foto de su portada. El comando se mantiene porque el arranque de producción lo
+ * llama; solo avisa si falta el logo o si no tiene la medida que piden WhatsApp y Facebook.
  */
 class GenerateShareImages extends Command
 {
     protected $signature = 'bida:imagenes-compartir';
 
-    protected $description = 'Genera las imágenes de 1200×630 que se ven al compartir la portada y las páginas por evento';
-
-    private const WIDTH = 1200;
-
-    private const HEIGHT = 630;
+    protected $description = 'Revisa la imagen de 1200×630 con el logo que se ve al compartir el sitio';
 
     public function handle(): int
     {
-        if (! function_exists('imagecreatefromwebp')) {
-            $this->components->error('PHP necesita la extensión GD con soporte WebP.');
+        $path = public_path(ShareMeta::DEFAULT_IMAGE);
+
+        if (! is_file($path)) {
+            $this->components->error('Falta '.ShareMeta::DEFAULT_IMAGE.': es la imagen con el logo que se ve al compartir.');
 
             return self::FAILURE;
         }
 
-        $directory = public_path('images/share');
+        [$width, $height] = getimagesize($path) ?: [0, 0];
 
-        if (! is_dir($directory)) {
-            mkdir($directory, 0755, true);
+        if ([$width, $height] !== [ShareMeta::WIDTH, ShareMeta::HEIGHT]) {
+            $this->components->warn(ShareMeta::DEFAULT_IMAGE." mide {$width}×{$height}: WhatsApp y Facebook la esperan de 1200×630.");
+
+            return self::FAILURE;
         }
 
-        foreach (config('bida.share_images', []) as $name => $card) {
-            $source = public_path(config("bida.images.{$card['image']}.path", ''));
-
-            if (! is_file($source)) {
-                $this->components->warn("{$name}: falta la foto {$source}");
-
-                continue;
-            }
-
-            $this->crop($source, "{$directory}/{$name}.jpg", (float) ($card['focus'] ?? 0.5));
-            $this->components->info("{$name}.jpg");
-        }
+        $this->components->info('Al compartir se ve el logo ('.ShareMeta::DEFAULT_IMAGE.') y, en cada invitación, la foto de su portada.');
 
         return self::SUCCESS;
-    }
-
-    /** Recorte tipo «cover»: llena 1200×630 y centra en el punto vertical indicado (0 arriba, 1 abajo). */
-    private function crop(string $source, string $target, float $focus): void
-    {
-        $image = imagecreatefromwebp($source);
-        $width = imagesx($image);
-        $height = imagesy($image);
-
-        $scale = max(self::WIDTH / $width, self::HEIGHT / $height);
-        $cropWidth = (int) round(self::WIDTH / $scale);
-        $cropHeight = (int) round(self::HEIGHT / $scale);
-        $x = (int) round(($width - $cropWidth) / 2);
-        $y = (int) round(($height - $cropHeight) * min(1, max(0, $focus)));
-
-        $card = imagecreatetruecolor(self::WIDTH, self::HEIGHT);
-        imagecopyresampled($card, $image, 0, 0, $x, $y, self::WIDTH, self::HEIGHT, $cropWidth, $cropHeight);
-        imagejpeg($card, $target, 84);
-
-        imagedestroy($image);
-        imagedestroy($card);
     }
 }

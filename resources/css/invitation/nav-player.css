@@ -89,6 +89,33 @@
     display: none;
 }
 
+/* «Ver como historia»: la misma invitación en historias verticales que avanzan solas */
+.inv-nav__stories {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    min-height: 2.75rem;
+    margin-top: 1.5rem;
+    padding: 0 1.1rem;
+    border: 1px solid var(--inv-line);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--text-color);
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.inv-nav__stories svg {
+    width: 1.15rem;
+    height: 1.15rem;
+}
+
+.inv-nav__stories[x-cloak] {
+    display: none;
+}
+
 .inv-nav__list {
     margin: 1.75rem 0 0;
     padding: 0;

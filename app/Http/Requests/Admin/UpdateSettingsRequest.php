@@ -6,7 +6,7 @@ use App\Support\InvitationTemplates;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
 
-/** Lo que el administrador cambia en «Ajustes»: precios, promociones y plantillas de temporada. */
+/** Lo que el administrador cambia en «Ajustes»: precios, promociones, plantillas de temporada y contacto. */
 class UpdateSettingsRequest extends FormRequest
 {
     public function authorize(): bool
@@ -37,6 +37,14 @@ class UpdateSettingsRequest extends FormRequest
             'reseller_plans.*.promo_price' => ['nullable', 'integer', 'min:0', 'max:100000'],
             'reseller_plans.*.quota_per_month' => ['nullable', 'integer', 'min:1', 'max:10000'],
 
+            // Contacto y redes (vacío = no se muestra)
+            'contact' => ['array'],
+            'contact.whatsapp' => ['required_with:contact', 'string', 'max:30', 'regex:/^[\d\s+()-]+$/'],
+            'contact.email' => ['nullable', 'email', 'max:120'],
+            'contact.instagram' => ['nullable', 'string', 'max:150'],
+            'contact.facebook' => ['nullable', 'string', 'max:150'],
+            'contact.tiktok' => ['nullable', 'string', 'max:150'],
+
             // Las plantillas de temporada que siguen ofreciéndose
             'templates' => ['array'],
             'templates.*' => ['string', 'in:'.implode(',', array_keys(InvitationTemplates::all()))],
@@ -62,6 +70,11 @@ class UpdateSettingsRequest extends FormRequest
                     }
                 }
 
+                // Con código de país: 591 y los 8 dígitos del celular
+                if ($this->has('contact.whatsapp') && strlen(preg_replace('/\D+/', '', (string) $this->input('contact.whatsapp'))) < 10) {
+                    $validator->errors()->add('contact.whatsapp', 'Escribe el número con el código de país, por ejemplo 591 70000000.');
+                }
+
                 foreach ((array) $this->input('seasons', []) as $key => $season) {
                     if (($season['promo_price'] ?? '') !== '' && ($season['promo_price'] ?? null) !== null
                         && (int) $season['promo_price'] >= (int) ($season['price'] ?? 0)) {
@@ -79,6 +92,8 @@ class UpdateSettingsRequest extends FormRequest
             'seasons.*.price' => 'precio de la temporada',
             'seasons.*.promo_price' => 'precio con descuento de la temporada',
             'seasons.*.ends_at' => 'fecha de término de la temporada',
+            'contact.whatsapp' => 'número de WhatsApp',
+            'contact.email' => 'correo',
         ];
     }
 }

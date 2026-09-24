@@ -484,3 +484,376 @@ html.inv-cover-waiting .inv-story__hint {
         display: none;
     }
 }
+
+/* ════════════════════════════════════════════════════════════════════════════
+   HISTORIAS — la invitación como historias de Instagram (partials/story/instagram)
+
+   Mismo motor de escenas, con html.inv-ig además de inv-story-on. Cada escena es una
+   historia vertical 9:16: en el celular ocupa toda la pantalla; en la computadora va al
+   centro sobre un fondo oscuro, con flechas a los costados. La barra de la escena
+   actual la llena story.js con el tiempo (no hay transición de ancho).
+   ════════════════════════════════════════════════════════════════════════════ */
+
+html.inv-ig {
+    --ig-h: 100dvh;
+    --ig-w: min(100vw, calc(100dvh * 9 / 16));
+    --ig-x: calc((100vw - var(--ig-w)) / 2);
+    --ig-y: calc((100dvh - var(--ig-h)) / 2);
+    --ig-radius: 0px;
+}
+
+@media (min-width: 640px) {
+    html.inv-ig {
+        --ig-h: min(calc(100dvh - 2.5rem), 54rem);
+        --ig-w: min(calc(100vw - 7rem), calc(var(--ig-h) * 9 / 16));
+        --ig-radius: 14px;
+    }
+}
+
+.inv-ig__backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 9;
+    background: #0c0c0e;
+}
+
+/* Cada escena, recortada al tamaño de la historia; entre una y otra, un corte suave */
+.inv-ig.inv-story-on .inv-scene {
+    inset: auto;
+    top: var(--ig-y);
+    left: var(--ig-x);
+    width: var(--ig-w);
+    height: var(--ig-h);
+    min-height: 0;
+    padding: calc(5rem + env(safe-area-inset-top)) 0 calc(2.5rem + env(safe-area-inset-bottom));
+    border-radius: var(--ig-radius);
+    translate: 0 0;
+    rotate: 0deg;
+    scale: 1.03;
+    filter: none;
+    transform-origin: 50% 50%;
+    transition:
+        opacity 0.4s ease,
+        scale 0.6s var(--inv-ease),
+        visibility 0s linear 0.4s;
+}
+
+.inv-ig.inv-story-on .inv-scene.is-past {
+    translate: 0 0;
+    rotate: 0deg;
+    scale: 0.97;
+    filter: none;
+}
+
+.inv-ig.inv-story-on .inv-scene.is-active {
+    scale: 1;
+}
+
+/* La portada con foto ocupa la historia entera; las demás dejan lugar a la cabecera */
+.inv-ig.inv-story-on #inicio.inv-scene {
+    display: grid;
+    padding: calc(4.25rem + env(safe-area-inset-top)) 0 1.5rem;
+}
+
+.inv-ig.inv-story-on #inicio.inv-scene.inv-hero--image {
+    padding: 0;
+}
+
+.inv-ig.inv-story-on #inicio.inv-scene > * {
+    margin-block: 0;
+}
+
+/* Portada con foto: abajo se oscurece como una historia, en vez de fundirse con la sección siguiente,
+   y la foto se acerca despacio mientras se mira */
+.inv-ig.inv-story-on #inicio.inv-hero--image::after {
+    height: 42%;
+    background: linear-gradient(180deg, transparent, rgb(0 0 0 / 0.5));
+}
+
+.inv-ig.inv-story-on #inicio.is-active .inv-hero__image {
+    animation: inv-ig-kenburns 16s ease-out both;
+}
+
+@keyframes inv-ig-kenburns {
+    from { scale: 1; }
+    to { scale: 1.12; }
+}
+
+/* En la historia sobran el «desliza», el menú y la barra de música (el sonido va en la cabecera) */
+.inv-ig.inv-story-on .inv-hero__scroll,
+.inv-ig.inv-story-on .inv-nav__toggle {
+    display: none;
+}
+
+.inv-ig.inv-story-on .inv-player {
+    visibility: hidden;
+    opacity: 0;
+}
+
+.inv-ig.inv-story-on body.has-player .inv-scene {
+    padding-bottom: calc(2.5rem + env(safe-area-inset-bottom));
+}
+
+/* ── Cabecera: barras, quién invita y los botones ────────────────────────── */
+
+.inv-ig__top {
+    position: fixed;
+    top: var(--ig-y);
+    left: var(--ig-x);
+    z-index: 50;
+    width: var(--ig-w);
+    padding: calc(0.5rem + env(safe-area-inset-top)) 0.65rem 1.4rem;
+    border-radius: var(--ig-radius) var(--ig-radius) 0 0;
+    background: linear-gradient(to bottom, rgb(0 0 0 / 0.5), rgb(0 0 0 / 0.18) 65%, transparent);
+    color: #fff;
+    pointer-events: none;
+}
+
+.inv-ig__progress {
+    position: static;
+    inset: auto;
+    gap: 3px;
+}
+
+.inv-ig__progress .inv-story__segment {
+    height: 2.5px;
+    background: rgb(255 255 255 / 0.35);
+}
+
+.inv-ig__progress .inv-story__segment i {
+    width: 0;
+    background: #fff;
+    transition: none;
+}
+
+.inv-ig__progress .inv-story__segment.is-done i {
+    width: 100% !important;
+}
+
+.inv-ig__progress .inv-story__segment:not(.is-current):not(.is-done) i {
+    width: 0 !important;
+}
+
+.inv-ig__bar {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin-top: 0.6rem;
+    pointer-events: auto;
+}
+
+.inv-ig__avatar {
+    display: grid;
+    place-items: center;
+    width: 2.1rem;
+    height: 2.1rem;
+    flex-shrink: 0;
+    overflow: hidden;
+    border-radius: 50%;
+    background: var(--primary-color);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+}
+
+.inv-ig__avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.inv-ig__who {
+    display: flex;
+    min-width: 0;
+    flex: 1;
+    align-items: baseline;
+    gap: 0.45rem;
+    margin: 0;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    text-shadow: 0 1px 2px rgb(0 0 0 / 0.35);
+}
+
+.inv-ig__name {
+    overflow: hidden;
+    font-size: 0.85rem;
+    font-weight: 600;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.inv-ig__date {
+    flex-shrink: 0;
+    font-size: 0.78rem;
+    opacity: 0.8;
+}
+
+.inv-ig__icon {
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    flex-shrink: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: #fff;
+    cursor: pointer;
+    filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.4));
+}
+
+.inv-ig__icon svg {
+    width: 1.3rem;
+    height: 1.3rem;
+}
+
+.inv-ig__icon:focus-visible,
+.inv-ig__nav:focus-visible,
+.inv-ig__launcher:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+}
+
+/* Mantener presionado: la cabecera se retira para ver la historia limpia */
+.inv-ig__top {
+    transition: opacity 0.25s ease;
+}
+
+.inv-ig.is-paused:not(:focus-within) .inv-ig__top {
+    opacity: 0.45;
+}
+
+/* ── Flechas en la computadora ──────────────────────────────────────────── */
+
+.inv-ig__nav {
+    display: none;
+}
+
+@media (min-width: 640px) and (pointer: fine) {
+    .inv-ig__nav {
+        position: fixed;
+        top: 50%;
+        z-index: 50;
+        display: grid;
+        place-items: center;
+        width: 2.4rem;
+        height: 2.4rem;
+        border: 0;
+        border-radius: 50%;
+        background: rgb(255 255 255 / 0.9);
+        color: #111;
+        cursor: pointer;
+        translate: 0 -50%;
+        transition: scale 0.2s var(--inv-ease), background-color 0.2s ease;
+    }
+
+    .inv-ig__nav:hover {
+        scale: 1.08;
+        background: #fff;
+    }
+
+    .inv-ig__nav svg {
+        width: 1.1rem;
+        height: 1.1rem;
+    }
+
+    .inv-ig__nav--prev {
+        left: calc(var(--ig-x) - 3.4rem);
+    }
+
+    .inv-ig__nav--next {
+        right: calc(var(--ig-x) - 3.4rem);
+    }
+}
+
+.inv-ig__hint,
+body.has-player .inv-ig__hint {
+    bottom: calc(var(--ig-y) + 1.4rem + env(safe-area-inset-bottom));
+    margin-bottom: 0;
+    /* Aparece un momento y se va: no tapa la portada mientras se mira */
+    animation: inv-story-hint 0.6s var(--inv-ease) 0.8s both, inv-ig-hint-out 0.5s ease 5.5s forwards;
+}
+
+@keyframes inv-ig-hint-out {
+    to { opacity: 0; visibility: hidden; }
+}
+
+/* ── El círculo para abrir la historia ──────────────────────────────────── */
+
+.inv-ig__launcher {
+    position: fixed;
+    top: calc(0.75rem + env(safe-area-inset-top));
+    left: 0.75rem;
+    z-index: 40;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.2rem 0.85rem 0.2rem 0.2rem;
+    border: 1px solid var(--inv-line);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--bg-color) 88%, transparent);
+    color: var(--text-color);
+    font: inherit;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 10px 30px -16px color-mix(in srgb, var(--text-color) 55%, transparent);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    animation: inv-ig-launcher 0.7s var(--inv-ease) 0.6s both;
+}
+
+.inv-ig__ring {
+    display: grid;
+    place-items: center;
+    width: 2.35rem;
+    height: 2.35rem;
+    padding: 2px;
+    border-radius: 50%;
+    background: conic-gradient(from 210deg, #f9ce34, #ee2a7b, #6228d7, #ee2a7b, #f9ce34);
+    animation: inv-ig-ring 6s linear infinite;
+}
+
+.inv-ig__ring .inv-ig__avatar {
+    width: 100%;
+    height: 100%;
+    border: 2px solid var(--bg-color);
+    animation: inv-ig-ring 6s linear infinite reverse;
+}
+
+@keyframes inv-ig-ring {
+    to { rotate: 1turn; }
+}
+
+@keyframes inv-ig-launcher {
+    from { opacity: 0; translate: 0 -8px; }
+    to { opacity: 1; translate: 0 0; }
+}
+
+@media (max-width: 380px) {
+    /* En pantallas angostas el nombre necesita el lugar de la fecha */
+    .inv-ig__date {
+        display: none;
+    }
+
+    .inv-ig__launcher-label {
+        display: none;
+    }
+
+    .inv-ig__launcher {
+        padding-right: 0.2rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .inv-ig.inv-story-on .inv-scene,
+    .inv-ig.inv-story-on .inv-scene.is-past {
+        scale: 1;
+    }
+
+    .inv-ig__ring,
+    .inv-ig__ring .inv-ig__avatar,
+    .inv-ig__launcher {
+        animation: none;
+    }
+}

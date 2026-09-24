@@ -503,7 +503,7 @@ php artisan migrate --force
 php artisan db:seed --class=EventTypeSeeder --force
 php artisan db:seed --class=ShowcaseInvitationsSeeder --force   # invitaciones y tarjetas de muestra
 php artisan storage:link
-php artisan bida:imagenes-compartir                              # imágenes para WhatsApp/Facebook
+php artisan bida:imagenes-compartir                              # revisa el logo para WhatsApp/Facebook
 
 sudo chown -R bida:www-data storage bootstrap/cache
 sudo chmod -R ug+rwX storage bootstrap/cache

@@ -35,7 +35,7 @@ class HomeController extends Controller
             'share' => ShareMeta::make(
                 "{$bida['brand']} | Invitaciones digitales para bodas, XV años, bautizos y graduaciones",
                 'Invitaciones digitales con confirmación de asistencia, pase QR y control de entrada, música, fotos y mapa. Se comparten por WhatsApp. Paquetes desde '.Money::format($fromPrice).'.',
-                ShareMeta::siteImage('inicio'),
+                ShareMeta::defaultImage(),
                 route('home'),
             ),
         ]);

@@ -10,12 +10,18 @@ use Illuminate\Support\Str;
  *
  * WhatsApp lee las etiquetas Open Graph; la imagen debe ser pública, de 1200×630 y en
  * JPG o PNG. Las vistas pintan el resultado con layouts/partials/share-meta.
+ *
+ * La imagen es el logo de Bida (las páginas del sitio y lo que no tiene foto propia); una
+ * invitación o una tarjeta muestra la foto principal de su portada.
  */
 final class ShareMeta
 {
     public const WIDTH = 1200;
 
     public const HEIGHT = 630;
+
+    /** El logo de Bida en 1200×630: la imagen de todo lo que no tiene una foto propia. */
+    public const DEFAULT_IMAGE = 'images/share/bida.jpg';
 
     /**
      * @return array{title: string, description: string, image: string, url: string, type: string, site: string}
@@ -32,12 +38,10 @@ final class ShareMeta
         ];
     }
 
-    /** Tarjeta de la portada o de una página por evento, ya recortada en public/images/share. */
-    public static function siteImage(string $name): string
+    /** El logo de Bida: portada del sitio, páginas por evento, «Hazlo tú», guía y páginas legales. */
+    public static function defaultImage(): string
     {
-        $path = "images/share/{$name}.jpg";
-
-        return is_file(public_path($path)) ? asset($path) : asset('images/share/inicio.jpg');
+        return asset(self::DEFAULT_IMAGE);
     }
 
     /**
@@ -88,7 +92,7 @@ final class ShareMeta
         return self::make($title, $phrase.' · Abre la carta', self::invitationImage($page), $url, 'article');
     }
 
-    /** La foto de portada recortada por Cloudinary; sin foto, la tarjeta del tipo de evento. */
+    /** La foto principal de la portada (Cloudinary la recorta a 1200×630); sin foto, el logo de Bida. */
     private static function invitationImage(InvitationPage $page): string
     {
         $hero = $page->heroImage;
@@ -102,6 +106,6 @@ final class ShareMeta
             return url($hero);
         }
 
-        return self::siteImage($page->eventKey);
+        return self::defaultImage();
     }
 }

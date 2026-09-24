@@ -3,8 +3,10 @@
 namespace App\Http\Requests\Admin\Invitation\Concerns;
 
 use App\Models\EventType;
+use App\Models\Invitation;
 use App\Support\InvitationModuleRules;
 use App\Support\InvitationTemplates;
+use App\Support\TemplateAvailability;
 use Illuminate\Validation\Validator;
 
 /**
@@ -25,7 +27,11 @@ trait ValidatesInvitationModules
         return InvitationModuleRules::rules('modulos_data');
     }
 
-    /** La plantilla tiene que ser del tipo de evento elegido: una boda no se arma con la plantilla de XV. */
+    /**
+     * La plantilla tiene que ser del tipo de evento elegido (una boda no se arma con la plantilla de
+     * XV) y tiene que ofrecerse hoy: no una apagada en Ajustes ni de una temporada cerrada. La que la
+     * invitación ya tiene se conserva aunque se haya apagado.
+     */
     public function after(): array
     {
         return [function (Validator $validator): void {
@@ -40,6 +46,15 @@ trait ValidatesInvitationModules
 
             if ($event && $code && $event !== $code) {
                 $validator->errors()->add('template', 'La plantilla no corresponde al tipo de evento elegido.');
+
+                return;
+            }
+
+            $invitation = $this->route('invitation');
+            $current = $invitation instanceof Invitation ? $invitation->template : null;
+
+            if ($template !== $current && ($reason = TemplateAvailability::templateReason($template))) {
+                $validator->errors()->add('template', "Esa plantilla no se puede usar ahora: {$reason}.");
             }
         }];
     }

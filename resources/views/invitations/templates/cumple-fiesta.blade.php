@@ -28,6 +28,8 @@
     @include('invitations.partials.cumple.ambient')
 
     @include('invitations.partials.shell.nav')
+    {{-- También se puede ver como historias de Instagram (el círculo de la esquina o ?historias) --}}
+    @include('invitations.partials.story.instagram')
 
     @include('invitations.partials.music-player', ['musica' => $page->music, 'flags' => array_merge($page->flags, ['musica' => $page->visible('musica')])])
 

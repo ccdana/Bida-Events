@@ -183,33 +183,17 @@
 
                 <div class="site-offer__grid">
                     <a href="{{ $mainService['url'] ?? $contactUrl }}" class="site-offer__main" data-reveal>
-                        {{-- Lo que se vende, dibujado: la invitación en el teléfono, la respuesta que llega por
-                             WhatsApp y el pase de entrada. Sin fotos: pesa casi nada y se ve nítido en cualquier pantalla. --}}
-                        <div class="site-offer__visual" aria-hidden="true">
-                            <div class="site-offer__card">
-                                <span class="site-offer__card-kicker">Nos casamos</span>
-                                <span class="site-offer__card-arch"><span></span></span>
-                                <span class="site-offer__card-names">Camila <i>&amp;</i> Andrés</span>
-                                <span class="site-offer__card-date">Sábado 14 de noviembre · 19:00</span>
-                                <span class="site-offer__card-btn">Confirmar asistencia</span>
-                            </div>
-                            <div class="site-offer__bubble">
+                        {{-- Foto real: una pareja mirando su invitación en el teléfono, y encima la respuesta que
+                             llega por WhatsApp cuando un invitado confirma --}}
+                        <figure class="site-offer__visual">
+                            <img src="{{ \App\Support\SiteImage::url('servicio-pareja') }}" alt="{{ \App\Support\SiteImage::alt('servicio-pareja') }}"
+                                width="{{ \App\Support\SiteImage::size('servicio-pareja')[0] }}" height="{{ \App\Support\SiteImage::size('servicio-pareja')[1] }}"
+                                loading="lazy" decoding="async">
+                            <div class="site-offer__bubble" aria-hidden="true">
                                 <span>Hola, soy Familia Rojas. Confirmo mi asistencia con 3 personas.</span>
                                 <small>19:42 <x-phosphor-checks aria-hidden="true" /></small>
                             </div>
-                            <div class="site-offer__pass">
-                                <svg viewBox="0 0 21 21" class="site-offer__qr">
-                                    @foreach([[0,0],[14,0],[0,14]] as [$qx, $qy])
-                                        <rect x="{{ $qx + 0.5 }}" y="{{ $qy + 0.5 }}" width="6" height="6" rx="1" fill="none" stroke="currentColor" />
-                                        <rect x="{{ $qx + 2 }}" y="{{ $qy + 2 }}" width="3" height="3" fill="currentColor" />
-                                    @endforeach
-                                    @foreach([[8,1],[10,3],[8,5],[12,8],[9,9],[15,9],[17,11],[8,12],[11,13],[19,13],[9,16],[13,16],[16,17],[18,19],[10,19],[14,19],[2,9],[5,10],[1,11]] as [$qx, $qy])
-                                        <rect x="{{ $qx }}" y="{{ $qy }}" width="2" height="2" fill="currentColor" />
-                                    @endforeach
-                                </svg>
-                                <span><b>Pase</b> 3 personas</span>
-                            </div>
-                        </div>
+                        </figure>
                         <div class="site-offer__body">
                             <p class="site-overline">Te la diseñamos</p>
                             <h3 class="site-offer__name">{{ $mainService['name'] }}</h3>
