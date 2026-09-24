@@ -399,6 +399,7 @@ function invitationForm(config) {
 
         /** Estado de una sección en la lista: oculta, le falta algo o lista. */
         tabStatus(tab) {
+            if (this.packageLockLabel(tab)) return 'locked';
             if (!this.isTabEnabled(tab)) return 'off';
             return this.tabIssues(tab).length > 0 ? 'issue' : 'ok';
         },
@@ -435,6 +436,10 @@ function invitationForm(config) {
             }
 
             switch (tabId) {
+                case 'rsvp':
+                    return this.rsvpMode === 'whatsapp' && (String(m.rsvp?.whatsapp ?? '').replace(/\D+/g, '').length < 8)
+                        ? ['Falta el WhatsApp que recibe las confirmaciones'] : [];
+
                 case 'general':
                     return some([
                         !filled(this.meta.title) && 'Falta el título',
@@ -867,11 +872,39 @@ function invitationForm(config) {
         },
 
         isTabEnabled(tab) {
-            return !tab.moduleCode || !!this.modules.config.modulos[tab.moduleCode];
+            return !tab.moduleCode || (!!this.modules.config.modulos[tab.moduleCode] && this.packageIncludes(tab.moduleCode));
+        },
+
+        // ── Paquete (App\Support\Packages): qué módulos incluye el paquete elegido ──
+        // Sin paquete (tarjetas, revendedores, anteriores) todo está incluido.
+        packageIncludes(moduleCode) {
+            const order = this.config.packageOrder ?? [];
+            const chosen = order.indexOf(this.meta.package ?? '');
+            if (chosen < 0) return true;
+            const required = order.indexOf(this.config.packageModules?.[moduleCode] ?? order[0]);
+            return chosen >= required;
+        },
+
+        packageName(value) {
+            return (this.config.packageOptions ?? []).find(option => option.value === value)?.label ?? '';
+        },
+
+        /** «Viene en Premium»: para las secciones que el paquete elegido no incluye. */
+        packageLockLabel(tab) {
+            if (!tab.moduleCode || this.packageIncludes(tab.moduleCode)) return '';
+            return 'Viene en ' + (this.packageName(this.config.packageModules?.[tab.moduleCode]) || 'otro paquete');
+        },
+
+        /** Cómo confirma el invitado con el paquete elegido: 'pass', 'whatsapp' o null. */
+        get rsvpMode() {
+            const order = this.config.packageOrder ?? [];
+            const chosen = order.indexOf(this.meta.package ?? '');
+            if (chosen < 0 || chosen >= order.indexOf('premium')) return 'pass';
+            return chosen >= order.indexOf('estandar') ? 'whatsapp' : null;
         },
 
         toggleModuleForTab(tab) {
-            if (!tab.moduleCode) return;
+            if (!tab.moduleCode || !this.packageIncludes(tab.moduleCode)) return;
             const enabled = !this.modules.config.modulos[tab.moduleCode];
             this.modules.config.modulos[tab.moduleCode] = enabled;
             this.onModuleToggle(tab.moduleCode, enabled);
@@ -974,6 +1007,7 @@ function invitationForm(config) {
                 template: this.meta.template ?? '',
                 event_date: this.meta.event_date ?? '',
                 expires_at: this.meta.expires_at ?? '',
+                package: this.meta.package ?? '',
                 preview_key: this.previewKey,
                 modulos,
             };
@@ -1192,6 +1226,9 @@ function invitationForm(config) {
             if ((this.profile.kind ?? 'invitation') === kind) return;
             const first = this.templatesOfKind(kind)[0];
             if (first) this.meta.template = first.value;
+            // Las tarjetas no se venden por paquete: tienen su precio de temporada
+            if (kind === 'card') this.meta.package = '';
+            else if (!this.meta.package && this.config.editorMode === 'admin') this.meta.package = 'estandar';
         },
 
         get selectedEventType() {

@@ -129,3 +129,215 @@ html.inv-embedded body::-webkit-scrollbar {
         display: none;
     }
 }
+
+/* ── Partículas por tipo (partials/drift) ───────────────────────────────────
+   Hojas, plumas y serpentinas caen por delante del contenido, suaves y sin
+   atrapar toques (por debajo del menú y del reproductor); destellos, luces y
+   estrellas quedan detrás. Solo se anima transform y opacity. Cada plantilla
+   puede cambiar los colores con --drift-a y --drift-b. */
+
+.inv-drift {
+    --drift-a: var(--primary-color);
+    --drift-b: var(--accent-color);
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.inv-drift--leaf,
+.inv-drift--feather,
+.inv-drift--streamer {
+    z-index: 3;
+}
+
+.inv-drift span {
+    position: absolute;
+    top: -8vh;
+    left: var(--x);
+    opacity: 0;
+    will-change: transform, opacity;
+}
+
+/* En el celular, menos partículas: las marcadas como extra aparecen desde tableta */
+.inv-drift .is-extra {
+    display: none;
+}
+
+@media (min-width: 768px) {
+    .inv-drift .is-extra {
+        display: block;
+    }
+}
+
+/* Hojas: caen meciéndose y girando en 3D */
+.inv-drift--leaf span {
+    width: calc(15px * var(--s));
+    height: calc(10px * var(--s));
+    border-radius: 0 85% 0 85%;
+    background: linear-gradient(135deg, var(--drift-a), var(--drift-b));
+    animation: inv-drift-fall var(--d) linear var(--delay) infinite;
+}
+
+.inv-drift--leaf span::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 8%;
+    width: 84%;
+    height: 1px;
+    background: rgb(0 0 0 / 0.18);
+    rotate: -32deg;
+}
+
+/* Plumas: bajan despacio, como péndulo */
+.inv-drift--feather span {
+    width: calc(8px * var(--s));
+    height: calc(24px * var(--s));
+    border-radius: 50% 50% 45% 45% / 62% 62% 38% 38%;
+    background: linear-gradient(90deg, color-mix(in srgb, var(--drift-a) 55%, #fff) 0 48%, color-mix(in srgb, var(--drift-b) 45%, #fff) 52%);
+    animation: inv-drift-feather var(--d) ease-in-out var(--delay) infinite;
+}
+
+.inv-drift--feather span::after {
+    content: '';
+    position: absolute;
+    top: 8%;
+    bottom: -18%;
+    left: calc(50% - 0.5px);
+    width: 1px;
+    background: color-mix(in srgb, var(--drift-a) 40%, #fff);
+}
+
+/* Serpentinas: tiras que caen dando vueltas */
+.inv-drift--streamer span {
+    width: calc(4px * var(--s));
+    height: calc(15px * var(--s));
+    border-radius: 2px;
+    background: var(--drift-a);
+    animation: inv-drift-spin var(--d) linear var(--delay) infinite;
+}
+
+.inv-drift--streamer span:nth-child(3n) {
+    background: var(--drift-b);
+}
+
+.inv-drift--streamer span:nth-child(4n + 1) {
+    height: calc(9px * var(--s));
+    border-radius: 50%;
+}
+
+/* Destellos de cuatro puntas que suben titilando */
+.inv-drift--star span {
+    top: auto;
+    bottom: -4vh;
+    width: calc(12px * var(--s));
+    aspect-ratio: 1;
+    background: color-mix(in srgb, var(--drift-a) 60%, #fff);
+    clip-path: polygon(50% 0, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0 50%, 39% 39%);
+    animation: inv-drift-rise var(--d) ease-in-out var(--delay) infinite;
+}
+
+/* Luces difusas que flotan hacia arriba */
+.inv-drift--bokeh span {
+    top: auto;
+    bottom: -6vh;
+    width: calc(26px * var(--s));
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(circle, color-mix(in srgb, var(--drift-a) 55%, transparent), transparent 70%);
+    animation: inv-drift-rise calc(var(--d) * 1.6) ease-in-out var(--delay) infinite;
+}
+
+/* Estrellas quietas del cielo: solo titilan */
+.inv-drift--twinkle span {
+    top: var(--y);
+    width: calc(3px * var(--s));
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 6px rgb(255 255 255 / 0.7);
+    animation: inv-drift-twinkle calc(var(--d) / 4) ease-in-out var(--delay) infinite;
+}
+
+@keyframes inv-drift-fall {
+    0% { opacity: 0; transform: translate3d(0, 0, 0) rotate(var(--r)) rotateX(0deg); }
+    8% { opacity: 0.85; }
+    30% { transform: translate3d(var(--dx), 32vh, 0) rotate(calc(var(--r) + 90deg)) rotateX(160deg); }
+    60% { transform: translate3d(calc(var(--dx) * -0.6), 66vh, 0) rotate(calc(var(--r) + 170deg)) rotateX(320deg); }
+    92% { opacity: 0.8; }
+    100% { opacity: 0; transform: translate3d(calc(var(--dx) * 0.4), 112vh, 0) rotate(calc(var(--r) + 260deg)) rotateX(480deg); }
+}
+
+@keyframes inv-drift-feather {
+    0% { opacity: 0; transform: translate3d(0, 0, 0) rotate(-24deg); }
+    10% { opacity: 0.8; }
+    25% { transform: translate3d(var(--dx), 26vh, 0) rotate(26deg); }
+    50% { transform: translate3d(calc(var(--dx) * -0.4), 54vh, 0) rotate(-22deg); }
+    75% { transform: translate3d(calc(var(--dx) * 0.8), 82vh, 0) rotate(24deg); }
+    90% { opacity: 0.75; }
+    100% { opacity: 0; transform: translate3d(0, 112vh, 0) rotate(-20deg); }
+}
+
+@keyframes inv-drift-spin {
+    0% { opacity: 0; transform: translate3d(0, 0, 0) rotate(var(--r)) rotateY(0deg); }
+    8% { opacity: 0.9; }
+    50% { transform: translate3d(var(--dx), 55vh, 0) rotate(calc(var(--r) + 220deg)) rotateY(540deg); }
+    92% { opacity: 0.85; }
+    100% { opacity: 0; transform: translate3d(calc(var(--dx) * -0.5), 112vh, 0) rotate(calc(var(--r) + 420deg)) rotateY(1080deg); }
+}
+
+@keyframes inv-drift-rise {
+    0% { opacity: 0; transform: translate3d(0, 0, 0) scale(0.6) rotate(0deg); }
+    15% { opacity: 0.75; }
+    50% { transform: translate3d(var(--dx), -50vh, 0) scale(1) rotate(90deg); }
+    85% { opacity: 0.6; }
+    100% { opacity: 0; transform: translate3d(calc(var(--dx) * -0.5), -108vh, 0) scale(0.7) rotate(180deg); }
+}
+
+@keyframes inv-drift-twinkle {
+    0%, 100% { opacity: 0.15; transform: scale(0.7); }
+    50% { opacity: 0.95; transform: scale(1.15); }
+}
+
+/* Colores por plantilla */
+.inv-drift--jardin {
+    --drift-a: color-mix(in srgb, #7f9a5c 72%, var(--primary-color));
+    --drift-b: color-mix(in srgb, #c9d3a0 65%, var(--accent-color));
+}
+
+.inv-drift--plumas {
+    --drift-a: #fff;
+    --drift-b: color-mix(in srgb, var(--primary-color) 22%, #fff);
+}
+
+.inv-drift--plumas span {
+    filter: drop-shadow(0 1px 1.5px rgb(40 60 90 / 0.18));
+}
+
+.inv-drift--dorado {
+    --drift-a: #e0b44a;
+    --drift-b: color-mix(in srgb, var(--primary-color) 70%, #fff);
+}
+
+.inv-drift--otono {
+    --drift-a: #c9651f;
+    --drift-b: #6e3510;
+    opacity: 0.8;
+}
+
+.inv-drift--suave {
+    opacity: 0.5;
+}
+
+/* Para plantillas con fondo propio a pantalla completa (el escritorio de Aventura) */
+.inv-drift--above {
+    z-index: 2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .inv-drift {
+        display: none;
+    }
+}

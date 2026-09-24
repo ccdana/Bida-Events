@@ -9,6 +9,7 @@ use App\Services\InvitationCacheService;
 use App\Services\InvitationModuleService;
 use App\Support\CloudinaryImage;
 use App\Support\InvitationDefaults;
+use App\Support\Packages;
 use App\Support\ShowcaseDemos;
 use App\Support\YouTubeHelper;
 use Illuminate\Http\Request;
@@ -22,6 +23,11 @@ class InvitationController extends Controller
     public function show(string $slug, ?string $token = null)
     {
         $invitation = $this->findPublished($slug);
+
+        // Sin enlaces personales en el paquete (Básico), el enlace del invitado lleva a la invitación general
+        if ($token && ! Packages::allows($invitation->package, 'personal_links')) {
+            return redirect()->route('invitation.show', $invitation->slug);
+        }
 
         $guest = null;
         if ($token) {

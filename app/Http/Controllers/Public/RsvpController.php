@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Guest;
 use App\Models\Invitation;
 use App\Support\GuestPass;
+use App\Support\Packages;
 use Illuminate\Http\Request;
 
 class RsvpController extends Controller
@@ -13,6 +14,9 @@ class RsvpController extends Controller
     public function confirm(Request $request, string $slug, string $token)
     {
         $invitation = Invitation::where('slug', $slug)->published()->firstOrFail();
+
+        // La respuesta con pase es del paquete Premium; en Estándar se confirma por WhatsApp
+        abort_unless(Packages::rsvpMode($invitation->package) === Packages::RSVP_PASS, 404);
 
         $guest = Guest::where('invitation_id', $invitation->id)
             ->where('qr_code_token', $token)

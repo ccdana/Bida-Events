@@ -978,6 +978,19 @@ comportamiento: con 25 invitaciones y 500 invitados hace menos de 15 consultas y
 | Portada rediseñada, pie por columnas, un solo botón de temporadas con pestañas | `home.blade.php`, `site/home.css`, `site/partials/{footer,season,season-panel}.blade.php` |
 | SEO/GEO: guía pública, `llms.txt` y `sitemap.xml` dinámicos, `robots.txt` con la puerta y el sitemap, datos estructurados con `Article` | `docs/geo-estrategia.md`, `SeoController.php`, `guia.blade.php`, `site/partials/structured-data.blade.php` |
 
+### 7.11 Paquetes por invitación, temporadas y plantillas
+
+| Qué | Dónde |
+| --- | --- |
+| Cada invitación del equipo lleva su paquete (`invitations.package`: basico, estandar, premium; vacío = todo incluido para revendedores, tarjetas y anteriores). Qué habilita cada uno, en un solo lugar | `Support/Packages.php`, migración `2026_09_26_000001_add_package_to_invitations`, `config/bida.php` (`packages.*.features`, mismo contenido) |
+| Básico: portada, cuenta regresiva y agendar, ubicación, itinerario, música. Estándar: galería y video, dress code, padrinos, hashtag, mesa de regalos, enlaces personales y **confirmación por WhatsApp**. Premium: **pase QR**, control de entrada, panel del cliente, reportes, invitación para imprimir, encuestas, playlist, fotomural y galería después del evento | `InvitationPage::visible()`/`showsRsvp()`, `partials/rsvp-whatsapp.blade.php`, `RsvpController`, `DoorController`, `DoorAccessController`, `InvitationPolicy` (view/export) |
+| Editor: selector de paquete en «General», secciones que el paquete no trae marcadas «Viene en…» con el interruptor bloqueado, número de WhatsApp en «Confirmación de asistencia» | `panels/general.blade.php`, `panels/rsvp.blade.php`, `editor/script.blade.php` (`packageIncludes`, `rsvpMode`) |
+| «Tres maneras» con una composición dibujada (invitación, respuesta por WhatsApp y pase) en lugar de foto | `home.blade.php`, `site/home.css` (`site-offer__visual`) |
+| Hoja de temporadas: la vista previa se despierta al abrir (`this.root` en vez de `$el`), lista de diseños sin columna vacía y teléfono entero, sin recortes | `site/partials/season.blade.php`, `site.css` («Temporada») |
+| Fotos del sitio con `?v=` por fecha de archivo (un cambio de foto no queda en la caché) | `Support/SiteImage.php` |
+| Halloween ilustrado: calabaza con volumen y luz interior, luna con relieve y nubes, paisaje en silueta, estrellas y hojas de otoño | `partials/halloween/{defs,pumpkin,bat,landscape}.blade.php`, `themes/halloween.css` |
+| Partículas por tipo reutilizables (hojas, plumas, serpentinas, destellos, luces, estrellas); cada plantilla tiene al menos dos tipos | `partials/drift.blade.php`, `invitation/ambient.css`, `TemplateParticlesTest` |
+
 ---
 
 ## 8. Hoja de ruta sugerida

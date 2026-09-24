@@ -26,6 +26,9 @@
     @endif
 
     @include('invitations.partials.bautizo.ambient')
+    {{-- Plumas blancas que bajan meciéndose, como de las palomas --}}
+    @include('invitations.partials.drift', ['kind' => 'feather', 'count' => 10, 'mobile' => 6, 'seed' => 3, 'class' => 'inv-drift--plumas'])
+    @include('invitations.partials.drift', ['kind' => 'star', 'count' => 12, 'mobile' => 7, 'seed' => 4])
 
     @include('invitations.partials.shell.nav')
 

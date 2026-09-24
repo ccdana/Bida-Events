@@ -21,7 +21,7 @@
             <p class="mt-2 flex flex-wrap items-center gap-x-5 gap-y-1.5 text-sm text-site-muted">
                 <span class="inline-flex items-center gap-1.5">
                     <x-dynamic-component :component="$row['isCard'] ? 'phosphor-heart' : 'phosphor-confetti'" class="size-4" aria-hidden="true" />
-                    {{ $row['templateLabel'] }}
+                    {{ $row['templateLabel'] }}@if($row['packageLabel'] ?? null) · {{ $row['packageLabel'] }}@endif
                 </span>
                 <span class="inline-flex items-center gap-1.5">
                     <x-phosphor-calendar-blank class="size-4" aria-hidden="true" />
@@ -66,6 +66,7 @@
                 @foreach([
                     'Tipo' => $row['typeName'],
                     'Plantilla' => $row['templateLabel'],
+                    'Paquete' => $row['packageLabel'] ?? 'Todo incluido',
                     'Cuándo' => $row['eventDateLabel'].($row['isPast'] ? ' · ya pasó' : ''),
                     'Creada' => $row['createdLabel'],
                     'Vence' => $row['expiresLabel'],

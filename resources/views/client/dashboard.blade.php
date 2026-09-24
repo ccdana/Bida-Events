@@ -123,10 +123,15 @@
                         </dl>
 
                         <div class="mt-6 flex flex-wrap items-center gap-2">
-                            <a href="{{ route('client.invitation.show', $invitation) }}" class="admin-primary-button">
-                                <x-dynamic-component :component="$row['isCard'] ? 'phosphor-chat-circle-text' : 'phosphor-list-checks'" aria-hidden="true" />
-                                {{ $row['isCard'] ? 'Ver respuestas' : 'Ver invitados' }}
-                            </a>
+                            {{-- El panel de invitados viene en el paquete Premium (App\Support\Packages) --}}
+                            @can('view', $invitation)
+                                <a href="{{ route('client.invitation.show', $invitation) }}" class="admin-primary-button">
+                                    <x-dynamic-component :component="$row['isCard'] ? 'phosphor-chat-circle-text' : 'phosphor-list-checks'" aria-hidden="true" />
+                                    {{ $row['isCard'] ? 'Ver respuestas' : 'Ver invitados' }}
+                                </a>
+                            @else
+                                <p class="text-sm text-site-muted">La lista de invitados y las confirmaciones vienen en el paquete Premium.</p>
+                            @endcan
 
                             {{-- Solo el revendedor al día edita lo suyo; al cliente normal se la arma el equipo --}}
                             @can('update', $invitation)

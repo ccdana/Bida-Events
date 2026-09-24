@@ -33,7 +33,7 @@
 
     $faqs = [
         ['¿Qué es una invitación digital?', 'Es una página web del evento que se comparte con un enlace, normalmente por WhatsApp. Reúne la fecha, el lugar con mapa, el itinerario, la música, las fotos y un botón para confirmar asistencia, y se ve bien en cualquier celular sin instalar nada.'],
-        ['¿Cuánto cuesta una invitación digital?', 'En '.$brand.' los paquetes van de '.$money($fromPrice).' a '.$money($toPrice).' por evento, pago único. El precio cambia según lo que incluye: confirmación por invitado, pase QR, control de entrada, galería y reportes.'],
+        ['¿Cuánto cuesta una invitación digital?', 'En '.$brand.' los paquetes van de '.$money($fromPrice).' a '.$money($toPrice).' por evento, pago único. El precio cambia según lo que incluye: en Estándar se confirma por WhatsApp; en Premium, con pase QR, control de entrada, panel de invitados y reportes.'],
         ['¿Con cuánta anticipación se envía una invitación digital?', 'Para bodas, entre seis y ocho semanas antes; para XV años, entre cuatro y seis; para bautizos, graduaciones y cumpleaños, entre dos y cuatro semanas. Conviene mandar un recordatorio una semana antes: con una invitación digital se reenvía el mismo enlace.'],
         ['¿Cómo confirman asistencia los invitados?', 'Cada invitado recibe su propio enlace, elige si va y cuántas personas de las que tiene asignadas lo acompañan. Quien organiza ve las respuestas al momento en su panel y puede descargarlas en PDF o Excel.'],
         ['¿Cómo funciona el control de entrada con código QR?', 'Al confirmar, cada invitado recibe un pase con código QR. El día del evento, quien recibe en la puerta abre un enlace en su teléfono y escanea el pase: ve el nombre, cuántas personas pueden entrar y si el pase ya se usó. Un pase no sirve dos veces.'],
@@ -44,7 +44,7 @@
     $includes = [
         ['Lo que el invitado necesita saber', ['Fecha y hora, con cuenta regresiva y botón para agregarla al calendario.', 'Lugar con mapa y un botón «Cómo llegar» que abre Google Maps.', 'Itinerario: ceremonia, recepción, fiesta.', 'Código de vestimenta y, si hay, mesa de regalos o cuenta para aportes.']],
         ['Lo que hace que se sienta del evento', ['Portada con las fotos de la familia o de la pareja y una apertura animada.', 'Música de fondo que el invitado puede pausar.', 'Colores y tipografías propias; en '.$brand.' también se cambia cada texto.']],
-        ['Lo que le sirve a quien organiza', ['Confirmación de asistencia por invitado, con la cantidad de personas asignadas a cada uno.', 'Pase con código QR y control de entrada el día del evento.', 'Lista de invitados en PDF o Excel para el salón y el catering.']],
+        ['Lo que le sirve a quien organiza', ['Confirmación de asistencia por invitado, con la cantidad de personas asignadas a cada uno (por WhatsApp o guardada en un panel).', 'Pase con código QR y control de entrada el día del evento.', 'Lista de invitados en PDF o Excel para el salón y el catering.']],
     ];
 
     $comparison = [
@@ -198,7 +198,7 @@
                             </tbody>
                         </table>
                     </div>
-                    <p>Muchas familias combinan las dos: la digital para todos y unas pocas impresas para los abuelos. Por eso cada invitación de {{ $brand }} incluye una versión lista para imprimir.</p>
+                    <p>Muchas familias combinan las dos: la digital para todos y unas pocas impresas para los abuelos. Por eso el paquete Premium de {{ $brand }} incluye una versión lista para imprimir.</p>
                 </section>
 
                 <section id="precios" class="site-legal__section">
@@ -243,7 +243,8 @@
                     <h2>Confirmación de asistencia y control de entrada con QR</h2>
                     <p>
                         La confirmación por invitado y el pase QR convierten la invitación en la lista de invitados del evento. Así
-                        funciona en {{ $brand }}:
+                        funciona en el paquete Premium de {{ $brand }} (en Estándar, el invitado confirma por WhatsApp con un mensaje
+                        que ya lleva su nombre y cuántas personas van):
                     </p>
                     <h3>Antes del evento</h3>
                     <ul>

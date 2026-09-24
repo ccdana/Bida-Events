@@ -212,7 +212,7 @@ a:hover > .site-link-arrow svg,
     }
 }
 
-/* ── Lo que ofrecemos: una pieza grande con foto y dos filas al lado ────── */
+/* ── Lo que ofrecemos: la pieza principal dibujada y dos maneras más debajo ── */
 
 .site-offer {
     max-width: 80rem;
@@ -236,14 +236,6 @@ a:hover > .site-link-arrow svg,
     margin-top: 3rem;
 }
 
-@media (min-width: 1024px) {
-    .site-offer__grid {
-        grid-template-columns: 1.2fr 1fr;
-        gap: 4rem;
-        align-items: start;
-    }
-}
-
 .site-offer__main,
 .site-offer__row {
     display: block;
@@ -251,26 +243,238 @@ a:hover > .site-link-arrow svg,
     text-decoration: none;
 }
 
-.site-offer__photo {
-    margin: 0;
-    aspect-ratio: 16 / 11;
-    overflow: hidden;
-    border-radius: 20px;
-}
-
-.site-offer__photo img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: scale 1.2s var(--site-ease);
-}
-
-.site-offer__main:hover .site-offer__photo img {
-    scale: 1.03;
+/* Pieza principal: la composición y el texto; en pantallas anchas, uno al lado del otro */
+@media (min-width: 900px) {
+    .site-offer__main {
+        display: grid;
+        grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+        gap: 4rem;
+        align-items: center;
+    }
 }
 
 .site-offer__body {
-    padding-top: 1.5rem;
+    padding-top: 1.75rem;
+}
+
+@media (min-width: 900px) {
+    .site-offer__body {
+        padding-top: 0;
+    }
+}
+
+/* Composición: invitación, respuesta por WhatsApp y pase, sobre un paño cálido */
+.site-offer__visual {
+    --offer-paper: #fbf6ef;
+    --offer-ink: #2d2620;
+    --offer-gold: #a8844f;
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-height: 23rem;
+    padding: 2.5rem 1rem 3rem;
+    overflow: hidden;
+    border-radius: 24px;
+    background:
+        radial-gradient(120% 90% at 20% 0%, color-mix(in srgb, var(--site-accent) 26%, transparent), transparent 60%),
+        radial-gradient(90% 80% at 100% 100%, color-mix(in srgb, var(--site-accent) 14%, transparent), transparent 60%),
+        var(--site-surface);
+}
+
+@media (min-width: 640px) {
+    .site-offer__visual {
+        min-height: 29rem;
+    }
+}
+
+.site-offer__card {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.55rem;
+    width: min(13.5rem, 62%);
+    padding: 1.4rem 1.1rem 1.2rem;
+    border: 7px solid #111;
+    border-radius: 30px;
+    background: linear-gradient(180deg, #fffdf9, var(--offer-paper));
+    color: var(--offer-ink);
+    text-align: center;
+    box-shadow: 0 40px 70px -30px rgb(0 0 0 / 0.55);
+    rotate: -3deg;
+    transition: rotate 0.8s var(--site-ease), translate 0.8s var(--site-ease);
+}
+
+.site-offer__main:hover .site-offer__card {
+    rotate: -1deg;
+    translate: 0 -4px;
+}
+
+.site-offer__card-kicker {
+    font-family: var(--font-serif);
+    font-size: 0.85rem;
+    font-style: italic;
+    letter-spacing: 0.06em;
+    color: var(--offer-gold);
+}
+
+.site-offer__card-arch {
+    display: block;
+    width: 72%;
+    aspect-ratio: 4 / 5;
+    padding: 5px;
+    border: 1px solid color-mix(in srgb, var(--offer-gold) 60%, transparent);
+    border-radius: 999px 999px 10px 10px;
+}
+
+.site-offer__card-arch span {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    background:
+        radial-gradient(60% 45% at 50% 38%, #f3dcc4, transparent 70%),
+        linear-gradient(170deg, #e9d6c0, #c9a987 70%, #9d7a58);
+}
+
+.site-offer__card-names {
+    font-family: var(--font-serif);
+    font-size: 1.45rem;
+    line-height: 1.05;
+}
+
+.site-offer__card-names i {
+    color: var(--offer-gold);
+}
+
+.site-offer__card-date {
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--offer-ink) 70%, transparent);
+}
+
+.site-offer__card-btn {
+    margin-top: 0.3rem;
+    padding: 0.45rem 0.9rem;
+    border-radius: 999px;
+    background: var(--offer-ink);
+    color: var(--offer-paper);
+    font-size: 0.66rem;
+    font-weight: 600;
+}
+
+.site-offer__bubble {
+    position: absolute;
+    z-index: 2;
+    top: 16%;
+    right: 5%;
+    display: grid;
+    gap: 0.2rem;
+    max-width: 12.5rem;
+    padding: 0.6rem 0.75rem 0.45rem;
+    border-radius: 14px 14px 4px 14px;
+    background: #dcf8c6;
+    color: #1b2a17;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    box-shadow: 0 18px 30px -18px rgb(0 0 0 / 0.5);
+    rotate: 2deg;
+    animation: site-offer-float 6s ease-in-out infinite;
+}
+
+.site-offer__bubble small {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.2rem;
+    font-size: 0.62rem;
+    color: #5d7157;
+}
+
+.site-offer__bubble svg {
+    width: 0.85rem;
+    height: 0.85rem;
+    color: #3a9bdc;
+}
+
+.site-offer__pass {
+    position: absolute;
+    z-index: 2;
+    bottom: 12%;
+    left: 6%;
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.6rem 0.85rem 0.6rem 0.6rem;
+    border-radius: 14px;
+    background: var(--site-bg);
+    color: var(--site-ink);
+    font-size: 0.78rem;
+    box-shadow: 0 18px 30px -18px rgb(0 0 0 / 0.5);
+    rotate: -4deg;
+    animation: site-offer-float 7s ease-in-out -2s infinite;
+}
+
+.site-offer__pass b {
+    display: block;
+    font-size: 0.66rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--site-accent);
+}
+
+.site-offer__qr {
+    width: 2.6rem;
+    height: 2.6rem;
+    padding: 0.2rem;
+    border-radius: 6px;
+    background: #fff;
+    color: #111;
+}
+
+@keyframes site-offer-float {
+    0%, 100% { translate: 0 0; }
+    50% { translate: 0 -8px; }
+}
+
+@media (max-width: 479px) {
+    /* En el celular la tarjeta sube y deja lugar abajo para el pase, sin taparle el botón */
+    .site-offer__visual {
+        padding: 3.25rem 1rem 5.5rem;
+    }
+
+    .site-offer__card {
+        width: min(12rem, 60%);
+    }
+
+    .site-offer__bubble {
+        top: 4%;
+        right: 3%;
+        max-width: 10.5rem;
+        font-size: 0.7rem;
+    }
+
+    .site-offer__pass {
+        bottom: 4%;
+        left: 4%;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .site-offer__bubble,
+    .site-offer__pass {
+        animation: none;
+    }
+}
+
+/* Las otras dos maneras, debajo y en dos columnas en pantallas anchas */
+@media (min-width: 900px) {
+    .site-offer__side {
+        grid-template-columns: 1fr 1fr;
+        column-gap: 4rem;
+    }
 }
 
 .site-offer__name {

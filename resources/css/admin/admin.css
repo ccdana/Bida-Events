@@ -1646,3 +1646,15 @@ html[data-theme='dark'] .adm-device {
         display: none;
     }
 }
+
+/* Sección que el paquete elegido no incluye: candado de trazo y el interruptor bloqueado */
+.ed-rail__state.is-locked {
+    border-style: dashed;
+    border-color: var(--site-muted);
+    background: transparent;
+}
+
+.adm-switch:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}

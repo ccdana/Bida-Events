@@ -76,6 +76,8 @@ class InvitationModuleRules
             "{$p}.video.video_url" => $url,
             "{$p}.video.poster" => $url,
             "{$p}.musica.audio_url" => $url,
+            // WhatsApp de las confirmaciones del paquete Estándar: dígitos con código de país (se limpian al guardar)
+            "{$p}.rsvp.whatsapp" => ['nullable', 'string', 'max:30', 'regex:/^[\d\s+()-]*$/'],
 
             "{$p}.itinerario.eventos" => ['nullable', 'array', 'max:50'],
             "{$p}.itinerario.eventos.*" => ['array'],

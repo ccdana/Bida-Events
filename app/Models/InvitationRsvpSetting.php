@@ -10,7 +10,7 @@ class InvitationRsvpSetting extends Model
 {
     protected $table = 'invitation_rsvp_settings';
 
-    protected $fillable = ['invitation_id', 'title', 'message', 'confirmed_text', 'declined_text'];
+    protected $fillable = ['invitation_id', 'title', 'message', 'confirmed_text', 'declined_text', 'whatsapp'];
 
     public function invitation(): BelongsTo
     {

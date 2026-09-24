@@ -17,7 +17,7 @@ class UpdateResellerInvitationRequest extends UpdateInvitationRequest
     public function rules(): array
     {
         $rules = parent::rules();
-        unset($rules['user_id']);
+        unset($rules['user_id'], $rules['package']);
 
         /** @var Invitation|null $invitation */
         $invitation = $this->route('invitation');

@@ -1,7 +1,7 @@
 {{--
-    Portada de Halloween: la luna llena (con la foto adentro, si la hay) y murciélagos que la cruzan,
-    el nombre de la fiesta con brillo de vela, el mensaje, la entrada con la noche y la hora, y una
-    loma con calabazas encendidas al pie.
+    Portada de Halloween: la luna llena con relieve (con la foto adentro, si la hay), jirones de nube
+    que la cruzan y murciélagos alrededor; el nombre de la fiesta con brillo de vela, el mensaje, la
+    entrada con la noche y la hora, y al pie el paisaje en silueta con calabazas encendidas.
 --}}
 @php
     $heroEyebrow = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? 'Fiesta de Halloween');
@@ -25,11 +25,14 @@
                         decoding="async"
                     >
                 @else
-                    <span class="inv-hw-moon__crater" style="--x: 28%; --y: 34%; --s: 18%"></span>
-                    <span class="inv-hw-moon__crater" style="--x: 60%; --y: 58%; --s: 24%"></span>
-                    <span class="inv-hw-moon__crater" style="--x: 64%; --y: 22%; --s: 11%"></span>
+                    {{-- Cráteres repartidos sin formar una cara --}}
+                    @foreach([[16, 56, 11], [66, 26, 14], [46, 74, 8], [74, 60, 7], [36, 16, 6]] as [$craterX, $craterY, $craterSize])
+                        <span class="inv-hw-moon__crater" style="--x: {{ $craterX }}%; --y: {{ $craterY }}%; --s: {{ $craterSize }}%"></span>
+                    @endforeach
                 @endif
             </figure>
+            <span class="inv-hw-moon__cloud inv-hw-moon__cloud--1" aria-hidden="true"></span>
+            <span class="inv-hw-moon__cloud inv-hw-moon__cloud--2" aria-hidden="true"></span>
             @include('invitations.partials.halloween.bat', ['class' => 'inv-hw-moon__bat inv-hw-moon__bat--1'])
             @include('invitations.partials.halloween.bat', ['class' => 'inv-hw-moon__bat inv-hw-moon__bat--2'])
             @include('invitations.partials.halloween.bat', ['class' => 'inv-hw-moon__bat inv-hw-moon__bat--3'])
@@ -50,6 +53,7 @@
     </div>
 
     <div class="inv-hw-hill" aria-hidden="true">
+        @include('invitations.partials.halloween.landscape')
         @include('invitations.partials.halloween.pumpkin', ['class' => 'inv-hw-hill__pumpkin inv-hw-hill__pumpkin--1'])
         @include('invitations.partials.halloween.pumpkin', ['class' => 'inv-hw-hill__pumpkin inv-hw-hill__pumpkin--2'])
         @include('invitations.partials.halloween.pumpkin', ['class' => 'inv-hw-hill__pumpkin inv-hw-hill__pumpkin--3'])

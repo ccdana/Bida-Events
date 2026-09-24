@@ -7,6 +7,7 @@ use App\Models\Guest;
 use App\Models\Invitation;
 use App\Modules\Module;
 use App\Support\InvitationTemplates;
+use App\Support\Packages;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -73,6 +74,8 @@ class DashboardViewData
             'typeSlug' => $invitation->eventType?->slug ?? '',
             'typeName' => $invitation->eventType?->name ?? 'Sin tipo',
             'templateLabel' => $template['label'],
+            // Paquete vendido; sin paquete, todo incluido (tarjetas, revendedores y anteriores)
+            'packageLabel' => Packages::names()[$invitation->package ?? ''] ?? null,
             'guestCount' => $guests,
             'confirmedCount' => $confirmed,
             'pendingCount' => (int) ($invitation->pending_guests_count ?? 0),

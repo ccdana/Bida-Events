@@ -57,12 +57,13 @@
                                     <span class="block truncate text-sm font-medium" x-text="tab.label"></span>
                                     <span class="block truncate text-xs"
                                         :class="tabStatus(tab) === 'issue' ? 'text-site-danger' : 'text-site-muted'"
-                                        x-text="tabStatus(tab) === 'issue' ? tabIssues(tab)[0] : (tabStatus(tab) === 'off' ? 'Oculta en la invitación' : tab.hint)"></span>
+                                        x-text="tabStatus(tab) === 'issue' ? tabIssues(tab)[0] : (tabStatus(tab) === 'locked' ? packageLockLabel(tab) : (tabStatus(tab) === 'off' ? 'Oculta en la invitación' : tab.hint))"></span>
                                 </span>
                             </button>
                             <template x-if="tab.moduleCode">
                                 <button type="button" role="switch"
                                     @click="toggleModuleForTab(tab)"
+                                    :disabled="!!packageLockLabel(tab)"
                                     class="adm-switch"
                                     :class="isTabEnabled(tab) ? 'is-on' : ''"
                                     :aria-checked="isTabEnabled(tab).toString()"
@@ -89,6 +90,9 @@
             <input type="hidden" name="event_date" :value="meta.event_date">
             <input type="hidden" name="expires_at" :value="meta.expires_at">
             <input type="hidden" name="status" :value="meta.status">
+            @if(($editorMode ?? 'admin') === 'admin')
+                <input type="hidden" name="package" :value="meta.package">
+            @endif
 
             <div class="flex-1 space-y-4 p-4">
                 @include('admin.invitations.panels.general')

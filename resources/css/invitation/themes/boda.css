@@ -88,13 +88,13 @@
     animation: inv-boda-flutter calc(var(--d) / 6) ease-in-out infinite alternate;
 }
 
-/* En celulares caen menos pétalos para no distraer ni gastar batería */
-.inv-boda-petals span:nth-child(n + 14) {
+/* En celulares caen algunos pétalos menos para no gastar batería */
+.inv-boda-petals span:nth-child(n + 17) {
     display: none;
 }
 
 @media (min-width: 768px) {
-    .inv-boda-petals span:nth-child(n + 14) {
+    .inv-boda-petals span:nth-child(n + 17) {
         display: block;
     }
 }
@@ -1193,15 +1193,6 @@ html.inv-cover-waiting .inv-boda-hero * {
     stroke-linecap: round;
 }
 
-.inv-boda-butterfly:nth-of-type(n + 3) {
-    display: none;
-}
-
-@media (min-width: 768px) {
-    .inv-boda-butterfly:nth-of-type(n + 3) {
-        display: block;
-    }
-}
 
 @keyframes inv-boda-flight {
     0% { transform: translate3d(0, 0, 0) rotate(8deg); }

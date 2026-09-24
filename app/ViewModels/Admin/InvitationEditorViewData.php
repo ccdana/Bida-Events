@@ -13,6 +13,7 @@ use App\Support\ColorPalettes;
 use App\Support\EditableTexts;
 use App\Support\InvitationDefaults;
 use App\Support\InvitationTemplates;
+use App\Support\Packages;
 use App\Support\ResellerSubscription;
 use Illuminate\Support\Collection;
 
@@ -125,6 +126,8 @@ class InvitationEditorViewData
                 'event_date' => $defaultEventDate,
                 'expires_at' => $defaultExpires,
                 'status' => $invitation?->status === 'active' ? 'active' : 'inactive',
+                // Paquete vendido; una nueva del equipo arranca en Estándar, la del revendedor no lleva
+                'package' => $invitation ? (string) $invitation->package : ($context === 'admin' ? Packages::STANDARD : ''),
             ],
             'isCreate' => $isCreate,
             'slugManual' => ! $isCreate,
@@ -133,6 +136,10 @@ class InvitationEditorViewData
             'itineraryIcons' => $itineraryIcons,
             // Paletas listas de «Estética»: la original de cada plantilla, las de su evento y las generales
             'palettes' => ColorPalettes::all(),
+            // Qué incluye cada paquete: el editor apaga y marca lo que el paquete elegido no trae
+            'packageOptions' => collect(config('bida.packages', []))->map(fn (array $package) => ['value' => $package['key'], 'label' => $package['name'], 'hint' => $package['summary'] ?? ''])->values(),
+            'packageOrder' => Packages::ORDER,
+            'packageModules' => Packages::MODULES,
             // Textos editables de cada plantilla, agrupados por módulo, con el valor que trae la plantilla
             'editableTexts' => $templates->keys()->mapWithKeys(fn ($value) => [$value => EditableTexts::forTemplate($value)]),
             'cloudinaryConfigured' => $this->mediaUpload->isCloudinaryConfigured(),

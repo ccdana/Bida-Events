@@ -27,6 +27,9 @@
     @endif
 
     @include('invitations.partials.boda.ambient')
+    {{-- Hojas del jardín que caen junto a los pétalos --}}
+    @include('invitations.partials.drift', ['kind' => 'leaf', 'count' => 12, 'mobile' => 7, 'seed' => 2, 'class' => 'inv-drift--jardin'])
+    @include('invitations.partials.drift', ['kind' => 'bokeh', 'count' => 10, 'mobile' => 6, 'seed' => 5])
 
     @include('invitations.partials.shell.nav')
 

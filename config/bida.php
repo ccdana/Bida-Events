@@ -176,7 +176,7 @@ return [
                 ['icon' => 'map-pin', 'title' => 'Ceremonia y recepción', 'text' => 'Cada momento con su hora y cada lugar con su mapa y el botón para llegar.'],
                 ['icon' => 'users-three', 'title' => 'Padrinos y cortejo', 'text' => 'Presenten a quienes los acompañan, con nombre y el papel de cada uno.'],
                 ['icon' => 'gift', 'title' => 'Mesa de regalos', 'text' => 'Datos de la cuenta con QR, lluvia de sobres o el enlace a su lista de regalos.'],
-                ['icon' => 'qr-code', 'title' => 'Confirmación con pase', 'text' => 'Cada invitado confirma cuántas personas van y recibe un pase QR para la entrada.'],
+                ['icon' => 'qr-code', 'title' => 'Confirmación con pase', 'text' => 'Cada invitado confirma cuántas personas van; en Premium recibe un pase QR para la entrada.'],
             ],
             'faqs' => [
                 ['¿Podemos poner la ceremonia y la recepción en lugares distintos?', 'Sí. El itinerario muestra cada momento con su hora y la ubicación lleva mapa y el botón para llegar.'],
@@ -200,7 +200,7 @@ return [
                 ['icon' => 'users-three', 'title' => 'Chambelanes y padrinos', 'text' => 'Presenta a tu corte y a tus padrinos, cada uno con su papel en la fiesta.'],
                 ['icon' => 'music-notes', 'title' => 'Playlist y encuestas', 'text' => 'Tus invitados sugieren las canciones del baile y votan en juegos antes de la fiesta.'],
                 ['icon' => 'camera', 'title' => 'Fotomural en vivo', 'text' => 'Durante la fiesta suben fotos desde el celular y todos las ven al instante.'],
-                ['icon' => 'qr-code', 'title' => 'Pase de entrada', 'text' => 'Cada invitado confirma desde su enlace y recibe un pase QR para la puerta.'],
+                ['icon' => 'qr-code', 'title' => 'Pase de entrada', 'text' => 'Cada invitado confirma desde su enlace; en Premium recibe un pase QR para la puerta.'],
             ],
             'faqs' => [
                 ['¿Se puede poner el vals y la ceremonia de velas en el itinerario?', 'Sí. Cada momento lleva su hora, un ícono y una descripción corta.'],
@@ -248,7 +248,7 @@ return [
                 ['icon' => 'chart-bar', 'title' => 'Juegos antes de la fiesta', 'text' => 'Encuestas divertidas que tus invitados responden y ven los resultados al instante.'],
                 ['icon' => 'music-notes', 'title' => 'Playlist entre todos', 'text' => 'Cada invitado sugiere la canción que no puede faltar en la pista.'],
                 ['icon' => 't-shirt', 'title' => 'Dress code con ejemplos', 'text' => 'Colores de la fiesta y sugerencias con foto, para que todos combinen.'],
-                ['icon' => 'qr-code', 'title' => 'Confirmación con pase', 'text' => 'Sabes quién va y cuántas personas; cada invitado recibe su pase QR.'],
+                ['icon' => 'qr-code', 'title' => 'Confirmación con pase', 'text' => 'Sabes quién va y cuántas personas; en Premium cada invitado recibe su pase QR.'],
             ],
             'faqs' => [
                 ['¿Sirve para cumpleaños infantiles?', 'Sí. Adaptamos colores, textos y secciones a la edad y al tema de la fiesta.'],
@@ -273,7 +273,7 @@ return [
             'highlights' => [
                 ['icon' => 'graduation-cap', 'title' => 'Acto y fiesta en un enlace', 'text' => 'El horario de la colación y el de la celebración, con el mapa de cada lugar.'],
                 ['icon' => 'users-three', 'title' => 'Padrinos y compañeros', 'text' => 'Un espacio para agradecer a tus padrinos de promoción, tu familia y tus compañeros.'],
-                ['icon' => 'qr-code', 'title' => 'Confirmación con pase', 'text' => 'Sabes quién va y cuántas personas; cada invitado recibe su pase QR.'],
+                ['icon' => 'qr-code', 'title' => 'Confirmación con pase', 'text' => 'Sabes quién va y cuántas personas; en Premium cada invitado recibe su pase QR.'],
                 ['icon' => 'camera', 'title' => 'Las fotos del día', 'text' => 'Tus invitados suben sus fotos al fotomural y después quedan todas en el mismo enlace.'],
             ],
             'faqs' => [
@@ -303,7 +303,7 @@ return [
                 ['icon' => 'ghost', 'title' => 'Se enciende al abrirla', 'text' => 'Una calabaza que se ilumina al tocarla, murciélagos y la luna llena en la portada.'],
                 ['icon' => 'mask-happy', 'title' => 'El disfraz, explicado', 'text' => 'Qué disfraces esperas, los colores de la noche y el premio al mejor disfraz.'],
                 ['icon' => 'music-notes', 'title' => 'Playlist y votaciones', 'text' => 'Tus invitados sugieren canciones y votan la película o el concurso antes de la fiesta.'],
-                ['icon' => 'qr-code', 'title' => 'Confirmación con pase', 'text' => 'Sabes quién va y cuántas personas; cada invitado recibe su pase QR.'],
+                ['icon' => 'qr-code', 'title' => 'Confirmación con pase', 'text' => 'Sabes quién va y cuántas personas; en Premium cada invitado recibe su pase QR.'],
             ],
             'faqs' => [
                 ['¿Cuánto tarda en estar lista?', 'Nos mandas los datos de la fiesta y la tenemos en uno o dos días. Si la pides cerca del 31, escríbenos temprano.'],
@@ -461,6 +461,10 @@ return [
         ],
     ],
 
+    /*
+    | Paquetes de las invitaciones que arma el equipo. Lo que dice «features» es lo que el sistema
+    | habilita con cada paquete (App\Support\Packages): si se cambia una cosa, se cambian las dos.
+    */
     'packages' => [
         [
             'key' => 'basico',
@@ -470,7 +474,7 @@ return [
             'summary' => 'Lo esencial para invitar con estilo y que nadie se pierda.',
             'features' => [
                 'Portada con foto, nombre y mensaje',
-                'Cuenta regresiva al gran día',
+                'Cuenta regresiva y botón para agendar la fecha',
                 'Ubicación con mapa y cómo llegar',
                 'Itinerario del evento',
                 'Música de fondo',
@@ -482,14 +486,15 @@ return [
             'price' => 57,
             'promo_price' => 43,
             'featured' => true,
-            'summary' => 'La invitación completa, con confirmación de asistencia por invitado.',
+            'summary' => 'La invitación completa: cada invitado con su enlace y su confirmación por WhatsApp.',
             'features' => [
                 'Todo lo del paquete Básico',
                 'Galería de fotos y video',
                 'Dress code, padrinos y cortejo',
+                'Hashtag del evento',
+                'Mesa de regalos con datos bancarios',
                 'Enlace personal para cada invitado',
-                'Confirmación con pase QR',
-                'Control de entrada: el portero escanea el pase',
+                'Confirmación de asistencia por WhatsApp',
             ],
         ],
         [
@@ -498,14 +503,16 @@ return [
             'price' => 99,
             'promo_price' => 72,
             'premium' => true,
-            'summary' => 'Para que tus invitados participen antes, durante y después del evento.',
+            'summary' => 'Con pase QR y control de entrada, tu panel de invitados y todo para que participen.',
             'features' => [
                 'Todo lo del paquete Estándar',
-                'Encuestas y playlist colaborativa',
-                'Fotomural en vivo',
-                'Mesa de regalos y datos bancarios',
-                'Galería de fotos después del evento',
+                'Confirmación con pase QR',
+                'Control de entrada: el portero escanea el pase',
+                'Tu panel para ver invitados y confirmaciones',
                 'Reporte de invitados en PDF y Excel',
+                'Invitación lista para imprimir',
+                'Encuestas y playlist colaborativa',
+                'Fotomural en vivo y galería después del evento',
             ],
         ],
     ],

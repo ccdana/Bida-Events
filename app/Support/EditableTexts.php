@@ -132,6 +132,9 @@ final class EditableTexts
                 'rsvp_tip' => ['Consejo del pase', 'Toma una captura de pantalla por si no tienes señal en el lugar.', true],
                 'rsvp_declined_eyebrow' => ['Frase al decir que no', 'Respuesta enviada'],
                 'rsvp_declined_intro' => ['Texto al decir que no', 'Si cambias de planes, comunícate con la familia para actualizar tu respuesta.', true],
+                'rsvp_whatsapp_name' => ['WhatsApp: campo del nombre', 'Tu nombre'],
+                'rsvp_whatsapp_submit' => ['WhatsApp: botón para enviar', 'Enviar por WhatsApp'],
+                'rsvp_whatsapp_help' => ['WhatsApp: ayuda del botón', 'Se abre WhatsApp con tu respuesta lista; solo tienes que enviarla.', true],
             ],
             'musica' => [
                 'music_hint' => ['Ayuda del reproductor', 'Toca para escuchar'],

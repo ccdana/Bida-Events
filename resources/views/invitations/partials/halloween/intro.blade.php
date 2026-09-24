@@ -11,6 +11,7 @@
     aria-modal="true"
     aria-label="Invitación a {{ $page->displayName }}">
     <span class="inv-hw-intro__moon" aria-hidden="true"></span>
+    @include('invitations.partials.halloween.landscape', ['class' => 'inv-hw-intro__land'])
 
     <div class="inv-hw-intro__bats" aria-hidden="true">
         @foreach([[-150, -230, 0.9, '0s'], [-40, -300, 1.1, '0.1s'], [70, -260, 0.8, '0.05s'], [160, -200, 1, '0.18s'], [10, -180, 0.7, '0.24s']] as [$batX, $batY, $batScale, $batDelay])

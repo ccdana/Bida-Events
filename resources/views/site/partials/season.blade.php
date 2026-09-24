@@ -75,9 +75,12 @@
             open: false,
             left: { days: 0 },
             woken: {},
+            root: null,
             timer: null,
 
             init() {
+                // En los métodos, $el es el botón que se tocó (o el panel): la raíz se guarda aquí
+                this.root = this.$el;
                 this.tick();
                 this.timer = setInterval(() => this.tick(), 60000);
                 this.fromHash();
@@ -104,7 +107,7 @@
                 this.select(key);
                 this.open = true;
                 document.documentElement.classList.add('site-season-open');
-                this.$nextTick(() => this.$el.querySelector(`[data-season="${this.current}"] .site-season__close`)?.focus());
+                this.$nextTick(() => this.root.querySelector(`[data-season="${this.current}"] .site-season__close`)?.focus());
             },
 
             select(key) {
@@ -112,7 +115,7 @@
 
                 if (!this.woken[key]) {
                     this.woken[key] = true;
-                    this.$nextTick(() => this.$el.querySelector(`[data-season="${key}"] [data-cover-reel]`)?.dispatchEvent(new CustomEvent('reel:wake')));
+                    this.$nextTick(() => this.root.querySelector(`[data-season="${key}"] [data-cover-reel]`)?.dispatchEvent(new CustomEvent('reel:wake')));
                 }
             },
 
@@ -127,7 +130,7 @@
                     history.replaceState(null, '', window.location.pathname + window.location.search);
                 }
 
-                this.$nextTick(() => this.$refs.fab?.focus());
+                this.$nextTick(() => this.root.querySelector('.site-seasons__fab')?.focus());
             },
 
             destroy() {

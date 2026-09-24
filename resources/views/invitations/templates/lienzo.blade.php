@@ -16,6 +16,10 @@
 <body class="inv-page inv-lienzo overflow-x-hidden {{ $page->hasPlayer ? 'has-player' : '' }}" x-data="invitationApp()" x-init="init()">
     <a class="inv-skip" href="#contenido">{{ $invCopy['skip_link'] ?? 'Saltar al contenido' }}</a>
 
+    {{-- Lienzo es sobrio: luces difusas y destellos muy suaves en el color principal --}}
+    @include('invitations.partials.drift', ['kind' => 'bokeh', 'count' => 8, 'mobile' => 5, 'seed' => 2, 'class' => 'inv-drift--suave'])
+    @include('invitations.partials.drift', ['kind' => 'star', 'count' => 8, 'mobile' => 5, 'seed' => 5, 'class' => 'inv-drift--suave'])
+
     @include('invitations.partials.shell.nav')
 
     @include('invitations.partials.music-player', ['musica' => $page->music, 'flags' => array_merge($page->flags, ['musica' => $page->visible('musica')])])

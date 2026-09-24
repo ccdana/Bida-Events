@@ -33,6 +33,7 @@ class Invitation extends Model
         'event_type_id',
         'slug',
         'template',
+        'package',
         'title',
         'event_date',
         'status',

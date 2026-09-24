@@ -218,7 +218,8 @@
 }
 
 /* Desactivado claro y legible en todas las plantillas, no un gris lavado */
-.inv-page .inv-btn:disabled {
+.inv-page .inv-btn:disabled,
+.inv-page .inv-btn.is-disabled {
     border-color: color-mix(in srgb, var(--primary-color) 30%, transparent);
     background: color-mix(in srgb, var(--primary-color) 14%, var(--bg-color));
     color: color-mix(in srgb, var(--text-color) 55%, var(--bg-color));

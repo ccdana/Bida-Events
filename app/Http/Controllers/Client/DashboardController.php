@@ -24,7 +24,7 @@ class DashboardController extends Controller
 
         $invitations = InvitationFilters::apply($scope(), $filters)
             ->when($filters['orden'] === '', fn ($query) => $query->reorder()->latest('event_date'))
-            ->select('id', 'user_id', 'reseller_id', 'event_type_id', 'slug', 'template', 'title', 'event_date', 'status', 'expires_at', 'created_at')
+            ->select('id', 'user_id', 'reseller_id', 'event_type_id', 'slug', 'template', 'package', 'title', 'event_date', 'status', 'expires_at', 'created_at')
             ->with([
                 'eventType:id,name,slug',
                 'guests:id,invitation_id,status,passes_confirmed',

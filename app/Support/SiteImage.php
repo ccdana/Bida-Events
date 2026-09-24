@@ -14,8 +14,11 @@ class SiteImage
     {
         $image = self::get($key);
 
-        if (is_file(public_path($image['path']))) {
-            return asset($image['path']);
+        $file = public_path($image['path']);
+
+        // ?v= con la fecha del archivo: al cambiar una foto nadie sigue viendo la vieja por la caché
+        if (is_file($file)) {
+            return asset($image['path']).'?v='.filemtime($file);
         }
 
         [$width, $height] = $image['size'];

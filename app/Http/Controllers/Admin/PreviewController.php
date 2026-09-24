@@ -7,6 +7,7 @@ use App\Models\Invitation;
 use App\Services\InvitationModuleService;
 use App\Services\InvitationPreviewSession;
 use App\Support\InvitationDefaults;
+use App\Support\Packages;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Throwable;
@@ -62,6 +63,8 @@ class PreviewController extends Controller
                 'title' => $payload['title'] ?? 'Vista previa',
                 'slug' => $payload['slug'] ?? 'preview',
                 'template' => $template,
+                // La vista previa respeta el paquete elegido: se ve lo que el paquete incluye
+                'package' => Packages::isValid($payload['package'] ?? null) ? $payload['package'] : null,
                 'event_date' => $this->parseDate($payload['event_date'] ?? null, now()->addMonths(3)),
                 'status' => 'active',
                 'expires_at' => $this->parseDate($payload['expires_at'] ?? null, now()->addYear(), asDate: true),
@@ -120,6 +123,7 @@ class PreviewController extends Controller
             'template' => $request->input('template'),
             'event_date' => $request->input('event_date'),
             'expires_at' => $request->input('expires_at'),
+            'package' => $request->input('package'),
             'modulos' => $modulos,
         ];
     }
@@ -148,6 +152,7 @@ class PreviewController extends Controller
             'template' => $request->input('template'),
             'event_date' => $request->input('event_date'),
             'expires_at' => $request->input('expires_at'),
+            'package' => $request->input('package'),
             'modulos' => $modulos,
         ];
     }

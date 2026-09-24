@@ -6,6 +6,7 @@ use App\EventProfiles\EventProfiles;
 use App\Models\Invitation;
 use App\Models\User;
 use App\Modules\Module;
+use App\Support\Packages;
 
 class InvitationPolicy
 {
@@ -17,16 +18,24 @@ class InvitationPolicy
         return $user->isAdmin() ? true : null;
     }
 
-    /** La ve su cliente y, si la armó un revendedor, también ese revendedor. */
+    /**
+     * La ve su cliente y, si la armó un revendedor, también ese revendedor. El cliente de una
+     * invitación del equipo la ve en su panel solo si su paquete lo incluye (Premium; ver Packages).
+     */
     public function view(User $user, Invitation $invitation): bool
     {
+        if ($invitation->reseller_id !== null && (int) $invitation->reseller_id === (int) $user->id) {
+            return true;
+        }
+
         return (int) $invitation->user_id === (int) $user->id
-            || ($invitation->reseller_id !== null && (int) $invitation->reseller_id === (int) $user->id);
+            && Packages::allows($invitation->package, 'client_panel');
     }
 
+    /** Reportes e invitación para imprimir: Premium (o sin paquete). */
     public function export(User $user, Invitation $invitation): bool
     {
-        return $this->view($user, $invitation);
+        return $this->view($user, $invitation) && Packages::allows($invitation->package, 'exports');
     }
 
     /**

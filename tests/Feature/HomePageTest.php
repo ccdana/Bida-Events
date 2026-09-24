@@ -212,7 +212,8 @@ class HomePageTest extends TestCase
         File::put(public_path($path), 'webp');
 
         try {
-            $this->assertSame(asset($path), SiteImage::url('_test-image'));
+            // Con la versión por fecha del archivo, para que un cambio de foto no quede en la caché
+            $this->assertSame(asset($path).'?v='.filemtime(public_path($path)), SiteImage::url('_test-image'));
         } finally {
             File::delete(public_path($path));
         }

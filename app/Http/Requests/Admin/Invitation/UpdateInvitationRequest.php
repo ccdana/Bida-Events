@@ -4,6 +4,7 @@ namespace App\Http\Requests\Admin\Invitation;
 
 use App\Http\Requests\Admin\Invitation\Concerns\ValidatesInvitationModules;
 use App\Models\Invitation;
+use App\Support\Packages;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -36,6 +37,8 @@ class UpdateInvitationRequest extends FormRequest
             'user_id' => ['nullable', 'exists:users,id'],
             'event_date' => ['required', 'date'],
             'status' => ['required', 'in:active,inactive'],
+            // Paquete vendido (App\Support\Packages); vacío = todo incluido (tarjetas y anteriores)
+            'package' => ['nullable', Rule::in(Packages::ORDER)],
             'expires_at' => ['required', 'date'],
             ...$this->moduleRules(),
         ];

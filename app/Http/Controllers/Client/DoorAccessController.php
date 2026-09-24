@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
 use App\Models\Invitation;
+use App\Support\Packages;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Str;
 
@@ -16,6 +17,8 @@ class DoorAccessController extends Controller
 {
     public function store(Invitation $invitation): RedirectResponse
     {
+        abort_unless(Packages::allows($invitation->package, 'door'), 403, 'El control de entrada viene en el paquete Premium.');
+
         $renewing = $invitation->door_token !== null;
 
         $invitation->forceFill(['door_token' => Str::random(48)])->saveQuietly();

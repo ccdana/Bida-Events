@@ -3,7 +3,7 @@
     Valores deterministas para que el HTML sea igual en cada visita (estilos en themes/graduacion.css).
 --}}
 <div class="inv-grad-ambient" aria-hidden="true">
-    @for($i = 0; $i < 6; $i++)
+    @for($i = 0; $i < 9; $i++)
         <span class="inv-grad-ambient__cap" style="{{ sprintf('--x:%.1f%%;--s:%.2f;--d:%ds;--delay:-%ds;--r:%ddeg', fmod($i * 31.7 + 6, 90), 0.5 + ($i % 3) * 0.18, 26 + ($i * 7) % 14, ($i * 6) % 30, (($i * 53) % 60) - 30) }}">
             @include('invitations.partials.graduacion.cap')
         </span>

@@ -26,6 +26,9 @@
     @endif
 
     @include('invitations.partials.graduacion.ambient')
+    {{-- Serpentinas doradas de celebración y destellos que suben --}}
+    @include('invitations.partials.drift', ['kind' => 'streamer', 'count' => 18, 'mobile' => 10, 'seed' => 1, 'class' => 'inv-drift--dorado'])
+    @include('invitations.partials.drift', ['kind' => 'star', 'count' => 12, 'mobile' => 7, 'seed' => 6, 'class' => 'inv-drift--dorado'])
 
     @include('invitations.partials.shell.nav')
 

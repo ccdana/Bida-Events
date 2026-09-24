@@ -20,10 +20,13 @@
                 <dt class="inv-label">{{ $invCopy['guest_banner_passes'] ?? 'Pases' }}</dt>
                 <dd>{{ $passes }} {{ $passes === 1 ? 'persona' : 'personas' }}</dd>
             </div>
-            <div>
-                <dt class="inv-label">{{ $invCopy['guest_banner_attendance'] ?? 'Asistencia' }}</dt>
-                <dd>{{ $statusLabel }}</dd>
-            </div>
+            {{-- Por WhatsApp la respuesta no queda guardada aquí: no hay estado que mostrar --}}
+            @if($showStatus ?? true)
+                <div>
+                    <dt class="inv-label">{{ $invCopy['guest_banner_attendance'] ?? 'Asistencia' }}</dt>
+                    <dd>{{ $statusLabel }}</dd>
+                </div>
+            @endif
         </dl>
 
         @if($status === 'pending')

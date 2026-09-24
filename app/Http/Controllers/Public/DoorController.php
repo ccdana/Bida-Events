@@ -7,6 +7,7 @@ use App\Http\Requests\Public\CheckInGuestRequest;
 use App\Models\Guest;
 use App\Models\Invitation;
 use App\Support\GuestPass;
+use App\Support\Packages;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
@@ -152,13 +153,18 @@ class DoorController extends Controller
     {
         abort_unless(strlen($doorToken) >= 32, 404);
 
-        return Invitation::where('door_token', $doorToken)->firstOrFail();
+        $invitation = Invitation::where('door_token', $doorToken)->firstOrFail();
+        abort_unless(Packages::allows($invitation->package, 'door'), 404);
+
+        return $invitation;
     }
 
     /** @return array{0: Invitation, 1: Guest} */
     private function findPass(string $slug, string $token): array
     {
         $invitation = Invitation::where('slug', $slug)->firstOrFail();
+        // El control de entrada es del paquete Premium
+        abort_unless(Packages::allows($invitation->package, 'door'), 404);
         $guest = Guest::where('invitation_id', $invitation->id)->where('qr_code_token', $token)->firstOrFail();
 
         return [$invitation, $guest];

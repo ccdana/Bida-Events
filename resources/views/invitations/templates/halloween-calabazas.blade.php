@@ -19,6 +19,8 @@
     @endif
 </head>
 <body class="inv-page inv-halloween overflow-x-hidden {{ $page->hasPlayer ? 'has-player' : '' }}" x-data="invitationApp()" x-init="init()">
+    @include('invitations.partials.halloween.defs')
+
     <a class="inv-skip" href="#contenido">{{ $invCopy['skip_link'] ?? 'Saltar al contenido' }}</a>
 
     @if($showIntro)
@@ -26,6 +28,9 @@
     @endif
 
     @include('invitations.partials.halloween.ambient')
+    {{-- Cielo con estrellas y hojas secas de otoño que caen --}}
+    @include('invitations.partials.drift', ['kind' => 'twinkle', 'count' => 26, 'mobile' => 18, 'seed' => 2])
+    @include('invitations.partials.drift', ['kind' => 'leaf', 'count' => 12, 'mobile' => 7, 'seed' => 4, 'class' => 'inv-drift--otono'])
 
     @include('invitations.partials.shell.nav')
 

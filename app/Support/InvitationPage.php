@@ -108,6 +108,12 @@ final class InvitationPage
 
     public readonly string $eventLabel;
 
+    /** Cómo confirma el invitado según el paquete: con pase (Packages::RSVP_PASS), por WhatsApp o null (no confirma). */
+    public readonly ?string $rsvpMode;
+
+    /** Número (solo dígitos) que recibe las confirmaciones por WhatsApp del paquete Estándar. */
+    public readonly string $rsvpWhatsapp;
+
     public function __construct(
         public readonly Invitation $invitation,
         array $modules,
@@ -148,6 +154,10 @@ final class InvitationPage
         $this->displayName = ($this->welcome['nombre_quinceanera'] ?? null) ?: $invitation->title;
         $this->eventKey = $meta['event'] ?? 'xv';
         $this->placeName = trim((string) ($modules['ubicacion']['nombre_lugar'] ?? '')) ?: null;
+        $this->rsvpWhatsapp = preg_replace('/\D+/', '', (string) ($modules['rsvp']['whatsapp'] ?? '')) ?? '';
+        $mode = Packages::rsvpMode($invitation->package);
+        // Por WhatsApp sin número no hay a quién escribir: la sección no se muestra
+        $this->rsvpMode = $mode === Packages::RSVP_WHATSAPP && $this->rsvpWhatsapp === '' ? null : $mode;
     }
 
     /** Título, descripción e imagen que se ven al compartir el enlace (Open Graph). */
@@ -158,6 +168,11 @@ final class InvitationPage
 
     public function visible(string $module): bool
     {
+        // Lo que el paquete de la invitación no incluye no se muestra, aunque esté encendido
+        if (! Packages::allowsModule($this->invitation->package, $module)) {
+            return false;
+        }
+
         if ($this->isPostEvent && ! in_array($module, self::POST_EVENT_MODULES, true)) {
             return false;
         }
@@ -180,18 +195,37 @@ final class InvitationPage
         return $this->partials[$module] ?? null;
     }
 
+    /**
+     * ¿Se muestra la confirmación? Con pase, solo en el enlace personal (el pase es de ese invitado);
+     * por WhatsApp, también en el enlace general (el invitado escribe su nombre).
+     */
+    public function showsRsvp(): bool
+    {
+        return $this->visible('rsvp') && match ($this->rsvpMode) {
+            Packages::RSVP_PASS => $this->guest !== null,
+            Packages::RSVP_WHATSAPP => true,
+            default => false,
+        };
+    }
+
+    /** El saludo con el nombre y los lugares del invitado, en su enlace personal. */
+    public function showsGuestBanner(): bool
+    {
+        return $this->guest !== null && $this->showsRsvp();
+    }
+
     /** Enlaces del menú en el mismo orden en que aparecen las secciones. */
     public function navItems(): array
     {
         $items = [['id' => 'inicio', 'label' => $this->copy['nav_inicio'] ?? 'Inicio']];
 
-        if ($this->visible('rsvp') && $this->guest) {
+        if ($this->showsGuestBanner()) {
             $items[] = ['id' => 'guest-banner', 'label' => 'Tu invitación'];
         }
 
         foreach ($this->order as $module) {
             if (! $this->visible($module)
-                || ($module === 'rsvp' && ! $this->guest)
+                || ($module === 'rsvp' && ! $this->showsRsvp())
                 || ($module === 'post_evento' && ! $this->isPostEvent)) {
                 continue;
             }

@@ -44,12 +44,12 @@
             ['icon' => 'chart-bar', 'title' => 'Encuestas y playlist', 'text' => 'Tus invitados votan y sugieren las canciones de la pista antes de la fiesta.'],
         ],
         'En la puerta' => [
-            ['icon' => 'qr-code', 'title' => 'Pase QR y control de entrada', 'text' => 'Quien recibe a los invitados escanea el pase con su teléfono: ve si confirmó, cuántas personas entran y si ese pase ya se usó.'],
+            ['icon' => 'qr-code', 'title' => 'Pase QR y control de entrada', 'text' => 'En Premium, quien recibe a los invitados escanea el pase con su teléfono: ve si confirmó, cuántas personas entran y si ese pase ya se usó.'],
         ],
         'Durante y después' => [
             ['icon' => 'camera', 'title' => 'Fotomural en vivo', 'text' => 'Tus invitados suben fotos desde su celular y todos las ven al instante.'],
             ['icon' => 'images', 'title' => 'Las fotos, en el mismo enlace', 'text' => 'Pasado el evento, la invitación reúne las fotos oficiales y las de tus invitados.'],
-            ['icon' => 'file-text', 'title' => 'Tu lista, lista para imprimir', 'text' => 'Invitados, confirmaciones y alimentación en PDF o Excel para el salón y el catering.'],
+            ['icon' => 'file-text', 'title' => 'Tu lista, lista para imprimir', 'text' => 'En Premium: invitados, confirmaciones y alimentación en PDF o Excel para el salón y el catering, y la invitación para imprimir.'],
         ],
     ];
     $steps = [
@@ -62,7 +62,7 @@
         ['¿Qué es una invitación digital?', 'Es una página web con los datos de tu evento (fecha, lugar, itinerario, fotos y música) que tus invitados abren desde un enlace, por lo general enviado por WhatsApp. A diferencia de una imagen, permite confirmar asistencia, ver el mapa y recibir un pase de entrada con código QR.'],
         ['¿Para qué tipo de eventos sirve?', 'Bodas, XV años, bautizos, cumpleaños, graduaciones, fiestas de temporada como Halloween y cualquier celebración. Adaptamos los textos y las secciones a tu evento.'],
         ['¿Mis invitados necesitan instalar algo?', 'No. La invitación se abre en el navegador del celular desde el enlace que compartes.'],
-        ['¿Cómo confirman asistencia y cómo se controla la entrada?', 'Desde el paquete Estándar, cada invitado recibe su enlace personal, indica cuántas personas van y obtiene un pase con código QR. El día del evento, quien recibe a los invitados escanea ese pase con su teléfono y ve si puede pasar.'],
+        ['¿Cómo confirman asistencia y cómo se controla la entrada?', 'En el paquete Estándar, cada invitado recibe su enlace personal y confirma por WhatsApp: se abre el mensaje con su nombre y cuántas personas van. En Premium la respuesta queda guardada en tu panel y el invitado recibe un pase con código QR; el día del evento, quien recibe a los invitados lo escanea con su teléfono y ve si puede pasar.'],
         ['¿Puedo hacer cambios después de compartirla?', 'Sí. Horarios, ubicación y textos se actualizan en el mismo enlace, así tus invitados siempre ven la versión correcta.'],
         ['¿Cuánto tardan en entregarla?', 'Depende del paquete y de cuándo nos envíes las fotos y los datos. Te damos una fecha de entrega al confirmar tu pedido.'],
         ['¿Puedo armar mis propias invitaciones?', 'Sí. Con Hazlo tú tienes tu propio panel y nuestras plantillas por un plan mensual, sin comisión por invitación. Sirve si organizas varios eventos o si vendes invitaciones a tus clientes.'],
@@ -183,9 +183,33 @@
 
                 <div class="site-offer__grid">
                     <a href="{{ $mainService['url'] ?? $contactUrl }}" class="site-offer__main" data-reveal>
-                        <figure class="site-offer__photo">
-                            <x-site.image key="servicio-enlace" />
-                        </figure>
+                        {{-- Lo que se vende, dibujado: la invitación en el teléfono, la respuesta que llega por
+                             WhatsApp y el pase de entrada. Sin fotos: pesa casi nada y se ve nítido en cualquier pantalla. --}}
+                        <div class="site-offer__visual" aria-hidden="true">
+                            <div class="site-offer__card">
+                                <span class="site-offer__card-kicker">Nos casamos</span>
+                                <span class="site-offer__card-arch"><span></span></span>
+                                <span class="site-offer__card-names">Camila <i>&amp;</i> Andrés</span>
+                                <span class="site-offer__card-date">Sábado 14 de noviembre · 19:00</span>
+                                <span class="site-offer__card-btn">Confirmar asistencia</span>
+                            </div>
+                            <div class="site-offer__bubble">
+                                <span>Hola, soy Familia Rojas. Confirmo mi asistencia con 3 personas.</span>
+                                <small>19:42 <x-phosphor-checks aria-hidden="true" /></small>
+                            </div>
+                            <div class="site-offer__pass">
+                                <svg viewBox="0 0 21 21" class="site-offer__qr">
+                                    @foreach([[0,0],[14,0],[0,14]] as [$qx, $qy])
+                                        <rect x="{{ $qx + 0.5 }}" y="{{ $qy + 0.5 }}" width="6" height="6" rx="1" fill="none" stroke="currentColor" />
+                                        <rect x="{{ $qx + 2 }}" y="{{ $qy + 2 }}" width="3" height="3" fill="currentColor" />
+                                    @endforeach
+                                    @foreach([[8,1],[10,3],[8,5],[12,8],[9,9],[15,9],[17,11],[8,12],[11,13],[19,13],[9,16],[13,16],[16,17],[18,19],[10,19],[14,19],[2,9],[5,10],[1,11]] as [$qx, $qy])
+                                        <rect x="{{ $qx }}" y="{{ $qy }}" width="2" height="2" fill="currentColor" />
+                                    @endforeach
+                                </svg>
+                                <span><b>Pase</b> 3 personas</span>
+                            </div>
+                        </div>
                         <div class="site-offer__body">
                             <p class="site-overline">Te la diseñamos</p>
                             <h3 class="site-offer__name">{{ $mainService['name'] }}</h3>

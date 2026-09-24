@@ -1,6 +1,6 @@
-{{-- Murciélago en silueta; las alas aletean con la animación de themes/halloween.css. --}}
-<svg class="inv-hw-bat {{ $class ?? '' }}" viewBox="0 0 64 28" aria-hidden="true" focusable="false">
-    <path class="inv-hw-bat__wing inv-hw-bat__wing--left" d="M32 12 C28 4 18 0 4 4 C10 6 12 10 11 14 C16 11 21 13 23 17 C25 13 29 13 32 16 Z"/>
-    <path class="inv-hw-bat__wing inv-hw-bat__wing--right" d="M32 12 C36 4 46 0 60 4 C54 6 52 10 53 14 C48 11 43 13 41 17 C39 13 35 13 32 16 Z"/>
-    <path class="inv-hw-bat__body" d="M32 8 L29.5 5 L29.8 10 C28.5 12 28.5 16 32 20 C35.5 16 35.5 12 34.2 10 L34.5 5 Z"/>
+{{-- Murciélago en silueta, con orejas y alas festoneadas; las alas aletean con la animación de themes/halloween.css. --}}
+<svg class="inv-hw-bat {{ $class ?? '' }}" viewBox="0 0 64 24" aria-hidden="true" focusable="false">
+    <path class="inv-hw-bat__wing inv-hw-bat__wing--left" d="M32 13 C29 8 24 5 17 4 C12 3.5 7 4.5 2 7 C6 8 8 10.5 8.5 13.5 C11 11.5 14.5 11.8 16.5 14.5 C18.5 12.5 22 12.8 24 15.5 C26 13.8 29 14 31 16 Z"/>
+    <path class="inv-hw-bat__wing inv-hw-bat__wing--right" d="M32 13 C35 8 40 5 47 4 C52 3.5 57 4.5 62 7 C58 8 56 10.5 55.5 13.5 C53 11.5 49.5 11.8 47.5 14.5 C45.5 12.5 42 12.8 40 15.5 C38 13.8 35 14 33 16 Z"/>
+    <path class="inv-hw-bat__body" d="M32 7.5 L30.2 4.5 L29.9 8.6 C28.6 10 28.3 12.6 29 15 C29.6 17.5 31 19.5 32 20.5 C33 19.5 34.4 17.5 35 15 C35.7 12.6 35.4 10 34.1 8.6 L33.8 4.5 Z"/>
 </svg>

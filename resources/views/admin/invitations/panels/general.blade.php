@@ -22,6 +22,29 @@
         </div>
     </section>
 
+    {{-- Paquete vendido: decide qué secciones se pueden encender y cómo confirma el invitado (App\Support\Packages) --}}
+    @if(($editorMode ?? 'admin') === 'admin')
+    <section class="admin-card space-y-3 p-4" x-show="(profile.kind ?? 'invitation') === 'invitation'">
+        <div>
+            <h3 class="text-sm font-semibold">Paquete</h3>
+            <p class="mt-0.5 text-xs text-site-muted">Lo que no incluye queda marcado en la lista de secciones y no se muestra en la invitación.</p>
+        </div>
+        <div class="grid gap-2 sm:grid-cols-3" role="radiogroup" aria-label="Paquete de la invitación">
+            <template x-for="option in (config.packageOptions ?? [])" :key="option.value">
+                <button type="button" role="radio" @click="meta.package = option.value"
+                    :aria-checked="(meta.package === option.value).toString()"
+                    class="rounded-[12px] border p-3 text-left transition-colors"
+                    :class="meta.package === option.value ? 'border-site-ink bg-site-bg' : 'border-site-line hover:bg-site-bg'">
+                    <span class="block text-sm font-semibold" x-text="option.label"></span>
+                    <span class="mt-0.5 block text-xs text-site-muted" x-text="option.hint"></span>
+                </button>
+            </template>
+        </div>
+        <p class="text-xs text-site-muted" x-show="!meta.package" x-cloak>Sin paquete: todo incluido (invitaciones anteriores a los paquetes).</p>
+        <p class="text-xs text-site-muted" x-show="rsvpMode === 'whatsapp'" x-cloak>Confirmación por WhatsApp: carga el número en «Confirmación de asistencia».</p>
+    </section>
+    @endif
+
     {{-- Identidad --}}
     <section class="admin-card space-y-4 p-4">
         <div>

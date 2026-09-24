@@ -21,6 +21,8 @@
     @endif
 
     @include('invitations.partials.particles')
+    {{-- Destellos que suben junto a las luces --}}
+    @include('invitations.partials.drift', ['kind' => 'star', 'count' => 14, 'mobile' => 8, 'seed' => 3])
 
     @include('invitations.partials.xv.glints')
 

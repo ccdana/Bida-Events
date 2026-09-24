@@ -15,7 +15,8 @@ class StoreResellerInvitationRequest extends StoreInvitationRequest
     public function rules(): array
     {
         $rules = parent::rules();
-        unset($rules['user_id']);
+        // Sin dueño ni paquete: la invitación es del revendedor y su plan ya dice qué incluye
+        unset($rules['user_id'], $rules['package']);
 
         $rules['template'] = [
             'required',

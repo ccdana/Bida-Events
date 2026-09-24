@@ -4,8 +4,8 @@
 --}}
 @php($moduleRegistry = app(\App\Modules\ModuleRegistry::class))
 
-@if($page->visible('rsvp') && $guest)
-    @include('invitations.partials.guest-banner', ['guest' => $guest])
+@if($page->showsGuestBanner())
+    @include('invitations.partials.guest-banner', ['guest' => $guest, 'showStatus' => $page->rsvpMode === \App\Support\Packages::RSVP_PASS])
 @endif
 
 @if($page->isPostEvent && $page->visible('post_evento') && !empty($page->welcome['mensaje_post_evento']))
@@ -75,7 +75,13 @@
         ])
     @elseif($module === 'regalos' && $page->visible('regalos'))
         @include('invitations.partials.regalos', ['regalos' => $modulos['regalos'] ?? []])
-    @elseif($module === 'rsvp' && $page->visible('rsvp') && $guest)
+    @elseif($module === 'rsvp' && $page->showsRsvp() && $page->rsvpMode === \App\Support\Packages::RSVP_WHATSAPP)
+        {{-- Paquete Estándar: el invitado arma su respuesta y se la envía por WhatsApp al organizador --}}
+        @include('invitations.partials.rsvp-whatsapp', [
+            'rsvp' => $modulos['rsvp'] ?? [],
+            'guest' => $guest,
+        ])
+    @elseif($module === 'rsvp' && $page->showsRsvp())
         @include('invitations.partials.rsvp', [
             'rsvp' => $modulos['rsvp'] ?? [],
             'guest' => $guest,

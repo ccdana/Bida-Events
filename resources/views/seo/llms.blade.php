@@ -8,9 +8,10 @@
 - Invitaciones digitales para bodas, XV años, bautizos, cumpleaños y graduaciones, armadas por el equipo de {!! $bida['brand'] !!} con las fotos y los datos del evento.
 - Tarjetas digitales de temporada (Día del Amor, Halloween) listas para compartir.
 - «Hazlo tú»: un plan mensual con panel propio para que familias, fotógrafos, salones y organizadores armen sus propias invitaciones, sin comisión por invitación.
-- Cada invitado recibe un enlace personal: confirma cuántas personas van y recibe un pase con código QR.
-- Control de entrada: quien recibe a los invitados escanea el pase con la cámara de su teléfono; el sistema dice si puede pasar, cuántas personas entran y no deja usar el mismo pase dos veces.
-- Reportes de invitados en PDF y Excel, y una versión de la invitación para imprimir.
+- Paquete Estándar: cada invitado recibe un enlace personal y confirma por WhatsApp con un mensaje que ya lleva su nombre y cuántas personas van.
+- Paquete Premium: la confirmación queda guardada en el panel del organizador y el invitado recibe un pase con código QR.
+- Control de entrada (Premium): quien recibe a los invitados escanea el pase con la cámara de su teléfono; el sistema dice si puede pasar, cuántas personas entran y no deja usar el mismo pase dos veces.
+- Reportes de invitados en PDF y Excel, y una versión de la invitación para imprimir (Premium).
 - Las invitaciones no aparecen en buscadores: solo las abre quien tiene el enlace.
 
 ## Precios de hoy (pago único por invitación)
