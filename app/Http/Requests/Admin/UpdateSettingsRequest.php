@@ -24,9 +24,17 @@ class UpdateSettingsRequest extends FormRequest
             'packages.*.price' => ['required', 'integer', 'min:0', 'max:100000'],
             'packages.*.promo_price' => ['nullable', 'integer', 'min:0', 'max:100000'],
 
-            'season_price' => ['required', 'integer', 'min:0', 'max:100000'],
-            'season_promo_price' => ['nullable', 'integer', 'min:0', 'max:100000'],
-            'season_ends_at' => ['nullable', 'date'],
+            // Cada temporada: encendida o no, precio y fecha de término
+            'seasons' => ['array'],
+            'seasons.*.active' => ['nullable', 'boolean'],
+            'seasons.*.price' => ['required', 'integer', 'min:0', 'max:100000'],
+            'seasons.*.promo_price' => ['nullable', 'integer', 'min:0', 'max:100000'],
+            'seasons.*.ends_at' => ['nullable', 'date'],
+
+            // Planes de revendedor: precio mensual y cupo (vacío = sin tope)
+            'reseller_plans' => ['array'],
+            'reseller_plans.*.price' => ['required', 'integer', 'min:0', 'max:100000'],
+            'reseller_plans.*.quota_per_month' => ['nullable', 'integer', 'min:1', 'max:10000'],
 
             // Las plantillas de temporada que siguen ofreciéndose
             'templates' => ['array'],
@@ -46,8 +54,11 @@ class UpdateSettingsRequest extends FormRequest
                     }
                 }
 
-                if ($this->filled('season_promo_price') && (int) $this->input('season_promo_price') >= (int) $this->input('season_price')) {
-                    $validator->errors()->add('season_promo_price', 'El precio con descuento tiene que ser menor que el normal.');
+                foreach ((array) $this->input('seasons', []) as $key => $season) {
+                    if (($season['promo_price'] ?? '') !== '' && ($season['promo_price'] ?? null) !== null
+                        && (int) $season['promo_price'] >= (int) ($season['price'] ?? 0)) {
+                        $validator->errors()->add("seasons.{$key}.promo_price", 'El precio con descuento tiene que ser menor que el normal.');
+                    }
                 }
             },
         ];
@@ -57,9 +68,9 @@ class UpdateSettingsRequest extends FormRequest
     {
         return [
             'promo_ends_at' => 'fecha de término de la promoción',
-            'season_price' => 'precio de la temporada',
-            'season_promo_price' => 'precio con descuento de la temporada',
-            'season_ends_at' => 'fecha de término de la temporada',
+            'seasons.*.price' => 'precio de la temporada',
+            'seasons.*.promo_price' => 'precio con descuento de la temporada',
+            'seasons.*.ends_at' => 'fecha de término de la temporada',
         ];
     }
 }

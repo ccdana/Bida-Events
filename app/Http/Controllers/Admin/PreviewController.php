@@ -67,6 +67,11 @@ class PreviewController extends Controller
                 'expires_at' => $this->parseDate($payload['expires_at'] ?? null, now()->addYear(), asDate: true),
             ]);
 
+            // El revendedor ve su vista previa con su propia marca en el pie, como la verán sus invitados
+            if ($request->user()?->isReseller()) {
+                $invitation->setRelation('reseller', $request->user());
+            }
+
             $pollResults = [];
             foreach ($modulos['encuestas']['preguntas'] ?? [] as $poll) {
                 $pollResults[$poll['id']] = array_fill(0, count($poll['opciones'] ?? []), 0);

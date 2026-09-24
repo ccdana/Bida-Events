@@ -3,21 +3,21 @@
         @include('invitations.partials.section-header', [
             'compact' => true,
             'lottie' => 'music',
-            'eyebrow' => 'Colabora con la fiesta',
+            'eyebrow' => $invCopy['playlist_eyebrow'] ?? 'Colabora con la fiesta',
             'title' => $playlist['titulo'] ?? 'Playlist colaborativa',
             'intro' => $playlist['descripcion'] ?? 'Sugiere la canción que no puede faltar en la pista.',
         ])
 
         <form class="inv-playlist__form" data-needs-js @submit.prevent="submit">
-            <label class="inv-label" for="playlist-song">Tu canción</label>
+            <label class="inv-label" for="playlist-song">{{ $invCopy['playlist_label'] ?? 'Tu canción' }}</label>
             <div class="inv-playlist__row">
                 <input id="playlist-song" type="text" class="inv-input" x-model="song" maxlength="200" autocomplete="off"
                     placeholder="{{ $playlist['placeholder'] ?? 'Ej. Vivir mi vida – Marc Anthony' }}">
                 <button type="submit" class="inv-btn" :disabled="submitting || !song.trim()">
-                    <span x-text="submitting ? 'Enviando…' : 'Sugerir'">Sugerir</span>
+                    <span x-text="submitting ? 'Enviando…' : @js($invCopy['playlist_button'] ?? 'Sugerir')">{{ $invCopy['playlist_button'] ?? 'Sugerir' }}</span>
                 </button>
             </div>
-            <p class="inv-help inv-playlist__help">Escribe el nombre y el artista, o pega un enlace de YouTube.</p>
+            <p class="inv-help inv-playlist__help">{{ $invCopy['playlist_help'] ?? 'Escribe el nombre y el artista, o pega un enlace de YouTube.' }}</p>
         </form>
 
         <noscript>
@@ -71,7 +71,7 @@
             </button>
         </nav>
 
-        <p class="inv-empty" x-show="!songs.length" x-cloak>Sé la primera persona en sugerir una canción.</p>
+        <p class="inv-empty" x-show="!songs.length" x-cloak>{{ $invCopy['playlist_empty'] ?? 'Sé la primera persona en sugerir una canción.' }}</p>
     </div>
 </section>
 <script>

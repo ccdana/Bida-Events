@@ -2,8 +2,8 @@
     <div class="inv-wrap inv-wrap--wide">
         <header class="inv-head">
             @include('invitations.partials.lottie-framed-icon', ['name' => $invCopy['countdown_lottie'] ?? 'clock'])
-            <p class="inv-head__eyebrow" x-text="finished ? 'Llegó el momento' : 'El gran día se acerca'">El gran día se acerca</p>
-            <h2 class="inv-head__title" x-text="finished ? '¡Hoy es el gran día!' : 'Faltan'">Falta poco</h2>
+            <p class="inv-head__eyebrow" x-text="finished ? @js($invCopy['countdown_done_eyebrow'] ?? 'Llegó el momento') : @js($invCopy['countdown_eyebrow'] ?? 'El gran día se acerca')">{{ $invCopy['countdown_eyebrow'] ?? 'El gran día se acerca' }}</p>
+            <h2 class="inv-head__title" x-text="finished ? @js($invCopy['countdown_done_title'] ?? '¡Hoy es el gran día!') : @js($invCopy['countdown_title'] ?? 'Faltan')">{{ $invCopy['countdown_title'] ?? 'Faltan' }}</h2>
             <div class="inv-head__rule" aria-hidden="true"></div>
         </header>
 

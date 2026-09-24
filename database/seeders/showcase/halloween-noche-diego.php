@@ -1,0 +1,208 @@
+<?php
+
+// Invitación de muestra "halloween-noche-diego": plantilla «Noche de calabazas», la de la
+// temporada de Halloween. La portada es ilustrada (luna, murciélagos y calabazas): no necesita foto.
+
+return [
+    'invitation' => [
+        'slug' => 'halloween-noche-diego',
+        'title' => 'Fiesta de Halloween de Diego',
+        'template' => 'invitations.templates.halloween-calabazas',
+        'event_type' => [
+            'slug' => 'halloween',
+            'name' => 'Halloween',
+            'code' => 'halloween',
+            'kind' => 'invitation',
+            'season' => 'halloween',
+        ],
+        'event_date' => '2026-10-31 21:00:00',
+        'status' => 'active',
+        'expires_at' => '2027-04-30',
+    ],
+    'modules' => [
+        'config' => [
+            'colores' => [
+                'primary' => '#F08A24',
+                'secondary' => '#7B4BB7',
+                'accent' => '#2B2238',
+                'text' => '#F4EEE6',
+                'background' => '#130F1A',
+            ],
+            'tipografias' => [
+                'titulos' => 'Fredoka',
+                'cuerpo' => 'Nunito Sans',
+                'script' => 'Creepster',
+            ],
+            'modulos' => [
+                'bienvenida' => true,
+                'video' => false,
+                'musica' => false,
+                'galeria' => false,
+                'itinerario' => true,
+                'dress_code' => true,
+                'destacados' => true,
+                'ubicacion' => true,
+                'hashtag' => true,
+                'encuestas' => true,
+                'playlist' => true,
+                'regalos' => false,
+                'rsvp' => true,
+                'fotomural' => true,
+                'cuenta_regresiva' => true,
+                'agendar' => true,
+                'post_evento' => false,
+            ],
+            'template' => 'invitations.templates.halloween-calabazas',
+        ],
+        'bienvenida' => [
+            'nombre_quinceanera' => 'La noche de Diego',
+            'subtitulo' => 'Fiesta de disfraces',
+            'mensaje' => 'Saca tu mejor disfraz: habrá música, dulces, concurso de disfraces y una noche para no olvidar.',
+            'fecha_texto' => 'Sábado 31 de octubre',
+            'mensaje_post_evento' => '¡Gracias por venir a la noche más divertida del año!',
+            'imagen_hero' => null,
+        ],
+        'ubicacion' => [
+            'lat' => -17.3786,
+            'lng' => -66.1519,
+            'nombre_lugar' => 'Casa Quinta El Nogal',
+            'direccion' => 'Calle Los Pinos 230, Cochabamba',
+            'maps_url' => 'https://maps.google.com/?q=-17.3786,-66.1519',
+            'nota' => 'Toca el timbre de la puerta verde. Hay parqueo en la calle.',
+            'imagen_lugar' => null,
+        ],
+        'itinerario' => [
+            'titulo' => 'La noche',
+            'eventos' => [
+                ['hora' => '21:00', 'titulo' => 'Llegada', 'icono' => 'recepcion', 'descripcion' => 'Pasa por el túnel de telarañas'],
+                ['hora' => '22:00', 'titulo' => 'Brindis de bienvenida', 'icono' => 'brindis', 'descripcion' => 'Ponche de la casa'],
+                ['hora' => '23:00', 'titulo' => 'Concurso de disfraces', 'icono' => 'sorpresa', 'descripcion' => 'Premio al más creativo'],
+                ['hora' => '23:30', 'titulo' => 'A bailar', 'icono' => 'fiesta', 'descripcion' => 'DJ hasta tarde'],
+            ],
+        ],
+        'dress_code' => [
+            'sugerencias' => [
+                [
+                    'para' => 'Todos',
+                    'titulo' => 'Disfraz obligatorio',
+                    'descripcion' => 'Clásico, de película o inventado: lo importante es venir disfrazado.',
+                    'ejemplos' => ['Vampiro', 'Personaje de película', 'Disfraz en grupo'],
+                    'imagen' => null,
+                ],
+            ],
+            'colores_permitidos' => [
+                ['nombre' => 'Naranja calabaza', 'hex' => '#F08A24'],
+                ['nombre' => 'Violeta', 'hex' => '#7B4BB7'],
+                ['nombre' => 'Negro', 'hex' => '#111111'],
+            ],
+            'evitar' => ['Venir sin disfraz'],
+            'titulo' => 'Disfraz',
+            'estilo' => 'Fiesta de disfraces',
+            'descripcion' => 'Habrá premio al mejor disfraz individual y al mejor disfraz en grupo.',
+        ],
+        'destacados' => [
+            'chambelanes' => [
+                ['nombre' => 'DJ Nocturno', 'detalle' => 'Música toda la noche'],
+            ],
+            'damitas' => [
+                ['nombre' => 'Camila y Rodrigo', 'detalle' => 'Jurado del concurso'],
+            ],
+            'padrinos' => [
+                [
+                    'rol' => 'Anfitriones',
+                    'nombres' => 'Diego y sus roomies',
+                    'mensaje' => 'Traigan ganas de bailar; los dulces corren por nuestra cuenta.',
+                ],
+            ],
+        ],
+        'galeria' => ['fotos' => [], 'titulo' => 'Fiestas pasadas'],
+        'musica' => ['titulo' => '', 'artista' => '', 'audio_url' => '', 'autoplay' => false],
+        'video' => ['titulo' => '', 'video_url' => '', 'poster' => ''],
+        'playlist' => [
+            'titulo' => 'La música de la noche',
+            'descripcion' => 'Sugiere la canción que no puede faltar en Halloween.',
+            'placeholder' => 'Nombre de la canción o link de YouTube',
+        ],
+        'hashtag' => [
+            'hashtag' => '#NocheDeDiego',
+            'plataforma' => 'instagram',
+            'texto_boton' => 'Comparte tus fotos',
+        ],
+        'encuestas' => [
+            'preguntas' => [
+                [
+                    'id' => 'pelicula',
+                    'tipo' => 'single',
+                    'pregunta' => '¿Qué película pasamos de fondo?',
+                    'opciones' => ['Coco', 'Beetlejuice', 'Hocus Pocus', 'El extraño mundo de Jack'],
+                ],
+                [
+                    'id' => 'dulces',
+                    'tipo' => 'yesno',
+                    'pregunta' => '¿Mesa de dulces o de salados?',
+                    'opciones' => ['Dulces', 'Salados'],
+                ],
+            ],
+            'titulo' => 'Vota antes de la fiesta',
+        ],
+        'regalos' => [
+            'sobres' => [],
+            'banco' => [],
+            'titulo' => 'Regalos',
+            'tienda_url' => '',
+            'tienda_texto' => '',
+            'opciones' => [],
+        ],
+        'post_evento' => ['titulo' => '', 'descripcion' => '', 'fotos' => [], 'enlace_externo' => ''],
+        'rsvp' => [
+            'titulo_confirmacion' => '¿Vienes a la fiesta?',
+            'mensaje_personalizado' => 'Confirma antes del 28 de octubre para contar los dulces.',
+            'texto_confirmado' => '¡Genial! Te esperamos disfrazado.',
+            'texto_declinado' => 'Te vamos a extrañar. ¡Gracias por avisar!',
+        ],
+        'cuenta_regresiva' => [],
+        'agendar' => [],
+        'fotomural' => [],
+    ],
+    'guests' => [
+        [
+            'name' => 'Camila Vargas',
+            'phone' => '71112233',
+            'passes_allocated' => 2,
+            'passes_confirmed' => 2,
+            'status' => 'confirmed',
+            'table_number' => null,
+            'dietary_restrictions' => null,
+            'qr_code_token' => 'Hw26D1egoCam1laVargas00000000001',
+            'confirmed_at' => '2026-09-22 20:15:00',
+        ],
+        [
+            'name' => 'Rodrigo Aguilar',
+            'phone' => '76655443',
+            'passes_allocated' => 1,
+            'passes_confirmed' => 0,
+            'status' => 'pending',
+            'table_number' => null,
+            'dietary_restrictions' => null,
+            'qr_code_token' => 'Hw26D1egoRodr1goAgu1lar000000002',
+            'confirmed_at' => null,
+        ],
+        [
+            'name' => 'Amigos de la U',
+            'phone' => '70099887',
+            'passes_allocated' => 5,
+            'passes_confirmed' => 4,
+            'status' => 'confirmed',
+            'table_number' => null,
+            'dietary_restrictions' => null,
+            'qr_code_token' => 'Hw26D1egoAm1gosDeLaU000000000003',
+            'confirmed_at' => '2026-09-23 10:05:00',
+        ],
+    ],
+    'contributions' => [],
+    'poll_votes' => [
+        ['poll' => 'pelicula', 'option' => 3, 'guest' => 'Hw26D1egoCam1laVargas00000000001', 'voter_key' => 'hw-vote-00000000000000000000000000000001', 'created_at' => '2026-09-22 20:16:00'],
+        ['poll' => 'pelicula', 'option' => 0, 'guest' => 'Hw26D1egoAm1gosDeLaU000000000003', 'voter_key' => 'hw-vote-00000000000000000000000000000002', 'created_at' => '2026-09-23 10:06:00'],
+        ['poll' => 'dulces', 'option' => 0, 'guest' => null, 'voter_key' => 'hw-vote-00000000000000000000000000000003', 'created_at' => '2026-09-23 11:00:00'],
+    ],
+];

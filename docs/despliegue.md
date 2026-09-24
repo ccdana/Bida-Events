@@ -485,7 +485,7 @@ nano .env
 | `BIDA_EMAIL` | `hola@bida-events.com` |
 | `BIDA_CITY`, `BIDA_INSTAGRAM`, `BIDA_TIKTOK`, `BIDA_FACEBOOK` | Datos reales |
 | `BIDA_LAUNCH_PROMO` | `true` mientras dure la promoción de inauguración |
-| `BIDA_SEASON_ENDS_AT` | Fecha y hora de cierre de la temporada vigente |
+| `BIDA_SEASON_AMOR_ENDS_AT`, `BIDA_SEASON_HALLOWEEN_ENDS_AT` | Fecha y hora de cierre de cada temporada (también se cambian en Ajustes) |
 | `TRUSTED_PROXIES` | **Vacío**: Nginx ya entrega la IP real (paso 4.3) y la conexión llega por HTTPS |
 | `CSP_ENFORCE` | `false` la primera semana; `true` cuando confirmes que nada se bloquea (paso 9) |
 | `CACHE_OPTIMIZATIONS_ENABLED` / `HTTP_CACHE_ENABLED` | `true` / `false` |
@@ -656,7 +656,7 @@ En el navegador (y desde tu celular con datos móviles):
 
 - [ ] `https://bida-events.com` carga con candado; `http://` y `www.` redirigen.
 - [ ] La portada: el teléfono recorre las aperturas sin quedar en blanco; la temporada muestra
-      la cuenta regresiva (si no pasó `BIDA_SEASON_ENDS_AT`).
+      la cuenta regresiva (si no pasó la fecha de su temporada).
 - [ ] Una página por evento (`/invitaciones-de-boda`) y la de tarjetas (`/tarjetas-dia-del-amor`).
 - [ ] Las muestras: `/muestra/xv-isabella`, `/muestra/tarjeta-ana-luis`,
       `/muestra/tarjeta-libro-aventuras`.
@@ -749,7 +749,7 @@ Después de publicar:
 
 **Cada temporada**
 
-- Cambia `BIDA_SEASON_ENDS_AT` (y `BIDA_LAUNCH_PROMO` cuando termine la inauguración) en `.env`
+- Cambia la fecha de cada temporada en Ajustes o en `BIDA_SEASON_{CLAVE}_ENDS_AT` (y `BIDA_LAUNCH_PROMO` cuando termine la inauguración) en `.env`
   y corre `php artisan optimize` para que tome el cambio. Con la configuración en caché, editar
   `.env` sin ese comando no tiene efecto.
 

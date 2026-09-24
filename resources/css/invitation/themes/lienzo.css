@@ -1,0 +1,143 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   INVITACIÓN — Tema "Lienzo" (invitations.templates.lienzo)
+
+   La invitación en blanco: todo va dentro de .inv-lienzo. Sin apertura, sin
+   partículas y sin íconos animados; jerarquía solo con tipografía, espacio y
+   filetes de 1px. Lee la paleta del evento como las demás, así que si quien la
+   arma cambia los colores o las letras en el editor, todo lo sigue.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+.inv-lienzo {
+    --inv-radius: 2px;
+}
+
+.inv-lienzo.has-player {
+    padding-bottom: calc(5.25rem + env(safe-area-inset-bottom));
+}
+
+/* Las secciones no llevan el ícono animado sobre el título: se leen como un documento limpio */
+.inv-lienzo .invitation-lottie-framed {
+    display: none;
+}
+
+.inv-lienzo .inv-head__title {
+    font-weight: 600;
+    letter-spacing: -0.01em;
+}
+
+.inv-lienzo .inv-head__rule {
+    width: 2rem;
+    background: var(--text-color);
+    opacity: 0.8;
+}
+
+/* ── Portada ────────────────────────────────────────────────────────────── */
+
+.inv-lienzo-hero {
+    color: var(--text-color);
+    background: var(--bg-color);
+}
+
+.inv-lienzo-hero__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 34rem;
+    padding: 6.5rem 1.5rem 8rem;
+}
+
+.inv-lienzo-hero__eyebrow {
+    margin: 0 0 1.5rem;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--inv-muted);
+}
+
+.inv-lienzo-hero__name {
+    margin: 0;
+    font-family: var(--font-script);
+    font-size: clamp(2.6rem, 11vw, 4.75rem);
+    font-weight: 600;
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+    text-wrap: balance;
+    overflow-wrap: anywhere;
+}
+
+.inv-lienzo-hero__rule {
+    display: block;
+    width: 2.5rem;
+    height: 1px;
+    margin: 2rem auto;
+    background: currentColor;
+}
+
+.inv-lienzo-hero__message {
+    max-width: 26rem;
+    margin: 0 0 2rem;
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--inv-muted);
+    text-wrap: pretty;
+}
+
+.inv-lienzo-hero__date {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.35rem 1rem;
+    margin: 0;
+    padding: 0.85rem 0;
+    border-block: 1px solid var(--inv-line-strong);
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+}
+
+.inv-lienzo-hero__time {
+    padding-left: 1rem;
+    border-left: 1px solid var(--inv-line-strong);
+    font-variant-numeric: tabular-nums;
+}
+
+.inv-lienzo-hero__photo {
+    width: 100%;
+    max-width: 26rem;
+    margin: 2.5rem 0 0;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    border-radius: var(--inv-radius);
+    background: var(--inv-tint);
+}
+
+.inv-lienzo-hero__photo img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.inv-lienzo-hero__scroll {
+    color: var(--inv-muted);
+}
+
+/* Con foto la portada crece: el indicador deja de flotar y va al pie */
+.inv-lienzo-hero:has(.inv-lienzo-hero__photo) .inv-lienzo-hero__scroll {
+    display: none;
+}
+
+/* ── Pie ────────────────────────────────────────────────────────────────── */
+
+.inv-lienzo-footer .inv-footer__name {
+    font-weight: 600;
+    letter-spacing: -0.02em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .inv-lienzo .inv-fade-up {
+        animation: none;
+    }
+}

@@ -16,7 +16,7 @@
     <div class="inv-wrap">
         @include('invitations.partials.section-header', [
             'lottie' => 'dress',
-            'eyebrow' => 'Vestimenta',
+            'eyebrow' => $invCopy['dress_eyebrow'] ?? 'Vestimenta',
             'title' => $dressCode['titulo'] ?? 'Dress code',
             'intro' => $dressCode['descripcion'] ?? null,
         ])
@@ -39,7 +39,7 @@
         @if(isset($tabs['sugerencias']))
             {{-- Cada sugerencia es desplegable: cerrada solo muestra miniatura y título --}}
             <div class="inv-folds" x-show="tab === 'sugerencias'" role="tabpanel">
-                <p class="inv-help inv-folds__hint">Toca cada opción para ver el detalle</p>
+                <p class="inv-help inv-folds__hint">{{ $invCopy['dress_folds_hint'] ?? 'Toca cada opción para ver el detalle' }}</p>
                 @foreach($sugerencias as $sug)
                     <details class="inv-fold inv-dress__fold" name="dress-code-sugerencias">
                         <summary class="inv-fold__summary">

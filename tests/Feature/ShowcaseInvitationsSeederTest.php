@@ -27,12 +27,20 @@ class ShowcaseInvitationsSeederTest extends TestCase
             $this->assertSame(count($data['guests']), $invitation->guests()->count());
             $this->assertSame(count($data['contributions']), $invitation->contributions()->count());
             $this->assertSame(count($data['poll_votes']), PollVote::where('invitation_id', $invitation->id)->whereNotNull('invitation_poll_id')->count());
-            $this->assertStringContainsString('res.cloudinary.com', $data['modules']['bienvenida']['imagen_hero']);
+            // Toda foto, video o audio de una muestra vive en Cloudinary (las de portada ilustrada, como
+            // Halloween o Lienzo, pueden no tener foto)
+            array_walk_recursive($data['modules'], function ($value, $key) use ($slug) {
+                if (is_string($value) && preg_match('#^https?://.+\.(jpe?g|png|webp|mp4|mp3)$#i', $value)) {
+                    $this->assertStringContainsString('res.cloudinary.com', $value, "{$slug}: «{$key}» no está en Cloudinary");
+                }
+            });
 
-            $this->withoutVite()
-                ->get(route('invitation.show', $slug))
-                ->assertOk()
-                ->assertSee('res.cloudinary.com', false);
+            $response = $this->withoutVite()->get(route('invitation.show', $slug))->assertOk();
+
+            if ($data['modules']['bienvenida']['imagen_hero'] ?? null) {
+                $this->assertStringContainsString('res.cloudinary.com', $data['modules']['bienvenida']['imagen_hero']);
+                $response->assertSee('res.cloudinary.com', false);
+            }
         }
     }
 }

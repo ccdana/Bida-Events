@@ -14,7 +14,7 @@
     <div class="inv-wrap inv-wrap--wide">
         @include('invitations.partials.section-header', [
             'lottie' => 'heart',
-            'eyebrow' => 'Recuerdos oficiales',
+            'eyebrow' => $invCopy['post_eyebrow'] ?? 'Recuerdos oficiales',
             'title' => $postEvento['titulo'] ?? 'Galería del fotógrafo',
             'intro' => $postEvento['descripcion'] ?? null,
         ])
@@ -34,10 +34,10 @@
 
         @if(!empty($externalLink))
             <div class="inv-actions">
-                <a href="{{ $externalLink }}" target="_blank" rel="noopener" class="inv-btn inv-btn--block">Ver galería completa</a>
+                <a href="{{ $externalLink }}" target="_blank" rel="noopener" class="inv-btn inv-btn--block">{{ $invCopy['post_button'] ?? 'Ver galería completa' }}</a>
             </div>
         @elseif(!count($fotos))
-            <p class="inv-empty">Las fotos oficiales se publicarán muy pronto.</p>
+            <p class="inv-empty">{{ $invCopy['post_empty'] ?? 'Las fotos oficiales se publicarán muy pronto.' }}</p>
         @endif
     </div>
 </section>

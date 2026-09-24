@@ -14,8 +14,8 @@
     <div class="inv-wrap inv-wrap--wide">
         @include('invitations.partials.section-header', [
             'lottie' => 'location',
-            'eyebrow' => '¿Dónde nos vemos?',
-            'title' => $placeName ?: 'Ubicación',
+            'eyebrow' => $invCopy['location_eyebrow'] ?? '¿Dónde nos vemos?',
+            'title' => $placeName ?: ($invCopy['location_title'] ?? 'Ubicación'),
             'intro' => $address,
         ])
 
@@ -50,7 +50,7 @@
 
         @if($mapsNavUrl)
             <div class="inv-actions">
-                <a href="{{ $mapsNavUrl }}" target="_blank" rel="noopener" class="inv-btn inv-btn--block">Cómo llegar</a>
+                <a href="{{ $mapsNavUrl }}" target="_blank" rel="noopener" class="inv-btn inv-btn--block">{{ $invCopy['location_button'] ?? 'Cómo llegar' }}</a>
             </div>
         @endif
 

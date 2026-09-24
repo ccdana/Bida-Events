@@ -44,9 +44,8 @@ class SiteSettingsTest extends TestCase
             ->get(route('admin.settings'))
             ->assertOk()
             ->assertSee('Precios de los paquetes')
-            ->assertSee('Temporada de tarjetas')
-            ->assertSee('Plantillas de temporada')
-            // Las tres plantillas de temporada, con su nombre humano
+            // Una tarjeta por temporada, cada una con sus diseños
+            ->assertSeeInOrder(['Día del Amor y la Primavera', 'Temporada encendida', 'Diseños de esta temporada', 'Halloween', 'Temporada encendida'])
             ->assertSee('Carta que florece')
             ->assertSee('Libro de aventuras')
             ->assertSee('Bajo la misma luna');
@@ -106,21 +105,19 @@ class SiteSettingsTest extends TestCase
 
         // Todas encendidas: la temporada muestra sus tres diseños
         $this->actingAs($this->admin)->put(route('admin.settings.update'), $this->payload([
-            'season_ends_at' => '2026-09-21T23:59',
             'templates' => array_keys(InvitationTemplates::all()),
         ]));
 
         SiteSettings::apply();
-        $this->assertCount(3, Offers::season()['demos']);
+        $this->assertCount(3, Offers::season('amor')['demos']);
 
         // Al apagar el libro de aventuras, su muestra deja de aparecer
         $this->actingAs($this->admin)->put(route('admin.settings.update'), $this->payload([
-            'season_ends_at' => '2026-09-21T23:59',
             'templates' => [InvitationTemplates::TARJETA_AMOR, InvitationTemplates::WE_STORY_TOGETHER],
         ]));
 
         SiteSettings::apply();
-        $labels = collect(Offers::season()['demos'])->pluck('label');
+        $labels = collect(Offers::season('amor')['demos'])->pluck('label');
 
         $this->assertCount(2, $labels);
         $this->assertFalse($labels->contains('Libro de aventuras'));
@@ -138,11 +135,13 @@ class SiteSettingsTest extends TestCase
                     'estandar' => ['price' => 400, 'promo_price' => 300],
                     'premium' => ['price' => 700, 'promo_price' => 500],
                 ],
-                'season_price' => 100,
-                'season_promo_price' => 120,
+                'seasons' => [
+                    'amor' => ['active' => '1', 'price' => 100, 'promo_price' => 120, 'ends_at' => '2026-09-21T23:59'],
+                    'halloween' => ['active' => '1', 'price' => 180, 'promo_price' => 140, 'ends_at' => '2026-10-31T23:59'],
+                ],
             ]))
             ->assertRedirect(route('admin.settings'))
-            ->assertSessionHasErrors(['packages.basico.promo_price', 'season_promo_price']);
+            ->assertSessionHasErrors(['packages.basico.promo_price', 'seasons.amor.promo_price']);
 
         SiteSettings::apply();
         $this->assertSame(150, Offers::packages()[0]['final_price']);
@@ -159,9 +158,10 @@ class SiteSettingsTest extends TestCase
                 'estandar' => ['price' => 400, 'promo_price' => 300],
                 'premium' => ['price' => 700, 'promo_price' => 500],
             ],
-            'season_price' => 100,
-            'season_promo_price' => 75,
-            'season_ends_at' => '2026-09-21T23:59',
+            'seasons' => [
+                'amor' => ['active' => '1', 'price' => 100, 'promo_price' => 75, 'ends_at' => '2026-09-21T23:59'],
+                'halloween' => ['active' => '1', 'price' => 180, 'promo_price' => 140, 'ends_at' => '2026-10-31T23:59'],
+            ],
             'templates' => array_keys(InvitationTemplates::all()),
         ], $changes);
     }

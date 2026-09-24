@@ -5,13 +5,13 @@
 
 @php
     $sections = array_filter([
-        'temporada' => $season ? 'Día del Amor' : null,
         'servicios' => 'Servicios',
         'plantillas' => count($demos) ? 'Plantillas' : null,
         'precios' => 'Precios',
         'preguntas' => 'Preguntas',
     ]);
-    $navLinks = collect($sections)->mapWithKeys(fn (string $label, string $id) => ['#'.$id => $label])->all();
+    $navLinks = collect($sections)->mapWithKeys(fn (string $label, string $id) => ['#'.$id => $label])->all()
+        + [route('professionals') => 'Profesionales'];
     $accountUrl = $user ? route('dashboard') : route('login');
     $accountLabel = $user ? 'Mi panel' : 'Ingresar';
     $showcase = $bida['showcase'];
@@ -50,7 +50,7 @@
         ['¿Puedo hacer cambios después de compartirla?', 'Sí. Horarios, ubicación y textos se actualizan en el mismo enlace, así tus invitados siempre ven la versión correcta.'],
         ['¿Cómo confirman asistencia mis invitados?', 'Desde el paquete Estándar, cada invitado recibe su propio enlace, indica cuántas personas van y obtiene un pase con código QR.'],
         ['¿Cuánto tardan en entregarla?', 'Depende del paquete y de cuándo nos envíes las fotos y los datos. Te damos una fecha de entrega al confirmar tu pedido.'],
-        ['¿Hacen algo además de invitaciones?', 'Sí. También hacemos tarjetas digitales para fechas especiales, como el Día del Amor. Salen por temporadas y cada fecha trae sus diseños.'],
+        ['¿Hacen algo además de invitaciones?', 'Sí. También hacemos diseños de temporada, como las invitaciones de Halloween y las tarjetas del Día del Amor. Salen por unos días y cada fecha trae sus diseños.'],
         ['¿Cómo se realiza el pago?', 'Coordinamos el pago por WhatsApp cuando eliges tu paquete, antes de empezar el diseño.'],
     ];
     $socials = array_values(array_filter([
@@ -72,11 +72,6 @@
     @include('site.partials.header', ['navLinks' => $navLinks])
 
     <main>
-        {{-- ═══ Temporada: tarjetas por pocos días, con cuenta regresiva y precio de promoción (gancho de la página) ═══ --}}
-        @if($season)
-            @include('site.partials.season', ['season' => $season])
-        @endif
-
         {{-- ═══ Portada: el teléfono recorre las aperturas y la palabra y la foto del evento cambian con él ═══ --}}
         <section data-rotator data-rotator-interval="3200" @if(count($demos)) data-rotator-driven @endif
             class="mx-auto grid max-w-7xl items-center gap-12 px-5 pb-16 pt-8 md:pt-14 lg:min-h-[calc(100dvh-72px)] lg:grid-cols-[1.1fr_0.9fr] lg:gap-12 lg:px-8 lg:py-12">
@@ -109,7 +104,9 @@
                 </div>
                 <p class="site-enter mt-7 text-site-muted" style="--enter-index: 3">
                     También hacemos
-                    <a href="#servicios" class="font-medium text-site-ink underline decoration-site-line underline-offset-4 hover:decoration-site-accent">tarjetas digitales para fechas especiales</a>.
+                    <a href="#servicios" class="font-medium text-site-ink underline decoration-site-line underline-offset-4 hover:decoration-site-accent">diseños de temporada</a>
+                    y tenemos
+                    <a href="{{ route('professionals') }}" class="font-medium text-site-ink underline decoration-site-line underline-offset-4 hover:decoration-site-accent">planes para profesionales</a>.
                 </p>
             </div>
 
@@ -193,7 +190,7 @@
                                         <span class="site-service__live">Ahora: {{ $service['live'] }}</span>
                                     @endif
                                     @if($service['fromPrice'])
-                                        <span class="site-service__price">desde <b>{{ $service['fromPrice'] }} Bs</b></span>
+                                        <span class="site-service__price">desde <b>{{ $service['fromPrice'] }} Bs</b>@if($service['priceSuffix'] ?? null) {{ $service['priceSuffix'] }}@endif</span>
                                     @endif
                                     <span class="site-service__cta">
                                         {{ $service['cta'] }}
@@ -347,4 +344,9 @@
     </main>
 
     @include('site.partials.footer', ['navLinks' => $navLinks, 'socials' => $socials])
+
+    {{-- ═══ Temporadas: un botón flotante por cada una que se vende hoy (abajo a la derecha, apilados) ═══ --}}
+    @foreach($seasons as $seasonIndex => $season)
+        @include('site.partials.season', ['season' => $season, 'seasonIndex' => $seasonIndex])
+    @endforeach
 @endsection

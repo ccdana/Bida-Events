@@ -90,6 +90,16 @@ class AppServiceProvider extends ServiceProvider
                 ->response($tooManyAttempts));
         }
 
+        // Editor de los revendedores: usuarios externos, así que la vista previa, los mapas y sobre todo
+        // la subida de archivos tienen un tope por cuenta (el editor del administrador no lo necesita)
+        RateLimiter::for('reseller-editor', fn (Request $request) => Limit::perMinute(240)
+            ->by('reseller-editor|'.$request->user()?->id)
+            ->response($tooManyAttempts));
+
+        RateLimiter::for('reseller-uploads', fn (Request $request) => Limit::perMinute(30)
+            ->by('reseller-uploads|'.$request->user()?->id)
+            ->response($tooManyAttempts));
+
         RateLimiter::for('login', fn (Request $request) => Limit::perMinute((int) config('optimizations.rate_limits.login'))
             ->by(Str::lower((string) $request->input('username')).'|'.$request->ip())
             ->response(fn () => back()->withErrors(['username' => $message])->onlyInput('username')));

@@ -41,7 +41,7 @@
         @if(isset($tabs['cortejo']))
             {{-- Cada grupo se despliega al tocarlo; cerrado muestra nombre del grupo y cantidad --}}
             <div class="inv-folds" x-show="tab === 'cortejo'" @if($firstTab !== 'cortejo') x-cloak @endif role="tabpanel">
-                <p class="inv-help inv-folds__hint">Toca cada grupo para ver los nombres</p>
+                <p class="inv-help inv-folds__hint">{{ $invCopy['court_folds_hint'] ?? 'Toca cada grupo para ver los nombres' }}</p>
                 @foreach($groups as $groupLabel => $people)
                     <details class="inv-fold inv-court__group">
                         <summary class="inv-fold__summary">

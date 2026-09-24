@@ -9,7 +9,8 @@ use Illuminate\Support\Carbon;
  * Precios con promoción y temporada vigente, para la portada y las páginas por evento.
  * - Paquetes: con la promoción de inauguración encendida (config «bida.launch_promo») se cobra
  *   promo_price y el precio normal se muestra tachado.
- * - Temporada (config «bida.season»): tarjetas que se venden hasta ends_at; después no se ofrecen.
+ * - Temporadas (config «bida.seasons»): cada una se vende mientras esté encendida y hasta su
+ *   ends_at; son independientes (Día del Amor, Halloween…).
  */
 final class Offers
 {
@@ -72,13 +73,50 @@ final class Offers
     }
 
     /**
-     * La temporada vigente con su precio y sus plantillas de muestra, o null si ya terminó,
-     * si falta la fecha o si no hay ninguna muestra activa.
+     * Las temporadas que se venden hoy, en el orden de la configuración (clave => temporada).
+     *
+     * @return array<string, array<string, mixed>>
      */
-    public static function season(?CarbonInterface $now = null): ?array
+    public static function seasons(?CarbonInterface $now = null): array
     {
-        $season = config('bida.season');
-        $endsAt = is_array($season) ? self::date($season['ends_at'] ?? null) : null;
+        return collect(config('bida.seasons', []))
+            ->map(fn (array $season, string $key) => self::onSale($key, $season, $now))
+            ->filter()
+            ->all();
+    }
+
+    /** Una temporada si hoy se vende, o null (apagada, terminada, sin fecha o sin muestras). */
+    public static function season(string $key, ?CarbonInterface $now = null): ?array
+    {
+        $season = config("bida.seasons.{$key}");
+
+        return is_array($season) ? self::onSale($key, $season, $now) : null;
+    }
+
+    /**
+     * Por qué una temporada se ve o no, para el panel: se vende, está apagada, ya terminó o no
+     * tiene ninguna muestra activa.
+     */
+    public static function seasonStatus(string $key, ?CarbonInterface $now = null): string
+    {
+        $season = (array) config("bida.seasons.{$key}", []);
+        $endsAt = self::date($season['ends_at'] ?? null);
+
+        return match (true) {
+            ! ($season['active'] ?? true) => 'off',
+            $endsAt === null || ($now ?? now())->greaterThanOrEqualTo($endsAt) => 'ended',
+            ! ShowcaseDemos::find($season['templates'] ?? []) => 'no_designs',
+            default => 'selling',
+        };
+    }
+
+    private static function onSale(string $key, array $season, ?CarbonInterface $now): ?array
+    {
+        if (! ($season['active'] ?? true)) {
+            return null;
+        }
+
+        $endsAt = self::date($season['ends_at'] ?? null);
 
         if ($endsAt === null || ($now ?? now())->greaterThanOrEqualTo($endsAt)) {
             return null;
@@ -92,7 +130,7 @@ final class Offers
 
         $price = self::price($season, true);
 
-        return $season + [
+        return ['key' => $key] + $season + [
             'endsAt' => $endsAt,
             'final_price' => $price['final'],
             'old_price' => $price['regular'],

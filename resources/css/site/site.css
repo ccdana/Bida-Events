@@ -1576,9 +1576,10 @@ html.theme-changing *:not(.theme-toggle__icon) {
     }
 }
 
-/* ── Temporada: tarjetas por pocos días, arriba de la portada (site/partials/season) ──
-   Panel con colores propios (vino y rosa de primavera), igual en tema claro y oscuro:
-   es el gancho de la página. Habla de la temporada; los diseños van en una lista que crece.
+/* ── Temporada: diseños por pocos días (site/partials/season) ──────────────
+   Un botón flotante abajo a la derecha abre el panel en una hoja (abajo en el celular, al
+   centro en pantallas anchas). Colores propios de cada temporada, iguales en tema claro y
+   oscuro: vino y rosa para el Día del Amor, noche violeta y naranja para Halloween.
    ──────────────────────────────────────────────────────────────────────── */
 
 .site-season__panel {
@@ -1893,15 +1894,15 @@ html.theme-changing *:not(.theme-toggle__icon) {
     to { opacity: 1; translate: 0 0; }
 }
 
-/* Pétalos que caen por el panel */
-.site-season__petals {
+/* Adorno que cae por el panel: pétalos (o chispas, según la temporada) */
+.site-season__decor {
     position: absolute;
     inset: 0;
     overflow: hidden;
     pointer-events: none;
 }
 
-.site-season__petals i {
+.site-season__decor i {
     position: absolute;
     top: -2rem;
     left: calc(var(--i) * 11% + 3%);
@@ -1912,7 +1913,7 @@ html.theme-changing *:not(.theme-toggle__icon) {
     animation: site-season-petal calc(11s + var(--i) * 1.3s) linear calc(var(--i) * -2.1s) infinite;
 }
 
-.site-season__petals i:nth-child(3n) {
+.site-season__decor i:nth-child(3n) {
     background: rgb(242 199 92 / 0.45);
     scale: 0.7;
 }
@@ -1924,7 +1925,7 @@ html.theme-changing *:not(.theme-toggle__icon) {
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .site-season__petals {
+    .site-season__decor {
         display: none;
     }
 
@@ -1937,6 +1938,267 @@ html.theme-changing *:not(.theme-toggle__icon) {
     }
 }
 
+/* Botón flotante de la temporada: acompaña el scroll sin tapar el contenido */
+.site-season-fab {
+    --season-cream: #fff8f3;
+    --season-gold: #f2c75c;
+    position: fixed;
+    right: max(1rem, env(safe-area-inset-right));
+    /* Con varias temporadas a la vez, los botones se apilan */
+    bottom: calc(1rem + env(safe-area-inset-bottom) + var(--fab-index, 0) * 4.25rem);
+    z-index: 50;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    max-width: calc(100vw - 2rem);
+    padding: 0.5rem 1.15rem 0.5rem 0.5rem;
+    border: 1px solid rgb(255 248 243 / 0.18);
+    border-radius: 999px;
+    background: linear-gradient(140deg, #521826, #86293f 60%, #a8435a);
+    color: var(--season-cream);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    box-shadow: 0 18px 40px -16px rgb(0 0 0 / 0.55);
+    transition: translate 0.35s var(--site-ease), box-shadow 0.35s var(--site-ease);
+    animation: site-season-fab-in 0.8s var(--site-spring) 1.2s both;
+}
+
+.site-season-fab:hover {
+    translate: 0 -3px;
+    box-shadow: 0 24px 46px -16px rgb(0 0 0 / 0.6);
+}
+
+.site-season-fab:focus-visible {
+    outline: 2px solid var(--season-gold);
+    outline-offset: 3px;
+}
+
+.site-season-fab__icon {
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+    width: 2.6rem;
+    height: 2.6rem;
+    border-radius: 50%;
+    background: var(--season-gold);
+    color: #3a1420;
+    animation: site-season-nudge 6s ease-in-out 3s infinite;
+}
+
+.site-season-fab__icon svg {
+    width: 1.35rem;
+    height: 1.35rem;
+}
+
+.site-season-fab__text {
+    display: grid;
+    min-width: 0;
+    line-height: 1.2;
+}
+
+.site-season-fab__name {
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.site-season-fab__meta {
+    font-size: 0.78rem;
+    color: rgb(255 248 243 / 0.78);
+    white-space: nowrap;
+}
+
+@keyframes site-season-fab-in {
+    from { opacity: 0; translate: 0 1.5rem; }
+    to { opacity: 1; translate: 0 0; }
+}
+
+/* Cada tanto el ícono se mueve un poco, para que se note sin molestar */
+@keyframes site-season-nudge {
+    0%, 88%, 100% { rotate: 0deg; }
+    91% { rotate: -14deg; }
+    94% { rotate: 12deg; }
+    97% { rotate: -6deg; }
+}
+
+/* Hoja con el panel: sube desde abajo en el celular; al centro en pantallas anchas */
+html.site-season-open {
+    overflow: hidden;
+}
+
+.site-season__backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 55;
+    background: rgb(12 8 10 / 0.55);
+    backdrop-filter: blur(3px);
+}
+
+.site-season__sheet {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 60;
+    max-height: 92dvh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border-radius: 1.75rem 1.75rem 0 0;
+}
+
+.site-season__sheet .site-season__panel {
+    min-height: 100%;
+    padding-top: 3.25rem;
+    border-radius: 1.75rem 1.75rem 0 0;
+}
+
+@media (min-width: 768px) {
+    .site-season__sheet {
+        top: 50%;
+        right: auto;
+        bottom: auto;
+        left: 50%;
+        width: min(70rem, calc(100vw - 3rem));
+        max-height: calc(100dvh - 3rem);
+        border-radius: 1.75rem;
+        translate: -50% -50%;
+    }
+
+    .site-season__sheet .site-season__panel {
+        border-radius: 1.75rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .site-season__sheet .site-season__panel {
+        padding-top: 3.5rem;
+    }
+
+    .site-season__sheet .site-season__stage {
+        height: 30rem;
+    }
+}
+
+.site-season__sheet--enter,
+.site-season__sheet--leave {
+    transition: opacity 0.35s ease, transform 0.5s var(--site-ease);
+}
+
+.site-season__sheet.is-from {
+    opacity: 0;
+    transform: translateY(2.5rem);
+}
+
+.site-season__sheet.is-to {
+    opacity: 1;
+    transform: none;
+}
+
+.site-season__close {
+    position: absolute;
+    top: 0.9rem;
+    right: 0.9rem;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 1px solid var(--season-line);
+    border-radius: 50%;
+    background: rgb(255 248 243 / 0.08);
+    color: var(--season-cream);
+    cursor: pointer;
+    transition: background 0.25s ease;
+}
+
+.site-season__close:hover {
+    background: rgb(255 248 243 / 0.18);
+}
+
+.site-season__close:focus-visible {
+    outline: 2px solid var(--season-gold);
+    outline-offset: 2px;
+}
+
+.site-season__close svg {
+    width: 1.2rem;
+    height: 1.2rem;
+}
+
+/* Halloween: noche violeta con la luz naranja de las calabazas; en lugar de pétalos, chispas que suben */
+.site-season--halloween .site-season__panel,
+.site-season--halloween .site-season-fab {
+    --season-gold: #ff9a3c;
+}
+
+.site-season--halloween .site-season__panel {
+    background:
+        radial-gradient(60% 55% at 100% 0%, rgb(255 154 60 / 0.26), transparent 65%),
+        radial-gradient(70% 80% at 0% 100%, rgb(123 75 183 / 0.32), transparent 60%),
+        linear-gradient(150deg, #120c1a, #231433 55%, #3a1f52);
+    box-shadow: 0 30px 60px -34px rgb(18 12 26 / 0.8);
+}
+
+.site-season--halloween .site-season-fab {
+    background: linear-gradient(140deg, #1a1024, #2d1a42 60%, #4a2766);
+}
+
+.site-season--halloween .site-season-fab__icon {
+    color: #2a1538;
+}
+
+.site-season--halloween .site-season__cta {
+    color: #2a1538;
+}
+
+.site-season--halloween .site-season__cta:hover {
+    color: #120c1a;
+}
+
+.site-season--halloween .site-phone--season .site-phone__screen::before {
+    background:
+        linear-gradient(100deg, transparent 30%, rgb(255 255 255 / 0.12) 50%, transparent 70%) 0 0 / 250% 100%,
+        linear-gradient(180deg, #231433, #130f1a 60%);
+}
+
+.site-season--halloween .site-season__decor i {
+    top: auto;
+    bottom: -1rem;
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: 50%;
+    background: rgb(255 154 60 / 0.75);
+    box-shadow: 0 0 10px rgb(255 154 60 / 0.8);
+    animation-name: site-season-ember;
+}
+
+.site-season--halloween .site-season__decor i:nth-child(3n) {
+    background: rgb(196 160 255 / 0.6);
+    box-shadow: 0 0 10px rgb(196 160 255 / 0.6);
+}
+
+@keyframes site-season-ember {
+    0% { translate: 0 0; opacity: 0; }
+    15% { opacity: 1; }
+    100% { translate: -2rem -40rem; opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .site-season-fab,
+    .site-season-fab__icon {
+        animation: none;
+    }
+
+    .site-season__sheet--enter,
+    .site-season__sheet--leave {
+        transition: opacity 0.2s ease;
+    }
+
+    .site-season__sheet.is-from {
+        transform: none;
+    }
+}
+
 /* Diseños para probar en la página por evento: en el teléfono la descripción va debajo del nombre */
 @media (max-width: 639px) {
     .site-landing .site-template {
@@ -1946,5 +2208,263 @@ html.theme-changing *:not(.theme-toggle__icon) {
 
     .site-landing .site-template__event {
         grid-column: 2;
+    }
+}
+
+/* ── Para profesionales (professionals.blade.php) ──────────────────────────
+   Cuatro planes en una fila en pantallas anchas, una tabla para comparar que se
+   desliza en el celular y la lista de plantillas de cada colección.
+   ──────────────────────────────────────────────────────────────────────── */
+
+@media (min-width: 1024px) {
+    .site-plans--pro {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .site-plans--pro .site-plan:nth-child(3) {
+        border-left: 0;
+    }
+
+    .site-plans--pro .site-plan:nth-child(n + 3) {
+        border-top: 1px solid var(--site-line);
+    }
+}
+
+@media (min-width: 1280px) {
+    .site-plans--pro {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .site-plans--pro .site-plan {
+        padding-inline: 1.75rem;
+    }
+
+    .site-plans--pro .site-plan:nth-child(3) {
+        border-left: 1px solid var(--site-line);
+    }
+
+    .site-plans--pro .site-plan:nth-child(n + 3) {
+        border-top: 0;
+    }
+}
+
+.site-compare {
+    overflow-x: auto;
+    border-block: 1px solid var(--site-line);
+    -webkit-overflow-scrolling: touch;
+}
+
+.site-compare table {
+    width: 100%;
+    min-width: 36rem;
+    border-collapse: collapse;
+    font-variant-numeric: tabular-nums;
+}
+
+.site-compare th,
+.site-compare td {
+    padding: 0.95rem 1rem;
+    border-bottom: 1px solid var(--site-line);
+    text-align: center;
+}
+
+.site-compare tbody tr:last-child :is(th, td) {
+    border-bottom: 0;
+}
+
+.site-compare thead th {
+    font-weight: 600;
+}
+
+.site-compare tbody th {
+    font-weight: 500;
+    text-align: left;
+    color: var(--site-muted);
+}
+
+.site-compare .is-featured {
+    background: var(--site-tint);
+}
+
+.site-compare__yes {
+    display: inline-block;
+    width: 1.05rem;
+    height: 1.05rem;
+    color: var(--site-accent);
+}
+
+.site-compare__no {
+    color: var(--site-muted);
+}
+
+.site-collections {
+    display: grid;
+    gap: 1.25rem;
+}
+
+@media (min-width: 768px) {
+    .site-collections {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem;
+    }
+}
+
+.site-collections dt {
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--site-accent);
+}
+
+.site-collections dd {
+    margin-top: 0.4rem;
+    line-height: 1.6;
+    color: var(--site-muted);
+}
+
+/* ── Páginas legales (legal/show.blade.php) ────────────────────────────── */
+
+.site-legal__toc {
+    border-top: 1px solid var(--site-line);
+}
+
+.site-legal__toc a {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--site-line);
+    color: var(--site-muted);
+    font-size: 0.95rem;
+    transition: color 0.25s ease;
+}
+
+.site-legal__toc a:hover {
+    color: var(--site-ink);
+}
+
+.site-legal__toc span,
+.site-legal__num {
+    font-size: 0.8rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--site-accent);
+}
+
+.site-legal__intro {
+    font-size: 1.2rem;
+    line-height: 1.65;
+    text-wrap: pretty;
+}
+
+.site-legal__section {
+    padding-top: 2.5rem;
+    scroll-margin-top: 6rem;
+}
+
+.site-legal__section h2 {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    margin-bottom: 0.9rem;
+    font-size: 1.4rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+}
+
+.site-legal__section p,
+.site-legal__section li {
+    max-width: 68ch;
+    line-height: 1.7;
+    color: var(--site-muted);
+}
+
+.site-legal__section p + p,
+.site-legal__section ul + p,
+.site-legal__section p + ul {
+    margin-top: 0.9rem;
+}
+
+.site-legal__section ul {
+    display: grid;
+    gap: 0.6rem;
+    padding-left: 1.1rem;
+    list-style: disc;
+}
+
+.site-legal__section li::marker {
+    color: var(--site-accent);
+}
+
+.site-legal__more {
+    display: grid;
+    gap: 0.6rem;
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--site-line);
+    color: var(--site-muted);
+}
+
+.site-legal__more a {
+    color: var(--site-ink);
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+
+/* ── Aviso de cookies (layouts/partials/cookie-notice) ─────────────────────
+   Abajo a la izquierda, lejos del botón de la temporada; en el celular ocupa el
+   ancho y el botón de la temporada espera a que se cierre.
+   ──────────────────────────────────────────────────────────────────────── */
+
+.site-cookies {
+    position: fixed;
+    right: 1rem;
+    bottom: calc(1rem + env(safe-area-inset-bottom));
+    left: 1rem;
+    z-index: 45;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1rem;
+    padding: 1rem 1.1rem;
+    border: 1px solid var(--site-line);
+    border-radius: 1.1rem;
+    background: var(--site-surface);
+    color: var(--site-ink);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    box-shadow: 0 20px 44px -24px rgb(0 0 0 / 0.45);
+}
+
+.site-cookies[hidden] {
+    display: none;
+}
+
+.site-cookies p {
+    flex: 1 1 16rem;
+    color: var(--site-muted);
+}
+
+.site-cookies a {
+    color: var(--site-ink);
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.site-cookies__ok {
+    flex-shrink: 0;
+}
+
+@media (min-width: 640px) {
+    .site-cookies {
+        right: auto;
+        max-width: 27rem;
+    }
+}
+
+@media (max-width: 639px) {
+    html.has-cookie-notice .site-season-fab {
+        display: none;
     }
 }

@@ -2,7 +2,10 @@
 
 namespace App\Http\Requests\Admin\Invitation\Concerns;
 
+use App\Models\EventType;
 use App\Support\InvitationModuleRules;
+use App\Support\InvitationTemplates;
+use Illuminate\Validation\Validator;
 
 /**
  * Decodifica y valida los módulos JSON del editor antes de guardar nada.
@@ -20,6 +23,25 @@ trait ValidatesInvitationModules
     protected function moduleRules(): array
     {
         return InvitationModuleRules::rules('modulos_data');
+    }
+
+    /** La plantilla tiene que ser del tipo de evento elegido: una boda no se arma con la plantilla de XV. */
+    public function after(): array
+    {
+        return [function (Validator $validator): void {
+            if ($validator->errors()->hasAny(['template', 'event_type_id'])) {
+                return;
+            }
+
+            $template = (string) $this->input('template');
+            $template = str_starts_with($template, 'pages.') ? substr($template, strlen('pages.')) : $template;
+            $event = InvitationTemplates::all()[$template]['event'] ?? null;
+            $code = EventType::whereKey($this->input('event_type_id'))->value('code');
+
+            if ($event && $code && $event !== $code) {
+                $validator->errors()->add('template', 'La plantilla no corresponde al tipo de evento elegido.');
+            }
+        }];
     }
 
     public function attributes(): array

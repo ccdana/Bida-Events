@@ -1,0 +1,561 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   INVITACIÓN — Tema "Birrete al aire" (invitations.templates.graduacion-birrete)
+
+   Todo va dentro de .inv-graduacion. Lenguaje de ceremonia: un diploma con cinta
+   que se desata al entrar, birretes que vuelan, arco con doble filete dorado y
+   títulos en versalitas. Lee la paleta del evento: el dorado es el primario y
+   el azul de toga el secundario.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+.inv-graduacion {
+    --inv-radius: 4px;
+    --inv-grad-gold: var(--primary-color);
+    --inv-grad-robe: var(--secondary-color);
+    --inv-grad-paper: color-mix(in srgb, var(--bg-color) 60%, #fff);
+    --inv-grad-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.inv-graduacion.has-player {
+    padding-bottom: calc(5.25rem + env(safe-area-inset-bottom));
+}
+
+/* ── Birrete ────────────────────────────────────────────────────────────── */
+
+.inv-grad-cap {
+    display: block;
+    overflow: visible;
+}
+
+.inv-grad-cap__board,
+.inv-grad-cap__base {
+    fill: var(--inv-grad-robe);
+}
+
+.inv-grad-cap__base {
+    filter: brightness(0.82);
+}
+
+.inv-grad-cap__shine {
+    fill: none;
+    stroke: color-mix(in srgb, #fff 30%, transparent);
+    stroke-width: 1.4;
+    stroke-linecap: round;
+}
+
+.inv-grad-cap__cord {
+    fill: none;
+    stroke: var(--inv-grad-gold);
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.inv-grad-cap__tassel,
+.inv-grad-cap__button {
+    fill: var(--inv-grad-gold);
+}
+
+/* ── Fondo vivo ─────────────────────────────────────────────────────────── */
+
+.inv-graduacion .inv-grad-ambient {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.inv-grad-ambient__cap {
+    position: absolute;
+    bottom: -12vh;
+    left: var(--x);
+    width: calc(3rem * var(--s));
+    opacity: 0.16;
+    animation: inv-grad-rise var(--d) linear var(--delay) infinite;
+}
+
+.inv-grad-ambient__spark {
+    position: absolute;
+    top: var(--y);
+    left: var(--x);
+    width: var(--s);
+    height: var(--s);
+    background: var(--inv-grad-gold);
+    clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+    opacity: 0;
+    animation: inv-grad-twinkle var(--d) ease-in-out var(--delay) infinite;
+}
+
+@keyframes inv-grad-rise {
+    from { transform: translateY(0) rotate(var(--r)); }
+    to { transform: translateY(-125vh) rotate(calc(var(--r) * -1 + 25deg)); }
+}
+
+@keyframes inv-grad-twinkle {
+    0%, 100% { opacity: 0; scale: 0.4; }
+    50% { opacity: 0.55; scale: 1; }
+}
+
+/* ── Apertura: el diploma ───────────────────────────────────────────────── */
+
+.inv-grad-intro {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: grid;
+    place-items: center;
+    padding: 2rem 1.25rem;
+    overflow: hidden;
+    color: var(--text-color);
+    background:
+        radial-gradient(70% 50% at 50% 55%, color-mix(in srgb, var(--inv-grad-gold) 16%, transparent), transparent 72%),
+        radial-gradient(120% 80% at 50% 120%, color-mix(in srgb, var(--inv-grad-robe) 22%, transparent), transparent 70%),
+        var(--bg-color);
+}
+
+html.inv-cover-skip .inv-grad-intro {
+    display: none;
+}
+
+.inv-grad-intro__content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.inv-grad-intro__eyebrow {
+    margin: 0 0 2rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--inv-accent-ink);
+    animation: inv-fade-up 0.9s var(--inv-grad-ease) 0.1s both;
+}
+
+.inv-grad-scroll {
+    position: relative;
+    display: block;
+    width: min(80vw, 19rem);
+    height: 15rem;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    cursor: pointer;
+    animation: inv-fade-up 1s var(--inv-grad-ease) 0.3s both;
+}
+
+.inv-grad-scroll:focus-visible {
+    outline: 2px solid var(--inv-accent-ink);
+    outline-offset: 8px;
+    border-radius: 12px;
+}
+
+/* El papel se ve solo como una franja mientras está enrollado */
+.inv-grad-scroll__paper {
+    position: absolute;
+    inset: 1rem 0.6rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    padding: 1.5rem 1.25rem;
+    background:
+        linear-gradient(var(--inv-grad-paper), var(--inv-grad-paper)) padding-box,
+        linear-gradient(135deg, var(--inv-grad-gold), color-mix(in srgb, var(--inv-grad-gold) 40%, var(--inv-grad-paper)), var(--inv-grad-gold)) border-box;
+    border: 3px double transparent;
+    box-shadow: 0 18px 40px -22px color-mix(in srgb, var(--inv-grad-robe) 70%, transparent);
+    clip-path: inset(44% 0 44% 0);
+    transition: clip-path 1.1s var(--inv-grad-ease) 0.35s;
+}
+
+.inv-grad-scroll__line {
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: var(--inv-soft);
+}
+
+.inv-grad-scroll__name {
+    font-family: var(--font-script);
+    font-size: clamp(1.9rem, 8vw, 2.4rem);
+    line-height: 1.1;
+    color: var(--text-color);
+    overflow-wrap: anywhere;
+}
+
+/* Rodillos del diploma: empiezan juntos al centro y se separan al abrir */
+.inv-grad-scroll__roll {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 1.35rem;
+    border-radius: 999px;
+    background:
+        linear-gradient(180deg,
+            color-mix(in srgb, var(--inv-grad-paper) 70%, #000) 0%,
+            var(--inv-grad-paper) 30%,
+            #fff 45%,
+            color-mix(in srgb, var(--inv-grad-paper) 80%, #000) 100%);
+    box-shadow: 0 6px 14px -8px rgb(0 0 0 / 0.45), inset 0 0 0 1px color-mix(in srgb, var(--inv-grad-gold) 45%, transparent);
+    transition: top 1.1s var(--inv-grad-ease) 0.35s;
+}
+
+.inv-grad-scroll__roll--top {
+    top: calc(50% - 1.35rem);
+}
+
+.inv-grad-scroll__roll--bottom {
+    top: 50%;
+}
+
+.inv-grad-scroll__ribbon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 5.5rem;
+    translate: -50% -58%;
+    transition: transform 0.6s cubic-bezier(0.5, 0, 0.75, 0), opacity 0.4s ease 0.2s;
+}
+
+.inv-grad-scroll__ribbon svg {
+    display: block;
+    width: 100%;
+    overflow: visible;
+    filter: drop-shadow(0 4px 6px rgb(0 0 0 / 0.25));
+    animation: inv-grad-sway 2.6s ease-in-out 1.4s infinite;
+    transform-origin: 50% 40%;
+}
+
+.inv-grad-scroll__loop,
+.inv-grad-scroll__knot {
+    fill: var(--inv-grad-gold);
+}
+
+.inv-grad-scroll__tail {
+    fill: color-mix(in srgb, var(--inv-grad-gold) 78%, #000);
+}
+
+/* Anillo que invita a tocar */
+.inv-grad-scroll__tap {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 6.5rem;
+    height: 6.5rem;
+    border: 2px solid var(--inv-grad-gold);
+    border-radius: 50%;
+    translate: -50% -50%;
+    opacity: 0;
+    pointer-events: none;
+    animation: inv-grad-tap 2.2s ease-out 1.6s infinite;
+}
+
+.inv-grad-intro__hint {
+    margin: 2rem 0 0;
+    font-size: 0.85rem;
+    color: var(--inv-soft);
+    animation: inv-fade-up 0.9s var(--inv-grad-ease) 0.6s both;
+}
+
+.inv-grad-intro__caps span {
+    position: absolute;
+    bottom: 38%;
+    left: 50%;
+    width: 3.4rem;
+    margin-left: -1.7rem;
+    opacity: 0;
+}
+
+.inv-grad-intro__cheer {
+    position: absolute;
+    top: 16%;
+    left: 50%;
+    z-index: 3;
+    margin: 0;
+    translate: -50% 0;
+    font-family: var(--font-script);
+    font-size: clamp(2.4rem, 11vw, 3.6rem);
+    white-space: nowrap;
+    color: var(--inv-accent-deco);
+    animation: inv-grad-cheer 0.8s var(--inv-grad-ease) 0.5s both;
+}
+
+/* Abierta: el lazo cae, el papel se despliega, los birretes vuelan y la apertura se va */
+.inv-grad-intro.is-open {
+    pointer-events: none;
+    animation: inv-grad-intro-out 0.7s ease 1.8s forwards;
+}
+
+.inv-grad-intro.is-open .inv-grad-scroll__ribbon {
+    transform: translateY(9rem) rotate(28deg);
+    opacity: 0;
+}
+
+.inv-grad-intro.is-open .inv-grad-scroll__ribbon svg,
+.inv-grad-intro.is-open .inv-grad-scroll__tap {
+    animation: none;
+}
+
+.inv-grad-intro.is-open .inv-grad-scroll__tap {
+    opacity: 0;
+}
+
+.inv-grad-intro.is-open .inv-grad-scroll__paper {
+    clip-path: inset(0 0 0 0);
+}
+
+.inv-grad-intro.is-open .inv-grad-scroll__roll--top {
+    top: -0.2rem;
+}
+
+.inv-grad-intro.is-open .inv-grad-scroll__roll--bottom {
+    top: calc(100% - 1.15rem);
+}
+
+.inv-grad-intro.is-open :is(.inv-grad-intro__eyebrow, .inv-grad-intro__hint) {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    animation: none;
+}
+
+.inv-grad-intro.is-open .inv-grad-intro__caps span {
+    animation: inv-grad-toss 1.5s cubic-bezier(0.2, 0.7, 0.3, 1) calc(0.5s + var(--delay)) forwards;
+}
+
+@keyframes inv-grad-sway {
+    0%, 100% { rotate: -4deg; }
+    50% { rotate: 4deg; }
+}
+
+@keyframes inv-grad-tap {
+    0% { opacity: 0.7; scale: 0.6; }
+    100% { opacity: 0; scale: 1.5; }
+}
+
+@keyframes inv-grad-toss {
+    0% { opacity: 0; transform: translate(0, 0) rotate(0deg); }
+    15% { opacity: 1; }
+    100% { opacity: 0; transform: translate(var(--x), var(--y)) rotate(calc(var(--r) * 6)); }
+}
+
+@keyframes inv-grad-cheer {
+    from { opacity: 0; transform: translateY(12px) scale(0.85); }
+    to { opacity: 1; transform: none; }
+}
+
+@keyframes inv-grad-intro-out {
+    to { opacity: 0; visibility: hidden; }
+}
+
+/* Mientras el diploma espera, la portada no empieza sus animaciones */
+html.inv-cover-waiting .inv-grad-hero,
+html.inv-cover-waiting .inv-grad-hero * {
+    animation-play-state: paused !important;
+}
+
+/* ── Portada ────────────────────────────────────────────────────────────── */
+
+.inv-grad-hero {
+    color: var(--text-color);
+    background:
+        radial-gradient(80% 50% at 50% 0%, color-mix(in srgb, var(--inv-grad-robe) 14%, transparent), transparent 70%),
+        radial-gradient(60% 40% at 50% 100%, color-mix(in srgb, var(--inv-grad-gold) 12%, transparent), transparent 70%),
+        var(--bg-color);
+}
+
+.inv-grad-hero__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 34rem;
+    padding: 5.5rem 1.5rem 8rem;
+}
+
+/* Cinta con puntas en cola de golondrina: la carrera o el colegio */
+.inv-grad-ribbon {
+    display: inline-block;
+    margin: 0;
+    padding: 0.55rem 1.6rem;
+    background: var(--inv-grad-robe);
+    color: var(--inv-grad-paper);
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 50%, 100% 100%, 0 100%, 10px 50%);
+}
+
+.inv-grad-arch {
+    position: relative;
+    width: min(66vw, 16rem);
+    margin: 2.25rem 0 1.75rem;
+}
+
+.inv-grad-arch__frame {
+    position: relative;
+    display: grid;
+    place-items: center;
+    margin: 0;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    border-radius: 999px 999px 6px 6px;
+    background: color-mix(in srgb, var(--inv-grad-robe) 10%, var(--bg-color));
+    box-shadow:
+        0 0 0 3px var(--bg-color),
+        0 0 0 4px var(--inv-grad-gold),
+        0 0 0 8px var(--bg-color),
+        0 0 0 9px color-mix(in srgb, var(--inv-grad-gold) 55%, transparent),
+        0 30px 50px -30px color-mix(in srgb, var(--inv-grad-robe) 80%, transparent);
+}
+
+.inv-grad-arch__frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.inv-grad-arch__initials {
+    font-family: var(--font-script);
+    font-size: 4rem;
+    color: var(--inv-accent-deco);
+}
+
+.inv-grad-arch__cap {
+    position: absolute;
+    top: -1.6rem;
+    right: -1.4rem;
+    width: 5rem;
+    rotate: 16deg;
+    filter: drop-shadow(0 8px 10px rgb(0 0 0 / 0.22));
+    animation: inv-grad-float 5s ease-in-out infinite;
+}
+
+.inv-grad-spark {
+    position: absolute;
+    top: var(--t);
+    left: var(--l);
+    width: var(--s);
+    height: var(--s);
+    background: var(--inv-grad-gold);
+    clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+    animation: inv-grad-twinkle 3.2s ease-in-out var(--d) infinite;
+}
+
+@keyframes inv-grad-float {
+    50% { translate: 0 -6px; rotate: 10deg; }
+}
+
+.inv-grad-hero__name {
+    margin: 0;
+    font-family: var(--font-script);
+    font-size: clamp(2.8rem, 12vw, 4.4rem);
+    font-weight: 400;
+    line-height: 1.05;
+    text-wrap: balance;
+    overflow-wrap: anywhere;
+}
+
+.inv-grad-hero__message {
+    max-width: 26rem;
+    margin: 1.25rem 0 0;
+    font-size: 0.98rem;
+    line-height: 1.7;
+    color: var(--inv-muted);
+    text-wrap: pretty;
+}
+
+/* El pie del diploma: tres datos entre filetes dorados */
+.inv-grad-diploma {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr 1fr;
+    width: 100%;
+    max-width: 24rem;
+    margin: 2rem 0 0;
+    border-block: 1px solid var(--inv-grad-gold);
+    box-shadow: 0 -4px 0 -3px color-mix(in srgb, var(--inv-grad-gold) 50%, transparent), 0 4px 0 -3px color-mix(in srgb, var(--inv-grad-gold) 50%, transparent);
+}
+
+.inv-grad-diploma > div {
+    padding: 0.85rem 0.5rem;
+}
+
+.inv-grad-diploma > div + div {
+    border-left: 1px solid color-mix(in srgb, var(--inv-grad-gold) 45%, transparent);
+}
+
+.inv-grad-diploma dt {
+    font-size: 0.58rem;
+    font-weight: 600;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--inv-soft);
+}
+
+.inv-grad-diploma dd {
+    margin: 0.3rem 0 0;
+    font-family: var(--font-titles);
+    font-size: 0.95rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.inv-grad-hero__scroll {
+    color: var(--inv-muted);
+}
+
+/* ── Secciones ──────────────────────────────────────────────────────────── */
+
+.inv-graduacion .inv-head__eyebrow {
+    color: var(--inv-accent-ink);
+}
+
+.inv-graduacion .inv-head__title {
+    font-weight: 600;
+    letter-spacing: 0.04em;
+}
+
+/* Filete doble, como los del diploma */
+.inv-graduacion .inv-head__rule {
+    width: 3.5rem;
+    height: 4px;
+    background: none;
+    border-block: 1px solid var(--inv-grad-gold);
+}
+
+.inv-graduacion #contenido > .inv-section:nth-of-type(even) {
+    background: color-mix(in srgb, var(--inv-grad-robe) 5%, var(--bg-color));
+}
+
+/* ── Pie ────────────────────────────────────────────────────────────────── */
+
+.inv-grad-footer .inv-footer__ornament.inv-grad-cap {
+    width: 3.4rem;
+    margin-inline: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .inv-grad-ambient,
+    .inv-grad-scroll__tap {
+        display: none;
+    }
+
+    .inv-grad-arch__cap,
+    .inv-grad-spark,
+    .inv-grad-scroll__ribbon svg {
+        animation: none;
+    }
+
+    .inv-grad-scroll__paper,
+    .inv-grad-scroll__roll {
+        transition-duration: 0.01s;
+        transition-delay: 0s;
+    }
+}

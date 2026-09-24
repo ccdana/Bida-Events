@@ -4,6 +4,7 @@ use App\Http\Middleware\CachePublicInvitations;
 use App\Http\Middleware\CaptureLeadSource;
 use App\Http\Middleware\EnsureUserIsAdmin;
 use App\Http\Middleware\EnsureUserIsClient;
+use App\Http\Middleware\EnsureUserIsReseller;
 use App\Http\Middleware\LogSlowRequests;
 use App\Http\Middleware\SecurityHeaders;
 use Illuminate\Foundation\Application;
@@ -21,6 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => EnsureUserIsAdmin::class,
             'client' => EnsureUserIsClient::class,
+            'reseller' => EnsureUserIsReseller::class,
             'cache.public.invitations' => CachePublicInvitations::class,
             'lead.source' => CaptureLeadSource::class,
         ]);

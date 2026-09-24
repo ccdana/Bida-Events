@@ -11,6 +11,9 @@
 @import './invitation/themes/boda.css';
 @import './invitation/themes/bautizo.css';
 @import './invitation/themes/cumple.css';
+@import './invitation/themes/graduacion.css';
+@import './invitation/themes/lienzo.css';
+@import './invitation/themes/halloween.css';
 @import './site/brand.css';
 @import './site/site.css';
 @import './admin/admin.css';

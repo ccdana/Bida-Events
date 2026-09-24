@@ -13,6 +13,7 @@ use Illuminate\Support\Carbon;
 /**
  * @property int $id
  * @property int|null $user_id
+ * @property int|null $reseller_id
  * @property int $event_type_id
  * @property string $slug
  * @property string $template
@@ -28,6 +29,7 @@ class Invitation extends Model
 {
     protected $fillable = [
         'user_id',
+        'reseller_id',
         'event_type_id',
         'slug',
         'template',
@@ -52,6 +54,15 @@ class Invitation extends Model
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * Revendedor que arma y administra la invitación (null en las que arma el equipo). El cliente
+     * final del evento, si lo tiene, sigue siendo user_id.
+     */
+    public function reseller(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'reseller_id');
+    }
+
     public function eventType(): BelongsTo
     {
         return $this->belongsTo(EventType::class);
@@ -65,6 +76,12 @@ class Invitation extends Model
     {
         return $this->belongsToMany(Feature::class, 'invitation_features')
             ->withPivot('is_enabled');
+    }
+
+    /** Textos propios que reemplazan los de la plantilla (App\Support\EditableTexts). */
+    public function texts(): HasMany
+    {
+        return $this->hasMany(InvitationText::class);
     }
 
     public function theme(): HasOne

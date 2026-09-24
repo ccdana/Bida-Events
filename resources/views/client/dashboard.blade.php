@@ -12,6 +12,57 @@
 
     @include('client.partials.export-status')
 
+    @if($errors->has('quota'))
+        <p class="site-enter mt-6 flex items-start gap-2 rounded-[12px] border border-site-danger/40 bg-site-danger/10 px-4 py-3 text-sm text-site-danger" role="alert">
+            <x-phosphor-warning-circle class="size-5 shrink-0" aria-hidden="true" />
+            {{ $errors->first('quota') }}
+        </p>
+    @endif
+
+    {{-- Revendedor: su plan, el cupo del mes y el acceso al editor --}}
+    @if($reseller)
+        <section class="site-enter admin-card mt-8 p-6 lg:p-8" style="--enter-index: 1">
+            <div class="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <p class="text-sm text-site-muted">Plan {{ $reseller['planName'] }}</p>
+                    <p class="mt-1 text-3xl font-semibold tracking-tight tabular-nums">{{ $reseller['quotaLabel'] }}</p>
+                    <p class="mt-1 text-sm text-site-muted">
+                        invitaciones creadas este mes
+                        @if($reseller['renewsLabel'])
+                            · {{ $reseller['isActive'] ? 'renueva el' : 'venció el' }} {{ $reseller['renewsLabel'] }}
+                        @endif
+                    </p>
+                </div>
+
+                <div class="sm:text-right">
+                    @if($reseller['canCreate'])
+                        <a href="{{ route('client.invitations.create') }}" class="admin-primary-button">
+                            <x-phosphor-plus-bold aria-hidden="true" />
+                            Nueva invitación
+                        </a>
+                    @else
+                        <span class="admin-primary-button pointer-events-none opacity-50" aria-disabled="true">
+                            <x-phosphor-plus-bold aria-hidden="true" />
+                            Nueva invitación
+                        </span>
+                        <p class="mt-2 text-sm text-site-muted">{{ $reseller['blockedReason'] }}</p>
+                    @endif
+                </div>
+            </div>
+
+            @if($reseller['warning'])
+                <p @class([
+                    'mt-5 flex items-start gap-2 rounded-[12px] px-4 py-3 text-sm',
+                    'bg-site-danger/10 text-site-danger' => ! $reseller['isActive'],
+                    'bg-site-tint' => $reseller['isActive'],
+                ]) role="status">
+                    <x-phosphor-bell-ringing class="size-5 shrink-0" aria-hidden="true" />
+                    {{ $reseller['warning'] }}
+                </p>
+            @endif
+        </section>
+    @endif
+
     {{-- Buscador: viaja en la URL, así el cliente puede volver al mismo resultado --}}
     @if($total > 0 || $search !== '')
         <form method="GET" class="site-enter mt-8 flex flex-wrap items-center gap-2" style="--enter-index: 1">
@@ -77,6 +128,14 @@
                                 {{ $row['isCard'] ? 'Ver respuestas' : 'Ver invitados' }}
                             </a>
 
+                            {{-- Solo el revendedor al día edita lo suyo; al cliente normal se la arma el equipo --}}
+                            @can('update', $invitation)
+                                <a href="{{ route('client.invitations.edit', $invitation) }}" class="admin-link-button">
+                                    <x-phosphor-pencil-simple aria-hidden="true" />
+                                    Editar
+                                </a>
+                            @endcan
+
                             @if($row['publicUrl'])
                                 <a href="{{ $row['publicUrl'] }}" target="_blank" rel="noopener" class="admin-link-button">
                                     <x-phosphor-arrow-square-out aria-hidden="true" />
@@ -103,8 +162,12 @@
                 <a href="{{ route('client.dashboard') }}" class="admin-link-button mt-6">Ver todos mis eventos</a>
             @else
                 <h2 class="mt-4 text-lg font-medium">Todavía no tienes eventos</h2>
-                <p class="mt-1 max-w-[40ch] text-site-muted">Cuando armemos tu invitación, aparecerá aquí con sus confirmaciones.</p>
-                <a href="{{ route('home') }}#contacto" class="admin-link-button mt-6">Contactar al equipo</a>
+                @if($reseller)
+                    <p class="mt-1 max-w-[40ch] text-site-muted">Crea la primera con «Nueva invitación»: aparecerá aquí con sus confirmaciones.</p>
+                @else
+                    <p class="mt-1 max-w-[40ch] text-site-muted">Cuando armemos tu invitación, aparecerá aquí con sus confirmaciones.</p>
+                    <a href="{{ route('home') }}#contacto" class="admin-link-button mt-6">Contactar al equipo</a>
+                @endif
             @endif
         </div>
     @endforelse

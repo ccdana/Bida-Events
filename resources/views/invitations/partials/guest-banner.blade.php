@@ -11,7 +11,7 @@
     <div class="inv-wrap">
         @include('invitations.partials.section-header', [
             'lottie' => 'invitation',
-            'eyebrow' => 'Esta invitación es para',
+            'eyebrow' => $invCopy['guest_banner_eyebrow'] ?? 'Esta invitación es para',
             'title' => $guest?->name ?? 'Invitado especial',
         ])
 
@@ -28,7 +28,7 @@
 
         @if($status === 'pending')
             <div class="inv-actions">
-                <a href="#rsvp" class="inv-btn inv-btn--block">Confirmar asistencia</a>
+                <a href="#rsvp" class="inv-btn inv-btn--block">{{ $invCopy['guest_cta'] ?? 'Confirmar asistencia' }}</a>
                 <p class="inv-help">{{ $invCopy['guest_help'] ?? 'Te toma menos de un minuto y nos ayuda a organizar la noche.' }}</p>
             </div>
         @endif

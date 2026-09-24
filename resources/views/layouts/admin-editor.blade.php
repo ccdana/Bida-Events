@@ -9,7 +9,7 @@
 <body class="site admin-shell flex h-[100dvh] flex-col overflow-hidden">
     <header class="relative z-40 flex shrink-0 flex-col gap-3 border-b border-site-line bg-site-bg px-4 py-3 sm:h-16 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:py-0 lg:px-6">
         <div class="flex min-w-0 items-center gap-4">
-            <a href="{{ route('admin.dashboard') }}" class="shrink-0 text-lg">
+            <a href="{{ $editorHome ?? route('admin.dashboard') }}" class="shrink-0 text-lg">
                 <x-brand.logo mark-class="h-8 w-auto" />
             </a>
             <span class="hidden h-7 w-px bg-site-line sm:block" aria-hidden="true"></span>

@@ -40,6 +40,26 @@ class InvitationEditorTest extends TestCase
         $this->assertDatabaseHas('invitation_heroes', ['invitation_id' => $invitation->id, 'primary_name' => 'Sofía Valentina']);
     }
 
+    public function test_the_template_has_to_belong_to_the_chosen_event_type(): void
+    {
+        // Tipo «Bodas» con la plantilla de XV años: no se guarda
+        $wedding = EventType::create(['name' => 'Bodas', 'slug' => 'bodas', 'code' => 'boda', 'kind' => 'invitation']);
+        $payload = $this->payload(XvSofiaModuleData::all());
+        $payload['event_type_id'] = $wedding->id;
+
+        $this->actingAs($this->admin)
+            ->from(route('admin.invitations.create'))
+            ->post(route('admin.invitations.store'), $payload)
+            ->assertSessionHasErrors(['template' => 'La plantilla no corresponde al tipo de evento elegido.']);
+
+        $this->assertDatabaseCount('invitations', 0);
+
+        // Con la plantilla de boda sí
+        $payload['template'] = 'invitations.templates.boda-jardin';
+        $this->actingAs($this->admin)->post(route('admin.invitations.store'), $payload)->assertSessionHasNoErrors();
+        $this->assertDatabaseCount('invitations', 1);
+    }
+
     public function test_invalid_modules_are_rejected_and_the_editor_keeps_the_submitted_state(): void
     {
         $modules = XvSofiaModuleData::all();

@@ -17,6 +17,19 @@
                         'font-medium text-site-ink' => request()->routeIs('admin.dashboard'),
                         'text-site-muted hover:text-site-ink' => ! request()->routeIs('admin.dashboard'),
                     ])>Invitaciones</a>
+                    @php($resellersDue = App\Support\ResellerSubscription::dueSoonCount())
+                    <a href="{{ route('admin.resellers.index') }}" @class([
+                        'site-nav-link inline-flex items-center gap-1.5',
+                        'font-medium text-site-ink' => request()->routeIs('admin.resellers.*'),
+                        'text-site-muted hover:text-site-ink' => ! request()->routeIs('admin.resellers.*'),
+                    ])>
+                        Revendedores
+                        @if($resellersDue > 0)
+                            {{-- Cuántos hay que avisar: vencen en los próximos días o ya vencieron --}}
+                            <span class="rounded-full bg-site-accent px-1.5 text-xs font-semibold text-site-bg tabular-nums"
+                                title="{{ $resellersDue }} por vencer o vencidos">{{ $resellersDue }}</span>
+                        @endif
+                    </a>
                     <a href="{{ route('admin.settings') }}" @class([
                         'site-nav-link',
                         'font-medium text-site-ink' => request()->routeIs('admin.settings'),

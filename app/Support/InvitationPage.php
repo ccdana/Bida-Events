@@ -30,6 +30,7 @@ final class InvitationPage
         'Lato' => '300;400;700', 'Nunito Sans' => '300;400;600;700', 'Source Sans 3' => '300;400;600;700',
         'Poppins' => '300;400;500;600;700', 'Raleway' => '300;400;500;600;700', 'Open Sans' => '300;400;600;700',
         'Dancing Script' => '400;700', 'Tangerine' => '400;700', 'Fredoka' => '400;500;600;700',
+        'Creepster' => '400',
     ];
 
     private const NAV_LABELS = [
@@ -128,7 +129,8 @@ final class InvitationPage
         $this->welcome = (array) ($modules['bienvenida'] ?? []);
         $this->dedication = (array) ($modules['dedicatoria'] ?? []);
         $this->music = (array) ($modules['musica'] ?? []);
-        $this->copy = $meta['copy'];
+        // Los textos de la plantilla, con los que esta invitación cambió encima (EditableTexts)
+        $this->copy = array_merge($meta['copy'], EditableTexts::sanitize($this->config['textos'] ?? []));
         $this->partials = $meta['partials'] ?? [];
         $this->reactions = $meta['reactions'] ?? [];
         $this->profile = app(EventProfiles::class)->forTemplate($template);
@@ -233,6 +235,33 @@ final class InvitationPage
         }
 
         return preg_match('/\b(\d{1,3})\b/u', (string) ($this->welcome['subtitulo'] ?? ''), $match) ? (int) $match[1] : null;
+    }
+
+    /**
+     * El crédito del pie. Por defecto es el de siempre: «Hecho con cariño por Bida Events» con el
+     * enlace para crear la tuya. Si la invitación es de un revendedor con marca blanca y tiene nombre
+     * comercial, el crédito es suyo y no lleva a la portada de Bida.
+     *
+     * Depende del plan, no de que el pago esté al día: una invitación ya entregada no cambia de marca
+     * porque la suscripción venza.
+     *
+     * @return array{name: string, url: ?string, pitch: ?string}
+     */
+    public function footerBrand(): array
+    {
+        // La marca es del revendedor que armó la invitación, no del cliente final del evento
+        $owner = $this->invitation->reseller;
+        $businessName = trim((string) $owner?->business_name);
+
+        if ($owner?->isReseller() && ($owner->planConfig()['white_label'] ?? false) && $businessName !== '') {
+            return ['name' => $businessName, 'url' => null, 'pitch' => null];
+        }
+
+        return [
+            'name' => 'Bida Events',
+            'url' => route('home'),
+            'pitch' => $this->copy['footer_pitch'] ?? '¿Te gustó esta invitación? Crea la tuya',
+        ];
     }
 
     /** Iniciales para monogramas y sellos, p. ej. "A & L". */

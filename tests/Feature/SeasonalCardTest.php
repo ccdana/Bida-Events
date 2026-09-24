@@ -168,7 +168,7 @@ class SeasonalCardTest extends TestCase
 
     public function test_the_card_campaign_page_shows_the_season_price_and_links_its_demo(): void
     {
-        config(['bida.season.ends_at' => '2026-09-21 23:59:59']);
+        config(['bida.seasons.amor.ends_at' => '2026-09-21 23:59:59']);
         $this->travelTo(Carbon::parse('2026-09-19 10:00', 'America/La_Paz'));
         $this->seed(ShowcaseInvitationsSeeder::class);
         $landing = config('bida.landings.tarjetas-dia-del-amor');
@@ -178,7 +178,7 @@ class SeasonalCardTest extends TestCase
             ->assertOk()
             ->assertSee(e($landing['heading']), false)
             // Las muestras son las de la temporada
-            ->assertSee(route('invitation.demo', config('bida.season.templates')[0]), false)
+            ->assertSee(route('invitation.demo', config('bida.seasons.amor.templates')[0]), false)
             ->assertSeeInOrder(['100 Bs', '75', 'Bs'])
             ->assertSee('La quiero por 75 Bs');
 

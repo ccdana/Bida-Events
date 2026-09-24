@@ -29,5 +29,7 @@
 </head>
 <body class="site min-h-[100dvh]">
     @yield('content')
+
+    @include('layouts.partials.cookie-notice')
 </body>
 </html>

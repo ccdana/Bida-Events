@@ -68,7 +68,7 @@ class InvitationController extends Controller
     protected function findPublished(string $slug): Invitation
     {
         return Invitation::query()
-            ->with(['eventType', 'user'])
+            ->with(['eventType', 'user', 'reseller'])
             ->where('slug', $slug)
             ->published()
             ->firstOrFail();

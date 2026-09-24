@@ -24,6 +24,9 @@ final class PdfMotifs
             'flor' => self::flor($color, $soft),
             'brujula' => self::brujula($color, $soft),
             'luna' => self::luna($color, $soft, $paper),
+            'birretes' => self::birretes($color, $soft),
+            'murcielagos' => self::murcielagos($color, $soft),
+            'linea' => self::linea($color),
             default => self::diamante($color, $soft),
         };
 
@@ -239,6 +242,56 @@ final class PdfMotifs
             .'<circle cx="132" cy="16" r="15" fill="'.$paper.'"/>'
             .'<path d="M8 20 H78" stroke="'.$soft.'" stroke-width="0.8"/>'
             .'<path d="M166 20 H232" stroke="'.$soft.'" stroke-width="0.8"/>'
+            .'</svg>';
+    }
+
+    /** Tres birretes al aire con su borla: la graduación. */
+    private static function birretes(string $color, string $soft): string
+    {
+        $caps = '';
+
+        foreach ([[84, 22, -14, 0.8], [120, 16, 0, 1], [156, 22, 14, 0.8]] as [$x, $y, $angle, $scale]) {
+            $caps .= sprintf(
+                '<g transform="translate(%1$d %2$d) rotate(%3$d) scale(%4$.2f)">'
+                .'<path d="M-16 0 L0 -7 L16 0 L0 7 Z" fill="%5$s"/>'
+                .'<path d="M-9 3 V9 Q0 13 9 9 V3" fill="%5$s"/>'
+                .'<path d="M0 0 L12 4 V12" stroke="%6$s" stroke-width="1.4" fill="none"/>'
+                .'<circle cx="12" cy="13" r="2" fill="%6$s"/></g>',
+                $x, $y, $angle, $scale, $color, $soft
+            );
+        }
+
+        return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 40" width="240" height="40">'
+            .'<path d="M8 22 H62" stroke="'.$color.'" stroke-width="0.8"/>'
+            .'<path d="M178 22 H232" stroke="'.$color.'" stroke-width="0.8"/>'
+            .$caps
+            .'</svg>';
+    }
+
+    /** Murciélagos alrededor de una calabaza: Halloween. */
+    private static function murcielagos(string $color, string $soft): string
+    {
+        $bat = fn (float $x, float $y, float $scale) => sprintf(
+            '<path transform="translate(%.1f %.1f) scale(%.2f)" d="M0 0 C-3 -5 -9 -6 -14 -3 C-11 -2 -10 1 -11 3 C-8 1 -5 2 -4 4 C-3 2 -1 2 0 3 C1 2 3 2 4 4 C5 2 8 1 11 3 C10 1 11 -2 14 -3 C9 -6 3 -5 0 0 Z" fill="%s"/>',
+            $x, $y, $scale, $soft
+        );
+
+        return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 40" width="240" height="40">'
+            .$bat(40, 16, 1.1).$bat(72, 26, 0.8).$bat(170, 14, 0.9).$bat(204, 24, 1.1)
+            .'<ellipse cx="108" cy="24" rx="9" ry="11" fill="'.$color.'"/>'
+            .'<ellipse cx="132" cy="24" rx="9" ry="11" fill="'.$color.'"/>'
+            .'<ellipse cx="120" cy="24" rx="11" ry="12" fill="'.$color.'"/>'
+            .'<path d="M120 12 Q121 6 125 4" stroke="'.$soft.'" stroke-width="2" fill="none" stroke-linecap="round"/>'
+            .'</svg>';
+    }
+
+    /** Una línea fina con un punto: el único adorno de la plantilla en blanco. */
+    private static function linea(string $color): string
+    {
+        return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 40" width="240" height="40">'
+            .'<path d="M70 20 H112" stroke="'.$color.'" stroke-width="0.8"/>'
+            .'<circle cx="120" cy="20" r="2.2" fill="'.$color.'"/>'
+            .'<path d="M128 20 H170" stroke="'.$color.'" stroke-width="0.8"/>'
             .'</svg>';
     }
 

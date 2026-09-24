@@ -35,6 +35,14 @@
                     {{ $unavailableReason }}
                 </span>
             @endif
+            @can('update', $invitation)
+                @unless(auth()->user()->isAdmin())
+                    <a href="{{ route('client.invitations.edit', $invitation) }}" class="admin-link-button">
+                        <x-phosphor-pencil-simple aria-hidden="true" />
+                        Editar
+                    </a>
+                @endunless
+            @endcan
         </div>
     </header>
 
@@ -65,6 +73,13 @@
     @endif
 
     @include('client.partials.export-status')
+
+    {{-- El revendedor que armó el evento maneja el acceso de su cliente --}}
+    @can('update', $invitation)
+        @unless(auth()->user()->isAdmin())
+            @include('client.partials.event-client')
+        @endunless
+    @endcan
 
     @unless($isCard)
         <section class="site-enter mt-10" style="--enter-index: 1">

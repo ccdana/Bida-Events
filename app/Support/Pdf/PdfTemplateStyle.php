@@ -53,6 +53,26 @@ final class PdfTemplateStyle
                 'frame' => 'block',
                 'kicker' => '¡Celebremos!',
             ],
+            InvitationTemplates::GRADUACION_BIRRETE => [
+                'cover' => 'diploma',
+                'motif' => 'birretes',
+                'frame' => 'double',
+                'kicker' => 'Me gradúo',
+            ],
+            // La plantilla en blanco se imprime igual de sobria: una línea fina y el nombre
+            InvitationTemplates::LIENZO => [
+                'cover' => 'clasica',
+                'motif' => 'linea',
+                'frame' => 'thin',
+                'kicker' => 'Estás invitado',
+            ],
+            InvitationTemplates::HALLOWEEN_CALABAZAS => [
+                'cover' => 'calabaza',
+                'motif' => 'murcielagos',
+                'frame' => 'none',
+                'paper' => 'dark',
+                'kicker' => 'Fiesta de Halloween',
+            ],
             InvitationTemplates::TARJETA_AMOR => [
                 'cover' => 'carta',
                 'motif' => 'flor',
@@ -81,6 +101,9 @@ final class PdfTemplateStyle
         'boda' => 'jardin',
         'bautizo' => 'nubes',
         'cumple' => 'fiesta',
+        'graduacion' => 'diploma',
+        'lienzo' => 'clasica',
+        'halloween' => 'calabaza',
         'amor' => 'carta',
         'aventura' => 'cuaderno',
         'historia' => 'luna',

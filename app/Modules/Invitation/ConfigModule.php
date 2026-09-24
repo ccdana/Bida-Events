@@ -4,15 +4,18 @@ namespace App\Modules\Invitation;
 
 use App\Models\Feature;
 use App\Models\Invitation;
+use App\Models\InvitationText;
 use App\Models\InvitationTheme;
 use App\Modules\Concerns\ReadsValues;
 use App\Modules\Module;
 use App\Modules\ModuleRegistry;
+use App\Support\EditableTexts;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Configuración: plantilla (invitations.template), colores y tipografías (invitation_themes) y
- * qué módulos se muestran (invitation_features, una fila por módulo).
+ * Configuración: plantilla (invitations.template), colores y tipografías (invitation_themes), qué
+ * módulos se muestran (invitation_features, una fila por módulo) y los textos propios de la
+ * invitación que reemplazan los de la plantilla (invitation_texts, ver App\Support\EditableTexts).
  */
 class ConfigModule extends Module
 {
@@ -64,12 +67,13 @@ class ConfigModule extends Module
             ],
             'modulos' => app(ModuleRegistry::class)->visibilityDefaults(),
             'template' => 'invitations.templates.xv-premium',
+            'textos' => [],
         ];
     }
 
     public function relations(): array
     {
-        return ['theme', 'features'];
+        return ['theme', 'features', 'texts'];
     }
 
     public function load(Invitation $invitation): array
@@ -86,6 +90,10 @@ class ConfigModule extends Module
             $config['modulos'] = $invitation->features
                 ->mapWithKeys(fn (Feature $feature) => [$feature->code => (bool) $feature->pivot->is_enabled])
                 ->all();
+        }
+
+        if ($invitation->texts->isNotEmpty()) {
+            $config['textos'] = $invitation->texts->pluck('value', 'key')->all();
         }
 
         return $config;
@@ -115,6 +123,19 @@ class ConfigModule extends Module
         InvitationTheme::updateOrCreate(['invitation_id' => $invitation->id], $attributes);
 
         $this->saveVisibility($invitation, $this->items($data['modulos'] ?? null));
+        $this->saveTexts($invitation, EditableTexts::sanitize($data['textos'] ?? []));
+    }
+
+    /** Los textos propios se reemplazan enteros: los que se vaciaron vuelven a ser los de la plantilla. */
+    protected function saveTexts(Invitation $invitation, array $texts): void
+    {
+        InvitationText::where('invitation_id', $invitation->id)->whereNotIn('key', array_keys($texts))->delete();
+
+        foreach ($texts as $key => $value) {
+            InvitationText::updateOrCreate(['invitation_id' => $invitation->id, 'key' => $key], ['value' => $value]);
+        }
+
+        $invitation->unsetRelation('texts');
     }
 
     /** Una fila por módulo con su interruptor; los módulos que no llegan quedan como estaban. */

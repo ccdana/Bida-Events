@@ -67,6 +67,9 @@ class InvitationModuleRules
             "{$p}.config.tipografias.*" => ['nullable', 'string', 'max:100'],
             "{$p}.config.modulos" => ['nullable', 'array'],
             "{$p}.config.modulos.*" => ['boolean'],
+            // Textos propios de la invitación que reemplazan los de la plantilla (App\Support\EditableTexts)
+            "{$p}.config.textos" => ['nullable', 'array', 'max:200'],
+            "{$p}.config.textos.*" => ['nullable', 'string', 'max:600'],
 
             "{$p}.bienvenida.imagen_hero" => $url,
             "{$p}.ubicacion.imagen_lugar" => $url,
@@ -144,6 +147,7 @@ class InvitationModuleRules
             "{$p}.config.colores.*" => 'color',
             "{$p}.config.tipografias.*" => 'tipografía',
             "{$p}.config.modulos.*" => 'visibilidad de módulo',
+            "{$p}.config.textos.*" => 'texto',
             "{$p}.bienvenida.imagen_hero" => 'imagen principal',
             "{$p}.ubicacion.imagen_lugar" => 'imagen del lugar',
             "{$p}.video.video_url" => 'URL del video',

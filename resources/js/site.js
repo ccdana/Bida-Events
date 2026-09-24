@@ -151,7 +151,23 @@ function initHeaderState() {
  * Evento «reel:go» (detail = índice): cambia a esa muestra en cuanto esté lista.
  */
 function initCoverReels() {
-    document.querySelectorAll('[data-cover-reel]').forEach(initCoverReel);
+    document.querySelectorAll('[data-cover-reel]').forEach((reel) => {
+        const first = reel.querySelector('[data-cover-reel-frame]');
+
+        // Teléfono dentro de un panel cerrado (la temporada de la portada): no carga nada hasta que
+        // el panel se abre y avisa con «reel:wake»
+        if (first?.dataset.lazySrc) {
+            reel.addEventListener('reel:wake', () => {
+                first.src = first.dataset.lazySrc;
+                delete first.dataset.lazySrc;
+                initCoverReel(reel);
+            }, { once: true });
+
+            return;
+        }
+
+        initCoverReel(reel);
+    });
 }
 
 function frameIsLoaded(frame) {

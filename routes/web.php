@@ -6,23 +6,37 @@ use App\Http\Controllers\Admin\InvitationController as AdminInvitationController
 use App\Http\Controllers\Admin\MapsController;
 use App\Http\Controllers\Admin\MediaUploadController;
 use App\Http\Controllers\Admin\PreviewController;
+use App\Http\Controllers\Admin\ResellerController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Client\ContributionController as ClientContributionController;
 use App\Http\Controllers\Client\DashboardController as ClientDashboardController;
 use App\Http\Controllers\Client\ExportController;
 use App\Http\Controllers\Client\GuestController as ClientGuestController;
+use App\Http\Controllers\Client\InvitationController as ClientInvitationController;
+use App\Http\Controllers\Client\ResellerClientController;
 use App\Http\Controllers\EventLandingController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Public\ContributionController;
 use App\Http\Controllers\Public\InvitationController as PublicInvitationController;
 use App\Http\Controllers\Public\RsvpController;
+use App\Http\Controllers\PublicPagesController;
+use App\Models\Invitation;
+use App\Support\LegalPages;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 // Sitio público: la portada y las páginas por tipo de evento recuerdan el origen de campaña (utm_*, ?ref=)
 Route::middleware('lead.source')->group(function () {
     Route::get('/', HomeController::class)->name('home');
+
+    // Publicidad para profesionales de eventos (revendedores con suscripción mensual)
+    Route::get('/para-profesionales', [PublicPagesController::class, 'professionals'])->name('professionals');
+
+    // Privacidad, cookies y términos (App\Support\LegalPages)
+    Route::get('/legal/{page}', [PublicPagesController::class, 'legal'])
+        ->whereIn('page', LegalPages::PAGES)
+        ->name('legal');
 
     // /invitaciones-de-boda, /invitaciones-xv-anos… (contenido en config/bida.php, clave landings)
     Route::get('/{landing}', EventLandingController::class)
@@ -76,6 +90,13 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     // Precios, promociones y plantillas de temporada, sin tocar el código
     Route::get('/ajustes', [SettingsController::class, 'edit'])->name('settings');
     Route::put('/ajustes', [SettingsController::class, 'update'])->name('settings.update');
+
+    // Revendedores: alta y pagos de su suscripción (el cobro es manual, no hay pasarela)
+    Route::get('/revendedores', [ResellerController::class, 'index'])->name('resellers.index');
+    Route::post('/revendedores', [ResellerController::class, 'store'])->name('resellers.store');
+    Route::post('/revendedores/{reseller}/pagos', [ResellerController::class, 'registerPayment'])->name('resellers.payments.store');
+    Route::delete('/revendedores/{reseller}/pagos/{payment}', [ResellerController::class, 'destroyPayment'])->name('resellers.payments.destroy');
+
     Route::get('/invitations/create', [AdminInvitationController::class, 'create'])->name('invitations.create');
     Route::post('/invitations', [AdminInvitationController::class, 'store'])->name('invitations.store');
     Route::post('/clients', [AdminInvitationController::class, 'storeClient'])->name('clients.store');
@@ -103,6 +124,28 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
 Route::prefix('client')->name('client.')->middleware(['auth', 'client'])->group(function () {
     Route::get('/', [ClientDashboardController::class, 'index'])->name('dashboard');
     Route::get('/invitations/{invitation}', [ClientDashboardController::class, 'show'])->can('view', 'invitation')->name('invitation.show');
+
+    // Revendedores: arman sus propias invitaciones con el mismo editor que el administrador.
+    // «reseller» deja pasar solo a revendedores; la policy exige además la suscripción al día.
+    Route::middleware('reseller')->group(function () {
+        Route::get('/invitaciones/nueva', [ClientInvitationController::class, 'create'])->can('create', Invitation::class)->name('invitations.create');
+        Route::post('/invitaciones', [ClientInvitationController::class, 'store'])->can('create', Invitation::class)->name('invitations.store');
+        Route::get('/invitations/{invitation}/editar', [ClientInvitationController::class, 'edit'])->can('update', 'invitation')->name('invitations.edit');
+        Route::put('/invitations/{invitation}', [ClientInvitationController::class, 'update'])->can('update', 'invitation')->name('invitations.update');
+
+        // El acceso del cliente de cada evento: uno por evento, se elimina si se creó mal
+        Route::post('/invitations/{invitation}/cliente', [ResellerClientController::class, 'store'])->can('update', 'invitation')->name('invitations.client.store');
+        Route::delete('/invitations/{invitation}/cliente', [ResellerClientController::class, 'destroy'])->can('update', 'invitation')->name('invitations.client.destroy');
+
+        // Herramientas del editor: los mismos controladores que usa el administrador, con límite por minuto
+        Route::prefix('editor')->name('editor.')->middleware('can:create,'.Invitation::class)->group(function () {
+            Route::post('/preview', [PreviewController::class, 'store'])->middleware('throttle:reseller-editor')->name('preview.store');
+            Route::get('/preview/frame', [PreviewController::class, 'frame'])->middleware('throttle:reseller-editor')->name('preview.frame');
+            Route::post('/media/upload', [MediaUploadController::class, 'store'])->middleware('throttle:reseller-uploads')->name('media.upload');
+            Route::get('/maps/search', [MapsController::class, 'search'])->middleware('throttle:reseller-editor')->name('maps.search');
+            Route::post('/maps/resolve', [MapsController::class, 'resolve'])->middleware('throttle:reseller-editor')->name('maps.resolve');
+        });
+    });
 
     // El cliente arma su lista de invitados; el invitado debe pertenecer a su invitación (scopeBindings)
     Route::scopeBindings()->middleware('can:manageOwnGuests,invitation')->group(function () {

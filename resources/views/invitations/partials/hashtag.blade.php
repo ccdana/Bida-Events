@@ -13,9 +13,9 @@
         @include('invitations.partials.section-header', [
             'compact' => true,
             'lottie' => 'hashtag',
-            'eyebrow' => 'Redes sociales',
+            'eyebrow' => $invCopy['hashtag_eyebrow'] ?? 'Redes sociales',
             'title' => $hashtag['texto_boton'] ?? 'Usa nuestro hashtag',
-            'intro' => "Publica tus fotos y videos en {$platformLabel} con esta etiqueta para verlos todos juntos.",
+            'intro' => str_replace(':red', $platformLabel, $invCopy['hashtag_intro'] ?? 'Publica tus fotos y videos en :red con esta etiqueta para verlos todos juntos.'),
         ])
 
         <p class="inv-hashtag__tag" x-data="fitText()" x-init="fit()" @resize.window.debounce.150ms="fit()">
@@ -24,7 +24,7 @@
 
         <div class="inv-actions inv-actions--split">
             <button type="button" class="inv-btn" @click="copy(@js($tag))">
-                <span x-text="copied ? '¡Copiado!' : 'Copiar hashtag'">Copiar hashtag</span>
+                <span x-text="copied ? '¡Copiado!' : @js($invCopy['hashtag_copy'] ?? 'Copiar hashtag')">{{ $invCopy['hashtag_copy'] ?? 'Copiar hashtag' }}</span>
             </button>
             <a href="{{ $searchUrl }}" target="_blank" rel="noopener" class="inv-btn inv-btn--ghost">Ver en {{ $platformLabel }}</a>
         </div>

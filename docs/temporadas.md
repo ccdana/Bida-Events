@@ -37,7 +37,7 @@ Ejemplo: una tarjeta de Navidad con portada, dedicatoria, galería y música.
    `event => 'navidad'`, `palette` (tiene que pasar el contraste AA: lo revisa
    `AccessibleInvitationTest`), `order` y `copy`.
 5. **Muestra.** `database/seeders/showcase/tarjeta-….php`, su slug en
-   `ShowcaseInvitationsSeeder::SLUGS` y en `config('bida.season.templates')` (ver receta 4).
+   `ShowcaseInvitationsSeeder::SLUGS` y en `config('bida.seasons.{clave}.templates')` (ver receta 4).
 6. **Pruebas.** `TemplateRenderMatrixTest::completeContent()` necesita su contenido de prueba (la
    plantilla entra sola a la matriz y falla hasta tenerlo).
 7. **Campaña (opcional).** Página en `config('bida.landings')` con `kind => 'card'`, su código de
@@ -47,6 +47,15 @@ Ejemplo: una tarjeta de Navidad con portada, dedicatoria, galería y música.
 
 Con eso el editor ya ofrece la plantilla bajo «Tarjeta», muestra solo las pestañas del perfil y
 avisa lo que falta según `required()`.
+
+## Receta 1b: una invitación de temporada (ejemplo: Halloween)
+
+Igual que la receta 1, con estas diferencias (`HalloweenProfile`, `halloween-calabazas`):
+
+- El perfil es de **invitación** (`kind()` por defecto) pero declara `season()`; así Ajustes la lista entre las plantillas de temporada que se pueden apagar.
+- La página de campaña lleva `'kind' => 'season'`: se vende al precio de su temporada, sin paquetes, mientras la temporada que la tiene como `landing` esté encendida y vigente.
+- Cada temporada es una entrada propia en `config('bida.seasons')` (clave, `code`, `name`, `product` —`invitación` o `tarjeta`—, `active`, `templates`, `landing`, precios y `ends_at`). Son independientes: en Ajustes cada una se enciende, se apaga y cambia de precio y fecha sin tocar a las demás, y en la portada cada una vigente tiene su propio botón.
+- En la portada la temporada se abre desde un botón flotante (`site/partials/season.blade.php`); su adorno y colores se eligen por `key` en `site.css` (`.site-season--halloween`).
 
 ## Receta 2: un módulo que hoy no existe
 

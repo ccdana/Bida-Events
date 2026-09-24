@@ -11,9 +11,9 @@
         @include('invitations.partials.section-header', [
             'compact' => true,
             'lottie' => 'poll',
-            'eyebrow' => 'Tu opinión cuenta',
+            'eyebrow' => $invCopy['polls_eyebrow'] ?? 'Tu opinión cuenta',
             'title' => $encuestas['titulo'] ?? 'Encuestas',
-            'intro' => 'Toca una opción para votar. Verás los resultados al instante.',
+            'intro' => $invCopy['polls_intro'] ?? 'Toca una opción para votar. Verás los resultados al instante.',
         ])
 
         @forelse($preguntas as $number => $poll)
@@ -49,7 +49,7 @@
                 <p class="inv-status" :class="{ 'is-error': error }" x-text="message" aria-live="polite"></p>
             </div>
         @empty
-            <p class="inv-empty">Pronto habrá preguntas para votar.</p>
+            <p class="inv-empty">{{ $invCopy['polls_empty'] ?? 'Pronto habrá preguntas para votar.' }}</p>
         @endforelse
 
         @if($totalPreguntas > 1)

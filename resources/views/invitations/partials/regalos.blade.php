@@ -22,7 +22,7 @@
         @include('invitations.partials.section-header', [
             'compact' => true,
             'lottie' => 'gift',
-            'eyebrow' => 'Detalles especiales',
+            'eyebrow' => $invCopy['gifts_eyebrow'] ?? 'Detalles especiales',
             'title' => $regalos['titulo'] ?? 'Regalos',
             'intro' => $invCopy['gifts_intro'] ?? 'Tu presencia es mi mejor regalo. Si deseas tener un detalle, aquí tienes algunas opciones.',
         ])
@@ -35,7 +35,7 @@
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 10l9-6 9 6M5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 20h18" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </span>
                         <span class="inv-gift__body">
-                            <span class="inv-gift__title">Transferencia bancaria</span>
+                            <span class="inv-gift__title">{{ $invCopy['gifts_bank_title'] ?? 'Transferencia bancaria' }}</span>
                             <span class="inv-gift__text">Ver datos de la cuenta{{ !empty($banco['qr_url']) ? ' y código QR' : '' }}</span>
                         </span>
                         <span class="inv-gift__chevron" aria-hidden="true">
@@ -111,7 +111,7 @@
         {{-- Los datos de la cuenta viven en un <template>, que sin JavaScript nunca se pinta: aquí van planos --}}
         <noscript>
             <div class="inv-wrap">
-                <h3 class="inv-label">Transferencia bancaria</h3>
+                <h3 class="inv-label">{{ $invCopy['gifts_bank_title'] ?? 'Transferencia bancaria' }}</h3>
                 <dl class="inv-bank">
                     @foreach($bankFields as $key => $label)
                         <div class="inv-bank__row">
@@ -125,7 +125,7 @@
                 @if(!empty($banco['qr_url']))
                     <figure class="inv-bank__qr">
                         <img src="{{ $banco['qr_url'] }}" alt="Código QR para transferir" loading="lazy">
-                        <figcaption class="inv-help">Escanea el código desde la app de tu banco</figcaption>
+                        <figcaption class="inv-help">{{ $invCopy['gifts_qr_hint'] ?? 'Escanea el código desde la app de tu banco' }}</figcaption>
                     </figure>
                 @endif
             </div>
@@ -147,12 +147,12 @@
                 x-transition:leave-end="inv-sheet-hidden">
                 <div class="inv-sheet__grip" aria-hidden="true"></div>
                 <div class="inv-sheet__header">
-                    <h3 id="bank-sheet-title" class="inv-sheet__title">Transferencia bancaria</h3>
+                    <h3 id="bank-sheet-title" class="inv-sheet__title">{{ $invCopy['gifts_bank_title'] ?? 'Transferencia bancaria' }}</h3>
                     <button type="button" class="inv-sheet__close" @click="showBank = false" aria-label="Cerrar">
                         @include('invitations.partials.icon', ['name' => 'close', 'animated' => false])
                     </button>
                 </div>
-                <p class="inv-sheet__intro">Toca «Copiar» y pega el dato en la app de tu banco.</p>
+                <p class="inv-sheet__intro">{{ $invCopy['gifts_bank_hint'] ?? 'Toca «Copiar» y pega el dato en la app de tu banco.' }}</p>
 
                 @if(count($bankFields))
                     <dl class="inv-bank">
@@ -173,7 +173,7 @@
                 @if(!empty($banco['qr_url']))
                     <figure class="inv-bank__qr">
                         <img src="{{ $banco['qr_url'] }}" alt="Código QR para transferir" loading="lazy">
-                        <figcaption class="inv-help">Escanea el código desde la app de tu banco</figcaption>
+                        <figcaption class="inv-help">{{ $invCopy['gifts_qr_hint'] ?? 'Escanea el código desde la app de tu banco' }}</figcaption>
                     </figure>
                 @endif
 

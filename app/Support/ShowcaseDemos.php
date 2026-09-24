@@ -15,6 +15,9 @@ final class ShowcaseDemos
         'boda' => ['Boda', 'heart'],
         'bautizo' => ['Bautizo', 'baby'],
         'cumple' => ['Cumpleaños', 'cake'],
+        'graduacion' => ['Graduación', 'graduation-cap'],
+        'lienzo' => ['Evento libre', 'frame-corners'],
+        'halloween' => ['Halloween', 'ghost'],
         'amor' => ['Día del Amor', 'heart'],
         'aventura' => ['Día del Amor', 'book-open'],
         'historia' => ['Día del Amor', 'moon-stars'],
@@ -30,7 +33,8 @@ final class ShowcaseDemos
     {
         return array_values(array_unique(array_filter([
             ...config('bida.demo_invitations', []),
-            ...(config('bida.season.templates') ?? []),
+            ...array_merge([], ...array_values(array_map(fn (array $season) => $season['templates'] ?? [], config('bida.seasons', [])))),
+            ...(config('bida.professionals.demos') ?? []),
             ...array_merge(...array_values(array_map(fn (array $landing) => $landing['demos'] ?? [], config('bida.landings', [])))),
         ])));
     }

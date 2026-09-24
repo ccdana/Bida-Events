@@ -46,10 +46,29 @@ class TemplateRenderMatrixTest extends TestCase
             'boda' => BodaJardinDemoSeeder::modules(),
             'bautizo' => BautizoCieloDemoSeeder::modules(),
             'cumple' => CumpleFiestaDemoSeeder::modules(),
+            // Sus muestras todavía no tienen fotos propias: se prueban con todo encendido y las fotos del cumpleaños
+            'graduacion' => self::withPhotos(ShowcaseInvitationsSeeder::data('graduacion-mariana')['modules']),
+            'lienzo' => self::withPhotos(ShowcaseInvitationsSeeder::data('lienzo-casa-molina')['modules']),
+            'halloween' => self::withPhotos(ShowcaseInvitationsSeeder::data('halloween-noche-diego')['modules']),
             'amor' => ShowcaseInvitationsSeeder::data('tarjeta-ana-luis')['modules'],
             'aventura' => ShowcaseInvitationsSeeder::data('tarjeta-libro-aventuras')['modules'],
             'historia' => ShowcaseInvitationsSeeder::data('historia-ana-luis')['modules'],
         };
+    }
+
+    /** La muestra con todos sus módulos encendidos y las fotos, el video y la música de otra muestra. */
+    private static function withPhotos(array $modules): array
+    {
+        $media = CumpleFiestaDemoSeeder::modules();
+
+        foreach (['galeria', 'video', 'musica', 'post_evento'] as $module) {
+            $modules[$module] = $media[$module];
+        }
+
+        $modules['bienvenida']['imagen_hero'] = $media['bienvenida']['imagen_hero'];
+        $modules['config']['modulos'] = array_fill_keys(array_keys($modules['config']['modulos']), true);
+
+        return $modules;
     }
 
     #[DataProvider('templates')]

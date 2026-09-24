@@ -11,6 +11,8 @@
 
 @php
     $isCard = ($page['kind'] ?? null) === 'card';
+    // Tarjetas e invitaciones de temporada: precio único de temporada en lugar de paquetes
+    $isSeasonal = \App\Http\Controllers\EventLandingController::isSeasonal($page);
     $navLinks = [
         '#incluye' => 'Qué incluye',
         '#precios' => 'Precios',
@@ -20,7 +22,7 @@
     $accountLabel = $user ? 'Mi panel' : 'Ingresar';
     $faqs = array_merge($page['faqs'], [
         [$isCard ? '¿Quien la recibe necesita instalar algo?' : '¿Mis invitados necesitan instalar algo?', 'No. Se abre en el navegador del celular desde el enlace que compartes por WhatsApp.'],
-        ['¿Cómo se realiza el pago?', $isCard ? 'Coordinamos el pago por WhatsApp cuando nos pides la tarjeta, antes de armarla.' : 'Coordinamos el pago por WhatsApp cuando eliges tu paquete, antes de empezar el diseño.'],
+        ['¿Cómo se realiza el pago?', $isSeasonal ? 'Coordinamos el pago por WhatsApp cuando nos pides la '.($isCard ? 'tarjeta' : 'invitación').', antes de armarla.' : 'Coordinamos el pago por WhatsApp cuando eliges tu paquete, antes de empezar el diseño.'],
     ]);
     $socials = array_values(array_filter([
         ! empty($bida['instagram']) ? ['label' => 'Instagram', 'url' => 'https://www.instagram.com/'.$bida['instagram'].'/', 'icon' => 'instagram-logo'] : null,
@@ -87,9 +89,9 @@
                     @endif
 
                     <div class="site-enter mt-9 flex flex-col gap-3 sm:flex-row" style="--enter-index: 4">
-                        <a href="{{ $isCard && $season ? $season['whatsappUrl'] : $contactUrl }}" target="_blank" rel="noopener" class="site-btn site-btn--lg justify-center" data-magnetic>
+                        <a href="{{ $isSeasonal && $season ? $season['whatsappUrl'] : $contactUrl }}" target="_blank" rel="noopener" class="site-btn site-btn--lg justify-center" data-magnetic>
                             <x-phosphor-whatsapp-logo aria-hidden="true" />
-                            {{ $isCard && $season ? 'La quiero por '.$season['final_price'].' Bs' : 'Escríbenos' }}
+                            {{ $isSeasonal && $season ? 'La quiero por '.$season['final_price'].' Bs' : 'Escríbenos' }}
                         </a>
                         <a href="#precios" class="site-btn site-btn--ghost site-btn--lg justify-center">
                             Ver precios
@@ -97,11 +99,11 @@
                         </a>
                     </div>
                     <p class="site-enter mt-6 text-sm text-site-muted" style="--enter-index: 5">
-                        @if($isCard)
+                        @if($isSeasonal)
                             @if($season)
-                                <del>{{ $season['old_price'] }} Bs</del> <strong class="text-site-ink">{{ $season['final_price'] }} Bs</strong> por temporada · Lista el mismo día · Se manda por WhatsApp
+                                @if($season['old_price'])<del>{{ $season['old_price'] }} Bs</del> @endif<strong class="text-site-ink">{{ $season['final_price'] }} Bs</strong> por temporada · {{ $isCard ? 'Lista el mismo día' : 'Con confirmación de asistencia' }} · Se manda por WhatsApp
                             @else
-                                Lista el mismo día · Se manda por WhatsApp
+                                {{ $isCard ? 'Lista el mismo día' : 'Con confirmación de asistencia' }} · Se manda por WhatsApp
                             @endif
                         @else
                             Paquetes desde {{ $fromPrice }} Bs · Pago único por invitación
@@ -160,17 +162,19 @@
             </div>
         </section>
 
-        @if($isCard)
-            {{-- Tarjetas de temporada: precio de temporada tachado y rebajado; pasada la fecha, se consulta --}}
+        @if($isSeasonal)
+            {{-- De temporada: precio de temporada tachado y rebajado; pasada la fecha, se consulta --}}
             <section id="precios" class="scroll-mt-20 border-t border-site-line bg-site-surface">
                 <div class="mx-auto flex max-w-7xl flex-col items-start gap-8 px-5 py-20 lg:flex-row lg:items-end lg:justify-between lg:px-8" data-reveal>
                     @if($season)
                         <div>
                             <p class="text-[0.95rem] font-medium text-site-accent">Precio de temporada</p>
                             <p class="mt-4 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                                <del class="site-plan__old"><span class="sr-only">Antes </span>{{ $season['old_price'] }} Bs</del>
+                                @if($season['old_price'])
+                                    <del class="site-plan__old"><span class="sr-only">Antes </span>{{ $season['old_price'] }} Bs</del>
+                                @endif
                                 <span class="site-plan__price">{{ $season['final_price'] }}</span>
-                                <span class="text-xl text-site-muted">Bs por tarjeta</span>
+                                <span class="text-xl text-site-muted">Bs por {{ $noun }}</span>
                             </p>
                             <p class="mt-3 text-site-muted">
                                 {{ $season['promo_label'] }} hasta el {{ $season['endsAt']->locale('es')->translatedFormat('l j \d\e F') }}. Todos los diseños de la temporada cuestan lo mismo.

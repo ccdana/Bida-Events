@@ -10,25 +10,40 @@ use App\Models\User;
 use App\Services\InvitationPreviewSession;
 use App\Services\MediaUploadService;
 use App\Support\ColorPalettes;
+use App\Support\EditableTexts;
 use App\Support\InvitationDefaults;
 use App\Support\InvitationTemplates;
+use App\Support\ResellerSubscription;
 use Illuminate\Support\Collection;
 
+/**
+ * Todo lo que necesita el editor de invitaciones en una sola estructura. Lo usan dos editores con
+ * los mismos paneles: el del administrador y el del revendedor. El del revendedor no ve la lista de
+ * clientes (son datos de otras personas), manda sus pedidos a rutas propias bajo /client y solo
+ * ofrece las plantillas de su plan.
+ */
 class InvitationEditorViewData
 {
+    public const ADMIN = 'admin';
+
+    public const RESELLER = 'reseller';
+
     public function __construct(
         protected MediaUploadService $mediaUpload
     ) {}
 
-    public function make(?Invitation $invitation, array $modulos, bool $isCreate): array
+    public function make(?Invitation $invitation, array $modulos, bool $isCreate, string $context = self::ADMIN, ?User $owner = null): array
     {
-        $templates = collect(InvitationDefaults::templates());
+        $isReseller = $context === self::RESELLER;
+        $templates = $isReseller && $owner
+            ? collect(ResellerSubscription::allowedTemplates($owner))->map(fn (array $template) => $template['label'])
+            : collect(InvitationDefaults::templates());
         $itineraryIcons = InvitationDefaults::itineraryIcons();
         $eventTypes = EventType::orderBy('name')->get();
-        $clients = User::where('is_admin', false)->orderBy('name')->get();
+        $clients = $isReseller ? new Collection : User::where('is_admin', false)->orderBy('name')->get();
 
         $clientList = $clients;
-        if ($invitation?->user_id && ! $clientList->contains('id', $invitation->user_id)) {
+        if (! $isReseller && $invitation?->user_id && ! $clientList->contains('id', $invitation->user_id)) {
             $invitation->loadMissing('user');
             if ($invitation->user) {
                 $clientList = $clientList->prepend($invitation->user)->unique('id')->values();
@@ -53,8 +68,10 @@ class InvitationEditorViewData
                 eventTypes: $eventTypes,
                 clientList: $clientList,
                 itineraryIcons: $itineraryIcons,
+                context: $context,
             ),
             'isCreate' => $isCreate,
+            'editorMode' => $context,
         ];
     }
 
@@ -66,7 +83,10 @@ class InvitationEditorViewData
         Collection $eventTypes,
         Collection $clientList,
         array $itineraryIcons,
+        string $context = self::ADMIN,
     ): array {
+        $urls = $this->urls($context);
+
         $defaultEventDate = $invitation?->event_date?->format('Y-m-d\TH:i') ?? now()->addMonths(3)->format('Y-m-d\TH:i');
         $defaultExpires = $invitation?->expires_at?->format('Y-m-d') ?? now()->addMonths(9)->format('Y-m-d');
 
@@ -85,6 +105,9 @@ class InvitationEditorViewData
                 'label' => $label,
                 'description' => InvitationTemplates::get($value)['description'],
                 'event' => InvitationTemplates::get($value)['event'],
+                // Colores y letras con los que nace una invitación nueva de esta plantilla
+                'palette' => InvitationTemplates::get($value)['palette'],
+                'fonts' => InvitationTemplates::get($value)['fonts'] ?? null,
             ])->values(),
             // La contraseña no viaja: solo se ve la que se acaba de crear o regenerar en el editor
             'clients' => $clientList->map(fn ($client) => [
@@ -105,6 +128,43 @@ class InvitationEditorViewData
             ],
             'isCreate' => $isCreate,
             'slugManual' => ! $isCreate,
+            'editorMode' => $context,
+            ...$urls,
+            'itineraryIcons' => $itineraryIcons,
+            // Paletas listas de «Estética»: la original de cada plantilla, las de su evento y las generales
+            'palettes' => ColorPalettes::all(),
+            // Textos editables de cada plantilla, agrupados por módulo, con el valor que trae la plantilla
+            'editableTexts' => $templates->keys()->mapWithKeys(fn ($value) => [$value => EditableTexts::forTemplate($value)]),
+            'cloudinaryConfigured' => $this->mediaUpload->isCloudinaryConfigured(),
+            'moduleCodes' => InvitationDefaults::moduleCodes(),
+            'moduleTabMap' => InvitationDefaults::moduleTabMap(),
+            'previewKey' => InvitationPreviewSession::keyFor($invitation),
+            'previewRevision' => $invitation?->updated_at?->timestamp ?? 0,
+        ];
+    }
+
+    /**
+     * Adónde manda sus pedidos el editor. El revendedor usa los mismos controladores que el
+     * administrador (vista previa, subida de archivos, mapas), pero por rutas bajo /client, y no
+     * tiene alta de clientes.
+     *
+     * @return array<string, string|null>
+     */
+    protected function urls(string $context): array
+    {
+        if ($context === self::RESELLER) {
+            return [
+                'previewUrl' => route('client.editor.preview.frame'),
+                'previewStoreUrl' => route('client.editor.preview.store'),
+                'clientStoreUrl' => null,
+                'clientPasswordUrl' => null,
+                'mediaUploadUrl' => route('client.editor.media.upload'),
+                'mapsSearchUrl' => route('client.editor.maps.search'),
+                'mapsResolveUrl' => route('client.editor.maps.resolve'),
+            ];
+        }
+
+        return [
             'previewUrl' => route('admin.preview.frame'),
             'previewStoreUrl' => route('admin.preview.store'),
             'clientStoreUrl' => route('admin.clients.store'),
@@ -112,14 +172,6 @@ class InvitationEditorViewData
             'mediaUploadUrl' => route('admin.media.upload'),
             'mapsSearchUrl' => route('admin.maps.search'),
             'mapsResolveUrl' => route('admin.maps.resolve'),
-            'itineraryIcons' => $itineraryIcons,
-            // Paletas listas de «Estética»: la original de cada plantilla, las de su evento y las generales
-            'palettes' => ColorPalettes::all(),
-            'cloudinaryConfigured' => $this->mediaUpload->isCloudinaryConfigured(),
-            'moduleCodes' => InvitationDefaults::moduleCodes(),
-            'moduleTabMap' => InvitationDefaults::moduleTabMap(),
-            'previewKey' => InvitationPreviewSession::keyFor($invitation),
-            'previewRevision' => $invitation?->updated_at?->timestamp ?? 0,
         ];
     }
 }

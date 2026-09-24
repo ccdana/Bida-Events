@@ -999,3 +999,20 @@ html[data-theme='dark'] .adm-device {
     opacity: 0.45;
     pointer-events: none;
 }
+
+/* ── Editor: el recuadro donde se está escribiendo ─────────────────────────
+   Queda marcado mientras el foco siga adentro (no depende del mouse), y al pasar
+   de un campo a otro con el teclado el campo nunca queda escondido detrás de la
+   barra fija de «Guardar invitación» ni pegado al borde de arriba. */
+#invitation-form {
+    scroll-padding-block: 1rem 10rem;
+}
+
+#invitation-form .admin-card {
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+#invitation-form .admin-card:focus-within {
+    border-color: color-mix(in srgb, var(--site-accent) 70%, var(--site-line));
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--site-accent) 14%, transparent);
+}

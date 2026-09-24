@@ -15,9 +15,12 @@ class DashboardController extends Controller
     {
         $search = trim((string) $request->query('q', ''));
 
-        $invitations = auth()->user()
-            ->invitations()
-            ->select('id', 'user_id', 'event_type_id', 'slug', 'template', 'title', 'event_date', 'status', 'expires_at', 'created_at')
+        $user = $request->user();
+
+        // Las suyas como cliente y, si es revendedor, las que arma para sus clientes
+        $invitations = Invitation::query()
+            ->where(fn ($query) => $query->where('user_id', $user->id)->orWhere('reseller_id', $user->id))
+            ->select('id', 'user_id', 'reseller_id', 'event_type_id', 'slug', 'template', 'title', 'event_date', 'status', 'expires_at', 'created_at')
             ->when($search !== '', fn ($query) => $query->where(fn ($q) => $q
                 ->where('title', 'like', '%'.$search.'%')
                 ->orWhere('slug', 'like', '%'.$search.'%')))
@@ -33,12 +36,12 @@ class DashboardController extends Controller
             ->latest('event_date')
             ->get();
 
-        return view('client.dashboard', $viewData->make($invitations, $search));
+        return view('client.dashboard', $viewData->make($invitations, $search, $request->user()));
     }
 
     public function show(Invitation $invitation, InvitationDetailViewData $viewData)
     {
-        $invitation->loadMissing('eventType');
+        $invitation->loadMissing('eventType', 'user');
 
         $guests = $invitation->guests()
             ->select('id', 'invitation_id', 'name', 'phone', 'status', 'passes_allocated', 'passes_confirmed', 'dietary_restrictions', 'table_number', 'qr_code_token')

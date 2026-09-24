@@ -17,9 +17,11 @@ class InvitationPolicy
         return $user->isAdmin() ? true : null;
     }
 
+    /** La ve su cliente y, si la armó un revendedor, también ese revendedor. */
     public function view(User $user, Invitation $invitation): bool
     {
-        return (int) $invitation->user_id === (int) $user->id;
+        return (int) $invitation->user_id === (int) $user->id
+            || ($invitation->reseller_id !== null && (int) $invitation->reseller_id === (int) $user->id);
     }
 
     public function export(User $user, Invitation $invitation): bool
@@ -27,9 +29,25 @@ class InvitationPolicy
         return $this->view($user, $invitation);
     }
 
+    /**
+     * Crear invitaciones propias: solo un revendedor con la suscripción al día (el cupo del mes se
+     * revisa al guardar, en Client\InvitationController, para poder explicar por qué no se puede).
+     */
+    public function create(User $user): bool
+    {
+        return $user->isReseller() && $user->hasActiveSubscription();
+    }
+
+    /**
+     * Editar es del administrador (pasa por before) y del revendedor que armó la invitación, mientras
+     * su suscripción esté al día. Un cliente nunca edita: se la arma el equipo o su revendedor.
+     */
     public function update(User $user, Invitation $invitation): bool
     {
-        return false;
+        return $invitation->reseller_id !== null
+            && (int) $invitation->reseller_id === (int) $user->id
+            && $user->isReseller()
+            && $user->hasActiveSubscription();
     }
 
     public function manageGuests(User $user, Invitation $invitation): bool

@@ -25,8 +25,8 @@ class HomeController extends Controller
             'user' => $request->user(),
             'contactUrl' => $whatsapp('Hola {brand}, quiero información sobre las invitaciones digitales.'),
             'packages' => $this->packages($bida['packages'], $whatsapp),
-            'season' => $season = self::season($request),
-            'services' => self::services($season, $fromPrice, count($demos) > 0),
+            'seasons' => $seasons = self::seasons($request),
+            'services' => self::services($seasons, $fromPrice, count($demos) > 0),
             'fromPrice' => $fromPrice,
             'demoUrl' => $this->demoUrl($bida['demo_slug'] ?? null),
             'demos' => $demos,
@@ -48,15 +48,18 @@ class HomeController extends Controller
         ])->all();
     }
 
-    /** La temporada vigente con su WhatsApp (código de la campaña), o null si ya terminó. */
-    public static function season(Request $request): ?array
+    /**
+     * Las temporadas que se venden hoy, cada una con su WhatsApp (código de su campaña) y su página.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public static function seasons(Request $request): array
     {
-        $season = Offers::season();
+        return array_values(array_map(fn (array $season) => self::withContact($request, $season), Offers::seasons()));
+    }
 
-        if (! $season) {
-            return null;
-        }
-
+    private static function withContact(Request $request, array $season): array
+    {
         $message = str_replace('{price}', (string) $season['final_price'], $season['whatsapp']);
 
         return $season + [
@@ -66,11 +69,11 @@ class HomeController extends Controller
     }
 
     /** Servicios de la portada (config «bida.services») con su precio de hoy y su enlace. */
-    public static function services(?array $season, int $fromPrice, bool $hasTemplates = true): array
+    public static function services(array $seasons, int $fromPrice, bool $hasTemplates = true): array
     {
         $cardLanding = collect(config('bida.landings', []))->search(fn (array $landing) => ($landing['kind'] ?? null) === 'card');
 
-        return array_map(function (array $service) use ($season, $fromPrice, $cardLanding, $hasTemplates): array {
+        return array_map(function (array $service) use ($seasons, $fromPrice, $cardLanding, $hasTemplates): array {
             $bySeason = ($service['price'] ?? null) === 'season';
             $href = $service['href'] ?? null;
 
@@ -80,14 +83,21 @@ class HomeController extends Controller
             }
 
             if ($href === 'season') {
-                $href = $season ? '#temporada' : ($cardLanding ? route('landing', $cardLanding) : null);
+                $href = $seasons ? '#temporada' : ($cardLanding ? route('landing', $cardLanding) : null);
             }
 
             return $service + [
-                'fromPrice' => $bySeason ? ($season['final_price'] ?? null) : (($service['price'] ?? null) === 'packages' ? $fromPrice : null),
+                'fromPrice' => match ($service['price'] ?? null) {
+                    'season' => collect($seasons)->min('final_price'),
+                    'packages' => $fromPrice,
+                    'reseller' => collect(config('bida.reseller_plans', []))->min('price'),
+                    default => null,
+                },
+                // Los planes de profesionales se pagan por mes
+                'priceSuffix' => ($service['price'] ?? null) === 'reseller' ? 'al mes' : null,
                 'url' => $href,
-                // La temporada que se vende hoy («Ahora: Día del Amor y la Primavera»)
-                'live' => $bySeason ? ($season['name'] ?? null) : null,
+                // Las temporadas que se venden hoy («Ahora: Halloween»)
+                'live' => $bySeason && $seasons ? implode(' y ', array_column($seasons, 'name')) : null,
             ];
         }, config('bida.services', []));
     }

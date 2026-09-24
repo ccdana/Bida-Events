@@ -1,8 +1,13 @@
 {{-- Colores y tipografías: cada opción explica dónde se usa y se resalta en la muestra al pasar el cursor --}}
 <div x-show="activeTab === 'estetica'" x-cloak class="space-y-4"
     x-data="{
-        focus: null,
+        hover: null,
+        active: null,
+        sampleOpen: true,
+        {{-- Lo que se marca: lo que está bajo el mouse o, si no, el campo donde se está escribiendo --}}
+        get focus() { return this.hover ?? this.active; },
         spot(key) { return this.focus === key ? 'outline-2 outline-dashed outline-offset-4 outline-site-accent' : ''; },
+        leave(event) { if (!event.currentTarget.contains(event.relatedTarget)) this.active = null; },
     }">
     @include('admin.partials.panel-intro', [
         'eyebrow' => 'Estética',
@@ -11,8 +16,15 @@
         'tip' => 'Pasa el cursor por un color o una tipografía: en la muestra se marca dónde se usa.',
     ])
 
-    {{-- Muestra que acompaña al elegir --}}
-    <section class="admin-card sticky top-0 z-10 overflow-hidden p-0">
+    {{-- Muestra que acompaña al elegir. Ya no queda fija arriba tapando los campos: se puede plegar,
+         y la vista previa grande de la derecha muestra la invitación entera con estos colores --}}
+    <section class="admin-card overflow-hidden p-0">
+        <button type="button" @click="sampleOpen = !sampleOpen" :aria-expanded="sampleOpen ? 'true' : 'false'"
+            class="flex w-full items-center justify-between gap-3 border-b border-site-line px-4 py-2.5 text-left text-xs font-medium text-site-muted">
+            <span x-text="sampleOpen ? 'Muestra de colores y letras' : 'Mostrar la muestra de colores y letras'"></span>
+            <x-phosphor-caret-down class="size-4 shrink-0 transition-transform" x-bind:class="sampleOpen ? 'rotate-180' : ''" aria-hidden="true" />
+        </button>
+        <div x-show="sampleOpen">
         <div class="px-5 pb-5 pt-6 text-center transition-colors"
             :class="focus === 'background' ? 'outline-2 outline-dashed -outline-offset-8 outline-site-accent' : ''"
             :style="`background:${modules.config.colores.background};color:${modules.config.colores.text};font-family:'${modules.config.tipografias.cuerpo}', sans-serif`">
@@ -59,6 +71,7 @@
                 Los tonos marcados no llegan al mínimo que se lee con comodidad (4.5:1, o 3:1 en texto grande).
                 Prueba con un fondo más claro o un color de evento más oscuro.
             </p>
+        </div>
         </div>
     </section>
 
@@ -111,8 +124,8 @@
         <div class="space-y-2">
             <template x-for="role in colorRoles" :key="role.key">
                 <div class="flex items-center gap-3 rounded-[12px] border p-2.5 transition-colors"
-                    :class="focus === role.key ? 'border-site-ink bg-site-bg' : 'border-site-line'"
-                    @mouseenter="focus = role.key" @mouseleave="focus = null" @focusin="focus = role.key" @focusout="focus = null">
+                    :class="focus === role.key || active === role.key ? 'border-site-ink bg-site-bg' : 'border-site-line'"
+                    @mouseenter="hover = role.key" @mouseleave="hover = null" @focusin="active = role.key" @focusout="leave($event)">
                     <label class="relative size-10 shrink-0 cursor-pointer overflow-hidden rounded-full border border-site-line"
                         :style="`background:${modules.config.colores[role.key]}`" :title="`Elegir color: ${role.label}`">
                         <input type="color" x-model="modules.config.colores[role.key]" class="absolute inset-0 size-full cursor-pointer opacity-0"
@@ -136,7 +149,7 @@
             <p class="mt-0.5 text-xs text-site-muted">Cada opción se muestra con el texto donde se va a usar.</p>
         </div>
         <template x-for="role in fontRoles" :key="role.key">
-            <div class="space-y-2" @mouseenter="focus = role.key" @mouseleave="focus = null" @focusin="focus = role.key" @focusout="focus = null">
+            <div class="space-y-2" @mouseenter="hover = role.key" @mouseleave="hover = null" @focusin="active = role.key" @focusout="leave($event)">
                 <div class="flex items-baseline justify-between gap-3">
                     <div class="min-w-0">
                         <p class="text-sm font-semibold" x-text="role.label"></p>

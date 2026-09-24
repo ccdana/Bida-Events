@@ -181,7 +181,7 @@ propósito y responde `no-store`.
 | `bootstrap/providers.php` | Lista de proveedores propios (`AppServiceProvider`) |
 | `config/app.php` | Nombre, entorno, zona horaria e idioma (`es`) |
 | `config/auth.php` | Guard de sesión y proveedor de usuarios |
-| `config/bida.php` | **Datos públicos del negocio**: marca, ciudad, WhatsApp, correo, Instagram, Facebook, TikTok, invitación de portada, invitaciones de muestra, eventos que rotan, tipos de evento, fotos del sitio, paquetes con precio y precio de promoción (`launch_promo`, `BIDA_LAUNCH_PROMO`) y la temporada (`season`: precio, muestras y cierre en `BIDA_SEASON_ENDS_AT`); servicios de la portada (`services`) y páginas por evento (`landings`, con sus `demos`) |
+| `config/bida.php` | **Datos públicos del negocio**: marca, ciudad, WhatsApp, correo, Instagram, Facebook, TikTok, invitación de portada, invitaciones de muestra, eventos que rotan, tipos de evento, fotos del sitio, paquetes con precio y precio de promoción (`launch_promo`, `BIDA_LAUNCH_PROMO`) y las temporadas (`seasons`: una por clave —`amor`, `halloween`— con interruptor, precio, muestras y cierre en `BIDA_SEASON_{CLAVE}_ENDS_AT`); servicios de la portada (`services`) y páginas por evento (`landings`, con sus `demos`) |
 | `config/cache.php` | Almacenes de caché disponibles |
 | `config/cloudinary.php` | Credenciales y opciones de Cloudinary |
 | `config/database.php` | Conexiones MySQL/MariaDB/SQLite |
@@ -212,6 +212,9 @@ propósito y responde `no-store`.
 | `Public/RsvpController.php` | Confirmación de asistencia por invitado y generación del pase |
 | `Public/ContributionController.php` | Lista y recibe canciones y fotos, y registra votos de encuestas |
 | `Admin/DashboardController.php` | Panel del administrador con el estado de las invitaciones |
+| `Admin/ResellerController.php` | Revendedores: alta con usuario y contraseña, pagos de suscripción registrados a mano y quién vence pronto |
+| `Client/InvitationController.php` | Editor del revendedor: crea y edita sus propias invitaciones con los paneles del admin, dentro del cupo de su plan |
+| `Concerns/SavesInvitationModules.php` | Guardado de módulos compartido por los dos editores (admin y revendedor) |
 | `Admin/SettingsController.php` | Ajustes del sitio: precios de los paquetes y de la temporada, promoción con fecha de término y qué plantillas de temporada se ofrecen |
 | `Admin/InvitationController.php` | Crear, editar y actualizar invitaciones; crear el usuario cliente |
 | `Admin/GuestController.php` | Alta, edición y baja de invitados de una invitación |
@@ -240,6 +243,9 @@ propósito y responde `no-store`.
 | `app/Http/Requests/Admin/Invitation/StoreClientRequest.php` | Validación al crear el usuario cliente |
 | `app/Http/Requests/Admin/Guest/StoreGuestRequest.php` | Validación al crear un invitado |
 | `app/Http/Requests/Admin/Guest/UpdateGuestRequest.php` | Validación al editar un invitado |
+| `app/Http/Middleware/EnsureUserIsReseller.php` | Solo deja pasar a revendedores (alias `reseller`, detrás de `client`) |
+| `app/Http/Requests/Admin/Reseller/*` | Alta de revendedor y registro de pago |
+| `app/Http/Requests/Client/StoreResellerInvitationRequest.php`, `UpdateResellerInvitationRequest.php` | Las reglas del editor del admin, sin dueño y con las plantillas del plan |
 | `app/Http/Requests/Client/StoreGuestRequest.php` | Validación cuando el cliente agrega un invitado desde su panel |
 | `app/Policies/InvitationPolicy.php` | Permisos por invitación: `before` (el admin puede todo), `view`, `export`, `update`, `manageGuests` y `manageOwnGuests` (el dueño arma su lista; las tarjetas no tienen) |
 
@@ -313,6 +319,7 @@ propósito y responde `no-store`.
 | `MapsLinkParser.php` | Interpreta enlaces de Google Maps y extrae coordenadas |
 | `YouTubeHelper.php` | Detecta enlaces de YouTube y da formato a las canciones sugeridas |
 | `ClientCredentials.php` | Usuario del cliente y contraseña fácil de dictar y recordar («luna-brillante-473») |
+| `ResellerSubscription.php` | Reglas del revendedor: cupo del mes, fecha de renovación al pagar, avisos de vencimiento y catálogo del plan |
 | `SiteSettings.php` | Lo que el panel cambia (precios, promociones, plantillas de temporada) aplicado sobre `config/bida.php` al arrancar |
 | `Pdf/PdfAssets.php` | Incrusta fuentes e imágenes en los PDF, porque DomPDF no descarga archivos remotos |
 | `Pdf/PdfTemplateStyle.php` | Cómo se imprime cada plantilla: su portada, su adorno, su marco y el recorte de la foto |
@@ -389,6 +396,8 @@ propósito y responde `no-store`.
 | `2026_09_15_000007_create_invitation_media_table` | Canción y video de la invitación |
 | `2026_09_15_000008_drop_textual_poll_id_from_poll_votes_table` | El voto apunta a la encuesta por su fila |
 | `2026_09_15_000009_create_invitation_exports_table` | Pedidos de Excel y PDF generados en segundo plano |
+| `2026_09_23_000001_add_reseller_columns_to_users_table` | Revendedor, plan, estado y renovación de la suscripción, y su marca |
+| `2026_09_23_000002_create_subscription_payments_table` | Pagos de suscripción registrados por el administrador |
 | `2026_09_22_000001_create_site_settings_table` | Precios, promociones y plantillas de temporada que se manejan desde Ajustes |
 | `2026_09_17_000001_add_catalog_columns_to_event_types_table` | `code`, `kind` y `season` en los tipos de evento |
 | `2026_09_17_000002_create_invitation_themes_table` | Colores y tipografías |
@@ -527,6 +536,8 @@ propósito y responde `no-store`.
 | --- | --- |
 | `admin/dashboard.blade.php` | Los eventos por secciones de tipo, con buscador (`?q=`) y filtros (`?tipo=` por tipo de evento, o `invitation` / `card`) |
 | `admin/partials/invitation-row.blade.php` | Cada invitación con su ficha desplegable: evento, cliente, invitados, enlace y borrado |
+| `admin/resellers/index.blade.php` | Revendedores: vencen pronto (con enlace para escribirles), tabla con plan, estado, cupo y pagos, y alta |
+| `client/invitations/create.blade.php`, `edit.blade.php` | El editor del revendedor: reutiliza `admin.invitations._form` sin la sección de clientes |
 | `admin/settings.blade.php` | Ajustes: promoción, precios de los tres paquetes, temporada y plantillas de temporada |
 | `admin/invitations/create.blade.php` / `edit.blade.php` / `_form.blade.php` | Alta y edición de la invitación |
 | `admin/invitations/editor/layout.blade.php` | Estructura del editor, con recorte de imágenes |
@@ -624,6 +635,12 @@ propósito y responde `no-store`.
 | `tests/Feature/ClientExportsTest.php` | Exportaciones Excel y PDF; cada plantilla imprime su portada y nunca pasa de dos hojas |
 | `tests/Feature/ClientPortalTest.php` | Panel del cliente: secciones, buscador, enlace público y alta de invitados |
 | `tests/Feature/AdminPanelTest.php` | Panel admin: secciones por tipo, buscador, ficha con el cliente y borrado de una invitación |
+| `tests/Feature/ResellerSubscriptionTest.php` | Suscripción activa o vencida, cupo del mes, renovación al pagar y catálogo del plan |
+| `tests/Feature/ResellerPolicyTest.php` | Quién crea y edita: admin, revendedor al día, vencido y cliente normal |
+| `tests/Feature/ResellerEditorTest.php` | Editor del revendedor: dueño forzado, cupo, catálogo, sin datos de otros clientes |
+| `tests/Feature/ResellerAdminTest.php` | Alta, pagos, orden por vencimiento y aviso en la navegación |
+| `tests/Feature/ResellerDashboardTest.php` | Panel del revendedor: cupo, botón de crear y avisos |
+| `tests/Feature/WhiteLabelFooterTest.php` | Pie de la invitación con marca blanca o con el crédito de Bida |
 | `tests/Feature/SiteSettingsTest.php` | Ajustes: los precios y las plantillas de temporada que se guardan son los que muestra la página |
 | `tests/Feature/InvitationEditorTest.php` | Guardado del editor |
 | `tests/Feature/InvitationStructuredModulesTest.php` | Módulos normalizados en sus tablas |
@@ -916,6 +933,30 @@ comportamiento: con 25 invitaciones y 500 invitados hace menos de 15 consultas y
 - **Precio de las tarjetas:** la página de campaña pide el precio por WhatsApp hasta definirlo.
 - **Fotos propias de la muestra:** la tarjeta de muestra reusa las fotos de la boda.
 - **Datos reales en producción:** ver el aviso de 7.2 antes de migrar.
+
+### 7.9 Textos editables, plantillas nuevas, Halloween y páginas públicas — hecha
+
+| Qué se hizo | Dónde |
+| --- | --- |
+| Cada texto de cada módulo (títulos, frases, botones, mensajes de «todavía no hay datos») se cambia por invitación; vacío vuelve al de la plantilla. Bloque «Textos de esta sección» bajo cada panel del editor | `Support/EditableTexts.php`, tabla `invitation_texts`, `ConfigModule`, `panels/textos.blade.php`, parciales con `$invCopy['clave'] ?? '…'` |
+| La vista previa grande del editor salta a la sección del módulo que se edita | `editor/script.blade.php` (`focusPreviewSection`) |
+| «Lienzo»: plantilla en blanco (fondo blanco, letra negra, sin apertura) para cualquier evento; perfil «Evento libre» | `templates/lienzo.blade.php`, `partials/lienzo`, `themes/lienzo.css`, `EventProfiles/CanvasProfile.php` |
+| «Birrete al aire»: graduación con diploma que se desata al entrar | `templates/graduacion-birrete.blade.php`, `partials/graduacion`, `themes/graduacion.css`, `GraduationProfile.php`, `/invitaciones-de-graduacion` |
+| «Noche de calabazas»: invitación de temporada para Halloween (temporada vigente hasta el 31/10) | `templates/halloween-calabazas.blade.php`, `partials/halloween`, `themes/halloween.css`, `HalloweenProfile.php`, `/invitaciones-de-halloween` (código `HALLO`) |
+| Portadas PDF propias (`diploma`, `calabaza`; Lienzo usa `clasica` con línea) | `Support/Pdf/PdfTemplateStyle.php`, `PdfMotifs.php`, `pdf/covers/*` |
+| Al elegir plantilla en una invitación nueva se aplican su paleta y sus letras | `InvitationEditorViewData` (`templateOptions`), `applyProfile()` |
+| La temporada ya no ocupa la portada: botón flotante abajo a la derecha que abre un panel; el teléfono carga la muestra recién al abrirlo | `site/partials/season.blade.php`, `site.css` («Temporada»), `site.js` (`reel:wake`) |
+| Los ajustes de temporada se guardan con su clave: los del Día del Amor no se heredan a Halloween | `SiteSettings::applySeason`, `Admin\SettingsController` |
+| Publicidad para profesionales con planes, comparación y muestras | `/para-profesionales`, `PublicPagesController`, `professionals.blade.php` (código `PRO`) |
+| Privacidad, cookies y términos, con aviso de cookies en el sitio | `/legal/{privacidad,cookies,terminos}`, `Support/LegalPages.php`, `legal/show.blade.php`, `layouts/partials/cookie-notice.blade.php` |
+
+**Pendiente**
+
+- **Fotos propias:** las muestras de graduación, Halloween y Lienzo no tienen fotos; las páginas nuevas usan la foto `servicio-enlace`.
+- **Datos legales:** completar `BIDA_LEGAL_NAME` y `BIDA_LEGAL_NIT` en `.env`.
+- **Temporadas independientes:** Día del Amor y Halloween se encienden, apagan y cambian de precio y fecha por separado en Ajustes (`config('bida.seasons')`, `Offers::seasons()`); cada una vigente tiene su botón en la portada.
+- **Tipo de evento y plantilla:** el editor solo ofrece las plantillas del tipo elegido y el guardado rechaza una combinación que no corresponde (`ValidatesInvitationModules::after`).
+- **Accesos de cliente:** todos los planes los crean, hasta el cupo mensual de invitaciones del plan (`ResellerSubscription::canCreateClients`).
 
 ---
 

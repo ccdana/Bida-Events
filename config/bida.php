@@ -17,6 +17,14 @@ return [
 
     'city' => env('BIDA_CITY', 'Cochabamba, Bolivia'),
 
+    // Datos de la empresa para las páginas legales (App\Support\LegalPages). (Supuesto) Sin razón
+    // social ni NIT cargados todavía: se muestra la marca hasta completarlos en .env.
+    'legal' => [
+        'name' => env('BIDA_LEGAL_NAME'),
+        'nit' => env('BIDA_LEGAL_NIT'),
+        'updated_at' => '2026-09-23',
+    ],
+
     // Solo dígitos, con código de país (591 para Bolivia)
     'whatsapp' => env('BIDA_WHATSAPP', '59170000000'),
 
@@ -35,7 +43,12 @@ return [
 
     // Invitaciones de muestra (una por plantilla): se prueban en "Plantillas" sin guardar nada y el teléfono de la portada recorre sus aperturas.
     // Las tarjetas de temporada no van aquí: tienen su sección propia (clave «season»).
-    'demo_invitations' => ['xv-isabella', 'boda-camila-andres', 'bautizo-emilia', 'cumple-daniela-30'],
+    'demo_invitations' => ['xv-isabella', 'boda-camila-andres', 'bautizo-emilia', 'cumple-daniela-30', 'graduacion-mariana'],
+
+    // Página para profesionales (/para-profesionales): las muestras que se prueban en su teléfono
+    'professionals' => [
+        'demos' => ['lienzo-casa-molina', 'graduacion-mariana', 'halloween-noche-diego'],
+    ],
 
     /*
     | Eventos que rotan en la portada y en el login. Cada uno usa una foto de
@@ -120,6 +133,11 @@ return [
         // Tarjeta del Día del Amor: sin foto propia todavía, usa la de la pareja
         'amor' => ['image' => 'event-boda', 'focus' => 0.35],
         'historia' => ['image' => 'event-boda', 'focus' => 0.35],
+        // Sin foto propia todavía: la de la invitación en el celular
+        'graduacion' => ['image' => 'servicio-enlace', 'focus' => 0.45],
+        'halloween' => ['image' => 'servicio-enlace', 'focus' => 0.45],
+        'lienzo' => ['image' => 'servicio-enlace', 'focus' => 0.45],
+        'profesionales' => ['image' => 'servicio-enlace', 'focus' => 0.45],
     ],
 
     /*
@@ -225,13 +243,68 @@ return [
             'whatsapp' => 'Hola {brand}, quiero una invitación digital para un cumpleaños.',
         ],
 
+        'invitaciones-de-graduacion' => [
+            'event' => 'graduacion',
+            'link' => 'Invitaciones de graduación',
+            'code' => 'GRAD',
+            'demos' => ['graduacion-mariana'],
+            // (Supuesto) Sin foto propia de graduación todavía: la de la invitación en el celular
+            'image' => 'servicio-enlace',
+            'label' => 'Graduación',
+            'for' => 'tu graduación',
+            'title' => 'Invitaciones digitales de graduación en Bolivia',
+            'description' => 'Invitación web para tu graduación o promoción: horario del acto y de la fiesta, mapa, padrinos de promoción y confirmación de asistencia. Lista para enviar por WhatsApp.',
+            'heading' => 'Invitaciones de graduación para celebrar el logro en grande',
+            'intro' => 'Un diploma que se abre al tocar la cinta y todo lo que tus invitados necesitan: la hora del acto, la fiesta, el lugar y quiénes te acompañaron. Con tus fotos, tus colores y tu carrera.',
+            'highlights' => [
+                ['icon' => 'graduation-cap', 'title' => 'Acto y fiesta en un enlace', 'text' => 'El horario de la colación y el de la celebración, con el mapa de cada lugar.'],
+                ['icon' => 'users-three', 'title' => 'Padrinos y compañeros', 'text' => 'Un espacio para agradecer a tus padrinos de promoción, tu familia y tus compañeros.'],
+                ['icon' => 'qr-code', 'title' => 'Confirmación con pase', 'text' => 'Sabes quién va y cuántas personas; cada invitado recibe su pase QR.'],
+                ['icon' => 'camera', 'title' => 'Las fotos del día', 'text' => 'Tus invitados suben sus fotos al fotomural y después quedan todas en el mismo enlace.'],
+            ],
+            'faqs' => [
+                ['¿Sirve para una promoción entera?', 'Sí. Puede llevar el nombre de la promoción en lugar de una persona, y los padrinos de promoción en su propio espacio.'],
+                ['¿Puedo poner el acto y la fiesta en lugares distintos?', 'Sí. El itinerario lleva cada momento con su hora y la ubicación explica cómo llegar.'],
+                ['¿Qué pasa si cambia la hora del acto?', 'Se actualiza en el mismo enlace y tus invitados ven siempre la versión correcta.'],
+            ],
+            'whatsapp' => 'Hola {brand}, quiero una invitación digital para una graduación.',
+        ],
+
+        // ── Invitaciones de temporada: se venden a su precio de temporada mientras dure (config «season»)
+        'invitaciones-de-halloween' => [
+            'event' => 'halloween',
+            'kind' => 'season',
+            'link' => 'Invitaciones de Halloween',
+            'code' => 'HALLO',
+            'demos' => ['halloween-noche-diego'],
+            'image' => 'servicio-enlace',
+            'label' => 'Halloween',
+            'for' => 'tu fiesta de Halloween',
+            'title' => 'Invitaciones digitales para fiestas de Halloween en Bolivia',
+            'description' => 'Invitación web para tu fiesta de disfraces: se abre encendiendo una calabaza, tus invitados confirman asistencia, votan y sugieren canciones. Lista para enviar por WhatsApp.',
+            'heading' => 'Invitaciones de Halloween para tu fiesta de disfraces',
+            'intro' => 'Una invitación que se enciende al tocar la calabaza, con la cuenta regresiva a la noche, el lugar, el disfraz que esperas y la confirmación de cada invitado.',
+            'features_note' => 'Además de la cuenta regresiva y el mapa, lo que hace más divertida la previa.',
+            'highlights' => [
+                ['icon' => 'ghost', 'title' => 'Se enciende al abrirla', 'text' => 'Una calabaza que se ilumina al tocarla, murciélagos y la luna llena en la portada.'],
+                ['icon' => 'mask-happy', 'title' => 'El disfraz, explicado', 'text' => 'Qué disfraces esperas, los colores de la noche y el premio al mejor disfraz.'],
+                ['icon' => 'music-notes', 'title' => 'Playlist y votaciones', 'text' => 'Tus invitados sugieren canciones y votan la película o el concurso antes de la fiesta.'],
+                ['icon' => 'qr-code', 'title' => 'Confirmación con pase', 'text' => 'Sabes quién va y cuántas personas; cada invitado recibe su pase QR.'],
+            ],
+            'faqs' => [
+                ['¿Cuánto tarda en estar lista?', 'Nos mandas los datos de la fiesta y la tenemos en uno o dos días. Si la pides cerca del 31, escríbenos temprano.'],
+                ['¿Sirve para una fiesta infantil?', 'Sí. Cambiamos los textos y los colores para que sea divertida y no dé miedo.'],
+                ['¿Puedo usarla para una fiesta en un local?', 'Sí. En lugar de una persona puede llevar el nombre del local o del evento.'],
+            ],
+            'whatsapp' => 'Hola {brand}, quiero una invitación para mi fiesta de Halloween.',
+        ],
+
         // ── Tarjetas estacionales: sin paquetes de invitación, el precio se consulta por WhatsApp
         'tarjetas-dia-del-amor' => [
             'event' => 'amor',
             'kind' => 'card',
             'link' => 'Tarjetas del Día del Amor',
             'code' => 'AMOR',
-            // Las muestras son las de la temporada: config('bida.season.templates')
             'image' => 'event-boda',
             'label' => 'Día del Amor',
             'for' => 'decir lo que sientes',
@@ -292,7 +365,8 @@ return [
 
     /*
     | Lo que ofrece la marca, en la sección «Servicios» de la portada. «price» toma el
-    | precio de hoy: «packages» (el paquete más barato) o «season» (la temporada vigente).
+    | precio de hoy: «packages» (el paquete más barato), «season» (la temporada vigente) o
+    | «reseller» (el plan mensual más barato para profesionales).
     | «href» acepta un ancla, «season» (la temporada o su página) o una URL.
     */
     'services' => [
@@ -306,37 +380,71 @@ return [
             'cta' => 'Ver las plantillas',
         ],
         [
-            'key' => 'tarjetas',
-            'name' => 'Tarjetas digitales',
-            'text' => 'Un detalle para una fecha especial: tu foto y tu mensaje en una tarjeta que se abre con un gesto. Salen por temporadas y cada fecha trae sus diseños.',
-            'occasions' => ['Día del Amor y la Primavera', 'Próximas fechas especiales'],
+            'key' => 'temporada',
+            'name' => 'Diseños de temporada',
+            'text' => 'Invitaciones y tarjetas que salen solo por unos días para una fecha especial, con un precio único mientras dure la temporada.',
+            'occasions' => ['Halloween', 'Día del Amor y la Primavera', 'Próximas fechas especiales'],
             'price' => 'season',
             'href' => 'season',
-            'cta' => 'Ver las tarjetas',
+            'cta' => 'Ver la temporada',
+        ],
+        [
+            'key' => 'profesionales',
+            'name' => 'Para profesionales de eventos',
+            'text' => 'Si eres fotógrafo, organizador o decorador, arma invitaciones con nuestras plantillas para tus clientes desde tu propio panel, con un plan mensual.',
+            'occasions' => ['Fotógrafos', 'Wedding planners', 'Decoradores', 'Salones de eventos'],
+            'price' => 'reseller',
+            'href' => '/para-profesionales',
+            'cta' => 'Ver los planes',
         ],
     ],
 
     /*
-    | Temporada: tarjetas que se venden solo por unos días (hoy, Día del Amor y la
-    | Primavera). Tienen su sección arriba de la portada, con cuenta regresiva hasta
-    | BIDA_SEASON_ENDS_AT (hora de La Paz); al llegar esa fecha la sección desaparece.
-    | Para sumar plantillas de la temporada, agrega su muestra a «templates».
+    | Temporadas: diseños que se venden solo por unos días. Cada una es independiente: tiene su
+    | interruptor («active»), su precio, su fecha de término (hora de La Paz) y sus diseños, y se
+    | enciende o se apaga desde Ajustes sin tocar a la otra. En la portada cada temporada vigente
+    | tiene su botón flotante (abajo a la derecha) que abre su panel; al pasar su fecha el botón
+    | desaparece solo. «product» dice qué se vende (invitación o tarjeta) para los textos y
+    | «landing» es su página de campaña. Para sumar diseños, agrega su muestra a «templates».
+    |
+    | (Supuesto) Precio de la invitación de Halloween: 180 Bs, 140 Bs de promoción.
     */
-    'season' => [
-        'key' => 'amor',
-        'code' => 'AMOR',
-        'name' => 'Día del Amor y la Primavera',
-        'date' => '21 de septiembre',
-        'title' => 'Día del Amor y la Primavera',
-        'text' => 'Tarjetas digitales para decirle lo que sientes a tu pareja, a tu mejor amiga o a tu familia. Llevan tu foto y tu mensaje, se abren con un gesto y llegan por WhatsApp.',
-        'more_note' => 'Durante la temporada vamos sumando diseños.',
-        'ends_at' => env('BIDA_SEASON_ENDS_AT', '2026-09-21 23:59:59'),
-        'price' => 100,
-        'promo_price' => 75,
-        'promo_label' => 'Promoción de temporada',
-        'templates' => ['tarjeta-ana-luis', 'tarjeta-libro-aventuras', 'historia-ana-luis'],
-        'landing' => 'tarjetas-dia-del-amor',
-        'whatsapp' => 'Hola {brand}, quiero una tarjeta del Día del Amor ({price} Bs).',
+    'seasons' => [
+        'amor' => [
+            'code' => 'AMOR',
+            'name' => 'Día del Amor y la Primavera',
+            'product' => 'tarjeta',
+            'date' => '21 de septiembre',
+            'title' => 'Día del Amor y la Primavera',
+            'text' => 'Tarjetas digitales para decirle lo que sientes a tu pareja, a tu mejor amiga o a tu familia. Llevan tu foto y tu mensaje, se abren con un gesto y llegan por WhatsApp.',
+            'more_note' => 'Durante la temporada vamos sumando diseños.',
+            'active' => true,
+            // BIDA_SEASON_ENDS_AT era la fecha de la única temporada que había (esta)
+            'ends_at' => env('BIDA_SEASON_AMOR_ENDS_AT', env('BIDA_SEASON_ENDS_AT', '2026-09-21 23:59:59')),
+            'price' => 100,
+            'promo_price' => 75,
+            'promo_label' => 'Promoción de temporada',
+            'templates' => ['tarjeta-ana-luis', 'tarjeta-libro-aventuras', 'historia-ana-luis'],
+            'landing' => 'tarjetas-dia-del-amor',
+            'whatsapp' => 'Hola {brand}, quiero una tarjeta del Día del Amor ({price} Bs).',
+        ],
+        'halloween' => [
+            'code' => 'HALLO',
+            'name' => 'Halloween',
+            'product' => 'invitación',
+            'date' => '31 de octubre',
+            'title' => 'Tu fiesta de Halloween empieza en la invitación',
+            'text' => 'Invitaciones para tu fiesta de disfraces: se abren encendiendo una calabaza, tus invitados confirman asistencia, votan la película de la noche y sugieren las canciones.',
+            'more_note' => 'Durante la temporada vamos sumando diseños.',
+            'active' => true,
+            'ends_at' => env('BIDA_SEASON_HALLOWEEN_ENDS_AT', '2026-10-31 23:59:59'),
+            'price' => 180,
+            'promo_price' => 140,
+            'promo_label' => 'Promoción de temporada',
+            'templates' => ['halloween-noche-diego'],
+            'landing' => 'invitaciones-de-halloween',
+            'whatsapp' => 'Hola {brand}, quiero una invitación para mi fiesta de Halloween ({price} Bs).',
+        ],
     ],
 
     'packages' => [
@@ -387,4 +495,66 @@ return [
         ],
     ],
 
+    /*
+    | Planes de suscripción mensual para revendedores (fotógrafos, wedding planners, decoradores):
+    | arman sus propias invitaciones dentro de «quota_per_month» por mes calendario (null = sin
+    | tope). Cada plan desbloquea más cosas, y eso es lo que justifica pagar más:
+    |  - «collections»: qué familias de plantillas puede usar (ver «collection» en
+    |    App\Support\InvitationTemplates): lienzo (la genérica en blanco), clasica (XV, boda,
+    |    bautizo, cumpleaños, graduación) y tematica (Halloween, tarjetas de temporada).
+    | Todos los planes crean accesos para sus clientes (uno por evento), pero no más por mes que
+    | las invitaciones que el plan permite crear (ResellerSubscription::canCreateClients).
+    |  - «white_label»: el pie de sus invitaciones lleva su nombre comercial en vez de Bida Events.
+    | «cycle_months» es cuánto extiende la suscripción cada pago; «templates» (opcional) recorta
+    | todavía más el catálogo con una lista de plantillas. Precio y cupo se cambian en Ajustes.
+    | No se cobra automáticamente: el administrador registra cada pago desde Revendedores.
+    |
+    | (Supuesto) Precios, cupos y qué incluye cada plan, pendientes de confirmar con el dueño.
+    */
+    'reseller_plans' => [
+        'inicial' => [
+            'name' => 'Inicial',
+            'price' => 60,
+            'quota_per_month' => 3,
+            'collections' => ['lienzo'],
+            'white_label' => false,
+            'cycle_months' => 1,
+            'templates' => null,
+            'summary' => 'Para empezar: la plantilla en blanco, para diseñar a tu manera.',
+            'features' => ['3 invitaciones al mes', 'Plantilla en blanco con todo editable', 'Acceso para tu cliente en cada evento', 'Confirmación de asistencia y reportes'],
+        ],
+        'aliado' => [
+            'name' => 'Aliado',
+            'price' => 120,
+            'quota_per_month' => 8,
+            'collections' => ['lienzo', 'clasica'],
+            'white_label' => false,
+            'cycle_months' => 1,
+            'templates' => null,
+            'summary' => 'Las plantillas de bodas, XV, bautizos, cumpleaños y graduaciones.',
+            'features' => ['8 invitaciones al mes', 'Plantillas clásicas y la plantilla en blanco', 'Acceso para tu cliente en cada evento'],
+        ],
+        'emprendedor' => [
+            'name' => 'Emprendedor',
+            'price' => 250,
+            'quota_per_month' => 20,
+            'collections' => ['lienzo', 'clasica', 'tematica'],
+            'white_label' => true,
+            'cycle_months' => 1,
+            'templates' => null,
+            'summary' => 'Con tu marca y las temáticas de temporada: Halloween y las tarjetas.',
+            'features' => ['20 invitaciones al mes', 'Todo el catálogo, con las temáticas y de temporada', 'Tu marca al pie, sin la de Bida Events', 'Acceso para tu cliente en cada evento'],
+        ],
+        'agencia' => [
+            'name' => 'Agencia',
+            'price' => 500,
+            'quota_per_month' => null,
+            'collections' => ['lienzo', 'clasica', 'tematica'],
+            'white_label' => true,
+            'cycle_months' => 1,
+            'templates' => null,
+            'summary' => 'Sin tope: para estudios que entregan invitaciones todas las semanas.',
+            'features' => ['Invitaciones sin tope', 'Todo el catálogo, con las temáticas y de temporada', 'Tu marca al pie, sin la de Bida Events', 'Acceso para tu cliente en cada evento'],
+        ],
+    ],
 ];

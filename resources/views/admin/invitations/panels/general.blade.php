@@ -9,7 +9,7 @@
     <section class="admin-card space-y-3 p-4">
         <h3 class="text-sm font-semibold">¿Qué vas a crear?</h3>
         <div class="grid grid-cols-2 gap-2" role="radiogroup" aria-label="Tipo de producto">
-            <template x-for="kind in [{ value: 'invitation', label: 'Invitación', hint: 'Boda, XV, bautizo, cumpleaños' }, { value: 'card', label: 'Tarjeta', hint: 'Día del Amor y otras fechas' }]" :key="kind.value">
+            <template x-for="kind in [{ value: 'invitation', label: 'Invitación', hint: 'Boda, XV, bautizo, cumpleaños, graduación, Halloween' }, { value: 'card', label: 'Tarjeta', hint: 'Día del Amor y otras fechas' }]" :key="kind.value">
                 <button type="button" role="radio" @click="chooseKind(kind.value)"
                     :aria-checked="((profile.kind ?? 'invitation') === kind.value).toString()"
                     :disabled="templatesOfKind(kind.value).length === 0"
@@ -47,8 +47,8 @@
                     <x-phosphor-caret-down class="size-4 shrink-0 text-site-muted" x-bind:class="{ 'rotate-180': open }" aria-hidden="true" />
                 </button>
                 <div x-show="open" x-cloak class="admin-accordion-panel">
-                    <template x-for="type in eventTypes.filter(item => (item.kind ?? 'invitation') === (profile.kind ?? 'invitation'))" :key="type.id">
-                        <button type="button" @click="meta.event_type_id = type.id; open = false"
+                    <template x-for="type in eventTypesOfKind(profile.kind ?? 'invitation')" :key="type.id">
+                        <button type="button" @click="chooseEventType(type); open = false"
                             class="admin-accordion-option" :class="String(meta.event_type_id) === String(type.id) ? 'is-selected' : ''">
                             <span x-text="type.name"></span>
                         </button>
@@ -65,7 +65,8 @@
                     <x-phosphor-caret-down class="size-4 shrink-0 text-site-muted" x-bind:class="{ 'rotate-180': open }" aria-hidden="true" />
                 </button>
                 <div x-show="open" x-cloak class="admin-accordion-panel">
-                    <template x-for="option in templatesOfKind(profile.kind ?? 'invitation')" :key="option.value">
+                    {{-- Solo las plantillas del tipo de evento elegido --}}
+                    <template x-for="option in templatesForEventType()" :key="option.value">
                         <button type="button" @click="meta.template = option.value; open = false"
                             class="admin-accordion-option" :class="meta.template === option.value ? 'is-selected' : ''">
                             <span class="min-w-0 text-left">
@@ -98,7 +99,8 @@
         @include('admin.partials.date-field', ['id' => 'expires-at', 'label' => 'El enlace deja de funcionar el', 'model' => 'meta.expires_at'])
     </section>
 
-    {{-- Cliente --}}
+    {{-- Cliente: solo en el editor del administrador; el revendedor es siempre el dueño de lo que crea --}}
+    @if(($editorMode ?? 'admin') === 'admin')
     <section class="admin-card space-y-4 p-4">
         <div>
             <h3 class="text-sm font-semibold">Cliente</h3>
@@ -196,6 +198,7 @@
                 x-text="clientError || 'Generamos su usuario y contraseña, y queda asignado a esta invitación.'"></p>
         </div>
     </section>
+    @endif
 
     {{-- Publicación --}}
     <section class="admin-card space-y-3 p-4">

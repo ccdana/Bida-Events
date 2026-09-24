@@ -8,6 +8,7 @@ use Database\Seeders\ShowcaseInvitationsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class HomePageTest extends TestCase
@@ -26,9 +27,10 @@ class HomePageTest extends TestCase
             ->assertSeeInOrder(['200 Bs', '150', 'Bs', '400 Bs', '300', 'Bs', '700 Bs', '500', 'Bs'])
             ->assertSee('Promoción de inauguración')
             ->assertSee('Ahorras 50 Bs')
-            // Servicios: las invitaciones y las tarjetas, cada una con su precio de hoy
+            // Servicios: las invitaciones, lo de temporada y los planes para profesionales, cada uno con su precio de hoy
             ->assertSee('id="servicios"', false)
-            ->assertSeeInOrder(['Invitaciones digitales', 'desde', '150 Bs', 'Tarjetas digitales'])
+            ->assertSeeInOrder(['Invitaciones digitales', 'desde', '150 Bs', 'Diseños de temporada', 'Para profesionales de eventos', 'desde', '60 Bs', 'al mes'])
+            ->assertSee(route('professionals'), false)
             // Los recuerdos en vivo van dentro de lo que incluye la invitación, y ya no hay sección de contacto
             ->assertSeeInOrder(['id="incluye"', 'Recuerdos en vivo', 'id="precios"'], false)
             ->assertDontSee('¿Ya tienes fecha')
@@ -50,49 +52,78 @@ class HomePageTest extends TestCase
             ->assertSee(rawurlencode('me interesa el paquete Estándar (400 Bs)'), false);
     }
 
-    public function test_the_season_opens_the_home_with_its_countdown_and_promo_price(): void
+    public function test_the_season_waits_behind_a_floating_button_with_its_countdown_and_promo_price(): void
     {
-        config(['bida.season.ends_at' => '2026-09-21 23:59:59', 'bida.whatsapp' => '+591 7123-4567']);
-        $this->travelTo(Carbon::parse('2026-09-19 12:00:00', 'America/La_Paz'));
+        config(['bida.seasons.halloween.ends_at' => '2026-10-31 23:59:59', 'bida.whatsapp' => '+591 7123-4567']);
+        $this->travelTo(Carbon::parse('2026-10-28 12:00:00', 'America/La_Paz'));
         $this->seed(ShowcaseInvitationsSeeder::class);
 
         $response = $this->withoutVite()->get(route('home'))->assertOk();
 
         $response
-            // Va antes que la portada, como gancho
-            ->assertSeeInOrder(['id="temporada"', 'Invitaciones digitales'], false)
-            // Habla de la temporada y lista sus diseños (hoy, uno)
-            ->assertSee('Día del Amor y la Primavera')
-            ->assertSeeInOrder(['Diseños de la temporada', 'Carta que florece'])
-            ->assertSeeInOrder(['100 Bs', '75', 'Bs'])
-            // Cuenta regresiva ya calculada: faltan 2 días, 11 horas, 59 minutos y 59 segundos
-            ->assertSeeInOrder(['02', 'días', '11', 'horas', '59', 'min', '59', 'seg'])
+            // Ya no va arriba de la portada: un botón que sigue al scroll abre el panel
+            ->assertSeeInOrder(['Invitaciones digitales', 'site-season-fab', 'id="temporada-halloween"'], false)
+            ->assertSeeInOrder(['Halloween', '140 Bs', 'quedan 3 días'])
+            // El panel habla de la temporada y lista sus diseños (hoy, uno)
+            ->assertSee('Tu fiesta de Halloween empieza en la invitación')
+            ->assertSeeInOrder(['Diseños de la temporada', 'Noche de calabazas'])
+            ->assertSeeInOrder(['180 Bs', '140', 'Bs'])
+            // Cuenta regresiva ya calculada: faltan 3 días, 11 horas, 59 minutos y 59 segundos
+            ->assertSeeInOrder(['03', 'días', '11', 'horas', '59', 'min', '59', 'seg'])
             ->assertSee('seasonOffer(', false)
             // WhatsApp con el precio y el código de la campaña
-            ->assertSee(rawurlencode('quiero una tarjeta del Día del Amor (75 Bs)'), false)
-            ->assertSee(rawurlencode('Ref. AMOR'), false)
-            // El teléfono abre la tarjeta sola
-            ->assertSee(route('invitation.demo', ['slug' => 'tarjeta-ana-luis', 'portada' => 1]), false)
+            ->assertSee(rawurlencode('quiero una invitación para mi fiesta de Halloween (140 Bs)'), false)
+            ->assertSee(rawurlencode('Ref. HALLO'), false)
+            // El teléfono carga la muestra recién al abrir el panel
+            ->assertSee('data-lazy-src="'.route('invitation.demo', ['slug' => 'halloween-noche-diego', 'portada' => 1]).'"', false)
+            ->assertDontSee(' src="'.route('invitation.demo', ['slug' => 'halloween-noche-diego', 'portada' => 1]).'"', false)
+            // Los enlaces a «#temporada» (servicios) abren el mismo panel
             ->assertSee('href="#temporada"', false);
 
-        // La tarjeta no se mezcla con las plantillas de invitación
-        $this->assertStringNotContainsString(
-            'plantilla-tab-4',
-            $response->getContent(),
-        );
+        // La temporada no se mezcla con las plantillas de invitación
+        $templates = Str::betweenFirst($response->getContent(), 'id="plantillas"', '</section>');
+        $this->assertStringContainsString('Sopla las velas', $templates);
+        $this->assertStringNotContainsString('Noche de calabazas', $templates);
     }
 
     public function test_the_season_disappears_when_its_date_passes(): void
     {
-        config(['bida.season.ends_at' => '2026-09-21 23:59:59']);
-        $this->travelTo(Carbon::parse('2026-09-22 00:00:01', 'America/La_Paz'));
+        config(['bida.seasons.halloween.ends_at' => '2026-10-31 23:59:59']);
+        $this->travelTo(Carbon::parse('2026-11-01 00:00:01', 'America/La_Paz'));
         $this->seed(ShowcaseInvitationsSeeder::class);
 
         $this->withoutVite()
             ->get(route('home'))
             ->assertOk()
-            ->assertDontSee('id="temporada"', false)
+            ->assertDontSee('site-season-fab', false)
+            ->assertDontSee('id="temporada-halloween"', false)
             ->assertDontSee('href="#temporada"', false);
+    }
+
+    public function test_each_season_has_its_own_button_and_can_be_switched_off_alone(): void
+    {
+        config([
+            'bida.seasons.amor.ends_at' => '2026-10-31 23:59:59',
+            'bida.seasons.halloween.ends_at' => '2026-10-31 23:59:59',
+        ]);
+        $this->travelTo(Carbon::parse('2026-10-20 12:00:00', 'America/La_Paz'));
+        $this->seed(ShowcaseInvitationsSeeder::class);
+
+        // Las dos a la vez: un botón para cada una, apilados
+        $this->withoutVite()->get(route('home'))
+            ->assertOk()
+            ->assertSee('id="temporada-amor"', false)
+            ->assertSee('id="temporada-halloween"', false)
+            ->assertSee('--fab-index: 1', false)
+            ->assertSee('Ahora: Día del Amor y la Primavera y Halloween');
+
+        // Apagar la del Día del Amor no toca a Halloween
+        config(['bida.seasons.amor.active' => false]);
+
+        $this->withoutVite()->get(route('home'))
+            ->assertOk()
+            ->assertDontSee('id="temporada-amor"', false)
+            ->assertSee('id="temporada-halloween"', false);
     }
 
     public function test_home_lists_every_configured_event_type_and_the_brand_logo(): void

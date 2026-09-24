@@ -19,6 +19,12 @@ final class InvitationTemplates
 
     public const CUMPLE_FIESTA = 'invitations.templates.cumple-fiesta';
 
+    public const LIENZO = 'invitations.templates.lienzo';
+
+    public const GRADUACION_BIRRETE = 'invitations.templates.graduacion-birrete';
+
+    public const HALLOWEEN_CALABAZAS = 'invitations.templates.halloween-calabazas';
+
     public const TARJETA_AMOR = 'invitations.templates.tarjeta-amor';
 
     public const TARJETA_AVENTURA = 'invitations.templates.tarjeta-aventura';
@@ -46,6 +52,8 @@ final class InvitationTemplates
                 'tagline' => 'Se abre con un telón, entre destellos dorados',
                 'description' => 'Portada a pantalla completa con la foto, partículas doradas y estilo editorial.',
                 'event' => 'xv',
+                // Familia de plantillas: qué plan de revendedor la incluye (config «reseller_plans»)
+                'collection' => 'clasica',
                 // Paleta con la que nace una invitación de este tipo (la misma de la muestra)
                 'palette' => [
                     'primary' => '#C9A96E',
@@ -66,6 +74,8 @@ final class InvitationTemplates
                 'tagline' => 'Un sobre lacrado entre ramas y pétalos',
                 'description' => 'Sobre que se abre al entrar, foto en arco con ramas que crecen, pétalos y títulos caligráficos.',
                 'event' => 'boda',
+                // Familia de plantillas: qué plan de revendedor la incluye (config «reseller_plans»)
+                'collection' => 'clasica',
                 // Paleta con la que nace una invitación de este tipo (la misma de la muestra)
                 'palette' => [
                     'primary' => '#A8875A',
@@ -105,6 +115,8 @@ final class InvitationTemplates
                 'tagline' => 'Agua que cae sobre la pila, nubes y palomas',
                 'description' => 'Nubes que se abren al entrar, foto en medallón con halo y paloma, destellos y secciones separadas por olas.',
                 'event' => 'bautizo',
+                // Familia de plantillas: qué plan de revendedor la incluye (config «reseller_plans»)
+                'collection' => 'clasica',
                 // Paleta con la que nace una invitación de este tipo (la misma de la muestra)
                 'palette' => [
                     'primary' => '#6B9AC4',
@@ -145,6 +157,8 @@ final class InvitationTemplates
                 'tagline' => 'Un pastel con velas, confeti y globos',
                 'description' => 'Pastel con velas que se soplan al entrar, confeti, globos, banderines y la edad en grande.',
                 'event' => 'cumple',
+                // Familia de plantillas: qué plan de revendedor la incluye (config «reseller_plans»)
+                'collection' => 'clasica',
                 // Paleta con la que nace una invitación de este tipo (la misma de la muestra)
                 'palette' => [
                     'primary' => '#F25C54',
@@ -184,12 +198,158 @@ final class InvitationTemplates
                     'rsvp_declined_intro' => 'Si cambias de planes, escríbeme para actualizar tu respuesta.',
                 ],
             ],
+            self::GRADUACION_BIRRETE => [
+                'label' => 'Birrete al aire',
+                'tagline' => 'Un diploma con cinta que se desata al entrar',
+                'description' => 'Diploma enrollado que se abre con un toque, birretes que vuelan, foto en marco de arco y detalles dorados de ceremonia.',
+                'event' => 'graduacion',
+                // Familia de plantillas: qué plan de revendedor la incluye (config «reseller_plans»)
+                'collection' => 'clasica',
+                'palette' => [
+                    'primary' => '#9C7A2E',
+                    'secondary' => '#1F2A44',
+                    'accent' => '#E9E2D0',
+                    'text' => '#1B2233',
+                    'background' => '#FBF9F4',
+                ],
+                // Tipografías con las que nace (las demás plantillas usan las del editor)
+                'fonts' => ['titulos' => 'Cinzel', 'cuerpo' => 'Montserrat', 'script' => 'Great Vibes'],
+                'order' => [
+                    'cuenta_regresiva', 'ubicacion', 'itinerario', 'rsvp', 'destacados', 'galeria', 'dress_code',
+                    'video', 'regalos', 'playlist', 'encuestas', 'hashtag', 'fotomural', 'post_evento',
+                ],
+                'copy' => [
+                    'hero_eyebrow' => 'Me gradúo',
+                    'menu_heading' => 'La graduación de',
+                    'intro_eyebrow' => 'Tienes una invitación',
+                    'intro_hint' => 'Toca la cinta para abrir el diploma',
+                    'intro_cheer' => '¡Lo logramos!',
+                    'countdown_lottie' => 'calendar',
+                    'countdown_eyebrow' => 'La ceremonia se acerca',
+                    'guest_help' => 'Te toma menos de un minuto y nos ayuda a preparar la celebración.',
+                    'gallery_eyebrow' => 'El camino hasta aquí',
+                    'itinerary_eyebrow' => 'Así será el día',
+                    'itinerary_empty' => 'Muy pronto compartiré el horario del acto y de la fiesta.',
+                    'dress_hint' => 'Tonos sugeridos para la celebración',
+                    'dress_empty' => 'Viste formal: es una noche de gala.',
+                    'court_lottie' => 'invitation',
+                    'court_eyebrow' => 'Quienes me acompañaron',
+                    'court_title' => 'Gracias a ustedes',
+                    'court_intro' => 'Las personas que hicieron posible este logro.',
+                    'court_empty' => 'Pronto presentaré a quienes me acompañaron.',
+                    'court_first' => 'padrinos',
+                    'court_group_tab' => 'Familia y amigos',
+                    'court_sponsors_tab' => 'Padrinos',
+                    'court_men' => 'Familia',
+                    'court_women' => 'Compañeros',
+                    'nav_court' => 'Gracias',
+                    'rsvp_declined_intro' => 'Si cambias de planes, escríbeme para actualizar tu respuesta.',
+                ],
+            ],
+            // ── Plantilla en blanco para cualquier evento ─────────────────────
+            self::LIENZO => [
+                'label' => 'Lienzo',
+                'tagline' => 'En blanco, para diseñarla a tu manera',
+                'description' => 'Fondo blanco, letra negra y nada de adornos: cada color, tipografía y texto se cambia desde el editor.',
+                'event' => 'lienzo',
+                'collection' => 'lienzo',
+                'palette' => [
+                    'primary' => '#111111',
+                    'secondary' => '#333333',
+                    'accent' => '#F1F1F1',
+                    'text' => '#111111',
+                    'background' => '#FFFFFF',
+                ],
+                'fonts' => ['titulos' => 'Inter', 'cuerpo' => 'Inter', 'script' => 'Inter'],
+                'order' => [
+                    'cuenta_regresiva', 'ubicacion', 'itinerario', 'rsvp', 'dress_code', 'galeria', 'video',
+                    'destacados', 'regalos', 'playlist', 'encuestas', 'hashtag', 'fotomural', 'post_evento',
+                ],
+                // Textos neutros: sirven para cualquier evento y se cambian todos desde el editor
+                'copy' => [
+                    'hero_eyebrow' => 'Estás invitado',
+                    'menu_heading' => 'Invitación',
+                    'countdown_eyebrow' => 'Falta poco',
+                    'guest_help' => 'Te toma menos de un minuto y nos ayuda a organizarnos.',
+                    'gallery_eyebrow' => 'Fotos',
+                    'itinerary_eyebrow' => 'Programa',
+                    'itinerary_empty' => 'Muy pronto compartiremos el programa.',
+                    'dress_hint' => 'Colores sugeridos',
+                    'dress_empty' => 'Ven como te sientas cómodo.',
+                    'court_eyebrow' => 'Personas especiales',
+                    'court_title' => 'Quienes nos acompañan',
+                    'court_intro' => 'Las personas que hacen posible este día.',
+                    'court_empty' => 'Pronto presentaremos a quienes nos acompañan.',
+                    'court_first' => 'padrinos',
+                    'court_group_tab' => 'Invitados',
+                    'court_sponsors_tab' => 'Anfitriones',
+                    'court_men' => 'Invitados especiales',
+                    'court_women' => 'Equipo',
+                    'nav_court' => 'Personas',
+                    'gifts_intro' => 'Tu presencia es lo más importante. Si deseas tener un detalle, aquí tienes algunas opciones.',
+                    'rsvp_declined_intro' => 'Si cambias de planes, avísanos para actualizar tu respuesta.',
+                ],
+            ],
+            // ── Invitaciones de temporada ─────────────────────────────────────
+            self::HALLOWEEN_CALABAZAS => [
+                'label' => 'Noche de calabazas',
+                'tagline' => 'Una calabaza que se enciende al tocarla',
+                'description' => 'Calabaza que se ilumina para entrar, luna llena con murciélagos, niebla y velas: una fiesta de disfraces con confirmación y playlist.',
+                'event' => 'halloween',
+                'collection' => 'tematica',
+                'palette' => [
+                    'primary' => '#F08A24',
+                    'secondary' => '#7B4BB7',
+                    'accent' => '#2B2238',
+                    'text' => '#F4EEE6',
+                    'background' => '#130F1A',
+                ],
+                'fonts' => ['titulos' => 'Fredoka', 'cuerpo' => 'Nunito Sans', 'script' => 'Creepster'],
+                'order' => [
+                    'cuenta_regresiva', 'ubicacion', 'rsvp', 'dress_code', 'itinerario', 'playlist', 'encuestas',
+                    'galeria', 'video', 'destacados', 'hashtag', 'regalos', 'fotomural', 'post_evento',
+                ],
+                'copy' => [
+                    'hero_eyebrow' => 'Fiesta de Halloween',
+                    'menu_heading' => 'Fiesta de',
+                    'intro_eyebrow' => 'Te espera una noche de miedo',
+                    'intro_hint' => 'Toca la calabaza para encenderla',
+                    'intro_cheer' => '¡Que empiece la fiesta!',
+                    'countdown_eyebrow' => 'La noche se acerca',
+                    'countdown_done_title' => '¡Hoy es la fiesta!',
+                    'location_eyebrow' => '¿Dónde es la fiesta?',
+                    'guest_help' => 'Te toma menos de un minuto y nos ayuda a preparar la fiesta.',
+                    'gallery_eyebrow' => 'Fiestas pasadas',
+                    'itinerary_eyebrow' => 'Lo que pasará esa noche',
+                    'itinerary_empty' => 'Muy pronto compartiremos el programa de la noche.',
+                    'dress_eyebrow' => 'Disfraz',
+                    'dress_hint' => 'Colores de la noche',
+                    'dress_empty' => 'Ven disfrazado: habrá premio al mejor disfraz.',
+                    'court_lottie' => 'music',
+                    'court_eyebrow' => 'Quiénes arman la fiesta',
+                    'court_title' => 'La tripulación',
+                    'court_intro' => 'Anfitriones, música y el jurado del concurso de disfraces.',
+                    'court_empty' => 'Pronto presentaremos a quienes arman la fiesta.',
+                    'court_first' => 'padrinos',
+                    'court_group_tab' => 'Show y jurado',
+                    'court_sponsors_tab' => 'Anfitriones',
+                    'court_men' => 'DJ y show',
+                    'court_women' => 'Jurado de disfraces',
+                    'nav_court' => 'Anfitriones',
+                    'playlist_eyebrow' => 'La música de la noche',
+                    'polls_eyebrow' => 'Vota antes de la fiesta',
+                    'rsvp_yes' => 'Sí, ahí estaré',
+                    'rsvp_declined_intro' => 'Si cambias de planes, escríbenos para actualizar tu respuesta.',
+                ],
+            ],
             // ── Tarjetas estacionales ─────────────────────────────────────────
             self::TARJETA_AMOR => [
                 'label' => 'Carta que florece',
                 'tagline' => 'Se abre regando una flor y responde con otra',
                 'description' => 'Un jardín que florece: un capullo que se riega para abrirlo, la foto que se revela, la carta lacrada, una margarita que se deshoja, recuerdos en un tendedero, una flor de respuesta y un diente de león para pedir un deseo.',
                 'event' => 'amor',
+                // Familia de plantillas: qué plan de revendedor la incluye (config «reseller_plans»)
+                'collection' => 'tematica',
                 'palette' => [
                     'primary' => '#A63A50',
                     'secondary' => '#6B2433',
@@ -250,6 +410,8 @@ final class InvitationTemplates
                 'tagline' => 'Un cuaderno de recortes que se hojea, con juego de memoria',
                 'description' => 'Un cuaderno de recortes que se hojea: el mes del aniversario, la carta, su historia por capítulos, recuerdos, collages con flores amarillas, fotos con marco y un juego de memoria.',
                 'event' => 'aventura',
+                // Familia de plantillas: qué plan de revendedor la incluye (config «reseller_plans»)
+                'collection' => 'tematica',
                 'palette' => [
                     'primary' => '#8A4B1F',
                     'secondary' => '#5A3214',
@@ -274,6 +436,8 @@ final class InvitationTemplates
                 'tagline' => 'Su historia en cuatro actos, de la luna en el agua a un cielo de estrellas',
                 'description' => 'La historia de una pareja en cuatro actos: la luna reflejada en el agua, la marea que sube con cada recuerdo, la luna de frente con la anécdota que lo cambió todo y un cielo estrellado a lo Van Gogh.',
                 'event' => 'historia',
+                // Familia de plantillas: qué plan de revendedor la incluye (config «reseller_plans»)
+                'collection' => 'tematica',
                 // Noche fija: el tema solo toma del cliente la luz de la luna (primary)
                 'palette' => [
                     'primary' => '#E8C872',
@@ -331,6 +495,12 @@ final class InvitationTemplates
         }
 
         return self::all()[$template] ?? self::all()[self::DEFAULT];
+    }
+
+    /** Familia de la plantilla (lienzo, clasica, tematica): la usan los planes de revendedor. */
+    public static function collection(?string $template): string
+    {
+        return self::get($template)['collection'] ?? 'clasica';
     }
 
     public static function copy(?string $template): array

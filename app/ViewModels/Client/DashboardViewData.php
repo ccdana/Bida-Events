@@ -4,8 +4,10 @@ namespace App\ViewModels\Client;
 
 use App\EventProfiles\EventProfiles;
 use App\Models\Invitation;
+use App\Models\User;
 use App\Modules\Module;
 use App\Support\InvitationTemplates;
+use App\Support\ResellerSubscription;
 use Illuminate\Support\Collection;
 
 /**
@@ -16,9 +18,9 @@ class DashboardViewData
 {
     public function __construct(private EventProfiles $profiles) {}
 
-    public function make(Collection $invitations, string $search = ''): array
+    public function make(Collection $invitations, string $search = '', ?User $user = null): array
     {
-        $rows = $invitations->map(fn (Invitation $invitation) => $this->row($invitation));
+        $rows = $invitations->map(fn (Invitation $invitation) => $this->row($invitation, (bool) $user?->isReseller()));
 
         // Primero lo que todavía no pasó y, dentro de eso, lo más cercano
         $sort = fn (Collection $group) => $group
@@ -44,10 +46,52 @@ class DashboardViewData
             'sections' => $sections,
             'search' => $search,
             'total' => $rows->count(),
+            'reseller' => $user?->isReseller() ? $this->reseller($user) : null,
         ];
     }
 
-    private function row(Invitation $invitation): array
+    /**
+     * Lo que el revendedor necesita ver al entrar: su plan, cuánto cupo le queda este mes y si su
+     * suscripción está por vencer o ya venció (entonces no puede crear ni editar hasta renovar).
+     */
+    private function reseller(User $user): array
+    {
+        $plan = $user->planConfig();
+        $limit = ResellerSubscription::quotaLimit($user);
+        $used = ResellerSubscription::quotaUsed($user);
+        $daysLeft = ResellerSubscription::daysLeft($user);
+        $active = $user->hasActiveSubscription();
+        $hasQuota = ResellerSubscription::hasQuotaLeft($user);
+
+        $warning = match (true) {
+            $daysLeft === null => 'Tu suscripción todavía no está activa. Escríbenos para registrar tu primer pago.',
+            ! $active => 'Tu suscripción venció: tus invitaciones siguen en línea, pero no puedes crear ni editar hasta renovarla.',
+            $daysLeft <= ResellerSubscription::WARNING_DAYS => $daysLeft === 1
+                ? 'Tu suscripción vence mañana. Renuévala para no perder el acceso al editor.'
+                : "Tu suscripción vence en {$daysLeft} días. Renuévala para no perder el acceso al editor.",
+            default => null,
+        };
+
+        return [
+            'planName' => $plan['name'] ?? 'Sin plan',
+            'quotaUsed' => $used,
+            'quotaLimit' => $limit,
+            'quotaLabel' => $limit === null ? "{$used} este mes (sin tope)" : "{$used} de {$limit}",
+            'renewsLabel' => $user->subscription_renews_at?->locale('es')->translatedFormat('j \d\e F \d\e Y'),
+            'isActive' => $active,
+            'warning' => $warning,
+            'isExpired' => $daysLeft !== null && ! $active,
+            'canCreate' => $active && $hasQuota,
+            // Por qué no puede crear, para decirlo junto al botón
+            'blockedReason' => match (true) {
+                ! $active => 'Renueva tu suscripción para crear invitaciones.',
+                ! $hasQuota => 'Ya usaste el cupo de este mes.',
+                default => null,
+            },
+        ];
+    }
+
+    private function row(Invitation $invitation, bool $forReseller = false): array
     {
         $profile = $this->profiles->forTemplate($invitation->template);
         $isCard = $profile->kind() === Module::KIND_CARD;
@@ -67,7 +111,12 @@ class DashboardViewData
             // Por qué no se puede abrir la página: es lo que el cliente nos preguntaría
             'unavailableReason' => $isPublished
                 ? null
-                : ($invitation->status === 'active' ? 'El enlace venció: escríbenos para renovarlo.' : 'Todavía sin publicar: la estamos preparando.'),
+                : match (true) {
+                    $invitation->status === 'active' => 'El enlace venció: escríbenos para renovarlo.',
+                    // El revendedor la arma él mismo: la publica desde su editor
+                    $forReseller => 'Todavía sin publicar: publícala desde el editor.',
+                    default => 'Todavía sin publicar: la estamos preparando.',
+                },
             'metrics' => $isCard ? $this->cardMetrics($invitation) : $this->guestMetrics($guests),
             'guestsCount' => $guests->count(),
         ];

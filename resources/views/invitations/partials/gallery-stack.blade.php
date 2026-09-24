@@ -57,7 +57,7 @@
                 </div>
 
                 @if($galleryCount > 1)
-                    <p class="inv-gallery__hint" :class="{ 'is-hidden': interacted }">Desliza la foto hacia un lado para ver la siguiente</p>
+                    <p class="inv-gallery__hint" :class="{ 'is-hidden': interacted }">{{ $invCopy['gallery_hint'] ?? 'Desliza la foto hacia un lado para ver la siguiente' }}</p>
 
                     <div class="inv-gallery__nav">
                         <button type="button" class="inv-gallery__arrow" @click="swipePrev()" aria-label="Foto anterior">
@@ -73,7 +73,7 @@
                 @endif
             </div>
         @else
-            <p class="inv-empty">Pronto compartiremos aquí las fotos.</p>
+            <p class="inv-empty">{{ $invCopy['gallery_empty'] ?? 'Pronto compartiremos aquí las fotos.' }}</p>
         @endif
     </div>
 </section>

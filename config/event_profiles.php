@@ -3,6 +3,9 @@
 use App\EventProfiles\AdventureBookProfile;
 use App\EventProfiles\BaptismProfile;
 use App\EventProfiles\BirthdayProfile;
+use App\EventProfiles\CanvasProfile;
+use App\EventProfiles\GraduationProfile;
+use App\EventProfiles\HalloweenProfile;
 use App\EventProfiles\LoveCardProfile;
 use App\EventProfiles\StoryCardProfile;
 use App\EventProfiles\WeddingProfile;
@@ -24,6 +27,11 @@ return [
     WeddingProfile::class,
     BaptismProfile::class,
     BirthdayProfile::class,
+    GraduationProfile::class,
+    // Plantilla en blanco para cualquier evento
+    CanvasProfile::class,
+    // Invitaciones de temporada
+    HalloweenProfile::class,
     // Tarjetas estacionales
     LoveCardProfile::class,
     AdventureBookProfile::class,

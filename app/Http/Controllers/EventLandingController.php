@@ -32,9 +32,9 @@ class EventLandingController extends Controller
             'contactUrl' => $whatsapp($page['whatsapp']),
             'packages' => HomeController::packages($bida['packages'], $whatsapp),
             'fromPrice' => Offers::lowestPackagePrice(),
-            // Las tarjetas de temporada se venden a su precio mientras dure la temporada
-            'season' => ($page['kind'] ?? null) === 'card' ? HomeController::season($request) : null,
-            'demos' => ShowcaseDemos::find(self::demoSlugs($page)),
+            // Lo de temporada (tarjetas, Halloween) se vende a su precio mientras dure su temporada
+            'season' => self::isSeasonal($page) ? self::seasonFor($landing, HomeController::seasons($request)) : null,
+            'demos' => ShowcaseDemos::find(self::demoSlugs($page, $landing)),
             'landings' => HomeController::landingLinks(),
             'share' => ShareMeta::make(
                 $page['title'],
@@ -45,12 +45,29 @@ class EventLandingController extends Controller
         ]);
     }
 
-    /** Muestras de la página: las suyas o, en las tarjetas, las de la temporada. */
-    public static function demoSlugs(array $page): array
+    /** Páginas que se venden por temporada, sin paquetes: las tarjetas y las invitaciones de temporada. */
+    public static function isSeasonal(array $page): bool
     {
-        return ($page['kind'] ?? null) === 'card'
-            ? ($page['demos'] ?? config('bida.season.templates') ?? [])
-            : ($page['demos'] ?? []);
+        return in_array($page['kind'] ?? null, ['card', 'season'], true);
+    }
+
+    /**
+     * La temporada de esta página, si hoy se vende: cada página muestra solo el precio de su
+     * temporada (la de Halloween no depende de que el Día del Amor esté encendido, ni al revés).
+     */
+    private static function seasonFor(string $landing, array $seasons): ?array
+    {
+        return collect($seasons)->firstWhere('landing', $landing);
+    }
+
+    /** Muestras de la página: las suyas o, en las de temporada, las de la temporada que la tiene de página. */
+    public static function demoSlugs(array $page, ?string $landing = null): array
+    {
+        if (isset($page['demos']) || ! self::isSeasonal($page)) {
+            return $page['demos'] ?? [];
+        }
+
+        return collect(config('bida.seasons', []))->firstWhere('landing', $landing)['templates'] ?? [];
     }
 
     /** Mapa del sitio con las páginas públicas que sí deben aparecer en buscadores. */

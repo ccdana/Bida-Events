@@ -313,7 +313,7 @@ function invitationForm(config) {
         fontOptions: {
             titulos: [
                 'Playfair Display', 'Cormorant Garamond', 'Cinzel', 'Libre Baskerville',
-                'Bodoni Moda', 'Prata', 'Lora', 'Merriweather', 'Fredoka',
+                'Bodoni Moda', 'Prata', 'Lora', 'Merriweather', 'Fredoka', 'Inter',
             ],
             cuerpo: [
                 'Montserrat', 'Inter', 'Lato', 'Nunito Sans', 'Source Sans 3',
@@ -321,7 +321,7 @@ function invitationForm(config) {
             ],
             script: [
                 'Great Vibes', 'Parisienne', 'Alex Brush', 'Dancing Script',
-                'Sacramento', 'Allura', 'Tangerine', 'Petit Formal Script',
+                'Sacramento', 'Allura', 'Tangerine', 'Petit Formal Script', 'Creepster', 'Cinzel', 'Inter',
             ],
         },
 
@@ -533,6 +533,7 @@ function invitationForm(config) {
         init() {
             this.ensureStructure();
             this.normalizeMetaSelects();
+            this.syncEventTypeWithTemplate();
             this.initEventDateFields();
             this.syncActiveGroup();
             this.$watch('meta.template', v => {
@@ -541,6 +542,9 @@ function invitationForm(config) {
             });
             this.$watch('modules', () => this.schedulePreview(), { deep: true });
             this.$watch('meta', () => this.schedulePreview(), { deep: true });
+            // La vista previa sigue a la pestaña: al cambiar de módulo (o al recargarse) salta a su sección
+            this.$watch('activeTab', () => this.focusPreviewSection(true));
+            this.$nextTick(() => this.$refs.previewFrame?.addEventListener('load', () => this.focusPreviewSection(false)));
             this.$watch('modules.ubicacion.lat', () => this.syncLocationMarker());
             this.$watch('modules.ubicacion.lng', () => this.syncLocationMarker());
             this.$watch('cropperScale', (value, oldValue) => {
@@ -602,6 +606,8 @@ function invitationForm(config) {
             m.config ??= { colores: {}, tipografias: {}, modulos: {}, template: this.meta.template };
             m.config.colores ??= {};
             m.config.tipografias ??= {};
+            // PHP manda [] cuando no hay textos propios: aquí tiene que ser un objeto clave → texto
+            m.config.textos = m.config.textos && typeof m.config.textos === 'object' && !Array.isArray(m.config.textos) ? { ...m.config.textos } : {};
             m.config.modulos = {
                 ...this.defaultModuleVisibility(),
                 ...m.config.modulos,
@@ -709,6 +715,23 @@ function invitationForm(config) {
 
         plainModule(code) {
             return this.plainModuleValue(this.modules?.[code]);
+        },
+
+        /** Textos editables del apartado abierto: los del módulo o, en «General», los de toda la invitación. */
+        activeTextFields() {
+            const byTemplate = this.config.editableTexts?.[String(this.meta.template ?? '')] ?? {};
+            if (this.activeTab === 'general') return byTemplate.general ?? [];
+            const tab = this.tabGroups.flatMap(g => g.tabs).find(item => item.id === this.activeTab);
+            return tab?.moduleCode ? (byTemplate[tab.moduleCode] ?? []) : [];
+        },
+
+        customTextsCount() {
+            return this.activeTextFields().filter(field => (this.modules.config.textos[field.key] ?? '').trim() !== '').length;
+        },
+
+        resetTexts() {
+            for (const field of this.activeTextFields()) delete this.modules.config.textos[field.key];
+            this.modules.config.textos = { ...this.modules.config.textos };
         },
 
         moduleToJson(code) {
@@ -843,6 +866,40 @@ function invitationForm(config) {
                 agendar: false,
                 post_evento: false,
             };
+        },
+
+        /**
+         * Sección de la vista previa que corresponde a la pestaña abierta: la del módulo (sus ids son
+         * el código con guiones: dress_code → #dress-code) o la portada para General, Estética y el banner.
+         */
+        previewSectionId() {
+            const tab = this.tabGroups.flatMap(group => group.tabs).find(item => item.id === this.activeTab);
+            const code = tab?.moduleCode;
+
+            return !code || code === 'bienvenida' ? 'inicio' : code.replaceAll('_', '-');
+        },
+
+        /** Lleva la vista previa a la sección que se está editando y, al cambiar de pestaña, la marca un momento. */
+        focusPreviewSection(smooth = true) {
+            const doc = this.$refs.previewFrame?.contentDocument;
+            if (!doc || !doc.body) return;
+
+            const section = doc.getElementById(this.previewSectionId());
+            if (!section) return;
+
+            // Solo se desplaza la invitación dentro del marco: scrollIntoView movería también el editor
+            // y el campo donde se está escribiendo se iría de la pantalla
+            const view = doc.defaultView;
+            view.scrollTo({ top: section.getBoundingClientRect().top + view.scrollY, behavior: smooth ? 'smooth' : 'auto' });
+
+            // En cada recarga por tipear no se marca: distraería
+            if (!smooth) return;
+
+            section.style.transition = 'outline-color 0.6s ease';
+            section.style.outline = '3px dashed rgba(201, 169, 110, 0.9)';
+            section.style.outlineOffset = '-6px';
+            clearTimeout(this.previewFocusTimer);
+            this.previewFocusTimer = setTimeout(() => { section.style.outlineColor = 'transparent'; }, 1400);
         },
 
         schedulePreview() {
@@ -1078,6 +1135,11 @@ function invitationForm(config) {
 
             if (this.config.isCreate) {
                 this.modules.config.modulos = { ...this.modules.config.modulos, ...this.defaultModuleVisibility() };
+
+                // Una invitación nueva nace con los colores y las letras de su plantilla (Lienzo: blanco y negro)
+                const option = this.templateOptions.find(item => item.value === String(this.meta.template ?? ''));
+                if (option?.palette) Object.assign(this.modules.config.colores, option.palette);
+                if (option?.fonts) Object.assign(this.modules.config.tipografias, option.fonts);
             }
 
             if (!this.tabGroups.some(group => group.tabs.some(tab => tab.id === this.activeTab))) {
@@ -1094,6 +1156,43 @@ function invitationForm(config) {
             if ((this.profile.kind ?? 'invitation') === kind) return;
             const first = this.templatesOfKind(kind)[0];
             if (first) this.meta.template = first.value;
+        },
+
+        get selectedEventType() {
+            const id = String(this.meta.event_type_id ?? '');
+            return this.eventTypes.find(type => String(type.id) === id) ?? null;
+        },
+
+        /** Tipos de evento del producto elegido que tienen al menos una plantilla disponible. */
+        eventTypesOfKind(kind) {
+            return this.eventTypes.filter(type => (type.kind ?? 'invitation') === kind
+                && (!type.code || this.templateOptions.some(option => option.event === type.code)));
+        },
+
+        /** Plantillas del tipo de evento elegido (un tipo sin código ve todas las de su producto). */
+        templatesForEventType() {
+            const code = this.selectedEventType?.code;
+            return code
+                ? this.templateOptions.filter(option => option.event === code)
+                : this.templatesOfKind(this.profile.kind ?? 'invitation');
+        },
+
+        /** Al cambiar el tipo de evento, la plantilla pasa a la primera de ese evento si la actual no le corresponde. */
+        chooseEventType(type) {
+            this.meta.event_type_id = String(type.id);
+            const current = this.templateOptions.find(option => option.value === String(this.meta.template ?? ''));
+
+            if (type.code && current?.event !== type.code) {
+                const first = this.templateOptions.find(option => option.event === type.code);
+                if (first) this.meta.template = first.value;
+            }
+        },
+
+        /** Invitaciones guardadas con un tipo que no es el de su plantilla: se corrige al abrir el editor. */
+        syncEventTypeWithTemplate() {
+            if (this.selectedEventType?.code === this.profile.code) return;
+            const type = this.eventTypes.find(item => item.code === this.profile.code);
+            if (type) this.meta.event_type_id = String(type.id);
         },
 
         getEventTypeName() {

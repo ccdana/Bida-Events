@@ -37,6 +37,16 @@
         </ul>
     </div>
 
+    {{-- Profesionales y páginas legales: en todas las páginas del sitio --}}
+    <nav class="mx-auto flex max-w-7xl flex-wrap gap-x-6 gap-y-2 border-t border-site-line px-5 py-6 text-sm text-site-muted lg:px-8" aria-label="Más información">
+        @unless(isset($navLinks[route('professionals')]))
+            <a href="{{ route('professionals') }}" class="site-nav-link font-medium text-site-ink">Para profesionales</a>
+        @endunless
+        @foreach(\App\Support\LegalPages::links() as $legalLink)
+            <a href="{{ $legalLink['url'] }}" class="site-nav-link hover:text-site-ink">{{ $legalLink['label'] }}</a>
+        @endforeach
+    </nav>
+
     @if(count($landings ?? []))
         {{-- Enlazado interno: ayuda a que los buscadores encuentren cada página por evento --}}
         <nav class="mx-auto max-w-7xl border-t border-site-line px-5 py-6 text-sm text-site-muted lg:px-8" aria-label="Invitaciones por evento">

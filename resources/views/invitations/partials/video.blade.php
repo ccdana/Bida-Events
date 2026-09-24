@@ -2,7 +2,7 @@
     <div class="inv-wrap inv-wrap--wide">
         @include('invitations.partials.section-header', [
             'lottie' => 'video',
-            'eyebrow' => 'Save the date',
+            'eyebrow' => $invCopy['video_eyebrow'] ?? 'Save the date',
             'title' => $video['titulo'] ?? 'Nuestro video',
         ])
 
@@ -40,9 +40,9 @@
                     <span class="inv-video__toggle-icon" aria-hidden="true"></span>
                 </button>
             </figure>
-            <p class="inv-help inv-video__help">Toca el video para reproducirlo y sube el volumen de tu teléfono.</p>
+            <p class="inv-help inv-video__help">{{ $invCopy['video_help'] ?? 'Toca el video para reproducirlo y sube el volumen de tu teléfono.' }}</p>
         @else
-            <p class="inv-empty">Muy pronto compartiremos el video.</p>
+            <p class="inv-empty">{{ $invCopy['video_empty'] ?? 'Muy pronto compartiremos el video.' }}</p>
         @endif
     </div>
 </section>

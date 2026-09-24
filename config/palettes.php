@@ -55,6 +55,10 @@ return [
     ['name' => 'Arena y tinta', 'description' => 'Neutro cálido, para cualquier evento', 'mode' => 'light', 'events' => [], 'colors' => ['primary' => '#6E6257', 'secondary' => '#38312A', 'accent' => '#EDE6DB', 'text' => '#2B2620', 'background' => '#FAF7F2']],
     ['name' => 'Jade suave', 'description' => 'Verde jade y blanco roto', 'mode' => 'light', 'events' => [], 'colors' => ['primary' => '#2F7A6B', 'secondary' => '#1B3D37', 'accent' => '#DCEFEA', 'text' => '#1C2E2A', 'background' => '#F5FAF9']],
 
+    ['name' => 'Toga y oro', 'description' => 'Azul noche con dorado de medalla', 'mode' => 'light', 'events' => ['graduacion'], 'colors' => ['primary' => '#8A6A22', 'secondary' => '#1B2A4A', 'accent' => '#E6E0CF', 'text' => '#18213A', 'background' => '#FAF8F2']],
+    ['name' => 'Borla verde', 'description' => 'Verde institucional y marfil', 'mode' => 'light', 'events' => ['graduacion'], 'colors' => ['primary' => '#2F6B4F', 'secondary' => '#1E3B2E', 'accent' => '#DCEBE2', 'text' => '#1B2C24', 'background' => '#F6FAF7']],
+    ['name' => 'Papel y tinta', 'description' => 'Blanco puro y negro, sin adornos', 'mode' => 'light', 'events' => ['lienzo'], 'colors' => ['primary' => '#1F1F1F', 'secondary' => '#555555', 'accent' => '#EDEDED', 'text' => '#0F0F0F', 'background' => '#FCFCFC']],
+    ['name' => 'Grafito', 'description' => 'Grises suaves y un azul de acento', 'mode' => 'light', 'events' => ['lienzo'], 'colors' => ['primary' => '#2D5B8C', 'secondary' => '#3A3F47', 'accent' => '#E7EAEE', 'text' => '#1D2127', 'background' => '#F8F9FA']],
     // ── Fondo oscuro ────────────────────────────────────────────────────────
     ['name' => 'Gala de medianoche', 'description' => 'Negro profundo con oro', 'mode' => 'night', 'events' => ['xv', 'boda', 'cumple'], 'colors' => ['primary' => '#D4AF37', 'secondary' => '#1A1814', 'accent' => '#3D3528', 'text' => '#F5F0E6', 'background' => '#0D0C0A']],
     ['name' => 'Esmeralda de noche', 'description' => 'Verde profundo con luz dorada', 'mode' => 'night', 'events' => ['boda'], 'colors' => ['primary' => '#7EC9A0', 'secondary' => '#0F1F18', 'accent' => '#1A3D2E', 'text' => '#E0F2E9', 'background' => '#051510']],
@@ -69,4 +73,8 @@ return [
     ['name' => 'Zafiro medianoche', 'description' => 'Azul noche refinado', 'mode' => 'night', 'events' => [], 'colors' => ['primary' => '#7EB8DA', 'secondary' => '#0E1A2B', 'accent' => '#1E3A5F', 'text' => '#E3EEF8', 'background' => '#060D18']],
     ['name' => 'Gala amatista', 'description' => 'Púrpura lujoso', 'mode' => 'night', 'events' => [], 'colors' => ['primary' => '#B8A0D8', 'secondary' => '#1A1428', 'accent' => '#352850', 'text' => '#EDE6F8', 'background' => '#0A0812']],
 
+    ['name' => 'Calabaza y luna', 'description' => 'Naranja encendido sobre noche violeta', 'mode' => 'night', 'events' => ['halloween'], 'colors' => ['primary' => '#FF9A3C', 'secondary' => '#5E3A99', 'accent' => '#2E2440', 'text' => '#F6F0E8', 'background' => '#16111F']],
+    ['name' => 'Bosque encantado', 'description' => 'Verde ácido y negro de medianoche', 'mode' => 'night', 'events' => ['halloween'], 'colors' => ['primary' => '#A6E05A', 'secondary' => '#4B2A6B', 'accent' => '#22301E', 'text' => '#EEF4E6', 'background' => '#0E130C']],
+    ['name' => 'Birrete de noche', 'description' => 'Azul profundo y dorado', 'mode' => 'night', 'events' => ['graduacion'], 'colors' => ['primary' => '#E0BE6A', 'secondary' => '#101A30', 'accent' => '#1F2C4A', 'text' => '#F2EEE4', 'background' => '#0B1222']],
+    ['name' => 'Tinta sobre negro', 'description' => 'Negro y blanco, al revés', 'mode' => 'night', 'events' => ['lienzo'], 'colors' => ['primary' => '#F2F2F2', 'secondary' => '#BDBDBD', 'accent' => '#262626', 'text' => '#F7F7F7', 'background' => '#0D0D0D']],
 ];
