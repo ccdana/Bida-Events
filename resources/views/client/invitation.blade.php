@@ -93,7 +93,7 @@
 
     @unless($isCard)
         @can('manageOwnGuests', $invitation)
-            @if(\App\Support\Packages::allows($invitation->package, 'door'))
+            @if(\App\Support\Packages::allowsFor($invitation, 'door'))
                 @include('client.partials.door', ['doorStats' => \App\Http\Controllers\Public\DoorController::stats($invitation)])
             @endif
         @endcan

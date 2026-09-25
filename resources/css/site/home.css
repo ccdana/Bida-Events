@@ -415,38 +415,59 @@ a:hover > .site-link-arrow svg,
 /* ── Probar como invitado ───────────────────────────────────────────────── */
 
 .site-tester {
-    padding: 4.5rem 0;
+    padding: 4rem 0;
     border-top: 1px solid var(--site-line);
     background: var(--site-surface);
 }
 
 @media (min-width: 1024px) {
     .site-tester {
-        padding: 7rem 0;
+        padding: 5.5rem 0;
     }
 }
 
-.site-tester__head,
-.site-tester__body {
-    max-width: 80rem;
+/* Dos columnas en pantallas anchas: diseños y descripción a la izquierda, el teléfono a la derecha.
+   En el celular va todo en una columna: título, fichas que se deslizan, teléfono y descripción. */
+.site-tester__layout {
+    display: grid;
+    gap: 2rem;
+    max-width: 76rem;
     margin-inline: auto;
     padding-inline: 1.25rem;
 }
 
 @media (min-width: 1024px) {
-    .site-tester__head,
-    .site-tester__body {
+    .site-tester__layout {
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 4.5rem;
         padding-inline: 2rem;
     }
 }
 
-/* Fichas que se deslizan con el dedo; en pantallas anchas se acomodan en filas */
+.site-tester__side {
+    display: contents;
+}
+
+@media (min-width: 1024px) {
+    .site-tester__side {
+        display: grid;
+        gap: 2rem;
+        align-content: center;
+    }
+}
+
+.site-tester__head {
+    order: 0;
+}
+
+/* Fichas que se deslizan con el dedo; en pantallas anchas, una grilla de dos columnas */
 .site-tester__picker {
+    order: 1;
     display: flex;
     gap: 0.6rem;
-    max-width: 80rem;
-    margin: 2rem auto 0;
-    padding: 0.25rem 1.25rem 0.75rem;
+    margin-inline: -1.25rem;
+    padding: 0.25rem 1.25rem 0.5rem;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     scroll-padding-inline: 1.25rem;
@@ -460,18 +481,21 @@ a:hover > .site-link-arrow svg,
 
 @media (min-width: 1024px) {
     .site-tester__picker {
-        flex-wrap: wrap;
-        padding-inline: 2rem;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        margin: 0;
+        padding: 0;
         overflow: visible;
     }
 }
 
 .site-chip {
-    display: grid;
+    display: flex;
     flex-shrink: 0;
-    gap: 0.1rem;
-    min-width: 9.5rem;
-    padding: 0.7rem 1.1rem;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 11rem;
+    padding: 0.7rem 1rem 0.7rem 0.7rem;
     border: 1px solid var(--site-line);
     border-radius: 16px;
     background: var(--site-bg);
@@ -480,11 +504,28 @@ a:hover > .site-link-arrow svg,
     text-align: left;
     scroll-snap-align: start;
     cursor: pointer;
-    transition: border-color 0.25s ease, background 0.25s ease, color 0.25s ease;
+    transition: border-color 0.25s ease, background 0.25s ease, color 0.25s ease, translate 0.25s var(--site-ease);
+}
+
+.site-chip__icon {
+    display: grid;
+    place-items: center;
+    width: 2.3rem;
+    height: 2.3rem;
+    flex-shrink: 0;
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--site-accent) 14%, transparent);
+    color: var(--site-accent);
+}
+
+.site-chip__icon svg {
+    width: 1.15rem;
+    height: 1.15rem;
 }
 
 .site-chip__event {
-    font-size: 0.72rem;
+    display: block;
+    font-size: 0.68rem;
     font-weight: 600;
     letter-spacing: 0.1em;
     text-transform: uppercase;
@@ -492,12 +533,22 @@ a:hover > .site-link-arrow svg,
 }
 
 .site-chip__name {
-    font-size: 1rem;
+    display: block;
+    overflow: hidden;
+    font-size: 0.98rem;
     font-weight: 500;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 .site-chip:hover {
     border-color: var(--site-ink);
+}
+
+@media (hover: hover) {
+    .site-chip:hover {
+        translate: 0 -2px;
+    }
 }
 
 .site-chip.is-active {
@@ -510,42 +561,35 @@ a:hover > .site-link-arrow svg,
     color: color-mix(in srgb, var(--site-bg) 70%, transparent);
 }
 
+.site-chip.is-active .site-chip__icon {
+    background: color-mix(in srgb, var(--site-bg) 16%, transparent);
+    color: var(--site-bg);
+}
+
 .site-chip:focus-visible {
     outline: 2px solid var(--site-accent);
     outline-offset: 2px;
 }
 
-.site-tester__body {
-    display: grid;
-    gap: 2rem;
-    margin-top: 1.5rem;
-}
-
-@media (min-width: 1024px) {
-    .site-tester__body {
-        grid-template-columns: auto 1fr;
-        align-items: center;
-        gap: 5rem;
-        margin-top: 2.5rem;
-    }
-}
-
 .site-tester__device {
+    order: 2;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+}
+
+.site-tester__info {
+    order: 3;
 }
 
 .site-tester__name {
-    margin-top: 0.5rem;
     font-family: var(--font-serif);
-    font-size: clamp(2rem, 6vw, 2.8rem);
-    font-weight: 400;
-    line-height: 1.05;
+    font-size: 1.25em;
+    color: var(--site-ink);
 }
 
 .site-tester__text {
-    max-width: 48ch;
-    margin-top: 0.75rem;
+    max-width: 52ch;
     line-height: 1.65;
     color: var(--site-muted);
 }
@@ -555,7 +599,7 @@ a:hover > .site-link-arrow svg,
     flex-wrap: wrap;
     align-items: center;
     gap: 1rem 1.5rem;
-    margin-top: 1.5rem;
+    margin-top: 1.25rem;
 }
 
 .site-tester__hint {
@@ -563,20 +607,14 @@ a:hover > .site-link-arrow svg,
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    margin-top: 1.5rem;
-    font-size: 0.9rem;
+    margin-top: 1rem;
+    font-size: 0.85rem;
     color: var(--site-muted);
 }
 
 .site-tester__hint svg {
-    width: 1.1rem;
-    height: 1.1rem;
-}
-
-@media (min-width: 1024px) {
-    .site-tester__hint {
-        justify-content: flex-start;
-    }
+    width: 1.05rem;
+    height: 1.05rem;
 }
 
 /* ── Qué incluye ────────────────────────────────────────────────────────── */

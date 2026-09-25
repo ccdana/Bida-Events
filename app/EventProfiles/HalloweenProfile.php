@@ -26,7 +26,7 @@ class HalloweenProfile extends EventProfile
     public function modules(): array
     {
         return [
-            'bienvenida', 'ubicacion', 'itinerario', 'rsvp', 'dress_code', 'playlist', 'encuestas',
+            'bienvenida', 'ubicacion', 'itinerario', 'rsvp', 'rsvp_whatsapp', 'dress_code', 'playlist', 'encuestas',
             'galeria', 'video', 'musica', 'hashtag', 'destacados', 'regalos', 'cuenta_regresiva',
             'agendar', 'fotomural', 'post_evento',
         ];

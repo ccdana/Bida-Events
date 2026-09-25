@@ -72,6 +72,7 @@ class InvitationEditorViewData
                 clientList: $clientList,
                 itineraryIcons: $itineraryIcons,
                 context: $context,
+                owner: $owner,
             ),
             'isCreate' => $isCreate,
             'editorMode' => $context,
@@ -87,6 +88,7 @@ class InvitationEditorViewData
         Collection $clientList,
         array $itineraryIcons,
         string $context = self::ADMIN,
+        ?User $owner = null,
     ): array {
         $urls = $this->urls($context);
 
@@ -160,6 +162,9 @@ class InvitationEditorViewData
             'packageOptions' => collect(config('bida.packages', []))->map(fn (array $package) => ['value' => $package['key'], 'label' => $package['name'], 'hint' => $package['summary'] ?? ''])->values(),
             'packageOrder' => Packages::ORDER,
             'packageModules' => Packages::MODULES,
+            // Revendedor: la confirmación que trae su plan (whatsapp, pass) y desde qué plan viene cada una
+            'planRsvp' => $context === self::RESELLER ? array_values((array) ($owner?->planConfig()['rsvp'] ?? [])) : null,
+            'planRsvpTiers' => $context === self::RESELLER ? self::rsvpTiers() : null,
             // Textos editables de cada plantilla, agrupados por módulo, con el valor que trae la plantilla
             'editableTexts' => $templates->keys()->mapWithKeys(fn ($value) => [$value => EditableTexts::forTemplate($value)]),
             'cloudinaryConfigured' => $this->mediaUpload->isCloudinaryConfigured(),
@@ -168,6 +173,15 @@ class InvitationEditorViewData
             'previewKey' => InvitationPreviewSession::keyFor($invitation),
             'previewRevision' => $invitation?->updated_at?->timestamp ?? 0,
         ];
+    }
+
+    /** Primer plan de revendedor que trae cada confirmación, para el aviso «Viene en el plan…». */
+    private static function rsvpTiers(): array
+    {
+        $plans = collect(config('bida.reseller_plans', []));
+        $first = fn (string $mode) => $plans->first(fn (array $plan) => in_array($mode, (array) ($plan['rsvp'] ?? []), true))['name'] ?? null;
+
+        return ['rsvp_whatsapp' => $first('whatsapp'), 'rsvp' => $first('pass')];
     }
 
     /**

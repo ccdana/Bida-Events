@@ -16,7 +16,7 @@ class RsvpController extends Controller
         $invitation = Invitation::where('slug', $slug)->published()->firstOrFail();
 
         // La respuesta con pase es del paquete Premium; en Estándar se confirma por WhatsApp
-        abort_unless(Packages::rsvpMode($invitation->package) === Packages::RSVP_PASS, 404);
+        abort_unless(Packages::allowsFor($invitation, 'rsvp_pass'), 404);
 
         $guest = Guest::where('invitation_id', $invitation->id)
             ->where('qr_code_token', $token)

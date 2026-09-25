@@ -273,7 +273,9 @@ function invitationForm(config) {
                     { id: 'hashtag', label: 'Hashtag', moduleCode: 'hashtag', hint: 'Etiqueta para compartir fotos' },
                     { id: 'encuestas', label: 'Encuestas', moduleCode: 'encuestas', hint: 'Preguntas con votación' },
                     { id: 'regalos', label: 'Regalos', moduleCode: 'regalos', hint: 'Transferencia, tienda y sobres' },
-                    { id: 'rsvp', label: 'RSVP', moduleCode: 'rsvp', hint: 'Confirmación y pase con QR' },
+                    // Dos formas de confirmar; una invitación usa una sola (encender una apaga la otra)
+                    { id: 'rsvp_whatsapp', label: 'Confirmación por WhatsApp', moduleCode: 'rsvp_whatsapp', hint: 'Te llega la respuesta de cada invitado' },
+                    { id: 'rsvp', label: 'Confirmación con pase QR', moduleCode: 'rsvp', hint: 'Respuesta guardada y pase de entrada' },
                 ],
             },
             {
@@ -439,8 +441,8 @@ function invitationForm(config) {
             }
 
             switch (tabId) {
-                case 'rsvp':
-                    return this.rsvpMode === 'whatsapp' && (String(m.rsvp?.whatsapp ?? '').replace(/\D+/g, '').length < 8)
+                case 'rsvp_whatsapp':
+                    return String(m.rsvp_whatsapp?.whatsapp ?? '').replace(/\D+/g, '').length < 8
                         ? ['Falta el WhatsApp que recibe las confirmaciones'] : [];
 
                 case 'general':
@@ -581,7 +583,11 @@ function invitationForm(config) {
             this.$watch('meta.template', v => {
                 if (this.modules.config) this.modules.config.template = v;
                 this.applyProfile();
+                this.normalizeRsvp();
             });
+            // Al cambiar de paquete, la confirmación pasa a la que ese paquete incluye
+            this.$watch('meta.package', () => this.normalizeRsvp());
+            this.normalizeRsvp();
             this.$watch('modules', () => this.schedulePreview(), { deep: true });
             this.$watch('meta', () => this.schedulePreview(), { deep: true });
             // La vista previa sigue a la pestaña: al cambiar de módulo (o al recargarse) salta a su sección
@@ -637,7 +643,7 @@ function invitationForm(config) {
                 m.bienvenida.nombre = m.bienvenida.nombre_quinceanera ?? '';
             }
 
-            const objectModules = ['musica', 'video', 'playlist', 'hashtag', 'post_evento', 'rsvp', 'dedicatoria', 'juntos_desde', 'respuesta', 'relato'];
+            const objectModules = ['musica', 'video', 'playlist', 'hashtag', 'post_evento', 'rsvp', 'rsvp_whatsapp', 'dedicatoria', 'juntos_desde', 'respuesta', 'relato'];
             for (const code of objectModules) {
                 m[code] = {
                     ...this.plainModuleValue(m[code]),
@@ -732,6 +738,7 @@ function invitationForm(config) {
             m.regalos.opciones = Array.isArray(m.regalos.opciones) ? m.regalos.opciones : [];
             m.post_evento ??= {};
             m.rsvp ??= {};
+            m.rsvp_whatsapp ??= {};
             (m.encuestas.preguntas || []).forEach(poll => this.ensurePollDefaults(poll));
         },
 
@@ -879,8 +886,13 @@ function invitationForm(config) {
         },
 
         // ── Paquete (App\Support\Packages): qué módulos incluye el paquete elegido ──
-        // Sin paquete (tarjetas, revendedores, anteriores) todo está incluido.
+        // Sin paquete (tarjetas y anteriores) todo está incluido. Al revendedor, la confirmación
+        // (WhatsApp o pase QR) se la da su plan: config.planRsvp.
         packageIncludes(moduleCode) {
+            const rsvpMode = { rsvp: 'pass', rsvp_whatsapp: 'whatsapp' }[moduleCode];
+            if (rsvpMode && Array.isArray(this.config.planRsvp)) {
+                return this.config.planRsvp.includes(rsvpMode);
+            }
             const order = this.config.packageOrder ?? [];
             const chosen = order.indexOf(this.meta.package ?? '');
             if (chosen < 0) return true;
@@ -895,21 +907,39 @@ function invitationForm(config) {
         /** «Viene en Premium»: para las secciones que el paquete elegido no incluye. */
         packageLockLabel(tab) {
             if (!tab.moduleCode || this.packageIncludes(tab.moduleCode)) return '';
+            if (Array.isArray(this.config.planRsvp)) return 'Viene en el plan ' + (this.config.planRsvpTiers?.[tab.moduleCode] ?? 'superior');
             return 'Viene en ' + (this.packageName(this.config.packageModules?.[tab.moduleCode]) || 'otro paquete');
         },
 
-        /** Cómo confirma el invitado con el paquete elegido: 'pass', 'whatsapp' o null. */
+        /** Cómo confirma el invitado: 'whatsapp', 'pass' o null, según el módulo encendido y lo que incluye el paquete. */
         get rsvpMode() {
-            const order = this.config.packageOrder ?? [];
-            const chosen = order.indexOf(this.meta.package ?? '');
-            if (chosen < 0 || chosen >= order.indexOf('premium')) return 'pass';
-            return chosen >= order.indexOf('estandar') ? 'whatsapp' : null;
+            const flags = this.modules.config?.modulos ?? {};
+            if (flags.rsvp_whatsapp && this.packageIncludes('rsvp_whatsapp')) return 'whatsapp';
+            if (flags.rsvp && this.packageIncludes('rsvp')) return 'pass';
+            return null;
+        },
+
+        /**
+         * Una sola confirmación encendida y, si el paquete no incluye el pase QR pero sí WhatsApp,
+         * la confirmación pasa a WhatsApp (p. ej. una invitación nueva en Estándar).
+         */
+        normalizeRsvp() {
+            const flags = this.modules.config?.modulos;
+            if (!flags) return;
+            if (flags.rsvp && !this.packageIncludes('rsvp') && this.packageIncludes('rsvp_whatsapp')) {
+                flags.rsvp = false;
+                flags.rsvp_whatsapp = true;
+            }
+            if (flags.rsvp && flags.rsvp_whatsapp) flags.rsvp = false;
         },
 
         toggleModuleForTab(tab) {
             if (!tab.moduleCode || !this.packageIncludes(tab.moduleCode)) return;
             const enabled = !this.modules.config.modulos[tab.moduleCode];
             this.modules.config.modulos[tab.moduleCode] = enabled;
+            // Encender una confirmación apaga la otra
+            const other = { rsvp: 'rsvp_whatsapp', rsvp_whatsapp: 'rsvp' }[tab.moduleCode];
+            if (enabled && other) this.modules.config.modulos[other] = false;
             this.onModuleToggle(tab.moduleCode, enabled);
         },
 
@@ -933,6 +963,7 @@ function invitationForm(config) {
                 playlist: false,
                 regalos: false,
                 rsvp: false,
+                rsvp_whatsapp: false,
                 fotomural: false,
                 cuenta_regresiva: false,
                 agendar: false,

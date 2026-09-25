@@ -1,18 +1,11 @@
 <div x-show="activeTab === 'rsvp'" x-cloak class="space-y-2">
     @include('admin.partials.panel-intro', [
-        'eyebrow' => 'RSVP',
-        'title' => 'Confirmación de asistencia',
-        'description' => 'responde en pasos (¿asistirás?, ¿cuántas personas?). En Premium la respuesta queda guardada y recibe un pase con código QR (solo en su enlace personal); en Estándar se abre WhatsApp con su respuesta lista para el número de abajo.',
-        'tip' => 'Con pase QR, la vista previa no muestra el formulario porque no hay un invitado seleccionado: revísalo con el enlace de un invitado desde «Invitados».',
+        'eyebrow' => 'Confirmación',
+        'title' => 'Confirmación con pase QR',
+        'description' => 'responde en pasos (¿asistirás?, ¿cuántas personas?), la respuesta queda guardada en tu lista de invitados y recibe un pase con código QR para la entrada (solo en su enlace personal).',
+        'tip' => 'Es una de las dos formas de confirmar: si la enciendes, se apaga la confirmación por WhatsApp. La vista previa no muestra el formulario porque no hay un invitado seleccionado: revísalo con el enlace de un invitado.',
         'moduleKey' => 'rsvp',
     ])
-
-    {{-- Paquete Estándar: a quién le llegan las respuestas --}}
-    <section class="admin-card p-3 space-y-2" x-show="rsvpMode === 'whatsapp'" x-cloak>
-        <label for="rsvp-whatsapp" class="admin-label">WhatsApp que recibe las confirmaciones</label>
-        <input id="rsvp-whatsapp" type="tel" inputmode="tel" x-model="modules.rsvp.whatsapp" @input="schedulePreview()" class="admin-input" placeholder="Ej. 59171234567">
-        <p class="text-xs text-site-muted">Con código de país y sin espacios. Normalmente, el de quien organiza el evento.</p>
-    </section>
 
     <section class="admin-card p-3 space-y-3">
         <div class="grid gap-2">

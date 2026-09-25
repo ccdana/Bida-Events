@@ -24,6 +24,7 @@ use App\Modules\Invitation\PlaylistModule;
 use App\Modules\Invitation\PollsModule;
 use App\Modules\Invitation\PostEventModule;
 use App\Modules\Invitation\RsvpModule;
+use App\Modules\Invitation\RsvpWhatsappModule;
 use App\Modules\Invitation\ToggleModule;
 use App\Modules\Invitation\VideoModule;
 
@@ -57,6 +58,8 @@ return [
         GiftsModule::class,
         PostEventModule::class,
         RsvpModule::class,
+        // La otra forma de confirmar: solo una de las dos puede estar encendida
+        RsvpWhatsappModule::class,
         // Solo se encienden o apagan: su contenido sale de la fecha o de los invitados
         [ToggleModule::class, 'cuenta_regresiva', 'Cuenta regresiva'],
         [ToggleModule::class, 'agendar', 'Agendar'],

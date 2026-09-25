@@ -22,7 +22,8 @@ class InvitationPackagesTest extends TestCase
         $invitation = $this->createInvitation(['package' => $package]);
 
         app(InvitationModuleService::class)->syncAllModules($invitation, array_replace_recursive([
-            'config' => ['modulos' => ['rsvp' => true, 'encuestas' => true, 'regalos' => true]],
+            // La confirmación que corresponde al paquete: por WhatsApp en Estándar, con pase en el resto
+            'config' => ['modulos' => ['rsvp' => $package !== Packages::STANDARD, 'rsvp_whatsapp' => $package === Packages::STANDARD, 'encuestas' => true, 'regalos' => true]],
         ], $modules));
 
         return $invitation->fresh();
@@ -35,10 +36,13 @@ class InvitationPackagesTest extends TestCase
         $this->assertFalse(Packages::allowsModule(Packages::STANDARD, 'encuestas'));
         $this->assertTrue(Packages::allowsModule(null, 'encuestas'), 'Sin paquete: todo incluido');
 
-        $this->assertSame(Packages::RSVP_WHATSAPP, Packages::rsvpMode(Packages::STANDARD));
-        $this->assertSame(Packages::RSVP_PASS, Packages::rsvpMode(Packages::PREMIUM));
-        $this->assertSame(Packages::RSVP_PASS, Packages::rsvpMode(null));
-        $this->assertNull(Packages::rsvpMode(Packages::BASIC));
+        // Dos confirmaciones: por WhatsApp desde Estándar, con pase QR en Premium
+        $this->assertTrue(Packages::allowsModule(Packages::STANDARD, 'rsvp_whatsapp'));
+        $this->assertFalse(Packages::allowsModule(Packages::STANDARD, 'rsvp'));
+        $this->assertTrue(Packages::allowsModule(Packages::PREMIUM, 'rsvp'));
+        $this->assertFalse(Packages::allowsModule(Packages::BASIC, 'rsvp_whatsapp'));
+        $this->assertSame([Packages::RSVP_PASS, Packages::RSVP_WHATSAPP], Packages::rsvpModesFor($this->createInvitation(['package' => Packages::PREMIUM])));
+        $this->assertSame([], Packages::rsvpModesFor($this->createInvitation(['package' => Packages::BASIC])));
 
         $this->assertFalse(Packages::allows(Packages::STANDARD, 'door'));
         $this->assertTrue(Packages::allows(Packages::PREMIUM, 'client_panel'));
@@ -46,7 +50,7 @@ class InvitationPackagesTest extends TestCase
 
     public function test_standard_confirms_by_whatsapp_and_hides_premium_sections(): void
     {
-        $invitation = $this->invitationWith(Packages::STANDARD, ['rsvp' => ['whatsapp' => '+591 71234567']]);
+        $invitation = $this->invitationWith(Packages::STANDARD, ['rsvp_whatsapp' => ['whatsapp' => '+591 71234567']]);
         $guest = $invitation->guests()->create(['name' => 'Familia Rojas', 'passes_allocated' => 3]);
 
         // En el enlace general se confirma por WhatsApp escribiendo el nombre

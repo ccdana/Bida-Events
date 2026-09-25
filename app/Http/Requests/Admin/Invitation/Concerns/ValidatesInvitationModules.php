@@ -50,6 +50,14 @@ trait ValidatesInvitationModules
                 return;
             }
 
+            // La confirmación es una sola: por WhatsApp o con pase QR
+            $flags = (array) data_get($this->input('modulos_data', []), 'config.modulos', []);
+            if (! empty($flags['rsvp']) && ! empty($flags['rsvp_whatsapp'])) {
+                $validator->errors()->add('modulos', 'La invitación confirma por WhatsApp o con pase QR: deja encendida solo una de las dos.');
+
+                return;
+            }
+
             $invitation = $this->route('invitation');
             $current = $invitation instanceof Invitation ? $invitation->template : null;
 

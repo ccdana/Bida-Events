@@ -127,10 +127,15 @@ class ResellerSubscriptionTest extends TestCase
     {
         $reseller = User::factory()->reseller('aliado')->make();
 
-        // Cada plan ve las familias que incluye: el Aliado, las clásicas y la de lienzo, no las temáticas
+        // Cada plan ve las familias que incluye: el Aliado suma las de temporada (Halloween y tarjetas)
         $aliado = array_keys(ResellerSubscription::allowedTemplates($reseller));
         $this->assertContains(InvitationTemplates::XV_PREMIUM, $aliado);
-        $this->assertNotContains(InvitationTemplates::TARJETA_AMOR, $aliado);
+        $this->assertContains(InvitationTemplates::TARJETA_AMOR, $aliado);
+        $this->assertContains('invitations.templates.halloween-calabazas', $aliado);
+
+        // Las nuevas de cada evento, desde Emprendedor
+        $this->assertContains('nueva', config('bida.reseller_plans.emprendedor.collections'));
+        $this->assertNotContains('nueva', config('bida.reseller_plans.aliado.collections'));
 
         // El Emprendedor y la Agencia, todo el catálogo
         $this->assertSame(array_keys(InvitationTemplates::all()), array_keys(ResellerSubscription::allowedTemplates(User::factory()->reseller('emprendedor')->make())));

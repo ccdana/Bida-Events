@@ -10,9 +10,10 @@
  *   avanzar: el primer «siguiente» la abre, el segundo sigue;
  * - «Ver todo» vuelve a la página completa con scroll, y se recuerda en esta pestaña.
  *
- * Con { optIn, autoplay } es la vista «como historias de Instagram» de las invitaciones: no arranca
- * sola (se abre con el botón de historia, el menú o ?historias en el enlace), cada escena avanza sola
- * con su barra llenándose, mantener presionado pausa, y la cruz vuelve a la página de siempre.
+ * Con { optIn: true } es el modo historia de las invitaciones: no arranca solo (se abre con el
+ * botón «Ver como historia», el menú o ?historias en el enlace), avanza solo cuando el invitado
+ * toca o desliza, y cerrarlo vuelve a la página de siempre. Cada plantilla le pone su transición
+ * (invitation/story.css, «Historia de cada plantilla»).
  */
 
 const IGNORE = 'a, button, input, textarea, select, label, summary, video, iframe, canvas, [contenteditable], [data-story-ignore], .inv-gallery__stack';
@@ -24,11 +25,6 @@ const WHEEL_THRESHOLD = 70;
 const WHEEL_PAUSE_MS = 900;
 const DRAG_START = 12;
 const TURN_MS = 950;
-// Historias: tiempo por escena según cuánto texto tiene (como para leerlo con calma)
-const STORY_MIN_MS = 6000;
-const STORY_MAX_MS = 15000;
-const STORY_MS_PER_CHAR = 38;
-const HOLD_MS = 220;
 
 const root = document.documentElement;
 
@@ -68,15 +64,12 @@ const sceneTitle = (scene, index) => {
 
 const isBlocked = () => root.classList.contains('inv-lock') || root.classList.contains('inv-cover-waiting');
 
-/** Si el enlace pide abrir directo en historias (?historias o #historias). */
-const askedForStories = () => new URLSearchParams(location.search).has('historias') || location.hash === '#historias';
+/** El enlace pide abrir directo como historia (?historias o #historias). */
+const askedForStory = () => new URLSearchParams(location.search).has('historias') || location.hash === '#historias';
 
-export function invitationStory({ enabled = true, optIn = false, autoplay = false } = {}) {
+export function invitationStory({ enabled = true, optIn = false } = {}) {
     let scenes = [];
     let pointer = null;
-    let holdTimer = null;
-    let frame = null;
-    let lastTick = 0;
     let wheelTotal = 0;
     let wheelPausedUntil = 0;
     let visited = 0;
@@ -89,18 +82,10 @@ export function invitationStory({ enabled = true, optIn = false, autoplay = fals
         count: 0,
         moved: false,
         announce: '',
-        // Historias con avance automático
-        paused: false,
-        heldPause: false,
-        elapsed: 0,
-        duration: STORY_MIN_MS,
-        soundOn: false,
-        hasSound: false,
-        // El botón de historia se muestra arriba de todo; al bajar por la página se retira (queda en el menú)
+        // Invitaciones: el botón de historia se ve arriba de todo y se retira al bajar (queda en el menú)
         atTop: true,
 
         init() {
-            this.el = this.$el;
             scenes = collectScenes();
             this.count = scenes.length;
 
@@ -133,9 +118,10 @@ export function invitationStory({ enabled = true, optIn = false, autoplay = fals
             this.ready = true;
 
             if (optIn) {
-                this.wireStories();
+                // «Ver como historia» del botón o del menú
+                window.addEventListener('inv-story-enter', () => !this.on && this.start());
 
-                if (askedForStories()) {
+                if (askedForStory()) {
                     this.enter();
                 }
 
@@ -147,107 +133,12 @@ export function invitationStory({ enabled = true, optIn = false, autoplay = fals
             }
         },
 
-        /** Historias: se abren a pedido, se pausan al irse de la pestaña y siguen la música de la invitación. */
-        wireStories() {
-            window.addEventListener('inv-story-enter', () => !this.on && this.start());
-
-            document.addEventListener('visibilitychange', () => {
-                if (document.hidden) this.pause();
-            });
-
-            // Tocar un campo, un botón o la galería dentro de la escena: se deja de avanzar solo
-            document.addEventListener('focusin', (event) => {
-                if (this.on && event.target.closest?.(FIELDS) && this.scene?.contains(event.target)) this.pause();
-            });
-
-            const audio = document.querySelector('.inv-player audio');
-            this.hasSound = Boolean(audio);
-            if (audio) {
-                this.soundOn = !audio.paused;
-                audio.addEventListener('play', () => { this.soundOn = true; });
-                audio.addEventListener('pause', () => { this.soundOn = false; });
-            }
-        },
-
-        /** Abre las historias desde el principio (el botón de historia o el menú). */
+        /** Abre la historia desde la portada. */
         start() {
             this.index = 0;
             window.scrollTo(0, 0);
             this.enter();
             this.scene?.focus({ preventScroll: true });
-        },
-
-        toggleSound() {
-            document.querySelector('.inv-player__toggle')?.click();
-        },
-
-        // ── Avance automático ───────────────────────────────────────────────
-
-        sceneDuration(scene) {
-            const text = (scene?.textContent ?? '').replace(/\s+/g, ' ').trim().length;
-
-            return Math.min(STORY_MAX_MS, Math.max(STORY_MIN_MS, 4000 + text * STORY_MS_PER_CHAR));
-        },
-
-        restartTimer() {
-            this.elapsed = 0;
-            this.duration = this.sceneDuration(this.scene);
-            this.paintProgress();
-
-            if (!frame && autoplay && this.on) {
-                lastTick = performance.now();
-                frame = requestAnimationFrame((now) => this.tick(now));
-            }
-        },
-
-        tick(now) {
-            frame = null;
-
-            if (!this.on) {
-                return;
-            }
-
-            const delta = Math.min(now - lastTick, 100);
-            lastTick = now;
-
-            // Mientras la apertura tapa la página o el invitado pausó, el tiempo no corre
-            if (!this.paused && !this.heldPause && !isBlocked() && !document.hidden) {
-                this.elapsed += delta;
-            }
-
-            this.paintProgress();
-
-            if (this.elapsed >= this.duration) {
-                // La última escena se queda: el invitado decide si vuelve a empezar
-                if (this.index < this.count - 1) {
-                    this.go(this.index + 1);
-                } else {
-                    this.paused = true;
-                }
-            }
-
-            frame = requestAnimationFrame((time) => this.tick(time));
-        },
-
-        /** La barra de la escena actual se llena con el tiempo; se pinta directo, sin pasar por Alpine. */
-        paintProgress() {
-            const bar = this.el?.querySelector('.inv-story__segment.is-current i');
-
-            if (bar) {
-                bar.style.width = `${Math.min(100, (this.elapsed / this.duration) * 100).toFixed(2)}%`;
-            }
-        },
-
-        pause() {
-            if (autoplay) this.paused = true;
-        },
-
-        togglePause() {
-            this.paused = !this.paused;
-
-            if (!this.paused && this.elapsed >= this.duration) {
-                this.index === this.count - 1 ? this.go(0) : this.next();
-            }
         },
 
         get scene() {
@@ -257,9 +148,8 @@ export function invitationStory({ enabled = true, optIn = false, autoplay = fals
         enter() {
             this.on = true;
             root.classList.add('inv-story-on');
-            root.classList.toggle('inv-ig', optIn);
+            root.classList.toggle('inv-story-invitation', optIn);
             if (!optIn) rememberScrollMode(false);
-            this.paused = false;
             this.render(null);
         },
 
@@ -268,16 +158,14 @@ export function invitationStory({ enabled = true, optIn = false, autoplay = fals
             const current = this.scene;
 
             this.on = false;
-            root.classList.remove('inv-story-on', 'inv-ig');
-            cancelAnimationFrame(frame);
-            frame = null;
+            root.classList.remove('inv-story-on', 'inv-story-invitation');
 
             if (optIn) {
-                // La página vuelve a ser la de siempre: sin ?historias, para que recargar no reabra las historias
-                if (askedForStories()) {
+                // Sin ?historias: recargar la página no vuelve a abrir la historia
+                if (askedForStory()) {
                     const url = new URL(location.href);
                     url.searchParams.delete('historias');
-                    url.hash = url.hash === '#historias' ? '' : url.hash;
+                    if (url.hash === '#historias') url.hash = '';
                     history.replaceState(history.state, '', url);
                 }
             } else {
@@ -382,14 +270,6 @@ export function invitationStory({ enabled = true, optIn = false, autoplay = fals
             if (focus) {
                 scene.focus({ preventScroll: true });
             }
-
-            if (autoplay) {
-                // El tiempo vuelve a cero ya: el próximo cuadro no debe creer que esta escena también terminó
-                this.paused = false;
-                this.elapsed = 0;
-                this.duration = this.sceneDuration(this.scene);
-                this.$nextTick(() => this.restartTimer());
-            }
         },
 
         // ── Gestos ──────────────────────────────────────────────────────────
@@ -402,19 +282,10 @@ export function invitationStory({ enabled = true, optIn = false, autoplay = fals
             const scene = event.target.closest?.('.inv-scene.is-active');
 
             if (!scene || event.target.closest(IGNORE)) {
-                // Usar un botón, un campo o la galería de la escena: la historia deja de avanzar sola
-                if (scene) this.pause();
-
                 return;
             }
 
             pointer = { x: event.clientX, y: event.clientY, t: performance.now(), dragging: false, scene };
-
-            // Mantener presionado pausa, como en las historias de Instagram
-            if (autoplay) {
-                clearTimeout(holdTimer);
-                holdTimer = setTimeout(() => { this.heldPause = true; }, HOLD_MS);
-            }
         },
 
         onPointerMove(event) {
@@ -464,15 +335,12 @@ export function invitationStory({ enabled = true, optIn = false, autoplay = fals
                 return;
             }
 
-            // El tercio izquierdo de la escena (no de la ventana: en la computadora la historia va al centro) vuelve
+            // El tercio izquierdo de la escena vuelve; el resto avanza
             const box = scene.getBoundingClientRect();
             event.clientX - box.left < box.width * 0.3 ? this.prev() : this.next();
         },
 
         cancelPointer() {
-            clearTimeout(holdTimer);
-            this.heldPause = false;
-
             if (pointer?.scene) {
                 pointer.scene.classList.remove('is-dragging');
                 pointer.scene.style.removeProperty('--story-drag');
@@ -492,6 +360,8 @@ export function invitationStory({ enabled = true, optIn = false, autoplay = fals
             }
 
             const actions = {
+                // En las invitaciones, Escape cierra la historia y vuelve a la página
+                ...(optIn ? { Escape: () => this.leave() } : {}),
                 ArrowRight: () => this.next(true),
                 PageDown: () => this.next(true),
                 ArrowLeft: () => this.prev(true),

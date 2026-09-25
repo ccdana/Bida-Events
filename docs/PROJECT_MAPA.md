@@ -995,7 +995,7 @@ comportamiento: con 25 invitaciones y 500 invitados hace menos de 15 consultas y
 
 | Qué | Dónde |
 | --- | --- |
-| Invitaciones «como historias de Instagram» (todos los paquetes): cada parte de la página es una historia vertical 9:16 que avanza sola, con barras arriba, foto y nombre, pausa, sonido y cerrar; tocar pasa o vuelve, mantener pausa. Se abre con el círculo de la esquina, desde el menú o con `?historias` en el enlace (el cliente lo copia desde su panel). Las tarjetas siguen con su propio modo historia | `partials/story/instagram.blade.php`, `js/story/story.js` (`optIn`, `autoplay`), `js/story/instagram.js`, `invitation/story.css` («Historias») |
+| Invitaciones en modo historia (todos los paquetes): cada parte de la página es una escena a pantalla completa, como la tarjeta del Día del Amor; solo avanza cuando el invitado toca, desliza o usa las flechas, y cada plantilla tiene su transición y su detalle al pasar (ver 7.13). Se abre con el botón de la esquina, desde el menú o con `?historias` en el enlace (el cliente lo copia desde su panel) | `partials/story/invitation.blade.php`, `js/story/story.js` (`optIn`), `js/story/invitation.js`, `invitation/story.css` («Historia de cada plantilla») |
 | WhatsApp, correo, Instagram, Facebook y TikTok se cambian en Ajustes › Contacto y redes (se guarda el usuario limpio; vacío = esa red no se muestra) | `Support/SiteSettings.php` (grupo `contact`), `Admin/SettingsController`, `UpdateSettingsRequest`, `admin/settings.blade.php` |
 | «Tres maneras» con foto real (Adobe Stock 309980423) y la burbuja de confirmación por WhatsApp encima | `public/images/site/servicio-pareja.webp`, `config/bida.php` (`images.servicio-pareja`), `home.blade.php`, `site/home.css` |
 | Música automática de verdad: empieza con el primer gesto que el navegador acepta (no se gasta en un deslizar) y se pausa al cambiar de pestaña, de app o de ventana; vuelve si estaba sonando | `partials/music-player.blade.php` |
@@ -1006,6 +1006,18 @@ comportamiento: con 25 invitaciones y 500 invitados hace menos de 15 consultas y
 | Página del evento del cliente: descargar y control de entrada arriba; fotos del fotomural y canciones o videos por separado | `client/invitation.blade.php`, `client/partials/contribution-{photos,songs}.blade.php` |
 | Invitaciones de muestra aparte: «Muestras» en el panel (las de config: portada, temporadas, «Hazlo tú», páginas por evento y demo_slug); «Invitaciones» y sus cifras solo cuentan las de clientes | `Admin/DashboardController` (`showcase`), `ShowcaseDemos::slugs()`, `DashboardViewData::make($scope)`, `admin/dashboard.blade.php` |
 | Graduación: diploma bajo un haz de luz con polvo dorado, lazo que se suelta, sello que cae, confeti y siete birretes; en la portada el filete del arco se dibuja, la foto se revela, el birrete cae y su borla se mece, brillo en el nombre, pie del diploma que se traza y laureles en los títulos | `partials/graduacion/{intro,hero,cap}.blade.php`, `themes/graduacion.css` |
+
+### 7.13 Planes, dos confirmaciones, historias por plantilla y cuenta del revendedor
+
+| Qué | Dónde |
+| --- | --- |
+| La confirmación son dos módulos y una invitación usa uno: por WhatsApp (`rsvp_whatsapp`, guarda el número) o con pase QR (`rsvp`, guarda los textos que ambos comparten). Encender uno apaga el otro en el editor y el servidor rechaza los dos a la vez. Las invitaciones Estándar que ya confirmaban por WhatsApp pasaron al módulo nuevo | `Modules/Invitation/RsvpWhatsappModule.php`, `RsvpModule`, migración `2026_09_27_000001_split_rsvp_whatsapp_module`, `panels/rsvp-whatsapp.blade.php`, `ValidatesInvitationModules` |
+| Qué puede usar cada invitación: paquete del equipo (WhatsApp desde Estándar, pase QR en Premium) o plan del revendedor (`rsvp` en `reseller_plans`: WhatsApp desde Emprendedor; pase QR, puerta y reportes en Agencia) | `Packages::rsvpModesFor()`, `allowsFor()`, `allowsModuleFor()`, `InvitationPage`, `InvitationPolicy`, `DoorController`, `RsvpController` |
+| Catálogo por plan: Inicial lienzo y clásicas; Aliado suma las de temporada (Halloween y tarjetas); Emprendedor y Agencia suman las nuevas de cada evento (`collection` = `nueva`) | `config/bida.php` (`reseller_plans.*.collections`), `InvitationTemplates` (`temporada`, `nueva`), `hazlo-tu.blade.php` |
+| Modo historia con la mano de cada plantilla: la boda da vuelta la página y caen hojas, XV entra con un fundido de gala y destellos, el bautizo sube entre nubes, el cumpleaños salta con confeti, la graduación se despliega como el diploma, Halloween aparece entre la niebla y el lienzo se desliza | `invitation/story.css` («Historia de cada plantilla»), `partials/story/invitation.blade.php` |
+| Mientras la apertura espera el toque, la página de atrás no se mueve (tampoco con el dedo en el celular) | `invitation/nav-player.css` (`html.inv-cover-waiting`) |
+| «Pruébala como invitado» en dos columnas: diseños y descripción a la izquierda, el teléfono a la derecha | `home.blade.php`, `site/home.css` («site-tester») |
+| El revendedor cambia su contraseña desde «Mi cuenta» (pide la actual y cierra las demás sesiones) | `Client/AccountController`, `UpdatePasswordRequest`, `client/account.blade.php` |
 
 ---
 

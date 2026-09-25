@@ -17,7 +17,7 @@ class DoorAccessController extends Controller
 {
     public function store(Invitation $invitation): RedirectResponse
     {
-        abort_unless(Packages::allows($invitation->package, 'door'), 403, 'El control de entrada viene en el paquete Premium.');
+        abort_unless(Packages::allowsFor($invitation, 'door'), 403, 'El control de entrada viene con la confirmación con pase QR (paquete Premium o plan Agencia).');
 
         $renewing = $invitation->door_token !== null;
 

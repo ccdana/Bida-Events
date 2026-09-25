@@ -34,7 +34,7 @@ class PublicPagesTest extends TestCase
             ->assertSee('Cuentas claras')
             ->assertSeeInOrder(['Inicial', '9', 'USD al mes', 'Aliado', 'US$ 20', '16', 'USD al mes', '9 invitaciones al mes', 'Emprendedor', 'Agencia', 'Invitaciones sin tope'])
             // La comparación dice qué desbloquea cada plan
-            ->assertSeeInOrder(['Accesos para clientes al mes', 'Plantilla en blanco', 'Plantillas clásicas', 'Temáticas y de temporada', 'Tu marca al pie'])
+            ->assertSeeInOrder(['Accesos para clientes al mes', 'Plantilla en blanco', 'Plantillas clásicas', 'Plantillas de temporada', 'Plantillas nuevas de cada evento', 'Confirmación por WhatsApp', 'Confirmación con pase QR', 'Tu marca al pie'])
             ->assertSee('Noche de calabazas')
             // WhatsApp con el plan y el código de la página
             ->assertSee(rawurlencode('quiero el plan Aliado de Hazlo tú (US$ 16 al mes)'), false)

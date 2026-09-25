@@ -18,7 +18,7 @@ class XvProfile extends EventProfile
     {
         return [
             'bienvenida', 'ubicacion', 'itinerario', 'dress_code', 'destacados', 'galeria', 'video',
-            'musica', 'playlist', 'hashtag', 'encuestas', 'regalos', 'rsvp', 'cuenta_regresiva',
+            'musica', 'playlist', 'hashtag', 'encuestas', 'regalos', 'rsvp', 'rsvp_whatsapp', 'cuenta_regresiva',
             'agendar', 'fotomural', 'post_evento',
         ];
     }

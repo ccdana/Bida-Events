@@ -18,7 +18,7 @@ class WeddingProfile extends EventProfile
     {
         return [
             'bienvenida', 'galeria', 'ubicacion', 'itinerario', 'dress_code', 'destacados', 'video',
-            'musica', 'playlist', 'hashtag', 'encuestas', 'regalos', 'rsvp', 'cuenta_regresiva',
+            'musica', 'playlist', 'hashtag', 'encuestas', 'regalos', 'rsvp', 'rsvp_whatsapp', 'cuenta_regresiva',
             'agendar', 'fotomural', 'post_evento',
         ];
     }

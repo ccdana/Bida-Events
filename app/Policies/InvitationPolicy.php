@@ -29,13 +29,13 @@ class InvitationPolicy
         }
 
         return (int) $invitation->user_id === (int) $user->id
-            && Packages::allows($invitation->package, 'client_panel');
+            && Packages::allowsFor($invitation, 'client_panel');
     }
 
-    /** Reportes e invitación para imprimir: Premium (o sin paquete). */
+    /** Reportes e invitación para imprimir: Premium, plan Agencia del revendedor o sin paquete. */
     public function export(User $user, Invitation $invitation): bool
     {
-        return $this->view($user, $invitation) && Packages::allows($invitation->package, 'exports');
+        return $this->view($user, $invitation) && Packages::allowsFor($invitation, 'exports');
     }
 
     /**

@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\PreviewController;
 use App\Http\Controllers\Admin\ResellerController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Client\AccountController;
 use App\Http\Controllers\Client\ContributionController as ClientContributionController;
 use App\Http\Controllers\Client\DashboardController as ClientDashboardController;
 use App\Http\Controllers\Client\DoorAccessController;
@@ -160,6 +161,10 @@ Route::prefix('client')->name('client.')->middleware(['auth', 'client'])->group(
     // Revendedores: arman sus propias invitaciones con el mismo editor que el administrador.
     // «reseller» deja pasar solo a revendedores; la policy exige además la suscripción al día.
     Route::middleware('reseller')->group(function () {
+        // Su cuenta: cambia la contraseña que le dio el administrador por una propia
+        Route::get('/cuenta', [AccountController::class, 'edit'])->name('account');
+        Route::put('/cuenta/contrasena', [AccountController::class, 'updatePassword'])->middleware('throttle:6,1')->name('account.password');
+
         Route::get('/invitaciones/nueva', [ClientInvitationController::class, 'create'])->can('create', Invitation::class)->name('invitations.create');
         Route::post('/invitaciones', [ClientInvitationController::class, 'store'])->can('create', Invitation::class)->name('invitations.store');
         Route::get('/invitations/{invitation}/editar', [ClientInvitationController::class, 'edit'])->can('update', 'invitation')->name('invitations.edit');

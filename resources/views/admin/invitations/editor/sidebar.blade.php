@@ -105,6 +105,7 @@
                 @include('admin.invitations.panels.galeria')
                 @include('admin.invitations.panels.video')
                 @include('admin.invitations.panels.musica')
+                @include('admin.invitations.panels.rsvp-whatsapp')
                 @include('admin.invitations.panels.playlist')
                 @include('admin.invitations.panels.hashtag')
                 @include('admin.invitations.panels.encuestas')

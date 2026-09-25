@@ -17,7 +17,7 @@ class GraduationProfile extends EventProfile
     public function modules(): array
     {
         return [
-            'bienvenida', 'ubicacion', 'itinerario', 'rsvp', 'destacados', 'galeria', 'dress_code',
+            'bienvenida', 'ubicacion', 'itinerario', 'rsvp', 'rsvp_whatsapp', 'destacados', 'galeria', 'dress_code',
             'video', 'musica', 'playlist', 'hashtag', 'encuestas', 'regalos', 'cuenta_regresiva',
             'agendar', 'fotomural', 'post_evento',
         ];

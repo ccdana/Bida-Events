@@ -43,8 +43,11 @@ class NewTemplatesAndSeasonTest extends TestCase
             // Sin apertura: la invitación se ve de entrada
             ->assertDontSee('data-cover-trigger', false);
 
-        // Un profesional que empieza (plan Inicial) solo tiene la plantilla en blanco
-        $this->assertSame([InvitationTemplates::LIENZO], array_keys(ResellerSubscription::allowedTemplates(User::factory()->reseller('inicial')->make())));
+        // Un profesional que empieza (plan Inicial) tiene la plantilla en blanco y las clásicas, no las de temporada
+        $inicial = array_keys(ResellerSubscription::allowedTemplates(User::factory()->reseller('inicial')->make()));
+        $this->assertContains(InvitationTemplates::LIENZO, $inicial);
+        $this->assertContains(InvitationTemplates::BODA_JARDIN, $inicial);
+        $this->assertNotContains(InvitationTemplates::TARJETA_AMOR, $inicial);
     }
 
     public function test_the_graduation_opens_with_its_diploma_and_shows_the_promotion_year(): void

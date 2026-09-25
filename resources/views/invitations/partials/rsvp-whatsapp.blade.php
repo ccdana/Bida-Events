@@ -1,7 +1,7 @@
 {{--
     Confirmación por WhatsApp (paquete Estándar): las mismas preguntas que la confirmación con pase,
     pero la respuesta no se guarda aquí. Al final se abre WhatsApp con el mensaje listo para el
-    organizador (número en el módulo rsvp). En el enlace personal ya van el nombre y los lugares del
+    organizador (número en el módulo rsvp_whatsapp; título y mensaje, los de rsvp). En el enlace personal ya van el nombre y los lugares del
     invitado; en el enlace general, el invitado escribe su nombre.
     Recibe $rsvp y $guest (o null); hereda $page, $invitation e $invCopy de la plantilla.
 --}}

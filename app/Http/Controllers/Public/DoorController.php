@@ -154,7 +154,7 @@ class DoorController extends Controller
         abort_unless(strlen($doorToken) >= 32, 404);
 
         $invitation = Invitation::where('door_token', $doorToken)->firstOrFail();
-        abort_unless(Packages::allows($invitation->package, 'door'), 404);
+        abort_unless(Packages::allowsFor($invitation, 'door'), 404);
 
         return $invitation;
     }
@@ -164,7 +164,7 @@ class DoorController extends Controller
     {
         $invitation = Invitation::where('slug', $slug)->firstOrFail();
         // El control de entrada es del paquete Premium
-        abort_unless(Packages::allows($invitation->package, 'door'), 404);
+        abort_unless(Packages::allowsFor($invitation, 'door'), 404);
         $guest = Guest::where('invitation_id', $invitation->id)->where('qr_code_token', $token)->firstOrFail();
 
         return [$invitation, $guest];

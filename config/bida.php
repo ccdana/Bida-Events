@@ -515,7 +515,10 @@ return [
     | tope). Cada plan desbloquea más cosas, y eso es lo que justifica pagar más:
     |  - «collections»: qué familias de plantillas puede usar (ver «collection» en
     |    App\Support\InvitationTemplates): lienzo (la genérica en blanco), clasica (XV, boda,
-    |    bautizo, cumpleaños, graduación) y tematica (Halloween, tarjetas de temporada).
+    |    bautizo, cumpleaños, graduación), temporada (Halloween, tarjetas del Día del Amor) y
+    |    nueva (las plantillas que se suman durante el año para cada evento).
+    |  - «rsvp»: la confirmación de asistencia que puede usar: whatsapp (el invitado le escribe) y
+    |    pass (pase QR guardado, control de entrada y reportes). En una invitación va una sola.
     | Todos los planes crean accesos para sus clientes (uno por evento), pero no más por mes que
     | las invitaciones que el plan permite crear (ResellerSubscription::canCreateClients).
     |  - «white_label»: el pie de sus invitaciones lleva su nombre comercial en vez de Bida Events.
@@ -532,48 +535,53 @@ return [
             'price' => 9,
             'promo_price' => null,
             'quota_per_month' => 3,
-            'collections' => ['lienzo'],
+            'collections' => ['lienzo', 'clasica'],
+            // Confirmación de asistencia que puede usar: [] ninguna, 'whatsapp', 'pass' (pase QR, puerta y reportes)
+            'rsvp' => ['whatsapp'],
             'white_label' => false,
             'cycle_months' => 1,
             'templates' => null,
-            'summary' => 'Para empezar: la plantilla en blanco, para diseñar a tu manera.',
-            'features' => ['3 invitaciones al mes', 'Plantilla en blanco con todo editable', 'Acceso para tu cliente en cada evento', 'Confirmación de asistencia y reportes'],
+            'summary' => 'Para empezar: la plantilla en blanco y las clásicas de cada evento.',
+            'features' => ['3 invitaciones al mes', 'Plantilla en blanco y plantillas clásicas', 'Acceso para tu cliente en cada evento'],
         ],
         'aliado' => [
             'name' => 'Aliado',
             'price' => 17,
             'promo_price' => 14,
             'quota_per_month' => 8,
-            'collections' => ['lienzo', 'clasica'],
+            'collections' => ['lienzo', 'clasica', 'temporada'],
+            'rsvp' => ['whatsapp'],
             'white_label' => false,
             'cycle_months' => 1,
             'templates' => null,
-            'summary' => 'Las plantillas de bodas, XV, bautizos, cumpleaños y graduaciones.',
-            'features' => ['8 invitaciones al mes', 'Plantillas clásicas y la plantilla en blanco', 'Acceso para tu cliente en cada evento'],
+            'summary' => 'Las clásicas y las de temporada: Halloween y las tarjetas del Día del Amor.',
+            'features' => ['8 invitaciones al mes', 'Todo lo del plan Inicial', 'Plantillas de temporada: Halloween y Día del Amor', 'Acceso para tu cliente en cada evento'],
         ],
         'emprendedor' => [
             'name' => 'Emprendedor',
             'price' => 36,
             'promo_price' => 29,
             'quota_per_month' => 20,
-            'collections' => ['lienzo', 'clasica', 'tematica'],
+            'collections' => ['lienzo', 'clasica', 'temporada', 'nueva'],
+            'rsvp' => ['whatsapp', 'pass'],
             'white_label' => true,
             'cycle_months' => 1,
             'templates' => null,
-            'summary' => 'Con tu marca y las temáticas de temporada: Halloween y las tarjetas.',
-            'features' => ['20 invitaciones al mes', 'Todo el catálogo, con las temáticas y de temporada', 'Tu marca al pie, sin la de Bida Events', 'Acceso para tu cliente en cada evento'],
+            'summary' => 'Con tu marca, las plantillas nuevas de cada evento y confirmación por WhatsApp.',
+            'features' => ['20 invitaciones al mes', 'Todo lo del plan Aliado', 'Las plantillas nuevas de cada evento, a medida que salen', 'Confirmación de asistencia por WhatsApp', 'Tu marca al pie, sin la de Bida Events'],
         ],
         'agencia' => [
             'name' => 'Agencia',
             'price' => 72,
             'promo_price' => 59,
             'quota_per_month' => null,
-            'collections' => ['lienzo', 'clasica', 'tematica'],
+            'collections' => ['lienzo', 'clasica', 'temporada', 'nueva'],
+            'rsvp' => ['whatsapp', 'pass'],
             'white_label' => true,
             'cycle_months' => 1,
             'templates' => null,
-            'summary' => 'Sin tope: para estudios que entregan invitaciones todas las semanas.',
-            'features' => ['Invitaciones sin tope', 'Todo el catálogo, con las temáticas y de temporada', 'Tu marca al pie, sin la de Bida Events', 'Acceso para tu cliente en cada evento'],
+            'summary' => 'Sin tope, con pase QR y control de entrada: para estudios que entregan todas las semanas.',
+            'features' => ['Invitaciones sin tope', 'Todo lo del plan Emprendedor', 'Confirmación con pase QR y control de entrada', 'Reportes en PDF y Excel, e invitación para imprimir'],
         ],
     ],
 ];

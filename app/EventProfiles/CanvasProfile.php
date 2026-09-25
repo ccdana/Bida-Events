@@ -22,7 +22,7 @@ class CanvasProfile extends EventProfile
     public function modules(): array
     {
         return [
-            'bienvenida', 'ubicacion', 'itinerario', 'rsvp', 'galeria', 'dress_code', 'destacados',
+            'bienvenida', 'ubicacion', 'itinerario', 'rsvp', 'rsvp_whatsapp', 'galeria', 'dress_code', 'destacados',
             'video', 'musica', 'playlist', 'hashtag', 'encuestas', 'regalos', 'cuenta_regresiva',
             'agendar', 'fotomural', 'post_evento',
         ];

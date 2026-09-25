@@ -18,7 +18,7 @@ class BaptismProfile extends EventProfile
     {
         return [
             'bienvenida', 'ubicacion', 'itinerario', 'destacados', 'galeria', 'dress_code', 'video',
-            'musica', 'playlist', 'hashtag', 'encuestas', 'regalos', 'rsvp', 'cuenta_regresiva',
+            'musica', 'playlist', 'hashtag', 'encuestas', 'regalos', 'rsvp', 'rsvp_whatsapp', 'cuenta_regresiva',
             'agendar', 'fotomural', 'post_evento',
         ];
     }

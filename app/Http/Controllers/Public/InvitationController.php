@@ -25,7 +25,7 @@ class InvitationController extends Controller
         $invitation = $this->findPublished($slug);
 
         // Sin enlaces personales en el paquete (Básico), el enlace del invitado lleva a la invitación general
-        if ($token && ! Packages::allows($invitation->package, 'personal_links')) {
+        if ($token && ! Packages::allowsFor($invitation, 'personal_links')) {
             return redirect()->route('invitation.show', $invitation->slug);
         }
 

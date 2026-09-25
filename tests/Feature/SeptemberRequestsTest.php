@@ -195,12 +195,12 @@ class SeptemberRequestsTest extends TestCase
 
             $this->withoutVite()->get(route('invitation.show', $invitation->slug))
                 ->assertOk()
-                ->assertSee('class="inv-ig"', false)
+                ->assertSee('class="inv-tale"', false)
                 ->assertSee('Ver como historia');
         }
 
         $card = $this->createInvitation(['template' => 'invitations.templates.tarjeta-amor']);
-        $this->withoutVite()->get(route('invitation.show', $card->slug))->assertOk()->assertDontSee('class="inv-ig"', false);
+        $this->withoutVite()->get(route('invitation.show', $card->slug))->assertOk()->assertDontSee('class="inv-tale"', false);
     }
 
     public function test_every_template_has_a_real_frame_for_its_cover_photo(): void
@@ -238,6 +238,24 @@ class SeptemberRequestsTest extends TestCase
             ->assertViewHas('filterRoute', 'admin.showcase');
 
         $this->actingAs(User::factory()->create())->get(route('admin.showcase'))->assertForbidden();
+    }
+
+    public function test_halloween_can_be_turned_off_and_on_again_from_settings(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+        $this->travelTo(now()->setDate(2026, 10, 10));
+        $seasons = fn (string $active) => ['seasons' => [
+            'amor' => ['active' => '0', 'price' => 100, 'promo_price' => 75, 'ends_at' => '2026-09-21T23:59'],
+            'halloween' => ['active' => $active, 'price' => 180, 'promo_price' => 140, 'ends_at' => '2026-10-31T23:59'],
+        ]];
+
+        $this->actingAs($admin)->put(route('admin.settings.update'), $this->settingsPayload($seasons('0')))->assertSessionHasNoErrors();
+        SiteSettings::apply();
+        $this->assertSame('Temporada apagada en Ajustes', TemplateAvailability::templateReason('invitations.templates.halloween-calabazas'));
+
+        $this->actingAs($admin)->put(route('admin.settings.update'), $this->settingsPayload($seasons('1')))->assertSessionHasNoErrors();
+        SiteSettings::apply();
+        $this->assertNull(TemplateAvailability::templateReason('invitations.templates.halloween-calabazas'));
     }
 
     private function settingsPayload(array $changes = []): array

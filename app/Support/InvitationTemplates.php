@@ -304,7 +304,7 @@ final class InvitationTemplates
                 'tagline' => 'Una calabaza que se enciende al tocarla',
                 'description' => 'Calabaza que se ilumina para entrar, luna llena con murciélagos, niebla y velas: una fiesta de disfraces con confirmación y playlist.',
                 'event' => 'halloween',
-                'collection' => 'tematica',
+                'collection' => 'temporada',
                 'palette' => [
                     'primary' => '#F08A24',
                     'secondary' => '#7B4BB7',
@@ -358,7 +358,7 @@ final class InvitationTemplates
                 'description' => 'Un jardín que florece: un capullo que se riega para abrirlo, la foto que se revela, la carta lacrada, una margarita que se deshoja, recuerdos en un tendedero, una flor de respuesta y un diente de león para pedir un deseo.',
                 'event' => 'amor',
                 // Familia de plantillas: qué plan de revendedor la incluye (config «reseller_plans»)
-                'collection' => 'tematica',
+                'collection' => 'temporada',
                 'palette' => [
                     'primary' => '#A63A50',
                     'secondary' => '#6B2433',
@@ -420,7 +420,7 @@ final class InvitationTemplates
                 'description' => 'Un cuaderno de recortes que se hojea: el mes del aniversario, la carta, su historia por capítulos, recuerdos, collages con flores amarillas, fotos con marco y un juego de memoria.',
                 'event' => 'aventura',
                 // Familia de plantillas: qué plan de revendedor la incluye (config «reseller_plans»)
-                'collection' => 'tematica',
+                'collection' => 'temporada',
                 'palette' => [
                     'primary' => '#8A4B1F',
                     'secondary' => '#5A3214',
@@ -446,7 +446,7 @@ final class InvitationTemplates
                 'description' => 'La historia de una pareja en cuatro actos: la luna reflejada en el agua, la marea que sube con cada recuerdo, la luna de frente con la anécdota que lo cambió todo y un cielo estrellado a lo Van Gogh.',
                 'event' => 'historia',
                 // Familia de plantillas: qué plan de revendedor la incluye (config «reseller_plans»)
-                'collection' => 'tematica',
+                'collection' => 'temporada',
                 // Noche fija: el tema solo toma del cliente la luz de la luna (primary)
                 'palette' => [
                     'primary' => '#E8C872',
@@ -506,7 +506,11 @@ final class InvitationTemplates
         return self::all()[$template] ?? self::all()[self::DEFAULT];
     }
 
-    /** Familia de la plantilla (lienzo, clasica, tematica): la usan los planes de revendedor. */
+    /**
+     * Familia de la plantilla: lienzo (en blanco), clasica (una por evento), temporada (Halloween y
+     * las tarjetas) y nueva (las que se suman durante el año para cada evento). La usan los planes de
+     * revendedor: Inicial lienzo y clásicas, Aliado suma temporada y desde Emprendedor las nuevas.
+     */
     public static function collection(?string $template): string
     {
         return self::get($template)['collection'] ?? 'clasica';

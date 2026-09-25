@@ -2,6 +2,9 @@
 
 namespace App\Support;
 
+use App\Models\Invitation;
+use App\Models\User;
+
 /**
  * Qué incluye cada paquete (Básico, Estándar, Premium) de una invitación armada por el equipo.
  *
@@ -16,6 +19,11 @@ namespace App\Support;
  *   para imprimir, encuestas, playlist, fotomural y galería después del evento.
  *
  * La lista que se publica en la portada (config «bida.packages.*.features») describe esto mismo.
+ *
+ * La confirmación de asistencia son dos módulos y una invitación usa uno solo: por WhatsApp
+ * (rsvp_whatsapp, desde Estándar) o con pase QR (rsvp, Premium). Las invitaciones de un revendedor
+ * no llevan paquete: lo que puede usar sale de su plan («rsvp» en config bida.reseller_plans):
+ * WhatsApp desde Emprendedor; pase QR, control de entrada y reportes en Agencia.
  */
 final class Packages
 {
@@ -39,7 +47,8 @@ final class Packages
         'destacados' => self::STANDARD,
         'hashtag' => self::STANDARD,
         'regalos' => self::STANDARD,
-        'rsvp' => self::STANDARD,
+        'rsvp_whatsapp' => self::STANDARD,
+        'rsvp' => self::PREMIUM,
         'encuestas' => self::PREMIUM,
         'playlist' => self::PREMIUM,
         'fotomural' => self::PREMIUM,
@@ -93,14 +102,67 @@ final class Packages
         return self::reaches($package, self::FEATURES[$feature] ?? self::BASIC);
     }
 
-    /** Cómo confirma el invitado: con pase (Premium o sin paquete), por WhatsApp (Estándar) o no confirma (Básico). */
-    public static function rsvpMode(?string $package): ?string
+    /** El módulo del editor de cada forma de confirmar. */
+    public const RSVP_MODULES = [self::RSVP_PASS => 'rsvp', self::RSVP_WHATSAPP => 'rsvp_whatsapp'];
+
+    /**
+     * Formas de confirmar que puede usar esta invitación: las de su paquete o, si la armó un
+     * revendedor, las de su plan.
+     *
+     * @return list<string>
+     */
+    public static function rsvpModesFor(Invitation $invitation): array
     {
-        return match (true) {
-            self::allows($package, 'rsvp_pass') => self::RSVP_PASS,
-            self::allows($package, 'rsvp_whatsapp') => self::RSVP_WHATSAPP,
-            default => null,
+        if ($invitation->reseller_id !== null) {
+            $plan = self::resellerPlan($invitation);
+
+            return array_values(array_intersect([self::RSVP_PASS, self::RSVP_WHATSAPP], (array) ($plan['rsvp'] ?? [])));
+        }
+
+        return array_values(array_filter([
+            self::allows($invitation->package, 'rsvp_pass') ? self::RSVP_PASS : null,
+            self::allows($invitation->package, 'rsvp_whatsapp') ? self::RSVP_WHATSAPP : null,
+        ]));
+    }
+
+    /**
+     * ¿Esta invitación puede usar esta función? Con paquete, lo que dice FEATURES. De un revendedor:
+     * el pase QR, el control de entrada y los reportes van con la confirmación con pase de su plan;
+     * los enlaces personales y el acceso de su cliente, siempre.
+     */
+    public static function allowsFor(Invitation $invitation, string $feature): bool
+    {
+        if ($invitation->reseller_id === null) {
+            return self::allows($invitation->package, $feature);
+        }
+
+        return match ($feature) {
+            'rsvp_pass', 'door', 'exports' => in_array(self::RSVP_PASS, self::rsvpModesFor($invitation), true),
+            'rsvp_whatsapp' => in_array(self::RSVP_WHATSAPP, self::rsvpModesFor($invitation), true),
+            default => true,
         };
+    }
+
+    /** ¿Esta invitación puede encender este módulo? Lo mismo que allowsFor, por módulo. */
+    public static function allowsModuleFor(Invitation $invitation, string $module): bool
+    {
+        $mode = array_search($module, self::RSVP_MODULES, true);
+
+        if ($invitation->reseller_id !== null) {
+            return $mode === false || in_array($mode, self::rsvpModesFor($invitation), true);
+        }
+
+        return self::allowsModule($invitation->package, $module);
+    }
+
+    /** El plan del revendedor que armó la invitación (config bida.reseller_plans), o []. */
+    private static function resellerPlan(Invitation $invitation): array
+    {
+        $reseller = $invitation->relationLoaded('reseller')
+            ? $invitation->reseller
+            : User::select('id', 'reseller_plan')->find($invitation->reseller_id);
+
+        return $reseller?->planConfig() ?? [];
     }
 
     /** Nombre del paquete desde el que se incluye un módulo («Estándar», «Premium»), para el editor. */

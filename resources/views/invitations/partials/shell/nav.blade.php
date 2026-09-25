@@ -47,7 +47,7 @@
             @endforeach
         </ol>
 
-        {{-- Invitaciones: abrir la misma invitación como historias de Instagram (partials/story/instagram) --}}
+        {{-- Invitaciones: recorrer la misma invitación como historia, escena por escena (partials/story/invitation) --}}
         <button type="button" class="inv-nav__stories" x-show="hasStories" x-cloak @click="close(false); window.dispatchEvent(new CustomEvent('inv-story-enter'))">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke-dasharray="4 2.2"/><path d="M10.5 9v6l4.5-3z" fill="currentColor" stroke="none"/></svg>
             {{ $invCopy['stories_label'] ?? 'Ver como historia' }}

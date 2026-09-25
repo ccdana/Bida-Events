@@ -71,7 +71,9 @@ class PreviewController extends Controller
             ]);
 
             // El revendedor ve su vista previa con su propia marca en el pie, como la verán sus invitados
+            // y con lo que su plan permite (la confirmación por WhatsApp o con pase)
             if ($request->user()?->isReseller()) {
+                $invitation->reseller_id = $request->user()->id;
                 $invitation->setRelation('reseller', $request->user());
             }
 

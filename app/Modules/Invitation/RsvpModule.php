@@ -7,7 +7,11 @@ use App\Models\InvitationRsvpSetting;
 use App\Modules\Concerns\ReadsValues;
 use App\Modules\Module;
 
-/** Textos de la confirmación de asistencia y el WhatsApp que la recibe (paquete Estándar); las respuestas con pase viven en guests. */
+/**
+ * Confirmación con pase QR: la respuesta queda guardada en guests y el invitado recibe su pase.
+ * Guarda los textos del formulario (también los usa la confirmación por WhatsApp, que es otro
+ * módulo: RsvpWhatsappModule). En una invitación solo puede estar encendida una de las dos.
+ */
 class RsvpModule extends Module
 {
     use ReadsValues;
@@ -19,7 +23,7 @@ class RsvpModule extends Module
 
     public function label(): string
     {
-        return 'Confirmación de asistencia';
+        return 'Confirmación con pase QR';
     }
 
     public function defaults(): object
@@ -41,7 +45,6 @@ class RsvpModule extends Module
             'mensaje_personalizado' => $settings->message,
             'texto_confirmado' => $settings->confirmed_text,
             'texto_declinado' => $settings->declined_text,
-            'whatsapp' => $settings->whatsapp,
         ]) : [];
     }
 
@@ -52,17 +55,19 @@ class RsvpModule extends Module
             'message' => $this->text($data['mensaje_personalizado'] ?? null),
             'confirmed_text' => $this->text($data['texto_confirmado'] ?? null),
             'declined_text' => $this->text($data['texto_declinado'] ?? null),
-            // WhatsApp que recibe las confirmaciones del paquete Estándar: solo dígitos, con código de país
-            'whatsapp' => substr(preg_replace('/\D+/', '', (string) ($data['whatsapp'] ?? '')) ?? '', 0, 20) ?: null,
         ];
 
-        if (array_filter($attributes) === []) {
-            InvitationRsvpSetting::where('invitation_id', $invitation->id)->delete();
+        $settings = InvitationRsvpSetting::firstWhere('invitation_id', $invitation->id);
+
+        // Sin textos ni número de WhatsApp (el otro módulo usa la misma fila), la fila sobra
+        if (array_filter($attributes) === [] && ! $settings?->whatsapp) {
+            $settings?->delete();
 
             return;
         }
 
         InvitationRsvpSetting::updateOrCreate(['invitation_id' => $invitation->id], $attributes);
+        $invitation->unsetRelation('rsvpSetting');
     }
 
     public function hasContent(array $data): bool
@@ -70,7 +75,6 @@ class RsvpModule extends Module
         return $this->filled($data['titulo_confirmacion'] ?? null)
             || $this->filled($data['mensaje_personalizado'] ?? null)
             || $this->filled($data['texto_confirmado'] ?? null)
-            || $this->filled($data['texto_declinado'] ?? null)
-            || $this->filled($data['whatsapp'] ?? null);
+            || $this->filled($data['texto_declinado'] ?? null);
     }
 }

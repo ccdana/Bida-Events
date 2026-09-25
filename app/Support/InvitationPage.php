@@ -108,10 +108,13 @@ final class InvitationPage
 
     public readonly string $eventLabel;
 
-    /** Cómo confirma el invitado según el paquete: con pase (Packages::RSVP_PASS), por WhatsApp o null (no confirma). */
+    /**
+     * Cómo confirma el invitado: con pase (Packages::RSVP_PASS), por WhatsApp o null (no confirma).
+     * Sale del módulo encendido (rsvp o rsvp_whatsapp: uno solo) y de lo que permite el paquete o el plan.
+     */
     public readonly ?string $rsvpMode;
 
-    /** Número (solo dígitos) que recibe las confirmaciones por WhatsApp del paquete Estándar. */
+    /** Número (solo dígitos) que recibe las confirmaciones por WhatsApp. */
     public readonly string $rsvpWhatsapp;
 
     public function __construct(
@@ -154,10 +157,13 @@ final class InvitationPage
         $this->displayName = ($this->welcome['nombre_quinceanera'] ?? null) ?: $invitation->title;
         $this->eventKey = $meta['event'] ?? 'xv';
         $this->placeName = trim((string) ($modules['ubicacion']['nombre_lugar'] ?? '')) ?: null;
-        $this->rsvpWhatsapp = preg_replace('/\D+/', '', (string) ($modules['rsvp']['whatsapp'] ?? '')) ?? '';
-        $mode = Packages::rsvpMode($invitation->package);
+        $this->rsvpWhatsapp = preg_replace('/\D+/', '', (string) ($modules['rsvp_whatsapp']['whatsapp'] ?? '')) ?? '';
         // Por WhatsApp sin número no hay a quién escribir: la sección no se muestra
-        $this->rsvpMode = $mode === Packages::RSVP_WHATSAPP && $this->rsvpWhatsapp === '' ? null : $mode;
+        $this->rsvpMode = match (true) {
+            $this->visible('rsvp_whatsapp') => $this->rsvpWhatsapp !== '' ? Packages::RSVP_WHATSAPP : null,
+            $this->visible('rsvp') => Packages::RSVP_PASS,
+            default => null,
+        };
     }
 
     /** Título, descripción e imagen que se ven al compartir el enlace (Open Graph). */
@@ -168,8 +174,8 @@ final class InvitationPage
 
     public function visible(string $module): bool
     {
-        // Lo que el paquete de la invitación no incluye no se muestra, aunque esté encendido
-        if (! Packages::allowsModule($this->invitation->package, $module)) {
+        // Lo que el paquete de la invitación (o el plan de su revendedor) no incluye no se muestra, aunque esté encendido
+        if (! Packages::allowsModuleFor($this->invitation, $module)) {
             return false;
         }
 
@@ -201,7 +207,7 @@ final class InvitationPage
      */
     public function showsRsvp(): bool
     {
-        return $this->visible('rsvp') && match ($this->rsvpMode) {
+        return match ($this->rsvpMode) {
             Packages::RSVP_PASS => $this->guest !== null,
             Packages::RSVP_WHATSAPP => true,
             default => false,
@@ -224,8 +230,8 @@ final class InvitationPage
         }
 
         foreach ($this->order as $module) {
-            if (! $this->visible($module)
-                || ($module === 'rsvp' && ! $this->showsRsvp())
+            // La confirmación ocupa el lugar de «rsvp» en el orden, sea con pase o por WhatsApp
+            if (($module === 'rsvp' ? ! $this->showsRsvp() : ! $this->visible($module))
                 || ($module === 'post_evento' && ! $this->isPostEvent)) {
                 continue;
             }

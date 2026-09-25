@@ -6,6 +6,20 @@
     overflow: hidden;
 }
 
+/* Mientras la apertura espera el toque, la página de atrás queda quieta: ni scroll, ni arrastre
+   en el celular (Safari y Chrome de celular ignoran el overflow del html). El toque sigue
+   funcionando; se libera cuando la apertura empieza a revelar la portada. */
+html.inv-cover-waiting,
+html.inv-cover-waiting body {
+    overflow: hidden;
+    height: 100%;
+    overscroll-behavior: none;
+}
+
+html.inv-cover-waiting body {
+    touch-action: none;
+}
+
 .inv-nav__toggle {
     position: fixed;
     top: calc(0.85rem + env(safe-area-inset-top));

@@ -58,7 +58,9 @@ class PublicPagesController extends Controller
             'collections' => [
                 'lienzo' => ['label' => 'Plantilla en blanco', 'templates' => $templates->where('collection', 'lienzo')->pluck('label')->all()],
                 'clasica' => ['label' => 'Plantillas clásicas', 'templates' => $templates->where('collection', 'clasica')->pluck('label')->all()],
-                'tematica' => ['label' => 'Temáticas y de temporada', 'templates' => $templates->where('collection', 'tematica')->pluck('label')->all()],
+                'temporada' => ['label' => 'Plantillas de temporada', 'templates' => $templates->where('collection', 'temporada')->pluck('label')->all()],
+                // Las que se suman durante el año; mientras no haya, la página dice que llegan
+                'nueva' => ['label' => 'Plantillas nuevas de cada evento', 'templates' => $templates->where('collection', 'nueva')->pluck('label')->all()],
             ],
             'demo' => ShowcaseDemos::find($bida['professionals']['demos'] ?? [])[0] ?? null,
             'examplePrice' => self::EXAMPLE_RESALE_PRICE,

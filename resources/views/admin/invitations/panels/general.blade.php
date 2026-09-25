@@ -41,7 +41,7 @@
             </template>
         </div>
         <p class="text-xs text-site-muted" x-show="!meta.package" x-cloak>Sin paquete: todo incluido (invitaciones anteriores a los paquetes).</p>
-        <p class="text-xs text-site-muted" x-show="rsvpMode === 'whatsapp'" x-cloak>Confirmación por WhatsApp: carga el número en «Confirmación de asistencia».</p>
+        <p class="text-xs text-site-muted" x-show="rsvpMode === 'whatsapp'" x-cloak>Confirmación por WhatsApp: carga el número en «Confirmación por WhatsApp».</p>
     </section>
     @endif
 
