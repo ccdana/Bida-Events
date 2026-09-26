@@ -672,17 +672,6 @@ a:hover > .site-link-arrow svg,
     color: var(--site-muted);
 }
 
-.site-promo-line {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.6rem;
-    margin-top: 1.25rem;
-    padding: 0.55rem 1rem;
-    border: 1px solid var(--site-line);
-    border-radius: 999px;
-    font-size: 0.92rem;
-}
-
 /* ── «Hazlo tú» ─────────────────────────────────────────────────────────── */
 
 .site-diy-hero {

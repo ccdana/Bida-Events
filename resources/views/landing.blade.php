@@ -13,11 +13,29 @@
     $isCard = ($page['kind'] ?? null) === 'card';
     // Tarjetas e invitaciones de temporada: precio único de temporada en lugar de paquetes
     $isSeasonal = \App\Http\Controllers\EventLandingController::isSeasonal($page);
-    $navLinks = [
+    $navLinks = array_filter([
+        '#disenos' => count($demos) > 1 ? 'Diseños' : null,
         '#incluye' => 'Qué incluye',
+        '#como' => 'Cómo funciona',
         '#precios' => 'Precios',
         '#preguntas' => 'Preguntas',
-    ];
+    ]);
+    // Los tres pasos, en el orden en que pasan (por eso van numerados)
+    $steps = $isCard
+        ? [
+            ['Elige el diseño', 'Pruébalos acá mismo y quédate con el que más se parezca a lo que quieres decir.'],
+            ['Mándanos tu foto y tu mensaje', 'Por WhatsApp. Nosotros la armamos y te la mostramos antes de enviarla.'],
+            ['Compártela', 'Te pasamos el enlace listo para mandar por WhatsApp o por redes.'],
+        ]
+        : [
+            ['Elige el diseño', 'Pruébalos como un invitado: confirma, vota o sugiere una canción. Nada se guarda.'],
+            ['Mándanos tus datos', 'Nombres, fecha, lugar y fotos, por WhatsApp. Armamos la invitación y la revisas antes de compartirla.'],
+            ['Compártela con tus invitados', 'Un enlace por WhatsApp; ellos confirman desde el celular y tú ves las respuestas en tu panel.'],
+        ];
+    // Para quién es: «tu boda», «tu graduación»…
+    $forPhrase = $page['for'] ?? (collect($bida['showcase'])->firstWhere('event', $page['event'])['phrase'] ?? 'tu evento');
+    $ctaUrl = $isSeasonal && $season ? $season['whatsappUrl'] : $contactUrl;
+    $ctaLabel = $isSeasonal && $season ? 'La quiero por '.\App\Support\Money::format($season['final_price']) : 'Escríbenos';
     $accountUrl = $user ? route('dashboard') : route('login');
     $accountLabel = $user ? 'Mi panel' : 'Ingresar';
     $faqs = array_merge($page['faqs'], [
@@ -49,9 +67,18 @@
 
     @include('site.partials.header', ['navLinks' => $navLinks])
 
-    <main>
+    {{-- El diseño elegido se comparte entre la portada (el teléfono) y la sección de diseños --}}
+    <main @if(count($demos)) x-data="{
+        active: 0,
+        loading: true,
+        demos: @js($demos),
+        pick(index) {
+            if (this.active !== index) { this.active = index; this.loading = true; }
+            document.getElementById('diseno-vista')?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
+        },
+    }" @endif>
         {{-- ═══ Portada: el texto del evento y la muestra para probar ahí mismo, con sus diseños ═══ --}}
-        <section class="site-landing" @if(count($demos)) x-data="{ active: 0, loading: true, demos: @js($demos) }" @endif>
+        <section class="site-landing">
             <div class="mx-auto grid max-w-7xl items-center gap-12 px-5 pb-16 pt-8 md:pt-14 lg:min-h-[calc(100dvh-72px)] lg:grid-cols-12 lg:gap-8 lg:px-8 lg:py-12">
                 <div class="lg:col-span-6">
                     <nav class="site-enter text-sm text-site-muted" aria-label="Ruta">
@@ -78,7 +105,18 @@
                                             @click="if (active !== {{ $index }}) { active = {{ $index }}; loading = true }"
                                             @class(['site-template', 'is-active' => $index === 0])
                                             :class="{ 'is-active': active === {{ $index }} }">
-                                            <span class="site-template__name">{{ $demo['label'] }}</span>
+                                            {{-- Los colores del diseño, para reconocerlo de un vistazo --}}
+                                            <span class="site-template__swatch" aria-hidden="true">
+                                                @foreach(array_slice($demo['palette'], 0, 3) as $color)
+                                                    <i style="background: {{ $color }}"></i>
+                                                @endforeach
+                                            </span>
+                                            <span class="site-template__name">
+                                                {{ $demo['label'] }}
+                                                @if($demo['isNew'])
+                                                    <span class="site-badge-new">Nuevo</span>
+                                                @endif
+                                            </span>
                                             <span class="site-template__event">{{ $demo['tagline'] ?? $demo['event'] }}</span>
                                         </button>
                                     </li>
@@ -88,9 +126,9 @@
                     @endif
 
                     <div class="site-enter mt-9 flex flex-col gap-3 sm:flex-row" style="--enter-index: 4">
-                        <a href="{{ $isSeasonal && $season ? $season['whatsappUrl'] : $contactUrl }}" target="_blank" rel="noopener" class="site-btn site-btn--lg justify-center" data-magnetic>
+                        <a href="{{ $ctaUrl }}" target="_blank" rel="noopener" class="site-btn site-btn--lg justify-center" data-magnetic>
                             <x-phosphor-whatsapp-logo aria-hidden="true" />
-                            {{ $isSeasonal && $season ? 'La quiero por '.\App\Support\Money::format($season['final_price']) : 'Escríbenos' }}
+                            {{ $ctaLabel }}
                         </a>
                         <a href="#precios" class="site-btn site-btn--ghost site-btn--lg justify-center">
                             Ver precios
@@ -137,12 +175,58 @@
             </div>
         </section>
 
+        @if(count($demos) > 1)
+            {{-- ═══ Diseños: cada uno con sus colores y su idea; se prueba en el teléfono de arriba ═══ --}}
+            <section id="disenos" class="scroll-mt-20 border-t border-site-line">
+                <div class="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-24">
+                    <div class="grid gap-6 lg:grid-cols-12 lg:items-end lg:gap-8">
+                        <h2 class="max-w-[18ch] text-3xl font-semibold leading-[1.1] tracking-tight md:text-5xl lg:col-span-7" data-reveal>
+                            {{ count($demos) }} diseños, la misma {{ $noun }} completa
+                        </h2>
+                        <p class="max-w-[42ch] text-lg leading-relaxed text-site-muted lg:col-span-4 lg:col-start-9" data-reveal>
+                            Cambia la forma, no lo que incluye. Los colores y las letras se ajustan a tu evento en cualquiera de ellos.
+                        </p>
+                    </div>
+
+                    <ul class="site-designs mt-12">
+                        @foreach($demos as $index => $demo)
+                            <li class="site-design" data-reveal style="--reveal-index: {{ $index % 3 }}" :class="{ 'is-active': active === {{ $index }} }">
+                                {{-- La paleta original del diseño, de fondo a acento --}}
+                                <div class="site-design__palette" aria-hidden="true">
+                                    @foreach($demo['palette'] as $color)
+                                        <i style="background: {{ $color }}"></i>
+                                    @endforeach
+                                </div>
+                                <div class="site-design__body">
+                                    <p class="site-design__event">
+                                        {{ $demo['event'] }}
+                                        @if($demo['isNew'])
+                                            <span class="site-badge-new">Nuevo</span>
+                                        @endif
+                                    </p>
+                                    <h3 class="site-design__name">{{ $demo['label'] }}</h3>
+                                    <p class="site-design__text">{{ $demo['description'] }}</p>
+                                    <div class="site-design__actions">
+                                        <button type="button" class="site-btn" @click="pick({{ $index }})">
+                                            <x-phosphor-device-mobile aria-hidden="true" />
+                                            Probar en el teléfono
+                                        </button>
+                                        <a href="{{ $demo['demoUrl'] }}" target="_blank" rel="noopener" class="site-design__link">Pantalla completa</a>
+                                    </div>
+                                </div>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+            </section>
+        @endif
+
         {{-- ═══ Qué incluye: lo propio de este evento, en una grilla de filetes ═══ --}}
         <section id="incluye" class="scroll-mt-20 border-t border-site-line">
             <div class="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-28">
                 <div class="grid gap-6 lg:grid-cols-12 lg:items-end lg:gap-8">
                     <h2 class="max-w-[18ch] text-3xl font-semibold leading-[1.1] tracking-tight md:text-5xl lg:col-span-7" data-reveal>
-                        Pensada para {{ $page['for'] ?? (collect($bida['showcase'])->firstWhere('event', $page['event'])['phrase'] ?? 'tu evento') }}
+                        Pensada para {{ $forPhrase }}
                     </h2>
                     <p class="max-w-[42ch] text-lg leading-relaxed text-site-muted lg:col-span-4 lg:col-start-9" data-reveal>
                         {{ $page['features_note'] ?? 'Además de la cuenta regresiva, el itinerario y el mapa que lleva toda invitación.' }}
@@ -158,6 +242,24 @@
                         </li>
                     @endforeach
                 </ul>
+            </div>
+        </section>
+
+        {{-- ═══ Cómo funciona: tres pasos, en orden ═══ --}}
+        <section id="como" class="scroll-mt-20 border-t border-site-line">
+            <div class="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-24">
+                <h2 class="max-w-[20ch] text-3xl font-semibold leading-[1.1] tracking-tight md:text-5xl" data-reveal>
+                    De la idea al enlace, en tres pasos
+                </h2>
+                <ol class="site-howto mt-12">
+                    @foreach($steps as $index => [$stepTitle, $stepText])
+                        <li class="site-howto__item" data-reveal style="--reveal-index: {{ $index }}">
+                            <span class="site-howto__num" aria-hidden="true">{{ $index + 1 }}</span>
+                            <h3 class="site-howto__title">{{ $stepTitle }}</h3>
+                            <p class="site-howto__text">{{ $stepText }}</p>
+                        </li>
+                    @endforeach
+                </ol>
             </div>
         </section>
 

@@ -32,9 +32,9 @@ class TemplateRenderMatrixTest extends TestCase
 
     public static function templates(): array
     {
-        // La clase del <body> es inv-{evento}: inv-xv, inv-boda, inv-amor…
+        // La clase del <body> es inv-{evento} (inv-xv, inv-boda, inv-amor…) o, en las nuevas, la de su tema (inv-carta…)
         return collect(InvitationTemplates::all())
-            ->mapWithKeys(fn (array $entry, string $template) => [$entry['label'] => [$template, 'inv-'.$entry['event']]])
+            ->mapWithKeys(fn (array $entry, string $template) => [$entry['label'] => [$template, 'inv-'.InvitationTemplates::theme($template)]])
             ->all();
     }
 
@@ -85,7 +85,11 @@ class TemplateRenderMatrixTest extends TestCase
     #[DataProvider('templates')]
     public function test_the_template_renders_with_complete_content(string $template, string $bodyClass): void
     {
-        $html = $this->assertRendersBothLinks($template, $bodyClass, self::completeContent($template));
+        // El contenido es el de la muestra de su evento: la plantilla que se prueba es la que manda
+        $modules = self::completeContent($template);
+        $modules['config']['template'] = $template;
+
+        $html = $this->assertRendersBothLinks($template, $bodyClass, $modules);
 
         $profile = app(EventProfiles::class)->forTemplate($template);
 

@@ -94,6 +94,9 @@ final class ShowcaseDemos
                     'event' => $event,
                     'eventKey' => $template['event'],
                     'icon' => $icon,
+                    // La tarjeta del diseño en la página por evento muestra sus colores y si es de las nuevas
+                    'palette' => array_values(array_intersect_key($template['palette'], array_flip(['background', 'accent', 'primary', 'secondary', 'text']))),
+                    'isNew' => ($template['collection'] ?? null) === 'nueva',
                 ];
             })
             ->filter()

@@ -187,6 +187,27 @@ final class EditableTexts
         'hero_ticket_label' => 'Portada: rótulo de la fecha', 'hero_day_label' => 'Portada: rótulo del día',
         'hero_time_label' => 'Portada: rótulo de la hora', 'hero_class_label' => 'Portada: rótulo del año',
         'reply_title' => 'Respuesta: título', 'reply_intro' => 'Respuesta: introducción',
+        'stories_hint' => 'Aviso del modo historia',
+        // «Carta de baile»
+        'card_title' => 'Carta: título de la tapa', 'card_reserved' => 'Carta: antes del nombre del invitado',
+        'card_reserved_any' => 'Carta: frase en el enlace general', 'hero_place_label' => 'Portada: rótulo del lugar',
+        // «Dos caminos»
+        'hero_meet' => 'Portada: antes de la fecha', 'route_end' => 'Recorrido: última parada',
+        // «Próxima salida»
+        'board_title' => 'Panel: título', 'board_destination' => 'Panel: rótulo del destino', 'board_date' => 'Panel: rótulo de la fecha',
+        'board_time' => 'Panel: rótulo de la hora', 'board_gate' => 'Panel: rótulo del lugar', 'board_status' => 'Panel: rótulo del estado',
+        'board_on_time' => 'Panel: estado antes del día', 'board_today' => 'Panel: estado el mismo día',
+        'pass_title' => 'Pase: título', 'pass_passenger' => 'Pase: rótulo del pasajero', 'pass_guest' => 'Pase: pasajero en el enlace general',
+        // «La gota»
+        'ring_label' => 'Portada: rótulo del anillo de padrinos',
+        // «Álbum de stickers»
+        'sticker_age' => 'Sticker: después de la edad', 'sticker_going' => 'Sticker: para confirmar',
+        'sticker_missing' => 'Sticker: casilla vacía', 'sticker_time' => 'Sticker: franja de la hora',
+        'sticker_place' => 'Sticker: franja del lugar', 'intro_pack' => 'Sobre: antes del nombre',
+        // «Expediente abierto»
+        'case_label' => 'Expediente: rótulo', 'case_open' => 'Expediente: sello', 'case_lead' => 'Expediente: rótulo del nombre',
+        'case_seen' => 'Expediente: rótulo de la fecha', 'case_place' => 'Expediente: rótulo del lugar', 'case_notes' => 'Expediente: rótulo del mensaje',
+        'lights_on' => 'Botón para encender las luces', 'lights_off' => 'Botón para volver a la linterna',
         'act1_label' => 'Acto 1: nombre', 'act1_title' => 'Acto 1: título', 'act1_intro_fallback' => 'Acto 1: introducción si no hay texto',
         'act1_met_prefix' => 'Acto 1: antes de la fecha', 'act1_met_fallback' => 'Acto 1: si no hay fecha', 'act1_first_fallback' => 'Acto 1: primeras impresiones si no hay texto',
         'act2_label' => 'Acto 2: nombre', 'act2_title' => 'Acto 2: título', 'act2_moments_fallback' => 'Acto 2: si no hay momentos',

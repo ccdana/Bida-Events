@@ -31,6 +31,10 @@ final class InvitationPage
         'Poppins' => '300;400;500;600;700', 'Raleway' => '300;400;500;600;700', 'Open Sans' => '300;400;600;700',
         'Dancing Script' => '400;700', 'Tangerine' => '400;700', 'Fredoka' => '400;500;600;700',
         'Creepster' => '400',
+        'Instrument Sans' => '400;500;600;700', 'Libre Caslon Display' => '400', 'Figtree' => '300;400;500;600;700',
+        'Barlow Condensed' => '400;500;600;700', 'Source Serif 4' => '400;600;700', 'Cormorant Infant' => '300;400;500;600;700',
+        'Bagel Fat One' => '400', 'Outfit' => '300;400;500;600;700', 'Special Elite' => '400',
+        'Public Sans' => '300;400;500;600;700',
     ];
 
     public const NAV_LABELS = [
@@ -70,6 +74,9 @@ final class InvitationPage
 
     /** Tipo de evento de la plantilla (xv, boda, bautizo, cumple) */
     public readonly string $eventKey;
+
+    /** Clase propia de la página (inv-{tema}): la del evento en las clásicas, la suya en las nuevas */
+    public readonly string $theme;
 
     /** Nombre del lugar, para la vista previa al compartir */
     public readonly ?string $placeName;
@@ -156,6 +163,7 @@ final class InvitationPage
         $this->eventLabel = Str::ucfirst($this->eventDate->locale('es')->translatedFormat('l j \d\e F · H:i \h'));
         $this->displayName = ($this->welcome['nombre_quinceanera'] ?? null) ?: $invitation->title;
         $this->eventKey = $meta['event'] ?? 'xv';
+        $this->theme = $meta['theme'] ?? $this->eventKey;
         $this->placeName = trim((string) ($modules['ubicacion']['nombre_lugar'] ?? '')) ?: null;
         $this->rsvpWhatsapp = preg_replace('/\D+/', '', (string) ($modules['rsvp_whatsapp']['whatsapp'] ?? '')) ?? '';
         // Por WhatsApp sin número no hay a quién escribir: la sección no se muestra

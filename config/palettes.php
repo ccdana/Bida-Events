@@ -42,6 +42,7 @@ return [
 
     ['name' => 'Confeti coral', 'description' => 'Coral, amarillo sol y menta', 'mode' => 'light', 'events' => ['cumple'], 'colors' => ['primary' => '#C8433B', 'secondary' => '#F7B32B', 'accent' => '#CDEFE3', 'text' => '#2B2D42', 'background' => '#FFF8F0']],
     ['name' => 'Fiesta lila', 'description' => 'Lila vibrante y amarillo', 'mode' => 'light', 'events' => ['cumple'], 'colors' => ['primary' => '#6D4BD8', 'secondary' => '#FFC93C', 'accent' => '#E6DDFB', 'text' => '#2A2440', 'background' => '#FBF8FF']],
+    ['name' => 'Stickers para grandes', 'description' => 'Oliva, óxido y marfil: el álbum de stickers más sobrio', 'mode' => 'light', 'events' => ['cumple'], 'colors' => ['primary' => '#5E6B2E', 'secondary' => '#B5562E', 'accent' => '#E3D5B8', 'text' => '#2B2A1F', 'background' => '#FAF6EC']],
     ['name' => 'Mandarina', 'description' => 'Naranja alegre y azul', 'mode' => 'light', 'events' => ['cumple'], 'colors' => ['primary' => '#B85418', 'secondary' => '#2E6FB7', 'accent' => '#FFE4CF', 'text' => '#2E2218', 'background' => '#FFF9F3']],
 
     ['name' => 'Girasol', 'description' => 'Amarillo de primavera y verde hoja', 'mode' => 'light', 'events' => ['amor', 'aventura'], 'colors' => ['primary' => '#8F6A12', 'secondary' => '#4E6B35', 'accent' => '#FBEAB5', 'text' => '#2F2A1C', 'background' => '#FFFBEF']],
@@ -74,6 +75,7 @@ return [
     ['name' => 'Gala amatista', 'description' => 'Púrpura lujoso', 'mode' => 'night', 'events' => [], 'colors' => ['primary' => '#B8A0D8', 'secondary' => '#1A1428', 'accent' => '#352850', 'text' => '#EDE6F8', 'background' => '#0A0812']],
 
     ['name' => 'Calabaza y luna', 'description' => 'Naranja encendido sobre noche violeta', 'mode' => 'night', 'events' => ['halloween'], 'colors' => ['primary' => '#FF9A3C', 'secondary' => '#5E3A99', 'accent' => '#2E2440', 'text' => '#F6F0E8', 'background' => '#16111F']],
+    ['name' => 'Archivo en sepia', 'description' => 'Luz de lámpara ámbar sobre un escritorio oscuro', 'mode' => 'night', 'events' => ['halloween'], 'colors' => ['primary' => '#E0A458', 'secondary' => '#B8433A', 'accent' => '#8A7552', 'text' => '#EFE6D2', 'background' => '#1E1A16']],
     ['name' => 'Bosque encantado', 'description' => 'Verde ácido y negro de medianoche', 'mode' => 'night', 'events' => ['halloween'], 'colors' => ['primary' => '#A6E05A', 'secondary' => '#4B2A6B', 'accent' => '#22301E', 'text' => '#EEF4E6', 'background' => '#0E130C']],
     ['name' => 'Birrete de noche', 'description' => 'Azul profundo y dorado', 'mode' => 'night', 'events' => ['graduacion'], 'colors' => ['primary' => '#E0BE6A', 'secondary' => '#101A30', 'accent' => '#1F2C4A', 'text' => '#F2EEE4', 'background' => '#0B1222']],
     ['name' => 'Tinta sobre negro', 'description' => 'Negro y blanco, al revés', 'mode' => 'night', 'events' => ['lienzo'], 'colors' => ['primary' => '#F2F2F2', 'secondary' => '#BDBDBD', 'accent' => '#262626', 'text' => '#F7F7F7', 'background' => '#0D0D0D']],

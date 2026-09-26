@@ -118,6 +118,8 @@ class InvitationEditorViewData
                 // Colores y letras con los que nace una invitación nueva de esta plantilla
                 'palette' => InvitationTemplates::get($value)['palette'],
                 'fonts' => InvitationTemplates::get($value)['fonts'] ?? null,
+                // Para qué usa cada color esta plantilla (las que no lo dicen muestran el uso general)
+                'colorUsage' => InvitationTemplates::get($value)['color_usage'] ?? null,
                 // Apagada en Ajustes o de una temporada que no está a la venta (la actual se conserva)
                 'disabledReason' => $value === $invitation?->template ? null : TemplateAvailability::templateReason($value),
             ])->values(),

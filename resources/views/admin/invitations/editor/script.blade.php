@@ -299,13 +299,20 @@ function invitationForm(config) {
             background: 'Fondo',
         },
         // Dónde usa cada color la plantilla (resources/css/invitation); en el orden en que conviene elegirlos
-        colorRoles: [
+        baseColorRoles: [
             { key: 'background', label: 'Fondo', usage: 'Color de fondo de toda la invitación.' },
             { key: 'text', label: 'Texto', usage: 'Títulos, párrafos y horarios. Tiene que leerse bien sobre el fondo.' },
             { key: 'primary', label: 'Principal', usage: 'Botones, líneas decorativas, íconos animados y la luz del itinerario.' },
             { key: 'accent', label: 'Acento', usage: 'Tono suave de las zonas destacadas: portada, galería y recuadros.' },
             { key: 'secondary', label: 'Secundario', usage: 'Esta plantilla todavía no lo usa. Se guarda para otras plantillas.', unused: true },
         ],
+
+        // Las plantillas que cuentan para qué usan cada color («color_usage» en InvitationTemplates) lo dicen aquí
+        get colorRoles() {
+            const usage = this.templateOptions.find(item => item.value === String(this.meta.template ?? ''))?.colorUsage ?? {};
+
+            return this.baseColorRoles.map(role => usage[role.key] ? { ...role, usage: usage[role.key], unused: false } : role);
+        },
         fontRoles: [
             { key: 'script', label: 'Nombre del festejado', usage: 'Letra decorativa del nombre en la portada y en el menú.', fallback: 'cursive', size: 'text-2xl' },
             { key: 'titulos', label: 'Títulos de secciones', usage: 'Títulos como Itinerario o Ubicación y los números de la cuenta regresiva.', fallback: 'serif', size: 'text-lg' },
@@ -322,14 +329,16 @@ function invitationForm(config) {
             titulos: [
                 'Playfair Display', 'Cormorant Garamond', 'Cinzel', 'Libre Baskerville',
                 'Bodoni Moda', 'Prata', 'Lora', 'Merriweather', 'Fredoka', 'Inter',
+                'Libre Caslon Display', 'Cormorant Infant', 'Barlow Condensed', 'Bagel Fat One', 'Special Elite',
             ],
             cuerpo: [
                 'Montserrat', 'Inter', 'Lato', 'Nunito Sans', 'Source Sans 3',
-                'Poppins', 'Raleway', 'Open Sans',
+                'Poppins', 'Raleway', 'Open Sans', 'Instrument Sans', 'Figtree', 'Source Serif 4', 'Outfit', 'Public Sans',
             ],
             script: [
                 'Great Vibes', 'Parisienne', 'Alex Brush', 'Dancing Script',
                 'Sacramento', 'Allura', 'Tangerine', 'Petit Formal Script', 'Creepster', 'Cinzel', 'Inter',
+                'Bodoni Moda', 'Libre Caslon Display', 'Cormorant Infant', 'Barlow Condensed', 'Bagel Fat One', 'Special Elite',
             ],
         },
 

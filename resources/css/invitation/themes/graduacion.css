@@ -518,8 +518,14 @@ html.inv-cover-skip .inv-grad-intro {
     animation: none;
 }
 
+/* Lanzamiento con física: el birrete avanza de costado a velocidad pareja (span) mientras sube
+   frenando, cae acelerando por la gravedad, da un rebote corto al llegar y gira dando tumbos (svg) */
 .inv-grad-intro.is-open .inv-grad-intro__caps span {
-    animation: inv-grad-toss 1.6s cubic-bezier(0.2, 0.7, 0.3, 1) calc(1.3s + var(--delay)) forwards;
+    animation: inv-grad-toss-x 1.9s linear calc(1.3s + var(--delay)) forwards;
+}
+
+.inv-grad-intro.is-open .inv-grad-intro__caps span > svg {
+    animation: inv-grad-toss-y 1.9s calc(1.3s + var(--delay)) forwards;
 }
 
 .inv-grad-intro.is-open .inv-grad-intro__confetti i {
@@ -554,10 +560,38 @@ html.inv-cover-skip .inv-grad-intro {
     100% { opacity: 0; scale: 1.5; }
 }
 
-@keyframes inv-grad-toss {
-    0% { opacity: 0; transform: translate(0, 0) rotate(0deg) scale(0.6); }
-    12% { opacity: 1; }
-    100% { opacity: 0; transform: translate(var(--x), var(--y)) rotate(calc(var(--r) * 6)) scale(1); }
+@keyframes inv-grad-toss-x {
+    0% { opacity: 0; translate: 0 0; }
+    6% { opacity: 1; }
+    92% { opacity: 1; }
+    100% { opacity: 0; translate: calc(var(--x) * 1.35) 0; }
+}
+
+/* Cada tramo con su curva: sube desacelerando, cae acelerando y rebota apenas */
+@keyframes inv-grad-toss-y {
+    0% {
+        transform: translateY(0) rotate(0deg) rotateX(0deg) scale(0.6);
+        animation-timing-function: cubic-bezier(0.22, 0.62, 0.36, 1);
+    }
+
+    40% {
+        transform: translateY(var(--y)) rotate(calc(var(--r) * 3)) rotateX(170deg) scale(1);
+        animation-timing-function: cubic-bezier(0.55, 0, 0.9, 0.45);
+    }
+
+    80% {
+        transform: translateY(26vh) rotate(calc(var(--r) * 5.5)) rotateX(350deg) scale(1);
+        animation-timing-function: cubic-bezier(0.25, 0.6, 0.4, 1);
+    }
+
+    88% {
+        transform: translateY(calc(26vh - 1.6rem)) rotate(calc(var(--r) * 5.9)) rotateX(360deg) scale(1);
+        animation-timing-function: cubic-bezier(0.55, 0, 0.9, 0.45);
+    }
+
+    100% {
+        transform: translateY(26vh) rotate(calc(var(--r) * 6)) rotateX(360deg) scale(0.96);
+    }
 }
 
 @keyframes inv-grad-confetti {
@@ -760,9 +794,13 @@ html.inv-cover-waiting .inv-grad-hero * {
     50% { rotate: 9deg; }
 }
 
+/* El birrete cae sobre el arco, rebota una vez y se asienta en su ángulo */
 @keyframes inv-grad-cap-drop {
-    from { opacity: 0; translate: 1.5rem -5rem; rotate: -35deg; }
-    to { opacity: 1; translate: 0 0; rotate: 16deg; }
+    0% { opacity: 0; translate: 1.5rem -5rem; rotate: -35deg; }
+    55% { opacity: 1; translate: 0 0.3rem; rotate: 22deg; }
+    75% { translate: 0 -0.4rem; rotate: 12deg; }
+    90% { translate: 0 0.08rem; rotate: 17deg; }
+    100% { opacity: 1; translate: 0 0; rotate: 16deg; }
 }
 
 @keyframes inv-grad-develop {

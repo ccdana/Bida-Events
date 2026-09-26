@@ -20,7 +20,7 @@
     ][$page->eventKey] ?? 'Toca para seguir';
 @endphp
 
-<div class="inv-tale" data-inv-story data-theme="{{ $page->eventKey }}"
+<div class="inv-tale" data-inv-story data-theme="{{ $page->theme }}"
     x-data="invitationStory(@js(['enabled' => empty($isPreview), 'optIn' => true]))"
     @scroll.window.throttle.150ms="atTop = window.scrollY < window.innerHeight * 0.6">
 

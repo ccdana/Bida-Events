@@ -14,6 +14,13 @@
 @import './invitation/themes/graduacion.css';
 @import './invitation/themes/lienzo.css';
 @import './invitation/themes/halloween.css';
+@import './invitation/themes/nueva.css';
+@import './invitation/themes/carta.css';
+@import './invitation/themes/caminos.css';
+@import './invitation/themes/salidas.css';
+@import './invitation/themes/gota.css';
+@import './invitation/themes/stickers.css';
+@import './invitation/themes/expediente.css';
 @import './site/brand.css';
 @import './site/site.css';
 @import './site/home.css';

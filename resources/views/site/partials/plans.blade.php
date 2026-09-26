@@ -1,11 +1,7 @@
 {{--
     Precios de los paquetes (pago único por invitación). Recibe $packages (con su enlace de WhatsApp)
-    y $contactUrl. Con la promoción encendida, el precio normal va tachado y una línea dice hasta cuándo.
+    y $contactUrl. Con la promoción encendida, el precio normal va tachado junto al de hoy.
 --}}
-@php
-    $promoActive = collect($packages)->contains(fn (array $package) => ! empty($package['old_price']));
-    $promoEnds = \App\Support\Offers::date(config('bida.launch_promo.ends_at'));
-@endphp
 <section id="precios" class="scroll-mt-20 border-t border-site-line bg-site-surface" aria-labelledby="precios-titulo">
     <div class="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-28">
         <div class="max-w-3xl">
@@ -13,12 +9,6 @@
             <p class="site-muted-lead" data-reveal>
                 Pago único por invitación, en dólares ({{ \App\Support\Money::code() }}). Cada paquete incluye todo lo del anterior.
             </p>
-            @if($promoActive)
-                <p class="site-promo-line" data-reveal>
-                    <span class="site-live-dot" aria-hidden="true"></span>
-                    {{ config('bida.launch_promo.label') }}{{ $promoEnds ? ' hasta el '.$promoEnds->locale('es')->translatedFormat('j \d\e F') : '' }}: los precios tachados vuelven después.
-                </p>
-            @endif
         </div>
 
         <div class="site-plans mt-14">

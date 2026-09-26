@@ -35,6 +35,18 @@ final class ImageFrames
         'tarjeta-aventura' => [1000, 1100, 'rect', 'Foto de la tapa'],
         // Foto vista a través del agua (.story-underwater, 4:5 con arco arriba)
         'we-story-together' => [1080, 1350, 'arch', 'Foto de la portada'],
+        // Foto sujeta con esquineros dentro de la carta (.cb-photo, 4:5)
+        'xv-carta-de-baile' => [1080, 1350, 'rect', 'Foto de la carta'],
+        // La foto es el punto donde se juntan los caminos (.dc-meet__photo, círculo)
+        'boda-dos-caminos' => [1200, 1200, 'circle', 'Foto del punto de encuentro'],
+        // Ventanilla del avión (.ps-window, 4:5 con esquinas muy redondas)
+        'graduacion-proxima-salida' => [1080, 1350, 'rounded', 'Foto en la ventanilla'],
+        // Centro de las ondas (.gt-center, círculo)
+        'bautizo-la-gota' => [1200, 1200, 'circle', 'Foto en el centro de las ondas'],
+        // Sticker de foto con borde troquelado (.st-photo, 4:5)
+        'cumple-stickers' => [1080, 1350, 'rounded', 'Foto del sticker'],
+        // Foto instantánea con clip (.ex-photo, cuadrada)
+        'halloween-expediente' => [1080, 1080, 'rect', 'Foto del expediente'],
     ];
 
     /** El resto de los espacios, por el contexto con el que sube la foto el editor. */

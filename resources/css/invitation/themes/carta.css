@@ -1,0 +1,719 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   INVITACIÓN — «Carta de baile» (invitations.templates.xv-carta-de-baile)
+
+   La invitación es una carta de baile apoyada sobre terciopelo. La portada es la
+   tapa (con ojal y borla), las secciones son las hojas de adentro y el pie cierra
+   la carta. Todo sale de la paleta del editor:
+     papel = fondo · tinta y terciopelo = texto · cordón y filetes = principal ·
+     borla y sello = secundario · recuadros = acento.
+   Sin mayúsculas sostenidas ni íconos animados: la jerarquía es de tipografía.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+.inv-carta {
+    --inv-radius: 0px;
+    --cb-velvet: color-mix(in srgb, var(--text-color) 88%, #05060a);
+    --cb-velvet-hi: color-mix(in srgb, var(--accent-color) 26%, var(--cb-velvet));
+    --cb-rule: color-mix(in srgb, var(--primary-color) 72%, var(--text-color));
+    --cb-width: min(100% - 1.25rem, 35rem);
+    /* Marco doble de la carta, dibujado por dentro para no sumar al ancho */
+    --cb-frame:
+        inset 0 0 0 7px var(--bg-color),
+        inset 0 0 0 8px var(--cb-rule),
+        inset 0 0 0 11px var(--bg-color),
+        inset 0 0 0 12px color-mix(in srgb, var(--cb-rule) 55%, var(--bg-color));
+
+    background:
+        radial-gradient(90% 60% at 50% 0%, var(--cb-velvet-hi), transparent 70%),
+        var(--cb-velvet);
+}
+
+.inv-carta.has-player {
+    padding-bottom: calc(5.25rem + env(safe-area-inset-bottom));
+}
+
+/* ── Las hojas: el contenido va en la misma columna que la tapa ─────────── */
+
+.inv-carta main,
+.inv-carta .inv-carta-footer {
+    width: var(--cb-width);
+    margin-inline: auto;
+    background: var(--bg-color);
+}
+
+.inv-carta main {
+    margin-top: 2.5rem;
+    padding-block: 1.5rem;
+    box-shadow: var(--cb-frame), 0 30px 60px -34px rgb(0 0 0 / 0.7);
+}
+
+.inv-carta .inv-carta-footer {
+    margin-top: 1.25rem;
+    margin-bottom: 2.5rem;
+    border-top: 0;
+    box-shadow: var(--cb-frame);
+}
+
+.inv-carta .inv-carta-footer .inv-footer__ornament--line {
+    width: 5rem;
+    height: 3px;
+    background: none;
+    border-block: 1px solid var(--cb-rule);
+    opacity: 0.8;
+}
+
+.inv-carta .inv-footer__date {
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    text-transform: none;
+}
+
+.inv-carta .inv-section {
+    border-top: 0;
+    padding-block: 3rem;
+}
+
+/* Entre hoja y hoja, un filete doble */
+.inv-carta main > .inv-section + .inv-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 1.75rem;
+    right: 1.75rem;
+    height: 4px;
+    border-block: 1px solid var(--cb-rule);
+    opacity: 0.45;
+}
+
+.inv-carta .inv-wrap,
+.inv-carta .inv-wrap--wide {
+    max-width: 30rem;
+    padding-inline: 1.75rem;
+}
+
+.inv-carta .invitation-lottie-framed {
+    display: none;
+}
+
+.inv-carta .inv-head {
+    text-align: left;
+}
+
+.inv-carta .inv-head__eyebrow {
+    font-size: 0.92rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    text-transform: none;
+}
+
+.inv-carta .inv-head__title {
+    margin-top: 0.3rem;
+    font-size: clamp(2rem, 8vw, 2.9rem);
+    font-weight: 500;
+    letter-spacing: -0.015em;
+}
+
+.inv-carta .inv-head__rule {
+    width: 100%;
+    height: 4px;
+    margin: 1rem 0 0;
+    background: none;
+    border-block: 1px solid var(--cb-rule);
+    opacity: 0.55;
+}
+
+.inv-carta .inv-head__intro {
+    margin-inline: 0;
+}
+
+.inv-carta :is(.inv-label, .inv-link, .inv-btn) {
+    letter-spacing: 0.02em;
+    text-transform: none;
+}
+
+.inv-carta .inv-label {
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+/* Botón como un sello de tinta: lleno, con un filete fino por dentro */
+.inv-carta .inv-btn {
+    min-height: 3.1rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    box-shadow: inset 0 0 0 3px var(--text-color), inset 0 0 0 4px color-mix(in srgb, var(--bg-color) 55%, var(--text-color));
+}
+
+.inv-carta .inv-btn--ghost {
+    box-shadow: none;
+}
+
+.inv-carta .inv-link {
+    font-size: 0.9rem;
+}
+
+.inv-carta .inv-countdown__grid {
+    gap: 0;
+}
+
+.inv-carta .inv-countdown__unit + .inv-countdown__unit {
+    border-left: 1px solid var(--inv-line-strong);
+}
+
+.inv-carta .inv-countdown__label {
+    letter-spacing: 0.02em;
+    text-transform: none;
+}
+
+/* ── Renglón con puntos guía (fecha, hora y programa) ───────────────────── */
+
+.cb-leader {
+    flex: 1 1 1.5rem;
+    min-width: 1.5rem;
+    border-bottom: 2px dotted var(--inv-line-strong);
+    translate: 0 -0.28em;
+}
+
+/* ── Portada: la tapa de la carta ───────────────────────────────────────── */
+
+.cb-hero {
+    align-content: center;
+    gap: 2rem;
+    padding: calc(4.5rem + env(safe-area-inset-top)) 0 2rem;
+    color: var(--text-color);
+    background: transparent;
+}
+
+.cb-card {
+    position: relative;
+    width: var(--cb-width);
+    margin-inline: auto;
+    background: var(--bg-color);
+    box-shadow: var(--cb-frame), 0 34px 70px -36px rgb(0 0 0 / 0.75);
+}
+
+.cb-card--cover {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8rem 1.75rem 2.75rem;
+}
+
+.cb-card__eyelet {
+    position: absolute;
+    top: 1.35rem;
+    left: 50%;
+    width: 0.85rem;
+    height: 0.85rem;
+    border: 2px solid var(--cb-rule);
+    border-radius: 50%;
+    background: var(--cb-velvet);
+    translate: -50% 0;
+}
+
+/* La borla cuelga del ojal y se balancea una sola vez al abrirse la portada */
+.cb-card__tassel {
+    position: absolute;
+    top: 1.7rem;
+    left: 50%;
+    width: 2.1rem;
+    transform-origin: 50% 0;
+    rotate: -8deg;
+    translate: -50% 0;
+    animation: cb-tassel-settle 2.4s var(--inv-ease) 0.4s both;
+}
+
+@keyframes cb-tassel-settle {
+    0% { rotate: 24deg; }
+    35% { rotate: -20deg; }
+    65% { rotate: 4deg; }
+    100% { rotate: -8deg; }
+}
+
+.cb-tassel-string {
+    fill: none;
+    stroke: var(--primary-color);
+    stroke-width: 2.4;
+    stroke-linecap: round;
+}
+
+.cb-tassel-knot {
+    fill: var(--primary-color);
+}
+
+.cb-tassel-cap {
+    fill: var(--secondary-color);
+}
+
+.cb-tassel-fringe {
+    fill: none;
+    stroke: var(--secondary-color);
+    stroke-width: 1.7;
+    stroke-linecap: round;
+}
+
+/* Título de la tapa entre dos filetes cortos */
+.cb-card__title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0 0 1.5rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    color: var(--inv-accent-ink);
+}
+
+.cb-card__title::before,
+.cb-card__title::after {
+    content: '';
+    width: 1.75rem;
+    height: 1px;
+    background: var(--cb-rule);
+}
+
+.cb-name {
+    margin: 0;
+    font-family: var(--font-script);
+    font-size: clamp(2.4rem, 13.5vw, 5.4rem);
+    font-weight: 400;
+    line-height: 0.96;
+    letter-spacing: -0.025em;
+    text-wrap: balance;
+    overflow-wrap: break-word;
+    hyphens: auto;
+}
+
+.cb-eyebrow {
+    margin: 0.9rem 0 0;
+    font-family: var(--font-titles);
+    font-size: 1.2rem;
+    color: var(--inv-muted);
+}
+
+/* Foto sujeta con cuatro esquineros de papel, como en un álbum */
+.cb-photo {
+    position: relative;
+    width: min(70%, 17rem);
+    margin: 2.25rem 0 0;
+    aspect-ratio: 4 / 5;
+    padding: 0.45rem;
+    background: color-mix(in srgb, var(--accent-color) 30%, var(--bg-color));
+}
+
+.cb-photo img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.cb-photo__corner {
+    position: absolute;
+    width: 1.9rem;
+    height: 1.9rem;
+    background: var(--cb-rule);
+    clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+
+.cb-photo__corner:nth-of-type(1) { top: -0.35rem; left: -0.35rem; }
+.cb-photo__corner:nth-of-type(2) { top: -0.35rem; right: -0.35rem; rotate: 90deg; }
+.cb-photo__corner:nth-of-type(3) { bottom: -0.35rem; right: -0.35rem; rotate: 180deg; }
+.cb-photo__corner:nth-of-type(4) { bottom: -0.35rem; left: -0.35rem; rotate: 270deg; }
+
+/* «Reservado para …»: el renglón de la carta con el nombre del invitado */
+.cb-reserved {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2rem;
+    margin: 2.25rem 0 0;
+}
+
+.cb-reserved__label {
+    font-size: 0.85rem;
+    color: var(--inv-soft);
+}
+
+.cb-reserved__name {
+    padding: 0 0.75rem 0.25rem;
+    border-bottom: 1px dotted var(--cb-rule);
+    font-family: var(--font-script);
+    font-size: clamp(1.6rem, 7vw, 2.1rem);
+    line-height: 1.15;
+    color: var(--secondary-color);
+    color: color-mix(in srgb, var(--secondary-color) 70%, var(--text-color));
+    text-wrap: balance;
+}
+
+.cb-facts {
+    display: grid;
+    gap: 0.55rem;
+    width: 100%;
+    max-width: 22rem;
+    margin: 2rem 0 0;
+}
+
+.cb-facts__row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    text-align: left;
+}
+
+.cb-facts dt {
+    font-size: 0.85rem;
+    color: var(--inv-soft);
+}
+
+.cb-facts dd {
+    margin: 0;
+    font-weight: 600;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.cb-message {
+    max-width: 27rem;
+    margin: 1.75rem 0 0;
+    font-size: 0.97rem;
+    line-height: 1.7;
+    color: var(--inv-muted);
+    text-wrap: pretty;
+}
+
+.cb-hero__scroll {
+    position: static;
+    margin-inline: auto;
+    color: color-mix(in srgb, var(--bg-color) 80%, var(--cb-velvet));
+    letter-spacing: 0.08em;
+    text-transform: none;
+    font-size: 0.8rem;
+    transform: none;
+}
+
+/* ── Programa de la noche ───────────────────────────────────────────────── */
+
+.cb-program__list {
+    display: grid;
+    gap: 1.35rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.cb-program__item {
+    display: grid;
+    grid-template-columns: 2rem 1fr;
+    gap: 0.75rem;
+    align-items: baseline;
+}
+
+.cb-program__num {
+    font-family: var(--font-titles);
+    font-size: 1.65rem;
+    line-height: 1;
+    color: var(--inv-accent-deco);
+}
+
+.cb-program__line {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+}
+
+.cb-program__title {
+    margin: 0;
+    font-family: var(--font-titles);
+    font-size: 1.25rem;
+    font-weight: 500;
+    line-height: 1.25;
+}
+
+.cb-program__time {
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.cb-program__text {
+    margin: 0.3rem 0 0;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--inv-muted);
+}
+
+/* ── Apertura: la carta cerrada y atada ─────────────────────────────────── */
+
+.cb-intro {
+    color: var(--bg-color);
+    background:
+        radial-gradient(70% 50% at 50% 38%, var(--cb-velvet-hi), transparent 72%),
+        var(--cb-velvet);
+    perspective: 1400px;
+}
+
+.cb-intro__eyebrow {
+    margin: 0;
+    font-family: var(--font-titles);
+    font-size: 1.25rem;
+    color: color-mix(in srgb, var(--bg-color) 88%, var(--cb-velvet));
+}
+
+.cb-intro__hint {
+    margin: 0;
+    font-size: 0.85rem;
+    color: color-mix(in srgb, var(--bg-color) 72%, var(--cb-velvet));
+    transition: opacity 0.4s ease;
+}
+
+.cb-intro.is-untied .cb-intro__hint,
+.cb-intro.is-untied .cb-intro__eyebrow {
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.cb-closed {
+    position: relative;
+    width: min(72vw, 17rem);
+    aspect-ratio: 5 / 7;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--text-color);
+    cursor: pointer;
+    transform-style: preserve-3d;
+}
+
+.cb-closed__inside,
+.cb-closed__cover {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    padding: 1.5rem;
+    background: var(--bg-color);
+    box-shadow: var(--cb-frame), 0 28px 50px -24px rgb(0 0 0 / 0.8);
+}
+
+.cb-closed__reserved {
+    font-size: 0.85rem;
+    color: var(--inv-soft);
+}
+
+.cb-closed__guest {
+    font-family: var(--font-script);
+    font-size: clamp(1.6rem, 8vw, 2.1rem);
+    line-height: 1.1;
+    color: color-mix(in srgb, var(--secondary-color) 70%, var(--text-color));
+}
+
+.cb-closed__cover {
+    justify-content: flex-start;
+    padding-top: 22%;
+    background: color-mix(in srgb, var(--accent-color) 34%, var(--bg-color));
+    transform-origin: 0 50%;
+    backface-visibility: hidden;
+    transition: transform 1s var(--inv-ease);
+}
+
+.cb-closed__title {
+    font-size: 0.8rem;
+    letter-spacing: 0.06em;
+    color: var(--inv-accent-ink);
+}
+
+.cb-closed__name {
+    font-family: var(--font-script);
+    font-size: clamp(2rem, 10vw, 2.6rem);
+    line-height: 1;
+    text-wrap: balance;
+}
+
+.cb-closed__date {
+    font-size: 0.85rem;
+    color: var(--inv-muted);
+}
+
+/* El cordón abraza la carta a lo ancho, por debajo de la fecha para no taparla */
+.cb-closed__cord {
+    position: absolute;
+    top: 70%;
+    left: -5%;
+    right: -5%;
+    height: 3rem;
+    transition: translate 0.6s ease-in, opacity 0.5s ease;
+}
+
+.cb-closed__cord svg {
+    width: 100%;
+    height: 100%;
+}
+
+.cb-cord-line {
+    fill: none;
+    stroke: var(--primary-color);
+    stroke-width: 3;
+    vector-effect: non-scaling-stroke;
+}
+
+.cb-cord-line--under {
+    stroke: color-mix(in srgb, var(--primary-color) 60%, #000);
+    stroke-width: 2;
+}
+
+.cb-closed__tassel {
+    position: absolute;
+    top: calc(70% + 0.9rem);
+    left: 50%;
+    width: 2.6rem;
+    translate: -50% 0;
+    transform-origin: 50% 0;
+    animation: cb-tassel-idle 3.2s ease-in-out infinite;
+}
+
+@keyframes cb-tassel-idle {
+    0%, 100% { rotate: -6deg; }
+    50% { rotate: 6deg; }
+}
+
+.cb-intro.is-untied .cb-closed__cord {
+    translate: 0 3.5rem;
+    opacity: 0;
+}
+
+.cb-intro.is-untied .cb-closed__tassel {
+    animation: cb-tassel-drop 0.9s cubic-bezier(0.5, 0, 0.9, 0.6) both;
+}
+
+@keyframes cb-tassel-drop {
+    to { translate: -50% 70vh; rotate: 40deg; opacity: 0; }
+}
+
+.cb-intro.is-open .cb-closed__cover {
+    transform: rotateY(-168deg);
+}
+
+/* ── Modo historia: cada escena entra como una carta que se saca del mazo ── */
+
+.inv-story-invitation .inv-carta .inv-scene {
+    --story-scene-bg: var(--bg-color);
+    translate: 0 16%;
+    rotate: -2.5deg;
+    scale: 0.96;
+    opacity: 0;
+    filter: none;
+    box-shadow: var(--cb-frame);
+    transition: translate 0.9s var(--inv-ease), rotate 0.9s var(--inv-ease), scale 0.9s var(--inv-ease), opacity 0.55s ease, visibility 0s linear 0.9s;
+}
+
+.inv-story-invitation .inv-carta #inicio.inv-scene {
+    --story-scene-bg: var(--cb-velvet);
+    box-shadow: none;
+}
+
+.inv-story-invitation .inv-carta .inv-scene.is-past {
+    translate: 0 -10%;
+    rotate: 2deg;
+    scale: 0.92;
+}
+
+.inv-story-invitation .inv-carta .inv-scene.is-active {
+    translate: 0 0;
+    rotate: 0deg;
+    scale: 1;
+    opacity: 1;
+    transition-delay: 0s;
+}
+
+.inv-story-invitation.is-turning .inv-carta .inv-tale__turn i {
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: var(--cb-rule);
+    transform-origin: 0 50%;
+    animation: cb-tale-rule 1s var(--inv-ease) var(--d) both;
+}
+
+.inv-story-invitation.is-turning .inv-carta .inv-tale__turn i:nth-child(n + 7) {
+    display: none;
+}
+
+@keyframes cb-tale-rule {
+    0% { opacity: 0; scale: 0 1; }
+    35% { opacity: 0.8; scale: 1 1; }
+    100% { opacity: 0; scale: 1 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cb-card__tassel,
+    .cb-closed__tassel {
+        animation: none;
+    }
+}
+
+/* ── Movimiento: terciopelo con brillo, destellos dorados y entradas de carta ─ */
+
+.inv-carta {
+    --themed-from: translate3d(0, 30px, 0) scale(0.985);
+}
+
+/* Dos reflejos de luz que recorren el terciopelo muy despacio */
+.inv-carta .inv-themed-bg__glow {
+    background:
+        radial-gradient(38% 28% at 28% 24%, color-mix(in srgb, var(--accent-color) 30%, transparent), transparent 70%),
+        radial-gradient(32% 26% at 74% 72%, color-mix(in srgb, var(--primary-color) 20%, transparent), transparent 70%);
+}
+
+/* El pelo del terciopelo: una trama diagonal casi invisible que acompaña el scroll */
+.inv-carta .inv-themed-bg__texture {
+    background: repeating-linear-gradient(180deg, rgb(255 255 255 / 0.022) 0 2px, transparent 2px 6px);
+}
+
+.inv-drift--brillo {
+    --drift-a: color-mix(in srgb, var(--primary-color) 70%, #fff);
+    opacity: 0.75;
+}
+
+/* La foto se mueve un poco dentro de su marco al bajar (parallax) */
+.cb-photo__frame {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.cb-photo__frame img {
+    height: 116%;
+    margin-top: -8%;
+}
+
+.cb-program__item {
+    transition: transform 0.4s var(--themed-ease);
+}
+
+.cb-program__num {
+    transition: color 0.3s ease, transform 0.4s var(--themed-spring);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .cb-program__item:hover {
+        transform: translate3d(4px, 0, 0);
+    }
+
+    .cb-program__item:hover .cb-program__num {
+        color: var(--primary-color);
+        transform: scale(1.15);
+    }
+
+    /* El botón conserva su filete de sello al levantarse */
+    .inv-carta .inv-btn:hover:not(:disabled) {
+        box-shadow:
+            inset 0 0 0 3px var(--text-color),
+            inset 0 0 0 4px color-mix(in srgb, var(--bg-color) 55%, var(--text-color)),
+            0 14px 26px -16px rgb(0 0 0 / 0.55);
+    }
+}

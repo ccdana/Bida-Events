@@ -1,0 +1,696 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   INVITACIÓN — «Dos caminos» (invitations.templates.boda-dos-caminos)
+
+   Un mapa: curvas de nivel de fondo en toda la página, dos caminos punteados que
+   salen de cada nombre y se juntan en el aro del lugar. El recorrido del día son
+   paradas y la vestimenta y los regalos van como la leyenda del mapa.
+     papel = fondo · nombres y curvas = texto · primer camino y botones = principal ·
+     segundo camino y aro = secundario · leyenda y recuadros = acento.
+   Las curvas se pintan con una máscara, así toman el color del editor.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+.inv-caminos {
+    --inv-radius: 3px;
+    --dc-topo: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 480 480'%3E%3Cg fill='none' stroke='black' stroke-width='1.1'%3E%3Cpath d='M176 170C176 172 175 175 174 177C173 180 173 182 172 185C171 188 170 192 167 193C164 194 159 193 155 192C152 191 149 187 146 186C143 185 142 185 139 185C136 185 132 185 129 184C126 183 124 180 122 178C121 176 120 173 120 170C120 167 119 164 120 162C122 160 126 158 129 157C132 156 137 157 140 156C143 155 144 154 146 152C149 150 152 146 155 146C158 146 163 148 165 150C168 152 169 155 170 157C172 159 173 161 174 163C175 165 176 168 176 170Z'/%3E%3Cpath d='M196 170C196 174 193 178 191 182C190 186 189 190 187 194C185 198 183 206 178 208C173 210 165 210 159 208C153 206 149 200 144 198C139 196 136 198 130 197C125 197 116 197 111 195C106 193 102 188 100 184C98 180 97 175 97 170C97 165 97 160 100 156C103 152 111 150 116 148C122 147 129 149 133 147C138 146 139 142 143 139C147 136 153 129 159 128C165 127 173 130 177 133C182 136 183 143 186 147C189 151 191 154 193 158C195 162 196 166 196 170Z'/%3E%3Cpath d='M213 170C212 176 207 180 205 186C203 192 204 198 201 204C199 210 197 221 190 224C184 228 170 227 162 225C154 223 147 215 140 212C133 210 128 211 120 210C112 209 101 210 94 207C87 204 83 196 80 190C77 184 77 177 77 170C77 164 78 156 82 151C86 146 96 141 103 139C110 137 120 140 126 137C132 135 134 129 140 124C146 119 156 110 164 108C172 107 184 110 190 115C196 120 199 130 202 136C206 142 209 147 211 153C213 159 214 165 213 170Z'/%3E%3Cpath d='M227 170C226 177 221 183 219 190C217 197 220 205 217 214C214 223 211 237 203 242C195 247 178 248 167 245C156 243 146 231 137 227C128 223 121 224 111 222C101 220 87 221 79 216C71 212 65 203 62 195C59 187 59 178 59 170C59 162 58 152 63 145C68 138 80 133 89 130C98 127 109 129 117 125C125 121 127 113 136 107C145 101 158 88 169 87C180 86 195 92 203 99C211 106 212 119 216 127C220 135 223 142 225 149C227 156 228 163 227 170Z'/%3E%3Cpath d='M244 170C244 178 238 186 237 195C236 204 239 215 236 226C233 237 229 256 218 262C207 268 185 268 171 264C157 260 145 245 134 240C123 235 115 235 104 232C93 230 77 230 67 225C57 220 51 209 46 200C41 191 40 180 39 170C38 160 36 148 41 139C46 130 60 123 71 118C82 114 97 117 107 112C117 108 121 98 132 91C143 84 160 69 173 68C187 67 204 77 213 85C222 94 223 109 227 119C231 129 235 137 238 145C241 154 244 162 244 170Z'/%3E%3Cpath d='M266 170C267 180 261 189 259 201C257 213 261 227 256 240C252 253 246 274 232 280C219 287 192 284 175 279C158 274 145 256 132 249C119 242 112 242 99 239C86 236 66 239 54 233C42 227 33 216 26 205C20 195 17 182 15 170C13 158 9 143 15 132C21 121 38 111 52 106C66 101 85 105 98 100C111 95 116 86 129 78C142 70 161 55 176 54C192 53 212 63 222 73C233 83 234 101 239 112C245 123 251 130 255 140C260 150 265 160 266 170Z'/%3E%3Cpath d='M291 170C292 182 284 194 281 207C278 220 280 236 273 250C267 265 258 287 242 294C226 301 196 297 177 291C158 285 144 264 130 257C116 250 108 251 92 249C76 247 51 250 36 244C21 238 8 224 0 212C-8 200 -12 185 -14 170C-16 156 -19 137 -10 125C-2 113 20 102 37 96C54 91 77 97 92 92C107 88 113 78 127 69C142 60 162 42 179 40C197 38 219 49 232 59C245 69 247 89 255 101C263 114 272 123 278 134C284 146 291 158 291 170Z'/%3E%3Cpath d='M373 330C372 332 372 334 371 336C370 338 369 340 367 341C365 342 362 343 360 344C358 345 357 347 354 348C352 349 348 351 345 351C342 351 340 348 338 346C337 344 337 341 336 339C335 337 334 337 332 335C330 334 326 332 325 330C324 328 324 325 325 323C326 321 328 319 330 317C332 315 334 314 337 313C340 312 343 312 346 313C349 314 351 316 353 317C355 318 357 317 360 317C363 317 368 315 371 316C374 317 376 321 376 323C376 325 374 328 373 330Z'/%3E%3Cpath d='M390 330C388 334 387 337 385 340C383 343 380 346 377 348C374 350 370 351 367 353C364 355 361 358 357 360C353 362 347 366 342 366C337 366 332 362 329 359C326 356 327 349 325 346C323 343 321 342 318 339C315 336 310 334 308 330C307 327 307 322 309 318C311 315 315 312 318 309C321 306 325 303 329 302C333 301 340 302 344 303C348 304 351 308 355 308C359 309 363 306 368 306C373 306 383 304 387 306C392 308 395 313 395 317C396 321 392 326 390 330Z'/%3E%3Cpath d='M404 330C401 335 399 339 396 343C393 347 391 351 387 354C383 357 379 359 374 362C370 365 366 370 360 373C354 377 345 383 338 383C331 383 323 377 319 372C315 367 316 359 314 354C312 349 309 347 305 343C301 339 294 335 292 330C290 325 293 319 295 314C298 309 303 306 307 302C311 298 315 293 321 291C327 289 335 289 341 290C347 291 351 296 357 297C363 298 369 295 376 295C384 295 396 293 402 296C408 299 413 306 413 312C413 318 407 325 404 330Z'/%3E%3Cpath d='M416 330C413 336 411 341 408 346C405 351 402 358 398 362C394 367 388 369 382 373C376 377 371 384 363 388C355 393 343 401 334 400C325 400 314 392 309 385C304 378 306 367 304 360C302 354 299 351 295 346C291 341 281 336 279 330C277 324 279 316 281 310C283 304 288 299 293 293C298 288 304 280 311 277C319 274 330 275 338 276C346 277 352 284 360 285C368 286 375 284 384 284C393 284 409 283 416 287C423 291 428 301 428 308C428 315 419 324 416 330Z'/%3E%3Cpath d='M430 330C427 338 426 344 423 351C420 358 417 365 412 371C407 377 399 380 391 385C383 390 376 398 366 403C356 408 342 416 331 415C320 414 308 404 302 395C296 387 300 372 297 364C294 356 292 354 286 348C281 342 268 337 264 330C260 323 261 313 263 305C265 297 272 290 278 283C284 276 291 267 300 263C310 260 325 260 335 262C345 264 353 274 362 276C371 278 379 276 390 276C401 277 419 274 428 279C437 284 442 296 442 304C442 313 433 322 430 330Z'/%3E%3Cpath d='M411 90C410 92 408 94 407 95C406 97 405 98 403 99C402 100 400 101 398 101C396 102 395 101 393 102C391 103 389 105 387 105C385 106 381 106 379 105C377 104 377 101 376 99C376 97 377 96 376 94C376 93 374 92 373 90C372 89 371 87 371 85C371 83 374 81 375 80C377 79 378 78 380 77C382 76 385 75 387 75C389 75 391 77 393 78C395 79 395 81 397 81C399 82 401 81 403 81C405 82 410 83 411 84C412 86 412 88 411 90Z'/%3E%3Cpath d='M424 90C423 93 418 95 416 97C414 99 412 101 410 103C408 105 406 106 403 107C400 108 397 108 394 109C391 110 389 113 385 114C381 115 375 116 372 114C369 113 368 108 367 105C366 102 368 99 367 96C366 94 364 92 363 90C362 88 360 85 360 82C361 79 364 76 366 74C369 72 372 71 375 70C378 69 382 67 385 67C388 67 391 69 394 70C397 71 398 74 401 75C404 76 408 74 412 75C416 76 423 78 425 80C427 83 426 87 424 90Z'/%3E%3Cpath d='M435 90C433 94 427 97 424 100C421 103 420 106 417 108C414 110 412 113 408 114C405 116 400 115 396 117C392 119 387 123 382 124C377 125 368 126 364 124C360 122 358 116 357 112C356 108 360 103 359 99C359 95 355 93 354 90C353 87 350 83 351 79C352 76 355 72 358 69C361 66 365 64 369 62C373 60 379 57 383 57C388 57 392 60 396 62C400 64 402 67 406 68C410 69 417 68 422 69C427 71 435 74 437 77C439 81 437 86 435 90Z'/%3E%3C/g%3E%3C/svg%3E");
+    --dc-a: var(--primary-color);
+    --dc-b: color-mix(in srgb, var(--secondary-color) 85%, var(--text-color));
+    --dc-legend: color-mix(in srgb, var(--accent-color) 38%, var(--bg-color));
+}
+
+.inv-caminos.has-player {
+    padding-bottom: calc(5.25rem + env(safe-area-inset-bottom));
+}
+
+/* Las curvas de nivel viven en la capa de fondo con parallax (ver «Movimiento» al final) */
+
+.inv-caminos .inv-section {
+    border-top: 0;
+}
+
+.inv-caminos .invitation-lottie-framed {
+    display: none;
+}
+
+.inv-caminos .inv-head__eyebrow {
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    text-transform: none;
+}
+
+.inv-caminos .inv-head__title {
+    font-size: clamp(2.2rem, 9vw, 3.4rem);
+    letter-spacing: -0.01em;
+}
+
+/* El filete bajo el título es un tramo de camino punteado */
+.inv-caminos .inv-head__rule {
+    width: 5rem;
+    height: 0;
+    background: none;
+    border-top: 2px dashed var(--dc-a);
+    opacity: 0.8;
+}
+
+.inv-caminos :is(.inv-label, .inv-link, .inv-btn, .inv-footer__date, .inv-countdown__label) {
+    letter-spacing: 0.03em;
+    text-transform: none;
+}
+
+.inv-caminos .inv-btn {
+    min-height: 3.1rem;
+    border-color: var(--dc-a);
+    border-radius: 999px;
+    background: var(--dc-a);
+    color: var(--bg-color);
+    font-size: 0.92rem;
+}
+
+.inv-caminos .inv-btn--ghost {
+    background: transparent;
+    color: var(--text-color);
+    border-color: var(--inv-line-strong);
+}
+
+@media (hover: hover) {
+    .inv-caminos .inv-btn:hover:not(:disabled) {
+        background: color-mix(in srgb, var(--dc-a) 84%, var(--text-color));
+    }
+}
+
+/* La leyenda del mapa: vestimenta y regalos en un recuadro con su símbolo */
+.inv-caminos :is(#dress-code, #regalos) .inv-wrap {
+    position: relative;
+    padding-block: 2rem;
+    border: 1px solid var(--inv-line-strong);
+    background: var(--dc-legend);
+    max-width: min(100% - 2rem, 30rem);
+}
+
+.inv-caminos :is(#dress-code, #regalos) .inv-wrap::before {
+    content: '';
+    position: absolute;
+    top: -0.55rem;
+    left: 50%;
+    width: 1.1rem;
+    height: 1.1rem;
+    border: 2px solid var(--dc-b);
+    border-radius: 50%;
+    background: var(--bg-color);
+    translate: -50% 0;
+}
+
+.inv-caminos .inv-location__map,
+.inv-caminos .inv-location__photo {
+    border: 1px solid var(--inv-line-strong);
+}
+
+.inv-caminos .inv-countdown__value {
+    color: var(--dc-a);
+}
+
+.inv-caminos-footer .inv-footer__ornament--line {
+    width: 4rem;
+    height: 0;
+    background: none;
+    border-top: 2px dashed var(--dc-b);
+}
+
+/* ── Portada: el mapa con los dos caminos ───────────────────────────────── */
+
+.dc-hero {
+    display: block;
+    min-height: auto;
+    padding: calc(3.5rem + env(safe-area-inset-top)) 0 4.5rem;
+    color: var(--text-color);
+    background: transparent;
+}
+
+.dc-hero__map {
+    position: relative;
+    width: 100%;
+    --dc-meet-size: clamp(14rem, 66vw, 25rem);
+    max-width: 60rem;
+    height: clamp(38rem, 96svh, 58rem);
+    margin-inline: auto;
+}
+
+.dc-hero__eyebrow {
+    position: absolute;
+    top: 2%;
+    left: 1.25rem;
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--inv-accent-ink);
+}
+
+.dc-path {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+}
+
+.dc-path path {
+    fill: none;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    /* Con el trazo sin escalar, el punteado se mide en píxeles de pantalla */
+    stroke-dasharray: 7 9;
+    vector-effect: non-scaling-stroke;
+}
+
+.dc-path--a path {
+    stroke: var(--dc-a);
+}
+
+.dc-path--b path {
+    stroke: var(--dc-b);
+}
+
+/* Cada camino se descubre desde su nombre hacia el centro */
+.dc-path--a {
+    clip-path: inset(0 100% 0 0);
+    animation: dc-draw-a 1.8s var(--inv-ease) 0.5s forwards;
+}
+
+.dc-path--b {
+    clip-path: inset(0 0 0 100%);
+    animation: dc-draw-b 1.8s var(--inv-ease) 0.8s forwards;
+}
+
+@keyframes dc-draw-a {
+    to { clip-path: inset(0 0 0 0); }
+}
+
+@keyframes dc-draw-b {
+    to { clip-path: inset(0 0 0 0); }
+}
+
+.dc-names {
+    margin: 0;
+    font-weight: 400;
+}
+
+.dc-name {
+    position: absolute;
+    max-width: min(78%, 34rem);
+    font-family: var(--font-script);
+    font-size: clamp(2.3rem, 11.5vw, 5.6rem);
+    line-height: 0.98;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+    overflow-wrap: break-word;
+    hyphens: auto;
+}
+
+.dc-name--a {
+    top: 7.5%;
+    left: 1.25rem;
+    text-align: left;
+}
+
+.dc-name--b {
+    right: 1.25rem;
+    bottom: 3%;
+    text-align: right;
+}
+
+/* Sin segundo nombre, el nombre queda arriba y el camino llega igual al aro */
+.dc-name__and {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+}
+
+.dc-meet {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: grid;
+    place-items: center;
+    width: var(--dc-meet-size);
+    aspect-ratio: 1;
+    margin: 0;
+    overflow: hidden;
+    border-radius: 50%;
+    background: var(--dc-legend);
+    box-shadow:
+        0 0 0 3px var(--bg-color),
+        0 0 0 5px var(--dc-b),
+        0 0 0 11px var(--bg-color),
+        0 0 0 12px color-mix(in srgb, var(--dc-b) 50%, transparent);
+    translate: -50% -50%;
+}
+
+.dc-meet img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.dc-meet__initials {
+    font-family: var(--font-script);
+    font-size: 1.9rem;
+    color: var(--dc-b);
+}
+
+.dc-hero__details {
+    width: 100%;
+    max-width: 30rem;
+    margin: 2.75rem auto 0;
+    padding-inline: 1.5rem;
+    text-align: center;
+}
+
+.dc-hero__meet {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--inv-muted);
+}
+
+.dc-hero__date {
+    margin: 0.35rem 0 0;
+    font-family: var(--font-titles);
+    font-size: clamp(1.9rem, 8vw, 2.6rem);
+    line-height: 1.1;
+    text-wrap: balance;
+}
+
+.dc-hero__where {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.35rem 1.25rem;
+    margin: 0.9rem 0 0;
+    font-weight: 600;
+}
+
+/* Cada dato con el aro del mapa como viñeta */
+.dc-hero__where span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.dc-hero__where span::before {
+    content: '';
+    width: 0.6rem;
+    height: 0.6rem;
+    border: 2px solid var(--dc-a);
+    border-radius: 50%;
+}
+
+.dc-hero__message {
+    margin: 1.5rem 0 0;
+    line-height: 1.7;
+    color: var(--inv-muted);
+    text-wrap: pretty;
+}
+
+.dc-hero__scroll {
+    position: static;
+    margin: 2.5rem auto 0;
+    width: max-content;
+    font-size: 0.8rem;
+    letter-spacing: 0.06em;
+    text-transform: none;
+    transform: none;
+}
+
+@media (min-width: 768px) {
+    .dc-name--a {
+        left: 2.5rem;
+    }
+
+    .dc-name--b {
+        right: 2.5rem;
+    }
+
+    .dc-hero__eyebrow {
+        left: 2.5rem;
+    }
+}
+
+/* ── Recorrido del día: un camino con paradas ───────────────────────────── */
+
+.dc-stops {
+    position: relative;
+    display: grid;
+    gap: 2rem;
+    margin: 0;
+    padding: 0 0 0 2.25rem;
+    list-style: none;
+}
+
+.dc-stops::before {
+    content: '';
+    position: absolute;
+    top: 0.6rem;
+    bottom: 0.6rem;
+    left: 0.55rem;
+    border-left: 2px dashed var(--dc-a);
+}
+
+.dc-stop {
+    position: relative;
+}
+
+.dc-stop__ring {
+    position: absolute;
+    top: 0.2rem;
+    left: -2.25rem;
+    width: 1.2rem;
+    height: 1.2rem;
+    border: 2px solid var(--dc-a);
+    border-radius: 50%;
+    background: var(--bg-color);
+}
+
+.dc-stop.is-last .dc-stop__ring {
+    border-color: var(--dc-b);
+    background: var(--dc-b);
+    box-shadow: 0 0 0 4px var(--bg-color), 0 0 0 5px var(--dc-b);
+}
+
+.dc-stop__time {
+    display: block;
+    font-family: var(--font-titles);
+    font-size: 1.5rem;
+    line-height: 1.1;
+    color: var(--inv-accent-ink);
+    font-variant-numeric: tabular-nums;
+}
+
+.dc-stop__title {
+    margin: 0.2rem 0 0;
+    font-size: 1.05rem;
+    font-weight: 600;
+}
+
+.dc-stop__text {
+    margin: 0.3rem 0 0;
+    font-size: 0.92rem;
+    line-height: 1.6;
+    color: var(--inv-muted);
+}
+
+.dc-stop__end {
+    margin: 0.5rem 0 0;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--dc-b);
+}
+
+/* ── Apertura: el mapa doblado ──────────────────────────────────────────── */
+
+.dc-intro {
+    color: var(--text-color);
+    background: var(--bg-color);
+    perspective: 1600px;
+}
+
+.dc-intro::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: color-mix(in srgb, var(--text-color) 12%, transparent);
+    -webkit-mask: var(--dc-topo) 0 0 / 30rem repeat;
+    mask: var(--dc-topo) 0 0 / 30rem repeat;
+}
+
+.dc-intro__eyebrow,
+.dc-intro__hint {
+    position: relative;
+    margin: 0;
+    transition: opacity 0.4s ease;
+}
+
+.dc-intro__eyebrow {
+    font-family: var(--font-titles);
+    font-size: 1.3rem;
+}
+
+.dc-intro__hint {
+    font-size: 0.85rem;
+    color: var(--inv-muted);
+}
+
+.dc-intro.is-unfolding :is(.dc-intro__eyebrow, .dc-intro__hint) {
+    opacity: 0;
+}
+
+/* Cerrado se ve la mitad izquierda con la tapa encima; al desplegarse el mapa crece al doble */
+.dc-map {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: min(84vw, 22rem);
+    aspect-ratio: 4 / 3;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    translate: 25% 0;
+    transform-style: preserve-3d;
+    transition: translate 0.8s var(--inv-ease), scale 0.9s var(--inv-ease), opacity 0.6s ease;
+}
+
+.dc-map__half,
+.dc-map__cover {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    background: var(--bg-color);
+    box-shadow: 0 18px 40px -22px rgb(0 0 0 / 0.55), inset 0 0 0 1px var(--inv-line-strong);
+}
+
+.dc-map__half::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: color-mix(in srgb, var(--text-color) 16%, transparent);
+    -webkit-mask: var(--dc-topo) 0 0 / 14rem repeat;
+    mask: var(--dc-topo) 0 0 / 14rem repeat;
+}
+
+.dc-map__half svg {
+    position: absolute;
+    top: 0;
+    width: 200%;
+    height: 100%;
+}
+
+.dc-map__half--right svg {
+    left: -100%;
+}
+
+.dc-route {
+    fill: none;
+    stroke-width: 2.5;
+    stroke-dasharray: 5 6;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+}
+
+.dc-route--a {
+    stroke: var(--dc-a);
+}
+
+.dc-route--b {
+    stroke: var(--dc-b);
+}
+
+.dc-map-ring {
+    fill: var(--bg-color);
+    stroke: var(--dc-b);
+    stroke-width: 2.5;
+    vector-effect: non-scaling-stroke;
+}
+
+.dc-map__flap {
+    position: relative;
+    transform-origin: 0 50%;
+    transform: rotateY(-180deg);
+    transform-style: preserve-3d;
+    transition: transform 0.9s var(--inv-ease);
+}
+
+.dc-map__flap > * {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+}
+
+/* La tapa es la cara de atrás de la mitad derecha: se ve con el mapa cerrado */
+.dc-map__cover {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    background: var(--dc-legend);
+    transform: rotateY(180deg);
+}
+
+.dc-map__initials {
+    font-family: var(--font-script);
+    font-size: 2rem;
+    color: var(--text-color);
+}
+
+.dc-map__date {
+    font-size: 0.8rem;
+    color: var(--inv-muted);
+}
+
+.dc-intro.is-unfolding .dc-map {
+    translate: 0 0;
+}
+
+.dc-intro.is-unfolding .dc-map__flap {
+    transform: rotateY(0deg);
+}
+
+.dc-intro.is-open .dc-map {
+    scale: 2.6;
+    opacity: 0;
+}
+
+/* ── Modo historia: el mapa se desplaza hasta la próxima parada ─────────── */
+
+.inv-story-invitation .inv-caminos .inv-scene {
+    --story-scene-bg: transparent;
+    translate: 18% -10%;
+    rotate: 0deg;
+    scale: 1.04;
+    opacity: 0;
+    filter: none;
+    transition: translate 1s var(--inv-ease), scale 1s var(--inv-ease), opacity 0.6s ease, visibility 0s linear 1s;
+}
+
+.inv-story-invitation .inv-caminos .inv-scene.is-past {
+    translate: -18% 10%;
+    scale: 0.96;
+}
+
+.inv-story-invitation .inv-caminos .inv-scene.is-active {
+    translate: 0 0;
+    scale: 1;
+    opacity: 1;
+    transition-delay: 0s;
+}
+
+/* Al pasar, aparecen aros en el mapa como puntos marcados */
+.inv-story-invitation.is-turning .inv-caminos .inv-tale__turn i {
+    width: calc(1.1rem * var(--s));
+    height: calc(1.1rem * var(--s));
+    border: 2px solid var(--dc-a);
+    border-radius: 50%;
+    animation: dc-tale-pin 1.2s var(--inv-ease) var(--d) both;
+}
+
+.inv-story-invitation.is-turning .inv-caminos .inv-tale__turn i:nth-child(2n) {
+    border-color: var(--dc-b);
+}
+
+@keyframes dc-tale-pin {
+    0% { opacity: 0; scale: 0.2; }
+    35% { opacity: 0.9; scale: 1; }
+    100% { opacity: 0; scale: 1.6; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .dc-path--a,
+    .dc-path--b {
+        clip-path: none;
+        animation: none;
+    }
+}
+
+/* ── Movimiento: el mapa con parallax, pétalos que caen y la foto como centro ─ */
+
+.inv-caminos {
+    /* Cada sección llega como si el mapa se desplazara hasta ella */
+    --themed-from: translate3d(-16px, 20px, 0);
+}
+
+.inv-caminos .inv-themed-bg__texture {
+    background: color-mix(in srgb, var(--text-color) 13%, transparent);
+    -webkit-mask: var(--dc-topo) 0 0 / 30rem repeat;
+    mask: var(--dc-topo) 0 0 / 30rem repeat;
+}
+
+/* Luz cálida de la tarde que se mueve sobre el papel */
+.inv-caminos .inv-themed-bg__glow {
+    background:
+        radial-gradient(36% 30% at 22% 30%, color-mix(in srgb, var(--accent-color) 45%, transparent), transparent 70%),
+        radial-gradient(30% 26% at 80% 76%, color-mix(in srgb, var(--secondary-color) 16%, transparent), transparent 70%);
+}
+
+.inv-drift--petalos {
+    --drift-a: color-mix(in srgb, var(--accent-color) 60%, #fff);
+    --drift-b: color-mix(in srgb, var(--secondary-color) 40%, #fff);
+    opacity: 0.8;
+}
+
+/* La foto respira despacio (escala) y se mueve con el scroll (transform, themed-motion.js) */
+.dc-meet img {
+    height: 114%;
+    animation: dc-breathe 18s ease-in-out infinite alternate;
+}
+
+@keyframes dc-breathe {
+    from { scale: 1; }
+    to { scale: 1.07; }
+}
+
+/* Una órbita punteada del color del segundo camino gira muy lento alrededor de la foto */
+.dc-meet__orbit {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: calc(var(--dc-meet-size) + 3.25rem);
+    aspect-ratio: 1;
+    border: 1.5px dashed color-mix(in srgb, var(--dc-b) 70%, transparent);
+    border-radius: 50%;
+    translate: -50% -50%;
+    pointer-events: none;
+    animation: inv-fade-up 1s var(--inv-ease) 0.24s both, dc-orbit 90s linear infinite;
+}
+
+@keyframes dc-orbit {
+    to { rotate: 1turn; }
+}
+
+.dc-stop__ring {
+    transition: background-color 0.3s ease, transform 0.4s var(--themed-spring);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .dc-stop:hover .dc-stop__ring {
+        background: var(--dc-a);
+        transform: scale(1.2);
+    }
+
+    .inv-caminos :is(#dress-code, #regalos) .inv-wrap {
+        transition: transform 0.5s var(--themed-ease), box-shadow 0.5s ease;
+    }
+
+    .inv-caminos :is(#dress-code, #regalos) .inv-wrap:hover {
+        transform: translate3d(0, -3px, 0);
+        box-shadow: 0 18px 34px -24px rgb(0 0 0 / 0.45);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .dc-meet img,
+    .dc-meet__orbit {
+        animation: none;
+    }
+}

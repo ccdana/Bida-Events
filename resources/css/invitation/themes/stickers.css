@@ -1,0 +1,925 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   INVITACIÓN — «Álbum de stickers» (invitations.templates.cumple-stickers)
+
+   El cumpleaños como una página de álbum de stickers. Se entra abriendo el sobre;
+   quien cumple es el sticker brillante con su edad como número de colección, cada
+   dato va pegado en su casilla impresa y la casilla vacía espera la confirmación.
+   Desde los 18 años (.st-hero.is-grown) los stickers van derechos.
+     página = fondo · textos y casillas impresas = texto · marco de los stickers,
+     sobre y botones = principal · franja del nombre = secundario · brillo = acento.
+
+   Cada sticker (.st-fig) lee cuatro variables para turnar los colores:
+   --fig-face / --fig-ink (la cara) y --fig-band / --fig-band-ink (la franja).
+   ════════════════════════════════════════════════════════════════════════════ */
+
+.inv-stickers {
+    --inv-radius: 14px;
+    --st-print: color-mix(in srgb, var(--text-color) 22%, transparent);
+    --st-cut: 0 0 0 5px var(--bg-color);
+    --st-shadow: 0 12px 20px -10px rgb(0 0 0 / 0.3);
+    --st-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --st-foil: conic-gradient(from 210deg, var(--primary-color), var(--accent-color), var(--secondary-color), var(--accent-color), var(--primary-color));
+}
+
+.inv-stickers.has-player {
+    padding-bottom: calc(5.25rem + env(safe-area-inset-bottom));
+}
+
+.inv-stickers .inv-section {
+    border-top: 0;
+}
+
+.inv-stickers .invitation-lottie-framed {
+    display: none;
+}
+
+/* El título de cada sección va en la cinta impresa del álbum */
+.inv-stickers .inv-head__eyebrow,
+.st-page__banner {
+    display: inline-block;
+    margin: 0;
+    padding: 0.4rem 1.4rem;
+    background: var(--secondary-color);
+    color: var(--text-color);
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    text-transform: none;
+    clip-path: polygon(0 0, 100% 0, calc(100% - 0.6rem) 50%, 100% 100%, 0 100%, 0.6rem 50%);
+    rotate: -2deg;
+}
+
+.inv-stickers .inv-head__title {
+    margin-top: 0.9rem;
+    font-size: clamp(2.3rem, 11vw, 3.6rem);
+    line-height: 1;
+}
+
+.inv-stickers .inv-head__rule {
+    display: none;
+}
+
+.inv-stickers :is(.inv-label, .inv-link, .inv-btn, .inv-footer__date, .inv-countdown__label) {
+    letter-spacing: 0.02em;
+    text-transform: none;
+}
+
+.inv-stickers .inv-btn {
+    min-height: 3.2rem;
+    border: 0;
+    border-radius: 999px;
+    background: var(--primary-color);
+    color: var(--bg-color);
+    font-size: 1rem;
+    box-shadow: var(--st-cut), var(--st-shadow);
+}
+
+.inv-stickers .inv-btn--ghost {
+    background: color-mix(in srgb, var(--accent-color) 18%, var(--bg-color));
+    color: var(--text-color);
+}
+
+/* Las respuestas son casillas vacías: al elegir una, el sticker se pega */
+.inv-stickers .inv-choice {
+    border: 2.5px dashed var(--inv-line-strong);
+    border-radius: 0.9rem;
+    font-weight: 600;
+}
+
+.inv-stickers .inv-choice.is-selected {
+    border: 0;
+    background: var(--primary-color);
+    color: var(--bg-color);
+    box-shadow: var(--st-cut), var(--st-shadow);
+    rotate: -2deg;
+}
+
+/* La cuenta regresiva: cuatro stickers de colección */
+.inv-stickers .inv-countdown__unit {
+    display: grid;
+    place-items: center;
+    align-content: center;
+    aspect-ratio: 3 / 4;
+    border-radius: 0.9rem;
+    background: var(--primary-color);
+    color: var(--bg-color);
+    box-shadow: var(--st-cut), var(--st-shadow);
+    rotate: -2deg;
+}
+
+.inv-stickers .inv-countdown__unit:nth-child(2) { background: var(--secondary-color); color: var(--text-color); rotate: 3deg; }
+.inv-stickers .inv-countdown__unit:nth-child(3) { background: var(--accent-color); color: var(--text-color); rotate: -1deg; }
+.inv-stickers .inv-countdown__unit:nth-child(4) { background: var(--text-color); color: var(--bg-color); rotate: 2deg; }
+
+.inv-stickers .inv-countdown__unit :is(.inv-countdown__value, .inv-countdown__label) {
+    color: inherit;
+}
+
+.inv-stickers-footer .inv-footer__ornament--line {
+    width: 1.1rem;
+    height: 1.4rem;
+    border-radius: 0.3rem;
+    background: var(--secondary-color);
+    opacity: 1;
+    box-shadow: -1.6rem 0 0 var(--primary-color), 1.6rem 0 0 var(--accent-color);
+}
+
+/* ── El sticker (.st-fig) y su casilla impresa (.st-slot) ───────────────── */
+
+.st-slot {
+    position: relative;
+    margin: 0;
+    list-style: none;
+}
+
+/* La casilla impresa en la página asoma detrás del sticker pegado un poco torcido */
+.st-slot::before {
+    content: '';
+    position: absolute;
+    inset: -5px;
+    border: 1.5px solid var(--st-print);
+    border-radius: 1.1rem;
+}
+
+.st-fig {
+    --fig-face: var(--primary-color);
+    --fig-ink: var(--bg-color);
+    --fig-band: var(--secondary-color);
+    --fig-band-ink: var(--text-color);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    margin: 0;
+    padding: 0.35rem;
+    border-radius: 0.9rem;
+    background: var(--bg-color);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--text-color) 8%, transparent), var(--st-shadow);
+    rotate: var(--tilt, 0deg);
+}
+
+.st-fig--alt {
+    --fig-face: var(--accent-color);
+    --fig-ink: var(--text-color);
+    --fig-band: var(--primary-color);
+    --fig-band-ink: var(--bg-color);
+}
+
+.st-fig--wide {
+    --fig-face: var(--secondary-color);
+    --fig-ink: var(--text-color);
+    --fig-band: var(--text-color);
+    --fig-band-ink: var(--bg-color);
+}
+
+.st-fig__face {
+    position: relative;
+    display: grid;
+    flex: 1;
+    place-content: center;
+    gap: 0.1rem;
+    overflow: hidden;
+    border-radius: 0.6rem 0.6rem 0 0;
+    background: var(--fig-face);
+    color: var(--fig-ink);
+    text-align: center;
+}
+
+.st-fig__band {
+    margin: 0;
+    padding: 0.4rem 0.5rem 0.45rem;
+    border-radius: 0 0 0.6rem 0.6rem;
+    background: var(--fig-band);
+    color: var(--fig-band-ink);
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 700;
+    line-height: 1.2;
+    text-align: center;
+    overflow-wrap: anywhere;
+}
+
+.st-fig__big {
+    font-family: var(--font-script);
+    font-size: clamp(2.2rem, 11vw, 3rem);
+    font-weight: 400;
+    line-height: 1;
+}
+
+.st-fig__big--time {
+    font-size: clamp(1.35rem, 6.6vw, 1.9rem);
+    font-variant-numeric: tabular-nums;
+}
+
+.st-fig__face span {
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+/* ── Portada: la página del álbum ───────────────────────────────────────── */
+
+.st-hero {
+    display: block;
+    min-height: auto;
+    padding: calc(4.25rem + env(safe-area-inset-top)) 1.25rem 4.5rem;
+    color: var(--text-color);
+    background: transparent;
+}
+
+.st-page {
+    display: grid;
+    justify-items: center;
+    gap: 1.6rem;
+    width: 100%;
+    max-width: 30rem;
+    margin-inline: auto;
+    text-align: center;
+}
+
+/* El nombre es un sticker troquelado: letras de color con su borde blanco */
+.st-page__name {
+    margin: -0.6rem 0 0;
+    max-width: 100%;
+    color: var(--primary-color);
+    font-family: var(--font-titles);
+    font-size: clamp(2.8rem, 15vw, 5rem);
+    font-weight: 400;
+    line-height: 1;
+    text-wrap: balance;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    paint-order: stroke fill;
+    -webkit-text-stroke: 0.2em var(--bg-color);
+    filter: drop-shadow(0 6px 6px rgb(0 0 0 / 0.16));
+}
+
+/* El sticker brillante: marco holográfico, foto, número y franja */
+.st-slot--star {
+    width: min(76vw, 20rem);
+}
+
+.st-fig--foil {
+    --tilt: -2deg;
+    --n: 0;
+    padding: 0.5rem;
+    overflow: hidden;
+    background: var(--st-foil);
+    transform: perspective(800px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+    transition: transform 0.5s var(--themed-ease);
+}
+
+.st-fig--foil .st-fig__face {
+    aspect-ratio: 4 / 5;
+    box-shadow: 0 0 0 3px var(--bg-color);
+}
+
+.st-fig--foil .st-fig__band {
+    display: grid;
+    gap: 0.1rem;
+    margin-top: 3px;
+    padding: 0.55rem 0.75rem 0.6rem;
+    font-family: var(--font-titles);
+    font-size: clamp(1.2rem, 6vw, 1.5rem);
+    font-weight: 400;
+    line-height: 1.05;
+}
+
+.st-fig--foil .st-fig__band small {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.st-fig__face--photo img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.st-fig__initials {
+    font-family: var(--font-script);
+    font-size: clamp(4.5rem, 24vw, 6.5rem);
+    line-height: 1;
+}
+
+/* El número de colección en la esquina: la edad */
+.st-fig__num {
+    position: absolute;
+    top: 0.6rem;
+    left: 0.6rem;
+    display: grid;
+    place-items: center;
+    min-width: 3.1rem;
+    height: 3.1rem;
+    padding-inline: 0.5rem;
+    border-radius: 999px;
+    background: var(--bg-color);
+    color: var(--primary-color);
+    font-family: var(--font-script);
+    font-size: 1.6rem;
+    line-height: 1;
+    box-shadow: 0 6px 12px -6px rgb(0 0 0 / 0.4);
+}
+
+/* El reflejo: una franja de luz que cruza sola y sigue al mouse, y un velo tornasol */
+.st-fig__shine {
+    position: absolute;
+    inset: 0 -70%;
+    background: linear-gradient(105deg, transparent 40%, rgb(255 255 255 / 0.55) 49%, rgb(255 255 255 / 0.1) 54%, transparent 60%);
+    mix-blend-mode: overlay;
+    pointer-events: none;
+    translate: calc((var(--mx, 50%) - 50%) * 0.6) 0;
+    animation: st-shine 5.5s ease-in-out 1.2s infinite;
+}
+
+.st-fig--foil::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(120deg,
+        color-mix(in srgb, var(--accent-color) 30%, transparent) 0 12%,
+        color-mix(in srgb, var(--secondary-color) 30%, transparent) 12% 24%,
+        color-mix(in srgb, var(--primary-color) 22%, transparent) 24% 36%);
+    background-size: 220% 220%;
+    background-position: var(--mx, 50%) 50%;
+    mix-blend-mode: soft-light;
+    opacity: 0.55;
+    pointer-events: none;
+}
+
+@keyframes st-shine {
+    0%, 55% { transform: translate3d(-30%, 0, 0); }
+    100% { transform: translate3d(30%, 0, 0); }
+}
+
+/* Fecha, hora y la casilla vacía, en fila */
+.st-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    align-items: stretch;
+    gap: 1.1rem 0.9rem;
+    width: 100%;
+    margin: 0.4rem 0 0;
+    padding: 0;
+}
+
+.st-row .st-fig {
+    min-height: 8.2rem;
+}
+
+.st-row > :nth-child(1) .st-fig { --tilt: -4deg; --n: 1; }
+.st-row > :nth-child(2) .st-fig { --tilt: 3deg; --n: 2; }
+
+.st-slot--empty::before {
+    display: none;
+}
+
+/* La casilla que falta: punteada, con el signo de pregunta impreso; al tocarla se pega */
+.st-missing {
+    display: grid;
+    place-content: center;
+    gap: 0.25rem;
+    height: 100%;
+    min-height: 8.2rem;
+    padding: 0.5rem 0.35rem;
+    border: 2px dashed color-mix(in srgb, var(--text-color) 40%, transparent);
+    border-radius: 0.9rem;
+    color: var(--text-color);
+    text-decoration: none;
+    transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease, scale 0.45s var(--st-spring), rotate 0.45s var(--st-spring);
+}
+
+.st-missing b {
+    font-family: var(--font-script);
+    font-size: 2.4rem;
+    font-weight: 400;
+    line-height: 1;
+    color: color-mix(in srgb, currentColor 35%, transparent);
+}
+
+.st-missing span {
+    font-size: 0.78rem;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--inv-muted);
+}
+
+.st-missing strong {
+    justify-self: center;
+    padding: 0.2rem 0.65rem;
+    border-radius: 999px;
+    background: var(--primary-color);
+    color: var(--bg-color);
+    font-size: 0.85rem;
+}
+
+a.st-missing:is(:hover, :focus-visible, :active) {
+    border-color: transparent;
+    background: var(--primary-color);
+    color: var(--bg-color);
+    box-shadow: var(--st-cut), var(--st-shadow);
+    scale: 1.04;
+    rotate: -3deg;
+}
+
+a.st-missing:is(:hover, :focus-visible, :active) :is(span, strong) {
+    color: var(--bg-color);
+}
+
+a.st-missing:is(:hover, :focus-visible, :active) strong {
+    background: color-mix(in srgb, var(--bg-color) 22%, transparent);
+}
+
+a.st-missing:focus-visible {
+    outline: 2px solid var(--text-color);
+    outline-offset: 6px;
+}
+
+/* El lugar: un sticker apaisado */
+.st-slot--wide {
+    width: 100%;
+    margin-top: 0.2rem;
+}
+
+.st-fig--wide {
+    --tilt: 1.5deg;
+    --n: 3;
+}
+
+.st-fig--wide .st-fig__face {
+    padding: 1rem 1.1rem;
+}
+
+.st-fig__place {
+    margin: 0;
+    font-family: var(--font-titles);
+    font-size: clamp(1.25rem, 6vw, 1.6rem);
+    line-height: 1.15;
+    text-wrap: balance;
+    overflow-wrap: break-word;
+}
+
+.st-message {
+    max-width: 30rem;
+    margin: 2.25rem auto 0;
+    padding-inline: 0.5rem;
+    line-height: 1.7;
+    color: var(--inv-muted);
+    text-align: center;
+    text-wrap: pretty;
+}
+
+.st-hero__scroll {
+    position: static;
+    margin: 2rem auto 0;
+    width: max-content;
+    font-size: 0.8rem;
+    letter-spacing: 0.06em;
+    text-transform: none;
+    transform: none;
+}
+
+/* Los stickers se pegan uno tras otro al abrir el sobre */
+.st-hero .st-fig {
+    animation: st-stick 0.65s var(--st-spring) calc(0.25s + var(--n, 0) * 110ms) both;
+}
+
+@keyframes st-stick {
+    from { opacity: 0; scale: 1.3; rotate: calc(var(--tilt, 0deg) - 10deg); }
+}
+
+/* Desde los 18 años: la misma página, con los stickers derechos */
+.st-hero.is-grown .st-fig,
+.st-hero.is-grown .st-page__banner,
+.inv-stickers:has(.st-hero.is-grown) :is(.inv-head__eyebrow, .inv-countdown__unit, .st-fig) {
+    --tilt: 0deg;
+    rotate: 0deg;
+}
+
+/* ── La fiesta: casillas numeradas del álbum ────────────────────────────── */
+
+.st-album {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2.4rem 1.1rem;
+    margin: 0;
+    padding: 1rem 0.3rem 0;
+    list-style: none;
+}
+
+@media (min-width: 720px) {
+    .st-album {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2.6rem 1.6rem;
+    }
+}
+
+.st-album__slot {
+    position: relative;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    gap: 0.75rem;
+}
+
+/* El número impreso de la casilla, en orden de la fiesta */
+.st-album__no {
+    position: absolute;
+    top: -0.85rem;
+    left: -0.5rem;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    min-width: 1.7rem;
+    height: 1.7rem;
+    padding-inline: 0.35rem;
+    border: 1.5px solid var(--st-print);
+    border-radius: 999px;
+    background: var(--bg-color);
+    color: var(--inv-muted);
+    font-size: 0.78rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.st-album .st-fig {
+    --tilt: -2deg;
+}
+
+.st-album__slot:nth-child(even) .st-fig {
+    --tilt: 2deg;
+}
+
+.st-album__slot:nth-child(3n + 2) .st-fig {
+    --fig-face: var(--accent-color);
+    --fig-ink: var(--text-color);
+    --fig-band: var(--primary-color);
+    --fig-band-ink: var(--bg-color);
+}
+
+.st-album__slot:nth-child(3n + 3) .st-fig {
+    --fig-face: var(--secondary-color);
+    --fig-ink: var(--text-color);
+    --fig-band: var(--text-color);
+    --fig-band-ink: var(--bg-color);
+}
+
+.st-album .st-fig__face {
+    min-height: 5.5rem;
+    padding: 0.6rem 0.4rem;
+}
+
+.st-album .st-fig__band {
+    font-size: 0.92rem;
+}
+
+.st-album__caption {
+    margin: 0;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: var(--inv-muted);
+    text-wrap: pretty;
+}
+
+/* ── Apertura: el sobre de stickers ─────────────────────────────────────── */
+
+.st-intro {
+    color: var(--text-color);
+    background:
+        radial-gradient(60% 40% at 50% 45%, color-mix(in srgb, var(--accent-color) 22%, transparent), transparent 70%),
+        var(--bg-color);
+}
+
+.st-intro__eyebrow {
+    margin: 0;
+    font-family: var(--font-titles);
+    font-size: 1.5rem;
+    line-height: 1.15;
+    text-wrap: balance;
+    transition: opacity 0.4s ease;
+}
+
+.st-intro__hint {
+    margin: 0;
+    font-weight: 600;
+    color: var(--inv-muted);
+    transition: opacity 0.4s ease;
+}
+
+.st-intro.is-peeling :is(.st-intro__eyebrow, .st-intro__hint) {
+    opacity: 0;
+}
+
+.st-pack {
+    position: relative;
+    width: min(62vw, 15rem);
+    aspect-ratio: 3 / 4.3;
+    margin-top: 2rem;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    cursor: grab;
+    touch-action: none;
+    animation: st-pack-in 0.8s var(--st-spring) 0.1s both, st-pack-wiggle 3.2s ease-in-out 1.6s infinite;
+}
+
+.st-pack.is-dragging {
+    cursor: grabbing;
+    animation-play-state: running, paused;
+}
+
+@keyframes st-pack-in {
+    from { opacity: 0; translate: 0 2.5rem; rotate: -8deg; }
+}
+
+@keyframes st-pack-wiggle {
+    0%, 70%, 100% { rotate: 0deg; }
+    76% { rotate: -2.5deg; }
+    82% { rotate: 2deg; }
+    88% { rotate: -1deg; }
+}
+
+/* El cuerpo del sobre: rayas en los colores de la paleta, bordes dentados y la etiqueta */
+.st-pack__body {
+    position: absolute;
+    inset: 15% 0 0;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    padding: 1rem;
+    border-radius: 0 0 0.35rem 0.35rem;
+    background:
+        linear-gradient(105deg, transparent 30%, rgb(255 255 255 / 0.28) 45%, transparent 58%) 0 0 / 300% 100%,
+        repeating-linear-gradient(135deg, var(--primary-color) 0 16px, color-mix(in srgb, var(--primary-color) 78%, var(--bg-color)) 16px 32px);
+    box-shadow: 0 22px 34px -18px rgb(0 0 0 / 0.5);
+    animation: st-pack-sheen 4s ease-in-out 1.4s infinite;
+}
+
+.st-pack__body::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    bottom: -7px;
+    left: 0;
+    height: 8px;
+    background: linear-gradient(-135deg, var(--primary-color) 5px, transparent 0) 0 0 / 10px 8px repeat-x,
+        linear-gradient(135deg, var(--primary-color) 5px, transparent 0) 0 0 / 10px 8px repeat-x;
+}
+
+@keyframes st-pack-sheen {
+    0%, 40% { background-position: 100% 0, 0 0; }
+    100% { background-position: -50% 0, 0 0; }
+}
+
+.st-pack__label {
+    display: grid;
+    gap: 0.35rem;
+    width: 100%;
+    padding: 1rem 0.75rem;
+    border-radius: 0.8rem;
+    background: var(--bg-color);
+    color: var(--text-color);
+    box-shadow: 0 8px 16px -10px rgb(0 0 0 / 0.4);
+    rotate: -3deg;
+}
+
+.st-pack__label small {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--inv-muted);
+}
+
+.st-pack__label strong {
+    font-family: var(--font-titles);
+    font-size: clamp(1.6rem, 9vw, 2.2rem);
+    font-weight: 400;
+    line-height: 1;
+    color: var(--primary-color);
+    overflow-wrap: break-word;
+}
+
+.st-pack__label em {
+    justify-self: center;
+    padding: 0.2rem 0.75rem;
+    border-radius: 999px;
+    background: var(--secondary-color);
+    color: var(--text-color);
+    font-size: 0.85rem;
+    font-style: normal;
+    font-weight: 700;
+}
+
+/* La tira de arriba: se tira desde la esquina, se estira como goma y se arranca */
+.st-pack__strip {
+    position: absolute;
+    inset: 0 0 auto;
+    z-index: 2;
+    height: 15.5%;
+    border-radius: 0.35rem 0.35rem 0 0;
+    background: color-mix(in srgb, var(--primary-color) 80%, var(--text-color));
+    transform-origin: 6% 100%;
+    transform:
+        rotate(calc(var(--peel, 0) * -24deg))
+        translate(calc(var(--peel, 0) * 8%), calc(var(--peel, 0) * -22%))
+        skewX(calc(var(--peel, 0) * -8deg))
+        scaleX(calc(1 + var(--peel, 0) * 0.06));
+    transition: transform 0.4s var(--themed-ease), translate 0.7s cubic-bezier(0.5, 0, 0.9, 0.5), rotate 0.7s ease-in, opacity 0.5s ease 0.2s;
+}
+
+.st-pack__strip::before {
+    content: '';
+    position: absolute;
+    top: -7px;
+    right: 0;
+    left: 0;
+    height: 8px;
+    background: linear-gradient(-45deg, color-mix(in srgb, var(--primary-color) 80%, var(--text-color)) 5px, transparent 0) 0 0 / 10px 8px repeat-x,
+        linear-gradient(45deg, color-mix(in srgb, var(--primary-color) 80%, var(--text-color)) 5px, transparent 0) 0 0 / 10px 8px repeat-x;
+}
+
+/* La línea troquelada por donde se corta */
+.st-pack__strip i {
+    position: absolute;
+    right: 0.6rem;
+    bottom: 0.3rem;
+    left: 0.6rem;
+    border-bottom: 2px dashed color-mix(in srgb, var(--bg-color) 70%, transparent);
+}
+
+.st-pack.is-dragging .st-pack__strip {
+    transition: none;
+}
+
+.st-pack.is-springing .st-pack__strip {
+    transition: transform 0.65s cubic-bezier(0.34, 1.9, 0.5, 1);
+}
+
+/* El sticker que espera adentro: sube cuando la tira se arranca */
+.st-pack__card {
+    position: absolute;
+    inset: 9% 11% 18%;
+    z-index: 0;
+    display: grid;
+    place-content: center;
+    gap: 0.2rem;
+    padding: 0.45rem;
+    border-radius: 0.8rem;
+    background: var(--st-foil);
+    color: var(--bg-color);
+    box-shadow: inset 0 0 0 0.45rem transparent;
+    opacity: 0;
+    transition: translate 0.9s var(--st-spring) 0.2s, rotate 0.9s var(--st-spring) 0.2s, opacity 0.2s ease 0.15s;
+}
+
+.st-pack__card::before {
+    content: '';
+    position: absolute;
+    inset: 0.45rem;
+    z-index: -1;
+    border-radius: 0.5rem;
+    background: var(--primary-color);
+}
+
+.st-pack__card b {
+    font-family: var(--font-script);
+    font-size: clamp(3.5rem, 18vw, 5rem);
+    font-weight: 400;
+    line-height: 0.95;
+}
+
+.st-pack__card small {
+    padding-inline: 0.75rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.st-intro.is-peeling .st-pack {
+    animation: none;
+}
+
+.st-intro.is-peeling .st-pack__strip {
+    translate: 55vw -45vh;
+    rotate: -40deg;
+    opacity: 0;
+}
+
+.st-intro.is-peeling .st-pack__card {
+    translate: 0 -72%;
+    rotate: -4deg;
+    opacity: 1;
+}
+
+/* ── Modo historia: cada escena se pega con un golpe ────────────────────── */
+
+.inv-story-invitation .inv-stickers .inv-scene {
+    translate: 0 0;
+    rotate: -7deg;
+    scale: 1.2;
+    opacity: 0;
+    filter: none;
+    transition: rotate 0.65s var(--st-spring), scale 0.65s var(--st-spring), opacity 0.3s ease, translate 0.6s var(--inv-ease), visibility 0s linear 0.65s;
+}
+
+.inv-story-invitation .inv-stickers .inv-scene.is-past {
+    translate: -40% 20%;
+    rotate: 10deg;
+    scale: 0.9;
+}
+
+.inv-story-invitation .inv-stickers .inv-scene.is-active {
+    translate: 0 0;
+    rotate: 0deg;
+    scale: 1;
+    opacity: 1;
+    transition-delay: 0s;
+}
+
+.inv-story-invitation.is-turning .inv-stickers .inv-tale__turn i {
+    width: calc(1.2rem * var(--s));
+    aspect-ratio: 3 / 4;
+    border-radius: 0.3rem;
+    background: var(--primary-color);
+    box-shadow: 0 0 0 3px var(--bg-color);
+    animation: st-tale-pop 0.9s var(--st-spring) var(--d) both;
+}
+
+.inv-story-invitation.is-turning .inv-stickers .inv-tale__turn i:nth-child(3n + 1) { background: var(--secondary-color); }
+.inv-story-invitation.is-turning .inv-stickers .inv-tale__turn i:nth-child(3n + 2) { background: var(--accent-color); }
+
+@keyframes st-tale-pop {
+    0% { opacity: 0; scale: 0; }
+    40% { opacity: 1; scale: 1; }
+    100% { opacity: 0; scale: 0.6; translate: 0 2rem; }
+}
+
+/* ── Movimiento: página con trama, confeti y stickers que responden ──────── */
+
+.inv-stickers {
+    --themed-from: scale(0.92) rotate(-1.5deg);
+}
+
+.inv-stickers .reveal {
+    transition: opacity 0.6s ease, transform 0.85s var(--themed-spring);
+}
+
+/* La página del álbum: puntitos impresos que acompañan el scroll */
+.inv-stickers .inv-themed-bg__texture {
+    background: radial-gradient(circle, color-mix(in srgb, var(--text-color) 9%, transparent) 1.2px, transparent 1.7px) 0 0 / 28px 28px;
+}
+
+.inv-stickers .inv-themed-bg__glow {
+    background:
+        radial-gradient(20% 16% at 18% 22%, color-mix(in srgb, var(--primary-color) 10%, transparent), transparent 70%),
+        radial-gradient(20% 16% at 82% 40%, color-mix(in srgb, var(--secondary-color) 16%, transparent), transparent 70%),
+        radial-gradient(22% 18% at 40% 82%, color-mix(in srgb, var(--accent-color) 18%, transparent), transparent 70%);
+}
+
+.inv-drift--confeti {
+    --drift-a: var(--primary-color);
+    --drift-b: var(--secondary-color);
+}
+
+.inv-drift--confeti span:nth-child(5n) {
+    background: var(--accent-color);
+}
+
+/* Al tocar un sticker se estira como goma y vuelve (themed-motion.js pone .is-poked) */
+.st-fig.is-poked,
+.inv-stickers .inv-choice.is-selected {
+    animation: st-jelly 0.6s var(--themed-ease);
+}
+
+@keyframes st-jelly {
+    0% { transform: scale(1, 1); }
+    25% { transform: scale(1.12, 0.9); }
+    45% { transform: scale(0.94, 1.07); }
+    65% { transform: scale(1.04, 0.97); }
+    82% { transform: scale(0.99, 1.01); }
+    100% { transform: scale(1, 1); }
+}
+
+.st-fig:not(.st-fig--foil) {
+    transition: translate 0.35s var(--themed-spring), box-shadow 0.35s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .st-fig:not(.st-fig--foil):hover {
+        translate: 0 -4px;
+        box-shadow: 0 0 0 1px color-mix(in srgb, var(--text-color) 8%, transparent), 0 20px 28px -12px rgb(0 0 0 / 0.32);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .st-hero .st-fig,
+    .st-fig__shine,
+    .st-fig.is-poked,
+    .inv-stickers .inv-choice.is-selected {
+        animation: none;
+    }
+
+    .st-fig--foil {
+        transform: none;
+    }
+}

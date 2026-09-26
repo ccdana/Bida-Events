@@ -2404,3 +2404,191 @@ html.site-season-open {
     text-underline-offset: 4px;
     cursor: pointer;
 }
+
+/* ── Página por evento: diseños y pasos ─────────────────────────────────────
+   (landing.blade.php). Los diseños muestran sus colores reales y se prueban
+   en el teléfono de la portada; los pasos van numerados porque son una
+   secuencia. Todo con los colores del sitio, también en modo oscuro. */
+
+/* Los colores de cada diseño en la lista de la portada */
+.site-template__swatch {
+    display: inline-flex;
+    align-self: center;
+}
+
+.site-template__swatch i {
+    width: 0.85rem;
+    height: 0.85rem;
+    margin-left: -0.3rem;
+    border: 2px solid var(--site-bg);
+    border-radius: 50%;
+}
+
+.site-template__swatch i:first-child {
+    margin-left: 0;
+}
+
+.site-badge-new {
+    display: inline-block;
+    margin-left: 0.4rem;
+    padding: 0.1rem 0.5rem;
+    border-radius: 999px;
+    background: var(--site-tint);
+    color: var(--site-accent);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    vertical-align: middle;
+}
+
+.site-designs {
+    display: grid;
+    gap: 1.25rem;
+}
+
+@media (min-width: 768px) {
+    .site-designs {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1100px) {
+    .site-designs {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.site-design {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid var(--site-line);
+    border-radius: 20px;
+    background: var(--site-surface);
+    transition: transform 0.5s var(--site-ease), box-shadow 0.5s var(--site-ease), border-color 0.3s ease;
+}
+
+.site-design.is-active {
+    border-color: var(--site-accent);
+}
+
+/* La paleta como franja: cada color crece un poco al pasar el mouse */
+.site-design__palette {
+    display: flex;
+    height: 5.5rem;
+}
+
+.site-design__palette i {
+    flex: 1;
+    transition: flex-grow 0.6s var(--site-ease);
+}
+
+.site-design__body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    padding: 1.5rem 1.5rem 1.4rem;
+}
+
+.site-design__event {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--site-muted);
+}
+
+.site-design__name {
+    margin: 0.35rem 0 0;
+    font-size: 1.6rem;
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+}
+
+.site-design__text {
+    flex: 1;
+    margin: 0.75rem 0 0;
+    line-height: 1.6;
+    color: var(--site-muted);
+}
+
+.site-design__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1.25rem;
+    margin-top: 1.5rem;
+}
+
+.site-design__link {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-color: var(--site-line);
+    text-underline-offset: 4px;
+}
+
+.site-design__link:hover {
+    text-decoration-color: var(--site-accent);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .site-design:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--site-shadow);
+    }
+
+    .site-design:hover .site-design__palette i:nth-child(3) {
+        flex-grow: 2.4;
+    }
+}
+
+/* Pasos: el número grande en el color de la marca, una columna en el celular y tres en pantalla ancha */
+.site-howto {
+    display: grid;
+    gap: 2.5rem;
+}
+
+@media (min-width: 900px) {
+    .site-howto {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem;
+    }
+}
+
+.site-howto__item {
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--site-line);
+}
+
+.site-howto__num {
+    display: block;
+    font-size: 3.2rem;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    color: var(--site-accent);
+    font-variant-numeric: tabular-nums;
+}
+
+.site-howto__title {
+    margin: 1rem 0 0;
+    font-size: 1.3rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+}
+
+.site-howto__text {
+    max-width: 38ch;
+    margin: 0.5rem 0 0;
+    line-height: 1.6;
+    color: var(--site-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .site-design,
+    .site-design__palette i {
+        transition: none;
+    }
+}

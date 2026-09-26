@@ -1019,6 +1019,45 @@ comportamiento: con 25 invitaciones y 500 invitados hace menos de 15 consultas y
 | «Pruébala como invitado» en dos columnas: diseños y descripción a la izquierda, el teléfono a la derecha | `home.blade.php`, `site/home.css` («site-tester») |
 | El revendedor cambia su contraseña desde «Mi cuenta» (pide la actual y cierra las demás sesiones) | `Client/AccountController`, `UpdatePasswordRequest`, `client/account.blade.php` |
 
+### 7.14 Colección «nueva»: seis plantillas con su propia idea
+
+Una por evento, en la colección `nueva` (planes Emprendedor y Agencia; el equipo las usa siempre). Cada una lleva su clase en la página (`theme` en `InvitationTemplates`: `inv-carta`, `inv-caminos`…), así no hereda nada de la clásica de su evento. Todo se dibuja con los cinco colores y las tres letras del editor, y `color_usage` le cuenta al editor para qué usa cada color.
+
+| Plantilla | La idea | Dónde |
+| --- | --- | --- |
+| XV · Carta de baile | La carta de baile atada con cordón y borla; el programa de la noche con puntos guía y un renglón «Reservado para» con el nombre del invitado | `partials/carta`, `themes/carta.css`, PDF `covers/carnet` |
+| Boda · Dos caminos | Mapa de curvas de nivel: un camino punteado sale de cada nombre y llega al aro del lugar; el día son paradas y la vestimenta y los regalos van como leyenda | `partials/caminos`, `themes/caminos.css`, PDF `covers/mapa` |
+| Graduación · Próxima salida | Panel de salidas con el nombre en paletas que giran, la carrera como franja, la foto en la ventanilla; se entra con pase de abordar y el horario es un tablero | `partials/salidas`, `themes/salidas.css`, PDF `covers/panel` |
+| Bautizo · La gota | Una gota abre ondas; la foto al centro y los padrinos escritos sobre el primer anillo. Neutral: sin símbolos de un credo | `partials/gota`, `themes/gota.css`, PDF `covers/ondas` |
+| Cumpleaños · Álbum de stickers | Una página de álbum: se entra arrancando la tira del sobre (con el dedo, con rebote si se suelta antes) y sube el sticker brillante; quien cumple es ese sticker, con su edad como número; fecha y hora van pegadas en casillas impresas y la casilla vacía («Falta la tuya») lleva a confirmar. El itinerario son casillas numeradas. Una sola plantilla: desde los 18 años los stickers van derechos | `partials/stickers`, `themes/stickers.css`, PDF `covers/stickers` |
+| Halloween · Expediente abierto | El archivo de un caso que se lee con una linterna (el dedo o el mouse) o con «Encender las luces». Sin calaveras ni nada de Todos Santos | `partials/expediente`, `themes/expediente.css`, PDF `covers/expediente` |
+
+| Pieza común | Dónde |
+| --- | --- |
+| Armado de la página (cabecera, apertura, menú, historia, música, portada, secciones, pie) | `partials/shell/themed.blade.php` (cada plantilla es un `@include` de una línea) |
+| Base de las aperturas y la portada en modo historia | `themes/nueva.css` |
+| Transición de cada una en modo historia | al final de cada hoja, «Modo historia» |
+| Fuentes nuevas (servidor de fuentes, editor y su vista previa) | `InvitationPage::FONT_WEIGHTS`, `editor/script.blade.php` (`fontOptions`), `layouts/admin-editor.blade.php` |
+| Uso de cada color en el editor | `color_usage` en `InvitationTemplates`, `colorUsage` en `InvitationEditorViewData`, `colorRoles` en `editor/script.blade.php` |
+| Textos propios editables | `EditableTexts::TEMPLATE_LABELS` |
+| Muestras (mismo contenido que la clásica, otra plantilla) | `database/seeders/ShowcaseVariant.php`, `showcase/*-carta.php`, `*-caminos.php`… y en las páginas por evento (`config/bida.php`, `landings.*.demos`) |
+| Paletas nuevas: «Stickers para grandes» y «Archivo en sepia» | `config/palettes.php` |
+
+Para verlas en producción hay que correr la semilla de muestras: `php artisan db:seed --class=ShowcaseInvitationsSeeder --force`.
+
+### 7.15 Movimiento de la colección «nueva» y páginas por evento
+
+| Qué | Dónde |
+| --- | --- |
+| Fondo en movimiento de cada plantilla nueva: un brillo que se desplaza solo, una textura con parallax (terciopelo, curvas de nivel, trama de panel, puntos de troquel, grano de película) y sus partículas (destellos, pétalos, papelitos, burbujas, confeti, polvo) | `partials/shell/themed-ambient.blade.php`, «Movimiento» al final de cada hoja de `themes/` |
+| Parallax (capas de fondo y fotos de portada con `data-parallax`) y stickers que se estiran al tocarlos (`data-sticker`): un solo requestAnimationFrame, solo transform; se apaga con movimiento reducido y en modo historia | `resources/js/invitation/themed-motion.js` (se carga solo si la página es `inv-themed`) |
+| Entradas por sección (cada tema con su gesto: `--themed-from`), encabezados y listas que entran uno tras otro, respuesta al tocar botones y respuestas, fotos que se acercan al pasar el mouse | `themes/nueva.css` |
+| Boda «Dos caminos»: la foto es el centro del mapa, mucho más grande (hasta 25rem), en 1200 px, con parallax, una respiración lenta y una órbita punteada | `partials/caminos/hero.blade.php`, `themes/caminos.css` |
+| La gota cae translúcida, se estira, se aplasta al tocar el agua, salta una corona de gotitas, el agua cede y vuelve, las ondas se ven y el nombre se ondula como reflejo | `partials/gota/intro.blade.php`, `themes/gota.css` |
+| El sticker de la apertura se despega con el dedo (sigue el arrastre, se estira, vuelve con rebote si se suelta antes de tiempo); un toque también lo despega | `partials/stickers/intro.blade.php` (`stickerPeel`), `themes/stickers.css` |
+| Birretes de «Birrete al aire»: avanzan de costado mientras suben frenando y caen con gravedad, dan tumbos y rebotan al llegar; el de la portada rebota una vez al asentarse | `themes/graduacion.css` (`inv-grad-toss-x`, `inv-grad-toss-y`, `inv-grad-cap-drop`) |
+| Página por evento: los diseños con sus colores y la marca «Nuevo», una sección de diseños que se prueban en el teléfono de arriba, «Cómo funciona» en tres pasos (clases `site-howto`, aparte de la línea de tiempo `site-steps` de la portada y «Hazlo tú»). El único botón de WhatsApp es el de la portada | `landing.blade.php`, `site/site.css` («Página por evento»), `ShowcaseDemos::find` (`palette`, `isNew`) |
+
 ---
 
 ## 8. Hoja de ruta sugerida

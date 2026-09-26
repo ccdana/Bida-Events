@@ -1,0 +1,194 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   INVITACIÓN — Base de la colección «nueva» (partials/shell/themed)
+
+   Lo que comparten las seis aperturas: la capa fija que tapa la página hasta el
+   toque, cómo se retira y qué pasa sin animaciones. El diseño de cada una vive en
+   su hoja (carta.css, caminos.css, salidas.css, gota.css, stickers.css,
+   expediente.css) y solo lee la paleta y las letras del editor.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+.inv-themed-intro {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 1.5rem;
+    padding: 2rem 1.25rem;
+    overflow: hidden;
+    text-align: center;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html.inv-cover-skip .inv-themed-intro {
+    display: none;
+}
+
+/* Al abrirse, la apertura deja pasar los toques a la portada y se desvanece al final */
+.inv-themed-intro.is-open {
+    pointer-events: none;
+    animation: inv-themed-out 0.8s ease 0.75s both;
+}
+
+@keyframes inv-themed-out {
+    to { opacity: 0; visibility: hidden; }
+}
+
+.inv-themed-intro :is(button, a):focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 6px;
+}
+
+/* Mientras la apertura espera, la portada no empieza a animarse */
+html.inv-cover-waiting .inv-themed .inv-hero,
+html.inv-cover-waiting .inv-themed .inv-hero * {
+    animation-play-state: paused !important;
+}
+
+/* En modo historia la portada es una escena más: conserva su margen y deja lugar a los controles */
+.inv-story-invitation .inv-themed #inicio.inv-scene {
+    padding: calc(4rem + env(safe-area-inset-top)) 1.25rem calc(6rem + env(safe-area-inset-bottom));
+}
+
+/* ── Fondo en movimiento (partials/shell/themed-ambient) ───────────────────
+   Dos capas fijas detrás de todo: el brillo se desplaza solo, muy despacio, y la
+   textura acompaña el scroll con parallax (themed-motion.js mueve su transform
+   dentro de una baldosa, por eso sobra una baldosa abajo). Solo transform. */
+
+.inv-themed-bg {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.inv-themed-bg__glow {
+    position: absolute;
+    inset: -25%;
+    animation: inv-themed-glow 32s ease-in-out infinite alternate;
+    will-change: transform;
+}
+
+.inv-themed-bg__texture {
+    position: fixed;
+    inset: 0 0 -480px;
+    will-change: transform;
+}
+
+@keyframes inv-themed-glow {
+    0% { transform: translate3d(-4%, -3%, 0) rotate(0deg) scale(1); }
+    50% { transform: translate3d(3%, 2%, 0) rotate(4deg) scale(1.06); }
+    100% { transform: translate3d(-2%, 4%, 0) rotate(-3deg) scale(1.02); }
+}
+
+/* ── Entradas al aparecer cada sección ─────────────────────────────────────
+   La sección llega con el gesto de su tema (--themed-from, en cada hoja) y
+   adentro el encabezado y los elementos de la lista ([data-step]) entran uno
+   tras otro. Sin JavaScript todo se ve de una. */
+
+.inv-themed {
+    --themed-from: translate3d(0, 26px, 0);
+    --themed-ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --themed-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.inv-themed .reveal {
+    transform: var(--themed-from);
+    transition: opacity 0.9s var(--themed-ease), transform 1.05s var(--themed-ease);
+}
+
+.inv-themed .reveal.is-visible {
+    transform: none;
+}
+
+html:not(.no-js) .inv-themed .reveal:not(.is-visible) :is(.inv-head > *, [data-step]) {
+    opacity: 0;
+    transform: translate3d(0, 16px, 0);
+}
+
+.inv-themed .reveal :is(.inv-head > *, [data-step]) {
+    transition: opacity 0.7s var(--themed-ease), transform 0.8s var(--themed-ease);
+}
+
+.inv-themed .reveal .inv-head > :nth-child(2) { transition-delay: 0.08s; }
+.inv-themed .reveal .inv-head > :nth-child(3) { transition-delay: 0.16s; }
+.inv-themed .reveal .inv-head > :nth-child(4) { transition-delay: 0.24s; }
+
+.inv-themed .reveal [data-step] {
+    transition-delay: calc(0.2s + var(--step, 0) * 90ms);
+}
+
+/* En modo historia las escenas tienen su propia entrada */
+.inv-story-on .inv-themed .reveal :is(.inv-head > *, [data-step]) {
+    transition: none;
+}
+
+/* ── Respuesta al tocar y al pasar el mouse ─────────────────────────────── */
+
+.inv-themed .inv-btn,
+.inv-themed .inv-choice,
+.inv-themed .inv-stepper__btn {
+    transition:
+        transform 0.35s var(--themed-spring),
+        box-shadow 0.3s ease,
+        background-color 0.2s ease,
+        color 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.inv-themed :is(.inv-btn, .inv-choice, .inv-stepper__btn):active:not(:disabled) {
+    transform: scale(0.97);
+}
+
+/* Al elegir una respuesta, un pequeño rebote confirma que se marcó */
+.inv-themed .inv-choice.is-selected {
+    animation: inv-themed-pick 0.45s var(--themed-spring);
+}
+
+@keyframes inv-themed-pick {
+    0% { transform: scale(0.94); }
+    60% { transform: scale(1.04); }
+    100% { transform: scale(1); }
+}
+
+/* Fotos: se acercan apenas dentro de su marco */
+.inv-themed :is(.inv-location__photo, .inv-dress__thumb, .inv-mural__item, .inv-video__frame) {
+    overflow: hidden;
+}
+
+.inv-themed :is(.inv-location__photo, .inv-dress__thumb, .inv-mural__item) img {
+    transition: transform 0.9s var(--themed-ease);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .inv-themed .inv-btn:hover:not(:disabled) {
+        transform: translate3d(0, -2px, 0);
+        box-shadow: 0 12px 24px -14px color-mix(in srgb, var(--primary-color) 70%, transparent);
+    }
+
+    .inv-themed .inv-choice:hover:not(.is-selected) {
+        transform: translate3d(0, -2px, 0);
+    }
+
+    .inv-themed :is(.inv-location__photo, .inv-dress__thumb, .inv-mural__item):hover img {
+        transform: scale(1.05);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .inv-themed-intro *,
+    .inv-themed-intro,
+    .inv-themed-bg * {
+        animation: none !important;
+        transition: none !important;
+    }
+
+    .inv-themed .reveal,
+    .inv-themed .reveal :is(.inv-head > *, [data-step]) {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+    }
+}

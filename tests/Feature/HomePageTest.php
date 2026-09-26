@@ -25,7 +25,8 @@ class HomePageTest extends TestCase
             ->assertSee('Invitaciones digitales para bodas, XV años, bautizos, cumpleaños y graduaciones')
             // Promoción de inauguración: el precio normal tachado y el de hoy
             ->assertSeeInOrder(['US$ 29', '22', 'USD', 'US$ 57', '43', 'USD', 'US$ 99', '72', 'USD'])
-            ->assertSee('Promoción de inauguración')
+            // Solo con los precios: sin texto de la promoción sobre los paquetes
+            ->assertDontSee('Promoción de inauguración')
             ->assertSee('Ahorras US$ 7')
             // Servicios: las invitaciones, lo de temporada y «Hazlo tú», cada uno con su precio de hoy (en dólares)
             ->assertSee('id="servicios"', false)

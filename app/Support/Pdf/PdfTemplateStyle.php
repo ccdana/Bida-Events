@@ -85,6 +85,45 @@ final class PdfTemplateStyle
                 'frame' => 'dashed',
                 'kicker' => 'Nuestro libro de aventuras',
             ],
+            // Colección «nueva»: cada una imprime su propia idea (covers/carnet, mapa, panel…)
+            InvitationTemplates::XV_CARTA_DE_BAILE => [
+                'cover' => 'carnet',
+                'motif' => 'diamante',
+                'frame' => 'double',
+                'kicker' => 'Mis XV años',
+            ],
+            InvitationTemplates::BODA_DOS_CAMINOS => [
+                'cover' => 'mapa',
+                'motif' => 'linea',
+                'frame' => 'thin',
+                'kicker' => 'Nos casamos',
+            ],
+            InvitationTemplates::GRADUACION_PROXIMA_SALIDA => [
+                'cover' => 'panel',
+                'motif' => 'birretes',
+                'frame' => 'none',
+                'paper' => 'dark',
+                'kicker' => 'Me gradúo',
+            ],
+            InvitationTemplates::BAUTIZO_LA_GOTA => [
+                'cover' => 'ondas',
+                'motif' => 'linea',
+                'frame' => 'none',
+                'kicker' => 'Mi bautizo',
+            ],
+            InvitationTemplates::CUMPLE_STICKERS => [
+                'cover' => 'stickers',
+                'motif' => 'banderines',
+                'frame' => 'none',
+                'kicker' => '¡Celebremos!',
+            ],
+            InvitationTemplates::HALLOWEEN_EXPEDIENTE => [
+                'cover' => 'expediente',
+                'motif' => 'linea',
+                'frame' => 'none',
+                'paper' => 'dark',
+                'kicker' => 'Fiesta de Halloween',
+            ],
             InvitationTemplates::WE_STORY_TOGETHER => [
                 'cover' => 'luna',
                 'motif' => 'luna',
