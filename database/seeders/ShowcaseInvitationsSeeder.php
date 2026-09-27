@@ -9,6 +9,7 @@ use App\Models\Invitation;
 use App\Models\PollVote;
 use App\Services\InvitationCacheService;
 use App\Services\InvitationModuleService;
+use App\Support\TrendTemplates;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Arr;
 
@@ -20,17 +21,34 @@ use Illuminate\Support\Arr;
  */
 class ShowcaseInvitationsSeeder extends Seeder
 {
-    public const SLUGS = ['xv-isabella', 'boda-camila-andres', 'bautizo-emilia', 'cumple-daniela-30', 'graduacion-mariana', 'lienzo-casa-molina', 'halloween-noche-diego', 'tarjeta-ana-luis', 'tarjeta-libro-aventuras', 'historia-ana-luis', 'xv-isabella-carta', 'boda-camila-andres-caminos', 'graduacion-mariana-salidas', 'bautizo-emilia-gota', 'cumple-daniela-stickers', 'halloween-expediente-diego'];
+    public const SLUGS = ['xv-isabella', 'boda-camila-andres', 'bautizo-emilia', 'cumple-daniela-30', 'graduacion-mariana', 'lienzo-casa-molina', 'halloween-noche-diego', 'tarjeta-ana-luis', 'tarjeta-libro-aventuras', 'historia-ana-luis', 'xv-isabella-carta', 'boda-camila-andres-caminos', 'graduacion-mariana-salidas', 'bautizo-emilia-gota', 'cumple-daniela-stickers', 'halloween-expediente-diego', 'babyshower-valentina'];
+
+    /**
+     * Todas las muestras: las de archivo (SLUGS) y las de la colección «tendencias», que se arman
+     * sobre la muestra de su evento con otro diseño (App\Support\TrendTemplates::demoSlugs).
+     *
+     * @return list<string>
+     */
+    public static function slugs(): array
+    {
+        return [...self::SLUGS, ...TrendTemplates::demoSlugs()];
+    }
 
     public function run(): void
     {
-        foreach (self::SLUGS as $slug) {
+        foreach (self::slugs() as $slug) {
             $this->seedInvitation(self::data($slug));
         }
     }
 
     public static function data(string $slug): array
     {
+        $demo = TrendTemplates::demo($slug);
+
+        if ($demo !== null) {
+            return ShowcaseVariant::of($demo['base'], $slug, self::data($demo['base'])['invitation']['title'], $demo['template']);
+        }
+
         return require database_path("seeders/showcase/{$slug}.php");
     }
 

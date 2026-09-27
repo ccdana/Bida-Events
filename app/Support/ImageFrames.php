@@ -21,12 +21,12 @@ final class ImageFrames
         'xv-premium' => [1080, 1920, 'rect', 'Portada a pantalla completa'],
         // Arco de jardín (.inv-boda-arch, 3:4)
         'boda-jardin' => [1080, 1440, 'arch', 'Foto dentro del arco'],
-        // Medallón ovalado (.inv-bautizo-medallion, 4:5)
-        'bautizo-cielo' => [1080, 1350, 'oval', 'Foto del medallón'],
+        // El sol entre las nubes (.nb-sun, círculo; las nubes tapan un poco el borde de abajo)
+        'bautizo-cielo' => [1200, 1200, 'circle', 'Foto del sol entre las nubes'],
         // Foto instantánea inclinada (.inv-cumple-photo, 4:5)
         'cumple-fiesta' => [1080, 1350, 'rounded', 'Foto de la portada'],
-        // Arco con doble filete dorado (.inv-grad-arch__frame, 4:5)
-        'graduacion-birrete' => [1080, 1350, 'arch', 'Foto dentro del arco'],
+        // El centro de la medalla de la promoción (.br-seal__photo, círculo)
+        'graduacion-birrete' => [1200, 1200, 'circle', 'Foto en la medalla'],
         'lienzo' => [1080, 1350, 'rounded', 'Foto de la portada'],
         // La foto es la luna llena (.inv-hw-moon__disc, círculo)
         'halloween-calabazas' => [1200, 1200, 'circle', 'Foto dentro de la luna'],
@@ -41,8 +41,8 @@ final class ImageFrames
         'boda-dos-caminos' => [1200, 1200, 'circle', 'Foto del punto de encuentro'],
         // Ventanilla del avión (.ps-window, 4:5 con esquinas muy redondas)
         'graduacion-proxima-salida' => [1080, 1350, 'rounded', 'Foto en la ventanilla'],
-        // Centro de las ondas (.gt-center, círculo)
-        'bautizo-la-gota' => [1200, 1200, 'circle', 'Foto en el centro de las ondas'],
+        // Dentro de la gota suspendida (.gt-bead, 100:124; la punta de arriba se recorta)
+        'bautizo-la-gota' => [1000, 1240, 'oval', 'Foto dentro de la gota'],
         // Sticker de foto con borde troquelado (.st-photo, 4:5)
         'cumple-stickers' => [1080, 1350, 'rounded', 'Foto del sticker'],
         // Foto instantánea con clip (.ex-photo, cuadrada)
@@ -78,7 +78,8 @@ final class ImageFrames
         return [
             'hero' => collect(InvitationTemplates::all())
                 ->keys()
-                ->mapWithKeys(fn (string $key) => [$key => $shape(self::HERO[self::short($key)] ?? self::DEFAULT_HERO)])
+                // Las de la colección «tendencias» declaran su marco en el catálogo («frame»)
+                ->mapWithKeys(fn (string $key) => [$key => $shape(self::HERO[self::short($key)] ?? InvitationTemplates::get($key)['frame'] ?? self::DEFAULT_HERO)])
                 ->all(),
             'contexts' => array_map($shape, self::CONTEXTS),
         ];

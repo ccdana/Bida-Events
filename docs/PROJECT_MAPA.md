@@ -457,7 +457,7 @@ propósito y responde `no-store`.
 
 | Archivo | Qué hace |
 | --- | --- |
-| `landing.blade.php` | Página por tipo de evento: portada con su foto y la apertura, qué incluye, muestra interactiva, precios, preguntas (con datos estructurados `FAQPage`) y enlaces a los otros eventos |
+| `landing.blade.php` | Página por tipo de evento: portada con sus diseños como capturas de cómo empieza cada apertura (al tocarlas se abre la muestra completa), qué incluye, precios, preguntas (con datos estructurados `FAQPage`) y enlaces a los otros eventos |
 | `site/partials/header.blade.php`, `plans.blade.php`, `faqs.blade.php`, `footer.blade.php` | Cabecera, precios, preguntas y pie compartidos por la portada y las páginas por evento |
 | `sitemap.blade.php` | Mapa del sitio en XML |
 | `home.blade.php` | Portada completa: navegación, encabezado con el teléfono que recorre las aperturas, franja de tipos de evento, servicios en filas numeradas, sección de plantillas con la muestra interactiva, pasos de trabajo, precios en columnas, preguntas frecuentes, contacto y pie |
@@ -469,7 +469,7 @@ propósito y responde `no-store`.
 | --- | --- |
 | `invitations/templates/xv-premium.blade.php` | Noche de gala: telones de apertura, destellos dorados y marco editorial |
 | `invitations/templates/boda-jardin.blade.php` | Promesa en el jardín: sobre con sello de cera, ramas y pétalos |
-| `invitations/templates/bautizo-cielo.blade.php` | Entre nubes: pila bautismal con jarra, nubes, palomas y burbujas |
+| `invitations/templates/bautizo-cielo.blade.php` | Entre nubes: capas de nubes que se abren, la foto como sol entre nubes y cada sección como una nube (armado temático, `partials/nubes`, `themes/nubes.css`) |
 | `invitations/templates/cumple-fiesta.blade.php` | Sopla las velas: pastel con velas, confeti, globos y banderines |
 | `invitations/templates/tarjeta-amor.blade.php` | Carta que florece: carta doblada con cinta que se abre, foto con cinta adhesiva, dedicatoria y contador |
 | `invitations/partials/amor/intro.blade.php` / `hero.blade.php` | Apertura de la carta y portada de la tarjeta |
@@ -525,11 +525,12 @@ propósito y responde `no-store`.
 | `partials/boda/hero.blade.php` | Portada con foto en arco |
 | `partials/boda/branch.blade.php` | Rama que se dibuja |
 | `partials/boda/ambient.blade.php` | Pétalos y fondo |
-| `partials/bautizo/intro.blade.php` | Pila bautismal y jarra que vierte agua; la invitación aparece en la onda |
-| `partials/bautizo/hero.blade.php` | Portada con medallón y paloma |
-| `partials/bautizo/dove.blade.php` | Paloma con rama de olivo |
-| `partials/bautizo/cloud.blade.php` / `clouds-band.blade.php` | Nubes sueltas y franja de nubes |
-| `partials/bautizo/ambient.blade.php` | Nubes, palomas, burbujas y destellos de fondo |
+| `partials/nubes/intro.blade.php` | «Entre nubes»: la nube con el nombre se infla y las capas de nubes se abren mientras entra el sol |
+| `partials/nubes/hero.blade.php` | La foto como sol entre las nubes, con aro y rayos; la fecha en una nubecita |
+| `partials/nubes/steps.blade.php` / `godparents.blade.php` | El día de nube en nube; cada padrino en su nube |
+| `partials/nubes/cloud.blade.php` / `ambient.blade.php` | La nube (suelta o banco) y las nubes que cruzan el fondo |
+| `partials/gota/{intro,hero,drops,ripples}.blade.php` | «La gota»: la pila y la jarra que vierte; la foto dentro de una gota sobre el agua; el día gota a gota; los padrinos en anillos |
+| `partials/birrete/{intro,hero,cord,medals,cap,ambient}.blade.php` | «Birrete al aire»: el cambio de borla; la medalla de la promoción con laureles; el cordón de la borla; una medalla para cada uno; birretes en el aire |
 | `partials/cumple/intro.blade.php` | Pastel de dos pisos con velas que se soplan |
 | `partials/cumple/hero.blade.php` | Portada con la edad gigante |
 | `partials/cumple/balloon.blade.php` / `bunting.blade.php` | Globos y banderines |
@@ -594,7 +595,7 @@ propósito y responde `no-store`.
 | `resources/css/invitation/ambient.css` | Fondos animados compartidos |
 | `resources/css/invitation/themes/xv.css` | Tema de XV: telones, dorados y ornamentos |
 | `resources/css/invitation/themes/boda.css` | Tema de boda: sobre, ramas y tipografía caligráfica |
-| `resources/css/invitation/themes/bautizo.css` | Tema de bautizo: cielo, pila, jarra, olas y destellos |
+| `resources/css/invitation/themes/{nubes,gota,birrete}.css` | «Entre nubes», «La gota» y «Birrete al aire»: hojas propias que se cargan solo en su invitación (entrada de Vite `temas`), sobre la base adaptable de `tendencias/_base.css` |
 | `resources/css/invitation/themes/cumple.css` | Tema de cumpleaños: pastel, confeti, globos y bordes marcados |
 | `resources/css/cards/amor.css` | Tema de la tarjeta del Día del Amor; entrada propia de Vite, se carga solo en esa plantilla |
 | `resources/js/app.js` | Entrada: Alpine, axios, barra de progreso y carga dinámica de los demás módulos según lo que exista en la página |
@@ -1058,6 +1059,18 @@ Para verlas en producción hay que correr la semilla de muestras: `php artisan d
 | Birretes de «Birrete al aire»: avanzan de costado mientras suben frenando y caen con gravedad, dan tumbos y rebotan al llegar; el de la portada rebota una vez al asentarse | `themes/graduacion.css` (`inv-grad-toss-x`, `inv-grad-toss-y`, `inv-grad-cap-drop`) |
 | Página por evento: los diseños con sus colores y la marca «Nuevo», una sección de diseños que se prueban en el teléfono de arriba, «Cómo funciona» en tres pasos (clases `site-howto`, aparte de la línea de tiempo `site-steps` de la portada y «Hazlo tú»). El único botón de WhatsApp es el de la portada | `landing.blade.php`, `site/site.css` («Página por evento»), `ShowcaseDemos::find` (`palette`, `isNew`) |
 
+### 7.16 Rediseños, aperturas y fondos nuevos
+
+| Qué | Dónde |
+| --- | --- |
+| Páginas por evento: los diseños se ven como capturas de cómo empieza su apertura, en abanico sobre la foto del evento (en el celular se deslizan de lado); al tocar una se abre la muestra completa. Sin la sección de tarjetas ni el teléfono con pestañas | `landing.blade.php`, `site/site.css` («Los diseños como capturas»), `ShowcaseDemos::capture` |
+| Capturas de las muestras: Chrome o Edge sin ventana, al ancho de un celular (390×844), guardadas en WebP. Se corren en el equipo de desarrollo cuando cambia una apertura o se suma una muestra, y se suben con `public/`; sin captura, la página usa la apertura en vivo | `php artisan bida:capturas-muestras`, `public/images/muestras/` |
+| Portada: el baby shower se prueba en «Pruébala como invitado»; el teléfono de arriba recorre solo los eventos que tienen foto y palabra | `config/bida.php` (`demo_invitations`), `home.blade.php` |
+| «Entre nubes» rehecha: apertura de nubes, la foto como sol, secciones como nubes, el día de nube en nube y un padrino por nube. Sin palomas (tampoco en su PDF) | `partials/nubes`, `themes/nubes.css`, `PdfMotifs::nubes` |
+| «La gota» rehecha: se entra vertiendo la jarra sobre la pila (la apertura que tenía «Entre nubes», sin la cruz: la pila lleva una gota grabada); la foto dentro de una gota suspendida sobre el agua con su reflejo, anillos de padrinos y la luz del agua moviéndose al fondo | `partials/gota`, `themes/gota.css` |
+| «Birrete al aire» rehecha: el cambio de borla como apertura, la medalla de la promoción con laureles y la carrera en el borde, el cordón de la borla como itinerario y medallas para quienes acompañaron | `partials/birrete`, `themes/birrete.css` |
+| Aperturas nuevas: el canasto de ropa que se cuelga («Tendedero»), la puerta de embarque con el avión que despega («Próxima salida»), el kiosco de revistas («Edición especial»), el escenario que se enciende («Gira mundial») y la sala que se ilumina con puertas que se abren y flashes («Galería Quince») | `partials/tendencias/{tendedero,revista,gira,galeria}/intro.blade.php`, `partials/salidas/intro.blade.php` y sus hojas |
+| Fondos con escena propia: tendederos lejanos y burbujas de jabón, recortes de revista con las letras del nombre, pentagramas que ondulan y notas que suben, focos que barren la sala, luces de la araña que giran en pareja y el brillo del terciopelo; también las nubes y los birretes de las rehechas | `partials/shell/themed-ambient.blade.php` (tercer valor: parcial de la escena), `*/ambient.blade.php` |
 ---
 
 ## 8. Hoja de ruta sugerida

@@ -1,0 +1,801 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   INVITACIÓN — «Móvil de cuna» (bautizo · colección tendencias)
+
+   La invitación es el móvil que cuelga sobre la cuna. En la portada, la varilla
+   de madera con cinco figuras de fieltro cosidas (la luna, la estrella, la vela
+   del bautismo, la casita y el corderito) que se mecen a su ritmo; de ahí baja
+   un hilo por toda la página y de él cuelga cada sección, con su figura arriba
+   (la casita en la ubicación, la vela en el programa, el ropón en la
+   vestimenta…) y su tarjeta de fieltro con costura.
+
+   Todo sale de la paleta del editor:
+     pared = fondo · hilos, costuras y textos = texto · fieltro verde =
+     principal · fieltro cálido = secundario · madera y fieltro claro = acento.
+   Sin conchas ni aves: en Bolivia tienen doble sentido.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+@import './_base.css';
+
+.inv-movil {
+    --inv-radius: 999px;
+    --mv-felt-1: var(--tr-primary);
+    --mv-felt-2: var(--tr-secondary);
+    --mv-felt-3: color-mix(in srgb, var(--tr-accent) 80%, var(--tr-text) 8%);
+    --mv-flame: color-mix(in srgb, var(--tr-secondary) 55%, #ffd76e);
+    --mv-wood: color-mix(in srgb, var(--tr-accent) 55%, var(--tr-secondary) 45%);
+    --mv-thread: color-mix(in srgb, var(--tr-text) 38%, var(--tr-bg));
+    --mv-card: color-mix(in srgb, var(--tr-accent) 38%, var(--tr-bg));
+    --mv-stitch: color-mix(in srgb, var(--tr-text) 30%, transparent);
+    --themed-from: translate3d(0, -18px, 0) rotate(-1.5deg);
+
+    /* Las figuras de las secciones: la forma de fieltro y su costura, como máscaras.
+       Son las mismas de partials/tendencias/movil/shapes. */
+    --mv-star: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 8 L61 36 L92 38 L68 57 L76 88 L50 71 L24 88 L32 57 L8 38 L39 36 Z' stroke='black' stroke-width='6' stroke-linejoin='round'/%3E%3C/svg%3E");
+    --mv-star-s: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 8 L61 36 L92 38 L68 57 L76 88 L50 71 L24 88 L32 57 L8 38 L39 36 Z' fill='none' stroke='black' stroke-width='3' stroke-dasharray='5 4' stroke-linecap='round' stroke-linejoin='round' transform='translate(50 52) scale(.78) translate(-50 -52)'/%3E%3C/svg%3E");
+    --mv-moon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M60 10 A40 40 0 1 0 90 66 A32 32 0 1 1 60 10 Z' stroke='black' stroke-width='5' stroke-linejoin='round'/%3E%3C/svg%3E");
+    --mv-moon-s: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M60 10 A40 40 0 1 0 90 66 A32 32 0 1 1 60 10 Z' fill='none' stroke='black' stroke-width='3' stroke-dasharray='5 4' stroke-linecap='round' transform='translate(46 50) scale(.8) translate(-46 -50)'/%3E%3C/svg%3E");
+    --mv-house: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath fill-rule='evenodd' d='M50 10 L90 44 L80 44 L80 90 L20 90 L20 44 L10 44 Z M43 90 L43 70 A7 7 0 0 1 57 70 L57 90 Z' stroke='black' stroke-width='4' stroke-linejoin='round'/%3E%3C/svg%3E");
+    --mv-house-s: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 10 L90 44 L80 44 L80 90 L20 90 L20 44 L10 44 Z' fill='none' stroke='black' stroke-width='3' stroke-dasharray='5 4' stroke-linecap='round' stroke-linejoin='round' transform='translate(50 54) scale(.8) translate(-50 -54)'/%3E%3C/svg%3E");
+    --mv-candle: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 6 C60 18 60 30 50 34 C40 30 40 18 50 6 Z M36 42 H64 V92 H36 Z' stroke='black' stroke-width='4' stroke-linejoin='round'/%3E%3C/svg%3E");
+    --mv-candle-s: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M40 48 H60 V86 H40 Z' fill='none' stroke='black' stroke-width='3' stroke-dasharray='5 4' stroke-linecap='round'/%3E%3C/svg%3E");
+    --mv-heart: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 86 C22 66 8 52 8 34 C8 20 18 12 30 12 C40 12 46 18 50 24 C54 18 60 12 70 12 C82 12 92 20 92 34 C92 52 78 66 50 86 Z'/%3E%3C/svg%3E");
+    --mv-heart-s: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 86 C22 66 8 52 8 34 C8 20 18 12 30 12 C40 12 46 18 50 24 C54 18 60 12 70 12 C82 12 92 20 92 34 C92 52 78 66 50 86 Z' fill='none' stroke='black' stroke-width='3' stroke-dasharray='5 4' stroke-linecap='round' transform='translate(50 46) scale(.8) translate(-50 -46)'/%3E%3C/svg%3E");
+    --mv-gown: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M40 10 H60 L63 20 L78 28 L72 40 L66 36 L76 90 H24 L34 36 L28 40 L22 28 L37 20 Z' stroke='black' stroke-width='5' stroke-linejoin='round'/%3E%3C/svg%3E");
+    --mv-gown-s: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M28 76 H72' fill='none' stroke='black' stroke-width='3' stroke-dasharray='5 4' stroke-linecap='round'/%3E%3Cpath d='M44 20 Q50 28 56 20' fill='none' stroke='black' stroke-width='3' stroke-dasharray='4 3' stroke-linecap='round'/%3E%3C/svg%3E");
+    --mv-gift: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M14 42 H86 V90 H14 Z M8 28 H92 V42 H8 Z M50 28 C38 8 24 14 36 28 Z M50 28 C62 8 76 14 64 28 Z' stroke='black' stroke-width='4' stroke-linejoin='round'/%3E%3C/svg%3E");
+    --mv-gift-s: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 30 V88' fill='none' stroke='black' stroke-width='3' stroke-dasharray='5 4' stroke-linecap='round'/%3E%3C/svg%3E");
+    --mv-note: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M58 12 L80 18 V30 L64 26 V70 C64 80 54 86 44 84 C34 82 32 72 40 66 C46 62 54 62 58 64 Z' stroke='black' stroke-width='5' stroke-linejoin='round'/%3E%3C/svg%3E");
+    --mv-note-s: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cellipse cx='49' cy='74' rx='9' ry='6' fill='none' stroke='black' stroke-width='3' stroke-dasharray='4 3'/%3E%3C/svg%3E");
+    --mv-balloon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 8 C70 8 82 24 80 42 C78 60 62 74 50 76 C38 74 22 60 20 42 C18 24 30 8 50 8 Z M45 76 H55 L50 84 Z' stroke='black' stroke-width='4' stroke-linejoin='round'/%3E%3C/svg%3E");
+    --mv-balloon-s: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 8 C70 8 82 24 80 42 C78 60 62 74 50 76 C38 74 22 60 20 42 C18 24 30 8 50 8 Z' fill='none' stroke='black' stroke-width='3' stroke-dasharray='5 4' stroke-linecap='round' transform='translate(50 42) scale(.8) translate(-50 -42)'/%3E%3C/svg%3E");
+
+    background:
+        radial-gradient(70% 40% at 50% 0%, color-mix(in srgb, var(--tr-accent) 55%, transparent), transparent 75%),
+        var(--tr-bg);
+}
+
+.inv-movil.has-player {
+    padding-bottom: calc(5.25rem + env(safe-area-inset-bottom));
+}
+
+.mv-defs {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+}
+
+/* ── Fieltro y costura ─────────────────────────────────────────────────── */
+
+.mv-felt--1 { --mv-color: var(--mv-felt-1); --mv-detail: var(--mv-flame); }
+.mv-felt--2 { --mv-color: var(--mv-felt-2); --mv-detail: var(--mv-felt-3); }
+.mv-felt--3 { --mv-color: var(--mv-felt-3); --mv-detail: var(--mv-felt-2); }
+
+.mv-figure {
+    display: block;
+    overflow: visible;
+    filter: drop-shadow(0 3px 2px color-mix(in srgb, #000 20%, transparent));
+}
+
+.mv-figure__felt {
+    fill: var(--mv-color);
+    stroke: var(--mv-color);
+    stroke-width: 5;
+    stroke-linejoin: round;
+}
+
+.mv-figure__stitch {
+    --mv-detail: transparent;
+    fill: none;
+    stroke: color-mix(in srgb, var(--tr-bg) 88%, transparent);
+    stroke-width: 2.6;
+    stroke-dasharray: 5 4;
+    stroke-linecap: round;
+    transform: scale(0.8);
+    transform-box: view-box;
+    transform-origin: 50px 52px;
+}
+
+/* La tarjeta de fieltro: un paño claro con la costura por dentro */
+.mv-card {
+    position: relative;
+    border-radius: 1.4rem;
+    background: var(--mv-card);
+    box-shadow: 0 16px 26px -20px color-mix(in srgb, #000 55%, transparent);
+}
+
+.mv-card::before {
+    content: '';
+    position: absolute;
+    inset: 7px;
+    border: 1.5px dashed var(--mv-stitch);
+    border-radius: calc(1.4rem - 7px);
+    pointer-events: none;
+}
+
+/* ── El móvil ──────────────────────────────────────────────────────────── */
+
+.mv-mobile {
+    position: relative;
+    width: min(90vw, 24rem);
+    height: 12.5rem;
+    margin-inline: auto;
+}
+
+/* El gancho de la cuna y el hilo que sostiene la varilla */
+.mv-mobile__hook {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 1.1rem;
+    height: 2.7rem;
+    translate: -50% 0;
+    border-top: 3px solid var(--mv-wood);
+    border-radius: 50% 50% 0 0;
+    background: linear-gradient(var(--mv-thread), var(--mv-thread)) center 0.5rem / 1.5px 100% no-repeat;
+}
+
+.mv-mobile__bar {
+    position: absolute;
+    top: 2.6rem;
+    left: 3%;
+    right: 3%;
+    height: 7px;
+    border-radius: 7px;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--mv-wood) 70%, #fff), var(--mv-wood) 60%, color-mix(in srgb, var(--mv-wood) 80%, #000));
+    box-shadow: 0 3px 4px -2px color-mix(in srgb, #000 40%, transparent);
+}
+
+/* Las cuentas de madera en las puntas de la varilla */
+.mv-mobile__bar::before,
+.mv-mobile__bar::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 13px;
+    height: 13px;
+    translate: 0 -50%;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, color-mix(in srgb, var(--mv-felt-2) 60%, #fff), var(--mv-felt-2));
+}
+
+.mv-mobile__bar::before { left: -8px; }
+.mv-mobile__bar::after { right: -8px; }
+
+/* Cada figura cuelga de su hilo y se mece desde arriba, a su ritmo */
+.mv-hang {
+    position: absolute;
+    top: calc(2.6rem + 5px);
+    left: var(--x);
+    width: clamp(3rem, 15vw, 4rem);
+    height: calc(var(--len) + 4rem);
+    translate: -50% 0;
+    transform-origin: 50% 0;
+    animation: mv-sway var(--t, 5s) ease-in-out calc(var(--i, 0) * -0.9s) infinite alternate;
+}
+
+.mv-hang::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 1.5px;
+    height: calc(var(--len) + 6px);
+    background: var(--mv-thread);
+}
+
+.mv-hang .mv-figure {
+    position: absolute;
+    top: var(--len);
+    left: 0;
+    width: 100%;
+}
+
+@keyframes mv-sway {
+    from { transform: rotate(-5deg); }
+    to { transform: rotate(5deg); }
+}
+
+/* Lo que tiene texto se mece menos: se tiene que poder leer */
+@keyframes mv-sway-soft {
+    from { transform: rotate(-1.8deg); }
+    to { transform: rotate(1.8deg); }
+}
+
+/* ── Portada ───────────────────────────────────────────────────────────── */
+
+.mv-hero {
+    align-content: start;
+    justify-items: center;
+    gap: 1.5rem;
+    padding: calc(4rem + env(safe-area-inset-top)) 1rem 2.5rem;
+    color: var(--tr-text);
+}
+
+.mv-pennant {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    gap: 0.35rem;
+    width: min(100%, 24rem);
+    margin-top: 0.5rem;
+    padding: 1.6rem 1.5rem 1.8rem;
+    border-radius: 1.6rem;
+    background: var(--mv-card);
+    box-shadow: 0 18px 28px -20px color-mix(in srgb, #000 55%, transparent);
+}
+
+.mv-pennant::before {
+    content: '';
+    position: absolute;
+    inset: 8px;
+    border: 1.5px dashed var(--mv-stitch);
+    border-radius: 1.2rem;
+}
+
+.mv-pennant__eyebrow {
+    margin: 0;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--inv-accent-ink);
+}
+
+/* El nombre bordado, con su puntada debajo */
+.mv-pennant__name {
+    margin: 0;
+    padding-bottom: 0.4rem;
+    border-bottom: 2px dashed color-mix(in srgb, var(--mv-felt-1) 70%, transparent);
+    font-family: var(--font-script);
+    font-size: clamp(2.3rem, 11vw, 3.6rem);
+    font-weight: 600;
+    line-height: 1.02;
+    text-align: center;
+    text-wrap: balance;
+    overflow-wrap: break-word;
+}
+
+.mv-photo {
+    width: min(58vw, 15rem);
+    aspect-ratio: 1;
+    margin: 0.5rem 0 0;
+    border-radius: 50%;
+    overflow: hidden;
+    box-shadow: 0 0 0 11px var(--mv-felt-1), 0 20px 30px -18px color-mix(in srgb, #000 55%, transparent);
+    outline: 2px dashed color-mix(in srgb, var(--tr-bg) 85%, transparent);
+    outline-offset: 5px;
+}
+
+.mv-hero__facts {
+    width: min(100%, 24rem);
+    padding: 1.4rem 1.4rem 1.5rem;
+}
+
+.mv-facts {
+    display: grid;
+    gap: 0.75rem;
+    margin: 0;
+}
+
+.mv-facts > div {
+    display: grid;
+    grid-template-columns: 2rem 1fr;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.mv-facts dt {
+    line-height: 0;
+}
+
+.mv-facts__icon {
+    width: 2rem;
+    height: 2rem;
+}
+
+.mv-facts dd {
+    margin: 0;
+    font-family: var(--font-titles);
+    font-size: 1.1rem;
+    font-weight: 600;
+    line-height: 1.3;
+    text-align: left;
+}
+
+.mv-facts a {
+    color: inherit;
+    text-decoration-style: dashed;
+    text-decoration-color: var(--mv-felt-1);
+    text-underline-offset: 4px;
+}
+
+.mv-hero__message {
+    position: relative;
+    margin: 1.1rem 0 0;
+    padding-top: 1rem;
+    border-top: 1.5px dashed var(--mv-stitch);
+    font-size: 0.95rem;
+    line-height: 1.65;
+    color: var(--inv-muted);
+    text-wrap: pretty;
+}
+
+.mv-hero__scroll {
+    color: var(--tr-text);
+}
+
+/* ── El hilo que baja por la invitación y las secciones que cuelgan ─────── */
+
+.inv-movil main {
+    position: relative;
+    isolation: isolate;
+}
+
+.inv-movil main::before {
+    content: '';
+    position: absolute;
+    top: -2.5rem;
+    bottom: 0;
+    left: 50%;
+    z-index: -1;
+    width: 1.5px;
+    background: var(--mv-thread);
+}
+
+.inv-movil main > .inv-section {
+    border-top: 0;
+    padding-block: 7.5rem 1.5rem;
+}
+
+/* La figura de cada sección: la forma de fieltro (::before) y su costura (::after), meciéndose juntas */
+.inv-movil main > .inv-section::before,
+.inv-movil main > .inv-section::after {
+    content: '';
+    position: absolute;
+    top: 1.9rem;
+    left: 50%;
+    width: 4.2rem;
+    height: 4.2rem;
+    margin-left: -2.1rem;
+    transform-origin: 50% -1.9rem;
+    animation: mv-sway 5.2s ease-in-out infinite alternate;
+    -webkit-mask: var(--mv-shape, var(--mv-star)) center / contain no-repeat;
+    mask: var(--mv-shape, var(--mv-star)) center / contain no-repeat;
+}
+
+.inv-movil main > .inv-section::before {
+    background: var(--mv-color, var(--mv-felt-2));
+}
+
+.inv-movil main > .inv-section::after {
+    background: color-mix(in srgb, var(--tr-bg) 88%, transparent);
+    -webkit-mask-image: var(--mv-shape-s, var(--mv-star-s));
+    mask-image: var(--mv-shape-s, var(--mv-star-s));
+}
+
+.inv-movil main > .inv-section:nth-of-type(even)::before,
+.inv-movil main > .inv-section:nth-of-type(even)::after {
+    animation-duration: 4.6s;
+    animation-delay: -1.5s;
+}
+
+.inv-movil main > :is(#cuenta-regresiva, #agendar, #post-evento) { --mv-shape: var(--mv-moon); --mv-shape-s: var(--mv-moon-s); --mv-color: var(--mv-felt-3); }
+.inv-movil main > #ubicacion { --mv-shape: var(--mv-house); --mv-shape-s: var(--mv-house-s); --mv-color: var(--mv-felt-2); }
+.inv-movil main > :is(#guest-banner, #rsvp, #destacados, #hashtag) { --mv-shape: var(--mv-heart); --mv-shape-s: var(--mv-heart-s); --mv-color: var(--mv-felt-1); }
+.inv-movil main > :is(#galeria, #video, #fotomural) { --mv-shape: var(--mv-star); --mv-shape-s: var(--mv-star-s); --mv-color: var(--mv-felt-2); }
+.inv-movil main > #dress-code { --mv-shape: var(--mv-gown); --mv-shape-s: var(--mv-gown-s); --mv-color: var(--mv-felt-3); }
+.inv-movil main > #regalos { --mv-shape: var(--mv-gift); --mv-shape-s: var(--mv-gift-s); --mv-color: var(--mv-felt-2); }
+.inv-movil main > #playlist { --mv-shape: var(--mv-note); --mv-shape-s: var(--mv-note-s); --mv-color: var(--mv-felt-1); }
+.inv-movil main > #encuestas { --mv-shape: var(--mv-balloon); --mv-shape-s: var(--mv-balloon-s); --mv-color: var(--mv-felt-3); }
+
+/* La vela del programa: la llama es de otro fieltro */
+.inv-movil main > #itinerario {
+    --mv-shape: var(--mv-candle);
+    --mv-shape-s: var(--mv-candle-s);
+}
+
+.inv-movil main > #itinerario::before {
+    background: linear-gradient(180deg, var(--mv-flame) 0 37%, var(--mv-felt-1) 37%);
+}
+
+/* El contenido de cada sección es una tarjeta de fieltro colgada del hilo */
+.inv-movil main > .inv-section > .inv-wrap {
+    position: relative;
+    width: calc(100% - 1.5rem);
+    padding-block: 2.4rem 2.2rem;
+    border-radius: 1.6rem;
+    background: var(--mv-card);
+    box-shadow: 0 18px 30px -24px color-mix(in srgb, #000 55%, transparent);
+}
+
+.inv-movil main > .inv-section > .inv-wrap::before {
+    content: '';
+    position: absolute;
+    inset: 8px;
+    border: 1.5px dashed var(--mv-stitch);
+    border-radius: calc(1.6rem - 8px);
+    pointer-events: none;
+}
+
+.inv-movil main > .inv-section > .inv-wrap > * {
+    position: relative;
+}
+
+/* Las secciones con su propia vista ya son tarjetas colgando: sin paño de fondo */
+.inv-movil main > :is(.mv-steps-section, .mv-godparents) > .inv-wrap {
+    background: none;
+    box-shadow: none;
+}
+
+.inv-movil main > :is(.mv-steps-section, .mv-godparents) > .inv-wrap::before {
+    content: none;
+}
+
+.inv-movil main > :is(.mv-steps-section, .mv-godparents) .inv-head {
+    padding: 1.5rem 1rem 1.25rem;
+    border-radius: 1.4rem;
+    background: var(--mv-card);
+}
+
+.inv-movil .invitation-lottie-framed {
+    display: none;
+}
+
+.inv-movil .inv-head__eyebrow {
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+}
+
+.inv-movil .inv-head__title {
+    font-size: clamp(2rem, 9vw, 3rem);
+    font-weight: 600;
+}
+
+.inv-movil .inv-head__rule {
+    width: 3rem;
+    height: 0;
+    border-top: 2px dashed var(--mv-felt-1);
+    background: none;
+    opacity: 0.8;
+}
+
+.inv-movil :is(.inv-btn, .inv-link, .inv-label) {
+    letter-spacing: 0.08em;
+}
+
+.inv-movil .inv-btn:not(.inv-btn--ghost) {
+    border-color: var(--mv-felt-1);
+    background: var(--mv-felt-1);
+    color: var(--tr-ink-primary);
+    outline: 1.5px dashed color-mix(in srgb, var(--tr-ink-primary) 55%, transparent);
+    outline-offset: -6px;
+}
+
+.inv-movil .inv-countdown__unit + .inv-countdown__unit {
+    border-left-style: dashed;
+}
+
+/* ── Itinerario: tarjetitas colgando del hilo ──────────────────────────── */
+
+.mv-steps {
+    display: grid;
+    gap: 1.6rem;
+    margin: 2rem 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.mv-step {
+    display: flex;
+    justify-content: center;
+}
+
+.mv-step__tag {
+    width: min(100%, 17rem);
+    padding: 2rem 1.25rem 1.25rem;
+    text-align: center;
+    transform-origin: 50% -1.6rem;
+    animation: mv-sway-soft var(--t, 5s) ease-in-out infinite alternate;
+}
+
+.mv-step.is-left .mv-step__tag { translate: -0.9rem 0; }
+.mv-step.is-right .mv-step__tag { translate: 0.9rem 0; }
+
+/* El hilo corto que une la tarjeta con el hilo largo */
+.mv-step__tag::after {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    width: 1.5px;
+    height: 1.6rem;
+    background: var(--mv-thread);
+}
+
+.mv-step__time {
+    position: absolute;
+    top: -1.3rem;
+    left: 50%;
+    display: grid;
+    place-items: center;
+    width: 3.9rem;
+    height: 3.9rem;
+    translate: -50% 0;
+    border-radius: 50%;
+    background: var(--mv-color);
+    color: var(--tr-ink-primary);
+    font-size: 0.85rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    outline: 1.5px dashed color-mix(in srgb, #fff 75%, transparent);
+    outline-offset: -6px;
+}
+
+.mv-step__time.mv-felt--2 { color: var(--tr-ink-secondary); }
+.mv-step__time.mv-felt--3 { color: var(--tr-text); }
+
+.mv-step__title {
+    margin: 1.4rem 0 0;
+    font-family: var(--font-titles);
+    font-size: 1.2rem;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.mv-step__text {
+    margin: 0.3rem 0 0;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: var(--inv-muted);
+}
+
+/* ── Padrinos: en equilibrio en la misma varilla ───────────────────────── */
+
+.mv-balance {
+    position: relative;
+    margin-top: 2.5rem;
+    padding-top: 1.6rem;
+}
+
+.mv-balance__bar {
+    position: absolute;
+    top: 0;
+    left: 10%;
+    right: 10%;
+    height: 6px;
+    border-radius: 6px;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--mv-wood) 70%, #fff), var(--mv-wood));
+}
+
+/* El hilo que sostiene la varilla desde el hilo largo */
+.mv-balance__bar::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    width: 1.5px;
+    height: 2.5rem;
+    background: var(--mv-thread);
+}
+
+.mv-balance__pair {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.6rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.mv-balance.is-single .mv-balance__pair {
+    grid-template-columns: minmax(0, 16rem);
+    justify-content: center;
+}
+
+.mv-godparent {
+    display: grid;
+    align-content: start;
+    gap: 0.3rem;
+    padding: 1.3rem 0.9rem 1.2rem;
+    text-align: center;
+    transform-origin: 50% -1.6rem;
+    animation: mv-sway-soft 5s ease-in-out infinite alternate;
+}
+
+.mv-godparent:nth-child(2) {
+    animation-delay: -2.2s;
+}
+
+.mv-godparent::after {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    width: 1.5px;
+    height: 1.6rem;
+    background: var(--mv-thread);
+}
+
+.mv-godparent__role {
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--inv-accent-ink);
+}
+
+.mv-godparent__names {
+    font-family: var(--font-titles);
+    font-size: 1.05rem;
+    font-weight: 600;
+    line-height: 1.25;
+}
+
+.mv-godparent__message {
+    font-size: 0.8rem;
+    line-height: 1.45;
+    color: var(--inv-muted);
+}
+
+.mv-family {
+    margin-top: 2.25rem;
+    text-align: center;
+}
+
+.mv-family__title {
+    display: inline-block;
+    margin: 0 0 0.75rem;
+    padding: 0.35rem 0.9rem;
+    border-radius: 999px;
+    background: var(--tr-bg);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--inv-accent-ink);
+}
+
+.mv-family__tags {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.6rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.mv-family__tag {
+    display: grid;
+    padding: 0.8rem 1rem;
+    border-radius: 1rem;
+    font-weight: 600;
+}
+
+.mv-family__tag::before {
+    inset: 5px;
+    border-radius: 0.7rem;
+}
+
+.mv-family__tag small {
+    font-weight: 400;
+    font-size: 0.75rem;
+    color: var(--inv-soft);
+}
+
+/* ── Apertura: el cuarto en penumbra ───────────────────────────────────── */
+
+.mv-intro {
+    gap: 1rem;
+    background:
+        radial-gradient(60% 40% at 50% 30%, color-mix(in srgb, var(--tr-accent) 35%, var(--tr-text)), transparent 75%),
+        color-mix(in srgb, var(--tr-text) 88%, #000);
+    color: var(--tr-bg);
+    transition: background-color 0.8s ease;
+}
+
+.mv-intro__eyebrow {
+    margin: 0;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    opacity: 0.85;
+}
+
+.mv-intro__trigger {
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    perspective: 900px;
+}
+
+.mv-mobile--intro .mv-hang {
+    animation-play-state: paused;
+}
+
+.mv-crib {
+    width: min(90vw, 24rem);
+    height: 4.5rem;
+    margin-top: -0.5rem;
+}
+
+.mv-crib rect {
+    fill: color-mix(in srgb, var(--mv-wood) 85%, var(--tr-bg));
+}
+
+.mv-intro__name {
+    margin: 0.5rem 0 0;
+    font-family: var(--font-script);
+    font-size: clamp(2rem, 10vw, 2.8rem);
+    font-weight: 600;
+    line-height: 1;
+}
+
+.mv-intro__hint {
+    margin: 0;
+    font-size: 0.85rem;
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+/* Al tocarlo, el móvil da una vuelta y las figuras se mecen; se enciende la luz del cuarto */
+.mv-intro.is-spinning .mv-mobile--intro {
+    animation: mv-spin 1.4s var(--tr-ease) both;
+}
+
+.mv-intro.is-spinning .mv-mobile--intro .mv-hang {
+    animation-play-state: running;
+    animation-duration: 0.7s;
+}
+
+.mv-intro.is-spinning .mv-intro__hint {
+    opacity: 0;
+}
+
+@keyframes mv-spin {
+    from { transform: rotateY(0deg); }
+    to { transform: rotateY(360deg); }
+}
+
+.mv-intro.is-open {
+    background: var(--tr-bg);
+    color: var(--tr-text);
+}
+
+/* ── Fondo, pie e historia ─────────────────────────────────────────────── */
+
+.inv-drift--cuarto {
+    --drift-a: color-mix(in srgb, var(--mv-felt-2) 55%, #fff);
+    opacity: 0.55;
+}
+
+.inv-movil .inv-movil-footer {
+    border-top: 0;
+}
+
+.inv-story-invitation .inv-movil .inv-scene {
+    --story-scene-bg: var(--tr-bg);
+    transform-origin: 50% -20%;
+    rotate: 4deg;
+    opacity: 0;
+    transition: rotate 1s var(--tr-spring), opacity 0.5s ease, visibility 0s linear 1s;
+}
+
+.inv-story-invitation .inv-movil .inv-scene.is-active {
+    rotate: 0deg;
+    opacity: 1;
+    transition-delay: 0s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .mv-hang,
+    .mv-step__tag,
+    .mv-godparent,
+    .inv-movil main > .inv-section::before,
+    .inv-movil main > .inv-section::after {
+        animation: none;
+    }
+}

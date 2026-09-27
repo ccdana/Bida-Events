@@ -18,9 +18,9 @@ class ShowcaseInvitationsSeederTest extends TestCase
         $this->seed(ShowcaseInvitationsSeeder::class);
         $this->seed(ShowcaseInvitationsSeeder::class);
 
-        $this->assertSame(ShowcaseInvitationsSeeder::SLUGS, Invitation::orderBy('id')->pluck('slug')->all());
+        $this->assertSame(ShowcaseInvitationsSeeder::slugs(), Invitation::orderBy('id')->pluck('slug')->all());
 
-        foreach (ShowcaseInvitationsSeeder::SLUGS as $slug) {
+        foreach (ShowcaseInvitationsSeeder::slugs() as $slug) {
             $data = ShowcaseInvitationsSeeder::data($slug);
             $invitation = Invitation::where('slug', $slug)->firstOrFail();
 

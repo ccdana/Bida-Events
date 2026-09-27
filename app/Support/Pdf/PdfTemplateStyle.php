@@ -13,7 +13,7 @@ use App\Support\InvitationTemplates;
  *  1. Si le sirve una de las portadas de abajo, basta con agregarla a STYLES (o con nada: hereda
  *     la de su tipo de evento en BY_EVENT).
  *  2. Si quiere una propia, se crea la vista en resources/views/client/exports/pdf/covers/ y se
- *     nombra aquí. EditorPanelsTest comprueba que toda plantilla tenga su portada y su adorno.
+ *     nombra aquí (las de la colección «tendencias» la nombran en su entrada del catálogo, «pdf»). EditorPanelsTest comprueba que toda plantilla tenga su portada y su adorno.
  */
 final class PdfTemplateStyle
 {
@@ -146,6 +146,7 @@ final class PdfTemplateStyle
         'amor' => 'carta',
         'aventura' => 'cuaderno',
         'historia' => 'luna',
+        'babyshower' => 'tendedero',
     ];
 
     /**
@@ -155,7 +156,8 @@ final class PdfTemplateStyle
     public static function for(?string $template): array
     {
         $meta = InvitationTemplates::get($template);
-        $style = self::styles()[self::key($template)] ?? self::inherited($meta['event']);
+        // La propia, la que declara la plantilla en el catálogo (colección «tendencias») o la de su evento
+        $style = self::styles()[self::key($template)] ?? $meta['pdf'] ?? self::inherited($meta['event']);
         $style = [...self::DEFAULTS, ...$style];
 
         return [

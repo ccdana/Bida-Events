@@ -10,12 +10,16 @@ use App\Models\Invitation;
  */
 final class ShowcaseDemos
 {
+    /** Carpeta de public/ donde showcase:capture guarda la captura de la apertura de cada muestra. */
+    public const CAPTURES = 'images/muestras';
+
     private const EVENTS = [
         'xv' => ['XV años', 'crown-simple'],
         'boda' => ['Boda', 'heart'],
         'bautizo' => ['Bautizo', 'baby'],
         'cumple' => ['Cumpleaños', 'cake'],
         'graduacion' => ['Graduación', 'graduation-cap'],
+        'babyshower' => ['Baby shower', 'baby-carriage'],
         'lienzo' => ['Evento libre', 'frame-corners'],
         'halloween' => ['Halloween', 'ghost'],
         'amor' => ['Día del Amor', 'heart'],
@@ -86,6 +90,8 @@ final class ShowcaseDemos
                     // Muestra interactiva (nada se guarda) y la misma con la apertura que se abre sola
                     'demoUrl' => route('invitation.demo', $slug),
                     'coverUrl' => route('invitation.demo', ['slug' => $slug, 'portada' => 1]),
+                    // Captura de cómo empieza la apertura (showcase:capture); sin ella, las páginas usan la muestra en vivo
+                    'capture' => self::capture($slug),
                     'title' => $invitation->title,
                     'label' => $template['label'],
                     'description' => $template['description'],
@@ -96,11 +102,19 @@ final class ShowcaseDemos
                     'icon' => $icon,
                     // La tarjeta del diseño en la página por evento muestra sus colores y si es de las nuevas
                     'palette' => array_values(array_intersect_key($template['palette'], array_flip(['background', 'accent', 'primary', 'secondary', 'text']))),
-                    'isNew' => ($template['collection'] ?? null) === 'nueva',
+                    'isNew' => in_array($template['collection'] ?? null, ['nueva', 'tendencias'], true),
                 ];
             })
             ->filter()
             ->values()
             ->all();
+    }
+
+    /** URL de la captura de la apertura de una muestra (con su fecha, para que un cambio no quede en caché) o null si no hay. */
+    public static function capture(string $slug): ?string
+    {
+        $path = public_path(self::CAPTURES."/{$slug}.webp");
+
+        return is_file($path) ? asset(self::CAPTURES."/{$slug}.webp").'?v='.filemtime($path) : null;
     }
 }

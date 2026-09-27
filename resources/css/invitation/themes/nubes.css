@@ -1,0 +1,945 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   INVITACIÓN — «Entre nubes» (invitations.templates.bautizo-cielo)
+
+   El cielo del bautizo. Se entra abriendo las capas de nubes que tapan el cielo
+   (la nube del medio lleva el nombre y, al tocarla, se infla y las capas se van
+   hacia los costados). En la portada la foto es el sol entre las nubes; cada
+   sección flota como una nube sobre el cielo, el día sube de nube en nube y los
+   padrinos tienen cada uno su nube. Al fondo pasan nubes a distinta altura.
+
+   Se carga solo en esta invitación (templates/bautizo-cielo) sobre la base
+   adaptable de la colección tendencias. Todo sale de la paleta del editor:
+     cielo = acento mezclado con el fondo · nubes = fondo aclarado · botones y
+     cielo alto = principal · sol, rayos y destellos = secundario · textos = texto.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+@import '../tendencias/_base.css';
+
+.inv-nubes {
+    --inv-radius: 1.5rem;
+    --nb-sky-top: color-mix(in srgb, var(--tr-primary) 34%, var(--tr-accent));
+    --nb-sky: color-mix(in srgb, var(--tr-accent) 62%, var(--tr-bg));
+    --nb-page: color-mix(in srgb, var(--tr-accent) 34%, var(--tr-bg));
+    --nb-cloud: color-mix(in srgb, var(--tr-bg) 72%, #fff);
+    --nb-cloud-2: color-mix(in srgb, var(--tr-accent) 28%, #fff);
+    --nb-cloud-3: color-mix(in srgb, var(--tr-accent) 58%, var(--tr-bg));
+    --nb-shade: color-mix(in srgb, var(--tr-primary) 14%, var(--nb-cloud));
+    --nb-deep: color-mix(in srgb, var(--tr-primary) 62%, var(--tr-text));
+    --nb-soft-shadow: color-mix(in srgb, var(--tr-primary) 26%, transparent);
+    /* La silueta de una nube y el borde de nubes de arriba de cada tarjeta */
+    --nb-shape: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 120'%3E%3Cpath d='M38 112 C17 112 4 99 4 81 C4 63 18 51 36 50 C37 30 53 15 74 15 C89 15 101 22 108 34 C114 28 123 24 133 24 C153 24 169 39 171 58 C187 60 197 72 197 86 C197 101 185 112 169 112 Z'/%3E%3C/svg%3E");
+    --nb-puffs: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 80' preserveAspectRatio='none'%3E%3Cpath d='M0 80 V58 C8 40 30 34 46 44 C54 20 84 8 110 20 C124 2 158 0 174 18 C190 4 222 6 234 26 C252 12 282 16 292 38 C310 26 340 30 350 50 C366 42 390 48 400 60 V80 Z'/%3E%3C/svg%3E");
+    --themed-from: translate3d(0, 34px, 0);
+
+    background: var(--nb-page);
+}
+
+.inv-nubes.has-player {
+    padding-bottom: calc(5.25rem + env(safe-area-inset-bottom));
+}
+
+/* Las nubes toman su color de la hoja: la panza, un tono más oscuro */
+.nb-cloud {
+    display: block;
+    overflow: visible;
+    fill: currentColor;
+}
+
+.nb-cloud__shade {
+    fill: var(--nb-shade);
+}
+
+/* ── Apertura: las capas de nubes que tapan el cielo ───────────────────── */
+
+.nb-intro.inv-themed-intro {
+    display: block;
+    padding: 0;
+    cursor: pointer;
+}
+
+.nb-intro__sky {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(90% 45% at 50% 16%, color-mix(in srgb, #fff 55%, transparent), transparent 70%),
+        linear-gradient(180deg, var(--nb-sky-top), var(--nb-sky) 55%, var(--nb-page));
+    transition: opacity 0.9s ease 0.15s;
+}
+
+.nb-intro__sun {
+    position: absolute;
+    top: 17%;
+    left: 50%;
+    width: min(120vw, 34rem);
+    aspect-ratio: 1;
+    translate: -50% -50%;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, color-mix(in srgb, var(--tr-secondary) 40%, #fff), color-mix(in srgb, var(--tr-secondary) 16%, transparent) 55%, transparent);
+    animation: nb-breathe 6s ease-in-out infinite;
+}
+
+/* Rayos de sol que entran cuando se abren las nubes */
+.nb-intro__rays {
+    position: absolute;
+    top: 30%;
+    left: 50%;
+    width: 180vmax;
+    aspect-ratio: 1;
+    translate: -50% -50%;
+    background: repeating-conic-gradient(from 0deg, color-mix(in srgb, #fff 72%, transparent) 0deg 3deg, transparent 3deg 14deg);
+    -webkit-mask: radial-gradient(closest-side, #000 8%, transparent 62%);
+    mask: radial-gradient(closest-side, #000 8%, transparent 62%);
+    opacity: 0;
+}
+
+.nb-intro__sparkle {
+    position: absolute;
+    top: var(--top);
+    left: var(--left);
+    z-index: 1;
+    width: var(--size);
+    aspect-ratio: 1;
+    background: color-mix(in srgb, var(--tr-secondary) 60%, #fff);
+    clip-path: polygon(50% 0, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0 50%, 39% 39%);
+    animation: nb-twinkle var(--d) ease-in-out var(--delay) infinite;
+}
+
+/* Cada capa es un banco de nubes: las de arriba cuelgan, las de abajo se apoyan */
+.nb-bank {
+    position: absolute;
+    width: max(125vw, 30rem);
+    aspect-ratio: 400 / 150;
+    color: var(--nb-cloud);
+    filter: drop-shadow(0 -8px 18px var(--nb-soft-shadow));
+    transition: translate 1.25s cubic-bezier(0.6, 0.02, 0.3, 1), opacity 1.2s ease;
+}
+
+.nb-bank .nb-cloud {
+    width: 100%;
+    height: 100%;
+    animation: nb-bank-float 7s ease-in-out calc(var(--b) * -1.3s) infinite alternate;
+}
+
+.nb-bank--left { left: -58vw; }
+.nb-bank--right { right: -58vw; }
+
+.nb-bank--right .nb-cloud {
+    scale: -1 1;
+}
+
+.nb-bank--top { top: -9svh; filter: drop-shadow(0 10px 18px var(--nb-soft-shadow)); }
+.nb-bank--top .nb-cloud { scale: 1 -1; }
+.nb-bank--right.nb-bank--top .nb-cloud { scale: -1 -1; }
+/* Las del medio, a distinta altura y sin llegar al otro lado: se ven sus puntas redondas */
+.nb-bank--left.nb-bank--mid { top: 44svh; left: -44vw; }
+.nb-bank--right.nb-bank--mid { top: 58svh; right: -44vw; }
+.nb-bank--low { bottom: -9svh; }
+
+/* Profundidad: atrás más teñidas y chicas; adelante, blancas y grandes */
+.nb-bank--back { z-index: 1; color: color-mix(in srgb, var(--tr-accent) 70%, var(--tr-bg)); }
+.nb-bank--mid { z-index: 2; width: max(98vw, 25rem); color: color-mix(in srgb, var(--tr-accent) 38%, #fff); }
+.nb-bank--front { z-index: 4; width: max(140vw, 34rem); color: color-mix(in srgb, var(--nb-cloud) 60%, #fff); }
+
+.nb-intro__content {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: 0.35rem;
+    padding: 2rem 1.25rem 6rem;
+    text-align: center;
+}
+
+.nb-intro__eyebrow {
+    margin: 0;
+    font-family: var(--font-script);
+    font-size: clamp(1.4rem, 6vw, 1.9rem);
+    line-height: 1.2;
+    color: var(--nb-deep);
+    animation: inv-fade-up 0.9s var(--tr-ease) 0.15s both;
+    transition: opacity 0.4s ease;
+}
+
+/* La nube del nombre: flota, y al tocarla se infla y suelta bocanadas */
+.nb-puff {
+    position: relative;
+    width: min(80vw, 21rem);
+    aspect-ratio: 200 / 120;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: color-mix(in srgb, var(--nb-cloud) 55%, #fff);
+    cursor: pointer;
+    filter: drop-shadow(0 18px 22px var(--nb-soft-shadow));
+    animation:
+        inv-fade-up 1s var(--tr-ease) 0.3s both,
+        nb-float 5s ease-in-out 1.3s infinite;
+}
+
+.nb-puff__cloud {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.nb-puff__label {
+    position: absolute;
+    top: 42%;
+    right: 14%;
+    bottom: 12%;
+    left: 16%;
+    display: grid;
+    place-items: center;
+}
+
+.nb-puff__name {
+    font-family: var(--font-script);
+    color: var(--nb-deep);
+    text-align: center;
+}
+
+.nb-puff__bit {
+    position: absolute;
+    top: 55%;
+    left: 50%;
+    width: 2.2rem;
+    aspect-ratio: 200 / 120;
+    margin: -0.66rem 0 0 -1.1rem;
+    background: color-mix(in srgb, var(--nb-cloud) 55%, #fff);
+    -webkit-mask: var(--nb-shape) center / contain no-repeat;
+    mask: var(--nb-shape) center / contain no-repeat;
+    opacity: 0;
+}
+
+.nb-intro__date {
+    margin: 0.6rem 0 0;
+    padding-block: 0.35rem;
+    border-block: 1px solid color-mix(in srgb, var(--tr-primary) 30%, transparent);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--nb-deep);
+    animation: inv-fade-up 1s var(--tr-ease) 0.5s both;
+    transition: opacity 0.4s ease;
+}
+
+.nb-intro__hint {
+    margin: 0.9rem 0 0;
+    padding: 0.55rem 1.1rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, #fff 72%, transparent);
+    box-shadow: 0 10px 22px -14px var(--nb-soft-shadow);
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--nb-deep);
+    animation: inv-fade-up 1s var(--tr-ease) 0.8s both, nb-hint 2.4s ease-in-out 2s infinite;
+    transition: opacity 0.4s ease;
+}
+
+/* Al tocar: la nube se infla y suelta bocanadas; los textos se retiran */
+.nb-intro.is-puffing .nb-puff {
+    animation: nb-puff-pop 0.85s cubic-bezier(0.34, 1.4, 0.64, 1) forwards;
+}
+
+.nb-intro.is-puffing .nb-puff__bit {
+    animation: nb-bit 0.95s cubic-bezier(0.2, 0.7, 0.3, 1) calc(0.25s + var(--i) * 0.02s) forwards;
+}
+
+.nb-intro.is-puffing :is(.nb-intro__eyebrow, .nb-intro__date, .nb-intro__hint) {
+    opacity: 0;
+    animation: none;
+}
+
+/* Después se abren las capas hacia los costados (las de adelante, más rápido) y entra el sol */
+.nb-intro.is-open .nb-intro__sky {
+    opacity: 0;
+}
+
+.nb-intro.is-open .nb-intro__rays {
+    animation: nb-rays-burst 1.6s ease-out forwards;
+}
+
+.nb-intro.is-open .nb-puff {
+    animation: nb-puff-away 1s cubic-bezier(0.5, 0, 0.3, 1) forwards;
+}
+
+.nb-intro.is-open .nb-bank--back { transition-duration: 1.6s; }
+.nb-intro.is-open .nb-bank--mid { transition-duration: 1.35s; }
+.nb-intro.is-open .nb-bank--front { transition-duration: 1.1s; }
+
+.nb-intro.is-open .nb-bank--left { translate: -95vw 0; }
+.nb-intro.is-open .nb-bank--right { translate: 95vw 0; }
+.nb-intro.is-open .nb-bank--left.nb-bank--top { translate: -85vw -10svh; }
+.nb-intro.is-open .nb-bank--right.nb-bank--top { translate: 85vw -10svh; }
+.nb-intro.is-open .nb-bank--left.nb-bank--low { translate: -120vw 12svh; }
+.nb-intro.is-open .nb-bank--right.nb-bank--low { translate: 120vw 12svh; }
+
+.nb-intro.is-open .nb-intro__sun {
+    animation: nb-sun-up 1.4s ease forwards;
+}
+
+@keyframes nb-breathe {
+    50% { scale: 1.06; opacity: 0.85; }
+}
+
+@keyframes nb-twinkle {
+    0%, 100% { opacity: 0.25; scale: 0.6; }
+    50% { opacity: 1; scale: 1; }
+}
+
+@keyframes nb-bank-float {
+    to { translate: 1.6vw -0.6svh; }
+}
+
+@keyframes nb-float {
+    0%, 100% { translate: 0 0; }
+    50% { translate: 0 -8px; }
+}
+
+@keyframes nb-hint {
+    0%, 100% { translate: 0 0; }
+    50% { translate: 0 -3px; }
+}
+
+@keyframes nb-puff-pop {
+    0% { scale: 1 1; }
+    28% { scale: 0.9 1.08; }
+    62% { scale: 1.16 0.96; }
+    100% { scale: 1.1 1.04; }
+}
+
+@keyframes nb-bit {
+    0% { opacity: 0; transform: rotate(var(--a)) translateX(0) scale(0.4); }
+    20% { opacity: 1; }
+    100% { opacity: 0; transform: rotate(var(--a)) translateX(min(42vw, 11rem)) scale(1.1); }
+}
+
+@keyframes nb-puff-away {
+    0% { scale: 1.1 1.04; translate: 0 0; opacity: 1; }
+    100% { scale: 1.5; translate: 0 -24svh; opacity: 0; }
+}
+
+@keyframes nb-rays-burst {
+    0% { opacity: 0; rotate: -10deg; scale: 0.6; }
+    35% { opacity: 1; }
+    100% { opacity: 0; rotate: 12deg; scale: 1.25; }
+}
+
+@keyframes nb-sun-up {
+    to { scale: 1.6; opacity: 0; }
+}
+
+/* ── Portada: la foto es el sol entre las nubes ────────────────────────── */
+
+.nb-hero {
+    align-content: start;
+    justify-items: center;
+    min-height: 100svh;
+    padding: calc(4.6rem + env(safe-area-inset-top)) 1.25rem 0;
+    overflow: hidden;
+    background:
+        radial-gradient(80% 40% at 50% 26%, color-mix(in srgb, #fff 45%, transparent), transparent 70%),
+        linear-gradient(180deg, var(--nb-sky-top) 0%, var(--nb-sky) 42%, var(--nb-page) 100%);
+    color: var(--tr-text);
+    text-align: center;
+}
+
+/* Nubes lejanas que cruzan despacio por detrás */
+.nb-hero__far {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+}
+
+.nb-hero__far-cloud {
+    position: absolute;
+    color: color-mix(in srgb, var(--nb-cloud) 70%, transparent);
+    animation: nb-cross linear infinite;
+}
+
+.nb-hero__far-cloud--1 { top: 9%; width: 9rem; animation-duration: 46s; animation-delay: -12s; }
+.nb-hero__far-cloud--2 { top: 30%; width: 6rem; opacity: 0.7; animation-duration: 64s; animation-delay: -40s; }
+.nb-hero__far-cloud--3 { top: 52%; width: 11rem; opacity: 0.8; animation-duration: 56s; animation-delay: -5s; }
+
+.nb-kicker {
+    margin: 0;
+    font-family: var(--font-script);
+    font-size: clamp(1.5rem, 6.5vw, 2.1rem);
+    line-height: 1.2;
+    color: var(--nb-deep);
+}
+
+.nb-sun {
+    position: relative;
+    width: min(66vw, 17.5rem);
+    aspect-ratio: 1;
+    margin-top: 2.4rem;
+}
+
+/* Rayos finos alrededor del sol: giran muy despacio */
+.nb-sun__rays {
+    position: absolute;
+    inset: -30%;
+    border-radius: 50%;
+    background: repeating-conic-gradient(from 0deg, color-mix(in srgb, var(--tr-secondary) 55%, transparent) 0deg 2.2deg, transparent 2.2deg 12deg);
+    -webkit-mask: radial-gradient(closest-side, transparent 64%, #000 70%, transparent 100%);
+    mask: radial-gradient(closest-side, transparent 64%, #000 70%, transparent 100%);
+    animation: nb-spin 90s linear infinite;
+}
+
+.nb-sun__ring {
+    position: absolute;
+    inset: -0.65rem;
+    border: 1.5px solid var(--tr-secondary);
+    border-radius: 50%;
+    box-shadow:
+        0 0 0 0.4rem color-mix(in srgb, var(--tr-secondary) 16%, transparent),
+        0 0 70px color-mix(in srgb, var(--tr-secondary) 40%, transparent);
+}
+
+.nb-sun__photo {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    border-radius: 50%;
+    background: var(--nb-cloud);
+}
+
+.nb-sun__photo .tr-cover-img {
+    height: 112%;
+    margin-top: -6%;
+}
+
+/* Las nubes de adelante tapan el borde de abajo del sol */
+.nb-sun__cloud {
+    position: absolute;
+    color: var(--nb-cloud);
+    filter: drop-shadow(0 12px 16px var(--nb-soft-shadow));
+    animation: nb-float 6s ease-in-out infinite;
+}
+
+.nb-sun__cloud--left {
+    bottom: -14%;
+    left: -24%;
+    width: 74%;
+}
+
+.nb-sun__cloud--right {
+    right: -26%;
+    bottom: -4%;
+    width: 60%;
+    color: var(--nb-cloud-2);
+    animation-duration: 7.5s;
+    animation-delay: -2s;
+}
+
+.nb-name {
+    margin: 2.2rem 0 0;
+    font-family: var(--font-script);
+    font-size: clamp(3rem, 15vw, 5.4rem);
+    font-weight: 400;
+    line-height: 1;
+    color: var(--nb-deep);
+    text-wrap: balance;
+    overflow-wrap: break-word;
+}
+
+/* La fecha en una nubecita: una píldora con bultos arriba */
+.nb-when {
+    position: relative;
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem 0.7rem;
+    margin: 1.6rem 0 0;
+    padding: 0.7rem 1.4rem;
+    border-radius: 999px;
+    background: var(--nb-cloud);
+    box-shadow: 0 12px 22px -16px var(--nb-soft-shadow);
+    font-weight: 600;
+    color: var(--nb-deep);
+}
+
+.nb-when::before {
+    content: '';
+    position: absolute;
+    right: 14%;
+    bottom: calc(100% - 0.7rem);
+    left: 14%;
+    height: 1.35rem;
+    background: var(--nb-cloud);
+    -webkit-mask: var(--nb-puffs) bottom / 100% 100% no-repeat;
+    mask: var(--nb-puffs) bottom / 100% 100% no-repeat;
+}
+
+.nb-when__dot {
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: 50%;
+    background: var(--tr-secondary);
+}
+
+.nb-place {
+    margin: 0.85rem 0 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--inv-muted);
+}
+
+.nb-message {
+    max-width: 31ch;
+    margin: 1rem 0 0;
+    font-size: 1.02rem;
+    line-height: 1.65;
+    color: var(--inv-muted);
+    text-wrap: pretty;
+}
+
+/* El banco de nubes del pie de la portada: la de adelante es del color de la página */
+.nb-hero__bank {
+    position: relative;
+    width: calc(100% + 2.5rem);
+    height: clamp(4rem, 18vw, 7rem);
+    margin: 1.5rem -1.25rem 0;
+}
+
+/* Más ancho que la pantalla: las puntas redondeadas quedan afuera y el pie se funde con la página */
+.nb-hero__bank .nb-cloud {
+    position: absolute;
+    bottom: -2px;
+    left: -18%;
+    width: 136%;
+    height: 100%;
+}
+
+.nb-hero__bank-back {
+    color: var(--nb-cloud-2);
+    scale: -1 1;
+    translate: 0 -18%;
+    opacity: 0.9;
+}
+
+.nb-hero__bank-front {
+    color: var(--nb-page);
+}
+
+@keyframes nb-spin {
+    to { rotate: 360deg; }
+}
+
+@keyframes nb-cross {
+    from { transform: translateX(-14rem); }
+    to { transform: translateX(calc(100vw + 2rem)); }
+}
+
+/* ── Secciones: cada una flota como una nube sobre el cielo ────────────── */
+
+.inv-nubes main > .inv-section {
+    border-top: 0;
+    padding-block: 4.2rem 0.75rem;
+}
+
+.inv-nubes main > .inv-section > .inv-wrap {
+    position: relative;
+    width: calc(100% - 1.5rem);
+    padding-block: 1.6rem 2.2rem;
+    border-radius: 0 0 2.4rem 2.4rem;
+    background: var(--nb-cloud);
+    box-shadow: 0 26px 36px -30px var(--nb-soft-shadow);
+}
+
+/* Los bultos de arriba de la nube */
+.inv-nubes main > .inv-section > .inv-wrap::before {
+    content: '';
+    position: absolute;
+    right: 0;
+    bottom: calc(100% - 1px);
+    left: 0;
+    height: clamp(2.4rem, 11vw, 3.4rem);
+    background: var(--nb-cloud);
+    -webkit-mask: var(--nb-puffs) bottom / 100% 100% no-repeat;
+    mask: var(--nb-puffs) bottom / 100% 100% no-repeat;
+}
+
+/* Las secciones pares, con los bultos al revés: cada nube distinta */
+.inv-nubes main > .inv-section:nth-of-type(even) > .inv-wrap::before {
+    scale: -1 1;
+}
+
+.inv-nubes main > .inv-section > .inv-wrap > * {
+    position: relative;
+}
+
+.inv-nubes .invitation-lottie-framed {
+    display: none;
+}
+
+.inv-nubes .inv-head__eyebrow {
+    font-family: var(--font-script);
+    font-size: 1.45rem;
+    font-weight: 400;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--inv-accent-ink);
+}
+
+.inv-nubes .inv-head__title {
+    font-size: clamp(2.2rem, 9.5vw, 3.3rem);
+    font-weight: 600;
+    color: var(--nb-deep);
+}
+
+/* El filete es una nubecita */
+.inv-nubes .inv-head__rule {
+    width: 2.6rem;
+    height: 1.56rem;
+    background: color-mix(in srgb, var(--tr-primary) 38%, var(--nb-cloud));
+    -webkit-mask: var(--nb-shape) center / contain no-repeat;
+    mask: var(--nb-shape) center / contain no-repeat;
+    opacity: 1;
+}
+
+.inv-nubes :is(.inv-label, .inv-link, .inv-btn, .inv-countdown__label) {
+    letter-spacing: 0.03em;
+    text-transform: none;
+}
+
+.inv-nubes .inv-btn {
+    min-height: 3.1rem;
+    border-color: var(--tr-primary);
+    border-radius: 999px;
+    background:
+        linear-gradient(180deg, color-mix(in srgb, #fff 26%, transparent), transparent 60%),
+        var(--tr-primary);
+    color: var(--tr-ink-primary);
+    font-size: 0.95rem;
+    box-shadow: 0 12px 22px -16px var(--tr-primary);
+}
+
+.inv-nubes .inv-btn--ghost {
+    background: var(--nb-cloud);
+    color: var(--nb-deep);
+    border-color: color-mix(in srgb, var(--tr-primary) 30%, transparent);
+    box-shadow: none;
+}
+
+/* Cuenta regresiva: almohadones de cielo */
+.inv-nubes .inv-countdown__unit {
+    border: 0;
+    border-radius: 1.6rem 1.6rem 1.1rem 1.1rem;
+    background:
+        radial-gradient(70% 50% at 30% 20%, color-mix(in srgb, #fff 55%, transparent), transparent 70%),
+        var(--nb-sky);
+}
+
+.inv-nubes .inv-countdown__unit + .inv-countdown__unit {
+    border-left: 0;
+}
+
+.inv-nubes .inv-countdown__value {
+    color: var(--nb-deep);
+}
+
+.inv-nubes .inv-pass {
+    border-radius: 1.4rem;
+    background: var(--nb-cloud-2);
+}
+
+/* ── Itinerario: el día sube de nube en nube ───────────────────────────── */
+
+.nb-steps {
+    display: grid;
+    gap: 2.6rem;
+    margin: 0;
+    padding: 0.5rem 0 0;
+    list-style: none;
+}
+
+.nb-step {
+    position: relative;
+    display: grid;
+    grid-template-columns: 6rem 1fr;
+    align-items: center;
+    gap: 0.9rem;
+    text-align: left;
+}
+
+.nb-step:nth-child(even) {
+    grid-template-columns: 1fr 6rem;
+    text-align: right;
+}
+
+.nb-step:nth-child(even) .nb-step__cloud {
+    order: 2;
+}
+
+/* El camino punteado de una nube a la siguiente, como el recorrido de una cometa */
+.nb-step + .nb-step::before {
+    content: '';
+    position: absolute;
+    right: 3rem;
+    bottom: 100%;
+    left: 3rem;
+    height: 2.6rem;
+    background: color-mix(in srgb, var(--tr-primary) 45%, transparent);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 40' preserveAspectRatio='none'%3E%3Cpath d='M1 1 C1 30 99 10 99 39' fill='none' stroke='black' stroke-width='2' stroke-dasharray='4 5' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 40' preserveAspectRatio='none'%3E%3Cpath d='M1 1 C1 30 99 10 99 39' fill='none' stroke='black' stroke-width='2' stroke-dasharray='4 5' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat;
+}
+
+.nb-step:nth-child(odd) + .nb-step::before {
+    scale: 1 1;
+}
+
+.nb-step:nth-child(even) + .nb-step::before {
+    scale: -1 1;
+}
+
+.nb-step__cloud {
+    position: relative;
+    display: grid;
+    place-items: center;
+    color: var(--nb-sky);
+    filter: drop-shadow(0 10px 12px var(--nb-soft-shadow));
+    animation: nb-float 6s ease-in-out calc(var(--step, 0) * -1.4s) infinite;
+}
+
+.nb-step__shape {
+    width: 100%;
+    height: auto;
+}
+
+.nb-step__time {
+    position: absolute;
+    top: 52%;
+    left: 50%;
+    translate: -50% -30%;
+    font-size: 1.02rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--nb-deep);
+}
+
+.nb-step__title {
+    margin: 0;
+    font-family: var(--font-titles);
+    font-size: 1.3rem;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.nb-step__text {
+    margin: 0.3rem 0 0;
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: var(--inv-muted);
+}
+
+/* ── Padrinos: cada uno en su nube ─────────────────────────────────────── */
+
+.nb-sponsors {
+    display: grid;
+    gap: 1.9rem;
+    margin: 0;
+    padding: 0.5rem 0 0;
+    list-style: none;
+}
+
+.nb-sponsor {
+    display: grid;
+    justify-items: center;
+}
+
+.nb-sponsor__cloud {
+    position: relative;
+    width: min(100%, 20rem);
+    aspect-ratio: 200 / 120;
+    color: var(--nb-sky);
+    filter: drop-shadow(0 16px 18px var(--nb-soft-shadow));
+    animation: nb-float 6.5s ease-in-out calc(var(--step, 0) * -1.9s) infinite;
+}
+
+.nb-sponsor:nth-child(3n + 2) .nb-sponsor__cloud {
+    color: var(--nb-cloud-2);
+}
+
+.nb-sponsor__shape {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.nb-sponsor:nth-child(even) .nb-sponsor__shape {
+    scale: -1 1;
+}
+
+/* El texto va en la panza de la nube, debajo de los bultos */
+.nb-sponsor__text {
+    position: absolute;
+    top: 36%;
+    right: 11%;
+    bottom: 10%;
+    left: 11%;
+    display: grid;
+    place-content: center;
+    gap: 0.25rem;
+    text-align: center;
+}
+
+.nb-sponsor__role {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--inv-accent-ink);
+}
+
+.nb-sponsor__names {
+    font-family: var(--font-titles);
+    font-size: clamp(1.05rem, 4.6vw, 1.3rem);
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--tr-text);
+    text-wrap: balance;
+    overflow-wrap: break-word;
+}
+
+.nb-sponsor__message {
+    max-width: 26ch;
+    margin: 0.6rem 0 0;
+    font-size: 0.92rem;
+    font-style: italic;
+    line-height: 1.5;
+    color: var(--inv-muted);
+    text-align: center;
+}
+
+.nb-family {
+    margin-top: 2.4rem;
+    text-align: center;
+}
+
+.nb-family__title {
+    margin: 0 0 0.9rem;
+    font-family: var(--font-script);
+    font-size: 1.6rem;
+    font-weight: 400;
+    color: var(--inv-accent-ink);
+}
+
+.nb-family__list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.7rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.nb-family__list li {
+    display: grid;
+    gap: 0.1rem;
+    padding: 0.7rem 1.2rem;
+    border-radius: 1.4rem 1.4rem 999px 999px;
+    background: var(--nb-sky);
+}
+
+.nb-family__name {
+    font-weight: 600;
+}
+
+.nb-family__list small {
+    font-size: 0.8rem;
+    color: var(--inv-muted);
+}
+
+/* ── Fondo: nubes que pasan a distinta altura y destellos ──────────────── */
+
+.inv-nubes .inv-themed-bg__glow {
+    background:
+        radial-gradient(40% 26% at 50% 4%, color-mix(in srgb, var(--tr-secondary) 22%, transparent), transparent 70%),
+        radial-gradient(30% 20% at 18% 60%, color-mix(in srgb, #fff 45%, transparent), transparent 70%);
+    animation-duration: 40s;
+}
+
+/* Las nubes que cruzan el cielo (nubes/ambient): cada una a su altura y su velocidad */
+.nb-ambient {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.nb-ambient__cloud {
+    position: absolute;
+    top: var(--top);
+    left: 0;
+    width: var(--size);
+    color: color-mix(in srgb, #fff 80%, var(--tr-accent));
+    opacity: calc(0.25 + var(--size) / 22);
+    will-change: transform;
+    animation: nb-drift var(--d) linear var(--delay) infinite;
+}
+
+@media (max-width: 639px) {
+    .nb-ambient__cloud.is-extra {
+        display: none;
+    }
+}
+
+@keyframes nb-drift {
+    from { transform: translateX(calc(var(--size) * -1.2)); }
+    to { transform: translateX(calc(100vw + 1rem)); }
+}
+
+.inv-drift--cielo {
+    --drift-a: color-mix(in srgb, var(--tr-secondary) 60%, #fff);
+    opacity: 0.7;
+}
+
+/* ── Pie e historia ─────────────────────────────────────────────────────── */
+
+.inv-nubes-footer {
+    border-top: 0;
+}
+
+.inv-nubes-footer .inv-footer__ornament--line {
+    width: 3rem;
+    height: 1.8rem;
+    background: color-mix(in srgb, var(--tr-primary) 45%, var(--nb-cloud));
+    -webkit-mask: var(--nb-shape) center / contain no-repeat;
+    mask: var(--nb-shape) center / contain no-repeat;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .nb-step__cloud,
+    .nb-sponsor__cloud {
+        transition: scale 0.5s var(--tr-spring);
+    }
+
+    .nb-step:hover .nb-step__cloud,
+    .nb-sponsor:hover .nb-sponsor__cloud {
+        scale: 1.05;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .nb-bank .nb-cloud,
+    .nb-puff,
+    .nb-hero__far-cloud,
+    .nb-sun__rays,
+    .nb-sun__cloud,
+    .nb-step__cloud,
+    .nb-sponsor__cloud,
+    .nb-ambient__cloud {
+        animation: none;
+    }
+}

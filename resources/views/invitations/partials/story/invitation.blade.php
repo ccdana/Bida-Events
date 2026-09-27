@@ -17,6 +17,7 @@
         'cumple' => 'Toca para seguir la fiesta',
         'graduacion' => 'Toca para seguir leyendo',
         'halloween' => 'Toca si te atreves',
+        'babyshower' => 'Toca para seguir',
     ][$page->eventKey] ?? 'Toca para seguir';
 @endphp
 

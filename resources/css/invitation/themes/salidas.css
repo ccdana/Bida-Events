@@ -502,6 +502,244 @@
     opacity: 0;
 }
 
+/* La puerta de embarque: el ventanal con el avión en la pista y el cartel de la puerta */
+.ps-intro {
+    gap: 1.1rem;
+}
+
+.ps-gate {
+    display: grid;
+    gap: 0.55rem;
+    width: min(88vw, 23rem);
+    animation: inv-fade-up 0.9s var(--inv-ease) 0.1s both;
+    transition: opacity 0.6s ease 0.5s, translate 0.9s var(--inv-ease) 0.4s;
+}
+
+.ps-gate__window {
+    position: relative;
+    height: clamp(6.5rem, 17svh, 9rem);
+    overflow: hidden;
+    border: 5px solid color-mix(in srgb, var(--text-color) 70%, var(--bg-color));
+    border-radius: 1rem 1rem 0.4rem 0.4rem;
+    background: var(--ps-panel);
+}
+
+/* El cielo del atardecer, con los colores de la paleta */
+.ps-gate__sky {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg,
+        color-mix(in srgb, var(--ps-stripe) 45%, var(--ps-panel)) 0%,
+        color-mix(in srgb, var(--ps-light) 45%, var(--ps-panel)) 62%,
+        color-mix(in srgb, var(--ps-light) 70%, #fff) 74%,
+        var(--ps-panel) 75%);
+}
+
+.ps-gate__sun {
+    position: absolute;
+    top: 58%;
+    left: 70%;
+    width: 2.6rem;
+    aspect-ratio: 1;
+    translate: -50% -50%;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, color-mix(in srgb, var(--ps-light) 50%, #fff), transparent);
+}
+
+/* Las luces de la pista, que corren cuando el avión acelera */
+.ps-gate__runway {
+    position: absolute;
+    right: 0;
+    bottom: 12%;
+    left: 0;
+    height: 3px;
+    background: radial-gradient(circle, color-mix(in srgb, var(--ps-light) 80%, #fff) 0 1.5px, transparent 2px) 0 50% / 16px 3px repeat-x;
+    animation: ps-runway-idle 2.4s ease-in-out infinite;
+}
+
+.ps-gate__plane {
+    position: absolute;
+    bottom: 13%;
+    left: 8%;
+    width: 38%;
+    overflow: visible;
+}
+
+.ps-gate__plane-body,
+.ps-gate__plane-tail,
+.ps-gate__plane-wing {
+    fill: color-mix(in srgb, var(--bg-color) 30%, #fff);
+}
+
+.ps-gate__plane-wing {
+    fill: color-mix(in srgb, var(--bg-color) 45%, #d9dde3);
+}
+
+.ps-gate__plane-windows {
+    stroke: color-mix(in srgb, var(--ps-panel) 70%, var(--ps-light));
+    stroke-width: 1.6;
+    stroke-dasharray: 2 2.4;
+}
+
+.ps-gate__plane-light {
+    fill: var(--ps-light);
+    animation: ps-blink 1.2s steps(1) infinite;
+}
+
+.ps-gate__mullion {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: var(--m);
+    width: 4px;
+    background: color-mix(in srgb, var(--text-color) 70%, var(--bg-color));
+}
+
+.ps-gate__board {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.55rem 0.8rem;
+    border-radius: 4px;
+    background: var(--ps-panel);
+    color: var(--ps-light);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    perspective: 400px;
+}
+
+.ps-gate__status {
+    position: relative;
+    display: grid;
+    text-align: right;
+}
+
+.ps-gate__status > span {
+    grid-area: 1 / 1;
+    backface-visibility: hidden;
+    transform-origin: 50% 50%;
+    transition: transform 0.45s cubic-bezier(0.3, 0.7, 0.4, 1) 0.3s, opacity 0.2s linear 0.4s;
+}
+
+.ps-gate__status-next {
+    opacity: 0;
+    transform: rotateX(90deg);
+}
+
+/* El lector del pase: una línea de luz que barre el código y la luz que se enciende */
+.ps-pass__main {
+    position: relative;
+}
+
+.ps-pass__title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.ps-pass__led {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--bg-color) 45%, transparent);
+    transition: background-color 0.2s ease 0.35s, box-shadow 0.2s ease 0.35s;
+}
+
+.ps-pass__barcode {
+    position: relative;
+}
+
+.ps-pass__scan {
+    position: absolute;
+    right: -0.3rem;
+    left: -0.3rem;
+    top: 0;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--ps-light);
+    box-shadow: 0 0 10px 2px color-mix(in srgb, var(--ps-light) 70%, transparent);
+    opacity: 0;
+}
+
+.ps-intro__hint {
+    animation: ps-hint 2.2s ease-in-out 1.5s infinite;
+}
+
+/* Al tocar: escaneo, el cartel cambia a «Embarcando», el talón se corta y cae */
+.ps-intro.is-torn .ps-pass__scan {
+    animation: ps-scan 0.45s linear 2 alternate;
+}
+
+.ps-intro.is-torn .ps-pass__led {
+    background: var(--ps-light);
+    box-shadow: 0 0 10px var(--ps-light);
+}
+
+.ps-intro.is-torn .ps-gate__status-now {
+    opacity: 0;
+    transform: rotateX(-90deg);
+}
+
+.ps-intro.is-torn .ps-gate__status-next {
+    opacity: 1;
+    transform: none;
+    transition-delay: 0.5s, 0.5s;
+}
+
+.ps-intro.is-torn .ps-pass__stub {
+    transition-delay: 0.55s;
+}
+
+.ps-intro.is-torn .ps-intro__hint {
+    animation: none;
+}
+
+/* Después despega el avión: corre por la pista y sube */
+.ps-intro.is-torn .ps-gate__plane {
+    animation: ps-takeoff 1.9s cubic-bezier(0.55, 0, 0.7, 0.6) 0.75s forwards;
+}
+
+.ps-intro.is-torn .ps-gate__runway {
+    animation: ps-runway 0.5s linear 0.75s infinite;
+}
+
+.ps-intro.is-open .ps-gate {
+    opacity: 0;
+    translate: 0 -30vh;
+}
+
+@keyframes ps-runway-idle {
+    50% { opacity: 0.55; }
+}
+
+@keyframes ps-runway {
+    to { background-position: -16px 50%; }
+}
+
+@keyframes ps-blink {
+    0%, 60% { opacity: 1; }
+    61%, 100% { opacity: 0.15; }
+}
+
+@keyframes ps-scan {
+    0% { top: 0; opacity: 1; }
+    100% { top: calc(100% - 2px); opacity: 1; }
+}
+
+@keyframes ps-hint {
+    50% { translate: 0 -3px; }
+}
+
+@keyframes ps-takeoff {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    45% { transform: translate(90%, 0) rotate(0deg); }
+    60% { transform: translate(130%, -8%) rotate(-8deg); }
+    100% { transform: translate(260%, -160%) rotate(-16deg); }
+}
+
 /* ── Modo historia: cada escena cae como una paleta del panel ───────────── */
 
 .inv-story-invitation .inv-salidas .inv-scene {

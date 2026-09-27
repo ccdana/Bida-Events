@@ -73,12 +73,13 @@
         ! empty($bida['facebook']) ? ['label' => 'Facebook', 'url' => 'https://www.facebook.com/'.$bida['facebook'], 'icon' => 'facebook-logo'] : null,
         ! empty($bida['tiktok']) ? ['label' => 'TikTok', 'url' => 'https://www.tiktok.com/@'.$bida['tiktok'], 'icon' => 'tiktok-logo'] : null,
     ]));
-    // El teléfono de la portada recorre la apertura de cada plantilla (se abren solas)
-    $coverReel = array_map(function (array $demo) use ($showcase): array {
+    // El teléfono de la portada recorre la apertura de cada plantilla (se abren solas). Solo las de los
+    // eventos que tienen foto y palabra en la portada: el baby shower se prueba abajo, en «Pruébala como invitado»
+    $coverReel = array_values(array_filter(array_map(function (array $demo) use ($showcase): ?array {
         $position = array_search($demo['eventKey'], array_column($showcase, 'event'), true);
 
-        return ['url' => $demo['coverUrl'], 'label' => $demo['label'], 'rotator' => $position === false ? null : $position];
-    }, $demos);
+        return $position === false ? null : ['url' => $demo['coverUrl'], 'label' => $demo['label'], 'rotator' => $position];
+    }, $demos)));
     [$mainService, $otherServices] = [$services[0] ?? null, array_slice($services, 1)];
 @endphp
 

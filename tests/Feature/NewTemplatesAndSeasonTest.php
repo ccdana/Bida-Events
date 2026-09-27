@@ -50,7 +50,7 @@ class NewTemplatesAndSeasonTest extends TestCase
         $this->assertNotContains(InvitationTemplates::TARJETA_AMOR, $inicial);
     }
 
-    public function test_the_graduation_opens_with_its_diploma_and_shows_the_promotion_year(): void
+    public function test_the_graduation_opens_with_the_tassel_turn_and_shows_the_promotion_year(): void
     {
         $data = ShowcaseInvitationsSeeder::data('graduacion-mariana');
         $invitation = $this->createInvitation(['slug' => 'grad-prueba', 'template' => InvitationTemplates::GRADUACION_BIRRETE, 'event_date' => '2026-12-12 19:00:00']);
@@ -58,12 +58,16 @@ class NewTemplatesAndSeasonTest extends TestCase
 
         $this->withoutVite()->get(route('invitation.show', $invitation->slug))
             ->assertOk()
-            ->assertSee('inv-page inv-graduacion', false)
-            ->assertSee('graduationIntro()', false)
-            ->assertSee('Toca la cinta para abrir el diploma')
+            // «Birrete al aire»: se entra pasando la borla al otro lado; la portada es la medalla de la promoción
+            ->assertSee('inv-page inv-birrete inv-themed', false)
+            ->assertSee('br-intro', false)
+            ->assertSee('Toca la borla para pasarla al otro lado')
+            ->assertSee('br-seal', false)
             ->assertSee('Licenciatura en Arquitectura')
-            ->assertSeeInOrder(['Promoción', '2026'])
-            ->assertSee('Padrinos de promoción');
+            ->assertSee('Promoción 2026')
+            // El día baja por el cordón y quienes acompañaron reciben su medalla
+            ->assertSee('br-knot__time', false)
+            ->assertSeeInOrder(['br-medal', 'Padrinos de promoción'], false);
 
         $this->assertSame('Graduación', app(EventProfiles::class)->forTemplate(InvitationTemplates::GRADUACION_BIRRETE)->label());
     }

@@ -1,6 +1,7 @@
 <?php
 
 use App\EventProfiles\AdventureBookProfile;
+use App\EventProfiles\BabyShowerProfile;
 use App\EventProfiles\BaptismProfile;
 use App\EventProfiles\BirthdayProfile;
 use App\EventProfiles\CanvasProfile;
@@ -28,6 +29,7 @@ return [
     BaptismProfile::class,
     BirthdayProfile::class,
     GraduationProfile::class,
+    BabyShowerProfile::class,
     // Plantilla en blanco para cualquier evento
     CanvasProfile::class,
     // Invitaciones de temporada

@@ -141,15 +141,15 @@ final class PdfMotifs
             .'</svg>';
     }
 
-    /** Nubes con una paloma: el cielo del bautizo. */
+    /** Nubes con el sol en el medio: el cielo del bautizo («Entre nubes»). */
     private static function nubes(string $color, string $soft): string
     {
         return <<<SVG
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 60" width="240" height="60">
         <path d="M0 58 C 18 58, 20 44, 38 44 C 48 30, 74 32, 80 46 C 96 44, 104 58, 120 58 Z" fill="{$soft}"/>
         <path d="M120 58 C 140 58, 142 42, 162 44 C 172 30, 196 34, 200 46 C 216 46, 222 58, 240 58 Z" fill="{$soft}"/>
-        <path d="M120 10 C 130 10, 138 16, 142 24 C 134 22, 128 24, 124 30 C 120 22, 112 18, 104 18 C 110 12, 114 10, 120 10 Z" fill="{$color}"/>
-        <path d="M124 30 C 128 36, 134 38, 140 36" fill="none" stroke="{$color}" stroke-width="1.4"/>
+        <circle cx="120" cy="30" r="9" fill="{$color}"/>
+        <path d="M120 12 V16 M120 44 V48 M102 30 H106 M134 30 H138 M107 17 L110 20 M130 40 L133 43 M133 17 L130 20 M110 40 L107 43" stroke="{$color}" stroke-width="1.4" stroke-linecap="round"/>
         <circle cx="60" cy="18" r="1.8" fill="{$color}"/>
         <circle cx="186" cy="16" r="1.8" fill="{$color}"/>
         <circle cx="30" cy="28" r="1.2" fill="{$color}"/>

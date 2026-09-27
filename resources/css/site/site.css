@@ -439,6 +439,7 @@ html[data-theme='dark'] .site {
 .site-phone__screen > img {
     display: block;
     width: 390px;
+    max-width: none;
     height: 844px;
     border: 0;
     object-fit: cover;
@@ -907,77 +908,7 @@ html.theme-changing *:not(.theme-toggle__icon) {
     }
 }
 
-/* ── Plantillas: lista tipográfica y teléfono con la muestra interactiva ── */
-
-.site-template-list {
-    border-top: 1px solid var(--site-line);
-}
-
-.site-template {
-    position: relative;
-    display: grid;
-    grid-template-columns: 2.5rem 1fr auto;
-    align-items: baseline;
-    gap: 1rem;
-    width: 100%;
-    min-height: 44px;
-    padding-block: 1.15rem;
-    border-bottom: 1px solid var(--site-line);
-    color: var(--site-muted);
-    text-align: left;
-    transition: color 0.3s ease;
-}
-
-/* La plantilla elegida se subraya con una línea que crece de izquierda a derecha */
-.site-template::after {
-    content: '';
-    position: absolute;
-    bottom: -1px;
-    left: 0;
-    width: 100%;
-    height: 2px;
-    background: var(--site-accent);
-    transform: scaleX(0);
-    transform-origin: 0 50%;
-    transition: transform 0.6s var(--site-ease);
-}
-
-.site-template:hover,
-.site-template.is-active {
-    color: var(--site-ink);
-}
-
-.site-template:focus-visible {
-    outline: 2px solid var(--site-accent);
-    outline-offset: 4px;
-}
-
-.site-template.is-active::after {
-    transform: scaleX(1);
-}
-
-.site-template__name {
-    font-size: clamp(1.35rem, 3vw, 1.75rem);
-    font-weight: 500;
-    letter-spacing: -0.01em;
-    transition: translate 0.5s var(--site-ease);
-}
-
-.site-template.is-active .site-template__name {
-    translate: 0.35rem 0;
-}
-
-.site-template__event {
-    font-size: 0.9rem;
-    color: var(--site-muted);
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .site-template::after,
-    .site-template__name {
-        transition: none;
-    }
-}
+/* ── Teléfono con la muestra interactiva («Pruébala como invitado» de la portada) ── */
 
 .site-phone.site-phone--showcase {
     --s: 0.74;
@@ -1286,6 +1217,223 @@ html.theme-changing *:not(.theme-toggle__icon) {
 
 .site-landing__hint a:hover {
     text-decoration-color: var(--site-accent);
+}
+
+/* ── Los diseños como capturas de su apertura (landing.blade.php) ──────────
+   Cada teléfono muestra cómo empieza la apertura de su muestra y todo el
+   bloque lleva a la muestra completa. En el celular se deslizan de lado; en
+   pantalla ancha se abren en abanico y el que se señala se endereza. */
+
+.site-shots {
+    position: relative;
+    display: flex;
+    gap: 1rem;
+    width: calc(100% + 2.5rem);
+    margin-inline: -1.25rem;
+    padding: 0.5rem 1.25rem 0.75rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 1.25rem;
+    scrollbar-width: none;
+}
+
+.site-shots::-webkit-scrollbar {
+    display: none;
+}
+
+.site-shot {
+    flex: 0 0 auto;
+    scroll-snap-align: center;
+}
+
+/* Si caben todos, quedan centrados; si no, se deslizan desde el borde */
+.site-shot:first-child {
+    margin-left: auto;
+}
+
+.site-shot:last-child {
+    margin-right: auto;
+}
+
+.site-shot__link {
+    display: grid;
+    justify-items: center;
+    gap: 1rem;
+    border-radius: 1.9rem;
+    color: inherit;
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.site-shot__link:focus-visible {
+    outline: none;
+}
+
+.site-shot__link:focus-visible .site-shot__phone {
+    outline: 3px solid var(--site-accent);
+    outline-offset: 4px;
+}
+
+.site-shot__phone.site-phone,
+.site-shot__phone .site-phone__screen {
+    display: block;
+}
+
+.site-shot__phone.site-phone {
+    --s: 0.6;
+    position: relative;
+    box-shadow: 0 30px 60px -24px rgb(0 0 0 / 0.5);
+    animation-delay: calc(0.35s + var(--i, 0) * 0.12s);
+    transition: rotate 0.6s var(--site-ease), translate 0.6s var(--site-ease), box-shadow 0.6s var(--site-ease);
+}
+
+/* «Nuevo», pegado en la esquina del teléfono */
+.site-shot__badge.site-badge-new {
+    position: absolute;
+    top: -0.55rem;
+    right: 1.1rem;
+    z-index: 2;
+    margin: 0;
+    border: 1px solid var(--site-line);
+    background: var(--site-bg);
+    box-shadow: 0 6px 14px -6px rgb(0 0 0 / 0.45);
+}
+
+.site-shot__caption {
+    display: grid;
+    justify-items: center;
+    gap: 0.2rem;
+    max-width: calc(390px * 0.6);
+    margin-top: var(--fan-drop, 0rem);
+    text-align: center;
+}
+
+.site-shot__name {
+    font-size: 1.15rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+}
+
+.site-shot__tagline {
+    font-size: 0.88rem;
+    line-height: 1.45;
+    color: var(--site-muted);
+    text-wrap: balance;
+}
+
+.site-shot__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    min-height: 44px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-color: var(--site-line);
+    text-underline-offset: 4px;
+    transition: text-decoration-color 0.3s ease;
+}
+
+.site-shot__cta svg {
+    width: 1em;
+    height: 1em;
+    transition: translate 0.4s var(--site-ease);
+}
+
+.site-shot__link:hover .site-shot__cta {
+    text-decoration-color: var(--site-accent);
+}
+
+.site-shot__link:hover .site-shot__cta svg {
+    translate: 0.2rem 0;
+}
+
+@media (max-width: 359px) {
+    .site-shot__phone.site-phone {
+        --s: 0.56;
+    }
+}
+
+/* Pantalla ancha: los teléfonos en abanico sobre la foto; el de al medio, adelante */
+@media (min-width: 1024px) {
+    .site-shots {
+        width: auto;
+        margin: 0;
+        padding: 0;
+        overflow: visible;
+        gap: 0;
+        justify-content: center;
+    }
+
+    .site-shot {
+        --tilt: 0deg;
+        --drop: 0rem;
+        position: relative;
+        z-index: 1;
+        margin-inline: -1.6rem;
+    }
+
+    .site-shot:first-child,
+    .site-shot:last-child {
+        margin-inline: -1.6rem;
+    }
+
+    /* Los de los costados bajan un poco; los rótulos quedan todos en la misma línea, debajo del más bajo */
+    .site-shots--2 { --fan-drop: 1.25rem; }
+    .site-shots--3 { --fan-drop: 2.25rem; }
+
+    .site-shots--2 .site-shot:first-child { --tilt: -4deg; --drop: 1.25rem; }
+    .site-shots--2 .site-shot:last-child { --tilt: 4deg; --drop: 1.25rem; }
+
+    .site-shots--3 .site-shot:first-child { --tilt: -6deg; --drop: 2.25rem; }
+    .site-shots--3 .site-shot:nth-child(2) { z-index: 2; }
+    .site-shots--3 .site-shot:last-child { --tilt: 6deg; --drop: 2.25rem; }
+
+    .site-shot__phone.site-phone {
+        --s: 0.52;
+        rotate: var(--tilt);
+        translate: 0 var(--drop);
+    }
+
+    /* Un solo diseño: el teléfono más grande y derecho */
+    .site-shots--1 .site-shot__phone.site-phone {
+        --s: 0.64;
+    }
+
+    .site-shot__caption {
+        max-width: 12.5rem;
+    }
+
+    .site-shots--1 .site-shot__caption {
+        max-width: 16rem;
+    }
+
+    .site-shot:hover,
+    .site-shot:focus-within {
+        z-index: 3;
+    }
+
+    .site-shot__link:hover .site-shot__phone,
+    .site-shot__link:focus-visible .site-shot__phone {
+        rotate: 0deg;
+        translate: 0 calc(var(--drop) - 0.9rem);
+        box-shadow: 0 40px 70px -26px rgb(0 0 0 / 0.55);
+    }
+}
+
+@media (min-width: 1280px) {
+    .site-shot__phone.site-phone {
+        --s: 0.56;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .site-shot__phone.site-phone,
+    .site-shot__cta,
+    .site-shot__cta svg {
+        transition: none;
+    }
 }
 
 /* Lo que incluye: grilla de dos columnas separada por filetes, sin tarjetas */
@@ -1848,18 +1996,6 @@ html.site-season-open {
     }
 }
 
-/* Diseños para probar en la página por evento: en el teléfono la descripción va debajo del nombre */
-@media (max-width: 639px) {
-    .site-landing .site-template {
-        grid-template-columns: 2.5rem 1fr;
-        row-gap: 0.25rem;
-    }
-
-    .site-landing .site-template__event {
-        grid-column: 2;
-    }
-}
-
 /* ── Para profesionales (professionals.blade.php) ──────────────────────────
    Cuatro planes en una fila en pantallas anchas, una tabla para comparar que se
    desliza en el celular y la lista de plantillas de cada colección.
@@ -2405,28 +2541,9 @@ html.site-season-open {
     cursor: pointer;
 }
 
-/* ── Página por evento: diseños y pasos ─────────────────────────────────────
-   (landing.blade.php). Los diseños muestran sus colores reales y se prueban
-   en el teléfono de la portada; los pasos van numerados porque son una
-   secuencia. Todo con los colores del sitio, también en modo oscuro. */
-
-/* Los colores de cada diseño en la lista de la portada */
-.site-template__swatch {
-    display: inline-flex;
-    align-self: center;
-}
-
-.site-template__swatch i {
-    width: 0.85rem;
-    height: 0.85rem;
-    margin-left: -0.3rem;
-    border: 2px solid var(--site-bg);
-    border-radius: 50%;
-}
-
-.site-template__swatch i:first-child {
-    margin-left: 0;
-}
+/* ── Página por evento: marca de diseño nuevo y pasos ──────────────────────
+   (landing.blade.php). Los pasos van numerados porque son una secuencia.
+   Todo con los colores del sitio, también en modo oscuro. */
 
 .site-badge-new {
     display: inline-block;
@@ -2439,109 +2556,6 @@ html.site-season-open {
     font-weight: 600;
     letter-spacing: 0.01em;
     vertical-align: middle;
-}
-
-.site-designs {
-    display: grid;
-    gap: 1.25rem;
-}
-
-@media (min-width: 768px) {
-    .site-designs {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (min-width: 1100px) {
-    .site-designs {
-        grid-template-columns: repeat(3, 1fr);
-    }
-}
-
-.site-design {
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    border: 1px solid var(--site-line);
-    border-radius: 20px;
-    background: var(--site-surface);
-    transition: transform 0.5s var(--site-ease), box-shadow 0.5s var(--site-ease), border-color 0.3s ease;
-}
-
-.site-design.is-active {
-    border-color: var(--site-accent);
-}
-
-/* La paleta como franja: cada color crece un poco al pasar el mouse */
-.site-design__palette {
-    display: flex;
-    height: 5.5rem;
-}
-
-.site-design__palette i {
-    flex: 1;
-    transition: flex-grow 0.6s var(--site-ease);
-}
-
-.site-design__body {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    padding: 1.5rem 1.5rem 1.4rem;
-}
-
-.site-design__event {
-    margin: 0;
-    font-size: 0.9rem;
-    color: var(--site-muted);
-}
-
-.site-design__name {
-    margin: 0.35rem 0 0;
-    font-size: 1.6rem;
-    font-weight: 600;
-    line-height: 1.15;
-    letter-spacing: -0.01em;
-}
-
-.site-design__text {
-    flex: 1;
-    margin: 0.75rem 0 0;
-    line-height: 1.6;
-    color: var(--site-muted);
-}
-
-.site-design__actions {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.75rem 1.25rem;
-    margin-top: 1.5rem;
-}
-
-.site-design__link {
-    min-height: 44px;
-    display: inline-flex;
-    align-items: center;
-    font-weight: 600;
-    text-decoration: underline;
-    text-decoration-color: var(--site-line);
-    text-underline-offset: 4px;
-}
-
-.site-design__link:hover {
-    text-decoration-color: var(--site-accent);
-}
-
-@media (hover: hover) and (pointer: fine) {
-    .site-design:hover {
-        transform: translateY(-4px);
-        box-shadow: var(--site-shadow);
-    }
-
-    .site-design:hover .site-design__palette i:nth-child(3) {
-        flex-grow: 2.4;
-    }
 }
 
 /* Pasos: el número grande en el color de la marca, una columna en el celular y tres en pantalla ancha */
@@ -2584,11 +2598,4 @@ html.site-season-open {
     margin: 0.5rem 0 0;
     line-height: 1.6;
     color: var(--site-muted);
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .site-design,
-    .site-design__palette i {
-        transition: none;
-    }
 }

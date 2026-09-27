@@ -50,6 +50,7 @@ class TemplateRenderMatrixTest extends TestCase
             'graduacion' => self::withPhotos(ShowcaseInvitationsSeeder::data('graduacion-mariana')['modules']),
             'lienzo' => self::withPhotos(ShowcaseInvitationsSeeder::data('lienzo-casa-molina')['modules']),
             'halloween' => self::withPhotos(ShowcaseInvitationsSeeder::data('halloween-noche-diego')['modules']),
+            'babyshower' => ShowcaseInvitationsSeeder::data('babyshower-valentina')['modules'],
             'amor' => ShowcaseInvitationsSeeder::data('tarjeta-ana-luis')['modules'],
             'aventura' => ShowcaseInvitationsSeeder::data('tarjeta-libro-aventuras')['modules'],
             'historia' => ShowcaseInvitationsSeeder::data('historia-ana-luis')['modules'],

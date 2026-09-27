@@ -1,0 +1,98 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   INVITACIÓN — Base de la colección «tendencias» (App\Support\TrendTemplates)
+
+   Cada temática tiene su hoja (galeria.css, partitura.css…) que importa esta.
+   Se cargan solo en su invitación (@vite en templates/tendencia), no en app.css.
+
+   Regla de la colección: nada depende de un color ni de una letra fijos. Todo
+   lee las cinco variables de la paleta y las tres tipografías del editor; los
+   tonos se mezclan con color-mix y la tinta que se lee sobre cada color de la
+   paleta la calcula el servidor (--tr-ink-*, partials/tendencias/head).
+   ════════════════════════════════════════════════════════════════════════════ */
+
+.inv-trend {
+    /* Copias estables de la paleta: dentro de un bloque que cambie --bg-color o
+       --text-color, los colores originales se siguen leyendo de aquí. */
+    --tr-primary: var(--primary-color);
+    --tr-secondary: var(--secondary-color);
+    --tr-accent: var(--accent-color);
+    --tr-text: var(--text-color);
+    --tr-bg: var(--bg-color);
+
+    --tr-ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --tr-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* La portada de cada temática termina a su manera: sin el desvanecido común (ambient.css) */
+.inv-trend .inv-hero::after {
+    content: none;
+}
+
+/* Las portadas temáticas son largas: el aviso para bajar va al final, nunca encima del contenido */
+.inv-trend .inv-hero .inv-hero__scroll {
+    position: static;
+    margin: 1.75rem auto 0;
+    transform: none;
+    translate: none;
+}
+
+/* Rótulos que solo necesita el lector de pantalla */
+.tr-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+}
+
+/* ── Texto que llena su caja ([data-fit], trend-motion.js) ──────────────────
+   Sin JavaScript queda en su tamaño de respaldo (--fit-fallback) y se parte en
+   renglones si hace falta; con JavaScript se mide y llena el ancho justo. */
+
+[data-fit] {
+    display: block;
+    font-size: var(--fit-size, var(--fit-fallback, 12vw));
+    line-height: 0.92;
+    overflow-wrap: anywhere;
+}
+
+html:not(.no-js) [data-fit].is-fitted {
+    white-space: nowrap;
+    overflow-wrap: normal;
+}
+
+/* ── Foto de portada (partials/tendencias/photo) ────────────────────────── */
+
+.tr-cover-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Sin foto: un campo de color con las iniciales, nunca un hueco */
+.tr-photo-empty {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    background:
+        radial-gradient(120% 90% at 20% 10%, color-mix(in srgb, var(--tr-accent) 70%, transparent), transparent 60%),
+        radial-gradient(90% 90% at 90% 90%, color-mix(in srgb, var(--tr-primary) 45%, transparent), transparent 60%),
+        color-mix(in srgb, var(--tr-accent) 40%, var(--tr-bg));
+    color: var(--tr-text);
+    font-family: var(--font-script);
+    font-size: clamp(2.5rem, 14vw, 5rem);
+    line-height: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .inv-trend *,
+    .inv-trend *::before,
+    .inv-trend *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

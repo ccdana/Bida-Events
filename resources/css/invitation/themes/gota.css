@@ -1,62 +1,941 @@
 /* ════════════════════════════════════════════════════════════════════════════
    INVITACIÓN — «La gota» (invitations.templates.bautizo-la-gota)
 
-   El agua de la pila vista desde arriba: una gota abre ondas, el nombre queda en
-   el centro y los padrinos en el primer anillo. Las secciones se separan con una
-   onda y el día se lee como gotas. Diseño neutral: sin símbolos de un credo.
-     luz = fondo · nombre y textos = texto · ondas, gota y botones = principal ·
-     anillo de los padrinos = secundario · agua y recuadros = acento.
+   El agua del bautizo. Se entra vertiendo la jarra sobre la pila y la invitación
+   aparece en la onda que abre el agua. La portada es una gota grande con la foto
+   adentro, suspendida sobre el agua (el nombre se refleja); cada sección se abre
+   con una gotita que cae y hace su onda, el día baja gota a gota por un hilo de
+   agua y los padrinos son anillos que se tocan. Al fondo, la luz que el agua
+   dibuja en el piso de una pileta. Diseño neutral: sin símbolos de un credo.
+
+   Se carga solo en esta invitación (templates/bautizo-la-gota) sobre la base
+   adaptable de la colección tendencias. Todo sale de la paleta del editor:
+     luz = fondo · nombre y textos = texto · agua, gotas y botones = principal ·
+     filetes de la pila y anillo de los padrinos = secundario · agua clara y
+     recuadros = acento.
    ════════════════════════════════════════════════════════════════════════════ */
 
+@import '../tendencias/_base.css';
+
 .inv-gota {
-    --inv-radius: 18px;
-    --gt-water: color-mix(in srgb, var(--accent-color) 55%, var(--bg-color));
-    --gt-ring: color-mix(in srgb, var(--secondary-color) 80%, var(--text-color));
+    --inv-radius: 1.4rem;
+    --gt-water: color-mix(in srgb, var(--tr-accent) 62%, var(--tr-bg));
+    --gt-water-deep: color-mix(in srgb, var(--tr-primary) 38%, var(--tr-accent));
+    --gt-deep: color-mix(in srgb, var(--tr-primary) 68%, var(--tr-text));
+    --gt-glass: color-mix(in srgb, var(--tr-bg) 70%, #fff);
+    --gt-line: color-mix(in srgb, var(--tr-primary) 26%, transparent);
+    --gt-drop: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 124'%3E%3Cpath d='M50 2 C58 22 96 44 96 76 A46 46 0 0 1 4 76 C4 44 42 22 50 2 Z'/%3E%3C/svg%3E");
     --gt-wave: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 12'%3E%3Cpath d='M0 6 Q6 0 12 6 T24 6' fill='none' stroke='black' stroke-width='1.6'/%3E%3C/svg%3E");
+    /* La luz del agua en el piso: una red de curvas que se repite sin cortes */
+    --gt-caustic: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 240'%3E%3Cg fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M0 38 C34 18 58 62 96 44 S160 12 196 40 S228 60 240 38'/%3E%3Cpath d='M0 118 C28 96 66 138 104 116 S172 90 204 122 S232 128 240 118'/%3E%3Cpath d='M0 196 C40 176 70 214 110 192 S168 170 200 198 S230 206 240 196'/%3E%3Cpath d='M42 0 C22 36 64 60 44 100 S20 164 48 196 S58 230 42 240'/%3E%3Cpath d='M128 0 C108 32 150 70 126 110 S104 170 134 204 S142 232 128 240'/%3E%3Cpath d='M204 0 C186 40 226 66 206 108 S184 168 212 200 S220 230 204 240'/%3E%3C/g%3E%3C/svg%3E");
+    --themed-from: translate3d(0, 22px, 0) scale(0.98);
+
+    background: var(--tr-bg);
 }
 
 .inv-gota.has-player {
     padding-bottom: calc(5.25rem + env(safe-area-inset-bottom));
 }
 
-.inv-gota .inv-section {
-    border-top: 0;
+/* ── Apertura: la pila y la jarra; la invitación aparece en la onda del agua ── */
+
+@property --gt-hole {
+    syntax: '<length>';
+    inherits: false;
+    initial-value: 0px;
 }
 
-/* Entre sección y sección, una onda corta en lugar del filete */
-.inv-gota main > .inv-section + .inv-section::before {
+.gt-intro.inv-themed-intro {
+    display: block;
+    padding: 0;
+    cursor: pointer;
+}
+
+.gt-intro.is-parting {
+    pointer-events: none;
+}
+
+.gt-intro__scene {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    background:
+        radial-gradient(80% 50% at 50% 0%, rgb(255 255 255 / 0.7), transparent 70%),
+        linear-gradient(180deg,
+            color-mix(in srgb, var(--tr-accent) 78%, var(--tr-primary)) 0%,
+            color-mix(in srgb, var(--tr-accent) 40%, var(--tr-bg)) 50%,
+            var(--tr-bg) 100%);
+}
+
+/* La escena se abre en una onda que crece desde donde cayó el agua (--cover-x/y los pone el JS) */
+.gt-intro.is-parting .gt-intro__scene {
+    -webkit-mask: radial-gradient(circle at var(--cover-x, 50%) var(--cover-y, 60%), transparent var(--gt-hole), rgb(0 0 0 / 0.5) calc(var(--gt-hole) + 18px), #000 calc(var(--gt-hole) + 56px));
+    mask: radial-gradient(circle at var(--cover-x, 50%) var(--cover-y, 60%), transparent var(--gt-hole), rgb(0 0 0 / 0.5) calc(var(--gt-hole) + 18px), #000 calc(var(--gt-hole) + 56px));
+    animation: gt-hole 1.5s cubic-bezier(0.45, 0, 0.3, 1) forwards;
+}
+
+/* Anillos de agua que acompañan la onda por encima de la portada */
+.gt-intro__waves {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.gt-intro__waves span {
+    position: absolute;
+    top: var(--cover-y, 60%);
+    left: var(--cover-x, 50%);
+    width: calc((var(--gt-hole) + 18px) * 2);
+    aspect-ratio: 1;
+    translate: -50% -50%;
+    border: 2px solid rgb(255 255 255 / 0.9);
+    border-radius: 50%;
+    box-shadow:
+        0 0 0 1px color-mix(in srgb, var(--tr-primary) 30%, transparent),
+        0 0 30px rgb(255 255 255 / 0.55),
+        inset 0 0 30px rgb(255 255 255 / 0.35);
+    opacity: 0;
+}
+
+.gt-intro__waves span:nth-child(2) {
+    border-width: 1px;
+}
+
+.gt-intro.is-parting .gt-intro__waves span {
+    animation:
+        gt-hole 1.5s cubic-bezier(0.45, 0, 0.3, 1) forwards,
+        gt-wave-fade 1.5s linear forwards;
+}
+
+.gt-intro.is-parting .gt-intro__waves span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.gt-intro__light {
+    position: absolute;
+    top: -30svh;
+    left: 50%;
+    width: max(110vw, 40rem);
+    height: 80svh;
+    translate: -50% 0;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgb(255 255 255 / 0.85), transparent);
+    pointer-events: none;
+    animation: gt-intro-light 7s ease-in-out infinite alternate;
+}
+
+.gt-intro__sparkle {
+    position: absolute;
+    top: var(--top);
+    left: var(--left);
+    width: var(--size);
+    aspect-ratio: 1;
+    background: color-mix(in srgb, var(--tr-secondary) 55%, #fff);
+    clip-path: polygon(50% 0, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0 50%, 39% 39%);
+    animation: gt-twinkle var(--d) ease-in-out var(--delay) infinite;
+}
+
+.gt-intro__content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: min(100%, 28rem);
+    padding: 1.5rem 1.5rem calc(1.5rem + env(safe-area-inset-bottom));
+    text-align: center;
+}
+
+.gt-intro__eyebrow {
+    margin: 0;
+    font-family: var(--font-script);
+    font-size: clamp(1.45rem, 6vw, 1.9rem);
+    line-height: 1.2;
+    color: var(--gt-deep);
+    animation: inv-fade-up 0.9s var(--tr-ease) 0.15s both;
+}
+
+.gt-intro__name {
+    margin: 0.1rem 0 0;
+    font-family: var(--font-titles);
+    font-size: clamp(2rem, min(9vw, 5.8svh), 3rem);
+    font-weight: 600;
+    line-height: 1.1;
+    color: var(--gt-deep);
+    animation: inv-fade-up 1s var(--tr-ease) 0.3s both;
+}
+
+.gt-intro__date {
+    margin: 0.6rem 0 0;
+    padding-block: 0.4rem;
+    border-block: 1px solid color-mix(in srgb, var(--tr-primary) 30%, transparent);
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: var(--gt-deep);
+    animation: inv-fade-up 1s var(--tr-ease) 0.45s both;
+}
+
+/* La pila con la jarra */
+.gt-font {
+    position: relative;
+    isolation: isolate;
+    display: block;
+    width: clamp(12rem, min(68vw, 38svh), 17.5rem);
+    margin-top: clamp(0.5rem, 2.5svh, 1.5rem);
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    animation: inv-fade-up 1.1s var(--tr-ease) 0.55s both;
+}
+
+.gt-font:focus-visible {
+    outline: 2px solid var(--tr-primary);
+    outline-offset: 6px;
+    border-radius: 1rem;
+}
+
+/* Halo de luz detrás de la pila */
+.gt-font__halo {
+    position: absolute;
+    top: 52%;
+    left: 50%;
+    z-index: -1;
+    width: 118%;
+    aspect-ratio: 1;
+    translate: -50% -50%;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgb(255 255 255 / 0.95), color-mix(in srgb, var(--tr-accent) 45%, transparent) 62%, transparent);
+    animation: gt-halo-breathe 5s ease-in-out infinite;
+}
+
+.gt-font__art {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+}
+
+.gt-font__stone-top { stop-color: #fff; }
+.gt-font__stone-low { stop-color: color-mix(in srgb, var(--tr-primary) 18%, var(--tr-bg)); }
+.gt-font__pearl-hi { stop-color: #fff; }
+.gt-font__pearl-mid { stop-color: color-mix(in srgb, var(--tr-accent) 70%, #fff); }
+.gt-font__pearl-low { stop-color: color-mix(in srgb, var(--tr-primary) 34%, var(--tr-bg)); }
+.gt-font__water-top { stop-color: color-mix(in srgb, var(--tr-accent) 70%, #fff); }
+.gt-font__water-deep { stop-color: color-mix(in srgb, var(--tr-primary) 45%, var(--tr-accent)); }
+.gt-font__glow-in { stop-color: #fff; }
+.gt-font__glow-out { stop-color: #fff; stop-opacity: 0; }
+
+.gt-font__shadow {
+    fill: color-mix(in srgb, var(--tr-primary) 22%, transparent);
+}
+
+.gt-font__stone {
+    stroke: color-mix(in srgb, var(--tr-primary) 30%, transparent);
+    stroke-width: 1.2;
+}
+
+.gt-font__knot {
+    fill: color-mix(in srgb, var(--tr-bg) 70%, #fff);
+}
+
+.gt-font__rim {
+    fill: color-mix(in srgb, var(--tr-bg) 60%, #fff);
+    stroke: color-mix(in srgb, var(--tr-secondary) 80%, #fff);
+    stroke-width: 1.8;
+}
+
+.gt-font__water-edge {
+    fill: none;
+    stroke: color-mix(in srgb, var(--tr-primary) 22%, transparent);
+    stroke-width: 1;
+}
+
+.gt-font__gold {
+    fill: none;
+    stroke: color-mix(in srgb, var(--tr-secondary) 80%, transparent);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.gt-font__gold--thin {
+    stroke-width: 0.8;
+    opacity: 0.8;
+}
+
+.gt-font__shimmer {
+    fill: none;
+    stroke: rgb(255 255 255 / 0.85);
+    stroke-width: 1.4;
+    stroke-linecap: round;
+    animation: gt-shimmer 3.6s ease-in-out infinite;
+}
+
+.gt-font__shimmer--2 {
+    animation-delay: -1.8s;
+}
+
+.gt-font__ripple {
+    fill: none;
+    stroke: #fff;
+    stroke-width: 1.3;
+    vector-effect: non-scaling-stroke;
+    transform-box: fill-box;
+    transform-origin: center;
+    opacity: 0;
+    animation: gt-ripple-idle 4.2s ease-out calc(var(--i) * 1.4s) infinite;
+}
+
+.gt-font__glow,
+.gt-font__splash,
+.gt-font__star {
+    opacity: 0;
+}
+
+.gt-font__splash {
+    fill: color-mix(in srgb, var(--tr-accent) 55%, var(--tr-primary));
+    stroke: #fff;
+    stroke-width: 0.8;
+}
+
+.gt-font__star {
+    fill: color-mix(in srgb, var(--tr-secondary) 75%, #fff);
+    transform-box: fill-box;
+    transform-origin: center;
+}
+
+.gt-font__stream {
+    fill: none;
+    stroke: color-mix(in srgb, var(--tr-accent) 45%, var(--tr-primary));
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    opacity: 0;
+}
+
+.gt-font__stream--shine {
+    stroke: rgb(255 255 255 / 0.85);
+    stroke-width: 1.2;
+}
+
+/* La jarra se mece desde el centro del cuerpo, como a punto de verter */
+.gt-font__ewer {
+    transform-box: view-box;
+    transform-origin: 108px 92px;
+    animation: gt-ewer-sway 4.5s ease-in-out infinite;
+}
+
+.gt-font__ewer-body {
+    stroke: color-mix(in srgb, var(--tr-primary) 45%, var(--tr-text));
+    stroke-opacity: 0.45;
+    stroke-width: 1.1;
+    stroke-linejoin: round;
+}
+
+/* Asa con un contorno apenas más oscuro debajo, para que se lea como porcelana */
+.gt-font__ewer-handle-edge {
+    fill: none;
+    stroke: color-mix(in srgb, var(--tr-primary) 45%, var(--tr-text));
+    stroke-opacity: 0.35;
+    stroke-width: 6;
+    stroke-linecap: round;
+}
+
+.gt-font__ewer-handle {
+    fill: none;
+    stroke: color-mix(in srgb, var(--tr-primary) 32%, var(--tr-bg));
+    stroke-width: 4.5;
+    stroke-linecap: round;
+}
+
+.gt-font__ewer-mouth {
+    fill: color-mix(in srgb, var(--tr-primary) 30%, var(--tr-bg));
+}
+
+.gt-font__ewer-channel {
+    fill: none;
+    stroke: color-mix(in srgb, var(--tr-primary) 25%, #fff);
+    stroke-width: 1;
+    stroke-linecap: round;
+}
+
+.gt-font__glint {
+    fill: none;
+    stroke: #fff;
+    stroke-width: 3;
+    stroke-linecap: round;
+    animation: gt-ewer-glint 3.2s ease-in-out infinite;
+}
+
+.gt-font__glint--sm {
+    stroke-width: 1.6;
+}
+
+.gt-intro__hint {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin: clamp(0.9rem, 2.5svh, 1.5rem) 0 0;
+    padding: 0.55rem 1.1rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, #fff 75%, transparent);
+    box-shadow:
+        inset 0 0 0 1px color-mix(in srgb, var(--tr-primary) 26%, transparent),
+        0 10px 24px -14px color-mix(in srgb, var(--tr-primary) 50%, transparent);
+    color: var(--gt-deep);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    animation: inv-fade-up 1s var(--tr-ease) 0.9s both;
+}
+
+.gt-intro__hint-dot {
+    position: relative;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--tr-primary);
+}
+
+.gt-intro__hint-dot::after {
     content: '';
     position: absolute;
-    top: 0;
-    left: 50%;
-    width: 6rem;
-    height: 0.75rem;
-    background: var(--primary-color);
-    opacity: 0.55;
-    translate: -50% 0;
-    -webkit-mask: var(--gt-wave) 0 50% / 1.5rem 0.75rem repeat-x;
-    mask: var(--gt-wave) 0 50% / 1.5rem 0.75rem repeat-x;
+    inset: -5px;
+    border: 1px solid var(--tr-primary);
+    border-radius: 50%;
+    animation: gt-ping 1.8s ease-out infinite;
+}
+
+/* Al tocar: la jarra se inclina y vierte; el agua brilla, salpica, suelta destellos y hace ondas */
+.gt-intro.is-opening .gt-font__ewer {
+    animation: gt-ewer-pour 1.35s cubic-bezier(0.45, 0, 0.3, 1) forwards;
+}
+
+.gt-intro.is-opening .gt-font__stream {
+    animation: gt-stream 0.95s ease-in-out 0.35s forwards;
+}
+
+.gt-intro.is-opening .gt-font__ripple {
+    animation: gt-ripple-splash 1s ease-out calc(0.62s + var(--i) * 0.16s) forwards;
+}
+
+.gt-intro.is-opening .gt-font__splash {
+    animation: gt-splash 0.7s cubic-bezier(0.2, 0.6, 0.4, 1) 0.64s forwards;
+}
+
+.gt-intro.is-opening .gt-font__star {
+    animation: gt-star 1s ease-out calc(0.68s + var(--i) * 0.07s) forwards;
+}
+
+.gt-intro.is-opening .gt-font__glow {
+    animation: gt-font-glow 1.1s ease 0.62s forwards;
+}
+
+.gt-intro.is-opening .gt-intro__hint {
+    animation: gt-fade-away 0.4s ease forwards;
+}
+
+@media (max-height: 560px) {
+    .gt-intro__eyebrow {
+        display: none;
+    }
+
+    .gt-intro__hint {
+        margin-top: 0.6rem;
+    }
+}
+
+@keyframes gt-hole {
+    to { --gt-hole: 110vmax; }
+}
+
+@keyframes gt-wave-fade {
+    0% { opacity: 0; }
+    12% { opacity: 1; }
+    70% { opacity: 0.6; }
+    100% { opacity: 0; }
+}
+
+@keyframes gt-intro-light {
+    to { opacity: 0.55; scale: 1.08; }
+}
+
+@keyframes gt-twinkle {
+    0%, 100% { opacity: 0.2; scale: 0.6; }
+    50% { opacity: 1; scale: 1; }
+}
+
+@keyframes gt-halo-breathe {
+    50% { opacity: 0.7; scale: 0.94; }
+}
+
+@keyframes gt-ewer-sway {
+    50% { rotate: 4deg; }
+}
+
+/* Se inclina hacia la pila acercándose a su centro, vierte y vuelve casi recta */
+@keyframes gt-ewer-pour {
+    0% { rotate: 0deg; translate: 0 0; }
+    28%, 70% { rotate: 50deg; translate: -34px 10px; }
+    100% { rotate: 6deg; translate: -6px 0; }
+}
+
+@keyframes gt-ewer-glint {
+    0%, 100% { opacity: 0.35; }
+    50% { opacity: 0.95; }
+}
+
+/* El chorro crece desde el pico, se sostiene y se corta desde arriba */
+@keyframes gt-stream {
+    0% { opacity: 1; stroke-dashoffset: 1; }
+    40%, 68% { opacity: 1; stroke-dashoffset: 0; }
+    100% { opacity: 1; stroke-dashoffset: -1; }
+}
+
+@keyframes gt-shimmer {
+    0%, 100% { opacity: 0.2; translate: -4px 0; }
+    50% { opacity: 0.9; translate: 4px 0; }
+}
+
+@keyframes gt-ripple-idle {
+    0% { opacity: 0.75; transform: scale(1); }
+    100% { opacity: 0; transform: scale(5); }
+}
+
+@keyframes gt-ripple-splash {
+    0% { opacity: 1; transform: scale(0.6); }
+    100% { opacity: 0; transform: scale(7); }
+}
+
+@keyframes gt-splash {
+    0% { opacity: 0; transform: translate(0, 0); }
+    20% { opacity: 1; }
+    55% { opacity: 1; transform: translate(var(--dx), var(--dy)); }
+    100% { opacity: 0; transform: translate(calc(var(--dx) * 1.4), 6px); }
+}
+
+@keyframes gt-star {
+    0% { opacity: 0; transform: translate(0, 0) scale(0.3) rotate(0deg); }
+    25% { opacity: 1; }
+    100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(1.1) rotate(90deg); }
+}
+
+@keyframes gt-font-glow {
+    35% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+@keyframes gt-ping {
+    from { opacity: 0.9; transform: scale(0.4); }
+    to { opacity: 0; transform: scale(1.4); }
+}
+
+@keyframes gt-fade-away {
+    to { opacity: 0; transform: translateY(8px); }
+}
+
+/* ── Portada: la gota suspendida sobre el agua ─────────────────────────── */
+
+.gt-hero {
+    align-content: start;
+    justify-items: center;
+    min-height: 100svh;
+    padding: calc(4.75rem + env(safe-area-inset-top)) 1.25rem 0;
+    background:
+        radial-gradient(70% 38% at 50% 34%, color-mix(in srgb, #fff 55%, transparent), transparent 70%),
+        linear-gradient(180deg, color-mix(in srgb, var(--tr-accent) 45%, var(--tr-bg)), var(--tr-bg) 55%);
+    color: var(--tr-text);
+    text-align: center;
+}
+
+.gt-kicker {
+    margin: 0;
+    font-family: var(--font-script);
+    font-size: clamp(1.5rem, 6.5vw, 2.1rem);
+    line-height: 1.2;
+    color: var(--gt-deep);
+}
+
+.gt-scene {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    width: min(100%, 26rem);
+    margin-top: 1.25rem;
+}
+
+/* La gota: la foto se ve adentro, con borde de vidrio y brillo. Respira apenas, como si fuera a caer */
+.gt-bead {
+    position: relative;
+    z-index: 1;
+    width: min(64vw, 17rem);
+    aspect-ratio: 100 / 124;
+    transform-origin: 50% 0;
+    animation: gt-bead-hang 5.5s ease-in-out infinite;
+    filter: drop-shadow(0 22px 26px color-mix(in srgb, var(--tr-primary) 30%, transparent));
+}
+
+.gt-bead__lens {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    background: var(--gt-water);
+    -webkit-mask: var(--gt-drop) center / 100% 100% no-repeat;
+    mask: var(--gt-drop) center / 100% 100% no-repeat;
+}
+
+.gt-bead__lens .tr-cover-img,
+.gt-bead__lens .tr-photo-empty {
+    position: absolute;
+    inset: 0;
+}
+
+/* Como a través del agua: el borde se oscurece un poco hacia afuera y el centro se aclara */
+.gt-bead__lens::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(60% 50% at 38% 62%, transparent 55%, color-mix(in srgb, var(--tr-primary) 40%, transparent) 100%),
+        linear-gradient(160deg, color-mix(in srgb, #fff 30%, transparent), transparent 35%);
+    mix-blend-mode: multiply;
+}
+
+.gt-bead__glass {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+
+.gt-bead__edge {
+    fill: none;
+    stroke: color-mix(in srgb, var(--tr-primary) 55%, #fff);
+    stroke-width: 1.4;
+    vector-effect: non-scaling-stroke;
+}
+
+.gt-bead__rim {
+    fill: none;
+    stroke: rgb(255 255 255 / 0.65);
+    stroke-width: 3;
+    stroke-dasharray: 60 240;
+    stroke-dashoffset: -28;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+}
+
+.gt-bead__glint {
+    fill: none;
+    stroke: rgb(255 255 255 / 0.9);
+    stroke-width: 4;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+    animation: gt-glint 4s ease-in-out infinite;
+}
+
+.gt-bead__glint--low {
+    stroke-width: 2;
+    opacity: 0.6;
+    animation-delay: -2s;
+}
+
+.gt-bead__spark {
+    fill: #fff;
+    animation: gt-glint 4s ease-in-out -1s infinite;
+}
+
+/* El agua de abajo: anillos que se abren desde la sombra de la gota */
+.gt-water {
+    width: min(112%, 28rem);
+    margin-top: -2.2rem;
+    overflow: visible;
+}
+
+.gt-water__shadow {
+    fill: color-mix(in srgb, var(--tr-primary) 22%, transparent);
+    filter: blur(6px);
+}
+
+.gt-water__wave {
+    fill: none;
+    stroke: color-mix(in srgb, var(--tr-primary) 50%, transparent);
+    stroke-width: 1.2;
+    vector-effect: non-scaling-stroke;
+    transform-box: fill-box;
+    transform-origin: center;
+    opacity: 0;
+    animation: gt-wave 6s ease-out calc(var(--w) * 2s) infinite;
+}
+
+.gt-water__ring {
+    fill: none;
+    stroke: var(--tr-secondary);
+    stroke-width: 1.4;
+    vector-effect: non-scaling-stroke;
+    opacity: 0.7;
+}
+
+.gt-water__ring--far {
+    stroke: color-mix(in srgb, var(--tr-primary) 30%, transparent);
+    stroke-dasharray: 2 6;
+    opacity: 1;
+}
+
+.gt-water__text {
+    fill: color-mix(in srgb, var(--tr-secondary) 55%, var(--tr-text));
+    font-family: var(--font-titles);
+    font-style: italic;
+    letter-spacing: 0.04em;
+}
+
+/* La gotita del costado cae y abre su propia onda en el agua */
+.gt-scene__drip {
+    position: absolute;
+    top: 12%;
+    right: 13%;
+    width: 0.7rem;
+    aspect-ratio: 100 / 124;
+    background: color-mix(in srgb, var(--tr-primary) 60%, #fff);
+    -webkit-mask: var(--gt-drop) center / contain no-repeat;
+    mask: var(--gt-drop) center / contain no-repeat;
+    opacity: 0;
+    animation: gt-drip 7s cubic-bezier(0.5, 0, 0.9, 0.4) 1.5s infinite;
+}
+
+.gt-water__drip-ring {
+    fill: none;
+    stroke: color-mix(in srgb, var(--tr-primary) 60%, transparent);
+    stroke-width: 1.2;
+    vector-effect: non-scaling-stroke;
+    transform-box: fill-box;
+    transform-origin: center;
+    opacity: 0;
+    animation: gt-drip-ring 7s ease-out 1.5s infinite;
+}
+
+/* El nombre y su reflejo en el agua */
+.gt-title {
+    display: grid;
+    justify-items: center;
+    margin-top: 0.25rem;
+}
+
+.gt-name {
+    margin: 0;
+    font-family: var(--font-titles);
+    font-size: clamp(2.6rem, 12vw, 4.6rem);
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+    overflow-wrap: break-word;
+}
+
+/* Volteado en su lugar: la máscara (en el sentido del texto) deja ver el pie de las letras, que queda
+   pegado al nombre, y se apaga hacia abajo */
+.gt-name--reflection {
+    margin-top: -0.14em;
+    color: var(--tr-primary);
+    opacity: 0.32;
+    transform: scaleY(-1);
+    -webkit-mask: linear-gradient(0deg, #000, transparent 70%);
+    mask: linear-gradient(0deg, #000, transparent 70%);
+    animation: gt-reflect 5s ease-in-out infinite;
+    pointer-events: none;
+    user-select: none;
+}
+
+.gt-details {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.35rem 0;
+    max-width: 24rem;
+    margin: 0.85rem 0 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--gt-deep);
+}
+
+/* El lugar va en su propio renglón; los demás datos, separados por una gotita */
+.gt-details__place {
+    flex-basis: 100%;
+}
+
+.gt-details li:not(.gt-details__place) + li:not(.gt-details__place)::before {
+    content: '';
+    display: inline-block;
+    width: 0.42rem;
+    aspect-ratio: 100 / 124;
+    margin: 0 0.7rem;
+    vertical-align: 0.05em;
+    background: var(--tr-primary);
+    -webkit-mask: var(--gt-drop) center / contain no-repeat;
+    mask: var(--gt-drop) center / contain no-repeat;
+}
+
+.gt-message {
+    max-width: 30ch;
+    margin: 1.1rem 0 0;
+    font-size: 1.02rem;
+    line-height: 1.65;
+    color: var(--inv-muted);
+    text-wrap: pretty;
+}
+
+@keyframes gt-bead-hang {
+    0%, 100% { scale: 1 1; }
+    50% { scale: 0.985 1.02; }
+}
+
+@keyframes gt-glint {
+    0%, 100% { opacity: 0.55; }
+    50% { opacity: 1; }
+}
+
+@keyframes gt-wave {
+    0% { opacity: 0; transform: scale(0.28); }
+    15% { opacity: 0.9; }
+    100% { opacity: 0; transform: scale(1.12); }
+}
+
+@keyframes gt-drip {
+    0% { opacity: 0; transform: translateY(0) scaleY(1); }
+    6% { opacity: 1; }
+    20% { opacity: 1; transform: translateY(var(--gt-fall, 15.5rem)) scaleY(1.25); }
+    21%, 100% { opacity: 0; transform: translateY(var(--gt-fall, 15.5rem)) scaleY(0.6); }
+}
+
+@keyframes gt-drip-ring {
+    0%, 20% { opacity: 0; transform: scale(0.1); }
+    22% { opacity: 1; }
+    45%, 100% { opacity: 0; transform: scale(1.8); }
+}
+
+@keyframes gt-reflect {
+    0%, 100% { transform: scaleY(-1) skewX(0deg); }
+    33% { transform: scaleY(-1) translateX(2px) skewX(-4deg); }
+    66% { transform: scaleY(-1) translateX(-2px) skewX(4deg); }
+}
+
+/* ── Secciones: cada una se abre con una gotita que cae y su onda ───────── */
+
+.inv-gota main > .inv-section {
+    border-top: 0;
+    padding-block: 4.5rem 2.5rem;
 }
 
 .inv-gota .invitation-lottie-framed {
     display: none;
 }
 
+.inv-gota .inv-head {
+    position: relative;
+    padding-top: 3.1rem;
+}
+
+/* La gotita y la onda del encabezado */
+.inv-gota .inv-head::before,
+.inv-gota .inv-head::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+}
+
+.inv-gota .inv-head::before {
+    top: 0;
+    width: 0.8rem;
+    aspect-ratio: 100 / 124;
+    margin-left: -0.4rem;
+    background: var(--tr-primary);
+    -webkit-mask: var(--gt-drop) center / contain no-repeat;
+    mask: var(--gt-drop) center / contain no-repeat;
+}
+
+.inv-gota .inv-head::after {
+    top: 1.55rem;
+    width: 4.5rem;
+    height: 1rem;
+    margin-left: -2.25rem;
+    border: 1.5px solid color-mix(in srgb, var(--tr-primary) 45%, transparent);
+    border-radius: 50%;
+    opacity: 0;
+}
+
+/* Al aparecer la sección, la gotita cae y abre la onda */
+.inv-gota .reveal.is-visible .inv-head::before {
+    animation: gt-head-drop 1.1s cubic-bezier(0.5, 0, 0.9, 0.5) 0.1s both;
+}
+
+.inv-gota .reveal.is-visible .inv-head::after {
+    animation: gt-head-ring 1.6s ease-out 0.75s both;
+}
+
 .inv-gota .inv-head__eyebrow {
-    font-size: 0.95rem;
-    font-weight: 600;
-    letter-spacing: 0.01em;
+    font-family: var(--font-script);
+    font-size: 1.35rem;
+    font-weight: 400;
+    letter-spacing: 0;
     text-transform: none;
     color: var(--inv-accent-ink);
 }
 
 .inv-gota .inv-head__title {
-    font-size: clamp(2.3rem, 10vw, 3.6rem);
+    font-size: clamp(2.3rem, 10vw, 3.4rem);
     font-weight: 500;
 }
 
 .inv-gota .inv-head__rule {
-    display: none;
+    width: 4.5rem;
+    height: 0.75rem;
+    background: var(--tr-primary);
+    opacity: 0.5;
+    -webkit-mask: var(--gt-wave) 0 50% / 1.5rem 0.75rem repeat-x;
+    mask: var(--gt-wave) 0 50% / 1.5rem 0.75rem repeat-x;
+}
+
+@keyframes gt-head-drop {
+    0% { opacity: 0; transform: translateY(-2.2rem) scaleY(1.2); }
+    30% { opacity: 1; }
+    82% { transform: translateY(0.9rem) scaleY(1.15); opacity: 1; }
+    100% { transform: translateY(0.9rem) scaleY(0.4); opacity: 0; }
+}
+
+@keyframes gt-head-ring {
+    0% { opacity: 0.9; transform: scale(0.2); }
+    100% { opacity: 0.35; transform: scale(1); }
+}
+
+/* Recuadros como vidrio con agua: claros, redondos y con su brillo arriba */
+.inv-gota :is(.inv-countdown__unit, .inv-pass) {
+    border: 1px solid var(--gt-line);
+    background:
+        linear-gradient(180deg, color-mix(in srgb, #fff 55%, transparent), transparent 45%),
+        var(--gt-glass);
+    box-shadow: 0 14px 26px -22px color-mix(in srgb, var(--tr-primary) 70%, transparent);
+}
+
+/* La cuenta regresiva en gotas que se llenan */
+.inv-gota .inv-countdown__unit {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 1;
+    border-radius: 50% 50% 50% 50% / 58% 58% 42% 42%;
+}
+
+.inv-gota .inv-countdown__value {
+    color: var(--gt-deep);
 }
 
 .inv-gota :is(.inv-label, .inv-link, .inv-btn, .inv-footer__date, .inv-countdown__label) {
@@ -66,456 +945,388 @@
 
 .inv-gota .inv-btn {
     min-height: 3.1rem;
-    border-color: var(--primary-color);
+    border-color: var(--tr-primary);
     border-radius: 999px;
-    background: var(--primary-color);
-    color: var(--bg-color);
+    background:
+        linear-gradient(180deg, color-mix(in srgb, #fff 22%, transparent), transparent 55%),
+        var(--tr-primary);
+    color: var(--tr-ink-primary);
     font-size: 0.95rem;
 }
 
 .inv-gota .inv-btn--ghost {
-    background: transparent;
-    color: var(--text-color);
+    background: var(--gt-glass);
+    color: var(--tr-text);
     border-color: var(--inv-line-strong);
 }
 
-@media (hover: hover) {
-    .inv-gota .inv-btn:hover:not(:disabled) {
-        background: color-mix(in srgb, var(--primary-color) 84%, var(--text-color));
-    }
-}
+/* ── Itinerario: gotas que bajan por un hilo de agua ───────────────────── */
 
-/* La cuenta regresiva en círculos de agua */
-.inv-gota .inv-countdown__unit {
-    display: grid;
-    place-items: center;
-    aspect-ratio: 1;
-    border-radius: 50%;
-    background: var(--gt-water);
-}
-
-.inv-gota-footer .inv-footer__ornament--line {
-    width: 4.5rem;
-    height: 0.75rem;
-    background: var(--primary-color);
-    -webkit-mask: var(--gt-wave) 0 50% / 1.5rem 0.75rem repeat-x;
-    mask: var(--gt-wave) 0 50% / 1.5rem 0.75rem repeat-x;
-}
-
-/* ── Portada: las ondas con el nombre al centro ─────────────────────────── */
-
-.gt-hero {
-    align-content: center;
-    justify-items: center;
-    gap: 0;
-    padding: calc(4rem + env(safe-area-inset-top)) 1.25rem 5rem;
-    color: var(--text-color);
-    background:
-        radial-gradient(60% 34% at 50% 26%, var(--gt-water), transparent 75%),
-        var(--bg-color);
-}
-
-.gt-pool {
+.gt-drops {
     position: relative;
     display: grid;
-    place-items: center;
-    width: min(88vw, 25rem);
-    aspect-ratio: 1;
+    gap: 1.6rem;
+    margin: 0;
+    padding: 0.5rem 0 0;
+    list-style: none;
 }
 
-.gt-rings,
-.gt-ring-text {
+/* El hilo de agua que une las gotas */
+.gt-drops::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: -1.5rem;
+    left: 2.1rem;
+    width: 2px;
+    margin-left: -1px;
+    border-radius: 2px;
+    background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--tr-primary) 45%, transparent) 8%, color-mix(in srgb, var(--tr-primary) 45%, transparent) 92%, transparent);
+}
+
+.gt-drop {
+    position: relative;
+    display: grid;
+    grid-template-columns: 4.2rem 1fr;
+    align-items: center;
+    gap: 1rem;
+}
+
+.gt-drop__fall {
+    position: relative;
+    display: grid;
+    justify-items: center;
+}
+
+.gt-drop__bead {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    place-items: end center;
+    width: 3.7rem;
+    aspect-ratio: 100 / 124;
+    padding-bottom: 0.95rem;
+    background:
+        radial-gradient(40% 30% at 34% 62%, color-mix(in srgb, #fff 45%, transparent), transparent 70%),
+        var(--tr-primary);
+    color: var(--tr-ink-primary);
+    -webkit-mask: var(--gt-drop) center / contain no-repeat;
+    mask: var(--gt-drop) center / contain no-repeat;
+    transition: transform 0.5s var(--tr-spring);
+}
+
+.gt-drop__time {
+    font-size: 0.82rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.01em;
+}
+
+/* La onda donde cae la gota */
+.gt-drop__splash {
+    position: absolute;
+    bottom: -0.45rem;
+    left: 50%;
+    width: 4.4rem;
+    height: 1rem;
+    margin-left: -2.2rem;
+    border: 1.5px solid color-mix(in srgb, var(--tr-primary) 50%, transparent);
+    border-radius: 50%;
+}
+
+.gt-drop__body {
+    padding: 0.9rem 1rem;
+    border: 1px solid var(--gt-line);
+    border-radius: 1.1rem;
+    background: var(--gt-glass);
+    text-align: left;
+}
+
+.gt-drop__title {
+    margin: 0;
+    font-family: var(--font-titles);
+    font-size: 1.3rem;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.gt-drop__text {
+    margin: 0.3rem 0 0;
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: var(--inv-muted);
+}
+
+/* Al aparecer, cada gota cae a su lugar, se aplasta un poco y abre su onda */
+html:not(.no-js) .gt-drops-section.reveal:not(.is-visible) .gt-drop__bead {
+    transform: translateY(-1.6rem);
+    opacity: 0;
+}
+
+.gt-drops-section.reveal.is-visible .gt-drop__bead {
+    animation: gt-bead-land 0.9s cubic-bezier(0.5, 0, 0.6, 1) calc(0.25s + var(--step, 0) * 0.16s) both;
+}
+
+.gt-drops-section.reveal.is-visible .gt-drop__splash {
+    animation: gt-splash-ring 1.2s ease-out calc(0.85s + var(--step, 0) * 0.16s) both;
+}
+
+/* El agua quieta al final del hilo */
+.gt-drops__pool {
+    position: relative;
+    display: block;
+    width: 8rem;
+    height: 1.6rem;
+    margin: 1.9rem 0 0 calc(2.1rem - 4rem);
+}
+
+.gt-drops__pool i {
     position: absolute;
     inset: 0;
-    width: 100%;
-    height: 100%;
-    overflow: visible;
-}
-
-.gt-rings circle {
-    fill: none;
-    stroke: var(--primary-color);
-    stroke-width: 1.2;
-    opacity: calc(0.55 - var(--r) * 0.12);
-    transform-origin: 200px 200px;
-    animation: gt-ring-open 1.8s var(--inv-ease) calc(0.3s + var(--r) * 0.18s) both;
-}
-
-/* El primer anillo es el de los padrinos: lleva el color secundario */
-.gt-rings circle:first-child {
-    stroke: var(--gt-ring);
-    stroke-width: 1.6;
-    opacity: 0.8;
-}
-
-@keyframes gt-ring-open {
-    from { scale: 0.5; opacity: 0; }
-}
-
-.gt-ring-text text {
-    fill: var(--gt-ring);
-    font-family: var(--font-body);
-    font-weight: 600;
-    letter-spacing: 0.02em;
-}
-
-.gt-ring-text {
-    animation: gt-ring-turn 2.2s var(--inv-ease) 0.6s both;
-}
-
-@keyframes gt-ring-turn {
-    from { rotate: -40deg; opacity: 0; }
-}
-
-.gt-center {
-    display: grid;
-    place-items: center;
-    width: 44%;
-    aspect-ratio: 1;
-    margin: 0;
-    overflow: hidden;
+    border: 1.5px solid color-mix(in srgb, var(--tr-primary) 40%, transparent);
     border-radius: 50%;
-    background: var(--gt-water);
-    box-shadow: 0 0 0 5px var(--bg-color), 0 16px 40px -20px color-mix(in srgb, var(--primary-color) 60%, transparent);
+    animation: gt-pool 5s ease-out infinite;
 }
 
-.gt-center img {
+.gt-drops__pool i:nth-child(2) { animation-delay: -1.66s; }
+.gt-drops__pool i:nth-child(3) { animation-delay: -3.33s; }
+
+@keyframes gt-bead-land {
+    0% { opacity: 0; transform: translateY(-1.6rem) scale(0.9, 1.1); }
+    60% { opacity: 1; transform: translateY(0.15rem) scale(1.06, 0.9); }
+    100% { opacity: 1; transform: none; }
+}
+
+@keyframes gt-splash-ring {
+    0% { opacity: 0; transform: scale(0.3); }
+    30% { opacity: 1; }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes gt-pool {
+    0% { opacity: 0.9; transform: scale(0.2); }
+    100% { opacity: 0; transform: scale(1.3); }
+}
+
+/* ── Padrinos: anillos de gotas que se tocan ───────────────────────────── */
+
+.gt-ripples {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.gt-ripple {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    width: min(100%, 19rem);
+}
+
+/* Una a cada lado: los anillos de una tocan los de la siguiente */
+.gt-ripple:nth-child(odd) {
+    justify-self: start;
+}
+
+.gt-ripple:nth-child(even) {
+    justify-self: end;
+}
+
+.gt-ripple + .gt-ripple {
+    margin-top: -2.4rem;
+}
+
+.gt-ripple:only-child {
+    justify-self: center;
+}
+
+.gt-ripple__rings {
+    position: relative;
+    display: block;
     width: 100%;
-    height: 100%;
-    object-fit: cover;
+    aspect-ratio: 1;
 }
 
-.gt-center__initials {
-    font-family: var(--font-script);
-    font-size: 2.4rem;
-    color: var(--primary-color);
+.gt-ripple__rings i {
+    position: absolute;
+    border-radius: 50%;
 }
 
-.gt-eyebrow {
-    margin: 1.5rem 0 0;
-    font-size: 0.95rem;
-    font-weight: 600;
+.gt-ripple__rings i:nth-child(1) {
+    inset: 20%;
+    border: 1.5px solid var(--tr-secondary);
+    background:
+        radial-gradient(circle at 36% 30%, color-mix(in srgb, #fff 60%, transparent), transparent 55%),
+        var(--gt-water);
+}
+
+.gt-ripple__rings i:nth-child(2) {
+    inset: 9%;
+    border: 1.5px solid color-mix(in srgb, var(--tr-primary) 45%, transparent);
+    animation: gt-ring-breathe 4.5s ease-in-out infinite;
+}
+
+.gt-ripple__rings i:nth-child(3) {
+    inset: 0;
+    border: 1px dashed color-mix(in srgb, var(--tr-primary) 35%, transparent);
+    animation: gt-ring-breathe 4.5s ease-in-out -1.5s infinite;
+}
+
+.gt-ripple:nth-child(even) .gt-ripple__rings i {
+    animation-delay: -2.2s;
+}
+
+.gt-ripple__center {
+    position: absolute;
+    inset: 22%;
+    display: grid;
+    place-content: center;
+    gap: 0.3rem;
+    padding: 0.5rem;
+    text-align: center;
+}
+
+.gt-ripple__role {
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
     color: var(--inv-accent-ink);
 }
 
-.gt-name {
-    margin: 0.25rem 0 0;
-    font-family: var(--font-script);
-    font-size: clamp(2.8rem, 13vw, 5rem);
-    font-weight: 500;
-    line-height: 1;
+.gt-ripple__names {
+    font-family: var(--font-titles);
+    font-size: clamp(1.05rem, 4.6vw, 1.3rem);
+    font-weight: 600;
+    line-height: 1.2;
     text-wrap: balance;
     overflow-wrap: break-word;
 }
 
-/* Cada dato separado por una onda */
-.gt-details {
-    display: grid;
-    justify-items: center;
-    gap: 0;
-    margin: 1.25rem 0 0;
-    padding: 0;
-    list-style: none;
-    font-weight: 600;
-}
-
-.gt-details li + li::before {
-    content: '';
-    display: block;
-    width: 2.5rem;
-    height: 0.6rem;
-    margin: 0.4rem auto;
-    background: var(--primary-color);
-    opacity: 0.6;
-    -webkit-mask: var(--gt-wave) 0 50% / 1.25rem 0.6rem repeat-x;
-    mask: var(--gt-wave) 0 50% / 1.25rem 0.6rem repeat-x;
-}
-
-.gt-message {
-    max-width: 28rem;
-    margin: 1.5rem 0 0;
-    line-height: 1.7;
+.gt-ripple__message {
+    max-width: 24ch;
+    margin: -1.4rem 0 0;
+    font-size: 0.9rem;
+    font-style: italic;
+    line-height: 1.5;
     color: var(--inv-muted);
-    text-wrap: pretty;
-}
-
-.gt-hero__scroll {
-    position: static;
-    margin: 2rem auto 0;
-    font-size: 0.8rem;
-    letter-spacing: 0.06em;
-    text-transform: none;
-    transform: none;
-}
-
-/* ── El día en gotas ────────────────────────────────────────────────────── */
-
-.gt-drops {
-    display: grid;
-    justify-items: center;
-    gap: 0;
-    margin: 0;
-    padding: 0;
-    list-style: none;
     text-align: center;
 }
 
-.gt-drop + .gt-drop::before {
-    content: '';
-    display: block;
-    width: 0.75rem;
-    height: 2.75rem;
-    margin: 0.75rem auto;
-    background: var(--primary-color);
-    opacity: 0.45;
-    rotate: 90deg;
-    -webkit-mask: var(--gt-wave) 0 50% / 1.4rem 0.75rem repeat-x;
-    mask: var(--gt-wave) 0 50% / 1.4rem 0.75rem repeat-x;
+.gt-family {
+    margin-top: 2.5rem;
+    text-align: center;
 }
 
-/* La gota: un círculo con la punta hacia arriba */
-.gt-drop__shape {
-    display: grid;
-    place-items: center;
-    width: 4.5rem;
-    aspect-ratio: 1;
-    margin: 0 auto;
-    border-radius: 0 50% 50% 50%;
-    background: var(--gt-water);
-    box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--primary-color) 55%, transparent);
-    rotate: 45deg;
-}
-
-.gt-drop__time {
-    font-family: var(--font-titles);
-    font-size: 1.15rem;
-    font-weight: 600;
-    color: var(--text-color);
-    rotate: -45deg;
-    font-variant-numeric: tabular-nums;
-}
-
-.gt-drop__title {
-    margin: 0.9rem 0 0;
-    font-family: var(--font-titles);
-    font-size: 1.45rem;
-    font-weight: 500;
-}
-
-.gt-drop__text {
-    max-width: 22rem;
-    margin: 0.3rem auto 0;
-    font-size: 0.92rem;
-    line-height: 1.6;
-    color: var(--inv-muted);
-}
-
-/* ── Apertura: el agua quieta ───────────────────────────────────────────── */
-
-.gt-intro {
-    color: var(--text-color);
-    background: var(--bg-color);
-}
-
-.gt-intro__eyebrow {
-    margin: 0;
-    font-family: var(--font-titles);
-    font-size: 1.4rem;
-    transition: opacity 0.4s ease;
-}
-
-.gt-intro__hint {
-    margin: 0;
-    font-size: 0.85rem;
-    color: var(--inv-muted);
-    transition: opacity 0.4s ease;
-}
-
-.gt-intro.is-drop :is(.gt-intro__eyebrow, .gt-intro__hint) {
-    opacity: 0;
-}
-
-.gt-water {
-    position: relative;
-    display: grid;
-    place-items: center;
-    width: min(76vw, 19rem);
-    aspect-ratio: 1;
-    padding: 0;
-    border: 0;
-    border-radius: 50%;
-    background:
-        radial-gradient(circle at 38% 32%, color-mix(in srgb, var(--bg-color) 60%, transparent), transparent 42%),
-        var(--gt-water);
-    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--primary-color) 35%, transparent), 0 20px 50px -30px var(--primary-color);
-    color: var(--text-color);
-    cursor: pointer;
-    transition: scale 1s var(--inv-ease), opacity 0.8s ease;
-}
-
-.gt-water__name {
+.gt-family__title {
+    margin: 0 0 0.8rem;
     font-family: var(--font-script);
-    font-size: clamp(1.8rem, 9vw, 2.4rem);
-    line-height: 1.05;
-    padding-inline: 1.5rem;
-    text-wrap: balance;
+    font-size: 1.5rem;
+    font-weight: 400;
+    color: var(--inv-accent-ink);
 }
 
-/* Reflejo de luz que gira despacio sobre el agua quieta */
-.gt-water::before {
-    content: "";
-    position: absolute;
-    inset: 6%;
-    border-radius: 50%;
-    background: conic-gradient(from 0deg, transparent 0 20%, color-mix(in srgb, var(--bg-color) 45%, transparent) 28%, transparent 36% 62%, color-mix(in srgb, var(--bg-color) 30%, transparent) 70%, transparent 78%);
-    opacity: 0.55;
-    filter: blur(6px);
-    animation: gt-caustic 16s linear infinite;
-    pointer-events: none;
+.gt-family__list {
+    display: grid;
+    gap: 0.65rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
 }
 
-@keyframes gt-caustic {
-    to { rotate: 1turn; }
+.gt-family__list li {
+    display: grid;
+    gap: 0.1rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--gt-line);
+    border-radius: 999px;
+    background: var(--gt-glass);
 }
 
-/* La gota: translúcida, con su brillo; se estira al caer y se aplasta al tocar el agua */
-.gt-water__drop {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 1.15rem;
-    height: 1.15rem;
-    opacity: 0;
-    translate: -50% -55vh;
-    transform-origin: 50% 100%;
+.gt-family__name {
+    font-weight: 600;
 }
 
-.gt-water__drop::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: 0 50% 50% 50%;
+.gt-family__list small {
+    font-size: 0.82rem;
+    color: var(--inv-muted);
+}
+
+@keyframes gt-ring-breathe {
+    0%, 100% { scale: 1; opacity: 1; }
+    50% { scale: 1.035; opacity: 0.65; }
+}
+
+/* ── Fondo: la luz del agua en el piso y burbujas que suben ────────────── */
+
+.inv-gota .inv-themed-bg__glow {
     background:
-        radial-gradient(circle at 60% 60%, rgb(255 255 255 / 0.85) 0 14%, transparent 20%),
-        color-mix(in srgb, var(--primary-color) 55%, transparent);
-    box-shadow:
-        inset 0 0 0 1px color-mix(in srgb, var(--primary-color) 70%, transparent),
-        0 6px 12px -6px var(--primary-color);
-    rotate: 45deg;
+        radial-gradient(22% 16% at 24% 28%, color-mix(in srgb, var(--tr-accent) 70%, transparent), transparent 70%),
+        radial-gradient(18% 14% at 70% 20%, color-mix(in srgb, var(--tr-accent) 55%, transparent), transparent 70%),
+        radial-gradient(26% 18% at 60% 74%, color-mix(in srgb, var(--tr-primary) 14%, transparent), transparent 70%);
+    filter: blur(18px);
+    animation-duration: 22s;
 }
 
-.gt-water__ripple {
+/* Dos redes de luz que se cruzan y se mueven en sentidos distintos: el brillo que deja el agua */
+.inv-gota .inv-themed-bg::before,
+.inv-gota .inv-themed-bg::after {
+    content: '';
     position: absolute;
-    inset: 50% auto auto 50%;
-    width: 100%;
-    aspect-ratio: 1;
-    border: 2px solid color-mix(in srgb, var(--primary-color) 75%, transparent);
-    border-radius: 50%;
-    box-shadow: 0 0 0 6px color-mix(in srgb, var(--primary-color) 10%, transparent), inset 0 0 0 4px color-mix(in srgb, var(--bg-color) 35%, transparent);
-    opacity: 0;
-    translate: -50% -50%;
-    scale: 0;
+    inset: -240px;
+    background: color-mix(in srgb, var(--tr-accent) 45%, #fff);
+    -webkit-mask: var(--gt-caustic) 0 0 / 240px 240px repeat;
+    mask: var(--gt-caustic) 0 0 / 240px 240px repeat;
+    opacity: 0.38;
+    filter: blur(1.5px);
+    will-change: transform;
+    animation: gt-caustic-a 38s linear infinite;
 }
 
-/* Corona de gotitas que saltan al impacto */
-.gt-water__splash {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0;
-    height: 0;
+.inv-gota .inv-themed-bg::after {
+    background: color-mix(in srgb, var(--tr-primary) 22%, var(--tr-bg));
+    -webkit-mask-size: 310px 310px;
+    mask-size: 310px 310px;
+    opacity: 0.14;
+    animation: gt-caustic-b 52s linear infinite;
 }
 
-.gt-water__splash i {
-    position: absolute;
-    top: -0.2rem;
-    left: -0.2rem;
-    width: 0.4rem;
-    height: 0.4rem;
-    border-radius: 50%;
-    background: color-mix(in srgb, var(--primary-color) 55%, transparent);
-    box-shadow: inset 1px 1px 0 rgb(255 255 255 / 0.7);
-    opacity: 0;
-    rotate: var(--a);
+@keyframes gt-caustic-a {
+    to { transform: translate3d(240px, 240px, 0); }
 }
 
-.gt-intro.is-drop .gt-water__drop {
-    animation: gt-drop-fall 0.62s cubic-bezier(0.5, 0, 0.9, 0.5) both;
+@keyframes gt-caustic-b {
+    to { transform: translate3d(-310px, 155px, 0); }
 }
 
-@keyframes gt-drop-fall {
-    0% { opacity: 0.9; translate: -50% -55vh; scale: 0.8 1.25; }
-    82% { opacity: 1; translate: -50% -60%; scale: 0.82 1.4; }
-    90% { opacity: 0.9; translate: -50% -50%; scale: 1.7 0.45; }
-    100% { opacity: 0; translate: -50% -50%; scale: 2.4 0.1; }
+/* Burbujas translúcidas: aro fino con su brillo */
+.inv-drift--burbujas span {
+    background:
+        radial-gradient(circle at 34% 30%, rgb(255 255 255 / 0.8) 0 10%, transparent 13%),
+        radial-gradient(circle, transparent 56%, color-mix(in srgb, var(--tr-primary) 40%, transparent) 62%, transparent 70%);
 }
 
-.gt-intro.is-drop .gt-water {
-    animation: gt-surface 1.3s cubic-bezier(0.3, 0.7, 0.4, 1) 0.55s both;
+/* ── Pie e historia ─────────────────────────────────────────────────────── */
+
+.inv-gota-footer .inv-footer__ornament--line {
+    width: 4.5rem;
+    height: 0.75rem;
+    background: var(--tr-primary);
+    -webkit-mask: var(--gt-wave) 0 50% / 1.5rem 0.75rem repeat-x;
+    mask: var(--gt-wave) 0 50% / 1.5rem 0.75rem repeat-x;
 }
 
-/* El agua cede un poco con el golpe y vuelve, como una superficie de verdad */
-@keyframes gt-surface {
-    0% { scale: 1; }
-    18% { scale: 0.965; }
-    45% { scale: 1.025; }
-    70% { scale: 0.992; }
-    100% { scale: 1; }
-}
-
-.gt-intro.is-drop .gt-water__splash i {
-    animation: gt-splash 0.75s cubic-bezier(0.2, 0.7, 0.4, 1) 0.56s both;
-}
-
-@keyframes gt-splash {
-    0% { opacity: 0; transform: translateY(0) scale(1); }
-    15% { opacity: 1; }
-    60% { opacity: 0.9; transform: translateY(calc(-1 * var(--h))) scale(0.9); }
-    100% { opacity: 0; transform: translateY(calc(-0.55 * var(--h))) scale(0.4); }
-}
-
-.gt-intro.is-drop .gt-water__ripple {
-    animation: gt-ripple 1.7s cubic-bezier(0.2, 0.7, 0.3, 1) 0.56s both;
-}
-
-.gt-intro.is-drop .gt-water__ripple + .gt-water__ripple { animation-delay: 0.74s; }
-.gt-intro.is-drop .gt-water__ripple + .gt-water__ripple + .gt-water__ripple { animation-delay: 0.92s; }
-
-@keyframes gt-ripple {
-    0% { opacity: 0.95; scale: 0.04; }
-    100% { opacity: 0; scale: 1.7; }
-}
-
-/* El nombre se ondula como un reflejo y vuelve a quedar nítido */
-.gt-intro.is-drop .gt-water__name {
-    animation: gt-name-wave 1.4s ease-out 0.56s both;
-}
-
-@keyframes gt-name-wave {
-    0% { transform: none; filter: none; }
-    18% { transform: scale(1.05, 0.94) skewX(5deg); filter: blur(2.5px); }
-    42% { transform: scale(0.98, 1.03) skewX(-3deg); filter: blur(1.5px); }
-    70% { transform: skewX(1deg); filter: blur(0.5px); }
-    100% { transform: none; filter: none; }
-}
-
-.gt-intro.is-open .gt-water {
-    animation: none;
-    scale: 3;
-    opacity: 0;
-    transition: scale 1s var(--inv-ease), opacity 0.8s ease;
-}
-
-/* ── Modo historia: cada escena se abre como una onda desde el centro ───── */
-
+/* Modo historia: cada escena se abre como una onda desde el centro */
 .inv-story-invitation .inv-gota .inv-scene {
+    --story-scene-bg: var(--tr-bg);
     translate: 0 0;
     rotate: 0deg;
     scale: 1;
     opacity: 1;
     filter: none;
     clip-path: circle(0% at 50% 50%);
-    transition: clip-path 1s var(--inv-ease), visibility 0s linear 1s;
+    transition: clip-path 1s var(--tr-ease), visibility 0s linear 1s;
 }
 
 .inv-story-invitation .inv-gota .inv-scene.is-past {
@@ -534,10 +1345,10 @@
     left: 50%;
     width: 60vmin;
     aspect-ratio: 1;
-    border: 2px solid var(--primary-color);
+    border: 2px solid var(--tr-primary);
     border-radius: 50%;
     translate: -50% -50%;
-    animation: gt-tale-ring 1.2s var(--inv-ease) calc(var(--d) * 0.6) both;
+    animation: gt-tale-ring 1.2s var(--tr-ease) calc(var(--d) * 0.6) both;
 }
 
 .inv-story-invitation.is-turning .inv-gota .inv-tale__turn i:nth-child(n + 4) {
@@ -549,54 +1360,31 @@
     100% { opacity: 0; scale: 1.8; }
 }
 
-@media (prefers-reduced-motion: reduce) {
-    .gt-rings circle,
-    .gt-ring-text {
-        animation: none;
-    }
-}
-
-/* ── Movimiento: luz de agua, burbujas y entradas como ondas ────────────── */
-
-.inv-gota {
-    --themed-from: translate3d(0, 22px, 0) scale(0.97);
-}
-
-/* Reflejos de luz que se mueven en el fondo, como el sol a través del agua */
-.inv-gota .inv-themed-bg__glow {
-    background:
-        radial-gradient(22% 16% at 24% 28%, color-mix(in srgb, var(--accent-color) 70%, transparent), transparent 70%),
-        radial-gradient(18% 14% at 70% 20%, color-mix(in srgb, var(--accent-color) 55%, transparent), transparent 70%),
-        radial-gradient(26% 18% at 60% 74%, color-mix(in srgb, var(--primary-color) 14%, transparent), transparent 70%);
-    filter: blur(18px);
-    animation-duration: 22s;
-}
-
-/* Burbujas translúcidas: aro fino con su brillo */
-.inv-drift--burbujas span {
-    background:
-        radial-gradient(circle at 34% 30%, rgb(255 255 255 / 0.8) 0 10%, transparent 13%),
-        radial-gradient(circle, transparent 56%, color-mix(in srgb, var(--primary-color) 40%, transparent) 62%, transparent 70%);
-}
-
-.gt-center img {
-    height: 114%;
-}
-
-.gt-drop__shape {
-    transition: border-radius 0.5s var(--themed-ease), transform 0.5s var(--themed-spring), background-color 0.3s ease;
-}
-
 @media (hover: hover) and (pointer: fine) {
-    .gt-drop:hover .gt-drop__shape {
-        border-radius: 8% 50% 50% 50%;
+    .gt-drop:hover .gt-drop__bead {
         transform: scale(1.08);
-        background: color-mix(in srgb, var(--accent-color) 80%, var(--primary-color));
     }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .gt-water::before {
+    .gt-bead,
+    .gt-bead__glint,
+    .gt-bead__spark,
+    .gt-water__wave,
+    .gt-water__drip-ring,
+    .gt-scene__drip,
+    .gt-name--reflection,
+    .gt-drops__pool i,
+    .gt-ripple__rings i,
+    .inv-gota .inv-themed-bg::before,
+    .inv-gota .inv-themed-bg::after {
         animation: none;
+    }
+
+    .inv-gota .inv-head::before,
+    .inv-gota .inv-head::after {
+        animation: none !important;
+        opacity: 1;
+        transform: none;
     }
 }

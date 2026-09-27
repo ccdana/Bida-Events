@@ -17,9 +17,11 @@ class TemplateParticlesTest extends TestCase
     /** Marcas de cada tipo de partícula en el HTML. */
     private const KINDS = [
         'inv-particles', 'inv-drift--leaf', 'inv-drift--feather', 'inv-drift--streamer', 'inv-drift--star',
-        'inv-drift--bokeh', 'inv-drift--twinkle', 'inv-boda-petals', 'inv-boda-butterfly', 'inv-bautizo-ambient__bubble',
-        'inv-bautizo-ambient__dove', 'inv-grad-ambient__cap', 'inv-grad-ambient__spark', 'inv-hw-ambient__bat',
+        'inv-drift--bokeh', 'inv-drift--twinkle', 'inv-boda-petals', 'inv-boda-butterfly', 'inv-hw-ambient__bat',
         'inv-hw-ambient__ember', 'inv-cumple-ambient__balloon', 'inv-cumple-ambient__confetti',
+        // Escenas de fondo propias de las plantillas temáticas (shell/themed-ambient)
+        'nb-ambient__cloud', 'br-ambient__cap', 'td-ambient__bubble', 'pt-ambient__note', 'gq-ambient__spot',
+        'cb-ambient__pair', 'rv-ambient__cut',
     ];
 
     public function test_every_invitation_template_has_at_least_two_kinds_of_particles(): void

@@ -58,6 +58,9 @@ return [
 
     ['name' => 'Toga y oro', 'description' => 'Azul noche con dorado de medalla', 'mode' => 'light', 'events' => ['graduacion'], 'colors' => ['primary' => '#8A6A22', 'secondary' => '#1B2A4A', 'accent' => '#E6E0CF', 'text' => '#18213A', 'background' => '#FAF8F2']],
     ['name' => 'Borla verde', 'description' => 'Verde institucional y marfil', 'mode' => 'light', 'events' => ['graduacion'], 'colors' => ['primary' => '#2F6B4F', 'secondary' => '#1E3B2E', 'accent' => '#DCEBE2', 'text' => '#1B2C24', 'background' => '#F6FAF7']],
+    ['name' => 'Menta y durazno', 'description' => 'Verde menta y durazno suave, para niña o niño', 'mode' => 'light', 'events' => ['babyshower'], 'colors' => ['primary' => '#1C7066', 'secondary' => '#F2B880', 'accent' => '#CDEBE5', 'text' => '#13302C', 'background' => '#F5FBFA']],
+    ['name' => 'Rosa algodón', 'description' => 'Rosa empolvado y crema', 'mode' => 'light', 'events' => ['babyshower'], 'colors' => ['primary' => '#A8506A', 'secondary' => '#E9A9B8', 'accent' => '#F7DDE3', 'text' => '#3A2229', 'background' => '#FFF8F8']],
+    ['name' => 'Celeste nube', 'description' => 'Celeste suave y azul marino', 'mode' => 'light', 'events' => ['babyshower'], 'colors' => ['primary' => '#3E6C96', 'secondary' => '#A9CBE6', 'accent' => '#DCEAF5', 'text' => '#1E2D3D', 'background' => '#F6FAFD']],
     ['name' => 'Papel y tinta', 'description' => 'Blanco puro y negro, sin adornos', 'mode' => 'light', 'events' => ['lienzo'], 'colors' => ['primary' => '#1F1F1F', 'secondary' => '#555555', 'accent' => '#EDEDED', 'text' => '#0F0F0F', 'background' => '#FCFCFC']],
     ['name' => 'Grafito', 'description' => 'Grises suaves y un azul de acento', 'mode' => 'light', 'events' => ['lienzo'], 'colors' => ['primary' => '#2D5B8C', 'secondary' => '#3A3F47', 'accent' => '#E7EAEE', 'text' => '#1D2127', 'background' => '#F8F9FA']],
     // ── Fondo oscuro ────────────────────────────────────────────────────────

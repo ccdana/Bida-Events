@@ -85,6 +85,21 @@ final class ColorContrast
     }
 
     /**
+     * La tinta que se lee sobre un color de la paleta: el texto o el fondo de la misma paleta si
+     * llegan a AA (el de más contraste), y si ninguno llega, blanco o casi negro. La usan las
+     * plantillas que pintan bloques enteros con un color del cliente (colección «tendencias»).
+     */
+    public static function inkOn(string $color, string $text, string $background): string
+    {
+        $own = collect([$text, $background])
+            ->filter(fn (string $ink) => self::ratio($ink, $color) >= self::AA_TEXT)
+            ->sortByDesc(fn (string $ink) => self::ratio($ink, $color))
+            ->first();
+
+        return $own ?? (self::ratio('#FFFFFF', $color) >= self::ratio('#111111', $color) ? '#FFFFFF' : '#111111');
+    }
+
+    /**
      * Resuelve los tonos derivados de una paleta ('primary', 'text', 'background', 'accent').
      *
      * @param  array<string, string>  $palette

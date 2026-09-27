@@ -23,17 +23,21 @@ class BaptismTemplateTest extends TestCase
         $this->withoutVite()
             ->get(route('invitation.show', $invitation->slug))
             ->assertOk()
-            ->assertSee('inv-page inv-bautizo', false)
-            ->assertSee('inv-bautizo-intro', false)
+            // «Entre nubes»: se entra abriendo las nubes y la foto es el sol entre ellas
+            ->assertSee('inv-page inv-nubes inv-themed', false)
+            ->assertSee('nb-intro', false)
+            ->assertSee('Toca la nube para abrir el cielo')
+            ->assertSee('nb-sun', false)
             ->assertDontSee('inv-boda-cover', false)
             ->assertSee('Mateo Andrés')
             ->assertSee('Mis padrinos')
-            ->assertSee('Abuelos')
             ->assertDontSee('Chambelanes')
-            ->assertSee('data-lottie-icon="dove"', false)
-            // Los padrinos van primero y el cortejo se presenta como la familia
-            ->assertSeeInOrder(["tab = 'padrinos'", "tab = 'cortejo'"], false)
-            ->assertSee('>Familia</button>', false)
+            // Sin palomas: ni en la portada ni en el ícono de los padrinos
+            ->assertDontSee('data-lottie-icon="dove"', false)
+            // Cada padrino en su nube y, después, la familia (abuelos y tíos)
+            ->assertSeeInOrder(['nb-sponsor', 'Andrea Gutiérrez y Rodrigo Paz', 'Abuelos', 'Hugo y Rosa Paz', 'Tíos', 'Lucía Soria'], false)
+            // El día sube de nube en nube
+            ->assertSee('nb-step__time', false)
             ->assertSeeInOrder(['id="ubicacion"', 'id="itinerario"', 'id="destacados"', 'id="galeria"'], false);
     }
 

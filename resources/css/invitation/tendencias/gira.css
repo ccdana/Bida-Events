@@ -1,0 +1,864 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   INVITACIÓN — «Gira mundial» (cumpleaños · colección tendencias)
+
+   El cumpleaños es la única fecha de una gira. Se entra escaneando la pulsera
+   del festival; la portada es el afiche de la gira pegado en una pared, impreso
+   a dos tintas como en risografía (la segunda tinta corrida, la foto a dos
+   tintas con trama de puntos) y con todas las ciudades canceladas menos la
+   fiesta. Cada sección es otro afiche pegado con cinta; el programa es el
+   line-up, la playlist el setlist y la confirmación, el pase de backstage.
+
+   Todo sale de la paleta del editor:
+     papel = fondo · tinta negra y pared = texto · primera tinta y pulsera =
+     principal · segunda tinta = secundario · resaltador y cinta = acento.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+@import './_base.css';
+
+.inv-gira {
+    --inv-radius: 999px;
+    --gr-paper: var(--tr-bg);
+    --gr-ink: var(--tr-text);
+    --gr-ink-1: var(--tr-primary);
+    --gr-ink-2: var(--tr-secondary);
+    --gr-wall: color-mix(in srgb, var(--tr-text) 86%, var(--tr-secondary));
+    --gr-tape: color-mix(in srgb, var(--tr-accent) 70%, transparent);
+    /* El grano del papel impreso */
+    --gr-grain:
+        radial-gradient(circle at 20% 30%, color-mix(in srgb, var(--tr-text) 5%, transparent) 0.5px, transparent 1px) 0 0 / 5px 5px,
+        radial-gradient(circle at 70% 60%, color-mix(in srgb, var(--tr-text) 4%, transparent) 0.5px, transparent 1px) 0 0 / 7px 7px;
+    --themed-from: translate3d(0, 30px, 0) rotate(1.5deg);
+
+    background:
+        linear-gradient(180deg, color-mix(in srgb, #000 20%, transparent), transparent 30%),
+        var(--gr-wall);
+}
+
+.inv-gira.has-player {
+    padding-bottom: calc(5.25rem + env(safe-area-inset-bottom));
+}
+
+/* La cinta con la que se pega cada afiche a la pared */
+.gr-tape,
+.inv-gira main > .inv-section::before,
+.inv-gira main > .inv-section::after {
+    position: absolute;
+    top: -0.7rem;
+    width: 5.5rem;
+    height: 1.6rem;
+    background: var(--gr-tape);
+    box-shadow: 0 1px 2px color-mix(in srgb, #000 15%, transparent);
+    pointer-events: none;
+}
+
+.gr-tape--left,
+.inv-gira main > .inv-section::before {
+    left: -0.8rem;
+    rotate: -32deg;
+}
+
+.gr-tape--right,
+.inv-gira main > .inv-section::after {
+    right: -0.8rem;
+    rotate: 28deg;
+}
+
+/* ── Portada: el afiche de la gira ─────────────────────────────────────── */
+
+.gr-hero {
+    align-content: start;
+    padding: calc(4.5rem + env(safe-area-inset-top)) 0.9rem 2rem;
+    color: var(--gr-ink);
+}
+
+.gr-poster {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: min(100%, 30rem);
+    margin-inline: auto;
+    padding: 2rem 1.25rem 1.75rem;
+    background: var(--gr-grain), var(--gr-paper);
+    box-shadow: 0 30px 50px -30px #000, 0 2px 0 color-mix(in srgb, #000 20%, transparent);
+    rotate: -0.8deg;
+}
+
+.gr-poster__presents {
+    margin: 0;
+    padding: 0.3rem 0.8rem;
+    border: 2px solid var(--gr-ink);
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+}
+
+.gr-poster__headline {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    width: 100%;
+    margin-top: 1.25rem;
+    text-align: center;
+}
+
+/* La edad, gigante y sobreimpresa detrás del nombre con la primera tinta */
+.gr-poster__age {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 0;
+    translate: -50% -52%;
+    font-family: var(--font-titles);
+    font-size: clamp(9rem, 55vw, 15rem);
+    font-weight: 800;
+    line-height: 0.8;
+    letter-spacing: -0.06em;
+    color: color-mix(in srgb, var(--gr-ink-1) 85%, transparent);
+    mix-blend-mode: multiply;
+    rotate: -8deg;
+    pointer-events: none;
+}
+
+/* El nombre como el del artista: la segunda tinta queda corrida, como en la risografía */
+.gr-poster__name {
+    position: relative;
+    z-index: 1;
+    margin: 0;
+    font-family: var(--font-script);
+    font-size: clamp(2.6rem, 14vw, 5rem);
+    font-weight: 800;
+    line-height: 0.9;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+    text-wrap: balance;
+    overflow-wrap: anywhere;
+    text-shadow: 3px 2px 0 color-mix(in srgb, var(--gr-ink-2) 80%, transparent);
+}
+
+.gr-poster__tour {
+    position: relative;
+    z-index: 1;
+    margin: 0.6rem 0 0;
+    padding: 0.2rem 0.7rem;
+    background: var(--gr-ink);
+    color: var(--gr-paper);
+    font-size: 0.9rem;
+    font-weight: 800;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+}
+
+/* La foto a dos tintas: el negro de la foto sobre la primera tinta, con trama de puntos */
+.gr-poster__photo {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    margin: 1.5rem 0 0;
+    overflow: hidden;
+    background: var(--gr-ink-1);
+}
+
+.gr-poster__photo img {
+    filter: grayscale(1) contrast(1.2) brightness(1.08);
+    mix-blend-mode: multiply;
+}
+
+.gr-poster__photo .tr-photo-empty {
+    background: var(--gr-ink-1);
+    color: var(--tr-ink-primary);
+}
+
+.gr-poster__dots {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle, color-mix(in srgb, var(--gr-ink-2) 70%, transparent) 1.1px, transparent 1.7px) 0 0 / 6px 6px;
+    mix-blend-mode: multiply;
+    -webkit-mask-image: linear-gradient(135deg, transparent 35%, #000 90%);
+    mask-image: linear-gradient(135deg, transparent 35%, #000 90%);
+}
+
+.gr-poster__eyebrow {
+    margin: 1.25rem 0 0;
+    font-family: var(--font-titles);
+    font-size: 1.15rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+/* Las fechas de la gira */
+.gr-dates {
+    display: grid;
+    width: 100%;
+    margin: 1.25rem 0 0;
+    padding: 0;
+    border-top: 3px solid var(--gr-ink);
+    list-style: none;
+}
+
+.gr-date {
+    position: relative;
+    display: grid;
+    grid-template-columns: 4.2rem 1fr auto;
+    align-items: baseline;
+    gap: 0.6rem;
+    padding: 0.55rem 0;
+    border-bottom: 1px solid var(--inv-line-strong);
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.gr-date__day {
+    font-size: 0.85rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.gr-date__city {
+    font-family: var(--font-titles);
+    font-size: 1.05rem;
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+}
+
+.gr-date__status {
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+}
+
+.gr-date.is-cancelled {
+    color: var(--inv-soft);
+}
+
+.gr-date.is-cancelled s {
+    text-decoration-thickness: 2px;
+    text-decoration-color: var(--gr-ink-1);
+}
+
+.gr-date.is-cancelled .gr-date__status {
+    color: color-mix(in srgb, var(--gr-ink-2) 70%, var(--gr-ink));
+}
+
+/* La única fecha que queda: resaltada y sellada */
+.gr-date.is-on {
+    margin-top: 0.4rem;
+    padding: 0.8rem 0.6rem;
+    border-bottom: 0;
+    background: var(--tr-accent);
+    color: var(--tr-ink-accent);
+}
+
+.gr-date.is-on .gr-date__city {
+    font-size: 1.35rem;
+}
+
+.gr-date.is-on a {
+    color: inherit;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+}
+
+.gr-date__stamp {
+    position: absolute;
+    top: -1.1rem;
+    right: 0.4rem;
+    padding: 0.2rem 0.55rem;
+    border: 2px solid var(--gr-ink-1);
+    border-radius: 4px;
+    background: var(--gr-paper);
+    color: var(--gr-ink-1);
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    rotate: 6deg;
+}
+
+.gr-poster__message {
+    margin: 1.25rem 0 0;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--inv-muted);
+    text-align: center;
+    text-wrap: pretty;
+}
+
+.gr-poster__doors {
+    margin: 1.25rem 0 0;
+    padding-top: 0.8rem;
+    width: 100%;
+    border-top: 3px solid var(--gr-ink);
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.gr-hero__scroll {
+    color: var(--gr-paper);
+}
+
+/* ── Las secciones: afiches pegados en la pared ────────────────────────── */
+
+.inv-gira main {
+    display: grid;
+    gap: 1.75rem;
+    padding: 1rem 0.9rem 2rem;
+}
+
+.inv-gira main > .inv-section {
+    width: 100%;
+    max-width: 32rem;
+    margin-inline: auto;
+    padding-block: 3rem 2.5rem;
+    border-top: 0;
+    background: var(--gr-grain), var(--gr-paper);
+    box-shadow: 0 26px 40px -28px #000;
+    rotate: -0.6deg;
+}
+
+.inv-gira main > .inv-section:nth-of-type(even) {
+    rotate: 0.7deg;
+}
+
+.inv-gira main > .inv-section::before,
+.inv-gira main > .inv-section::after {
+    content: '';
+}
+
+.inv-gira .invitation-lottie-framed {
+    display: none;
+}
+
+/* El rótulo de cada afiche: una etiqueta impresa con la segunda tinta */
+.inv-gira .inv-head__eyebrow {
+    display: inline-block;
+    padding: 0.35rem 0.75rem;
+    background: var(--gr-ink-2);
+    color: var(--tr-ink-secondary);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    rotate: -2deg;
+}
+
+.inv-gira .inv-head__title {
+    margin-top: 0.9rem;
+    font-size: clamp(2.3rem, 11vw, 3.6rem);
+    font-weight: 800;
+    line-height: 0.92;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+    text-shadow: 3px 2px 0 color-mix(in srgb, var(--gr-ink-1) 70%, transparent);
+}
+
+.inv-gira .inv-head__rule {
+    width: 100%;
+    height: 3px;
+    margin-top: 1rem;
+    background: var(--gr-ink);
+    opacity: 1;
+}
+
+.inv-gira :is(.inv-btn, .inv-link, .inv-label) {
+    letter-spacing: 0.1em;
+    font-weight: 800;
+}
+
+.inv-gira .inv-btn:not(.inv-btn--ghost) {
+    border: 2px solid var(--gr-ink);
+    background: var(--gr-ink-1);
+    color: var(--tr-ink-primary);
+    box-shadow: 4px 4px 0 var(--gr-ink);
+}
+
+.inv-gira .inv-btn:not(.inv-btn--ghost):active:not(:disabled) {
+    translate: 3px 3px;
+    box-shadow: 1px 1px 0 var(--gr-ink);
+}
+
+.inv-gira .inv-countdown__value {
+    font-weight: 800;
+    color: var(--gr-ink);
+    text-shadow: 3px 2px 0 color-mix(in srgb, var(--gr-ink-1) 70%, transparent);
+}
+
+.inv-gira .inv-countdown__unit + .inv-countdown__unit {
+    border-left: 3px solid var(--gr-ink);
+}
+
+/* El pase: una credencial de backstage plastificada, con su agujero para la cinta */
+.inv-gira .inv-pass {
+    position: relative;
+    padding: 3rem 1.25rem 1.5rem;
+    border: 0;
+    border-radius: 1.1rem;
+    background:
+        linear-gradient(115deg, transparent 40%, color-mix(in srgb, #fff 35%, transparent) 48%, transparent 56%),
+        linear-gradient(180deg, var(--gr-ink-1) 0 2.2rem, var(--gr-paper) 2.2rem);
+    box-shadow: inset 0 0 0 2px var(--gr-ink), 0 18px 30px -20px #000;
+}
+
+.inv-gira .inv-pass::before {
+    content: '';
+    position: absolute;
+    top: 0.7rem;
+    left: 50%;
+    width: 2.6rem;
+    height: 0.75rem;
+    translate: -50% 0;
+    border-radius: 999px;
+    background: var(--gr-wall);
+    box-shadow: inset 0 1px 2px #000;
+}
+
+/* ── Line-up ───────────────────────────────────────────────────────────── */
+
+.gr-lineup {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.gr-act {
+    display: grid;
+    justify-items: center;
+    gap: 0.25rem;
+    padding-block: 1.1rem;
+    text-align: center;
+}
+
+/* Entre número y número, una estrellita con la primera tinta */
+.gr-act + .gr-act::before {
+    content: '★';
+    margin-bottom: 0.6rem;
+    font-size: 0.9rem;
+    color: var(--gr-ink-1);
+}
+
+.gr-act__time {
+    padding: 0.2rem 0.6rem;
+    background: var(--tr-accent);
+    color: var(--tr-ink-accent);
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    font-variant-numeric: tabular-nums;
+}
+
+.gr-act__title {
+    margin: 0.25rem 0 0;
+    font-family: var(--font-titles);
+    font-size: clamp(1.5rem, 7vw, 2rem);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+}
+
+.gr-act.is-headliner .gr-act__title {
+    font-size: clamp(2.2rem, 11vw, 3.2rem);
+    text-shadow: 3px 2px 0 color-mix(in srgb, var(--gr-ink-2) 70%, transparent);
+}
+
+.gr-act__text {
+    margin: 0.2rem 0 0;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--inv-muted);
+}
+
+/* ── Apertura: la pulsera en la puerta del show ────────────────────────── */
+
+.gr-intro {
+    gap: 1.3rem;
+    padding-top: calc(30svh - 4rem);
+    background:
+        repeating-linear-gradient(90deg, color-mix(in srgb, #fff 3%, transparent) 0 2px, transparent 2px 40px),
+        radial-gradient(70% 45% at 50% 45%, color-mix(in srgb, var(--gr-ink-1) 35%, var(--gr-wall)), transparent 75%),
+        var(--gr-wall);
+    color: var(--gr-paper);
+}
+
+.gr-intro__eyebrow {
+    margin: 0;
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+}
+
+.gr-band {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+    width: min(92vw, 24rem);
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    cursor: pointer;
+    rotate: -8deg;
+    filter: drop-shadow(0 18px 20px rgb(0 0 0 / 0.5));
+}
+
+/* La tela de la pulsera: trama tejida de la primera tinta con el texto impreso */
+.gr-band__fabric {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: 0.9rem;
+    min-width: 0;
+    height: 3.6rem;
+    padding: 0 0.9rem;
+    border-radius: 6px 0 0 6px;
+    background:
+        repeating-linear-gradient(0deg, color-mix(in srgb, #000 10%, transparent) 0 1px, transparent 1px 3px),
+        repeating-linear-gradient(90deg, var(--gr-ink-1) 0 5px, color-mix(in srgb, var(--gr-ink-1) 82%, #000) 5px 6px);
+    color: var(--tr-ink-primary);
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.gr-band__lines {
+    display: grid;
+    min-width: 0;
+    gap: 0.1rem;
+    text-align: left;
+}
+
+.gr-band__print {
+    overflow: hidden;
+    font-size: 0.58rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+}
+
+.gr-band__name {
+    overflow: hidden;
+    font-family: var(--font-titles);
+    font-size: 1.2rem;
+    font-weight: 800;
+    line-height: 1.05;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+}
+
+.gr-band__code {
+    flex-shrink: 0;
+    width: 3rem;
+    height: 1.9rem;
+    margin-left: auto;
+    background: repeating-linear-gradient(90deg, currentColor 0 2px, transparent 2px 3px, currentColor 3px 4px, transparent 4px 7px);
+    opacity: 0.85;
+}
+
+/* El broche de plástico que cierra la pulsera */
+.gr-band__clip {
+    width: 2.2rem;
+    border-radius: 0 10px 10px 0;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--gr-ink-2) 70%, #fff), var(--gr-ink-2));
+    box-shadow: inset 3px 0 0 color-mix(in srgb, #000 25%, transparent);
+}
+
+/* La luz del lector que recorre la pulsera */
+.gr-band__scan {
+    position: absolute;
+    top: -0.8rem;
+    bottom: -0.8rem;
+    left: 0;
+    width: 4px;
+    border-radius: 4px;
+    background: var(--tr-accent);
+    box-shadow: 0 0 14px 4px color-mix(in srgb, var(--tr-accent) 80%, transparent);
+    opacity: 0;
+}
+
+.gr-band__stamp {
+    position: absolute;
+    top: -2.2rem;
+    right: 1.4rem;
+    padding: 0.3rem 0.7rem;
+    border: 3px solid var(--tr-accent);
+    border-radius: 6px;
+    background: var(--gr-wall);
+    color: var(--tr-accent);
+    font-size: 0.85rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    rotate: 14deg;
+    opacity: 0;
+    scale: 2.2;
+}
+
+.gr-intro__doors {
+    margin: 0;
+    padding: 0.35rem 0.9rem;
+    border: 2px solid currentColor;
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+}
+
+.gr-intro__hint {
+    margin: 0;
+    font-size: 0.85rem;
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+.gr-intro.is-scanned .gr-band__scan {
+    animation: gr-scan 0.7s ease-in-out both;
+}
+
+@keyframes gr-scan {
+    0% { left: 0; opacity: 1; }
+    100% { left: calc(100% - 4px); opacity: 1; }
+}
+
+.gr-intro.is-scanned .gr-band__stamp {
+    animation: gr-stamp 0.35s cubic-bezier(0.3, 1.6, 0.5, 1) 0.7s both;
+}
+
+@keyframes gr-stamp {
+    to { opacity: 1; scale: 1; }
+}
+
+.gr-intro.is-scanned .gr-intro__hint {
+    opacity: 0;
+}
+
+/* El escenario: la estructura con los focos, la pantalla y el público */
+.gr-intro > :is(.gr-intro__eyebrow, .gr-band, .gr-intro__doors, .gr-intro__hint) {
+    position: relative;
+    z-index: 2;
+}
+
+.gr-rig {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 30svh;
+    pointer-events: none;
+}
+
+/* La estructura de aluminio: dos caños unidos en zigzag */
+.gr-rig__truss {
+    position: absolute;
+    top: 1.4rem;
+    right: -2%;
+    left: -2%;
+    height: 1.1rem;
+    border-block: 2px solid color-mix(in srgb, var(--gr-paper) 45%, var(--gr-wall));
+    background: repeating-linear-gradient(60deg, transparent 0 7px, color-mix(in srgb, var(--gr-paper) 35%, var(--gr-wall)) 7px 9px, transparent 9px 16px);
+}
+
+/* Cada foco cuelga de la estructura; su haz está apagado hasta que arranca el show */
+.gr-rig__light {
+    position: absolute;
+    top: 2.4rem;
+    left: var(--x);
+    width: 1.3rem;
+    height: 1.5rem;
+    margin-left: -0.65rem;
+    border-radius: 0.25rem 0.25rem 0.5rem 0.5rem;
+    background: color-mix(in srgb, #000 55%, var(--gr-wall));
+    box-shadow: inset 0 -4px 0 color-mix(in srgb, var(--gr-paper) 25%, transparent);
+    transform-origin: 50% 0;
+}
+
+.gr-rig__light i {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    width: 14rem;
+    height: 70svh;
+    translate: -50% 0;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--gr-beam) 70%, transparent), transparent 85%);
+    clip-path: polygon(46% 0, 54% 0, 100% 100%, 0 100%);
+    mix-blend-mode: screen;
+    opacity: 0;
+    transform-origin: 50% 0;
+}
+
+.gr-rig__light:nth-of-type(odd) { --gr-beam: var(--gr-ink-1); }
+.gr-rig__light:nth-of-type(even) { --gr-beam: var(--gr-ink-2); }
+
+/* La pantalla del escenario, apagada: se ve el nombre de la gira apenas */
+.gr-rig__screen {
+    position: absolute;
+    top: 4.6rem;
+    left: 50%;
+    display: grid;
+    place-items: center;
+    width: min(70vw, 17rem);
+    height: 3.4rem;
+    translate: -50% 0;
+    border: 3px solid color-mix(in srgb, #000 40%, var(--gr-wall));
+    border-radius: 4px;
+    background:
+        radial-gradient(circle, color-mix(in srgb, #fff 6%, transparent) 1px, transparent 1.4px) 0 0 / 5px 5px,
+        color-mix(in srgb, #000 45%, var(--gr-wall));
+    font-family: var(--font-titles);
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: color-mix(in srgb, var(--gr-paper) 18%, transparent);
+    transition: color 0.3s ease, text-shadow 0.3s ease, background-color 0.3s ease;
+}
+
+/* El público que espera: sombras en la parte de abajo */
+.gr-crowd {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1;
+    width: 100%;
+    height: 16svh;
+    fill: color-mix(in srgb, #000 55%, var(--gr-wall));
+    pointer-events: none;
+}
+
+.gr-crowd__arm {
+    fill: none;
+    stroke: color-mix(in srgb, #000 55%, var(--gr-wall));
+    stroke-width: 7;
+    stroke-linecap: round;
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+    scale: 1 0.3;
+    transition: opacity 0.2s ease, scale 0.35s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+
+.gr-intro__confetti {
+    position: absolute;
+    bottom: 12svh;
+    left: calc(50% + var(--side) * 50%);
+    z-index: 1;
+    width: 0.45rem;
+    height: 0.8rem;
+    background: var(--gr-ink-1);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.gr-intro__confetti:nth-of-type(3n) { background: var(--gr-ink-2); }
+.gr-intro__confetti:nth-of-type(3n + 1) { background: var(--tr-accent); }
+
+.gr-intro__hint {
+    animation: gr-hint 2.2s ease-in-out 1.5s infinite;
+}
+
+/* Arranca el show: se encienden los focos uno tras otro y barren el escenario */
+.gr-intro.is-scanned .gr-rig__light i {
+    animation:
+        gr-beam-on 0.25s steps(2) calc(1s + var(--i) * 0.12s) forwards,
+        gr-beam-sweep 1.4s ease-in-out calc(1.2s + var(--i) * 0.12s) infinite alternate;
+}
+
+.gr-intro.is-scanned .gr-rig__screen {
+    color: var(--gr-paper);
+    background-color: color-mix(in srgb, var(--gr-ink-1) 35%, #000);
+    text-shadow: 0 0 12px var(--gr-ink-1), 0 0 2px #fff;
+    transition-delay: 1.05s;
+}
+
+.gr-intro.is-scanned .gr-intro__confetti {
+    animation: gr-confetti 1.3s cubic-bezier(0.2, 0.7, 0.4, 1) var(--d) forwards;
+}
+
+.gr-intro.is-scanned .gr-crowd__arm {
+    opacity: 1;
+    scale: 1;
+    transition-delay: 1.05s;
+}
+
+.gr-intro.is-scanned .gr-crowd__person {
+    animation: gr-jump 0.42s ease-in-out calc(1.1s + var(--p) * 0.04s) 4 alternate;
+}
+
+.gr-intro.is-scanned .gr-intro__hint {
+    animation: none;
+}
+
+/* El sello cae donde estaba la frase de arriba */
+.gr-intro__eyebrow {
+    transition: opacity 0.3s ease 0.5s;
+}
+
+.gr-intro.is-scanned .gr-intro__eyebrow {
+    opacity: 0;
+}
+
+@keyframes gr-hint {
+    50% { translate: 0 -3px; }
+}
+
+@keyframes gr-beam-on {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+@keyframes gr-beam-sweep {
+    from { rotate: calc(-18deg + var(--i) * 6deg); }
+    to { rotate: calc(18deg - var(--i) * 6deg); }
+}
+
+@keyframes gr-confetti {
+    0% { opacity: 1; transform: rotate(calc(var(--side) * -1 * (90deg - var(--a)))) translateY(0) rotate(0deg); }
+    100% { opacity: 0; transform: rotate(calc(var(--side) * -1 * (90deg - var(--a)))) translateY(calc(var(--h) * -1)) rotate(var(--r)); }
+}
+
+@keyframes gr-jump {
+    to { transform: translateY(-5px); }
+}
+
+/* ── Fondo, pie e historia ─────────────────────────────────────────────── */
+
+.inv-drift--show {
+    --drift-a: var(--gr-ink-1);
+    --drift-b: var(--tr-accent);
+    opacity: 0.8;
+}
+
+/* El pie es el último afiche de la pared */
+.inv-gira .inv-gira-footer {
+    width: min(100% - 1.8rem, 32rem);
+    margin: 0 auto 2rem;
+    border-top: 0;
+    background: var(--gr-grain), var(--gr-paper);
+    box-shadow: 0 26px 40px -28px #000;
+    rotate: 0.5deg;
+}
+
+.inv-story-invitation .inv-gira .inv-scene {
+    --story-scene-bg: var(--gr-wall);
+    rotate: -6deg;
+    translate: 0 8%;
+    opacity: 0;
+    transition: rotate 0.7s var(--tr-spring), translate 0.7s var(--tr-ease), opacity 0.4s ease, visibility 0s linear 0.7s;
+}
+
+.inv-story-invitation .inv-gira .inv-scene.is-active {
+    rotate: 0deg;
+    translate: 0 0;
+    opacity: 1;
+    transition-delay: 0s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .gr-intro.is-scanned :is(.gr-band__scan, .gr-band__stamp) {
+        animation: none;
+    }
+}

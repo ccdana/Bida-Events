@@ -57,7 +57,34 @@ final class InvitationTemplates
         return self::all()[$template]['palette'] ?? self::all()[self::DEFAULT]['palette'];
     }
 
+    /** El catálogo se arma una vez por proceso: se consulta muchas veces por página. */
+    private static ?array $catalog = null;
+
+    /**
+     * Todo el catálogo: las plantillas propias de cada evento y, al final, los diseños de la
+     * colección «tendencias» en cada evento (App\Support\TrendTemplates).
+     */
     public static function all(): array
+    {
+        if (self::$catalog === null) {
+            $own = self::own();
+            self::$catalog = $own + TrendTemplates::entries($own);
+        }
+
+        return self::$catalog;
+    }
+
+    /**
+     * Vista que dibuja la plantilla. Las de un evento tienen su archivo con el mismo nombre que la
+     * clave; los diseños de «tendencias» comparten una sola vista (clave «view»).
+     */
+    public static function view(string $template): string
+    {
+        return self::all()[$template]['view'] ?? $template;
+    }
+
+    /** Plantillas con su propio archivo de vista, una o varias por evento. */
+    private static function own(): array
     {
         return [
             self::XV_PREMIUM => [
@@ -128,11 +155,13 @@ final class InvitationTemplates
             ],
             self::BAUTIZO_CIELO => [
                 'label' => 'Entre nubes',
-                'tagline' => 'Agua que cae sobre la pila, nubes y palomas',
-                'description' => 'Nubes que se abren al entrar, foto en medallón con halo y paloma, destellos y secciones separadas por olas.',
+                'tagline' => 'Las nubes se abren y la foto brilla como el sol',
+                'description' => 'Se entra tocando la nube con su nombre: se infla y las capas de nubes se abren mientras entra el sol. La foto es el sol entre las nubes, cada sección flota como una nube sobre el cielo, el día sube de nube en nube y cada padrino tiene la suya.',
                 'event' => 'bautizo',
                 // Familia de plantillas: qué plan de revendedor la incluye (config «reseller_plans»)
                 'collection' => 'clasica',
+                // Armado temático (partials/nubes, themes/nubes.css): la página lleva la clase inv-nubes
+                'theme' => 'nubes',
                 // Paleta con la que nace una invitación de este tipo (la misma de la muestra)
                 'palette' => [
                     'primary' => '#6B9AC4',
@@ -141,13 +170,20 @@ final class InvitationTemplates
                     'text' => '#2E3A46',
                     'background' => '#F7FBFE',
                 ],
+                'color_usage' => [
+                    'background' => 'La luz del cielo y las nubes.',
+                    'text' => 'El nombre y los textos.',
+                    'primary' => 'El cielo alto y los botones.',
+                    'secondary' => 'El sol: su aro, los rayos y los destellos.',
+                    'accent' => 'El cielo de fondo y el tono de las nubes.',
+                ],
                 'order' => [
                     'cuenta_regresiva', 'ubicacion', 'itinerario', 'rsvp', 'destacados', 'galeria', 'dress_code',
                     'video', 'regalos', 'playlist', 'encuestas', 'hashtag', 'fotomural', 'post_evento',
                 ],
                 'copy' => [
                     'hero_eyebrow' => 'Mi bautizo',
-                    'intro_hint' => 'Toca la jarra para verter el agua',
+                    'intro_hint' => 'Toca la nube para abrir el cielo',
                     'menu_heading' => 'El bautizo de',
                     'guest_help' => 'Te toma menos de un minuto y nos ayuda a preparar este día tan especial.',
                     'gallery_eyebrow' => 'Mis primeros momentos',
@@ -155,7 +191,7 @@ final class InvitationTemplates
                     'itinerary_empty' => 'Muy pronto compartiremos el orden de la celebración.',
                     'dress_hint' => 'Tonos sugeridos para mi bautizo',
                     'dress_empty' => 'Viste cómodo y elegante para acompañarme.',
-                    'court_lottie' => 'dove',
+                    'court_lottie' => 'heart',
                     'court_eyebrow' => 'Quienes me guiarán',
                     'court_title' => 'Mis padrinos',
                     'court_intro' => 'Las personas que me acompañarán en la fe y en la vida.',
@@ -167,6 +203,11 @@ final class InvitationTemplates
                     'court_women' => 'Tíos',
                     'nav_court' => 'Padrinos',
                     'rsvp_declined_intro' => 'Si cambias de planes, avísale a mis papás para actualizar tu respuesta.',
+                    'stories_hint' => 'Toca para subir a la siguiente nube',
+                ],
+                'partials' => [
+                    'itinerario' => 'invitations.partials.nubes.steps',
+                    'destacados' => 'invitations.partials.nubes.godparents',
                 ],
             ],
             self::CUMPLE_FIESTA => [
@@ -218,11 +259,13 @@ final class InvitationTemplates
             ],
             self::GRADUACION_BIRRETE => [
                 'label' => 'Birrete al aire',
-                'tagline' => 'Un diploma con cinta que se desata al entrar',
-                'description' => 'Diploma enrollado que se abre con un toque, birretes que vuelan, foto en marco de arco y detalles dorados de ceremonia.',
+                'tagline' => 'La borla pasa al otro lado y el birrete sale volando',
+                'description' => 'Se entra con el cambio de borla, como en la ceremonia, y el birrete sale volando con los de sus compañeros. La portada es la medalla de la promoción con laureles y la carrera en el borde; el día baja por el cordón de la borla y quienes te acompañaron reciben su medalla.',
                 'event' => 'graduacion',
                 // Familia de plantillas: qué plan de revendedor la incluye (config «reseller_plans»)
                 'collection' => 'clasica',
+                // Armado temático (partials/birrete, themes/birrete.css): la página lleva la clase inv-birrete
+                'theme' => 'birrete',
                 'palette' => [
                     'primary' => '#9C7A2E',
                     'secondary' => '#1F2A44',
@@ -232,6 +275,13 @@ final class InvitationTemplates
                 ],
                 // Tipografías con las que nace (las demás plantillas usan las del editor)
                 'fonts' => ['titulos' => 'Cinzel', 'cuerpo' => 'Montserrat', 'script' => 'Great Vibes'],
+                'color_usage' => [
+                    'background' => 'El fondo de la invitación.',
+                    'text' => 'El nombre y los textos.',
+                    'primary' => 'La borla, el cordón, los laureles, las medallas y los botones.',
+                    'secondary' => 'Los birretes, la cinta de la promoción y la cuenta regresiva.',
+                    'accent' => 'El papel de los recuadros y la luz detrás de la medalla.',
+                ],
                 'order' => [
                     'cuenta_regresiva', 'ubicacion', 'itinerario', 'rsvp', 'destacados', 'galeria', 'dress_code',
                     'video', 'regalos', 'playlist', 'encuestas', 'hashtag', 'fotomural', 'post_evento',
@@ -243,7 +293,7 @@ final class InvitationTemplates
                     'hero_class_label' => 'Promoción',
                     'menu_heading' => 'La graduación de',
                     'intro_eyebrow' => 'Tienes una invitación',
-                    'intro_hint' => 'Toca la cinta para abrir el diploma',
+                    'intro_hint' => 'Toca la borla para pasarla al otro lado',
                     'intro_cheer' => '¡Lo logramos!',
                     'countdown_lottie' => 'calendar',
                     'countdown_eyebrow' => 'La ceremonia se acerca',
@@ -265,6 +315,11 @@ final class InvitationTemplates
                     'court_women' => 'Compañeros',
                     'nav_court' => 'Gracias',
                     'rsvp_declined_intro' => 'Si cambias de planes, escríbeme para actualizar tu respuesta.',
+                    'stories_hint' => 'Toca para lanzar el birrete',
+                ],
+                'partials' => [
+                    'itinerario' => 'invitations.partials.birrete.cord',
+                    'destacados' => 'invitations.partials.birrete.medals',
                 ],
             ],
             // ── Plantilla en blanco para cualquier evento ─────────────────────
@@ -688,8 +743,8 @@ final class InvitationTemplates
             ],
             self::BAUTIZO_LA_GOTA => [
                 'label' => 'La gota',
-                'tagline' => 'Una gota cae sobre el agua y abre ondas',
-                'description' => 'La pila vista desde arriba: cae una gota y abre ondas. El nombre queda en el centro, los padrinos rodean el primer anillo y cada onda que se aleja trae la fecha, el lugar y la celebración.',
+                'tagline' => 'La jarra vierte el agua y la foto queda dentro de una gota',
+                'description' => 'Se entra vertiendo la jarra sobre la pila y la invitación aparece en la onda del agua. La foto va dentro de una gota suspendida sobre el agua, con los padrinos escritos en el primer anillo; el día baja gota a gota y al fondo se mueve la luz del agua.',
                 'event' => 'bautizo',
                 'collection' => 'nueva',
                 'theme' => 'gota',
@@ -704,9 +759,9 @@ final class InvitationTemplates
                 'color_usage' => [
                     'background' => 'La luz sobre el agua: el fondo de la invitación.',
                     'text' => 'El nombre y los textos.',
-                    'primary' => 'Las ondas, la gota y los botones.',
-                    'secondary' => 'El primer anillo, el de los padrinos.',
-                    'accent' => 'El agua de la portada y los recuadros.',
+                    'primary' => 'El agua, las gotas y los botones.',
+                    'secondary' => 'Los filetes de la pila y el anillo de los padrinos.',
+                    'accent' => 'El agua clara, la luz del fondo y los recuadros.',
                 ],
                 // Los padrinos van cerca del principio: en esta plantilla son el primer anillo
                 'order' => [
@@ -717,8 +772,7 @@ final class InvitationTemplates
                     'hero_eyebrow' => 'Mi bautizo',
                     'ring_label' => 'Mis padrinos',
                     'menu_heading' => 'El bautizo de',
-                    'intro_eyebrow' => 'Tienes una invitación',
-                    'intro_hint' => 'Toca el agua',
+                    'intro_hint' => 'Toca la jarra para verter el agua',
                     'guest_help' => 'Te toma menos de un minuto y nos ayuda a preparar este día tan especial.',
                     'countdown_eyebrow' => 'Ya falta poco',
                     'gallery_eyebrow' => 'Mis primeros momentos',
@@ -726,7 +780,6 @@ final class InvitationTemplates
                     'itinerary_empty' => 'Muy pronto compartiremos el orden de la celebración.',
                     'dress_hint' => 'Tonos sugeridos para mi bautizo',
                     'dress_empty' => 'Viste cómodo y elegante para acompañarme.',
-                    'court_lottie' => 'dove',
                     'court_eyebrow' => 'Quienes me acompañan',
                     'court_title' => 'Mis padrinos',
                     'court_intro' => 'Las personas que estarán cerca de mí mientras crezco.',
@@ -741,6 +794,7 @@ final class InvitationTemplates
                 ],
                 'partials' => [
                     'itinerario' => 'invitations.partials.gota.drops',
+                    'destacados' => 'invitations.partials.gota.ripples',
                 ],
             ],
             self::CUMPLE_STICKERS => [

@@ -7,6 +7,7 @@ use App\Models\Invitation;
 use App\Services\InvitationModuleService;
 use App\Services\InvitationPreviewSession;
 use App\Support\InvitationDefaults;
+use App\Support\InvitationTemplates;
 use App\Support\Packages;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -85,7 +86,8 @@ class PreviewController extends Controller
             $calendarUrl = $this->moduleService->googleCalendarUrl($invitation, $modulos['ubicacion'] ?? []);
 
             return response()
-                ->view($template, [
+                ->view(InvitationTemplates::view($template), [
+                    'templateKey' => $template,
                     'invitation' => $invitation,
                     'modulos' => $modulos,
                     'guest' => null,

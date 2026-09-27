@@ -119,6 +119,11 @@ if (document.body.classList.contains('inv-themed')) {
     loaders.push(import('./invitation/themed-motion.js'));
 }
 
+// ── Colección «tendencias» (~1 kB) — textos que llenan su caja ─
+if (document.body.classList.contains('inv-trend')) {
+    loaders.push(import('./invitation/trend-motion.js'));
+}
+
 // ── Tarjeta del Día del Amor — capullo, margarita, tendedero, flor y diente de león ─
 if (document.querySelector('[data-card="amor"]')) {
     loaders.push(import('./cards/amor/index.js'));

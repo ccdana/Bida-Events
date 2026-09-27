@@ -1,0 +1,960 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   INVITACIÓN — «Tendedero» (baby shower · colección tendencias)
+
+   La invitación es un tendedero en el patio. En la portada cuelgan la ropita del
+   bebé (el gorrito, el enterito con su nombre estampado y las medias), la foto
+   como una instantánea y las etiquetas con la fecha, la hora y el lugar. Cada
+   sección es un paño de tela colgado con dos pinzas, cortado abajo con tijera de
+   zigzag; el programa son etiquetas en un cordel que se recorre de lado.
+
+   Todo sale de la paleta del editor:
+     cielo = fondo · cordel, costuras y textos = texto · enterito y botones =
+     principal · medias y madera de las pinzas = secundario · gorrito y
+     etiquetas = acento.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+@import './_base.css';
+
+.inv-tendedero {
+    --inv-radius: 999px;
+    --td-sky: var(--tr-bg);
+    --td-cord: color-mix(in srgb, var(--tr-text) 45%, var(--tr-bg));
+    --td-wood: color-mix(in srgb, var(--tr-secondary) 40%, #f3e2c4);
+    --td-cap: color-mix(in srgb, var(--tr-accent) 70%, var(--tr-primary) 22%);
+    --td-paper: color-mix(in srgb, var(--tr-bg) 60%, #fff);
+    --td-stitch: color-mix(in srgb, #fff 75%, transparent);
+    /* El tejido: una trama muy fina que se nota apenas */
+    --td-weave:
+        repeating-linear-gradient(45deg, color-mix(in srgb, var(--tr-text) 3%, transparent) 0 1px, transparent 1px 5px),
+        repeating-linear-gradient(-45deg, color-mix(in srgb, var(--tr-text) 3%, transparent) 0 1px, transparent 1px 5px);
+
+    /* Las prendas: la forma de la tela y la costura del dobladillo */
+    --td-onesie: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 110'%3E%3Cpath d='M30 8 C36 14 44 16 50 16 C56 16 64 14 70 8 L92 22 L84 42 L74 38 L74 80 C74 92 62 102 56 106 L44 106 C38 102 26 92 26 80 L26 38 L16 42 L8 22 Z' stroke='black' stroke-width='3' stroke-linejoin='round'/%3E%3C/svg%3E");
+    --td-onesie-s: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 110'%3E%3Cpath d='M33 13 C39 21 61 21 67 13' fill='none' stroke='black' stroke-width='2.2' stroke-dasharray='4 3' stroke-linecap='round'/%3E%3Cpath d='M13 27 L21 31 M87 27 L79 31' fill='none' stroke='black' stroke-width='2.2' stroke-dasharray='3 3' stroke-linecap='round'/%3E%3Ccircle cx='42' cy='99' r='2.2'/%3E%3Ccircle cx='50' cy='100' r='2.2'/%3E%3Ccircle cx='58' cy='99' r='2.2'/%3E%3C/svg%3E");
+    --td-socks: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 90'%3E%3Cpath d='M16 6 H38 V50 C38 62 32 70 20 70 H12 C4 70 2 58 10 54 L16 50 Z M58 10 H80 V54 C80 66 74 74 62 74 H54 C46 74 44 62 52 58 L58 54 Z' stroke='black' stroke-width='3' stroke-linejoin='round'/%3E%3C/svg%3E");
+    --td-socks-s: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 90'%3E%3Cpath d='M16 17 H38 M58 21 H80' fill='none' stroke='black' stroke-width='2.2' stroke-dasharray='4 3' stroke-linecap='round'/%3E%3C/svg%3E");
+    --td-hat: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 90'%3E%3Ccircle cx='50' cy='15' r='10'/%3E%3Cpath d='M18 64 C18 36 32 22 50 22 C68 22 82 36 82 64 Z M12 60 H88 V76 C88 79 86 80 84 80 H16 C14 80 12 79 12 76 Z' stroke='black' stroke-width='3' stroke-linejoin='round'/%3E%3C/svg%3E");
+    --td-hat-s: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 90'%3E%3Cpath d='M16 70 H84' fill='none' stroke='black' stroke-width='2.2' stroke-dasharray='4 3' stroke-linecap='round'/%3E%3C/svg%3E");
+
+    --themed-from: translate3d(0, -14px, 0) rotate(1deg);
+
+    background:
+        radial-gradient(80% 40% at 80% 0%, color-mix(in srgb, var(--tr-accent) 60%, transparent), transparent 70%),
+        var(--td-sky);
+}
+
+.inv-tendedero.has-player {
+    padding-bottom: calc(5.25rem + env(safe-area-inset-bottom));
+}
+
+/* ── El cordel, que cae un poco en el medio ─────────────────────────────── */
+
+.td-line {
+    position: absolute;
+    top: 0;
+    left: -4%;
+    right: -4%;
+    height: 1.4rem;
+    border-bottom: 2px solid var(--td-cord);
+    border-radius: 0 0 50% 50% / 0 0 100% 100%;
+    pointer-events: none;
+}
+
+/* La pinza de madera, con su resorte */
+.td-pin {
+    position: absolute;
+    top: -0.55rem;
+    left: 50%;
+    z-index: 2;
+    width: 0.62rem;
+    height: 1.7rem;
+    translate: -50% 0;
+    border-radius: 3px;
+    background:
+        linear-gradient(90deg, transparent 46%, color-mix(in srgb, #000 22%, transparent) 46% 54%, transparent 54%),
+        linear-gradient(180deg, color-mix(in srgb, var(--td-wood) 80%, #fff), var(--td-wood));
+    box-shadow: 0 2px 3px color-mix(in srgb, #000 25%, transparent);
+}
+
+.td-pin::after {
+    content: '';
+    position: absolute;
+    top: 45%;
+    left: -1px;
+    right: -1px;
+    height: 3px;
+    border-radius: 2px;
+    background: color-mix(in srgb, var(--tr-text) 55%, #aaa);
+}
+
+/* ── Las prendas ───────────────────────────────────────────────────────── */
+
+.td-garment {
+    position: relative;
+    display: block;
+    transform-origin: 50% 0;
+    animation: td-sway 4.6s ease-in-out infinite alternate;
+}
+
+.td-garment__cloth,
+.td-garment__stitch {
+    position: absolute;
+    inset: 0;
+    -webkit-mask: var(--td-shape) center / contain no-repeat;
+    mask: var(--td-shape) center / contain no-repeat;
+}
+
+.td-garment__cloth {
+    background: var(--td-weave), var(--td-color);
+    filter: drop-shadow(0 6px 5px rgb(0 0 0 / 0.18));
+}
+
+.td-garment__stitch {
+    background: var(--td-stitch);
+    -webkit-mask-image: var(--td-shape-s);
+    mask-image: var(--td-shape-s);
+}
+
+.td-garment--onesie {
+    --td-shape: var(--td-onesie);
+    --td-shape-s: var(--td-onesie-s);
+    --td-color: var(--tr-primary);
+    width: clamp(9rem, 44vw, 12rem);
+    aspect-ratio: 100 / 110;
+}
+
+.td-garment--socks {
+    --td-shape: var(--td-socks);
+    --td-shape-s: var(--td-socks-s);
+    --td-color: var(--tr-secondary);
+    width: clamp(4.4rem, 21vw, 6rem);
+    aspect-ratio: 100 / 90;
+    animation-duration: 5.2s;
+    animation-delay: -1.8s;
+}
+
+.td-garment--hat {
+    --td-shape: var(--td-hat);
+    --td-shape-s: var(--td-hat-s);
+    --td-color: var(--td-cap);
+    width: clamp(4.2rem, 20vw, 5.8rem);
+    aspect-ratio: 100 / 90;
+    animation-duration: 4.1s;
+    animation-delay: -0.9s;
+}
+
+.td-garment--onesie .td-pin {
+    left: 30%;
+}
+
+.td-garment--onesie .td-pin + .td-pin,
+.td-garment--onesie::after {
+    left: 70%;
+}
+
+.td-garment--socks .td-pin { left: 27%; }
+.td-garment--socks .td-pin--second { left: 69%; top: -0.35rem; }
+
+/* El nombre estampado en el pecho del enterito */
+.td-garment__chest {
+    position: absolute;
+    top: 32%;
+    left: 27%;
+    right: 27%;
+    display: flex;
+    justify-content: center;
+}
+
+.td-garment__print {
+    font-family: var(--font-script);
+    font-size: 1rem;
+    overflow-wrap: anywhere;
+    font-weight: 600;
+    line-height: 1.05;
+    text-align: center;
+    color: var(--tr-ink-primary);
+}
+
+/* La segunda pinza del enterito */
+.td-garment--onesie::after {
+    content: '';
+    position: absolute;
+    top: -0.55rem;
+    z-index: 2;
+    width: 0.62rem;
+    height: 1.7rem;
+    translate: -50% 0;
+    border-radius: 3px;
+    background:
+        linear-gradient(90deg, transparent 46%, color-mix(in srgb, #000 22%, transparent) 46% 54%, transparent 54%),
+        linear-gradient(180deg, color-mix(in srgb, var(--td-wood) 80%, #fff), var(--td-wood));
+    box-shadow: 0 2px 3px color-mix(in srgb, #000 25%, transparent);
+}
+
+@keyframes td-sway {
+    from { transform: rotate(-2.5deg); }
+    to { transform: rotate(2.5deg); }
+}
+
+/* ── Portada ───────────────────────────────────────────────────────────── */
+
+.td-hero {
+    align-content: start;
+    justify-items: center;
+    gap: 1rem;
+    padding: calc(4.5rem + env(safe-area-inset-top)) 0.75rem 2rem;
+    color: var(--tr-text);
+}
+
+.td-hero__eyebrow {
+    margin: 0;
+    padding: 0.35rem 0.9rem;
+    border-radius: 999px;
+    background: var(--td-paper);
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--inv-accent-ink);
+}
+
+.td-row {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 0.4rem;
+    width: 100%;
+    max-width: 30rem;
+    padding-top: 1.1rem;
+}
+
+.td-row--clothes {
+    justify-content: space-between;
+    padding-inline: 0.2rem;
+}
+
+.td-row--clothes .td-line {
+    top: 0.2rem;
+}
+
+.td-row__item {
+    margin: 0;
+    font: inherit;
+}
+
+.td-row--clothes .td-garment--hat {
+    margin-top: 0.2rem;
+}
+
+.td-row--clothes .td-garment--socks {
+    margin-top: 0.4rem;
+}
+
+/* La instantánea colgada del segundo cordel */
+.td-polaroid {
+    position: relative;
+    width: min(56vw, 13rem);
+    margin: 0.4rem 0 0;
+    padding: 0.55rem 0.55rem 2.2rem;
+    background: #fff;
+    box-shadow: 0 16px 24px -16px rgb(0 0 0 / 0.5);
+    rotate: -3deg;
+    transform-origin: 50% 0;
+    animation: td-sway 5.4s ease-in-out -2s infinite alternate;
+}
+
+.td-polaroid__photo {
+    display: block;
+    aspect-ratio: 1;
+    overflow: hidden;
+}
+
+/* Las etiquetas de papel con los datos */
+.td-tags {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.5rem;
+    width: 100%;
+    margin: 0;
+}
+
+.td-tag {
+    --string: 1.9rem;
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    align-content: start;
+    gap: 0.2rem;
+    margin-top: 1.1rem;
+    padding: 1.4rem 0.5rem 0.9rem;
+    text-align: center;
+    transform-origin: 50% -1.1rem;
+    animation: td-sway var(--t, 4.6s) ease-in-out infinite alternate;
+}
+
+.td-tag:nth-child(2) {
+    --string: 2.6rem;
+    margin-top: 1.8rem;
+}
+
+/* La etiqueta es una capa de fondo recortada (con su ojal): así el hilo que sube hasta el cordel no se corta */
+.td-tag::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+        radial-gradient(circle at 50% 0.78rem, var(--td-sky) 0 0.26rem, color-mix(in srgb, var(--tr-text) 30%, transparent) 0.28rem 0.4rem, transparent 0.42rem),
+        var(--td-weave),
+        color-mix(in srgb, var(--tr-accent) 55%, var(--td-paper));
+    clip-path: polygon(14% 0, 86% 0, 100% 14%, 100% 100%, 0 100%, 0 14%);
+}
+
+.td-tag::before {
+    content: '';
+    position: absolute;
+    bottom: calc(100% - 0.78rem);
+    left: 50%;
+    width: 1.5px;
+    height: var(--string);
+    background: var(--td-cord);
+}
+
+.td-tag dt {
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--inv-accent-ink);
+}
+
+.td-tag dd {
+    margin: 0;
+    font-family: var(--font-titles);
+    font-size: 0.95rem;
+    font-weight: 600;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+}
+
+.td-tag a {
+    color: inherit;
+    text-decoration-style: dashed;
+    text-underline-offset: 3px;
+}
+
+/* El paño cortado con tijera de zigzag */
+.td-cloth {
+    position: relative;
+    padding: 1.4rem 1.3rem 2.1rem;
+    background: var(--td-weave), color-mix(in srgb, var(--tr-primary) 12%, var(--td-paper));
+    -webkit-mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / 16px 100%;
+    mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / 16px 100%;
+}
+
+.td-hero__message {
+    width: min(100%, 28rem);
+    margin: 1rem 0 0;
+    font-size: 0.97rem;
+    line-height: 1.65;
+    text-wrap: pretty;
+}
+
+.td-hero__scroll {
+    color: var(--tr-text);
+}
+
+/* ── Secciones: paños colgados con dos pinzas ──────────────────────────── */
+
+.inv-tendedero main > .inv-section {
+    border-top: 0;
+    padding-block: 2.6rem 1rem;
+}
+
+.inv-tendedero main > .inv-section::before {
+    content: '';
+    position: absolute;
+    top: 1.6rem;
+    left: -4%;
+    right: -4%;
+    height: 1.2rem;
+    border-bottom: 2px solid var(--td-cord);
+    border-radius: 0 0 50% 50% / 0 0 100% 100%;
+}
+
+.inv-tendedero main > .inv-section > .inv-wrap {
+    position: relative;
+    width: calc(100% - 1.5rem);
+    padding-block: 2.4rem 3rem;
+    background: var(--td-weave), var(--td-fabric, color-mix(in srgb, var(--tr-accent) 45%, var(--td-paper)));
+    -webkit-mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / 18px 100%;
+    mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / 18px 100%;
+    transform-origin: 50% 0;
+    rotate: -0.6deg;
+}
+
+.inv-tendedero main > .inv-section:nth-of-type(3n + 2) > .inv-wrap {
+    --td-fabric: color-mix(in srgb, var(--tr-secondary) 22%, var(--td-paper));
+    rotate: 0.5deg;
+}
+
+.inv-tendedero main > .inv-section:nth-of-type(3n) > .inv-wrap {
+    --td-fabric: color-mix(in srgb, var(--tr-primary) 14%, var(--td-paper));
+}
+
+/* Las dos pinzas que sujetan cada paño (se dibujan en la sección: la máscara del paño las cortaría) */
+.inv-tendedero main > .inv-section::after {
+    content: '';
+    position: absolute;
+    top: 2.1rem;
+    left: 50%;
+    width: min(76%, 22rem);
+    height: 1.7rem;
+    translate: -50% 0;
+    background:
+        linear-gradient(90deg, transparent 46%, color-mix(in srgb, #000 22%, transparent) 46% 54%, transparent 54%) 0 0 / 0.62rem 100% no-repeat,
+        linear-gradient(180deg, color-mix(in srgb, var(--td-wood) 80%, #fff), var(--td-wood)) 0 0 / 0.62rem 100% no-repeat,
+        linear-gradient(90deg, transparent 46%, color-mix(in srgb, #000 22%, transparent) 46% 54%, transparent 54%) 100% 0 / 0.62rem 100% no-repeat,
+        linear-gradient(180deg, color-mix(in srgb, var(--td-wood) 80%, #fff), var(--td-wood)) 100% 0 / 0.62rem 100% no-repeat;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.inv-tendedero main > .td-tags-section > .inv-wrap {
+    padding-block: 2.2rem 2.6rem;
+}
+
+.inv-tendedero .invitation-lottie-framed {
+    display: none;
+}
+
+.inv-tendedero .inv-head__eyebrow {
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+}
+
+.inv-tendedero .inv-head__title {
+    font-size: clamp(2rem, 9vw, 3rem);
+    font-weight: 600;
+}
+
+.inv-tendedero .inv-head__rule {
+    width: 3rem;
+    height: 0;
+    border-top: 2px dashed var(--tr-primary);
+    background: none;
+}
+
+.inv-tendedero :is(.inv-btn, .inv-link, .inv-label) {
+    letter-spacing: 0.08em;
+}
+
+.inv-tendedero .inv-btn:not(.inv-btn--ghost) {
+    border-color: var(--tr-primary);
+    background: var(--tr-primary);
+    color: var(--tr-ink-primary);
+    outline: 1.5px dashed color-mix(in srgb, var(--tr-ink-primary) 55%, transparent);
+    outline-offset: -6px;
+}
+
+/* ── Programa: etiquetas en un cordel que se recorre de lado ───────────── */
+
+.td-string {
+    position: relative;
+    margin-top: 1.25rem;
+}
+
+.td-string .td-line {
+    top: 0.2rem;
+    left: 0;
+    right: 0;
+    border-radius: 0;
+}
+
+.td-string__list {
+    display: flex;
+    gap: 0.9rem;
+    margin: 0;
+    padding: 0.4rem 1.25rem 1.5rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 1.25rem;
+    list-style: none;
+    scrollbar-width: none;
+}
+
+.td-string__list::-webkit-scrollbar {
+    display: none;
+}
+
+.td-moment {
+    position: relative;
+    flex: 0 0 min(68vw, 14rem);
+    margin-top: 0.9rem;
+    padding: 1.6rem 1rem 1.2rem;
+    background: var(--td-weave), color-mix(in srgb, var(--tr-accent) 55%, var(--td-paper));
+    clip-path: polygon(10% 0, 90% 0, 100% 10%, 100% 100%, 0 100%, 0 10%);
+    scroll-snap-align: start;
+    text-align: left;
+    transform-origin: 50% -1rem;
+    animation: td-sway var(--t, 4.6s) ease-in-out infinite alternate;
+}
+
+.td-moment:nth-child(even) {
+    margin-top: 1.5rem;
+    background: var(--td-weave), color-mix(in srgb, var(--tr-secondary) 22%, var(--td-paper));
+}
+
+.td-moment .td-pin {
+    top: 0;
+}
+
+.td-moment__time {
+    display: block;
+    font-family: var(--font-titles);
+    font-size: 1.8rem;
+    font-weight: 600;
+    line-height: 1;
+    color: var(--inv-accent-deco);
+    font-variant-numeric: tabular-nums;
+}
+
+.td-moment__title {
+    margin: 0.4rem 0 0;
+    font-family: var(--font-titles);
+    font-size: 1.15rem;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.td-moment__text {
+    margin: 0.3rem 0 0;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: var(--inv-muted);
+}
+
+/* ── Apertura: el patio, el canasto y la ropita que se cuelga ──────────── */
+
+.td-intro {
+    gap: 1.1rem;
+    background:
+        radial-gradient(70% 45% at 50% 30%, color-mix(in srgb, var(--tr-accent) 70%, transparent), transparent 75%),
+        var(--td-sky);
+    color: var(--tr-text);
+}
+
+.td-intro > :not(.td-intro__sun, .td-intro__ground) {
+    position: relative;
+}
+
+/* El sol de la mañana, arriba a la derecha */
+.td-intro__sun {
+    position: absolute;
+    top: 5%;
+    right: 6%;
+    width: 7.5rem;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, color-mix(in srgb, var(--tr-secondary) 45%, #fff) 30%, color-mix(in srgb, var(--tr-secondary) 22%, transparent) 60%, transparent);
+    animation: td-sun 6s ease-in-out infinite;
+}
+
+/* El pasto: una loma suave donde se apoya el canasto */
+.td-intro__ground {
+    position: absolute;
+    right: -10%;
+    bottom: 0;
+    left: -10%;
+    height: 36svh;
+    border-radius: 50% 50% 0 0 / 22% 22% 0 0;
+    background:
+        radial-gradient(60% 40% at 50% 0%, color-mix(in srgb, #fff 35%, transparent), transparent 70%),
+        color-mix(in srgb, var(--tr-accent) 55%, var(--tr-bg));
+}
+
+.td-intro__eyebrow {
+    margin: 0;
+    font-family: var(--font-titles);
+    font-size: 1.3rem;
+    font-weight: 600;
+    animation: inv-fade-up 0.9s var(--tr-ease) 0.1s both;
+}
+
+.td-yard {
+    position: relative;
+    width: min(94vw, 26rem);
+    height: 14.5rem;
+}
+
+.td-yard__post {
+    position: absolute;
+    top: 0.6rem;
+    bottom: -5rem;
+    width: 7px;
+    border-radius: 4px;
+    background: var(--td-wood);
+}
+
+.td-yard__post--left { left: 2%; }
+.td-yard__post--right { right: 2%; }
+
+.td-yard .td-line {
+    top: 1rem;
+    left: 3%;
+    right: 3%;
+}
+
+/* Pinzas sueltas en el cordel: se usan al colgar la ropa */
+.td-yard__spare {
+    position: absolute;
+    top: var(--y);
+    left: var(--x);
+    width: 0.5rem;
+    height: 1.35rem;
+    translate: -50% 0;
+    border-radius: 3px;
+    background:
+        linear-gradient(90deg, transparent 46%, color-mix(in srgb, #000 22%, transparent) 46% 54%, transparent 54%),
+        linear-gradient(180deg, color-mix(in srgb, var(--td-wood) 80%, #fff), var(--td-wood));
+    rotate: -8deg;
+    transition: opacity 0.3s ease;
+}
+
+.td-yard__clothes {
+    position: absolute;
+    top: 2.1rem;
+    left: 6%;
+    right: 6%;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+/* Cada prenda espera en el canasto: sale de ahí, sube en arco y se engancha en su lugar */
+.td-yard__item--1 { --bx: 7.5rem; }
+.td-yard__item--2 { --bx: 0rem; }
+.td-yard__item--3 { --bx: -7.5rem; }
+
+.td-yard__item {
+    --by: 16rem;
+    opacity: 0;
+    animation: none;
+}
+
+/* El canasto: mimbre tejido con su borde y dos asas; la ropa asoma por arriba */
+.td-basket {
+    position: relative;
+    width: min(60vw, 15rem);
+    aspect-ratio: 5 / 3;
+    margin-top: -1rem;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    animation: inv-fade-up 1s var(--tr-ease) 0.35s both;
+}
+
+.td-basket__body {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 2;
+    height: 66%;
+    background:
+        linear-gradient(180deg, color-mix(in srgb, var(--td-wood) 75%, #fff) 0 0.7rem, transparent 0.7rem),
+        repeating-linear-gradient(90deg, color-mix(in srgb, var(--td-wood) 70%, #000) 0 2px, transparent 2px 13px),
+        repeating-linear-gradient(0deg, var(--td-wood) 0 6px, color-mix(in srgb, var(--td-wood) 78%, #000) 6px 8px);
+    clip-path: polygon(0 0, 100% 0, 91% 100%, 9% 100%);
+}
+
+.td-basket__handle {
+    position: absolute;
+    top: 22%;
+    z-index: 1;
+    width: 2.4rem;
+    height: 1.5rem;
+    border: 4px solid color-mix(in srgb, var(--td-wood) 85%, #000);
+    border-bottom: 0;
+    border-radius: 1.2rem 1.2rem 0 0;
+}
+
+.td-basket__handle--left { left: -4%; rotate: -24deg; }
+.td-basket__handle--right { right: -4%; rotate: 24deg; }
+
+.td-basket__peek {
+    position: absolute;
+    z-index: 1;
+    background: var(--td-weave), var(--td-color);
+    -webkit-mask: var(--td-shape) center / contain no-repeat;
+    mask: var(--td-shape) center / contain no-repeat;
+    transition: translate 0.45s cubic-bezier(0.5, 0, 0.8, 0.4), opacity 0.3s ease;
+}
+
+.td-basket__peek--onesie {
+    --td-shape: var(--td-onesie);
+    --td-color: var(--tr-primary);
+    bottom: 36%;
+    left: 30%;
+    width: 40%;
+    aspect-ratio: 100 / 110;
+    rotate: -9deg;
+}
+
+.td-basket__peek--hat {
+    --td-shape: var(--td-hat);
+    --td-color: var(--td-cap);
+    bottom: 46%;
+    left: 9%;
+    width: 27%;
+    aspect-ratio: 100 / 90;
+    rotate: -20deg;
+}
+
+.td-basket__peek--socks {
+    --td-shape: var(--td-socks);
+    --td-color: var(--tr-secondary);
+    right: 9%;
+    bottom: 44%;
+    width: 27%;
+    aspect-ratio: 100 / 90;
+    rotate: 16deg;
+}
+
+/* Burbujas de jabón que suben del canasto */
+.td-basket__bubble {
+    position: absolute;
+    bottom: 55%;
+    left: var(--x);
+    z-index: 3;
+    width: 0.9rem;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at 32% 30%, rgb(255 255 255 / 0.95) 0 14%, transparent 18%),
+        radial-gradient(circle, transparent 55%, color-mix(in srgb, var(--tr-primary) 35%, #fff) 62%, transparent 72%);
+    opacity: 0;
+    animation: td-bubble 4.2s ease-in calc(var(--i) * 0.85s) infinite;
+}
+
+.td-basket__bubble:nth-child(even) {
+    width: 0.6rem;
+}
+
+.td-intro__hint {
+    margin: 0;
+    padding: 0.5rem 1.05rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, #fff 70%, transparent);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--inv-soft);
+    animation: inv-fade-up 1s var(--tr-ease) 0.7s both, td-hint 2.2s ease-in-out 2s infinite;
+    transition: opacity 0.3s ease;
+}
+
+/* Al tocar: la ropa del canasto baja y sale volando a su lugar en el cordel */
+.td-intro.is-hung .td-basket__peek {
+    translate: 0 70%;
+    opacity: 0;
+}
+
+.td-intro.is-hung .td-basket__peek--hat { transition-delay: 0s; }
+.td-intro.is-hung .td-basket__peek--onesie { transition-delay: 0.3s; }
+.td-intro.is-hung .td-basket__peek--socks { transition-delay: 0.6s; }
+
+.td-intro.is-hung .td-yard__item {
+    animation:
+        td-launch 0.95s cubic-bezier(0.3, 0.7, 0.4, 1) var(--launch, 0s) both,
+        td-sway 4.6s ease-in-out calc(var(--launch, 0s) + 0.95s) infinite alternate;
+}
+
+.td-intro.is-hung .td-yard__item--1 { --launch: 0.05s; }
+.td-intro.is-hung .td-yard__item--2 { --launch: 0.35s; }
+.td-intro.is-hung .td-yard__item--3 { --launch: 0.65s; }
+
+/* El cordel se estira un poco con cada prenda que llega */
+.td-intro.is-hung :is(.td-yard .td-line, .td-yard__clothes) {
+    animation: td-weight 1.7s ease-out both;
+}
+
+.td-intro.is-hung .td-yard__spare,
+.td-intro.is-hung .td-intro__hint {
+    opacity: 0;
+    animation: none;
+}
+
+/* Una ráfaga de viento mece todo y se abre la invitación */
+.td-intro.is-open .td-yard__item {
+    animation: td-gust 0.9s ease-in-out forwards;
+}
+
+@keyframes td-sun {
+    50% { scale: 1.08; opacity: 0.85; }
+}
+
+@keyframes td-bubble {
+    0% { opacity: 0; transform: translate(0, 0) scale(0.5); }
+    15% { opacity: 1; }
+    100% { opacity: 0; transform: translate(0.8rem, -9rem) scale(1.2); }
+}
+
+@keyframes td-hint {
+    50% { translate: 0 -3px; }
+}
+
+@keyframes td-launch {
+    0% { opacity: 0; transform: translate(var(--bx), var(--by)) scale(0.35) rotate(-18deg); }
+    12% { opacity: 1; }
+    55% { transform: translate(calc(var(--bx) * 0.3), -2.8rem) scale(1) rotate(9deg); }
+    80% { transform: translate(0, 0.45rem) rotate(-4deg); }
+    100% { opacity: 1; transform: none; }
+}
+
+@keyframes td-weight {
+    0%, 42% { transform: none; }
+    48% { transform: translateY(4px); }
+    56% { transform: translateY(1px); }
+    66% { transform: translateY(5px); }
+    74% { transform: translateY(2px); }
+    84% { transform: translateY(6px); }
+    100% { transform: translateY(3px); }
+}
+
+@keyframes td-gust {
+    0% { opacity: 1; transform: rotate(0deg); }
+    40% { opacity: 1; transform: rotate(14deg) translateX(6px); }
+    100% { opacity: 1; transform: rotate(6deg) translateX(3px); }
+}
+
+/* ── Fondo: tendederos lejanos y burbujas de jabón (tendedero/ambient) ─── */
+
+.td-ambient {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+    /* Ropita chiquita colgada: el enterito, las medias y el gorrito, en una baldosa que se repite */
+    --td-mini: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 44'%3E%3Cpath transform='translate(10 2) scale(0.34)' d='M30 8 C36 14 44 16 50 16 C56 16 64 14 70 8 L92 22 L84 42 L74 38 L74 80 C74 92 62 102 56 106 L44 106 C38 102 26 92 26 80 L26 38 L16 42 L8 22 Z'/%3E%3Cpath transform='translate(64 2) scale(0.34)' d='M16 6 H38 V50 C38 62 32 70 20 70 H12 C4 70 2 58 10 54 L16 50 Z M58 10 H80 V54 C80 66 74 74 62 74 H54 C46 74 44 62 52 58 L58 54 Z'/%3E%3Cpath transform='translate(120 0) scale(0.34)' d='M50 5 A10 10 0 1 1 49.9 5 Z M18 64 C18 36 32 22 50 22 C68 22 82 36 82 64 Z M12 60 H88 V76 C88 79 86 80 84 80 H16 C14 80 12 79 12 76 Z'/%3E%3C/svg%3E");
+}
+
+/* Cada tendedero: el cordel y la fila de ropa que el viento inclina a la vez */
+.td-ambient__line {
+    position: absolute;
+    right: -10%;
+    left: -10%;
+    height: 3.2rem;
+    border-top: 1.5px solid color-mix(in srgb, var(--tr-text) 18%, transparent);
+    border-radius: 50% 50% 0 0 / 14% 14% 0 0;
+}
+
+.td-ambient__line--1 {
+    top: 16%;
+    --td-mini-color: var(--tr-primary);
+}
+
+.td-ambient__line--2 {
+    top: 58%;
+    --td-mini-color: var(--tr-secondary);
+    rotate: -2deg;
+}
+
+.td-ambient__line i {
+    position: absolute;
+    inset: 0;
+    background: var(--td-mini-color);
+    -webkit-mask: var(--td-mini) 0 0 / 11rem 2.7rem repeat-x;
+    mask: var(--td-mini) 0 0 / 11rem 2.7rem repeat-x;
+    opacity: 0.2;
+    transform-origin: 50% 0;
+    animation: td-wind 5.5s ease-in-out infinite alternate;
+}
+
+.td-ambient__line--2 i {
+    -webkit-mask-position: 5rem 0;
+    mask-position: 5rem 0;
+    animation-duration: 6.5s;
+    animation-delay: -2s;
+}
+
+/* Burbujas de jabón con su reflejo de colores: suben meciéndose y se revientan arriba */
+.td-ambient--front {
+    z-index: 3;
+}
+
+.td-ambient__bubble {
+    position: absolute;
+    bottom: -4rem;
+    left: var(--x);
+    width: var(--s);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: conic-gradient(from 30deg,
+        color-mix(in srgb, var(--tr-primary) 40%, #fff),
+        color-mix(in srgb, var(--tr-accent) 60%, #fff),
+        color-mix(in srgb, var(--tr-secondary) 40%, #fff),
+        color-mix(in srgb, #b9dcff 60%, #fff),
+        color-mix(in srgb, var(--tr-primary) 40%, #fff));
+    -webkit-mask: radial-gradient(closest-side, rgb(0 0 0 / 0.12) 0 74%, #000 90%, transparent 100%);
+    mask: radial-gradient(closest-side, rgb(0 0 0 / 0.12) 0 74%, #000 90%, transparent 100%);
+    opacity: 0;
+    animation: td-rise var(--d) linear var(--delay) infinite;
+}
+
+@media (max-width: 639px) {
+    .td-ambient__bubble.is-extra {
+        display: none;
+    }
+}
+
+@keyframes td-wind {
+    from { transform: skewX(-7deg); }
+    to { transform: skewX(5deg); }
+}
+
+@keyframes td-rise {
+    0% { opacity: 0; transform: translate(0, 0) scale(0.8); }
+    8% { opacity: 0.9; }
+    30% { transform: translate(var(--sway), -32vh) scale(1); }
+    60% { transform: translate(calc(var(--sway) * -1), -68vh) scale(1.05); }
+    92% { opacity: 0.85; transform: translate(var(--sway), -104vh) scale(1.1); }
+    100% { opacity: 0; transform: translate(var(--sway), -110vh) scale(1.5); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .td-ambient * {
+        animation: none !important;
+    }
+}
+
+/* ── Pie e historia ─────────────────────────────────────────────────────── */
+
+.inv-tendedero .inv-tendedero-footer {
+    border-top: 0;
+}
+
+.inv-story-invitation .inv-tendedero .inv-scene {
+    --story-scene-bg: var(--td-sky);
+    transform-origin: 50% 0;
+    rotate: -5deg;
+    opacity: 0;
+    transition: rotate 0.9s var(--tr-spring), opacity 0.5s ease, visibility 0s linear 0.9s;
+}
+
+.inv-story-invitation .inv-tendedero .inv-scene.is-active {
+    rotate: 0deg;
+    opacity: 1;
+    transition-delay: 0s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .td-garment,
+    .td-polaroid,
+    .td-tag,
+    .td-moment {
+        animation: none;
+    }
+}

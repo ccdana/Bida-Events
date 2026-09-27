@@ -9,6 +9,7 @@ use App\Services\InvitationCacheService;
 use App\Services\InvitationModuleService;
 use App\Support\CloudinaryImage;
 use App\Support\InvitationDefaults;
+use App\Support\InvitationTemplates;
 use App\Support\Packages;
 use App\Support\ShowcaseDemos;
 use App\Support\YouTubeHelper;
@@ -118,7 +119,9 @@ class InvitationController extends Controller
             $modulos['config']['modulos']['fotomural'] = true;
         }
 
-        return response()->view($template, [
+        return response()->view(InvitationTemplates::view($template), [
+            // Clave del catálogo: la vista compartida de «tendencias» la necesita para saber qué diseño y evento dibujar
+            'templateKey' => $template,
             'invitation' => $invitation,
             'modulos' => $modulos,
             'guest' => $guest,

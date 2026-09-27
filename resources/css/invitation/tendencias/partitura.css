@@ -1,0 +1,771 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   INVITACIÓN — «Partitura a dos voces» (boda · colección tendencias)
+
+   La boda es un concierto para dos voces. La entrada es el atril con el
+   metrónomo que marca la cuenta; la portada, la primera página de la partitura:
+   la obra, la foto y el sistema de dos pentagramas unidos por una llave, uno por
+   cada nombre, con el calderón sobre la fecha. El día se lee en movimientos
+   (Andante, Allegro…) y los padrinos son la plantilla del ensamble.
+
+   Todo sale de la paleta del editor:
+     papel = fondo · tinta y pentagramas = texto · primera voz y números =
+     principal · segunda voz = secundario · recuadros y butaca = acento.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+@import './_base.css';
+
+.inv-partitura {
+    --inv-radius: 999px;
+    --pt-paper: var(--tr-bg);
+    --pt-ink: var(--tr-text);
+    --pt-line: color-mix(in srgb, var(--tr-text) 42%, var(--tr-bg));
+    --pt-voice-1: var(--tr-primary);
+    --pt-voice-2: color-mix(in srgb, var(--tr-secondary) 80%, var(--tr-text));
+    --pt-width: min(100% - 1.5rem, 36rem);
+    --themed-from: translate3d(0, 20px, 0);
+
+    background: var(--pt-paper);
+}
+
+.inv-partitura.has-player {
+    padding-bottom: calc(5.25rem + env(safe-area-inset-bottom));
+}
+
+/* ── Pentagramas (partitura/staff) ──────────────────────────────────────── */
+
+.pt-staff {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+}
+
+.pt-staff__lines line {
+    stroke: var(--pt-line);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+}
+
+.pt-note ellipse {
+    fill: currentColor;
+}
+
+.pt-note line {
+    stroke: currentColor;
+    stroke-width: 1.6;
+    vector-effect: non-scaling-stroke;
+}
+
+.pt-staff__bar line {
+    stroke: var(--pt-ink);
+    stroke-width: 1.2;
+    vector-effect: non-scaling-stroke;
+}
+
+.pt-staff__bar rect {
+    fill: var(--pt-ink);
+}
+
+/* Las notas se escriben una tras otra, como si alguien las anotara */
+.pt-note {
+    animation: pt-note-in 0.5s var(--tr-spring) both;
+    animation-delay: calc(0.6s + var(--note, 0) * 110ms);
+    transform-box: fill-box;
+    transform-origin: center;
+}
+
+@keyframes pt-note-in {
+    from { opacity: 0; transform: translateY(-6px) scale(0.6); }
+}
+
+/* ── Portada: la primera página de la partitura ─────────────────────────── */
+
+.pt-hero {
+    align-content: center;
+    padding: calc(4.5rem + env(safe-area-inset-top)) 0 5.5rem;
+    color: var(--pt-ink);
+}
+
+.pt-sheet {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: var(--pt-width);
+    margin-inline: auto;
+}
+
+.pt-masthead {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--pt-line);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--inv-soft);
+}
+
+.pt-work {
+    margin: 1.4rem 0 0;
+    font-family: var(--font-titles);
+    font-size: clamp(1.5rem, 7vw, 2.2rem);
+    font-style: italic;
+    line-height: 1.1;
+    text-align: center;
+}
+
+.pt-photo {
+    width: min(62vw, 17rem);
+    aspect-ratio: 3 / 4;
+    margin: 1.5rem 0 0;
+    border-radius: 999px 999px 0.75rem 0.75rem;
+    overflow: hidden;
+    box-shadow: 0 0 0 6px var(--pt-paper), 0 0 0 7px var(--pt-line);
+}
+
+.pt-photo img {
+    height: 112%;
+    margin-top: -6%;
+}
+
+.pt-eyebrow {
+    margin: 1.4rem 0 0;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--inv-accent-ink);
+}
+
+/* El sistema: la llave a la izquierda y un pentagrama por voz */
+.pt-system {
+    position: relative;
+    display: grid;
+    gap: 0.4rem;
+    width: 100%;
+    margin: 1rem 0 0;
+    padding-left: 1.4rem;
+    font: inherit;
+}
+
+.pt-system__brace {
+    position: absolute;
+    top: 1.9rem;
+    bottom: 0.4rem;
+    left: 0;
+    width: 1rem;
+    height: calc(100% - 2.3rem);
+    overflow: visible;
+}
+
+.pt-system__brace path {
+    fill: none;
+    stroke: var(--pt-ink);
+    stroke-width: 2.4;
+    vector-effect: non-scaling-stroke;
+}
+
+.pt-part {
+    display: grid;
+    gap: 0.15rem;
+}
+
+.pt-part__name {
+    font-family: var(--font-script);
+    color: var(--pt-ink);
+    font-size: clamp(2.1rem, 10.5vw, 3.6rem);
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: -0.01em;
+    overflow-wrap: break-word;
+}
+
+.pt-part--1 {
+    color: var(--pt-voice-1);
+    text-align: left;
+}
+
+.pt-part--2 {
+    color: var(--pt-voice-2);
+    text-align: right;
+}
+
+/* Indicaciones de la función */
+.pt-marks {
+    display: grid;
+    gap: 0.9rem;
+    width: 100%;
+    margin: 2rem 0 0;
+    padding: 1.1rem 1.2rem;
+    border-radius: 0.75rem;
+    background: color-mix(in srgb, var(--tr-accent) 55%, var(--pt-paper));
+}
+
+.pt-marks__row {
+    display: grid;
+    gap: 0.15rem;
+}
+
+.pt-marks dt {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--inv-accent-ink);
+}
+
+.pt-marks dd {
+    position: relative;
+    margin: 0;
+    font-family: var(--font-titles);
+    font-size: 1.3rem;
+    line-height: 1.25;
+}
+
+.pt-marks a {
+    color: inherit;
+    text-decoration-color: var(--pt-voice-1);
+    text-underline-offset: 4px;
+}
+
+/* El calderón: el signo que sostiene una nota todo lo que haga falta */
+.pt-fermata {
+    display: block;
+    width: 1.9rem;
+    height: 1.05rem;
+    margin: 0 auto 0.1rem;
+}
+
+.pt-fermata path {
+    fill: none;
+    stroke: var(--pt-voice-1);
+    stroke-width: 3;
+    stroke-linecap: round;
+}
+
+.pt-fermata circle {
+    fill: var(--pt-voice-1);
+}
+
+.pt-notes {
+    margin: 1.4rem 0 0;
+    font-family: var(--font-titles);
+    font-size: 1.05rem;
+    font-style: italic;
+    line-height: 1.6;
+    color: var(--inv-muted);
+    text-align: center;
+    text-wrap: pretty;
+}
+
+.pt-hero__scroll {
+    color: var(--pt-ink);
+}
+
+/* ── Secciones: páginas de la partitura ─────────────────────────────────── */
+
+.inv-partitura main > .inv-section {
+    border-top: 0;
+    padding-block: 4.5rem 3.5rem;
+}
+
+/* Entre página y página, un pentagrama vacío que cruza de lado a lado */
+.inv-partitura main > .inv-section + .inv-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: var(--pt-width);
+    height: 25px;
+    translate: -50% 0;
+    background: repeating-linear-gradient(180deg, var(--pt-line) 0 1px, transparent 1px 6px);
+    opacity: 0.55;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent);
+}
+
+.inv-partitura .invitation-lottie-framed {
+    display: none;
+}
+
+.inv-partitura .inv-head__eyebrow {
+    font-size: 0.72rem;
+    letter-spacing: 0.26em;
+}
+
+.inv-partitura .inv-head__title {
+    font-size: clamp(2.3rem, 10vw, 3.6rem);
+    font-style: italic;
+}
+
+/* Bajo el título, la barra doble que cierra un pasaje */
+.inv-partitura .inv-head__rule {
+    width: 0.55rem;
+    height: 1.6rem;
+    margin-top: 0.9rem;
+    border-left: 1px solid var(--pt-ink);
+    border-right: 3px solid var(--pt-ink);
+    background: none;
+    opacity: 0.8;
+}
+
+.inv-partitura :is(.inv-btn, .inv-link, .inv-label) {
+    letter-spacing: 0.12em;
+}
+
+.inv-partitura .inv-btn:not(.inv-btn--ghost) {
+    border-color: var(--pt-voice-1);
+    background: var(--pt-voice-1);
+    color: var(--tr-ink-primary);
+}
+
+/* Cuenta regresiva: cada unidad es un compás, separado por su barra */
+.inv-partitura .inv-countdown__unit + .inv-countdown__unit {
+    border-left: 2px solid var(--pt-ink);
+}
+
+.inv-partitura .inv-countdown__grid {
+    border-inline: 1px solid var(--pt-ink);
+    background: repeating-linear-gradient(180deg, transparent 0 11px, color-mix(in srgb, var(--pt-line) 55%, transparent) 11px 12px);
+}
+
+.inv-partitura .inv-countdown__value {
+    font-style: italic;
+}
+
+/* El pase: una entrada de concierto con las muescas del talón */
+.inv-partitura .inv-pass {
+    padding: 1.75rem 1.25rem;
+    border: 0;
+    border-radius: 0.75rem;
+    background:
+        radial-gradient(circle at 0 50%, var(--pt-paper) 0.9rem, transparent 0.95rem),
+        radial-gradient(circle at 100% 50%, var(--pt-paper) 0.9rem, transparent 0.95rem),
+        color-mix(in srgb, var(--tr-accent) 60%, var(--pt-paper));
+}
+
+/* ── Programa: los movimientos ─────────────────────────────────────────── */
+
+.pt-program {
+    display: grid;
+    gap: 2rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.pt-movement {
+    display: grid;
+    grid-template-columns: 3rem 1fr;
+    gap: 0.75rem;
+    text-align: left;
+}
+
+.pt-movement__num {
+    font-family: var(--font-titles);
+    font-size: 1.9rem;
+    line-height: 1;
+    color: var(--pt-voice-1);
+    text-align: right;
+}
+
+.pt-movement__line {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: 0.6rem;
+    margin: 0;
+}
+
+.pt-movement__title {
+    font-family: var(--font-titles);
+    font-size: 1.45rem;
+    line-height: 1.15;
+}
+
+.pt-movement__tempo {
+    font-family: var(--font-titles);
+    font-size: 1.05rem;
+    color: var(--inv-accent-ink);
+}
+
+.pt-movement__tempo::before {
+    content: '— ';
+    color: var(--inv-soft);
+}
+
+.pt-movement__time {
+    display: block;
+    margin-top: 0.2rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    color: var(--inv-soft);
+    font-variant-numeric: tabular-nums;
+}
+
+.pt-movement__text {
+    margin: 0.35rem 0 0;
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: var(--inv-muted);
+}
+
+.pt-movement__staff {
+    max-width: 14rem;
+    margin-top: 0.6rem;
+}
+
+.pt-movement__staff--1 {
+    color: var(--pt-voice-1);
+}
+
+.pt-movement__staff--2 {
+    color: var(--pt-voice-2);
+}
+
+.pt-movements .pt-note {
+    animation: none;
+}
+
+/* ── Ensamble: la plantilla de instrumentos, con su llave por familia ───── */
+
+.pt-orchestra {
+    display: grid;
+    gap: 1.75rem;
+    text-align: left;
+}
+
+.pt-family {
+    position: relative;
+    padding-left: 1.6rem;
+}
+
+.pt-family::before {
+    content: '';
+    position: absolute;
+    top: 0.2rem;
+    bottom: 0.2rem;
+    left: 0;
+    width: 0.8rem;
+    background: var(--pt-ink);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 200' preserveAspectRatio='none'%3E%3Cpath d='M18 2 C 6 10, 12 70, 4 100 C 12 130, 6 190, 18 198' fill='none' stroke='black' stroke-width='3'/%3E%3C/svg%3E") no-repeat center / 100% 100%;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 200' preserveAspectRatio='none'%3E%3Cpath d='M18 2 C 6 10, 12 70, 4 100 C 12 130, 6 190, 18 198' fill='none' stroke='black' stroke-width='3'/%3E%3C/svg%3E") no-repeat center / 100% 100%;
+}
+
+.pt-family__name {
+    margin: 0 0 0.6rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--inv-accent-ink);
+}
+
+.pt-family__list {
+    display: grid;
+    gap: 0.75rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.pt-member {
+    display: grid;
+}
+
+.pt-member__role {
+    font-family: var(--font-titles);
+    font-size: 1rem;
+    color: var(--inv-soft);
+}
+
+.pt-member__name {
+    font-family: var(--font-titles);
+    font-size: 1.35rem;
+    line-height: 1.2;
+}
+
+.pt-member__message {
+    margin-top: 0.2rem;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: var(--inv-muted);
+}
+
+/* ── Apertura: el atril y el metrónomo ──────────────────────────────────── */
+
+.pt-intro {
+    gap: 1.75rem;
+    background: var(--pt-paper);
+    color: var(--pt-ink);
+}
+
+.pt-intro__head {
+    display: grid;
+    gap: 0.35rem;
+}
+
+.pt-intro__eyebrow {
+    margin: 0;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: var(--inv-accent-ink);
+}
+
+.pt-intro__work {
+    margin: 0.4rem 0 0;
+    font-family: var(--font-titles);
+    font-size: 1.2rem;
+    font-style: italic;
+    color: var(--inv-muted);
+}
+
+.pt-intro__names {
+    margin: 0;
+    font-family: var(--font-script);
+    font-size: clamp(2.1rem, 10vw, 3rem);
+    line-height: 1.05;
+    text-wrap: balance;
+}
+
+.pt-metronome {
+    width: min(42vw, 9.5rem);
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+}
+
+.pt-metronome svg {
+    display: block;
+    width: 100%;
+    overflow: visible;
+}
+
+.pt-metronome__body {
+    fill: var(--pt-voice-2);
+}
+
+.pt-metronome__face {
+    fill: color-mix(in srgb, var(--pt-paper) 88%, var(--pt-voice-2));
+}
+
+.pt-metronome__scale line {
+    stroke: var(--pt-line);
+    stroke-width: 1.4;
+}
+
+.pt-metronome__base {
+    fill: color-mix(in srgb, var(--pt-voice-2) 70%, #000);
+}
+
+.pt-metronome__arm {
+    transform-box: view-box;
+    transform-origin: 60px 128px;
+    animation: pt-swing 1.2s ease-in-out infinite alternate;
+}
+
+.pt-metronome__arm line {
+    stroke: var(--pt-ink);
+    stroke-width: 3;
+    stroke-linecap: round;
+}
+
+.pt-metronome__weight,
+.pt-metronome__pivot {
+    fill: var(--pt-voice-1);
+}
+
+@keyframes pt-swing {
+    from { transform: rotate(-24deg); }
+    to { transform: rotate(24deg); }
+}
+
+.pt-count {
+    position: relative;
+    height: 3.5rem;
+    margin: -0.5rem 0 0;
+    font-family: var(--font-titles);
+    font-size: 3.2rem;
+    line-height: 1;
+    color: var(--pt-voice-1);
+}
+
+.pt-count span {
+    position: absolute;
+    left: 50%;
+    translate: -50% 0;
+    opacity: 0;
+}
+
+.pt-intro__hint {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--inv-soft);
+}
+
+/* Al tocarlo, el péndulo marca rápido la cuenta del director: 1, 2, 3, 4 */
+.pt-intro.is-counting .pt-metronome__arm {
+    animation-duration: 0.3s;
+    animation-iteration-count: 4;
+}
+
+.pt-intro.is-counting .pt-count span {
+    animation: pt-beat 0.3s ease-out both;
+}
+
+.pt-intro.is-counting .pt-count span:nth-child(2) { animation-delay: 0.3s; }
+.pt-intro.is-counting .pt-count span:nth-child(3) { animation-delay: 0.6s; }
+.pt-intro.is-counting .pt-count span:nth-child(4) { animation-delay: 0.9s; }
+
+@keyframes pt-beat {
+    0% { opacity: 0; transform: scale(1.6); }
+    30% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0; transform: scale(0.9); }
+}
+
+.pt-intro.is-counting .pt-intro__hint {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+/* ── Fondo y pie ───────────────────────────────────────────────────────── */
+
+/* La música de fondo (partitura/ambient): pentagramas que ondulan y notas que suben */
+.pt-ambient {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+    /* Figuras: negra, corchea y dos corcheas unidas */
+    --pt-note-0: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 60'%3E%3Cellipse cx='14' cy='49' rx='11' ry='8' transform='rotate(-22 14 49)'/%3E%3Crect x='22' y='4' width='3' height='46'/%3E%3C/svg%3E");
+    --pt-note-1: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 60'%3E%3Cellipse cx='14' cy='49' rx='11' ry='8' transform='rotate(-22 14 49)'/%3E%3Crect x='22' y='4' width='3' height='46'/%3E%3Cpath d='M25 4 C27 14 38 18 36 32 C35 24 30 20 25 18 Z'/%3E%3C/svg%3E");
+    --pt-note-2: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 60'%3E%3Cellipse cx='12' cy='50' rx='10' ry='7.5' transform='rotate(-22 12 50)'/%3E%3Cellipse cx='44' cy='44' rx='10' ry='7.5' transform='rotate(-22 44 44)'/%3E%3Crect x='19.5' y='10' width='3' height='41'/%3E%3Crect x='51.5' y='4' width='3' height='41'/%3E%3Cpath d='M19.5 10 L54.5 4 V11 L19.5 17 Z'/%3E%3C/svg%3E");
+}
+
+.pt-ambient--front {
+    z-index: 3;
+}
+
+.pt-ambient__staff {
+    position: absolute;
+    left: -10%;
+    width: 120%;
+    height: 3.6rem;
+    fill: none;
+    stroke: var(--pt-line);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+    opacity: 0.35;
+    transform-origin: 50% 50%;
+    animation: pt-vibrate 7s ease-in-out infinite alternate;
+}
+
+.pt-ambient__staff path {
+    vector-effect: non-scaling-stroke;
+}
+
+.pt-ambient__staff--1 { top: 22%; rotate: -4deg; }
+.pt-ambient__staff--2 { top: 68%; rotate: 3deg; animation-duration: 8.5s; animation-delay: -3s; }
+
+.pt-ambient__note {
+    position: absolute;
+    bottom: -4rem;
+    left: var(--x);
+    width: var(--s);
+    aspect-ratio: 2 / 3;
+    background: var(--pt-voice-1);
+    -webkit-mask: var(--pt-shape) center / contain no-repeat;
+    mask: var(--pt-shape) center / contain no-repeat;
+    opacity: 0;
+    animation: pt-float var(--d) linear var(--delay) infinite;
+}
+
+.pt-ambient__note--0 { --pt-shape: var(--pt-note-0); }
+.pt-ambient__note--1 { --pt-shape: var(--pt-note-1); background: var(--pt-voice-2); }
+.pt-ambient__note--2 { --pt-shape: var(--pt-note-2); aspect-ratio: 1; }
+
+@media (max-width: 639px) {
+    .pt-ambient__note.is-extra {
+        display: none;
+    }
+}
+
+/* La onda que recorre los pentagramas, como una cuerda que vibra */
+@keyframes pt-vibrate {
+    from { transform: scaleY(0.6) translateX(0); }
+    to { transform: scaleY(1.4) translateX(-4%); }
+}
+
+@keyframes pt-float {
+    0% { opacity: 0; transform: translate(0, 0) rotate(var(--r)); }
+    10% { opacity: 0.28; }
+    35% { transform: translate(var(--sway), -36vh) rotate(calc(var(--r) * -1)); }
+    70% { transform: translate(calc(var(--sway) * -1), -74vh) rotate(var(--r)); }
+    90% { opacity: 0.28; }
+    100% { opacity: 0; transform: translate(0, -110vh) rotate(0deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .pt-ambient * {
+        animation: none !important;
+    }
+}
+
+.inv-drift--sala {
+    --drift-a: color-mix(in srgb, var(--tr-secondary) 60%, #fff);
+    opacity: 0.4;
+}
+
+/* El pie cierra la obra: la doble barra final */
+.inv-partitura .inv-partitura-footer {
+    border-top: 0;
+}
+
+.inv-partitura .inv-partitura-footer .inv-footer__ornament--line {
+    width: 0.7rem;
+    height: 2.2rem;
+    border-left: 1px solid var(--pt-ink);
+    border-right: 4px solid var(--pt-ink);
+    background: none;
+}
+
+/* ── Modo historia: cada escena entra como una página que se pasa ────────── */
+
+.inv-story-invitation .inv-partitura .inv-scene {
+    --story-scene-bg: var(--pt-paper);
+    translate: 12% 0;
+    opacity: 0;
+    transition: translate 0.8s var(--tr-ease), opacity 0.5s ease, visibility 0s linear 0.8s;
+}
+
+.inv-story-invitation .inv-partitura .inv-scene.is-past {
+    translate: -12% 0;
+}
+
+.inv-story-invitation .inv-partitura .inv-scene.is-active {
+    translate: 0 0;
+    opacity: 1;
+    transition-delay: 0s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .pt-metronome__arm,
+    .pt-note {
+        animation: none;
+    }
+}
+
+/* El compás 4/4 al principio de cada pentagrama, con la letra de los títulos */
+.pt-staff__meter {
+    font-family: var(--font-titles);
+    font-size: 21px;
+    font-weight: 700;
+    fill: var(--pt-ink);
+}

@@ -1,0 +1,1041 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   INVITACIÓN — «Edición especial» (graduación · colección tendencias)
+
+   El graduado es la estrella de tapa de una revista de colección. Se entra
+   rompiendo la faja; la portada tiene el nombre de la revista a todo lo ancho,
+   la foto, el titular de «La fiesta del año» con resaltador, los titulares con
+   su número de página y el código de barras con la fecha. Debajo, el índice y
+   la carta del editor. Cada sección es una página con su cabezal y su número.
+
+   Todo sale de la paleta del editor:
+     papel = fondo · tinta = texto · nombre de la revista y secciones =
+     principal · resaltador y faja = secundario · recuadros = acento.
+   Sobre la foto, el texto va en recuadros de papel o sobre un velo oscuro: se
+   lee con cualquier foto.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+@import './_base.css';
+
+.inv-revista {
+    --inv-radius: 0px;
+    --rv-paper: var(--tr-bg);
+    --rv-ink: var(--tr-text);
+    --rv-red: var(--tr-primary);
+    --rv-marker: var(--tr-secondary);
+    --rv-width: min(100% - 1.5rem, 34rem);
+    --themed-from: translate3d(0, 24px, 0);
+
+    background: color-mix(in srgb, var(--tr-accent) 55%, var(--rv-paper));
+    counter-reset: rv-page;
+}
+
+.inv-revista.has-player {
+    padding-bottom: calc(5.25rem + env(safe-area-inset-bottom));
+}
+
+/* ── Portada ───────────────────────────────────────────────────────────── */
+
+.rv-hero {
+    align-content: start;
+    justify-items: center;
+    gap: 1.5rem;
+    padding: calc(4.25rem + env(safe-area-inset-top)) 0 2rem;
+    color: var(--rv-ink);
+}
+
+.rv-cover {
+    width: var(--rv-width);
+    background: var(--rv-paper);
+    box-shadow:
+        0 1px 0 color-mix(in srgb, #000 12%, transparent),
+        0 34px 50px -34px color-mix(in srgb, #000 70%, transparent),
+        10px 10px 0 -2px color-mix(in srgb, var(--rv-paper) 70%, #000 8%);
+}
+
+.rv-cover__top {
+    position: relative;
+    padding: 0.9rem 1rem 0.2rem;
+}
+
+.rv-cover__issue {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: 0;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--rv-ink);
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+/* El nombre de la revista, a todo lo ancho, en el color de la marca */
+.rv-masthead {
+    margin: 0.2rem 0 0;
+    font-family: var(--font-titles);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 0.86;
+    text-transform: uppercase;
+    color: var(--rv-red);
+}
+
+.rv-masthead__year {
+    position: absolute;
+    right: 1rem;
+    bottom: -0.55rem;
+    z-index: 2;
+    padding: 0.2rem 0.45rem;
+    background: var(--rv-ink);
+    color: var(--rv-paper);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+}
+
+.rv-cover__photo {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    margin: 0.6rem 0 0;
+    overflow: hidden;
+    background: var(--tr-accent);
+}
+
+.rv-cover__photo > img,
+.rv-cover__photo > .tr-photo-empty {
+    position: absolute;
+    inset: 0;
+    height: 108%;
+}
+
+/* Velo oscuro para que el nombre se lea sobre cualquier foto */
+.rv-cover__scrim {
+    position: absolute;
+    inset: 45% 0 0;
+    background: linear-gradient(180deg, transparent, rgb(0 0 0 / 0.72));
+}
+
+/* El titular principal: en un recuadro de papel, con resaltador sobre la fecha */
+.rv-lead {
+    position: absolute;
+    top: 1rem;
+    left: 0.9rem;
+    display: grid;
+    gap: 0.25rem;
+    max-width: 62%;
+    padding: 0.7rem 0.8rem 0.8rem;
+    background: var(--rv-paper);
+    color: var(--rv-ink);
+    text-decoration: none;
+    box-shadow: 4px 4px 0 var(--rv-red);
+}
+
+.rv-lead__kicker {
+    font-size: 0.66rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--rv-red);
+}
+
+.rv-lead__date {
+    font-family: var(--font-titles);
+    font-size: 1.15rem;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.rv-lead mark,
+.rv-listing.is-pick .rv-listing__time {
+    padding: 0 0.2em;
+    background: linear-gradient(100deg, transparent 2%, var(--rv-marker) 4%, var(--rv-marker) 96%, transparent 98%);
+    color: var(--tr-ink-secondary);
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+}
+
+.rv-lead__place {
+    font-size: 0.8rem;
+    line-height: 1.35;
+}
+
+/* El sticker redondo de «Edición de colección» */
+.rv-sticker {
+    position: absolute;
+    top: 44%;
+    right: 0.8rem;
+    display: grid;
+    place-items: center;
+    width: 5.2rem;
+    height: 5.2rem;
+    padding: 0.5rem;
+    border-radius: 50%;
+    background: var(--rv-marker);
+    color: var(--tr-ink-secondary);
+    font-size: 0.66rem;
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: 0.06em;
+    text-align: center;
+    text-transform: uppercase;
+    rotate: 12deg;
+    box-shadow: 0 6px 12px -6px rgb(0 0 0 / 0.5);
+}
+
+.rv-star {
+    position: absolute;
+    left: 1rem;
+    right: 1rem;
+    bottom: 1rem;
+    color: #fff;
+}
+
+.rv-star__kicker {
+    display: inline-block;
+    padding: 0.2rem 0.5rem;
+    background: var(--rv-red);
+    color: var(--tr-ink-primary);
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.rv-star__name {
+    margin: 0.4rem 0 0;
+    font-family: var(--font-script);
+    font-size: clamp(2.4rem, 12vw, 4rem);
+    font-weight: 700;
+    line-height: 0.92;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+    text-shadow: 0 2px 18px rgb(0 0 0 / 0.45);
+    overflow-wrap: break-word;
+}
+
+.rv-cover__foot {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.8rem 1rem 1rem;
+}
+
+.rv-lines {
+    display: grid;
+    gap: 0.35rem;
+    text-align: left;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.rv-lines a {
+    font-family: var(--font-titles);
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--rv-ink);
+    text-decoration: none;
+}
+
+.rv-lines a::before {
+    content: '▸ ';
+    color: var(--rv-red);
+}
+
+.rv-lines span {
+    font-family: var(--font-body);
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--inv-soft);
+}
+
+.rv-barcode {
+    flex-shrink: 0;
+    width: 5.2rem;
+    padding: 0.3rem;
+    background: #fff;
+    fill: #111;
+}
+
+.rv-barcode text {
+    font-size: 8px;
+    font-family: ui-monospace, monospace;
+    letter-spacing: 1px;
+}
+
+/* El índice de la edición */
+.rv-contents {
+    width: var(--rv-width);
+    text-align: left;
+    padding: 1.25rem 1.1rem;
+    background: var(--rv-paper);
+    border-top: 6px solid var(--rv-red);
+}
+
+.rv-contents__title {
+    margin: 0 0 0.75rem;
+    font-family: var(--font-titles);
+    font-size: 1.5rem;
+    font-weight: 700;
+    font-style: italic;
+}
+
+.rv-contents__list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.1rem 1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.rv-contents__list a {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    padding: 0.45rem 0;
+    border-bottom: 1px solid var(--inv-line);
+    color: var(--rv-ink);
+    text-decoration: none;
+}
+
+.rv-contents__page {
+    min-width: 1.4rem;
+    font-family: var(--font-titles);
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--rv-red);
+    font-variant-numeric: tabular-nums;
+}
+
+.rv-contents__label {
+    font-size: 0.85rem;
+    line-height: 1.25;
+}
+
+/* La carta del editor: el mensaje con letra capital y la firma */
+.rv-letter {
+    width: var(--rv-width);
+    text-align: left;
+    padding: 1.4rem 1.2rem 1.3rem;
+    background: var(--rv-paper);
+}
+
+.rv-letter__title {
+    margin: 0 0 0.6rem;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--rv-red);
+}
+
+.rv-letter__text {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.7;
+    text-wrap: pretty;
+}
+
+.rv-letter__text::first-letter,
+.inv-revista .inv-head__intro::first-letter {
+    float: left;
+    margin: 0.08em 0.1em 0 0;
+    font-family: var(--font-titles);
+    font-size: 3.4em;
+    font-weight: 700;
+    line-height: 0.8;
+    color: var(--rv-red);
+}
+
+.rv-letter__sign {
+    margin: 0.8rem 0 0;
+    font-family: var(--font-titles);
+    font-style: italic;
+    text-align: right;
+}
+
+.rv-hero__scroll {
+    color: var(--rv-ink);
+}
+
+/* ── Las secciones: páginas de la revista ──────────────────────────────── */
+
+.inv-revista main {
+    display: grid;
+    gap: 1rem;
+    padding: 0 0 1rem;
+}
+
+.inv-revista main > .inv-section {
+    counter-increment: rv-page 2;
+    width: var(--rv-width);
+    margin-inline: auto;
+    padding-block: 3.25rem 3rem;
+    border-top: 0;
+    background: var(--rv-paper);
+    box-shadow: 0 20px 34px -30px color-mix(in srgb, #000 70%, transparent);
+}
+
+/* El cabezal de la página: el nombre de la revista y el número */
+.inv-revista main > .inv-section::before {
+    content: var(--rv-running, "Promoción") " · " var(--rv-page-word, "pág.") " " counter(rv-page);
+    position: absolute;
+    top: 0.9rem;
+    left: 1rem;
+    right: 1rem;
+    padding-bottom: 0.35rem;
+    border-bottom: 1px solid var(--rv-ink);
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-align: right;
+    text-transform: uppercase;
+    color: var(--inv-soft);
+}
+
+.inv-revista .invitation-lottie-framed {
+    display: none;
+}
+
+.inv-revista .inv-head {
+    text-align: left;
+}
+
+/* La sección de la revista, como las rúbricas: en el color de la marca */
+.inv-revista .inv-head__eyebrow {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    background: var(--rv-red);
+    color: var(--tr-ink-primary);
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+}
+
+.inv-revista .inv-head__title {
+    margin-top: 0.6rem;
+    font-size: clamp(2.3rem, 11vw, 3.8rem);
+    font-weight: 700;
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+}
+
+.inv-revista .inv-head__rule {
+    width: 100%;
+    height: 3px;
+    margin: 0.9rem 0 0;
+    border-bottom: 1px solid var(--rv-ink);
+    background: none;
+    border-top: 1px solid var(--rv-ink);
+    opacity: 1;
+}
+
+.inv-revista .inv-head__intro {
+    margin-inline: 0;
+    font-size: 1rem;
+}
+
+.inv-revista :is(.inv-btn, .inv-link, .inv-label) {
+    letter-spacing: 0.12em;
+}
+
+.inv-revista .inv-btn:not(.inv-btn--ghost) {
+    border-color: var(--rv-red);
+    background: var(--rv-red);
+    color: var(--tr-ink-primary);
+}
+
+.inv-revista .inv-countdown__value {
+    font-weight: 700;
+}
+
+/* La confirmación: un cupón para recortar por la línea de puntos */
+.inv-revista main > #rsvp > .inv-wrap {
+    position: relative;
+    padding-block: 1.75rem;
+    border: 2px dashed var(--rv-ink);
+    background: color-mix(in srgb, var(--rv-marker) 14%, var(--rv-paper));
+}
+
+.inv-revista main > #rsvp > .inv-wrap::before {
+    content: '✂';
+    content: '✂' / '';
+    position: absolute;
+    top: -0.9rem;
+    left: 1.25rem;
+    padding: 0 0.3rem;
+    background: var(--rv-paper);
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+.inv-revista .inv-pass {
+    border: 2px solid var(--rv-ink);
+    background: var(--rv-paper);
+}
+
+/* ── Agenda ────────────────────────────────────────────────────────────── */
+
+.rv-agenda {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    text-align: left;
+}
+
+.rv-listing {
+    position: relative;
+    display: grid;
+    gap: 0.2rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--inv-line-strong);
+}
+
+.rv-listing.is-pick {
+    padding: 1.1rem 1rem;
+    margin-bottom: 0.5rem;
+    border: 2px solid var(--rv-ink);
+}
+
+.rv-listing__pick {
+    justify-self: start;
+    margin-bottom: 0.3rem;
+    padding: 0.15rem 0.45rem;
+    background: var(--rv-ink);
+    color: var(--rv-paper);
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+.rv-listing__time {
+    justify-self: start;
+    font-size: 0.85rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    font-variant-numeric: tabular-nums;
+}
+
+.rv-listing__title {
+    margin: 0;
+    font-family: var(--font-titles);
+    font-size: 1.45rem;
+    font-style: italic;
+    font-weight: 700;
+    line-height: 1.15;
+}
+
+.rv-listing__text {
+    margin: 0.15rem 0 0;
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: var(--inv-muted);
+}
+
+@media (min-width: 640px) {
+    .rv-agenda {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        column-gap: 2rem;
+    }
+
+    .rv-listing.is-pick {
+        grid-column: 1 / -1;
+    }
+}
+
+/* ── Créditos ──────────────────────────────────────────────────────────── */
+
+.rv-credits {
+    padding: 1.1rem 1rem;
+    border: 1px solid var(--rv-ink);
+    text-align: left;
+}
+
+.rv-credits__list {
+    display: grid;
+    gap: 0.8rem;
+    margin: 0;
+}
+
+.rv-credit dt {
+    font-size: 0.66rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--rv-red);
+}
+
+.rv-credit dd {
+    margin: 0.1rem 0 0;
+    font-family: var(--font-titles);
+    font-size: 1.2rem;
+    line-height: 1.25;
+}
+
+.rv-credit__quote {
+    display: block;
+    margin-top: 0.2rem;
+    font-family: var(--font-body);
+    font-size: 0.88rem;
+    font-style: italic;
+    line-height: 1.5;
+    color: var(--inv-muted);
+}
+
+.rv-credits__group {
+    margin-top: 1.1rem;
+    padding-top: 0.9rem;
+    border-top: 1px solid var(--inv-line-strong);
+}
+
+.rv-credits__group-title {
+    margin: 0 0 0.3rem;
+    font-size: 0.66rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.rv-credits__names {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.rv-credits__names small {
+    color: var(--inv-soft);
+}
+
+/* ── Apertura: el kiosco, el exhibidor y la revista con su faja ────────── */
+
+.rv-intro {
+    gap: 1.4rem;
+    background:
+        radial-gradient(70% 45% at 50% 55%, color-mix(in srgb, #fff 40%, transparent), transparent 72%),
+        color-mix(in srgb, var(--tr-accent) 55%, var(--rv-paper));
+    color: var(--rv-ink);
+    perspective: 1200px;
+}
+
+/* El toldo del kiosco: franjas y el borde festoneado */
+.rv-awning {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: clamp(4.5rem, 12svh, 6.5rem);
+    background: repeating-linear-gradient(90deg, var(--rv-red) 0 2.4rem, var(--rv-paper) 2.4rem 4.8rem);
+    -webkit-mask: radial-gradient(circle at 50% 0, #000 1.2rem, transparent 1.25rem) 1.2rem 100% / 2.4rem 1.25rem repeat-x, linear-gradient(#000, #000) 0 0 / 100% calc(100% - 1.2rem) no-repeat;
+    mask: radial-gradient(circle at 50% 0, #000 1.2rem, transparent 1.25rem) 1.2rem 100% / 2.4rem 1.25rem repeat-x, linear-gradient(#000, #000) 0 0 / 100% calc(100% - 1.2rem) no-repeat;
+    filter: drop-shadow(0 8px 8px rgb(0 0 0 / 0.18));
+    transition: translate 0.8s var(--tr-ease) 0.2s;
+}
+
+/* El exhibidor: la revista al frente, otras dos detrás y el estante */
+.rv-rack {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    width: min(92vw, 24rem);
+    padding-bottom: 1.2rem;
+}
+
+.rv-rack__issue {
+    position: absolute;
+    top: 6%;
+    width: min(52vw, 12.5rem);
+    aspect-ratio: 4 / 5.4;
+    padding: 0.5rem;
+    background: color-mix(in srgb, var(--rv-paper) 92%, #000);
+    box-shadow: 0 20px 26px -20px rgb(0 0 0 / 0.55);
+    transition: translate 0.7s var(--tr-ease), opacity 0.5s ease;
+}
+
+/* Tapas genéricas: la cabecera de otro color, la foto y los renglones */
+.rv-rack__issue i {
+    display: block;
+    height: 100%;
+    background:
+        linear-gradient(var(--rv-cover-head) 0 0) 0 0 / 100% 16% no-repeat,
+        linear-gradient(color-mix(in srgb, var(--rv-ink) 20%, transparent) 0 0) 0 88% / 70% 3px no-repeat,
+        linear-gradient(color-mix(in srgb, var(--rv-ink) 20%, transparent) 0 0) 0 94% / 55% 3px no-repeat,
+        linear-gradient(160deg, color-mix(in srgb, var(--tr-accent) 70%, #fff), color-mix(in srgb, var(--tr-primary) 30%, var(--tr-accent))) 0 22% / 100% 60% no-repeat;
+}
+
+.rv-rack__issue--left {
+    --rv-cover-head: var(--tr-secondary);
+    left: 0;
+    rotate: -9deg;
+}
+
+.rv-rack__issue--right {
+    --rv-cover-head: color-mix(in srgb, var(--tr-primary) 70%, var(--rv-ink));
+    right: 0;
+    rotate: 8deg;
+}
+
+/* El borde del estante donde se apoyan */
+.rv-rack__shelf {
+    position: absolute;
+    right: -4%;
+    bottom: 0;
+    left: -4%;
+    height: 1.5rem;
+    border-radius: 3px;
+    background:
+        linear-gradient(180deg, color-mix(in srgb, #fff 25%, transparent), transparent 40%),
+        color-mix(in srgb, var(--tr-secondary) 45%, #6b4f36);
+    box-shadow: 0 10px 16px -10px rgb(0 0 0 / 0.5);
+}
+
+.rv-issue {
+    position: relative;
+    z-index: 1;
+    width: min(66vw, 15.5rem);
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    cursor: pointer;
+    rotate: -2deg;
+    transform-style: preserve-3d;
+    animation: inv-fade-up 1s var(--tr-ease) 0.2s both;
+    transition: transform 0.9s var(--tr-ease), rotate 0.9s var(--tr-ease), translate 0.7s var(--tr-spring), opacity 0.6s ease 0.3s;
+}
+
+.rv-issue__cover {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    aspect-ratio: 4 / 5.4;
+    padding: 0.6rem 0.6rem 0.8rem;
+    background: var(--rv-paper);
+    box-shadow: 0 30px 40px -24px rgb(0 0 0 / 0.6), 6px 6px 0 -1px color-mix(in srgb, var(--rv-paper) 75%, #000 10%);
+    grid-template-rows: auto 1fr auto;
+    transform-origin: 0 50%;
+    backface-visibility: hidden;
+    transition: transform 0.85s cubic-bezier(0.5, 0, 0.3, 1);
+}
+
+/* Las hojas de adentro: el índice, que se ve al abrir la tapa */
+.rv-issue__inside {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    align-content: start;
+    gap: 0.6rem;
+    padding: 1rem 0.9rem;
+    background: color-mix(in srgb, var(--rv-paper) 94%, #000);
+    box-shadow: inset 12px 0 16px -12px rgb(0 0 0 / 0.35);
+    text-align: left;
+}
+
+.rv-issue__inside-title {
+    font-family: var(--font-titles);
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--rv-red);
+}
+
+.rv-issue__inside-lines {
+    height: 9rem;
+    background: repeating-linear-gradient(180deg, color-mix(in srgb, var(--rv-ink) 22%, transparent) 0 3px, transparent 3px 14px);
+    -webkit-mask: linear-gradient(90deg, #000 70%, transparent);
+    mask: linear-gradient(90deg, #000 70%, transparent);
+}
+
+.rv-issue__masthead {
+    font-family: var(--font-titles);
+    font-size: 2.2rem;
+    font-weight: 700;
+    line-height: 0.9;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+    color: var(--rv-red);
+    padding-top: 0.15em;
+    white-space: nowrap;
+    overflow: visible;
+}
+
+.rv-issue__photo {
+    position: relative;
+    margin-top: 0.4rem;
+    overflow: hidden;
+}
+
+.rv-issue__photo > * {
+    position: absolute;
+    inset: 0;
+}
+
+.rv-issue__name {
+    margin-top: 0.5rem;
+    font-family: var(--font-script);
+    font-size: 1.4rem;
+    font-weight: 700;
+    line-height: 1;
+    text-align: left;
+}
+
+/* La faja de papel que envuelve la revista */
+.rv-band {
+    position: absolute;
+    top: 58%;
+    left: -6%;
+    right: -6%;
+    z-index: 2;
+    display: flex;
+    height: 3.4rem;
+    filter: drop-shadow(0 6px 6px rgb(0 0 0 / 0.3));
+}
+
+.rv-band__half {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    overflow: hidden;
+    background: var(--rv-marker);
+    color: var(--tr-ink-secondary);
+    font-size: 0.6rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    transition: transform 0.7s cubic-bezier(0.5, 0, 0.8, 0.6) 0.2s, opacity 0.5s ease 0.5s;
+}
+
+.rv-band__half--left {
+    justify-content: center;
+    padding-right: 0.3rem;
+    clip-path: polygon(0 0, 100% 0, 96% 20%, 100% 40%, 95% 60%, 100% 80%, 96% 100%, 0 100%);
+}
+
+.rv-band__half--right {
+    justify-content: center;
+    padding-left: 0.5rem;
+    clip-path: polygon(4% 0, 100% 0, 100% 100%, 0 100%, 5% 80%, 0 60%, 5% 40%, 0 20%);
+}
+
+/* La nota pegada al borde del estante */
+.rv-intro__guest {
+    position: absolute;
+    right: 2%;
+    bottom: -1.9rem;
+    z-index: 2;
+    max-width: 11rem;
+    margin: 0;
+    padding: 0.55rem 0.7rem;
+    background: color-mix(in srgb, var(--rv-marker) 45%, #fff);
+    box-shadow: 0 8px 12px -8px rgb(0 0 0 / 0.45);
+    font-family: var(--font-titles);
+    font-size: 0.82rem;
+    font-style: italic;
+    line-height: 1.3;
+    text-align: left;
+    rotate: 3deg;
+    animation: inv-fade-up 1s var(--tr-ease) 0.6s both;
+    transition: opacity 0.4s ease;
+}
+
+.rv-intro__guest b {
+    display: block;
+    font-style: normal;
+}
+
+.rv-intro__hint {
+    margin: 1.2rem 0 0;
+    font-size: 0.85rem;
+    color: var(--inv-soft);
+    animation: rv-hint 2.2s ease-in-out 1.5s infinite;
+    transition: opacity 0.3s ease;
+}
+
+/* 1 · Se saca la revista del exhibidor y la faja se rompe: cada mitad cae hacia su lado */
+.rv-intro.is-torn .rv-issue {
+    translate: 0 -1.4rem;
+    rotate: 0deg;
+    transform: scale(1.06);
+}
+
+.rv-intro.is-torn .rv-rack__issue--left { translate: -1.2rem 1rem; opacity: 0.6; }
+.rv-intro.is-torn .rv-rack__issue--right { translate: 1.2rem 1rem; opacity: 0.6; }
+
+.rv-intro.is-torn .rv-band__half--left {
+    transform: translate(-40%, 90%) rotate(-24deg);
+    opacity: 0;
+}
+
+.rv-intro.is-torn .rv-band__half--right {
+    transform: translate(40%, 110%) rotate(20deg);
+    opacity: 0;
+}
+
+.rv-intro.is-torn :is(.rv-intro__hint, .rv-intro__guest) {
+    opacity: 0;
+    animation: none;
+}
+
+/* 2 · Se abre la tapa, el toldo sube y la revista se acerca hasta ser la portada */
+.rv-intro.is-open .rv-issue__cover {
+    transform: rotateY(-160deg);
+}
+
+.rv-intro.is-open .rv-awning {
+    translate: 0 -110%;
+}
+
+.rv-intro.is-open .rv-issue {
+    transform: scale(1.5) translateY(-2%);
+    opacity: 0;
+    transition-delay: 0.45s;
+}
+
+@keyframes rv-hint {
+    50% { translate: 0 -3px; }
+}
+
+/* ── Fondo: recortes de revista con las letras del nombre (revista/ambient) ──
+   Caen por delante de las páginas, como los papelitos: suaves y sin atrapar toques. */
+
+.rv-ambient {
+    position: fixed;
+    inset: 0;
+    z-index: 3;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+/* Cada letra recortada de otra página: su papel, su tipografía y su color */
+.rv-ambient__cut {
+    position: absolute;
+    top: -4rem;
+    left: var(--x);
+    display: grid;
+    place-items: center;
+    min-width: 2.4rem;
+    padding: 0.1rem 0.45rem 0.15rem;
+    box-shadow: 1px 2px 0 color-mix(in srgb, #000 12%, transparent);
+    font-size: 2rem;
+    line-height: 1;
+    opacity: 0;
+    clip-path: polygon(3% 6%, 97% 0, 100% 93%, 5% 100%);
+    animation: rv-fall var(--d) linear var(--delay) infinite;
+}
+
+.rv-ambient__cut--0 {
+    background: var(--rv-red);
+    color: var(--tr-ink-primary);
+    font-family: var(--font-titles);
+    font-weight: 700;
+}
+
+.rv-ambient__cut--1 {
+    background: var(--rv-paper);
+    color: var(--rv-ink);
+    font-family: var(--font-script);
+    font-size: 2.3rem;
+}
+
+.rv-ambient__cut--2 {
+    background: var(--rv-marker);
+    color: var(--tr-ink-secondary);
+    font-family: var(--font-body);
+    font-weight: 800;
+    font-size: 1.7rem;
+}
+
+.rv-ambient__cut--3 {
+    background: var(--rv-ink);
+    color: var(--rv-paper);
+    font-family: var(--font-titles);
+    font-style: italic;
+    font-size: 2.2rem;
+}
+
+@media (max-width: 639px) {
+    .rv-ambient__cut.is-extra {
+        display: none;
+    }
+}
+
+@keyframes rv-fall {
+    0% { opacity: 0; transform: translate(0, 0) rotate(var(--r)); }
+    6% { opacity: 0.26; }
+    50% { transform: translate(1.5rem, 55vh) rotate(calc(var(--r) + var(--spin) * 0.5)); }
+    94% { opacity: 0.26; }
+    100% { opacity: 0; transform: translate(-0.5rem, 112vh) rotate(calc(var(--r) + var(--spin))); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .rv-ambient * {
+        animation: none !important;
+    }
+}
+
+/* ── Pie e historia ───────────────────────────────────────────────────── */
+
+.inv-revista .inv-revista-footer {
+    width: var(--rv-width);
+    margin: 0 auto 1.5rem;
+    border-top: 6px solid var(--rv-red);
+    background: var(--rv-paper);
+}
+
+.inv-story-invitation .inv-revista .inv-scene {
+    --story-scene-bg: var(--rv-paper);
+    transform-origin: 0 50%;
+    transform: perspective(1400px) rotateY(-28deg);
+    opacity: 0;
+    transition: transform 0.8s var(--tr-ease), opacity 0.5s ease, visibility 0s linear 0.8s;
+}
+
+.inv-story-invitation .inv-revista .inv-scene.is-active {
+    transform: none;
+    opacity: 1;
+    transition-delay: 0s;
+}
+
+/* ── Tapa sin foto: el año de la promoción, gigante, sobre el color de la marca ── */
+
+.rv-cover__photo.is-typographic,
+.rv-issue__photo.is-typographic {
+    background:
+        radial-gradient(circle, color-mix(in srgb, var(--tr-ink-primary) 22%, transparent) 1px, transparent 1.6px) 0 0 / 9px 9px,
+        var(--rv-red);
+}
+
+.rv-cover__type {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    padding-bottom: 18%;
+    color: transparent;
+    font-family: var(--font-titles);
+    font-size: clamp(9rem, 58vw, 15rem);
+    font-weight: 700;
+    line-height: 0.78;
+    letter-spacing: -0.06em;
+    -webkit-text-stroke: 2px var(--tr-ink-primary);
+}
+
+.rv-cover__type span:last-child {
+    color: var(--tr-ink-primary);
+}
+
+.rv-issue__photo .rv-cover__type {
+    font-size: 5.5rem;
+    -webkit-text-stroke-width: 1.5px;
+}
+
+/* Sobre la tapa tipográfica el velo es apenas una sombra: no debe ensuciar el color */
+.rv-cover__photo.is-typographic .rv-cover__scrim {
+    background: linear-gradient(180deg, transparent 30%, color-mix(in srgb, #000 28%, transparent));
+}

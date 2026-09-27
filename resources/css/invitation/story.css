@@ -494,9 +494,9 @@ html.inv-cover-waiting .inv-story__hint {
    (.inv-tale__turn, mientras html.is-turning):
    - Boda: la página se da vuelta y caen hojas.
    - XV: la escena entra como un fundido de gala y se encienden destellos dorados.
-   - Bautizo: sube entre nubes que pasan.
+   - Entre nubes (bautizo): sube entre nubes que pasan.
    - Cumpleaños: salta con rebote y cae confeti.
-   - Graduación: se despliega desde el centro, como el diploma, con destellos dorados.
+   - Birrete al aire (graduación): se abre desde el centro, como el telón del acto, con destellos dorados.
    - Halloween: aparece entre la niebla, con un parpadeo.
    - Lienzo: un deslizamiento sobrio.
    ════════════════════════════════════════════════════════════════════════════ */
@@ -751,8 +751,8 @@ body.has-player .inv-tale__controls {
     100% { opacity: 0; scale: 0.4; rotate: 90deg; }
 }
 
-/* Bautizo: la escena sube entre nubes que pasan */
-.inv-story-invitation .inv-bautizo .inv-scene {
+/* Entre nubes (bautizo): la escena sube entre nubes que pasan */
+.inv-story-invitation .inv-nubes .inv-scene {
     translate: 0 16%;
     rotate: 0deg;
     scale: 1;
@@ -761,19 +761,19 @@ body.has-player .inv-tale__controls {
     transition: translate 1s var(--inv-ease), opacity 0.7s ease, filter 0.9s ease, visibility 0s linear 1s;
 }
 
-.inv-story-invitation .inv-bautizo .inv-scene.is-past {
+.inv-story-invitation .inv-nubes .inv-scene.is-past {
     translate: 0 -12%;
     filter: blur(8px);
 }
 
-.inv-story-invitation .inv-bautizo .inv-scene.is-active {
+.inv-story-invitation .inv-nubes .inv-scene.is-active {
     translate: 0 0;
     opacity: 1;
     filter: none;
     transition-delay: 0s;
 }
 
-.inv-story-invitation.is-turning .inv-bautizo .inv-tale__turn i {
+.inv-story-invitation.is-turning .inv-nubes .inv-tale__turn i {
     left: -30%;
     width: calc(9rem * var(--s));
     height: calc(4rem * var(--s));
@@ -834,8 +834,8 @@ body.has-player .inv-tale__controls {
     100% { opacity: 0; translate: calc(var(--r) * 0.6px) 85vh; rotate: calc(var(--r) * 12); }
 }
 
-/* Graduación: se despliega desde el centro, como el diploma, con destellos dorados */
-.inv-story-invitation .inv-graduacion .inv-scene {
+/* Birrete al aire (graduación): se abre desde el centro, como el telón del acto, con destellos dorados */
+.inv-story-invitation .inv-birrete .inv-scene {
     translate: 0 0;
     rotate: 0deg;
     scale: 1;
@@ -845,19 +845,19 @@ body.has-player .inv-tale__controls {
     transition: clip-path 0.9s var(--inv-ease), opacity 0.5s ease, scale 0.9s var(--inv-ease), visibility 0s linear 0.9s;
 }
 
-.inv-story-invitation .inv-graduacion .inv-scene.is-past {
+.inv-story-invitation .inv-birrete .inv-scene.is-past {
     clip-path: inset(0 0 0 0);
     opacity: 0;
     scale: 0.95;
 }
 
-.inv-story-invitation .inv-graduacion .inv-scene.is-active {
+.inv-story-invitation .inv-birrete .inv-scene.is-active {
     clip-path: inset(0 0 0 0);
     opacity: 1;
     transition-delay: 0s;
 }
 
-.inv-story-invitation.is-turning .inv-graduacion .inv-tale__turn i {
+.inv-story-invitation.is-turning .inv-birrete .inv-tale__turn i {
     top: 50%;
     width: calc(0.8rem * var(--s));
     height: calc(0.8rem * var(--s));

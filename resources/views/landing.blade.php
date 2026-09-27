@@ -2,9 +2,10 @@
 
 {{--
     Página por tipo de evento o de tarjeta. El contenido vive en config/bida.php (landings); ver
-    EventLandingController. No repite la portada: arriba se prueba la muestra (con un selector si hay
-    varios diseños), luego lo propio del evento, el precio y las preguntas. Las muestras salen de
-    «demos» o, en las tarjetas, de la temporada, así sumar un diseño no cambia esta vista.
+    EventLandingController. Arriba, cada diseño se ve como una captura de cómo empieza su apertura
+    (bida:capturas-muestras) y al tocarlo se abre su muestra completa; luego lo propio del evento, el
+    precio y las preguntas. Las muestras salen de «demos» o, en las tarjetas, de la temporada, así
+    sumar un diseño no cambia esta vista.
 --}}
 @section('title', $page['title'].' | '.$bida['brand'])
 @section('description', $page['description'])
@@ -68,19 +69,11 @@
     @include('site.partials.header', ['navLinks' => $navLinks])
 
     {{-- El diseño elegido se comparte entre la portada (el teléfono) y la sección de diseños --}}
-    <main @if(count($demos)) x-data="{
-        active: 0,
-        loading: true,
-        demos: @js($demos),
-        pick(index) {
-            if (this.active !== index) { this.active = index; this.loading = true; }
-            document.getElementById('diseno-vista')?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
-        },
-    }" @endif>
-        {{-- ═══ Portada: el texto del evento y la muestra para probar ahí mismo, con sus diseños ═══ --}}
+    <main>
+        {{-- ═══ Portada: el texto del evento y sus diseños, cada uno como la captura de su apertura ═══ --}}
         <section class="site-landing">
             <div class="mx-auto grid max-w-7xl items-center gap-12 px-5 pb-16 pt-8 md:pt-14 lg:min-h-[calc(100dvh-72px)] lg:grid-cols-12 lg:gap-8 lg:px-8 lg:py-12">
-                <div class="lg:col-span-6">
+                <div class="lg:col-span-5">
                     <nav class="site-enter text-sm text-site-muted" aria-label="Ruta">
                         <a href="{{ route('home') }}" class="site-nav-link hover:text-site-ink">{{ $bida['brand'] }}</a>
                         <span class="mx-2" aria-hidden="true">/</span>
@@ -92,38 +85,6 @@
                     <p class="site-enter mt-6 max-w-[44ch] text-lg leading-relaxed text-site-muted" style="--enter-index: 2">
                         {{ $page['intro'] }}
                     </p>
-
-                    @if(count($demos) > 1)
-                        <div class="site-enter mt-9" style="--enter-index: 3">
-                            <p class="text-sm font-medium text-site-muted" id="disenos-titulo">Diseños para probar</p>
-                            <ol class="site-template-list mt-3" role="tablist" aria-labelledby="disenos-titulo">
-                                @foreach($demos as $index => $demo)
-                                    <li>
-                                        <button type="button" role="tab" id="diseno-tab-{{ $index }}" aria-controls="diseno-vista"
-                                            aria-selected="{{ $index === 0 ? 'true' : 'false' }}"
-                                            :aria-selected="(active === {{ $index }}).toString()"
-                                            @click="if (active !== {{ $index }}) { active = {{ $index }}; loading = true }"
-                                            @class(['site-template', 'is-active' => $index === 0])
-                                            :class="{ 'is-active': active === {{ $index }} }">
-                                            {{-- Los colores del diseño, para reconocerlo de un vistazo --}}
-                                            <span class="site-template__swatch" aria-hidden="true">
-                                                @foreach(array_slice($demo['palette'], 0, 3) as $color)
-                                                    <i style="background: {{ $color }}"></i>
-                                                @endforeach
-                                            </span>
-                                            <span class="site-template__name">
-                                                {{ $demo['label'] }}
-                                                @if($demo['isNew'])
-                                                    <span class="site-badge-new">Nuevo</span>
-                                                @endif
-                                            </span>
-                                            <span class="site-template__event">{{ $demo['tagline'] ?? $demo['event'] }}</span>
-                                        </button>
-                                    </li>
-                                @endforeach
-                            </ol>
-                        </div>
-                    @endif
 
                     <div class="site-enter mt-9 flex flex-col gap-3 sm:flex-row" style="--enter-index: 4">
                         <a href="{{ $ctaUrl }}" target="_blank" rel="noopener" class="site-btn site-btn--lg justify-center" data-magnetic>
@@ -149,77 +110,50 @@
                 </div>
 
                 @if(count($demos))
-                    {{-- Muestra interactiva: nada se guarda. La foto del evento queda detrás del teléfono --}}
-                    <div class="site-landing__stage lg:col-span-5 lg:col-start-8">
+                    {{-- Los diseños: la captura de cómo empieza cada apertura, sobre la foto del evento. Al tocarla se abre la muestra completa --}}
+                    <div id="disenos" class="site-landing__stage scroll-mt-24 lg:col-span-7">
                         <div class="site-landing__photo" aria-hidden="true">
                             <x-site.image :key="$page['image']" :priority="true" />
                         </div>
-                        <div class="site-phone site-phone--showcase">
-                            <div id="diseno-vista" @if(count($demos) > 1) role="tabpanel" aria-labelledby="diseno-tab-0" :aria-labelledby="'diseno-tab-' + active" @endif
-                                class="site-phone__screen" :class="{ 'is-loading': loading }">
-                                <iframe src="{{ $demos[0]['demoUrl'] }}" :src="demos[active].demoUrl"
-                                    title="{{ ucfirst($noun) }} de muestra: {{ $demos[0]['title'] }}" :title="'{{ ucfirst($noun) }} de muestra: ' + demos[active].title"
-                                    @load="loading = false"></iframe>
-                            </div>
-                        </div>
+
+                        <ul class="site-shots site-shots--{{ min(count($demos), 3) }}" aria-label="Diseños">
+                            @foreach($demos as $index => $demo)
+                                <li class="site-shot" style="--i: {{ $index }}">
+                                    <a href="{{ $demo['demoUrl'] }}" class="site-shot__link">
+                                        <span class="site-phone site-shot__phone">
+                                            @if($demo['isNew'])
+                                                <span class="site-badge-new site-shot__badge">Nuevo</span>
+                                            @endif
+                                            <span class="site-phone__screen">
+                                                @if($demo['capture'])
+                                                    <img src="{{ $demo['capture'] }}" width="390" height="844" alt="" decoding="async" @if($index > 0) loading="lazy" @endif>
+                                                @else
+                                                    {{-- Sin captura todavía: la misma apertura en vivo, quieta hasta que se abra la muestra --}}
+                                                    <iframe src="{{ $demo['demoUrl'] }}" title="Apertura de {{ $demo['label'] }}" tabindex="-1" aria-hidden="true" loading="lazy"></iframe>
+                                                @endif
+                                            </span>
+                                        </span>
+                                        <span class="site-shot__caption">
+                                            <span class="site-shot__name">{{ $demo['label'] }}</span>
+                                            <span class="site-shot__tagline">{{ $demo['tagline'] ?? $demo['event'] }}</span>
+                                            <span class="site-shot__cta">Verla completa <x-phosphor-arrow-right aria-hidden="true" /></span>
+                                        </span>
+                                    </a>
+                                </li>
+                            @endforeach
+                        </ul>
+
                         <p class="site-landing__hint">
-                            {{ $page['demo_note'] ?? 'Pruébala como un invitado: confirma, vota o sugiere una canción. Es una muestra, nada se guarda.' }}
-                            <a href="{{ $demos[0]['demoUrl'] }}" :href="demos[active].demoUrl" target="_blank" rel="noopener">Abrir en pantalla completa</a>
+                            {{ $page['demo_note'] ?? 'Toca un diseño para abrir su muestra y pruébala como un invitado: confirma, vota o sugiere una canción. Nada se guarda.' }}
                         </p>
                     </div>
                 @else
-                    <div class="site-photo aspect-[4/5] w-full lg:col-span-5 lg:col-start-8">
+                    <div class="site-photo aspect-[4/5] w-full lg:col-span-6 lg:col-start-7">
                         <x-site.image :key="$page['image']" :priority="true" />
                     </div>
                 @endif
             </div>
         </section>
-
-        @if(count($demos) > 1)
-            {{-- ═══ Diseños: cada uno con sus colores y su idea; se prueba en el teléfono de arriba ═══ --}}
-            <section id="disenos" class="scroll-mt-20 border-t border-site-line">
-                <div class="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-24">
-                    <div class="grid gap-6 lg:grid-cols-12 lg:items-end lg:gap-8">
-                        <h2 class="max-w-[18ch] text-3xl font-semibold leading-[1.1] tracking-tight md:text-5xl lg:col-span-7" data-reveal>
-                            {{ count($demos) }} diseños, la misma {{ $noun }} completa
-                        </h2>
-                        <p class="max-w-[42ch] text-lg leading-relaxed text-site-muted lg:col-span-4 lg:col-start-9" data-reveal>
-                            Cambia la forma, no lo que incluye. Los colores y las letras se ajustan a tu evento en cualquiera de ellos.
-                        </p>
-                    </div>
-
-                    <ul class="site-designs mt-12">
-                        @foreach($demos as $index => $demo)
-                            <li class="site-design" data-reveal style="--reveal-index: {{ $index % 3 }}" :class="{ 'is-active': active === {{ $index }} }">
-                                {{-- La paleta original del diseño, de fondo a acento --}}
-                                <div class="site-design__palette" aria-hidden="true">
-                                    @foreach($demo['palette'] as $color)
-                                        <i style="background: {{ $color }}"></i>
-                                    @endforeach
-                                </div>
-                                <div class="site-design__body">
-                                    <p class="site-design__event">
-                                        {{ $demo['event'] }}
-                                        @if($demo['isNew'])
-                                            <span class="site-badge-new">Nuevo</span>
-                                        @endif
-                                    </p>
-                                    <h3 class="site-design__name">{{ $demo['label'] }}</h3>
-                                    <p class="site-design__text">{{ $demo['description'] }}</p>
-                                    <div class="site-design__actions">
-                                        <button type="button" class="site-btn" @click="pick({{ $index }})">
-                                            <x-phosphor-device-mobile aria-hidden="true" />
-                                            Probar en el teléfono
-                                        </button>
-                                        <a href="{{ $demo['demoUrl'] }}" target="_blank" rel="noopener" class="site-design__link">Pantalla completa</a>
-                                    </div>
-                                </div>
-                            </li>
-                        @endforeach
-                    </ul>
-                </div>
-            </section>
-        @endif
 
         {{-- ═══ Qué incluye: lo propio de este evento, en una grilla de filetes ═══ --}}
         <section id="incluye" class="scroll-mt-20 border-t border-site-line">

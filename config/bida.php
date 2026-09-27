@@ -52,7 +52,7 @@ return [
 
     // Invitaciones de muestra (una por plantilla): se prueban en "Plantillas" sin guardar nada y el teléfono de la portada recorre sus aperturas.
     // Las tarjetas de temporada no van aquí: tienen su sección propia (clave «season»).
-    'demo_invitations' => ['xv-isabella', 'boda-camila-andres', 'bautizo-emilia', 'cumple-daniela-30', 'graduacion-mariana'],
+    'demo_invitations' => ['xv-isabella', 'boda-camila-andres', 'bautizo-emilia', 'cumple-daniela-30', 'graduacion-mariana', 'babyshower-valentina'],
 
     // Página «Hazlo tú» (/hazlo-tu, planes mensuales): las muestras que se prueban en su teléfono
     'professionals' => [
@@ -154,7 +154,7 @@ return [
             'event' => 'boda',
             'link' => 'Invitaciones de boda',
             'code' => 'BODA',
-            'demos' => ['boda-camila-andres', 'boda-camila-andres-caminos'],
+            'demos' => ['boda-camila-andres', 'boda-camila-andres-caminos', 'boda-camila-andres-partitura'],
             'image' => 'event-boda',
             'label' => 'Bodas',
             'title' => 'Invitaciones digitales de boda en Bolivia',
@@ -178,7 +178,7 @@ return [
             'event' => 'xv',
             'link' => 'Invitaciones de XV años',
             'code' => 'XV',
-            'demos' => ['xv-isabella', 'xv-isabella-carta'],
+            'demos' => ['xv-isabella', 'xv-isabella-carta', 'xv-isabella-galeria'],
             'image' => 'event-xv',
             'label' => 'XV años',
             'title' => 'Invitaciones digitales de XV años en Bolivia',
@@ -202,7 +202,7 @@ return [
             'event' => 'bautizo',
             'link' => 'Invitaciones de bautizo',
             'code' => 'BAUT',
-            'demos' => ['bautizo-emilia', 'bautizo-emilia-gota'],
+            'demos' => ['bautizo-emilia', 'bautizo-emilia-gota', 'bautizo-emilia-movil'],
             'image' => 'event-bautizo',
             'label' => 'Bautizos',
             'title' => 'Invitaciones digitales de bautizo en Bolivia',
@@ -226,7 +226,7 @@ return [
             'event' => 'cumple',
             'link' => 'Invitaciones de cumpleaños',
             'code' => 'CUMP',
-            'demos' => ['cumple-daniela-30', 'cumple-daniela-stickers'],
+            'demos' => ['cumple-daniela-30', 'cumple-daniela-stickers', 'cumple-daniela-30-gira'],
             'image' => 'event-cumpleanos',
             'label' => 'Cumpleaños',
             'title' => 'Invitaciones digitales de cumpleaños en Bolivia',
@@ -251,7 +251,7 @@ return [
             'event' => 'graduacion',
             'link' => 'Invitaciones de graduación',
             'code' => 'GRAD',
-            'demos' => ['graduacion-mariana', 'graduacion-mariana-salidas'],
+            'demos' => ['graduacion-mariana', 'graduacion-mariana-salidas', 'graduacion-mariana-revista'],
             'image' => 'event-graduacion',
             'label' => 'Graduación',
             'for' => 'tu graduación',
@@ -272,6 +272,31 @@ return [
             ],
             'whatsapp' => 'Hola {brand}, quiero una invitación digital para una graduación.',
         ],
+        'invitaciones-de-baby-shower' => [
+            'event' => 'babyshower',
+            'link' => 'Invitaciones de baby shower',
+            'code' => 'BABY',
+            'demos' => ['babyshower-valentina'],
+            'image' => 'event-bautizo',
+            'label' => 'Baby shower',
+            'for' => 'tu baby shower',
+            'title' => 'Invitaciones digitales de baby shower en Bolivia',
+            'description' => 'Invitación web para el baby shower: el programa de la tarde, el mapa, la lista de regalos para el bebé y la confirmación de cada invitado. Lista para enviar por WhatsApp.',
+            'heading' => 'Invitaciones de baby shower para celebrar su llegada',
+            'intro' => 'Un tendedero con la ropita del bebé y todo lo que tus invitados necesitan saber: cuándo, dónde, qué llevar de regalo y cómo confirmar. Con sus fotos y los colores que elijas.',
+            'highlights' => [
+                ['icon' => 'baby-carriage', 'title' => 'Con el nombre del bebé', 'text' => 'O con «Bebé en camino» si todavía no lo eligieron: la portada lo lleva estampado en el enterito.'],
+                ['icon' => 'gift', 'title' => 'Lista de regalos', 'text' => 'Pañales, ropita o una lluvia de sobres: cada opción con su detalle y, si quieres, los datos de la cuenta.'],
+                ['icon' => 'chart-bar', 'title' => 'Juegos antes de la fiesta', 'text' => 'Tus invitados adivinan a quién se parecerá o cuándo llegará, y ven los resultados al instante.'],
+                ['icon' => 'qr-code', 'title' => 'Confirmación con pase', 'text' => 'Sabes quién va y cuántas personas; en Premium cada invitado recibe su pase QR.'],
+            ],
+            'faqs' => [
+                ['¿Y si todavía no sabemos el nombre?', 'No hace falta: la portada puede decir «Bebé en camino» o llevar el nombre de la mamá, y se cambia cuando quieran.'],
+                ['¿Puedo poner la lista de regalos?', 'Sí. Hay espacio para la lista de regalos, el enlace a una tienda, una lluvia de sobres o los datos de una cuenta con su QR.'],
+                ['¿Sirve para una revelación de género?', 'Sí. Cambiamos los textos y los colores para anunciar si es niña o niño el día de la fiesta.'],
+            ],
+            'whatsapp' => 'Hola {brand}, quiero una invitación digital para un baby shower.',
+        ],
 
         // ── Invitaciones de temporada: se venden a su precio de temporada mientras dure (config «season»)
         'invitaciones-de-halloween' => [
@@ -279,7 +304,7 @@ return [
             'kind' => 'season',
             'link' => 'Invitaciones de Halloween',
             'code' => 'HALLO',
-            'demos' => ['halloween-noche-diego', 'halloween-expediente-diego'],
+            'demos' => ['halloween-noche-diego', 'halloween-expediente-diego', 'halloween-noche-diego-funcion'],
             'image' => 'servicio-enlace',
             'label' => 'Halloween',
             'for' => 'tu fiesta de Halloween',
@@ -316,7 +341,7 @@ return [
             'heading' => 'Tarjetas digitales para el Día del Amor y la Primavera',
             'intro' => 'Para tu pareja, tu mejor amiga o tu familia. Nos mandas tu foto y tu mensaje, eliges el diseño y la tarjeta llega por WhatsApp el mismo día.',
             'features_note' => 'Cada diseño se abre a su manera; esto lo tienen todos.',
-            'demo_note' => 'Ábrela dentro del teléfono y escribe una respuesta. Es una muestra: nada de lo que hagas se guarda.',
+            'demo_note' => 'Toca un diseño para abrir su muestra y escribe una respuesta. Nada de lo que hagas se guarda.',
             'highlights' => [
                 ['icon' => 'image', 'title' => 'Tu foto y tu mensaje', 'text' => 'La tarjeta lleva su foto, tu carta y los recuerdos que quieras compartir.'],
                 ['icon' => 'hand-tap', 'title' => 'Se abre con un gesto', 'text' => 'Cada diseño tiene su sorpresa: tocar, mantener presionado, deslizar o soplar.'],
@@ -515,8 +540,9 @@ return [
     | tope). Cada plan desbloquea más cosas, y eso es lo que justifica pagar más:
     |  - «collections»: qué familias de plantillas puede usar (ver «collection» en
     |    App\Support\InvitationTemplates): lienzo (la genérica en blanco), clasica (XV, boda,
-    |    bautizo, cumpleaños, graduación), temporada (Halloween, tarjetas del Día del Amor) y
-    |    nueva (las plantillas que se suman durante el año para cada evento).
+    |    bautizo, cumpleaños, graduación, baby shower), temporada (Halloween, tarjetas del Día
+    |    del Amor), nueva (las plantillas que se suman durante el año para cada evento) y
+    |    tendencias (las temáticas de App\Support\TrendTemplates: la galería, la partitura…).
     |  - «rsvp»: la confirmación de asistencia que puede usar: whatsapp (el invitado le escribe) y
     |    pass (pase QR guardado, control de entrada y reportes). En una invitación va una sola.
     | Todos los planes crean accesos para sus clientes (uno por evento), pero no más por mes que
@@ -562,7 +588,7 @@ return [
             'price' => 36,
             'promo_price' => 29,
             'quota_per_month' => 20,
-            'collections' => ['lienzo', 'clasica', 'temporada', 'nueva'],
+            'collections' => ['lienzo', 'clasica', 'temporada', 'nueva', 'tendencias'],
             'rsvp' => ['whatsapp', 'pass'],
             'white_label' => true,
             'cycle_months' => 1,
@@ -575,7 +601,7 @@ return [
             'price' => 72,
             'promo_price' => 59,
             'quota_per_month' => null,
-            'collections' => ['lienzo', 'clasica', 'temporada', 'nueva'],
+            'collections' => ['lienzo', 'clasica', 'temporada', 'nueva', 'tendencias'],
             'rsvp' => ['whatsapp', 'pass'],
             'white_label' => true,
             'cycle_months' => 1,

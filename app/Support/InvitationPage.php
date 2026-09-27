@@ -35,6 +35,8 @@ final class InvitationPage
         'Barlow Condensed' => '400;500;600;700', 'Source Serif 4' => '400;600;700', 'Cormorant Infant' => '300;400;500;600;700',
         'Bagel Fat One' => '400', 'Outfit' => '300;400;500;600;700', 'Special Elite' => '400',
         'Public Sans' => '300;400;500;600;700',
+        'Instrument Serif' => '400', 'Fraunces' => '400;600;700', 'Bricolage Grotesque' => '400;500;600;700;800',
+        'DM Sans' => '400;500;600;700', 'Bungee' => '400', 'Alfa Slab One' => '400',
     ];
 
     public const NAV_LABELS = [

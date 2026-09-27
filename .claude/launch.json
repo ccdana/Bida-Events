@@ -6,6 +6,12 @@
       "runtimeExecutable": "C:\\laragon\\bin\\php\\php-8.4.24-Win32-vs17-x64\\php.exe",
       "runtimeArgs": ["artisan", "serve", "--port=8123"],
       "port": 8123
+    },
+    {
+      "name": "vite",
+      "runtimeExecutable": "C:\\laragon\\bin\\nodejs\\node-v22\\node.exe",
+      "runtimeArgs": ["node_modules/vite/bin/vite.js", "--host", "localhost"],
+      "port": 5173
     }
   ]
 }

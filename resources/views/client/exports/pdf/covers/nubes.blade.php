@@ -1,5 +1,5 @@
 {{--
-    «Entre nubes»: el cielo con la paloma arriba, el nombre sobre el fondo claro y las nubes
+    «Entre nubes»: el sol entre las nubes arriba, el nombre sobre el fondo claro y las nubes
     otra vez al pie, como la portada que se abre entre nubes.
 --}}
 <style>

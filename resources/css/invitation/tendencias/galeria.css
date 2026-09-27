@@ -1,0 +1,1090 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   INVITACIÓN — «Galería Quince» (XV años · colección tendencias)
+
+   Sus quince años son una exposición de arte en su noche de inauguración. La
+   entrada es la galería a oscuras con el cordón de terciopelo; la portada, la
+   pared principal con su retrato bajo el foco y la cédula del museo; cada
+   sección es una sala numerada (I, II, III…), el programa es el recorrido y los
+   padrinos, el muro de mecenas.
+
+   Todo sale de la paleta del editor:
+     paredes = fondo · tinta y sala a oscuras = texto · terciopelo = principal ·
+     latón (marcos, postes) = secundario · paspartú y pedestales = acento.
+   El latón es un degradado del secundario: con cualquier color se ve metálico.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+@import './_base.css';
+
+.inv-galeria {
+    --inv-radius: 2px;
+    --gq-wall: var(--tr-bg);
+    --gq-wall-shade: color-mix(in srgb, var(--tr-text) 9%, var(--tr-bg));
+    --gq-night: color-mix(in srgb, var(--tr-text) 90%, #000);
+    --gq-velvet: var(--tr-primary);
+    --gq-velvet-dark: color-mix(in srgb, var(--tr-primary) 70%, #000);
+    --gq-brass: linear-gradient(135deg,
+        color-mix(in srgb, var(--tr-secondary) 55%, #fff) 0%,
+        var(--tr-secondary) 38%,
+        color-mix(in srgb, var(--tr-secondary) 70%, #000) 62%,
+        color-mix(in srgb, var(--tr-secondary) 75%, #fff) 100%);
+    --gq-brass-solid: var(--tr-secondary);
+    --gq-mat: color-mix(in srgb, var(--tr-accent) 45%, #fff);
+    --gq-plaque: color-mix(in srgb, var(--tr-bg) 55%, #fff);
+    --gq-engrave:
+        0 1px 0 color-mix(in srgb, #fff 55%, transparent),
+        0 -1px 0 color-mix(in srgb, #000 12%, transparent);
+    --themed-from: translate3d(0, 24px, 0);
+
+    background: var(--gq-wall);
+    counter-reset: gq-sala;
+}
+
+.inv-galeria.has-player {
+    padding-bottom: calc(5.25rem + env(safe-area-inset-bottom));
+}
+
+/* ── Latón y terciopelo (compartidos por la entrada y la portada) ────────── */
+
+.gq-post {
+    fill: var(--gq-brass-solid);
+}
+
+.gq-post circle {
+    fill: color-mix(in srgb, var(--tr-secondary) 70%, #fff);
+}
+
+.gq-rope__cord {
+    fill: none;
+    stroke: var(--gq-velvet);
+    stroke-width: 7;
+    stroke-linecap: round;
+}
+
+/* Brillo del terciopelo: una línea clara y fina sobre el cordón */
+.gq-rope__sheen {
+    fill: none;
+    stroke: color-mix(in srgb, var(--tr-primary) 45%, #fff);
+    stroke-width: 1.4;
+    stroke-linecap: round;
+    stroke-dasharray: 2 5;
+    opacity: 0.7;
+    transform: translateY(-1.6px);
+}
+
+.gq-rope__clip {
+    fill: var(--gq-brass-solid);
+}
+
+/* ── Portada: la pared principal ────────────────────────────────────────── */
+
+.gq-hero {
+    align-content: start;
+    justify-items: center;
+    gap: 1.5rem;
+    min-height: 100svh;
+    padding: calc(5rem + env(safe-area-inset-top)) 1.25rem 0;
+    background:
+        radial-gradient(60% 45% at 50% 42%, var(--gq-wall), transparent 72%),
+        linear-gradient(180deg, var(--gq-wall-shade), var(--gq-wall) 30%, var(--gq-wall) 72%, var(--gq-wall-shade));
+    color: var(--tr-text);
+}
+
+/* El haz del foco que baja sobre el retrato */
+.gq-hero__spot {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    z-index: -1;
+    width: min(130vw, 44rem);
+    height: 78%;
+    translate: -50% 0;
+    background: linear-gradient(180deg, color-mix(in srgb, #fff 55%, transparent), transparent 85%);
+    clip-path: polygon(44% 0, 56% 0, 100% 100%, 0 100%);
+    opacity: 0.55;
+    mix-blend-mode: soft-light;
+    animation: gq-spot-on 2.2s var(--tr-ease) both;
+}
+
+@keyframes gq-spot-on {
+    0% { opacity: 0; }
+    30% { opacity: 0.2; }
+    45% { opacity: 0.05; }
+    100% { opacity: 0.55; }
+}
+
+.gq-hero__lettering {
+    display: grid;
+    justify-items: center;
+    gap: 0.35rem;
+    max-width: 30rem;
+    text-align: center;
+}
+
+.gq-kicker {
+    margin: 0;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.42em;
+    text-transform: uppercase;
+    color: var(--inv-accent-ink);
+}
+
+.gq-title {
+    margin: 0;
+    font-family: var(--font-script);
+    font-size: clamp(2.5rem, 12.5vw, 5.4rem);
+    font-weight: 400;
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+    overflow-wrap: break-word;
+}
+
+.gq-subtitle {
+    margin: 0.35rem 0 0;
+    font-family: var(--font-titles);
+    font-size: 1.1rem;
+    font-style: italic;
+    color: var(--inv-muted);
+}
+
+/* El cuadro: alambre, marco de latón, paspartú y la foto */
+.gq-artwork {
+    position: relative;
+    width: min(70vw, 21rem);
+    margin: 1.75rem 0 0;
+}
+
+.gq-artwork__wire {
+    position: absolute;
+    bottom: 100%;
+    left: 10%;
+    width: 80%;
+    height: 2.4rem;
+    overflow: visible;
+}
+
+.gq-artwork__wire path {
+    fill: none;
+    stroke: color-mix(in srgb, var(--tr-text) 55%, var(--tr-bg));
+    stroke-width: 1.2;
+    vector-effect: non-scaling-stroke;
+}
+
+.gq-artwork__wire circle {
+    fill: color-mix(in srgb, var(--tr-text) 70%, var(--tr-bg));
+}
+
+.gq-frame {
+    display: block;
+    padding: 0.7rem;
+    background: var(--gq-brass);
+    box-shadow:
+        inset 0 0 0 1px color-mix(in srgb, #000 22%, transparent),
+        inset 0 0 0 4px color-mix(in srgb, #fff 18%, transparent),
+        0 34px 40px -24px color-mix(in srgb, #000 60%, transparent),
+        0 8px 16px -8px color-mix(in srgb, #000 35%, transparent);
+}
+
+.gq-mat {
+    display: block;
+    padding: clamp(0.9rem, 4vw, 1.4rem);
+    background: var(--gq-mat);
+    box-shadow: inset 0 2px 6px color-mix(in srgb, #000 22%, transparent);
+}
+
+.gq-canvas {
+    display: block;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    box-shadow: 0 0 0 1px color-mix(in srgb, #000 18%, transparent);
+}
+
+.gq-canvas img {
+    height: 112%;
+    margin-top: -6%;
+}
+
+/* La cédula del museo */
+.gq-label {
+    position: relative;
+    width: min(100%, 22rem);
+    margin-top: 0.75rem;
+    padding: 1.25rem 1.3rem 1rem;
+    background: var(--gq-plaque);
+    box-shadow:
+        0 1px 0 color-mix(in srgb, var(--tr-text) 10%, transparent),
+        0 14px 24px -18px color-mix(in srgb, #000 45%, transparent);
+    text-align: left;
+    font-size: 0.86rem;
+    line-height: 1.5;
+}
+
+.gq-label__artist {
+    margin: 0;
+    font-weight: 700;
+    font-size: 0.95rem;
+}
+
+.gq-label__work {
+    margin: 0.15rem 0 0;
+    font-family: var(--font-titles);
+    font-size: 1.05rem;
+}
+
+.gq-label__medium {
+    margin: 0.1rem 0 0;
+    color: var(--inv-soft);
+}
+
+.gq-label__text {
+    margin: 0.85rem 0 0;
+    color: var(--inv-muted);
+    text-wrap: pretty;
+}
+
+.gq-label__facts {
+    display: grid;
+    gap: 0.55rem;
+    margin: 0.95rem 0 0;
+    padding-top: 0.85rem;
+    border-top: 1px solid var(--inv-line);
+}
+
+.gq-label__facts dt {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--inv-accent-ink);
+}
+
+.gq-label__facts dd {
+    margin: 0.1rem 0 0;
+    font-weight: 600;
+}
+
+.gq-label__facts a {
+    color: inherit;
+    text-decoration-color: var(--gq-velvet);
+    text-underline-offset: 3px;
+}
+
+.gq-label__foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    margin: 0.95rem 0 0;
+    padding-top: 0.75rem;
+    border-top: 1px dashed var(--inv-line-strong);
+    font-size: 0.78rem;
+    color: var(--inv-soft);
+}
+
+.gq-label__foot strong {
+    color: var(--tr-text);
+}
+
+.gq-label__no {
+    flex-shrink: 0;
+    font-family: var(--font-titles);
+    font-size: 0.9rem;
+    color: var(--inv-accent-ink);
+}
+
+/* El zócalo con la fila de cordones */
+.gq-floor {
+    width: 100%;
+    margin-top: auto;
+    padding-top: 1.5rem;
+    border-bottom: 10px solid var(--gq-wall-shade);
+}
+
+.gq-floor svg {
+    display: block;
+    width: min(92%, 26rem);
+    margin-inline: auto;
+}
+
+/* El aviso para bajar va entre la cédula y el zócalo, no encima del cordón */
+.gq-hero__scroll {
+    position: static;
+    order: 1;
+    margin-top: 0.5rem;
+    color: var(--tr-text);
+    transform: none;
+}
+
+.gq-floor {
+    order: 2;
+}
+
+@media (min-width: 768px) {
+    .gq-hero {
+        grid-template-columns: minmax(0, 24rem) minmax(0, 20rem);
+        justify-content: center;
+        column-gap: 3rem;
+        align-content: center;
+    }
+
+    .gq-hero__lettering,
+    .gq-floor {
+        grid-column: 1 / -1;
+    }
+
+    .gq-label {
+        align-self: end;
+        margin-bottom: 1rem;
+    }
+}
+
+/* ── Las salas: cada sección con su número ──────────────────────────────── */
+
+.inv-galeria main > .inv-section {
+    counter-increment: gq-sala;
+    border-top: 0;
+    padding-block: 4.5rem 4rem;
+    /* La luz de riel que ilumina cada pared desde arriba */
+    background:
+        radial-gradient(55% 160px at 50% 0, color-mix(in srgb, #fff 45%, transparent), transparent),
+        linear-gradient(180deg, transparent calc(100% - 10px), var(--gq-wall-shade) calc(100% - 10px));
+}
+
+.inv-galeria .invitation-lottie-framed {
+    display: none;
+}
+
+/* «Sala II · Programa de la inauguración»: el número lo cuenta CSS, la palabra es de la plantilla */
+.inv-galeria main > .inv-section .inv-head__eyebrow::before {
+    content: var(--gq-room-label, "Sala") " " counter(gq-sala, upper-roman) " · ";
+    color: var(--gq-velvet);
+}
+
+.inv-galeria .inv-head__eyebrow {
+    font-size: 0.68rem;
+    letter-spacing: 0.28em;
+}
+
+.inv-galeria .inv-head__title {
+    font-size: clamp(2.2rem, 10vw, 3.6rem);
+    font-weight: 400;
+}
+
+.inv-galeria .inv-head__rule {
+    width: 2.5rem;
+    height: 3px;
+    background: var(--gq-brass);
+    opacity: 1;
+}
+
+.inv-galeria :is(.inv-btn, .inv-link, .inv-label) {
+    letter-spacing: 0.14em;
+}
+
+/* Botón de terciopelo, con la costura del borde */
+.inv-galeria .inv-btn:not(.inv-btn--ghost) {
+    border-color: var(--gq-velvet);
+    background: var(--gq-velvet);
+    color: var(--tr-ink-primary);
+    box-shadow: inset 0 0 0 3px var(--gq-velvet), inset 0 0 0 4px color-mix(in srgb, var(--tr-ink-primary) 45%, transparent);
+}
+
+@media (hover: hover) {
+    .inv-galeria .inv-btn:not(.inv-btn--ghost):hover:not(:disabled) {
+        background: var(--gq-velvet-dark);
+    }
+}
+
+/* Cuenta regresiva en placas de latón */
+.inv-galeria .inv-countdown__grid {
+    gap: 0.5rem;
+}
+
+.inv-galeria .inv-countdown__unit {
+    padding: 1rem 0.25rem 0.85rem;
+    border: 0;
+    background: var(--gq-plaque);
+    box-shadow: inset 0 0 0 2px var(--gq-brass-solid), inset 0 0 0 5px var(--gq-plaque), inset 0 0 0 6px color-mix(in srgb, var(--tr-secondary) 45%, transparent);
+}
+
+.inv-galeria .inv-countdown__unit + .inv-countdown__unit {
+    border-left: 0;
+}
+
+/* Galería: cada foto enmarcada como una obra */
+.inv-galeria .inv-gallery__card {
+    border-radius: 0;
+    box-shadow:
+        0 0 0 9px var(--gq-mat),
+        0 0 0 15px var(--gq-brass-solid),
+        0 28px 36px -22px color-mix(in srgb, #000 60%, transparent);
+}
+
+/* Vestimenta: los colores como muestras de pintura */
+.inv-galeria .inv-dress__palette li {
+    padding: 0.4rem 0.4rem 0.6rem;
+    background: var(--gq-plaque);
+    box-shadow: 0 10px 18px -14px color-mix(in srgb, #000 45%, transparent);
+}
+
+.inv-galeria .inv-dress__swatch {
+    border-radius: 0;
+}
+
+/* El pase: la entrada de museo, con el talón perforado */
+.inv-galeria .inv-pass {
+    position: relative;
+    padding: 1.75rem 1.25rem;
+    border: 0;
+    background: var(--gq-plaque);
+    box-shadow: inset 0 0 0 1px var(--inv-line-strong), 0 16px 28px -20px color-mix(in srgb, #000 45%, transparent);
+}
+
+.inv-galeria .inv-pass::before {
+    content: '';
+    position: absolute;
+    top: 0.75rem;
+    bottom: 0.75rem;
+    left: 2.25rem;
+    border-left: 2px dashed var(--inv-line-strong);
+}
+
+.inv-galeria .inv-pass::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 1.1rem;
+    background: var(--gq-velvet);
+}
+
+/* ── Programa: el recorrido por las salas ───────────────────────────────── */
+
+.gq-route {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.gq-stop {
+    display: grid;
+    justify-items: center;
+    gap: 0.75rem;
+}
+
+/* El número de la parada de la audioguía, como el que se marca en el aparato */
+.gq-stop__room {
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    background: var(--gq-velvet);
+    color: var(--tr-ink-primary);
+    box-shadow: 0 0 0 3px var(--gq-wall), 0 0 0 4px var(--gq-velvet);
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: 0.04em;
+    font-variant-numeric: tabular-nums;
+}
+
+.gq-stop__card {
+    width: min(100%, 22rem);
+    padding: 1.1rem 1.25rem;
+    background: var(--gq-plaque);
+    box-shadow: 0 1px 0 color-mix(in srgb, var(--tr-text) 10%, transparent), 0 12px 22px -18px color-mix(in srgb, #000 45%, transparent);
+    text-align: left;
+}
+
+.gq-stop__time {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    color: var(--inv-accent-ink);
+    font-variant-numeric: tabular-nums;
+}
+
+.gq-stop__title {
+    margin: 0.2rem 0 0;
+    font-family: var(--font-titles);
+    font-size: 1.35rem;
+    font-weight: 400;
+    line-height: 1.2;
+}
+
+.gq-stop__text {
+    margin: 0.35rem 0 0;
+    font-size: 0.88rem;
+    line-height: 1.55;
+    color: var(--inv-muted);
+}
+
+.gq-stop__arrow {
+    display: grid;
+    place-items: center;
+    width: 2.2rem;
+    height: 2.2rem;
+    margin-block: 0.35rem 0.75rem;
+    border-radius: 50%;
+    border: 1px solid var(--inv-line-strong);
+    color: var(--inv-soft);
+}
+
+.gq-stop__arrow svg {
+    width: 1rem;
+    height: 1rem;
+}
+
+/* ── Mecenas: el muro grabado de la entrada ─────────────────────────────── */
+
+.gq-wall {
+    padding: 2rem 1.25rem;
+    background:
+        linear-gradient(180deg, color-mix(in srgb, #fff 20%, transparent), transparent 40%),
+        color-mix(in srgb, var(--tr-accent) 55%, var(--tr-bg));
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tr-text) 8%, transparent), 0 20px 34px -26px color-mix(in srgb, #000 55%, transparent);
+    text-shadow: var(--gq-engrave);
+}
+
+.gq-donors {
+    display: grid;
+    gap: 1.4rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    text-align: center;
+}
+
+.gq-donor + .gq-donor {
+    padding-top: 1.4rem;
+    border-top: 1px solid color-mix(in srgb, var(--tr-secondary) 55%, transparent);
+}
+
+.gq-donor__role {
+    display: block;
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--inv-accent-ink);
+}
+
+.gq-donor__names {
+    display: block;
+    margin-top: 0.3rem;
+    font-family: var(--font-titles);
+    font-size: clamp(1.35rem, 6vw, 1.7rem);
+    line-height: 1.2;
+    text-wrap: balance;
+}
+
+.gq-donor__message {
+    display: block;
+    max-width: 22rem;
+    margin: 0.45rem auto 0;
+    font-size: 0.88rem;
+    font-style: italic;
+    line-height: 1.55;
+    color: var(--inv-muted);
+}
+
+.gq-circles {
+    display: grid;
+    gap: 1.5rem;
+    margin-top: 2rem;
+    padding-top: 1.75rem;
+    border-top: 3px double color-mix(in srgb, var(--tr-secondary) 60%, transparent);
+}
+
+.gq-circle__title {
+    margin: 0 0 0.6rem;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.24em;
+    text-align: center;
+    text-transform: uppercase;
+    color: var(--inv-accent-ink);
+}
+
+.gq-circle__names {
+    display: grid;
+    gap: 0.45rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    text-align: center;
+}
+
+.gq-circle__names span {
+    font-family: var(--font-titles);
+    font-size: 1.1rem;
+}
+
+.gq-circle__names small {
+    display: block;
+    font-size: 0.78rem;
+    color: var(--inv-soft);
+}
+
+@media (min-width: 480px) {
+    .gq-circles {
+        grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+    }
+}
+
+/* ── Apertura: la entrada de la galería de noche ────────────────────────── */
+
+.gq-intro {
+    gap: 1.25rem;
+    background:
+        radial-gradient(60% 40% at 50% 38%, color-mix(in srgb, var(--gq-night) 80%, var(--tr-secondary)), transparent 75%),
+        var(--gq-night);
+    color: var(--tr-bg);
+}
+
+/* La puerta de vidrio de la galería, apenas iluminada por dentro, con el piso bajo los postes */
+.gq-door {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    justify-items: center;
+    gap: 2.25rem;
+    width: min(80vw, 21rem);
+    padding: 3.25rem 0.5rem 0;
+    border: 2px solid color-mix(in srgb, var(--tr-bg) 22%, transparent);
+    border-bottom: 0;
+    background:
+        linear-gradient(115deg, transparent 30%, color-mix(in srgb, var(--tr-bg) 7%, transparent) 42%, transparent 54%),
+        color-mix(in srgb, var(--tr-bg) 5%, transparent);
+}
+
+/* El piso: una línea que cruza toda la entrada, con el reflejo de la puerta */
+.gq-door::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    z-index: -1;
+    width: 100vw;
+    height: 30vh;
+    translate: -50% 0;
+    border-top: 1px solid color-mix(in srgb, var(--tr-bg) 25%, transparent);
+    background: linear-gradient(180deg, color-mix(in srgb, var(--tr-bg) 6%, transparent), transparent 60%);
+}
+
+.gq-door__light {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--tr-bg);
+    opacity: 0;
+    transition: opacity 0.9s ease;
+}
+
+.gq-sign {
+    display: grid;
+    justify-items: center;
+    gap: 0.3rem;
+    max-width: 18rem;
+    text-align: center;
+}
+
+.gq-sign__kicker {
+    margin: 0;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.42em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--tr-secondary) 65%, var(--tr-bg));
+}
+
+.gq-sign__name {
+    margin: 0.35rem 0 0;
+    font-family: var(--font-script);
+    font-size: clamp(2rem, 10vw, 2.8rem);
+    line-height: 1;
+    text-wrap: balance;
+}
+
+.gq-sign__title {
+    margin: 0;
+    font-family: var(--font-titles);
+    font-size: 1.1rem;
+    font-style: italic;
+    opacity: 0.85;
+}
+
+.gq-sign__date {
+    margin: 0.6rem 0 0;
+    font-size: 0.82rem;
+    letter-spacing: 0.08em;
+    opacity: 0.8;
+}
+
+.gq-sign__guest {
+    margin: 0.4rem 0 0;
+    font-size: 0.8rem;
+    opacity: 0.8;
+}
+
+.gq-barrier {
+    width: min(86vw, 22rem);
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+}
+
+.gq-barrier__svg {
+    display: block;
+    width: 100%;
+    overflow: visible;
+}
+
+.gq-intro .gq-rope {
+    transform-box: view-box;
+    transform-origin: 42px 40px;
+    animation: gq-rope-sway 3.4s ease-in-out infinite;
+}
+
+@keyframes gq-rope-sway {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(-1.5deg); }
+}
+
+.gq-intro__hint {
+    margin: 0;
+    font-size: 0.85rem;
+    color: color-mix(in srgb, var(--tr-bg) 75%, var(--gq-night));
+    transition: opacity 0.4s ease;
+}
+
+/* Al tocarlo, la punta del cordón se suelta del poste derecho y cae: el cordón enganchado se
+   inclina y se desvanece mientras aparece el mismo cordón tendido en el piso */
+.gq-rope-down {
+    opacity: 0;
+    transform-box: view-box;
+    transform-origin: 42px 40px;
+}
+
+.gq-intro.is-unhooked .gq-rope {
+    animation: gq-rope-drop 0.5s cubic-bezier(0.5, 0, 0.9, 0.6) both;
+}
+
+.gq-intro.is-unhooked .gq-rope-down {
+    animation: gq-rope-land 0.7s cubic-bezier(0.3, 1.5, 0.5, 1) 0.28s both;
+}
+
+@keyframes gq-rope-drop {
+    to { transform: rotate(22deg); opacity: 0; }
+}
+
+@keyframes gq-rope-land {
+    0% { opacity: 0; transform: rotate(-10deg); }
+    40% { opacity: 1; }
+    100% { opacity: 1; transform: rotate(0deg); }
+}
+
+.gq-intro.is-unhooked :is(.gq-intro__hint) {
+    opacity: 0;
+}
+
+/* Se encienden los focos: la sala se llena de la luz de la pared */
+.gq-intro.is-open {
+    background: var(--gq-wall);
+    color: var(--tr-text);
+    transition: background-color 0.6s ease, color 0.6s ease;
+}
+
+.gq-intro.is-open .gq-door__light {
+    opacity: 1;
+}
+
+/* La sala detrás del vidrio: tres cuadros arriba, a oscuras hasta que se encienden sus focos */
+.gq-intro .gq-door {
+    padding-top: clamp(6.5rem, 17svh, 8rem);
+    background: none;
+    transition: scale 1.3s cubic-bezier(0.5, 0, 0.3, 1), opacity 0.6s ease 0.7s;
+}
+
+.gq-door__room {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--gq-wall) 10%, var(--gq-night)), var(--gq-night));
+}
+
+.gq-door__art {
+    position: absolute;
+    top: 1.3rem;
+    left: calc(20% + var(--a) * 30%);
+    width: 18%;
+    aspect-ratio: 4 / 5;
+    translate: -50% 0;
+    padding: 3px;
+    background: var(--gq-brass);
+    filter: brightness(0.35);
+    transition: filter 0.35s steps(2) calc(0.3s + var(--a) * 0.18s);
+}
+
+.gq-door__art--2 {
+    top: 0.9rem;
+    width: 24%;
+}
+
+/* La obra: una mancha de color de la paleta sobre su paspartú */
+.gq-door__art i {
+    display: block;
+    height: 100%;
+    border: 3px solid var(--gq-mat);
+    background:
+        radial-gradient(60% 50% at 35% 40%, color-mix(in srgb, var(--tr-primary) 70%, transparent), transparent 70%),
+        radial-gradient(50% 45% at 70% 70%, color-mix(in srgb, var(--tr-accent) 80%, transparent), transparent 70%),
+        color-mix(in srgb, var(--tr-secondary) 30%, var(--gq-mat));
+}
+
+/* El haz del foco de cada cuadro */
+.gq-door__art::before {
+    content: '';
+    position: absolute;
+    bottom: 40%;
+    left: 50%;
+    width: 260%;
+    height: 180%;
+    translate: -50% 0;
+    background: linear-gradient(180deg, transparent, color-mix(in srgb, #fff 45%, transparent));
+    clip-path: polygon(44% 0, 56% 0, 100% 100%, 0 100%);
+    opacity: 0;
+    transition: opacity 0.35s steps(2) calc(0.3s + var(--a) * 0.18s);
+}
+
+/* Las dos hojas de vidrio de la puerta, con su reflejo y su manija de latón */
+.gq-door__panel {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    z-index: 0;
+    width: 50%;
+    background:
+        linear-gradient(115deg, transparent 30%, color-mix(in srgb, var(--tr-bg) 9%, transparent) 42%, transparent 54%),
+        color-mix(in srgb, var(--tr-bg) 5%, transparent);
+    transition: translate 0.9s cubic-bezier(0.6, 0, 0.3, 1);
+}
+
+.gq-door__panel--left {
+    left: 0;
+    border-right: 1px solid color-mix(in srgb, var(--tr-bg) 22%, transparent);
+}
+
+.gq-door__panel--right {
+    right: 0;
+}
+
+/* Las manijas quedan entre el rótulo y el cordón */
+.gq-door__panel::after {
+    content: '';
+    position: absolute;
+    bottom: 9rem;
+    width: 4px;
+    height: 2rem;
+    border-radius: 3px;
+    background: var(--gq-brass);
+}
+
+.gq-door__panel--left::after { right: 0.6rem; }
+.gq-door__panel--right::after { left: 0.6rem; }
+
+.gq-intro .gq-sign {
+    z-index: 1;
+    transition: opacity 0.4s ease;
+}
+
+.gq-intro .gq-barrier {
+    position: relative;
+    z-index: 2;
+}
+
+/* La alfombra que llega hasta la puerta */
+.gq-carpet {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    z-index: -1;
+    width: 150%;
+    height: 34svh;
+    translate: -50% 0;
+    background:
+        linear-gradient(180deg, color-mix(in srgb, #000 30%, transparent), transparent 40%),
+        var(--gq-velvet);
+    clip-path: polygon(34% 0, 66% 0, 100% 100%, 0 100%);
+    opacity: 0.85;
+}
+
+/* Los flashes de la prensa, a los costados */
+.gq-flash {
+    position: absolute;
+    top: 38%;
+    z-index: 3;
+    width: 60vmax;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgb(255 255 255 / 0.9), rgb(255 255 255 / 0.25) 30%, transparent 70%);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.gq-flash--left { left: -30vmax; }
+.gq-flash--right { right: -30vmax; top: 52%; }
+
+.gq-intro__hint {
+    animation: gq-hint 2.2s ease-in-out 1.5s infinite;
+}
+
+/* 1 · El cordón cae y se encienden los focos de la sala, uno por uno */
+.gq-intro.is-unhooked .gq-door__art {
+    filter: none;
+}
+
+.gq-intro.is-unhooked .gq-door__art::before {
+    opacity: 0.55;
+}
+
+.gq-intro.is-unhooked .gq-intro__hint {
+    animation: none;
+}
+
+/* 2 · Se abren las puertas, saltan los flashes y se entra a la sala */
+.gq-intro.is-open .gq-door__panel--left { translate: -100% 0; }
+.gq-intro.is-open .gq-door__panel--right { translate: 100% 0; }
+
+.gq-intro.is-open .gq-sign {
+    opacity: 0;
+}
+
+.gq-intro.is-open .gq-door {
+    scale: 1.6;
+    opacity: 0;
+}
+
+.gq-intro.is-open .gq-flash--left {
+    animation: gq-flash 0.35s ease-out 0.1s;
+}
+
+.gq-intro.is-open .gq-flash--right {
+    animation: gq-flash 0.35s ease-out 0.38s;
+}
+
+@keyframes gq-flash {
+    0%, 100% { opacity: 0; }
+    20% { opacity: 1; }
+}
+
+@keyframes gq-hint {
+    50% { translate: 0 -3px; }
+}
+
+/* ── Fondo: focos que barren la pared de la sala (galeria/ambient) ─────── */
+
+.gq-ambient {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+    /* La sala en penumbra hacia los bordes: así se nota la luz de los focos */
+    background: radial-gradient(90% 70% at 50% 40%, transparent 40%, color-mix(in srgb, var(--tr-text) 8%, transparent));
+}
+
+/* El riel del techo del que cuelgan los focos */
+.gq-ambient__rail {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 5px;
+    background: color-mix(in srgb, var(--tr-text) 30%, var(--gq-wall));
+}
+
+/* Cada foco: el cuerpo en el riel y su haz, que se mece a su ritmo */
+.gq-ambient__spot {
+    position: absolute;
+    top: 0;
+    left: var(--x);
+    width: 1rem;
+    height: 1.6rem;
+    margin-left: -0.5rem;
+    border-radius: 0 0 0.4rem 0.4rem;
+    background: color-mix(in srgb, var(--tr-text) 60%, var(--gq-wall));
+    transform-origin: 50% 0;
+    animation: gq-sweep var(--d) ease-in-out var(--delay) infinite alternate;
+}
+
+.gq-ambient__spot i {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    width: 70vmax;
+    height: 115vh;
+    translate: -50% 0;
+    /* Luz cálida del latón: se ve sobre una pared clara y sobre una oscura */
+    background:
+        radial-gradient(40% 12% at 50% 96%, color-mix(in srgb, var(--tr-secondary) 45%, #fff), transparent 70%),
+        linear-gradient(180deg, color-mix(in srgb, var(--tr-secondary) 40%, #fff), color-mix(in srgb, var(--tr-secondary) 20%, transparent) 80%, transparent);
+    clip-path: polygon(49% 0, 51% 0, 100% 100%, 0 100%);
+    opacity: 0.2;
+}
+
+@media (max-width: 639px) {
+    .gq-ambient__spot.is-extra {
+        display: none;
+    }
+}
+
+@keyframes gq-sweep {
+    from { rotate: -16deg; }
+    to { rotate: 16deg; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .gq-ambient * {
+        animation: none !important;
+    }
+}
+
+/* ── Fondo: polvo en la luz de los focos ────────────────────────────────── */
+
+.inv-drift--foco {
+    --drift-a: color-mix(in srgb, var(--tr-secondary) 50%, #fff);
+    opacity: 0.45;
+}
+
+.inv-galeria .inv-galeria-footer {
+    border-top: 0;
+    background: linear-gradient(180deg, var(--gq-wall-shade) 0 10px, transparent 10px);
+}
+
+/* ── Modo historia: cada sala se ilumina al entrar ──────────────────────── */
+
+.inv-story-invitation .inv-galeria .inv-scene {
+    --story-scene-bg: var(--gq-wall);
+    opacity: 0;
+    filter: brightness(0.35);
+    transition: opacity 0.6s ease, filter 0.9s ease, visibility 0s linear 0.9s;
+}
+
+.inv-story-invitation .inv-galeria .inv-scene.is-active {
+    opacity: 1;
+    filter: none;
+    transition-delay: 0s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .gq-intro .gq-rope,
+    .gq-hero__spot {
+        animation: none;
+    }
+}

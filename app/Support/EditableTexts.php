@@ -208,6 +208,28 @@ final class EditableTexts
         'case_label' => 'Expediente: rótulo', 'case_open' => 'Expediente: sello', 'case_lead' => 'Expediente: rótulo del nombre',
         'case_seen' => 'Expediente: rótulo de la fecha', 'case_place' => 'Expediente: rótulo del lugar', 'case_notes' => 'Expediente: rótulo del mensaje',
         'lights_on' => 'Botón para encender las luces', 'lights_off' => 'Botón para volver a la linterna',
+        // «Galería Quince»
+        'exhibit_label' => 'Galería: sobre el nombre', 'exhibit_title' => 'Galería: nombre de la obra', 'exhibit_piece' => 'Galería: técnica de la obra',
+        'exhibit_opening' => 'Galería: rótulo de la fecha', 'exhibit_room' => 'Galería: rótulo del lugar', 'exhibit_guest' => 'Galería: antes del invitado',
+        'exhibit_free' => 'Galería: pie de la cédula', 'room_label' => 'Galería: palabra antes del número de sala',
+        // «Partitura a dos voces»
+        'score_program' => 'Partitura: encabezado', 'score_title' => 'Partitura: nombre de la obra', 'score_opus' => 'Partitura: número de obra',
+        'score_date' => 'Partitura: rótulo de la fecha', 'score_hall' => 'Partitura: rótulo del lugar',
+        // «Gira mundial»
+        'tour_presents' => 'Gira: sobre el nombre', 'tour_name' => 'Gira: antes de la edad', 'tour_cities' => 'Gira: ciudades canceladas (separadas por ·)',
+        'tour_cancelled' => 'Gira: estado de las ciudades', 'tour_only' => 'Gira: sello de la fiesta', 'tour_doors' => 'Gira: rótulo de la hora',
+        'tour_wristband' => 'Gira: texto de la pulsera',
+        // «Edición especial»
+        'mag_name' => 'Revista: nombre', 'mag_issue' => 'Revista: línea de la edición', 'mag_exclusive' => 'Revista: rótulo de la estrella de tapa',
+        'mag_party' => 'Revista: titular de la fecha', 'mag_where' => 'Revista: titular del lugar', 'mag_style' => 'Revista: titular de la vestimenta',
+        'mag_agenda' => 'Revista: titular del programa', 'mag_page' => 'Revista: palabra antes del número de página',
+        'mag_contents' => 'Revista: título del índice', 'mag_letter' => 'Revista: título del mensaje', 'mag_pick' => 'Revista: sello del primer momento',
+        // «Función de medianoche»
+        'film_rating' => 'Película: clasificación', 'film_rating_text' => 'Película: texto de la clasificación',
+        'film_premiere' => 'Película: rótulo de la fecha', 'film_show' => 'Película: rótulo de la hora', 'film_theater' => 'Película: rótulo del lugar',
+        'film_intermission' => 'Película: cartel del intermedio',
+        // «Tendedero»
+        'line_date' => 'Tendedero: etiqueta de la fecha', 'line_time' => 'Tendedero: etiqueta de la hora', 'line_place' => 'Tendedero: etiqueta del lugar',
         'act1_label' => 'Acto 1: nombre', 'act1_title' => 'Acto 1: título', 'act1_intro_fallback' => 'Acto 1: introducción si no hay texto',
         'act1_met_prefix' => 'Acto 1: antes de la fecha', 'act1_met_fallback' => 'Acto 1: si no hay fecha', 'act1_first_fallback' => 'Acto 1: primeras impresiones si no hay texto',
         'act2_label' => 'Acto 2: nombre', 'act2_title' => 'Acto 2: título', 'act2_moments_fallback' => 'Acto 2: si no hay momentos',

@@ -6,6 +6,8 @@
     inv-caminos…), así los estilos de la clásica de su evento no la alcanzan.
 
     Parámetros: template (clave del catálogo), parts (carpeta de parciales), footerDate (formato de la fecha del pie).
+    Opcionales (los usa la colección «tendencias»): styles (hojas que se cargan con @vite solo en esta
+    página), headExtra (parcial que suma algo a la cabecera) y bodyClass (clase extra de la página).
 --}}
 @php
     $page = new \App\Support\InvitationPage($invitation, $modulos, $guest ?? null, $template);
@@ -18,11 +20,17 @@
 <html lang="es" class="no-js">
 <head>
     @include('invitations.partials.shell.head')
+    @if(!empty($styles))
+        @vite($styles)
+    @endif
+    @if(!empty($headExtra))
+        @include($headExtra)
+    @endif
     @if($showIntro)
         @include('invitations.partials.shell.cover-script', ['coverSelector' => '.inv-themed-intro'])
     @endif
 </head>
-<body class="inv-page inv-{{ $page->theme }} inv-themed overflow-x-hidden {{ $page->hasPlayer ? 'has-player' : '' }}" x-data="invitationApp()" x-init="init()">
+<body class="inv-page inv-{{ $page->theme }} inv-themed {{ $bodyClass ?? '' }} overflow-x-hidden {{ $page->hasPlayer ? 'has-player' : '' }}" x-data="invitationApp()" x-init="init()">
     <a class="inv-skip" href="#contenido">{{ $invCopy['skip_link'] ?? 'Saltar al contenido' }}</a>
 
     @if($showIntro)
