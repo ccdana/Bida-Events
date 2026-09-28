@@ -1,0 +1,784 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   INVITACIÓN — «Mapa de estrellas» (bautizo · colección tendencias)
+
+   El cielo del día del bautizo. Se entra uniendo las estrellas de su
+   constelación, con forma de corazón. La portada es una carta celeste: el
+   círculo con sus grados, la grilla y los puntos cardinales, las estrellas de
+   esa noche (salen de la fecha y el nombre: cada invitación tiene su cielo) y la
+   foto como la luna; debajo, el nombre y las coordenadas del lugar. El día se
+   recorre estrella por estrella y los padrinos son las estrellas que guían. Al
+   fondo el cielo gira despacio y pasan estrellas fugaces.
+
+   Todo sale de la paleta del editor:
+     cielo = fondo · textos y estrellas chicas = texto · estrellas que brillan,
+     luna y botones = principal · recuadros = secundario · constelaciones = acento.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+@import './_base.css';
+
+.inv-estrellas {
+    --inv-radius: 999px;
+    --es-star: color-mix(in srgb, var(--tr-primary) 65%, #fff);
+    --es-line: color-mix(in srgb, var(--tr-accent) 70%, transparent);
+    --es-panel: color-mix(in srgb, var(--tr-secondary) 76%, transparent);
+    --es-shape: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%);
+    --es-shape-8: polygon(50% 0, 57% 30%, 85% 15%, 70% 43%, 100% 50%, 70% 57%, 85% 85%, 57% 70%, 50% 100%, 43% 70%, 15% 85%, 30% 57%, 0 50%, 30% 43%, 15% 15%, 43% 30%);
+    --es-rule: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 20'%3E%3Cpath d='M8 14 L44 6 L76 12 L112 5' fill='none' stroke='black' stroke-width='1.2' stroke-dasharray='3 3'/%3E%3Cg%3E%3Cpath d='M8 9 L9.4 12.6 L13 14 L9.4 15.4 L8 19 L6.6 15.4 L3 14 L6.6 12.6 Z'/%3E%3Cpath d='M44 0 L45.8 4.2 L50 6 L45.8 7.8 L44 12 L42.2 7.8 L38 6 L42.2 4.2 Z'/%3E%3Cpath d='M76 7 L77.4 10.6 L81 12 L77.4 13.4 L76 17 L74.6 13.4 L71 12 L74.6 10.6 Z'/%3E%3Cpath d='M112 0 L113.4 3.6 L117 5 L113.4 6.4 L112 10 L110.6 6.4 L107 5 L110.6 3.6 Z'/%3E%3C/g%3E%3C/svg%3E");
+    --themed-from: translate3d(0, 24px, 0);
+
+    background: var(--tr-bg);
+}
+
+.inv-estrellas.has-player {
+    padding-bottom: calc(5.25rem + env(safe-area-inset-bottom));
+}
+
+@keyframes es-twinkle {
+    0%, 100% { opacity: 0.35; }
+    50% { opacity: 1; }
+}
+
+/* ── Apertura: el cielo y la constelación por unir ─────────────────────── */
+
+.es-intro.inv-themed-intro {
+    gap: 1rem;
+    background:
+        radial-gradient(80% 50% at 50% 40%, color-mix(in srgb, var(--tr-secondary) 85%, transparent), transparent 75%),
+        var(--tr-bg);
+    color: var(--tr-text);
+    cursor: pointer;
+}
+
+.es-intro > :not(.es-intro__sky, .es-intro__shooting) {
+    position: relative;
+}
+
+.es-intro__sky {
+    position: absolute;
+    inset: 0;
+}
+
+.es-intro__sky span {
+    position: absolute;
+    top: var(--y);
+    left: var(--x);
+    width: var(--s);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--tr-text);
+    animation: es-twinkle 3.2s ease-in-out var(--delay) infinite;
+}
+
+.es-intro__eyebrow {
+    margin: 0;
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--tr-accent);
+    animation: inv-fade-up 0.9s var(--tr-ease) 0.1s both;
+}
+
+.es-constellation {
+    width: min(86vw, 22rem);
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    animation: inv-fade-up 1s var(--tr-ease) 0.25s both;
+    transition: scale 1.1s cubic-bezier(0.5, 0, 0.3, 1), opacity 0.8s ease 0.3s, filter 0.8s ease;
+}
+
+.es-constellation svg {
+    display: block;
+    width: 100%;
+    overflow: visible;
+}
+
+.es-constellation__line {
+    stroke: var(--tr-accent);
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+}
+
+.es-constellation__star path {
+    fill: var(--es-star);
+    transform-box: fill-box;
+    transform-origin: center;
+}
+
+.es-constellation__halo {
+    fill: color-mix(in srgb, var(--tr-primary) 40%, transparent);
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: center;
+}
+
+/* La más brillante late: es la que se toca */
+.es-constellation__star.is-first path {
+    animation: es-pulse 1.8s ease-in-out infinite;
+}
+
+.es-constellation__star.is-first .es-constellation__halo {
+    animation: es-halo 1.8s ease-out infinite;
+}
+
+.es-intro__title {
+    display: grid;
+    justify-items: center;
+    gap: 0.25rem;
+    text-align: center;
+    animation: inv-fade-up 1s var(--tr-ease) 0.45s both;
+}
+
+.es-intro__label {
+    margin: 0;
+    font-family: var(--font-titles);
+    font-size: 1.1rem;
+    font-style: italic;
+    color: var(--tr-accent);
+}
+
+.es-intro__name {
+    margin: 0;
+    font-family: var(--font-titles);
+    font-size: clamp(2.4rem, 11vw, 3.6rem);
+    font-weight: 500;
+    line-height: 1;
+    text-wrap: balance;
+}
+
+.es-intro__date {
+    margin: 0.4rem 0 0;
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    opacity: 0.8;
+}
+
+.es-intro__hint {
+    max-width: 26ch;
+    margin: 0.4rem 0 0;
+    font-size: 0.85rem;
+    text-align: center;
+    color: var(--tr-accent);
+    animation: inv-fade-up 1s var(--tr-ease) 0.8s both;
+    transition: opacity 0.3s ease;
+}
+
+.es-intro__shooting,
+.es-ambient__shooting {
+    position: absolute;
+    left: -30%;
+    width: 9rem;
+    height: 2px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, transparent, var(--tr-text));
+    rotate: 18deg;
+    opacity: 0;
+}
+
+.es-intro__shooting {
+    top: 18%;
+}
+
+/* 1 · Una línea de luz une las estrellas una por una; cada una se enciende al llegar */
+.es-intro.is-joining .es-constellation__line {
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 0.2s linear calc(0.15s + var(--i) * 0.16s);
+}
+
+.es-intro.is-joining .es-constellation__star path {
+    animation: es-flare 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) calc(0.12s + var(--i) * 0.16s) both;
+}
+
+.es-intro.is-joining .es-constellation__halo {
+    animation: es-lit-halo 0.6s ease-out calc(0.12s + var(--i) * 0.16s) forwards;
+}
+
+/* El corazón entero se enciende y cruza una estrella fugaz */
+.es-intro.is-joining .es-constellation {
+    filter: drop-shadow(0 0 10px color-mix(in srgb, var(--tr-primary) 70%, transparent));
+    transition-delay: 0s, 0.3s, 1.7s;
+}
+
+.es-intro.is-joining .es-intro__shooting {
+    animation: es-shoot-once 1s ease-in 1.1s forwards;
+}
+
+.es-intro.is-joining .es-intro__hint {
+    opacity: 0;
+    animation: none;
+}
+
+/* 2 · El cielo se acerca hasta la portada */
+.es-intro.is-open .es-constellation {
+    scale: 1.8;
+    opacity: 0;
+}
+
+@keyframes es-pulse {
+    0%, 100% { scale: 1; }
+    50% { scale: 1.35; }
+}
+
+@keyframes es-halo {
+    0% { opacity: 0.8; scale: 0.6; }
+    100% { opacity: 0; scale: 2.2; }
+}
+
+@keyframes es-flare {
+    0% { scale: 1; }
+    45% { scale: 1.9; }
+    100% { scale: 1.2; }
+}
+
+@keyframes es-lit-halo {
+    0% { opacity: 0; scale: 0.4; }
+    40% { opacity: 1; scale: 1.4; }
+    100% { opacity: 0.55; scale: 1; }
+}
+
+@keyframes es-shoot-once {
+    0% { opacity: 0; translate: 0 0; }
+    15% { opacity: 1; }
+    100% { opacity: 0; translate: 150vw 0; }
+}
+
+/* ── Portada: la carta del cielo ───────────────────────────────────────── */
+
+.es-hero {
+    align-content: start;
+    justify-items: center;
+    min-height: 100svh;
+    padding: calc(4.8rem + env(safe-area-inset-top)) 1.25rem 0;
+    background: radial-gradient(90% 50% at 50% 34%, color-mix(in srgb, var(--tr-secondary) 80%, transparent), transparent 75%);
+    color: var(--tr-text);
+    text-align: center;
+}
+
+.es-kicker {
+    margin: 0;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--tr-accent);
+}
+
+.es-chart {
+    position: relative;
+    width: min(88vw, 23rem);
+    aspect-ratio: 1;
+    margin-top: 1.3rem;
+}
+
+.es-chart__map {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+
+.es-chart__ring {
+    fill: none;
+    stroke: var(--tr-primary);
+    stroke-width: 1.3;
+}
+
+.es-chart__ring--inner {
+    stroke-width: 0.6;
+    opacity: 0.7;
+}
+
+.es-chart__tick {
+    stroke: var(--tr-primary);
+    stroke-width: 0.7;
+}
+
+.es-chart__tick.is-long {
+    stroke-width: 1.3;
+}
+
+.es-chart__grid {
+    fill: none;
+    stroke: color-mix(in srgb, var(--tr-accent) 38%, transparent);
+    stroke-width: 0.6;
+    stroke-dasharray: 2 4;
+}
+
+.es-chart__line {
+    stroke: var(--es-line);
+    stroke-width: 0.9;
+}
+
+.es-chart__star {
+    fill: var(--tr-text);
+    animation: es-twinkle var(--d) ease-in-out var(--delay) infinite;
+}
+
+.es-chart__star.is-bright {
+    fill: var(--es-star);
+}
+
+.es-chart__cardinal {
+    fill: var(--tr-primary);
+    font-family: var(--font-body);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+}
+
+/* La luna: la foto en el centro, con su halo */
+.es-chart__moon {
+    position: absolute;
+    inset: 30%;
+    overflow: hidden;
+    border-radius: 50%;
+    box-shadow:
+        0 0 0 3px color-mix(in srgb, var(--tr-primary) 55%, transparent),
+        0 0 0 10px color-mix(in srgb, var(--tr-primary) 12%, transparent),
+        0 0 50px color-mix(in srgb, var(--tr-primary) 45%, transparent);
+    animation: es-moon 6s ease-in-out infinite;
+}
+
+.es-chart__moon .tr-photo-empty {
+    font-family: var(--font-titles);
+}
+
+.es-name {
+    margin: 1.4rem 0 0;
+    font-family: var(--font-titles);
+    font-size: clamp(2.8rem, 13vw, 4.8rem);
+    font-weight: 500;
+    line-height: 0.98;
+    text-wrap: balance;
+    overflow-wrap: break-word;
+}
+
+.es-when {
+    margin: 1rem 0 0;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.es-place {
+    margin: 0.45rem 0 0;
+    font-family: var(--font-titles);
+    font-size: 1.2rem;
+    font-style: italic;
+}
+
+.es-coords {
+    margin: 0.4rem 0 0;
+    font-size: 0.75rem;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.18em;
+    color: var(--tr-accent);
+}
+
+.es-message {
+    max-width: 30ch;
+    margin: 1.2rem 0 0;
+    line-height: 1.7;
+    color: var(--inv-muted);
+    text-wrap: pretty;
+}
+
+@keyframes es-moon {
+    0%, 100% { box-shadow: 0 0 0 3px color-mix(in srgb, var(--tr-primary) 55%, transparent), 0 0 0 10px color-mix(in srgb, var(--tr-primary) 12%, transparent), 0 0 40px color-mix(in srgb, var(--tr-primary) 35%, transparent); }
+    50% { box-shadow: 0 0 0 3px color-mix(in srgb, var(--tr-primary) 55%, transparent), 0 0 0 12px color-mix(in srgb, var(--tr-primary) 16%, transparent), 0 0 64px color-mix(in srgb, var(--tr-primary) 55%, transparent); }
+}
+
+/* ── Secciones: recuadros de cielo un poco más claro ───────────────────── */
+
+.inv-estrellas main > .inv-section {
+    border-top: 0;
+    padding-block: 1.5rem 0.6rem;
+}
+
+.inv-estrellas main > .inv-section > .inv-wrap {
+    width: calc(100% - 1.5rem);
+    padding-block: 2.6rem 2.3rem;
+    border: 1px solid color-mix(in srgb, var(--tr-accent) 24%, transparent);
+    border-radius: 1.6rem;
+    background: linear-gradient(180deg, var(--es-panel), color-mix(in srgb, var(--tr-secondary) 52%, transparent));
+}
+
+.inv-estrellas .invitation-lottie-framed {
+    display: none;
+}
+
+/* Una estrellita sobre cada encabezado */
+.inv-estrellas .inv-head {
+    position: relative;
+    padding-top: 1.6rem;
+}
+
+.inv-estrellas .inv-head::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 1rem;
+    aspect-ratio: 1;
+    margin-left: -0.5rem;
+    background: var(--es-star);
+    clip-path: var(--es-shape);
+    animation: es-twinkle 3s ease-in-out infinite;
+}
+
+.inv-estrellas .inv-head__eyebrow {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--tr-accent);
+}
+
+.inv-estrellas .inv-head__title {
+    font-size: clamp(2.3rem, 10vw, 3.4rem);
+    font-weight: 500;
+}
+
+.inv-estrellas .inv-head__rule {
+    width: 6.5rem;
+    height: 1.1rem;
+    background: var(--tr-accent);
+    -webkit-mask: var(--es-rule) center / contain no-repeat;
+    mask: var(--es-rule) center / contain no-repeat;
+    opacity: 0.9;
+}
+
+.inv-estrellas :is(.inv-label, .inv-link, .inv-btn, .inv-countdown__label) {
+    letter-spacing: 0.08em;
+}
+
+.inv-estrellas .inv-btn {
+    min-height: 3.1rem;
+    border-color: var(--tr-primary);
+    background: var(--tr-primary);
+    color: var(--tr-ink-primary);
+    box-shadow: 0 0 22px -6px color-mix(in srgb, var(--tr-primary) 70%, transparent);
+}
+
+.inv-estrellas .inv-btn--ghost {
+    background: transparent;
+    color: var(--tr-text);
+    border-color: color-mix(in srgb, var(--tr-accent) 45%, transparent);
+    box-shadow: none;
+}
+
+.inv-estrellas .inv-countdown__unit {
+    border: 1px solid color-mix(in srgb, var(--tr-accent) 28%, transparent);
+    border-radius: 1.1rem;
+    background: color-mix(in srgb, var(--tr-bg) 55%, transparent);
+}
+
+.inv-estrellas .inv-countdown__unit + .inv-countdown__unit {
+    margin-left: 0.3rem;
+}
+
+.inv-estrellas .inv-countdown__value {
+    font-family: var(--font-titles);
+    color: var(--es-star);
+}
+
+/* ── Itinerario: la constelación del día ───────────────────────────────── */
+
+.es-path {
+    position: relative;
+    display: grid;
+    gap: 1.6rem;
+    margin: 0;
+    padding: 0.4rem 0 0;
+    list-style: none;
+}
+
+/* La línea de luz que une las estrellas; se dibuja al aparecer */
+.es-path::before {
+    content: '';
+    position: absolute;
+    top: 0.7rem;
+    bottom: 0.7rem;
+    left: 1.1rem;
+    width: 1px;
+    background: linear-gradient(180deg, var(--es-line), color-mix(in srgb, var(--tr-accent) 30%, transparent));
+    transform-origin: 50% 0;
+}
+
+html:not(.no-js) .es-path-section.reveal:not(.is-visible) .es-path::before {
+    scale: 1 0;
+}
+
+.es-path-section.reveal.is-visible .es-path::before {
+    transition: scale 1.6s var(--tr-ease) 0.3s;
+    scale: 1 1;
+}
+
+.es-point {
+    position: relative;
+    display: grid;
+    grid-template-columns: 2.2rem 1fr;
+    column-gap: 0.9rem;
+    text-align: left;
+}
+
+.es-point__star {
+    grid-row: 1 / span 2;
+    justify-self: center;
+    width: 1.35rem;
+    aspect-ratio: 1;
+    margin-top: 0.1rem;
+    background: var(--es-star);
+    clip-path: var(--es-shape);
+    filter: drop-shadow(0 0 6px var(--tr-primary));
+    animation: es-twinkle 2.6s ease-in-out calc(var(--step, 0) * -0.5s) infinite;
+}
+
+.es-point__time {
+    grid-column: 2;
+    font-size: 0.95rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.06em;
+    color: var(--es-star);
+}
+
+.es-point__body {
+    grid-column: 2;
+}
+
+.es-point__title {
+    margin: 0.1rem 0 0;
+    font-family: var(--font-titles);
+    font-size: 1.35rem;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.es-point__text {
+    margin: 0.25rem 0 0;
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: var(--inv-muted);
+}
+
+/* ── Padrinos: las estrellas que guían ─────────────────────────────────── */
+
+.es-guides {
+    display: grid;
+    gap: 2.2rem;
+    margin: 0;
+    padding: 0.4rem 0 0;
+    list-style: none;
+}
+
+.es-guide {
+    display: grid;
+    justify-items: center;
+    gap: 0.3rem;
+    text-align: center;
+}
+
+.es-guide__star {
+    width: 3.2rem;
+    aspect-ratio: 1;
+    margin-bottom: 0.4rem;
+    background: radial-gradient(circle, #fff 0 14%, var(--es-star) 38%, var(--tr-primary) 70%);
+    clip-path: var(--es-shape-8);
+    filter: drop-shadow(0 0 14px var(--tr-primary));
+    animation: es-guide-shine 4.5s ease-in-out calc(var(--step, 0) * -1.1s) infinite;
+}
+
+.es-guide__role {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--tr-accent);
+}
+
+.es-guide__names {
+    font-family: var(--font-titles);
+    font-size: clamp(1.4rem, 6.5vw, 1.8rem);
+    font-weight: 500;
+    line-height: 1.2;
+    text-wrap: balance;
+}
+
+.es-guide__message {
+    max-width: 30ch;
+    margin: 0.2rem 0 0;
+    font-family: var(--font-titles);
+    font-size: 1.05rem;
+    font-style: italic;
+    line-height: 1.5;
+    color: var(--inv-muted);
+}
+
+.es-family {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+    gap: 1.8rem 1.2rem;
+    margin-top: 2.2rem;
+    padding-top: 2rem;
+    border-top: 1px dashed color-mix(in srgb, var(--tr-accent) 35%, transparent);
+    text-align: center;
+}
+
+.es-family__title {
+    margin: 0 0 0.8rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--es-star);
+}
+
+.es-family__list {
+    display: grid;
+    gap: 0.75rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.es-family__list li {
+    display: grid;
+    gap: 0.1rem;
+}
+
+.es-family__name {
+    font-family: var(--font-titles);
+    font-size: 1.15rem;
+    font-weight: 600;
+}
+
+.es-family__name::before {
+    content: '✦';
+    margin-right: 0.35rem;
+    font-size: 0.7em;
+    color: var(--es-star);
+}
+
+.es-family__list small {
+    font-size: 0.8rem;
+    color: var(--inv-muted);
+}
+
+@keyframes es-guide-shine {
+    0%, 100% { scale: 1; rotate: 0deg; }
+    50% { scale: 1.12; rotate: 22deg; }
+}
+
+/* ── Fondo: el cielo que gira y las estrellas fugaces ──────────────────── */
+
+.es-ambient {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+/* El cielo gira alrededor de un polo que queda arriba de la pantalla */
+.es-ambient__sky {
+    position: absolute;
+    top: calc(8svh - 110vmax);
+    left: 50%;
+    width: 220vmax;
+    height: 220vmax;
+    translate: -50% 0;
+    fill: var(--tr-text);
+    opacity: 0.8;
+    will-change: transform;
+    animation: es-sky-turn 420s linear infinite;
+}
+
+.es-ambient__sky circle:nth-child(6n) {
+    animation: es-twinkle 3s ease-in-out var(--delay) infinite;
+}
+
+.es-ambient__shooting--1 {
+    top: 14%;
+    animation: es-shoot 12s ease-in 3s infinite;
+}
+
+.es-ambient__shooting--2 {
+    top: 46%;
+    width: 7rem;
+    rotate: 24deg;
+    animation: es-shoot 15s ease-in 9s infinite;
+}
+
+.inv-estrellas .inv-themed-bg__glow {
+    background: radial-gradient(40% 30% at 70% 20%, color-mix(in srgb, var(--tr-accent) 14%, transparent), transparent 70%),
+        radial-gradient(45% 35% at 20% 75%, color-mix(in srgb, var(--tr-secondary) 55%, transparent), transparent 70%);
+}
+
+.inv-drift--noche {
+    --drift-a: var(--es-star);
+    opacity: 0.6;
+}
+
+@keyframes es-sky-turn {
+    to { rotate: 360deg; }
+}
+
+@keyframes es-shoot {
+    0%, 90% { opacity: 0; translate: 0 0; }
+    92% { opacity: 1; }
+    100% { opacity: 0; translate: 150vw 0; }
+}
+
+/* ── Pie e historia ─────────────────────────────────────────────────────── */
+
+.inv-estrellas .inv-estrellas-footer {
+    border-top: 0;
+}
+
+.inv-estrellas-footer .inv-footer__ornament--line {
+    width: 6.5rem;
+    height: 1.1rem;
+    background: var(--tr-accent);
+    -webkit-mask: var(--es-rule) center / contain no-repeat;
+    mask: var(--es-rule) center / contain no-repeat;
+}
+
+/* Modo historia: cada escena aparece como una estrella que se enciende */
+.inv-story-invitation .inv-estrellas .inv-scene {
+    --story-scene-bg: var(--tr-bg);
+    translate: 0 0;
+    rotate: 0deg;
+    scale: 0.94;
+    opacity: 0;
+    filter: blur(6px) brightness(1.6);
+    transition: scale 0.9s var(--tr-ease), opacity 0.6s ease, filter 0.9s ease, visibility 0s linear 0.9s;
+}
+
+.inv-story-invitation .inv-estrellas .inv-scene.is-active {
+    scale: 1;
+    opacity: 1;
+    filter: none;
+    transition-delay: 0s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .es-intro__sky span,
+    .es-chart__star,
+    .es-chart__moon,
+    .es-point__star,
+    .es-guide__star,
+    .es-ambient__sky,
+    .es-ambient__sky circle,
+    .es-ambient__shooting,
+    .inv-estrellas .inv-head::before {
+        animation: none !important;
+    }
+}

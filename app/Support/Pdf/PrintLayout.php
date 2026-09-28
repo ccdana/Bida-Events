@@ -127,7 +127,10 @@ final class PrintLayout
             $honor ? [
                 'view' => 'honor',
                 'label' => 'los padrinos',
-                'weight' => 12 + count($honor['godparents'] ?? []) * 8
+                // Cada padrino es un renglón; un papel o unos nombres largos se parten en más
+                'weight' => 12 + collect($honor['godparents'] ?? [])->sum(fn (array $godparent) => 8
+                    + max(self::wrapped($godparent['role'] ?? null, 18, self::LINE), self::wrapped($godparent['names'] ?? null, 22, self::LINE), self::LINE)
+                    - self::LINE)
                     + (($honor['chambelanes'] ?? []) ? 4 + self::lines(implode(', ', $honor['chambelanes'])) : 0)
                     + (($honor['damitas'] ?? []) ? 4 + self::lines(implode(', ', $honor['damitas'])) : 0),
             ] : null,
@@ -175,11 +178,14 @@ final class PrintLayout
     {
         $half = self::total($blocks) / 2;
         $carried = 0;
+        $second = false;
         $columns = [[], []];
 
         foreach ($blocks as $block) {
-            // El bloque que cruza la mitad se queda entero donde empieza: no se parte en dos
-            $columns[$carried >= $half ? 1 : 0][] = $block['view'];
+            // El bloque que cruza la mitad no se parte: va a la columna donde queda la mayor parte de
+            // su alto (así un bloque largo que empieza justo antes de la mitad no alarga la primera)
+            $second = $second || ($columns[0] && $carried + $block['weight'] / 2 > $half);
+            $columns[$second ? 1 : 0][] = $block['view'];
             $carried += $block['weight'];
         }
 

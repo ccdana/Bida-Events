@@ -212,6 +212,10 @@ final class EditableTexts
         'exhibit_label' => 'Galería: sobre el nombre', 'exhibit_title' => 'Galería: nombre de la obra', 'exhibit_piece' => 'Galería: técnica de la obra',
         'exhibit_opening' => 'Galería: rótulo de la fecha', 'exhibit_room' => 'Galería: rótulo del lugar', 'exhibit_guest' => 'Galería: antes del invitado',
         'exhibit_free' => 'Galería: pie de la cédula', 'room_label' => 'Galería: palabra antes del número de sala',
+        // «Mapa de estrellas»
+        'sky_label' => 'Mapa: título del cielo', 'constellation_label' => 'Apertura: antes del nombre de la constelación',
+        // «Caldero encantado»
+        'potion_label' => 'Frasco: etiqueta', 'potion_ingredients' => 'Frasco: ingredientes', 'potion_step' => 'Receta: palabra antes del número',
         // «Partitura a dos voces»
         'score_program' => 'Partitura: encabezado', 'score_title' => 'Partitura: nombre de la obra', 'score_opus' => 'Partitura: número de obra',
         'score_date' => 'Partitura: rótulo de la fecha', 'score_hall' => 'Partitura: rótulo del lugar',
@@ -229,6 +233,8 @@ final class EditableTexts
         'film_premiere' => 'Película: rótulo de la fecha', 'film_show' => 'Película: rótulo de la hora', 'film_theater' => 'Película: rótulo del lugar',
         'film_intermission' => 'Película: cartel del intermedio',
         // «Tendedero»
+        'parcel_title' => 'Encomienda: título de la guía', 'parcel_content' => 'Encomienda: rótulo del contenido', 'parcel_arrival' => 'Encomienda: rótulo de la fecha',
+        'parcel_address' => 'Encomienda: rótulo del lugar', 'parcel_fragile' => 'Encomienda: sello de frágil', 'parcel_care' => 'Encomienda: segundo sello',
         'line_date' => 'Tendedero: etiqueta de la fecha', 'line_time' => 'Tendedero: etiqueta de la hora', 'line_place' => 'Tendedero: etiqueta del lugar',
         'act1_label' => 'Acto 1: nombre', 'act1_title' => 'Acto 1: título', 'act1_intro_fallback' => 'Acto 1: introducción si no hay texto',
         'act1_met_prefix' => 'Acto 1: antes de la fecha', 'act1_met_fallback' => 'Acto 1: si no hay fecha', 'act1_first_fallback' => 'Acto 1: primeras impresiones si no hay texto',

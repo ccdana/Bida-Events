@@ -1,0 +1,946 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   INVITACIÓN — «Bloques de juguete» (baby shower · colección tendencias)
+
+   Su nombre armado con bloques de madera. Se entra abriendo el baúl de juguetes:
+   los bloques saltan de a uno, dan una vuelta en el aire y caen en fila hasta
+   formar el nombre. La portada es un bloque grande, en tres dimensiones, que
+   gira despacio con la foto en una cara; el nombre va en bloquecitos. El programa
+   es una torre de bloques que se arma al aparecer, las anfitrionas van en bloques
+   con su inicial y cada sección es la cara de un bloque, con su letra (A, B, C…)
+   y su canto. Al fondo caen bloquecitos dando vueltas.
+
+   Todo sale de la paleta del editor:
+     cuarto de juegos = fondo · textos = texto · bloques rojos y botones = principal ·
+     bloques azules y baúl = secundario · bloques amarillos = acento.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+@import './_base.css';
+
+.inv-bloques {
+    --inv-radius: 0.8rem;
+    --bl-0: var(--tr-primary);
+    --bl-0-ink: var(--tr-ink-primary);
+    --bl-1: var(--tr-secondary);
+    --bl-1-ink: var(--tr-ink-secondary);
+    --bl-2: var(--tr-accent);
+    --bl-2-ink: var(--tr-ink-accent);
+    --bl-dots: radial-gradient(circle, color-mix(in srgb, var(--tr-text) 7%, transparent) 1.4px, transparent 1.9px) 0 0 / 22px 22px;
+    --bl-star: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+    --themed-from: translate3d(0, -24px, 0);
+
+    background: var(--tr-bg);
+}
+
+.inv-bloques.has-player {
+    padding-bottom: calc(5.25rem + env(safe-area-inset-bottom));
+}
+
+.inv-bloques .bl-tone--0 { --bl: var(--bl-0); --bl-ink: var(--bl-0-ink); }
+.inv-bloques .bl-tone--1 { --bl: var(--bl-1); --bl-ink: var(--bl-1-ink); }
+.inv-bloques .bl-tone--2 { --bl: var(--bl-2); --bl-ink: var(--bl-2-ink); }
+
+/* ── El bloque (bloques/block): el frente con su letra y, en perspectiva, arriba y el costado ── */
+
+.bl-block {
+    --bs: 3rem;
+    position: relative;
+    display: inline-block;
+    flex-shrink: 0;
+    width: var(--bs);
+    height: var(--bs);
+    margin: calc(var(--bs) * 0.22) calc(var(--bs) * 0.22) 0 0;
+}
+
+.bl-block__face {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    border-radius: calc(var(--bs) * 0.1);
+    background: var(--bl);
+    color: var(--bl-ink);
+    font-family: var(--font-titles);
+    font-size: calc(var(--bs) * 0.54);
+    line-height: 1;
+    box-shadow:
+        inset 0 0 0 calc(var(--bs) * 0.07) color-mix(in srgb, var(--bl) 80%, #fff),
+        inset 0 0 0 calc(var(--bs) * 0.095) color-mix(in srgb, var(--bl) 78%, #000);
+    text-shadow: 0 1px 0 color-mix(in srgb, var(--bl) 55%, #000);
+}
+
+/* La cara de arriba, más clara */
+.bl-block::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    width: 100%;
+    height: 22%;
+    border-radius: 3px 3px 0 0;
+    background: color-mix(in srgb, var(--bl) 68%, #fff);
+    transform: skewX(-45deg);
+    transform-origin: 0 100%;
+}
+
+/* La cara del costado, más oscura */
+.bl-block::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 100%;
+    width: 22%;
+    height: 100%;
+    border-radius: 0 3px 3px 0;
+    background: color-mix(in srgb, var(--bl) 70%, #000);
+    transform: skewY(-45deg);
+    transform-origin: 0 0;
+}
+
+/* ── Apertura: el cuarto de juegos y el baúl ───────────────────────────── */
+
+.bl-intro.inv-themed-intro {
+    gap: 1.1rem;
+    background:
+        var(--bl-dots),
+        radial-gradient(80% 50% at 50% 38%, color-mix(in srgb, var(--tr-accent) 16%, var(--tr-bg)), transparent 72%),
+        var(--tr-bg);
+    color: var(--tr-text);
+    cursor: pointer;
+}
+
+.bl-intro > :not(.bl-intro__rug) {
+    position: relative;
+    z-index: 1;
+}
+
+/* La alfombra redonda del cuarto, asomando abajo */
+.bl-intro__rug {
+    position: absolute;
+    bottom: -16svh;
+    left: 50%;
+    width: min(150vw, 60rem);
+    aspect-ratio: 2.4;
+    translate: -50% 0;
+    border-radius: 50%;
+    background: repeating-radial-gradient(ellipse at center,
+        color-mix(in srgb, var(--tr-secondary) 20%, var(--tr-bg)) 0 1.2rem,
+        color-mix(in srgb, var(--tr-accent) 30%, var(--tr-bg)) 1.2rem 2.4rem,
+        color-mix(in srgb, var(--tr-primary) 16%, var(--tr-bg)) 2.4rem 3.6rem);
+    opacity: 0.75;
+}
+
+.bl-intro__eyebrow {
+    margin: 0 0 1.4rem;
+    font-family: var(--font-script);
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--inv-accent-ink);
+    transition: opacity 0.4s ease;
+}
+
+.bl-intro__stage {
+    --gap: 0.3rem;
+    --bs: min(3.3rem, calc((88vw - (var(--n) - 1) * var(--gap)) / (var(--n) * 1.22)));
+    position: relative;
+    width: min(94vw, 30rem);
+    height: calc(var(--bs) * 1.22 + 12.5rem);
+}
+
+.bl-intro__word {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    z-index: 0;
+    display: flex;
+    gap: var(--gap);
+    translate: -50% 0;
+}
+
+.bl-intro__word .bl-block {
+    --bs: inherit;
+    opacity: 0;
+}
+
+.bl-intro__date {
+    position: absolute;
+    top: calc(var(--bs) * 1.22 + 1.1rem);
+    right: 0;
+    left: 0;
+    margin: 0;
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    text-align: center;
+    opacity: 0;
+}
+
+/* El baúl: la boca oscura, la tapa con bisagra atrás y el frente de tablitas */
+.bl-chest {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    z-index: 1;
+    width: min(62vw, 15rem);
+    height: 8.5rem;
+    translate: -50% 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    perspective: 600px;
+}
+
+.bl-chest__mouth {
+    position: absolute;
+    right: 5%;
+    bottom: 64%;
+    left: 5%;
+    height: 1.5rem;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--bl-1) 35%, #000);
+}
+
+.bl-chest__body {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 70%;
+    border-radius: 0.5rem 0.5rem 1rem 1rem;
+    background:
+        repeating-linear-gradient(180deg, transparent 0 1.5rem, color-mix(in srgb, var(--bl-1) 68%, #000) 1.5rem 1.6rem),
+        linear-gradient(180deg, color-mix(in srgb, var(--bl-1) 88%, #fff), var(--bl-1));
+    box-shadow:
+        inset 0 -0.4rem 0 color-mix(in srgb, var(--bl-1) 68%, #000),
+        0 1rem 1.4rem -0.8rem rgb(0 0 0 / 0.45);
+}
+
+/* El cierre y una estrella pintada en el frente */
+.bl-chest__latch {
+    position: absolute;
+    top: -0.3rem;
+    left: 50%;
+    width: 1.5rem;
+    height: 1.1rem;
+    translate: -50% 0;
+    border-radius: 0.25rem;
+    background: var(--bl-2);
+    box-shadow: inset 0 -2px 0 color-mix(in srgb, var(--bl-2) 70%, #000);
+}
+
+.bl-chest__star {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 2.4rem;
+    height: 2.4rem;
+    translate: -50% -40%;
+    background: var(--bl-2);
+    clip-path: var(--bl-star);
+}
+
+.bl-chest__lid {
+    position: absolute;
+    right: -3%;
+    bottom: 66%;
+    left: -3%;
+    height: 34%;
+    border-radius: 1rem 1rem 0.35rem 0.35rem;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--bl-0) 78%, #fff), var(--bl-0));
+    box-shadow: inset 0 -0.3rem 0 color-mix(in srgb, var(--bl-0) 70%, #000);
+    transform-origin: 50% 100%;
+    animation: bl-lid-jiggle 2.6s ease-in-out 1s infinite;
+}
+
+.bl-intro__hint {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--inv-muted);
+    transition: opacity 0.3s ease;
+}
+
+@keyframes bl-lid-jiggle {
+    0%, 70%, 100% { rotate: 0deg; translate: 0 0; }
+    76% { rotate: -3deg; translate: 0 -3px; }
+    82% { rotate: 2.5deg; translate: 0 -1px; }
+    88% { rotate: -1deg; translate: 0 0; }
+}
+
+/* 1 · Se abre la tapa y los bloques saltan de a uno hasta formar el nombre */
+.bl-intro.is-out .bl-chest__lid {
+    animation: none;
+    transform: translateY(-38%) rotateX(68deg);
+    filter: brightness(0.85);
+    transition: transform 0.5s cubic-bezier(0.3, 1.4, 0.5, 1), filter 0.5s ease;
+}
+
+.bl-intro.is-out .bl-intro__word .bl-block {
+    animation: bl-fly 0.85s cubic-bezier(0.3, 0.1, 0.3, 1) calc(0.35s + var(--i) * 0.13s) both;
+}
+
+.bl-intro.is-out .bl-intro__date {
+    opacity: 1;
+    transition: opacity 0.6s ease calc(1s + var(--n) * 0.13s);
+}
+
+.bl-intro.is-out :is(.bl-intro__hint) {
+    opacity: 0;
+}
+
+@keyframes bl-fly {
+    0% {
+        opacity: 0;
+        translate: calc(var(--k) * (var(--bs) * 1.22 + var(--gap))) calc(var(--bs) * 1.22 + 7.5rem);
+        rotate: 0deg;
+        scale: 0.6;
+    }
+    12% { opacity: 1; }
+    55% {
+        translate: calc(var(--k) * (var(--bs) * 1.22 + var(--gap)) * 0.35) calc(-1 * var(--bs) - 2.6rem);
+        rotate: calc(var(--spin) * 200deg);
+        scale: 1;
+    }
+    82% { translate: 0 0; rotate: calc(var(--spin) * 360deg); scale: 1.1 0.86; }
+    92% { translate: 0 -0.35rem; scale: 0.96 1.05; }
+    100% { opacity: 1; translate: 0 0; rotate: calc(var(--spin) * 360deg); scale: 1; }
+}
+
+/* 2 · La fila da un saltito de alegría y queda la portada */
+.bl-intro.is-open .bl-intro__word .bl-block {
+    animation:
+        bl-fly 0.85s cubic-bezier(0.3, 0.1, 0.3, 1) calc(0.35s + var(--i) * 0.13s) both,
+        bl-hop 0.5s ease-out calc(var(--i) * 0.06s) both;
+}
+
+@keyframes bl-hop {
+    0%, 100% { translate: 0 0; }
+    45% { translate: 0 -0.9rem; }
+}
+
+/* ── Portada: el bloque grande que gira ────────────────────────────────── */
+
+.bl-hero {
+    align-content: start;
+    justify-items: center;
+    min-height: 100svh;
+    padding: calc(4.8rem + env(safe-area-inset-top)) 1.25rem 0;
+    background: var(--bl-dots);
+    color: var(--tr-text);
+    text-align: center;
+}
+
+.bl-kicker {
+    margin: 0;
+    font-family: var(--font-script);
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--inv-accent-ink);
+}
+
+.bl-cube-wrap {
+    --cs: min(56vw, 13.5rem);
+    position: relative;
+    width: var(--cs);
+    height: var(--cs);
+    margin: 2.6rem auto 0;
+    perspective: 900px;
+}
+
+.bl-cube {
+    position: absolute;
+    inset: 0;
+    transform-style: preserve-3d;
+    animation: bl-cube-turn 9s ease-in-out infinite alternate;
+}
+
+.bl-cube__face {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    border-radius: 0.5rem;
+    background: var(--bl);
+    color: var(--bl-ink);
+    font-family: var(--font-titles);
+    font-size: calc(var(--cs) * 0.46);
+    box-shadow:
+        inset 0 0 0 0.55rem color-mix(in srgb, var(--bl) 80%, #fff),
+        inset 0 0 0 0.72rem color-mix(in srgb, var(--bl) 78%, #000);
+    text-shadow: 0 2px 0 color-mix(in srgb, var(--bl) 55%, #000);
+    backface-visibility: hidden;
+}
+
+.bl-cube__face b {
+    font-weight: 400;
+}
+
+.bl-cube__face--front {
+    padding: 0.85rem;
+    background: color-mix(in srgb, var(--tr-bg) 60%, #fff);
+    box-shadow:
+        inset 0 0 0 0.3rem color-mix(in srgb, var(--bl-2) 70%, #fff),
+        inset 0 0 0 0.42rem color-mix(in srgb, var(--bl-2) 70%, #000);
+    transform: translateZ(calc(var(--cs) / 2));
+}
+
+.bl-cube__face--back { transform: rotateY(180deg) translateZ(calc(var(--cs) / 2)); }
+.bl-cube__face--right { transform: rotateY(90deg) translateZ(calc(var(--cs) / 2)); }
+.bl-cube__face--left { transform: rotateY(-90deg) translateZ(calc(var(--cs) / 2)); }
+.bl-cube__face--top { transform: rotateX(90deg) translateZ(calc(var(--cs) / 2)); }
+.bl-cube__face--bottom { transform: rotateX(-90deg) translateZ(calc(var(--cs) / 2)); }
+
+.bl-cube__photo {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 0.3rem;
+}
+
+.bl-cube__photo .tr-photo-empty {
+    font-family: var(--font-titles);
+    color: var(--bl-0);
+    background: color-mix(in srgb, var(--bl-2) 25%, var(--tr-bg));
+}
+
+.bl-star {
+    width: 48%;
+    aspect-ratio: 1;
+    background: var(--bl-ink);
+    clip-path: var(--bl-star);
+}
+
+.bl-cube__shadow {
+    position: absolute;
+    right: 6%;
+    bottom: -2.2rem;
+    left: 6%;
+    height: 1.4rem;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, color-mix(in srgb, var(--tr-text) 28%, transparent), transparent);
+    animation: bl-shadow 9s ease-in-out infinite alternate;
+}
+
+@keyframes bl-cube-turn {
+    from { transform: rotateX(-15deg) rotateY(-32deg); }
+    to { transform: rotateX(-11deg) rotateY(26deg); }
+}
+
+@keyframes bl-shadow {
+    from { translate: -6% 0; }
+    to { translate: 6% 0; }
+}
+
+/* El nombre en bloquecitos: una fila por palabra, cada bloque se mece a su ritmo */
+.bl-name {
+    --bs: min(3rem, calc(84vw / (var(--len) * 1.32)));
+    display: grid;
+    justify-items: center;
+    gap: 0.5rem;
+    margin: 4rem 0 0;
+}
+
+.bl-name__word {
+    display: flex;
+    gap: 0.22rem;
+}
+
+.bl-name .bl-block {
+    --bs: inherit;
+    animation: bl-name-wobble 3.6s ease-in-out calc(var(--i) * -0.45s) infinite;
+}
+
+@keyframes bl-name-wobble {
+    0%, 100% { translate: 0 0; rotate: -2deg; }
+    50% { translate: 0 -3px; rotate: 2deg; }
+}
+
+.bl-when {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+    margin: 1.7rem 0 0;
+}
+
+.bl-when__day,
+.bl-when__time {
+    padding: 0.5rem 0.95rem;
+    border-radius: 0.6rem;
+    font-weight: 800;
+}
+
+.bl-when__day {
+    background: color-mix(in srgb, var(--bl-2) 35%, var(--tr-bg));
+    box-shadow: 0 0.25rem 0 color-mix(in srgb, var(--bl-2) 60%, var(--tr-bg));
+}
+
+.bl-when__time {
+    background: var(--bl-1);
+    color: var(--bl-1-ink);
+    font-variant-numeric: tabular-nums;
+    box-shadow: 0 0.25rem 0 color-mix(in srgb, var(--bl-1) 65%, #000);
+}
+
+.bl-place {
+    margin: 1.1rem 0 0;
+    font-family: var(--font-script);
+    font-size: 1.3rem;
+    font-weight: 600;
+    line-height: 1.3;
+    text-wrap: balance;
+}
+
+.bl-message {
+    max-width: 31ch;
+    margin: 0.9rem 0 0;
+    line-height: 1.65;
+    color: var(--inv-muted);
+    text-wrap: pretty;
+}
+
+/* ── Secciones: la cara de un bloque, con su letra y su canto ─────────── */
+
+.inv-bloques main {
+    counter-reset: bl-face;
+}
+
+.inv-bloques main > .inv-section {
+    border-top: 0;
+    padding-block: 1.7rem 0.8rem;
+}
+
+.inv-bloques main > .inv-section > .inv-wrap {
+    --bl: var(--bl-0);
+    position: relative;
+    width: calc(100% - 1.6rem);
+    padding-block: 3rem 2.6rem;
+    border-radius: 1.3rem;
+    background: color-mix(in srgb, var(--bl) 8%, var(--tr-bg));
+    box-shadow:
+        inset 0 0 0 0.45rem color-mix(in srgb, var(--bl) 13%, var(--tr-bg)),
+        inset 0 0 0 0.56rem color-mix(in srgb, var(--bl) 34%, transparent),
+        0 0.55rem 0 color-mix(in srgb, var(--bl) 42%, var(--tr-bg)),
+        0 1.2rem 1.6rem -1rem color-mix(in srgb, var(--tr-text) 40%, transparent);
+    counter-increment: bl-face;
+}
+
+.inv-bloques main > .inv-section:nth-of-type(3n + 2) > .inv-wrap { --bl: var(--bl-1); }
+.inv-bloques main > .inv-section:nth-of-type(3n) > .inv-wrap { --bl: var(--bl-2); }
+
+/* La letra de la cara, tallada en la esquina */
+.inv-bloques main > .inv-section > .inv-wrap::before {
+    content: counter(bl-face, upper-alpha);
+    position: absolute;
+    top: 0.9rem;
+    right: 1.15rem;
+    font-family: var(--font-titles);
+    font-size: 3.2rem;
+    line-height: 1;
+    color: color-mix(in srgb, var(--bl) 26%, transparent);
+    pointer-events: none;
+}
+
+.inv-bloques .invitation-lottie-framed {
+    display: none;
+}
+
+.inv-bloques .inv-head__eyebrow {
+    font-family: var(--font-script);
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--inv-accent-ink);
+}
+
+.inv-bloques .inv-head__title {
+    font-size: clamp(1.8rem, 8vw, 2.6rem);
+    font-weight: 400;
+    line-height: 1.1;
+}
+
+/* El filete: tres cuadraditos de colores */
+.inv-bloques .inv-head__rule {
+    width: 4.6rem;
+    height: 0.85rem;
+    border-radius: 3px;
+    background: linear-gradient(90deg, var(--bl-0) 0 28%, transparent 28% 36%, var(--bl-1) 36% 64%, transparent 64% 72%, var(--bl-2) 72%);
+    opacity: 1;
+}
+
+.inv-bloques :is(.inv-label, .inv-link, .inv-btn, .inv-countdown__label) {
+    letter-spacing: 0.06em;
+}
+
+/* Botones de juguete: se hunden al tocarlos */
+.inv-bloques .inv-btn {
+    min-height: 3.2rem;
+    border: 0;
+    border-radius: 0.8rem;
+    background: var(--bl-0);
+    color: var(--bl-0-ink);
+    font-weight: 800;
+    box-shadow:
+        inset 0 0 0 0.2rem color-mix(in srgb, var(--bl-0) 80%, #fff),
+        0 0.35rem 0 color-mix(in srgb, var(--bl-0) 62%, #000);
+    transition: translate 0.12s ease, box-shadow 0.12s ease;
+}
+
+.inv-bloques .inv-btn:not(:disabled):active {
+    translate: 0 0.28rem;
+    box-shadow:
+        inset 0 0 0 0.2rem color-mix(in srgb, var(--bl-0) 80%, #fff),
+        0 0.07rem 0 color-mix(in srgb, var(--bl-0) 62%, #000);
+    opacity: 1;
+}
+
+.inv-bloques .inv-btn--ghost {
+    background: var(--tr-bg);
+    color: var(--tr-text);
+    box-shadow:
+        inset 0 0 0 2px color-mix(in srgb, var(--tr-text) 22%, transparent),
+        0 0.35rem 0 color-mix(in srgb, var(--tr-text) 18%, var(--tr-bg));
+}
+
+.inv-bloques .inv-choice {
+    border: 0;
+    border-radius: 0.8rem;
+    background: var(--tr-bg);
+    font-weight: 700;
+    box-shadow:
+        inset 0 0 0 2px color-mix(in srgb, var(--tr-text) 20%, transparent),
+        0 0.3rem 0 color-mix(in srgb, var(--tr-text) 16%, var(--tr-bg));
+}
+
+.inv-bloques .inv-choice.is-selected {
+    background: var(--bl-1);
+    color: var(--bl-1-ink);
+    box-shadow:
+        inset 0 0 0 0.2rem color-mix(in srgb, var(--bl-1) 80%, #fff),
+        0 0.3rem 0 color-mix(in srgb, var(--bl-1) 62%, #000);
+}
+
+/* La cuenta regresiva, en cuatro bloques de colores */
+.inv-bloques .inv-countdown__grid {
+    gap: 0.5rem;
+    border-block: 0;
+}
+
+.inv-bloques .inv-countdown__unit,
+.inv-bloques .inv-countdown__unit + .inv-countdown__unit {
+    --bl: var(--bl-0);
+    margin-top: 0.4rem;
+    border: 0;
+    border-radius: 0.7rem;
+    background: var(--bl);
+    color: var(--bl-ink);
+    box-shadow:
+        inset 0 0 0 0.22rem color-mix(in srgb, var(--bl) 80%, #fff),
+        0 0.4rem 0 color-mix(in srgb, var(--bl) 62%, #000);
+}
+
+.inv-bloques .inv-countdown__unit:nth-child(2) { --bl: var(--bl-1); color: var(--bl-1-ink); }
+.inv-bloques .inv-countdown__unit:nth-child(3) { --bl: var(--bl-2); color: var(--bl-2-ink); }
+
+.inv-bloques .inv-countdown__value {
+    font-family: var(--font-titles);
+    font-size: clamp(1.6rem, 8vw, 2.6rem);
+    color: currentColor;
+}
+
+.inv-bloques .inv-countdown__label {
+    color: currentColor;
+    opacity: 0.85;
+}
+
+/* ── Itinerario: la torre de bloques ───────────────────────────────────── */
+
+.bl-tower {
+    display: grid;
+    justify-items: center;
+    gap: 0.2rem;
+    margin: 0;
+    padding: 0.4rem 0 0;
+    list-style: none;
+}
+
+.bl-tower__star {
+    --bs: 2.3rem;
+}
+
+.bl-tower__star .bl-block__face::after {
+    content: '';
+    width: 55%;
+    aspect-ratio: 1;
+    background: var(--bl-ink);
+    clip-path: var(--bl-star);
+}
+
+.bl-floor {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: start;
+    gap: 0.35rem;
+    width: min(100%, 26rem);
+    translate: var(--shift) 0;
+    rotate: 0.6deg;
+}
+
+.bl-floor:nth-child(odd) {
+    rotate: -0.8deg;
+}
+
+.bl-floor__time {
+    --bs: 3.7rem;
+}
+
+.bl-floor__time .bl-block__face {
+    font-size: 0.82rem;
+    letter-spacing: 0;
+}
+
+.bl-floor__body {
+    min-height: 3.7rem;
+    margin-top: calc(3.7rem * 0.22);
+    padding: 0.7rem 0.95rem;
+    border-radius: 0.6rem;
+    background: color-mix(in srgb, var(--bl) 15%, var(--tr-bg));
+    text-align: left;
+    box-shadow:
+        inset 0 0 0 2px color-mix(in srgb, var(--bl) 42%, transparent),
+        0 0.3rem 0 color-mix(in srgb, var(--bl) 34%, var(--tr-bg));
+}
+
+.bl-floor__title {
+    margin: 0;
+    font-size: 1.08rem;
+    font-weight: 800;
+    line-height: 1.25;
+}
+
+.bl-floor__text {
+    margin: 0.2rem 0 0;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--inv-muted);
+}
+
+/* Al aparecer, los pisos caen uno sobre otro, de arriba abajo */
+html:not(.no-js) .bl-tower-section.reveal:not(.is-visible) :is(.bl-floor, .bl-tower__top) {
+    opacity: 0;
+}
+
+.bl-tower-section.reveal.is-visible .bl-tower__top {
+    animation: bl-drop 0.6s cubic-bezier(0.3, 1.5, 0.5, 1) 0.2s both;
+}
+
+.bl-tower-section.reveal.is-visible .bl-floor {
+    animation: bl-drop 0.6s cubic-bezier(0.3, 1.5, 0.5, 1) calc(0.35s + var(--step) * 0.15s) both;
+}
+
+@keyframes bl-drop {
+    from { opacity: 0; translate: var(--shift, 0) -3rem; }
+    70% { opacity: 1; translate: var(--shift, 0) 0.25rem; }
+    to { opacity: 1; translate: var(--shift, 0) 0; }
+}
+
+/* ── Anfitrionas: un bloque con la inicial de cada una ─────────────────── */
+
+.bl-hosts {
+    display: grid;
+    gap: 2.3rem;
+    margin: 0;
+    padding: 0.6rem 0 0;
+    list-style: none;
+}
+
+.bl-host {
+    display: grid;
+    justify-items: center;
+    gap: 0.3rem;
+    text-align: center;
+}
+
+.bl-host__block {
+    --bs: 4.3rem;
+    margin-bottom: 0.6rem;
+    rotate: -5deg;
+}
+
+.bl-host:nth-child(even) .bl-host__block {
+    rotate: 6deg;
+}
+
+.bl-host__role {
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--inv-accent-ink);
+}
+
+.bl-host__names {
+    font-family: var(--font-script);
+    font-size: clamp(1.3rem, 6vw, 1.6rem);
+    font-weight: 600;
+    line-height: 1.2;
+    text-wrap: balance;
+}
+
+.bl-host__message {
+    max-width: 30ch;
+    margin: 0.2rem 0 0;
+    line-height: 1.55;
+    color: var(--inv-muted);
+}
+
+.bl-family {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+    gap: 1.8rem 1.2rem;
+    margin-top: 2.3rem;
+    padding-top: 2rem;
+    border-top: 3px dotted color-mix(in srgb, var(--tr-text) 18%, transparent);
+    text-align: center;
+}
+
+.bl-family__title {
+    margin: 0 0 0.8rem;
+    font-family: var(--font-titles);
+    font-size: 0.95rem;
+    font-weight: 400;
+}
+
+.bl-family__list {
+    display: grid;
+    gap: 0.75rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.bl-family__list li {
+    display: grid;
+    gap: 0.1rem;
+}
+
+.bl-family__name {
+    font-weight: 700;
+}
+
+.bl-family__name::before {
+    content: '';
+    display: inline-block;
+    width: 0.62rem;
+    height: 0.62rem;
+    margin-right: 0.45rem;
+    border-radius: 2px;
+    background: var(--bl);
+    vertical-align: 0.02em;
+}
+
+.bl-family__list small {
+    font-size: 0.8rem;
+    color: var(--inv-muted);
+}
+
+/* ── Fondo: bloquecitos que caen dando vueltas ─────────────────────────── */
+
+.inv-bloques .inv-themed-bg__glow {
+    background:
+        radial-gradient(40% 30% at 15% 20%, color-mix(in srgb, var(--tr-accent) 18%, transparent), transparent 70%),
+        radial-gradient(40% 30% at 85% 75%, color-mix(in srgb, var(--tr-secondary) 12%, transparent), transparent 70%);
+}
+
+.inv-bloques .inv-themed-bg__texture {
+    background: var(--bl-dots);
+}
+
+.bl-ambient {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.bl-ambient__fall {
+    position: absolute;
+    top: -5rem;
+    left: var(--x);
+    animation: bl-fall var(--dur) linear var(--delay) infinite;
+}
+
+.bl-ambient__block {
+    --bs: var(--size);
+    opacity: 0.26;
+    animation: bl-tumble 8s linear infinite;
+}
+
+.bl-ambient__fall:nth-child(even) .bl-ambient__block {
+    animation-direction: reverse;
+}
+
+/* Papelitos de los tres colores de los bloques */
+.inv-drift--juego {
+    --drift-a: var(--bl-0);
+    --drift-b: var(--bl-1);
+    opacity: 0.55;
+}
+
+.inv-drift--juego span:nth-child(3n) {
+    background: var(--bl-2);
+}
+
+@keyframes bl-fall {
+    to { translate: 0 calc(100svh + 9rem); }
+}
+
+@keyframes bl-tumble {
+    to { rotate: 360deg; }
+}
+
+/* ── Pie e historia ─────────────────────────────────────────────────────── */
+
+.inv-bloques .inv-bloques-footer {
+    border-top: 0;
+}
+
+.inv-bloques-footer .inv-footer__ornament--line {
+    width: 4.6rem;
+    height: 0.85rem;
+    border-radius: 3px;
+    background: linear-gradient(90deg, var(--bl-0) 0 28%, transparent 28% 36%, var(--bl-1) 36% 64%, transparent 64% 72%, var(--bl-2) 72%);
+}
+
+/* Modo historia: cada escena cae como un bloque y rebota un poco */
+.inv-story-invitation .inv-bloques .inv-scene {
+    --story-scene-bg: var(--tr-bg);
+    translate: 0 -8%;
+    opacity: 0;
+    transition: translate 0.7s cubic-bezier(0.3, 1.45, 0.5, 1), opacity 0.4s ease, visibility 0s linear 0.7s;
+}
+
+.inv-story-invitation .inv-bloques .inv-scene.is-active {
+    translate: 0 0;
+    opacity: 1;
+    transition-delay: 0s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .bl-chest__lid,
+    .bl-cube,
+    .bl-cube__shadow,
+    .bl-name .bl-block,
+    .bl-ambient__fall,
+    .bl-ambient__block {
+        animation: none !important;
+    }
+
+    .bl-ambient {
+        display: none;
+    }
+}

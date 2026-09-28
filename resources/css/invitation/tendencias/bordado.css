@@ -1,0 +1,1128 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   INVITACIÓN — «Bordado a mano» (bautizo · colección tendencias)
+
+   Su nombre bordado en un bastidor. Se entra bordando: sobre un mantel de
+   cuadritos espera el bastidor con el dibujo calcado en lápiz; al tocar, la aguja
+   recorre el nombre y lo deja en hilo de satén, se bordan las florcitas y el
+   bastidor se abre. La portada es el bastidor grande con la foto rodeada de una
+   corona bordada y la fecha en una etiqueta cosida. Cada sección es un paño de
+   lino con su pespunte; el día es un muestrario de puntadas y los padrinos,
+   monogramas en bastidores chiquitos. Al fondo, el pespunte de los bordes avanza
+   y bajan botones de costura.
+
+   Todo sale de la paleta del editor:
+     lino = fondo · textos = texto · hilo del nombre, cuenta y botones = principal ·
+     hilo de las flores = secundario · madera del bastidor y hojas = acento.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+@import './_base.css';
+
+.inv-bordado {
+    --inv-radius: 999px;
+    --bd-thread: var(--tr-primary);
+    --bd-floss: var(--tr-secondary);
+    --bd-floss-ink: color-mix(in srgb, var(--tr-secondary) 72%, var(--tr-text));
+    --bd-wood: var(--tr-accent);
+    --bd-leaf: color-mix(in srgb, var(--tr-accent) 55%, var(--tr-text));
+    --bd-linen: color-mix(in srgb, var(--tr-bg) 93%, var(--tr-accent));
+    --bd-pencil: color-mix(in srgb, var(--tr-primary) 50%, transparent);
+    --bd-weave:
+        repeating-linear-gradient(0deg, color-mix(in srgb, var(--tr-text) 5%, transparent) 0 1px, transparent 1px 3px),
+        repeating-linear-gradient(90deg, color-mix(in srgb, var(--tr-text) 4%, transparent) 0 1px, transparent 1px 3px);
+    --bd-rule: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 20'%3E%3Cpath d='M3 10 H47 M73 10 H117' stroke='black' stroke-width='2' stroke-dasharray='5 3' stroke-linecap='round'/%3E%3Cg transform='translate(60 10)' fill='none' stroke='black' stroke-width='1.6'%3E%3Cellipse cy='-4.6' rx='2.2' ry='3.8'/%3E%3Cellipse cy='-4.6' rx='2.2' ry='3.8' transform='rotate(72)'/%3E%3Cellipse cy='-4.6' rx='2.2' ry='3.8' transform='rotate(144)'/%3E%3Cellipse cy='-4.6' rx='2.2' ry='3.8' transform='rotate(216)'/%3E%3Cellipse cy='-4.6' rx='2.2' ry='3.8' transform='rotate(288)'/%3E%3C/g%3E%3Ccircle cx='60' cy='10' r='1.8'/%3E%3C/svg%3E");
+    --bd-daisy: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cg transform='translate(20 20)'%3E%3Cg fill='none' stroke='black' stroke-width='2.2'%3E%3Cellipse cy='-8' rx='3.6' ry='6.4'/%3E%3Cellipse cy='-8' rx='3.6' ry='6.4' transform='rotate(72)'/%3E%3Cellipse cy='-8' rx='3.6' ry='6.4' transform='rotate(144)'/%3E%3Cellipse cy='-8' rx='3.6' ry='6.4' transform='rotate(216)'/%3E%3Cellipse cy='-8' rx='3.6' ry='6.4' transform='rotate(288)'/%3E%3C/g%3E%3Ccircle r='3.4'/%3E%3C/g%3E%3C/svg%3E");
+    --bd-cross: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2 2 L10 10 M10 2 L2 10' stroke='black' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E");
+    /* Las cuatro puntadas del muestrario, como baldosas */
+    --bd-stitch-running: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M1.5 6 H8' stroke='black' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E");
+    --bd-stitch-zigzag: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 12'%3E%3Cpath d='M0 10 L8 2 L16 10' fill='none' stroke='black' stroke-width='1.8' stroke-linejoin='round'/%3E%3C/svg%3E");
+    --bd-stitch-chain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 12'%3E%3Cpath d='M2 6 C2 1.5 14 1.5 14 6 C14 10.5 2 10.5 2 6 Z' fill='none' stroke='black' stroke-width='1.7'/%3E%3C/svg%3E");
+    --themed-from: translate3d(0, 20px, 0);
+
+    background: var(--tr-bg);
+}
+
+.inv-bordado.has-player {
+    padding-bottom: calc(5.25rem + env(safe-area-inset-bottom));
+}
+
+/* ── El bastidor: dos aros de madera, el tornillo arriba y el lino tenso ── */
+
+.bd-hoop {
+    --bd-ring: 0.75rem;
+    position: relative;
+    display: block;
+    aspect-ratio: 1;
+    padding: var(--bd-ring);
+    border: 0;
+    border-radius: 50%;
+    background: radial-gradient(closest-side,
+        transparent calc(100% - var(--bd-ring) - 1px),
+        color-mix(in srgb, var(--bd-wood) 72%, #fff) calc(100% - var(--bd-ring)),
+        var(--bd-wood) calc(100% - var(--bd-ring) * 0.72),
+        color-mix(in srgb, var(--bd-wood) 68%, #000) calc(100% - var(--bd-ring) * 0.5),
+        color-mix(in srgb, var(--bd-wood) 82%, #fff) calc(100% - var(--bd-ring) * 0.44),
+        var(--bd-wood) calc(100% - var(--bd-ring) * 0.2),
+        color-mix(in srgb, var(--bd-wood) 70%, #000) 100%);
+    box-shadow: 0 1.4rem 2.2rem -1.3rem color-mix(in srgb, var(--tr-text) 60%, transparent);
+}
+
+.bd-hoop__cloth {
+    position: relative;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 50%;
+    background: var(--bd-weave), var(--bd-linen);
+    box-shadow:
+        inset 0 0.35rem 0.9rem color-mix(in srgb, var(--tr-text) 20%, transparent),
+        inset 0 0 0 1px color-mix(in srgb, var(--tr-text) 14%, transparent);
+}
+
+/* El cierre: los dos extremos del aro de afuera y el tornillo que los aprieta */
+.bd-hoop__clasp {
+    position: absolute;
+    top: calc(var(--bd-ring) * -1.35);
+    left: 50%;
+    z-index: 1;
+    width: 2.3rem;
+    height: 1.7rem;
+    translate: -50% 0;
+    border-radius: 0.35rem 0.35rem 0.2rem 0.2rem;
+    background: linear-gradient(90deg,
+        color-mix(in srgb, var(--bd-wood) 65%, #000),
+        var(--bd-wood) 22%, color-mix(in srgb, var(--bd-wood) 80%, #fff) 44%,
+        color-mix(in srgb, var(--bd-wood) 55%, #000) 48% 52%,
+        var(--bd-wood) 56%, color-mix(in srgb, var(--bd-wood) 65%, #000));
+}
+
+.bd-hoop__clasp i {
+    position: absolute;
+    top: 0.42rem;
+    left: -0.35rem;
+    right: -0.5rem;
+    height: 0.36rem;
+    border-radius: 0.2rem;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--bd-wood) 25%, #f2f2f2), color-mix(in srgb, var(--bd-wood) 30%, #8c8c8c));
+}
+
+.bd-hoop__clasp i::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: -0.5rem;
+    width: 0.8rem;
+    height: 0.95rem;
+    translate: 0 -50%;
+    border-radius: 0.25rem;
+    background:
+        repeating-linear-gradient(90deg, transparent 0 2px, color-mix(in srgb, var(--bd-wood) 30%, #6f6f6f) 2px 3px),
+        linear-gradient(180deg, color-mix(in srgb, var(--bd-wood) 25%, #f2f2f2), color-mix(in srgb, var(--bd-wood) 30%, #8c8c8c));
+}
+
+/* ── Hilo de satén: las letras bordadas con puntadas en diagonal ───────── */
+
+.bd-satin {
+    --bd-satin-color: var(--bd-thread);
+    background: repeating-linear-gradient(-60deg,
+        var(--bd-satin-color) 0 1.4px,
+        color-mix(in srgb, var(--bd-satin-color) 68%, #fff) 1.4px 2.2px,
+        color-mix(in srgb, var(--bd-satin-color) 86%, #000) 2.2px 3px);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    filter:
+        drop-shadow(0 1px 0 color-mix(in srgb, var(--bd-satin-color) 55%, #000))
+        drop-shadow(0 2px 1.5px color-mix(in srgb, var(--tr-text) 22%, transparent));
+}
+
+/* ── Florcitas: punto margarita, nuditos y hojas de satén ──────────────── */
+
+.bd-flower {
+    --bd-petal: var(--bd-floss);
+    --bd-knot: var(--bd-thread);
+}
+
+.bd-flower.is-thread {
+    --bd-petal: var(--bd-thread);
+    --bd-knot: var(--bd-floss);
+}
+
+.bd-flower__petal {
+    fill: color-mix(in srgb, var(--bd-petal) 28%, var(--bd-linen));
+    stroke: var(--bd-petal);
+    stroke-width: 1.7;
+    stroke-linejoin: round;
+}
+
+.bd-flower__leaf,
+.bd-wreath__leaf {
+    fill: var(--bd-leaf);
+    stroke: color-mix(in srgb, var(--bd-leaf) 70%, #000);
+    stroke-width: 0.5;
+}
+
+.bd-flower__knots {
+    fill: var(--bd-knot);
+}
+
+/* ── Botón de costura ──────────────────────────────────────────────────── */
+
+.bd-button {
+    --bd-btn: var(--bd-thread);
+    display: block;
+    overflow: visible;
+}
+
+.bd-button__face {
+    fill: var(--bd-btn);
+}
+
+.bd-button__rim {
+    fill: none;
+    stroke: color-mix(in srgb, var(--bd-btn) 65%, #000);
+    stroke-width: 1.2;
+    opacity: 0.55;
+}
+
+.bd-button__hole {
+    fill: color-mix(in srgb, var(--bd-btn) 50%, #000);
+}
+
+.bd-button__thread {
+    fill: none;
+    stroke: var(--bd-linen);
+    stroke-width: 2;
+    stroke-linecap: round;
+}
+
+/* ── Apertura: el bastidor sobre el mantel ─────────────────────────────── */
+
+.bd-intro.inv-themed-intro {
+    gap: 1.2rem;
+    background:
+        repeating-linear-gradient(0deg, color-mix(in srgb, var(--tr-secondary) 13%, transparent) 0 1.1rem, transparent 1.1rem 2.2rem),
+        repeating-linear-gradient(90deg, color-mix(in srgb, var(--tr-secondary) 13%, transparent) 0 1.1rem, transparent 1.1rem 2.2rem),
+        color-mix(in srgb, var(--tr-bg) 94%, var(--tr-secondary));
+    color: var(--tr-text);
+    cursor: pointer;
+}
+
+.bd-intro__eyebrow {
+    position: relative;
+    z-index: 1;
+    margin: 0;
+    font-family: var(--font-script);
+    font-size: 1.6rem;
+    color: var(--bd-floss-ink);
+    animation: inv-fade-up 0.9s var(--tr-ease) 0.1s both;
+    transition: opacity 0.4s ease;
+}
+
+.bd-intro__hoop {
+    width: min(84vw, 21rem);
+    cursor: pointer;
+    animation: inv-fade-up 1s var(--tr-ease) 0.25s both;
+    transition: scale 1s cubic-bezier(0.5, 0, 0.3, 1), opacity 0.7s ease 0.35s;
+}
+
+.bd-intro__garland {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.bd-intro__name {
+    position: relative;
+    display: grid;
+    width: fit-content;
+    max-width: 78%;
+    margin-top: -0.6rem;
+    font-family: var(--font-script);
+    font-size: clamp(2.5rem, 12.5vw, 3.5rem);
+    font-weight: 700;
+    line-height: 1.05;
+    text-align: center;
+    text-wrap: balance;
+}
+
+.bd-intro__name > :is(.bd-intro__trace-name, .bd-intro__satin) {
+    grid-area: 1 / 1;
+}
+
+/* El dibujo calcado en lápiz, antes de bordar */
+.bd-intro__trace-name {
+    color: transparent;
+    -webkit-text-stroke: 1px var(--bd-pencil);
+}
+
+.bd-intro__satin {
+    clip-path: inset(-30% 100% -30% -6%);
+}
+
+.bd-intro__date {
+    position: relative;
+    margin-top: 0.7rem;
+    padding-top: 0.55rem;
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--tr-text) 78%, transparent);
+}
+
+.bd-intro__date::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 12%;
+    right: 12%;
+    border-top: 1.6px dashed var(--bd-floss);
+    scale: 0 1;
+}
+
+/* La aguja clavada al principio del nombre, con su hilo */
+.bd-needle {
+    position: absolute;
+    top: 55%;
+    left: 0;
+    width: 3rem;
+    translate: -52% -88%;
+    pointer-events: none;
+    transition: translate 0.6s var(--tr-ease), opacity 0.5s ease;
+}
+
+.bd-needle svg {
+    display: block;
+    width: 100%;
+    overflow: visible;
+    transform-origin: 52% 88%;
+    animation: bd-needle-wait 1.8s ease-in-out infinite;
+}
+
+.bd-needle__steel {
+    fill: color-mix(in srgb, var(--tr-text) 18%, #c9c9c9);
+    stroke: color-mix(in srgb, var(--tr-text) 45%, #777);
+    stroke-width: 0.6;
+}
+
+.bd-needle__eye {
+    fill: var(--bd-linen);
+}
+
+.bd-needle__thread {
+    fill: none;
+    stroke: var(--bd-thread);
+    stroke-width: 1.8;
+    stroke-linecap: round;
+}
+
+.bd-intro__hint {
+    position: relative;
+    z-index: 1;
+    max-width: 24ch;
+    margin: 0.2rem 0 0;
+    font-size: 0.85rem;
+    color: color-mix(in srgb, var(--tr-text) 75%, transparent);
+    animation: inv-fade-up 1s var(--tr-ease) 0.8s both;
+    transition: opacity 0.3s ease;
+}
+
+/* El dibujo de las flores: puntitos de lápiz; el hilo, escondido hasta bordarse */
+.bd-intro__trace :is(.bd-flower__petal, .bd-flower__leaf) {
+    fill: none;
+    stroke: var(--bd-pencil);
+    stroke-width: 0.9;
+    stroke-dasharray: 0.025 0.02;
+}
+
+.bd-intro__trace :is(.bd-flower__knots, .bd-intro__knot) {
+    fill: none;
+    stroke: var(--bd-pencil);
+    stroke-width: 0.8;
+}
+
+.bd-intro__thread :is(.bd-flower__petal, .bd-flower__leaf) {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    fill-opacity: 0;
+}
+
+.bd-intro__thread :is(.bd-flower__knots, .bd-intro__knot) {
+    scale: 0;
+    transform-box: fill-box;
+    transform-origin: center;
+}
+
+.bd-intro__knot {
+    fill: var(--bd-thread);
+}
+
+/* Sobre el mantel: el carretel y los botones sueltos */
+.bd-spool {
+    position: absolute;
+    bottom: 7%;
+    left: 8%;
+    width: 2.9rem;
+    height: 3.9rem;
+    rotate: -14deg;
+    animation: inv-fade-up 1s var(--tr-ease) 0.5s both;
+    transition: opacity 0.4s ease;
+}
+
+.bd-spool::before,
+.bd-spool::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 0.65rem;
+    border-radius: 0.3rem;
+    background: linear-gradient(90deg, color-mix(in srgb, var(--bd-wood) 65%, #000), var(--bd-wood) 40%, color-mix(in srgb, var(--bd-wood) 75%, #fff) 60%, color-mix(in srgb, var(--bd-wood) 65%, #000));
+}
+
+.bd-spool::before {
+    top: 0;
+}
+
+.bd-spool::after {
+    bottom: 0;
+}
+
+.bd-spool i {
+    position: absolute;
+    inset: 0.5rem 0.3rem;
+    background:
+        linear-gradient(90deg, rgb(0 0 0 / 0.28), transparent 35%, rgb(255 255 255 / 0.22) 55%, rgb(0 0 0 / 0.22)),
+        repeating-linear-gradient(172deg, color-mix(in srgb, var(--bd-thread) 80%, #000) 0 1px, var(--bd-thread) 1px 3px);
+}
+
+.bd-intro__button {
+    position: absolute;
+    width: 2.2rem;
+    filter: drop-shadow(0 2px 2px color-mix(in srgb, var(--tr-text) 30%, transparent));
+    animation: inv-fade-up 1s var(--tr-ease) 0.6s both;
+    transition: opacity 0.4s ease;
+}
+
+.bd-intro__button--1 {
+    right: 12%;
+    bottom: 11%;
+    rotate: 20deg;
+}
+
+.bd-intro__button--2 {
+    --bd-btn: var(--bd-floss);
+    right: 27%;
+    bottom: 6%;
+    width: 1.6rem;
+    rotate: -30deg;
+}
+
+.bd-intro__button--3 {
+    --bd-btn: var(--bd-wood);
+    top: 8%;
+    left: 9%;
+    width: 1.9rem;
+}
+
+/* 1 · La aguja recorre el nombre subiendo y bajando; el hilo lo va cubriendo */
+.bd-intro.is-stitching .bd-intro__satin {
+    clip-path: inset(-30% -6% -30% -6%);
+    transition: clip-path 1.5s linear 0.25s;
+}
+
+.bd-intro.is-stitching .bd-needle {
+    animation: bd-needle-run 1.5s linear 0.25s both;
+}
+
+.bd-intro.is-stitching .bd-needle svg {
+    animation: bd-needle-bob 0.19s ease-in-out 0.25s 8 alternate;
+}
+
+.bd-intro.is-stitching .bd-intro__trace-name {
+    opacity: 0;
+    transition: opacity 0.4s ease 1.6s;
+}
+
+.bd-intro.is-stitching .bd-intro__date::before {
+    scale: 1 1;
+    transition: scale 0.7s steps(12) 1.75s;
+}
+
+/* Después, las flores: pétalo por pétalo y los nuditos del centro */
+.bd-intro.is-stitching .bd-intro__thread :is(.bd-flower__petal, .bd-flower__leaf) {
+    stroke-dashoffset: 0;
+    fill-opacity: 1;
+    transition: stroke-dashoffset 0.4s ease calc(1.5s + var(--i) * 0.12s), fill-opacity 0.3s ease calc(1.75s + var(--i) * 0.12s);
+}
+
+.bd-intro.is-stitching .bd-intro__thread .bd-flower__knots {
+    scale: 1;
+    transition: scale 0.35s var(--tr-spring) calc(1.85s + var(--i) * 0.12s);
+}
+
+.bd-intro.is-stitching .bd-intro__thread .bd-intro__knot {
+    scale: 1;
+    transition: scale 0.35s var(--tr-spring) calc(2s + var(--i) * 0.07s);
+}
+
+.bd-intro.is-stitching .bd-intro__hint {
+    opacity: 0;
+    animation: none;
+}
+
+/* 2 · La aguja sale, el bastidor se abre y deja ver la portada */
+.bd-intro.is-open .bd-needle {
+    translate: -52% -260%;
+    opacity: 0;
+}
+
+.bd-intro.is-open .bd-intro__hoop {
+    scale: 1.22;
+    opacity: 0;
+}
+
+.bd-intro.is-open :is(.bd-intro__eyebrow, .bd-spool, .bd-intro__button) {
+    opacity: 0;
+    animation: none;
+}
+
+@keyframes bd-needle-wait {
+    0%, 100% { rotate: 0deg; }
+    50% { rotate: -9deg; }
+}
+
+@keyframes bd-needle-run {
+    from { left: 0; }
+    to { left: 100%; }
+}
+
+@keyframes bd-needle-bob {
+    from { translate: 0 0.35rem; rotate: 4deg; }
+    to { translate: 0 -0.55rem; rotate: -6deg; }
+}
+
+/* ── Portada: el bastidor con la foto y su corona bordada ─────────────── */
+
+.bd-hero {
+    align-content: start;
+    justify-items: center;
+    min-height: 100svh;
+    padding: calc(4.9rem + env(safe-area-inset-top)) 1.25rem 0;
+    color: var(--tr-text);
+    text-align: center;
+}
+
+.bd-kicker {
+    margin: 0;
+    font-family: var(--font-script);
+    font-size: 1.65rem;
+    line-height: 1.2;
+    color: var(--bd-floss-ink);
+}
+
+.bd-hero__hoop {
+    width: min(86vw, 23rem);
+    margin-top: 2rem;
+    rotate: -2deg;
+}
+
+.bd-wreath {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.bd-wreath__stem {
+    fill: none;
+    stroke: var(--bd-leaf);
+    stroke-width: 1.6;
+    stroke-dasharray: 6 1.5;
+}
+
+.bd-wreath__backstitch {
+    fill: none;
+    stroke: var(--bd-thread);
+    stroke-width: 1.6;
+    stroke-dasharray: 5 2.6;
+    stroke-linecap: round;
+}
+
+.bd-hero__photo {
+    position: absolute;
+    inset: 20%;
+    overflow: hidden;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tr-text) 15%, transparent);
+}
+
+.bd-hero__photo .tr-photo-empty {
+    font-family: var(--font-script);
+    color: var(--bd-thread);
+    background: color-mix(in srgb, var(--bd-thread) 12%, var(--bd-linen));
+}
+
+.bd-name {
+    max-width: 100%;
+    margin: 1.6rem 0 0;
+    font-family: var(--font-script);
+    font-size: clamp(3rem, 14vw, 5rem);
+    font-weight: 700;
+    line-height: 1.08;
+    text-wrap: balance;
+    overflow-wrap: break-word;
+}
+
+.bd-name::after {
+    content: '';
+    display: block;
+    width: 7.5rem;
+    height: 1.25rem;
+    margin: 0.35rem auto 0;
+    background: var(--bd-floss);
+    -webkit-mask: var(--bd-rule) center / contain no-repeat;
+    mask: var(--bd-rule) center / contain no-repeat;
+}
+
+/* La etiqueta de tela cosida con la fecha */
+.bd-tag {
+    position: relative;
+    display: inline-grid;
+    gap: 0.2rem;
+    margin: 1.2rem 0 0;
+    padding: 0.85rem 1.7rem 0.8rem;
+    border-radius: 0.2rem;
+    background: var(--bd-weave), color-mix(in srgb, var(--tr-secondary) 20%, var(--tr-bg));
+    rotate: -1.5deg;
+    box-shadow: 0 0.5rem 0.9rem -0.6rem color-mix(in srgb, var(--tr-text) 45%, transparent);
+}
+
+.bd-tag::before {
+    content: '';
+    position: absolute;
+    inset: 0.3rem 0.4rem;
+    border: 1.4px dashed var(--bd-floss-ink);
+    border-radius: 0.1rem;
+    opacity: 0.7;
+}
+
+.bd-tag__day {
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.bd-tag__time {
+    font-family: var(--font-titles);
+    font-size: 1.2rem;
+    font-style: italic;
+    font-weight: 600;
+}
+
+.bd-place {
+    margin: 1.2rem 0 0;
+    font-family: var(--font-titles);
+    font-size: 1.3rem;
+    font-weight: 600;
+    line-height: 1.3;
+    text-wrap: balance;
+}
+
+.bd-message {
+    max-width: 31ch;
+    margin: 1rem 0 0;
+    line-height: 1.7;
+    color: var(--inv-muted);
+    text-wrap: pretty;
+}
+
+/* ── Secciones: paños de lino con su pespunte y una florcita en la esquina */
+
+.inv-bordado main > .inv-section {
+    border-top: 0;
+    padding-block: 1.6rem 0.6rem;
+}
+
+.inv-bordado main > .inv-section > .inv-wrap {
+    position: relative;
+    width: calc(100% - 1.6rem);
+    padding-block: 2.9rem 2.5rem;
+    border-radius: 0.45rem;
+    background: var(--bd-weave), var(--bd-linen);
+    box-shadow:
+        0 1px 0 color-mix(in srgb, var(--tr-text) 8%, transparent),
+        0 1rem 1.8rem -1.3rem color-mix(in srgb, var(--tr-text) 45%, transparent);
+}
+
+.inv-bordado main > .inv-section > .inv-wrap::before {
+    content: '';
+    position: absolute;
+    inset: 0.55rem;
+    border: 1.5px dashed color-mix(in srgb, var(--bd-thread) 55%, transparent);
+    border-radius: 0.25rem;
+    pointer-events: none;
+}
+
+.inv-bordado main > .inv-section > .inv-wrap::after {
+    content: '';
+    position: absolute;
+    top: -0.95rem;
+    right: 1.1rem;
+    width: 2.6rem;
+    height: 2.6rem;
+    background: var(--bd-floss);
+    -webkit-mask: var(--bd-daisy) center / contain no-repeat;
+    mask: var(--bd-daisy) center / contain no-repeat;
+    rotate: 14deg;
+    pointer-events: none;
+}
+
+.inv-bordado main > .inv-section:nth-of-type(even) > .inv-wrap::after {
+    right: auto;
+    left: 1.1rem;
+    background: var(--bd-thread);
+    rotate: -14deg;
+}
+
+.inv-bordado .invitation-lottie-framed {
+    display: none;
+}
+
+.inv-bordado .inv-head__eyebrow {
+    font-family: var(--font-script);
+    font-size: 1.45rem;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--bd-floss-ink);
+}
+
+.inv-bordado .inv-head__title {
+    font-size: clamp(2.2rem, 9.5vw, 3.2rem);
+    font-weight: 600;
+}
+
+.inv-bordado .inv-head__rule {
+    width: 7.5rem;
+    height: 1.25rem;
+    background: var(--bd-thread);
+    -webkit-mask: var(--bd-rule) center / contain no-repeat;
+    mask: var(--bd-rule) center / contain no-repeat;
+}
+
+.inv-bordado :is(.inv-label, .inv-link, .inv-btn, .inv-countdown__label) {
+    letter-spacing: 0.08em;
+}
+
+/* Los botones, con su pespunte por dentro */
+.inv-bordado .inv-btn {
+    position: relative;
+    min-height: 3.1rem;
+    border-color: var(--bd-thread);
+    background: var(--bd-thread);
+    color: var(--tr-ink-primary);
+}
+
+.inv-bordado .inv-btn::after {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    border: 1.3px dashed currentColor;
+    border-radius: inherit;
+    opacity: 0.45;
+    pointer-events: none;
+}
+
+.inv-bordado .inv-btn--ghost {
+    border-color: color-mix(in srgb, var(--bd-thread) 50%, transparent);
+    background: transparent;
+    color: var(--tr-text);
+}
+
+/* La cuenta regresiva en cuatro bastidorcitos */
+.inv-bordado .inv-countdown__grid {
+    gap: 0.2rem;
+    border-block: 0;
+}
+
+.inv-bordado .inv-countdown__unit {
+    justify-content: center;
+    aspect-ratio: 1;
+    margin: 0.35rem;
+    padding: 0;
+    border-radius: 50%;
+    background: var(--bd-weave), var(--bd-linen);
+    box-shadow:
+        0 0 0 0.28rem var(--bd-wood),
+        0 0 0 0.34rem color-mix(in srgb, var(--bd-wood) 60%, #000),
+        inset 0 0.15rem 0.4rem color-mix(in srgb, var(--tr-text) 18%, transparent);
+}
+
+.inv-bordado .inv-countdown__unit + .inv-countdown__unit {
+    border-left: 0;
+}
+
+.inv-bordado .inv-countdown__value {
+    font-size: clamp(1.45rem, 7vw, 2.4rem);
+    font-weight: 600;
+    color: var(--bd-thread);
+}
+
+.inv-bordado .inv-countdown__label {
+    margin-top: 0.1rem;
+    font-size: 0.5rem;
+}
+
+/* ── Itinerario: el muestrario de puntadas ─────────────────────────────── */
+
+.bd-sampler {
+    display: grid;
+    margin: 0;
+    padding: 0.4rem 0 0;
+    list-style: none;
+}
+
+.bd-row {
+    display: grid;
+    grid-template-columns: 4.7rem 1fr;
+    column-gap: 1rem;
+    align-items: start;
+    text-align: left;
+}
+
+/* La hora, en un parchecito cosido */
+.bd-row__time {
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-height: 2.6rem;
+    padding: 0.35rem;
+    border-radius: 0.3rem;
+    background: color-mix(in srgb, var(--bd-patch, var(--tr-secondary)) 22%, var(--tr-bg));
+    font-size: 0.95rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    rotate: -2.5deg;
+    box-shadow: 0 0.3rem 0.5rem -0.35rem color-mix(in srgb, var(--tr-text) 50%, transparent);
+}
+
+.bd-row__time::before {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    border: 1.2px dashed color-mix(in srgb, var(--bd-patch, var(--tr-secondary)) 70%, var(--tr-text));
+    border-radius: 0.15rem;
+}
+
+.bd-row:nth-child(even) .bd-row__time {
+    rotate: 2deg;
+}
+
+.bd-row__title {
+    margin: 0.2rem 0 0;
+    font-family: var(--font-titles);
+    font-size: 1.35rem;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.bd-row__text {
+    margin: 0.25rem 0 0;
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: var(--inv-muted);
+}
+
+/* La franja de puntadas entre hilera e hilera: se borda de a una puntada */
+.bd-row__stitch {
+    grid-column: 1 / -1;
+    display: block;
+    height: 0.85rem;
+    margin: 1.2rem 0;
+    background: var(--bd-stitch-color, var(--bd-thread));
+    -webkit-mask: var(--bd-stitch, var(--bd-stitch-running)) left center / auto 100% repeat-x;
+    mask: var(--bd-stitch, var(--bd-stitch-running)) left center / auto 100% repeat-x;
+}
+
+.bd-row--1 { --bd-patch: var(--tr-primary); --bd-stitch: var(--bd-cross); --bd-stitch-color: var(--bd-floss); }
+.bd-row--2 { --bd-patch: var(--tr-accent); --bd-stitch: var(--bd-stitch-zigzag); --bd-stitch-color: var(--bd-leaf); }
+.bd-row--3 { --bd-patch: var(--tr-secondary); --bd-stitch: var(--bd-stitch-chain); --bd-stitch-color: var(--bd-thread); }
+
+.bd-row--1 .bd-row__stitch {
+    height: 0.7rem;
+}
+
+html:not(.no-js) .bd-sampler-section.reveal:not(.is-visible) .bd-row__stitch {
+    clip-path: inset(0 100% 0 0);
+}
+
+.bd-sampler-section.reveal.is-visible .bd-row__stitch {
+    clip-path: inset(0 0 0 0);
+    transition: clip-path 1.2s steps(16) calc(0.45s + var(--step, 0) * 0.2s);
+}
+
+/* ── Padrinos: monogramas en bastidores chiquitos ──────────────────────── */
+
+.bd-monograms {
+    display: grid;
+    gap: 2.4rem;
+    margin: 0;
+    padding: 0.8rem 0 0;
+    list-style: none;
+}
+
+.bd-monogram {
+    display: grid;
+    justify-items: center;
+    gap: 0.3rem;
+    text-align: center;
+}
+
+.bd-hoop--mini {
+    --bd-ring: 0.45rem;
+    width: 7.6rem;
+    margin-bottom: 0.7rem;
+    rotate: -4deg;
+    box-shadow: 0 0.9rem 1.3rem -0.9rem color-mix(in srgb, var(--tr-text) 55%, transparent);
+}
+
+.bd-monogram:nth-child(even) .bd-hoop--mini {
+    rotate: 4deg;
+}
+
+.bd-hoop--mini .bd-hoop__clasp {
+    scale: 0.6;
+    transform-origin: 50% 100%;
+}
+
+.bd-monogram__sprig {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.bd-monogram__stem {
+    fill: none;
+    stroke: var(--bd-leaf);
+    stroke-width: 1.2;
+    stroke-dasharray: 4 1.2;
+}
+
+.bd-monogram__letters {
+    font-family: var(--font-script);
+    font-size: 2.1rem;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+    translate: 0 -0.4rem;
+}
+
+.bd-monogram:nth-child(even) .bd-monogram__letters {
+    --bd-satin-color: var(--bd-floss-ink);
+}
+
+.bd-monogram__role {
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--bd-floss-ink);
+}
+
+.bd-monogram__names {
+    font-family: var(--font-titles);
+    font-size: clamp(1.4rem, 6.5vw, 1.75rem);
+    font-weight: 600;
+    line-height: 1.2;
+    text-wrap: balance;
+}
+
+.bd-monogram__message {
+    max-width: 30ch;
+    margin: 0.2rem 0 0;
+    font-family: var(--font-titles);
+    font-size: 1.05rem;
+    font-style: italic;
+    line-height: 1.5;
+    color: var(--inv-muted);
+}
+
+.bd-family {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+    gap: 1.8rem 1.2rem;
+    margin-top: 2.3rem;
+    padding-top: 2rem;
+    border-top: 1.5px dashed color-mix(in srgb, var(--bd-thread) 45%, transparent);
+    text-align: center;
+}
+
+.bd-family__title {
+    margin: 0 0 0.7rem;
+    font-family: var(--font-script);
+    font-size: 1.55rem;
+    font-weight: 700;
+    color: var(--bd-floss-ink);
+}
+
+.bd-family__list {
+    display: grid;
+    gap: 0.75rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.bd-family__list li {
+    display: grid;
+    gap: 0.1rem;
+}
+
+.bd-family__name {
+    font-family: var(--font-titles);
+    font-size: 1.15rem;
+    font-weight: 600;
+}
+
+/* Cada nombre marcado con una crucecita de punto cruz */
+.bd-family__name::before {
+    content: '';
+    display: inline-block;
+    width: 0.6rem;
+    height: 0.6rem;
+    margin-right: 0.4rem;
+    background: var(--bd-floss);
+    -webkit-mask: var(--bd-cross) center / contain no-repeat;
+    mask: var(--bd-cross) center / contain no-repeat;
+}
+
+.bd-family__list small {
+    font-size: 0.8rem;
+    color: var(--inv-muted);
+}
+
+/* ── Fondo: el lino, el pespunte de los bordes y los botones que bajan ── */
+
+.inv-bordado .inv-themed-bg__texture {
+    background: var(--bd-weave);
+}
+
+.inv-bordado .inv-themed-bg__glow {
+    background:
+        radial-gradient(40% 30% at 80% 18%, color-mix(in srgb, var(--tr-secondary) 16%, transparent), transparent 70%),
+        radial-gradient(45% 35% at 15% 80%, color-mix(in srgb, var(--tr-accent) 22%, transparent), transparent 70%);
+}
+
+.bd-ambient {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.bd-ambient__seam {
+    position: absolute;
+    top: -2rem;
+    bottom: -2rem;
+    width: 2.5px;
+    background: repeating-linear-gradient(180deg, color-mix(in srgb, var(--bd-thread) 55%, transparent) 0 0.7rem, transparent 0.7rem 1.1rem);
+    animation: bd-seam 1.8s linear infinite;
+}
+
+.bd-ambient__seam--left {
+    left: 0.3rem;
+}
+
+.bd-ambient__seam--right {
+    right: 0.3rem;
+    background: repeating-linear-gradient(180deg, color-mix(in srgb, var(--bd-floss) 60%, transparent) 0 0.7rem, transparent 0.7rem 1.1rem);
+    animation-direction: reverse;
+}
+
+.bd-ambient__fall {
+    position: absolute;
+    top: -3rem;
+    left: var(--x);
+    width: calc(1.35rem * var(--size));
+    animation: bd-fall var(--dur) linear var(--delay) infinite;
+}
+
+.bd-ambient__button {
+    width: 100%;
+    opacity: 0.38;
+    animation: bd-spin 9s linear infinite;
+}
+
+.bd-ambient__button.is-tone-2 {
+    --bd-btn: var(--bd-floss);
+    animation-direction: reverse;
+}
+
+.bd-ambient__button.is-tone-3 {
+    --bd-btn: var(--bd-wood);
+}
+
+@keyframes bd-seam {
+    to { translate: 0 1.1rem; }
+}
+
+@keyframes bd-fall {
+    to { translate: 0 calc(100svh + 6rem); }
+}
+
+@keyframes bd-spin {
+    to { rotate: 360deg; }
+}
+
+/* ── Pie e historia ─────────────────────────────────────────────────────── */
+
+.inv-bordado .inv-bordado-footer {
+    border-top: 0;
+}
+
+.inv-bordado-footer .inv-footer__ornament--line {
+    width: 7.5rem;
+    height: 1.25rem;
+    background: var(--bd-thread);
+    -webkit-mask: var(--bd-rule) center / contain no-repeat;
+    mask: var(--bd-rule) center / contain no-repeat;
+}
+
+/* Modo historia: cada escena llega como un paño que se estira en el bastidor */
+.inv-story-invitation .inv-bordado .inv-scene {
+    --story-scene-bg: var(--tr-bg);
+    translate: 0 1.2rem;
+    rotate: -1.2deg;
+    scale: 0.96;
+    opacity: 0;
+    transition: translate 0.7s var(--tr-ease), rotate 0.7s var(--tr-ease), scale 0.7s var(--tr-ease), opacity 0.5s ease, visibility 0s linear 0.7s;
+}
+
+.inv-story-invitation .inv-bordado .inv-scene.is-active {
+    translate: 0 0;
+    rotate: 0deg;
+    scale: 1;
+    opacity: 1;
+    transition-delay: 0s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .bd-needle svg,
+    .bd-ambient__seam,
+    .bd-ambient__fall,
+    .bd-ambient__button {
+        animation: none !important;
+    }
+
+    .bd-ambient__fall {
+        display: none;
+    }
+}

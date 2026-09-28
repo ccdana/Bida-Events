@@ -25,7 +25,7 @@ class PublicInteractionsTest extends TestCase
             ->get(route('invitation.show', $invitation->slug))
             ->assertOk()
             // Hero: atributo srcset en HTML plano
-            ->assertSee('upload/f_auto,q_auto,c_limit,w_1920/v1690000000/xv-sofia/hero.jpg 1920w', false)
+            ->assertSee('upload/f_auto,q_auto,c_limit,w_1200/v1690000000/xv-sofia/hero.jpg 1200w', false)
             // Galería: las URLs llegan a Alpine como JSON escapado por @js
             ->assertSee('f_auto,q_auto,c_limit,w_1200', false)
             ->assertSee('galleryStack(JSON.parse(', false);

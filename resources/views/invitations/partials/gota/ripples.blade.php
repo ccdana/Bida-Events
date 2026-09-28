@@ -1,7 +1,7 @@
 {{--
-    Padrinos de «La gota»: cada par de padrinos es una gota que cayó al agua y abrió sus anillos; los
-    anillos de uno tocan los del siguiente, como gotas que caen cerca. En el centro, el papel y los
-    nombres; debajo, su mensaje. La familia sigue en ondas más chicas. Recibe $data (módulo destacados).
+    Padrinos de «La gota»: una lista serena. Cada par de padrinos lleva su gotita con la onda debajo,
+    el papel, los nombres grandes y su mensaje; entre uno y otro, una línea de agua. La familia va en
+    dos columnas, cada nombre con su relación. Recibe $data (módulo destacados).
 --}}
 @php
     $normalizePerson = fn ($persona) => is_array($persona)
@@ -27,13 +27,11 @@
                 <ul class="gt-ripples">
                     @foreach($padrinos as $index => $padrino)
                         <li class="gt-ripple" data-step style="--step: {{ $index }}">
-                            <span class="gt-ripple__rings" aria-hidden="true"><i></i><i></i><i></i></span>
-                            <div class="gt-ripple__center">
-                                @if(!empty($padrino['rol']))
-                                    <span class="gt-ripple__role">{{ $padrino['rol'] }}</span>
-                                @endif
-                                <span class="gt-ripple__names">{{ $padrino['nombres'] }}</span>
-                            </div>
+                            <span class="gt-ripple__mark" aria-hidden="true"><i></i></span>
+                            @if(!empty($padrino['rol']))
+                                <span class="gt-ripple__role">{{ $padrino['rol'] }}</span>
+                            @endif
+                            <span class="gt-ripple__names">{{ $padrino['nombres'] }}</span>
                             @if(!empty($padrino['mensaje']))
                                 <p class="gt-ripple__message">{{ $padrino['mensaje'] }}</p>
                             @endif
@@ -42,21 +40,25 @@
                 </ul>
             @endif
 
-            @foreach($family as $label => $people)
+            @if(count($family))
                 <div class="gt-family">
-                    <h3 class="gt-family__title">{{ $label }}</h3>
-                    <ul class="gt-family__list">
-                        @foreach($people as $person)
-                            <li>
-                                <span class="gt-family__name">{{ $person['nombre'] }}</span>
-                                @if(!empty($person['detalle']))
-                                    <small>{{ $person['detalle'] }}</small>
-                                @endif
-                            </li>
-                        @endforeach
-                    </ul>
+                    @foreach($family as $label => $people)
+                        <div class="gt-family__group">
+                            <h3 class="gt-family__title">{{ $label }}</h3>
+                            <ul class="gt-family__list">
+                                @foreach($people as $person)
+                                    <li>
+                                        <span class="gt-family__name">{{ $person['nombre'] }}</span>
+                                        @if(!empty($person['detalle']))
+                                            <small>{{ $person['detalle'] }}</small>
+                                        @endif
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endforeach
                 </div>
-            @endforeach
+            @endif
         @else
             <p class="inv-empty">{{ $invCopy['court_empty'] ?? 'Pronto presentaremos a mis padrinos.' }}</p>
         @endif

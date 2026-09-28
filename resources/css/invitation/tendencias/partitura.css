@@ -1,4 +1,4 @@
-/* ════════════════════════════════════════════════════════════════════════════
+﻿/* ════════════════════════════════════════════════════════════════════════════
    INVITACIÓN — «Partitura a dos voces» (boda · colección tendencias)
 
    La boda es un concierto para dos voces. La entrada es el atril con el
@@ -495,17 +495,15 @@
     color: var(--inv-muted);
 }
 
-/* ── Apertura: el atril y el metrónomo ──────────────────────────────────── */
+/* ── Apertura: el atril, la partitura y la batuta ───────────────────────── */
 
 .pt-intro {
-    gap: 1.75rem;
-    background: var(--pt-paper);
+    gap: 1.4rem;
+    background:
+        radial-gradient(70% 45% at 50% 45%, color-mix(in srgb, var(--pt-voice-2) 10%, var(--pt-paper)), transparent 75%),
+        var(--pt-paper);
     color: var(--pt-ink);
-}
-
-.pt-intro__head {
-    display: grid;
-    gap: 0.35rem;
+    cursor: pointer;
 }
 
 .pt-intro__eyebrow {
@@ -515,85 +513,242 @@
     letter-spacing: 0.26em;
     text-transform: uppercase;
     color: var(--inv-accent-ink);
+    transition: opacity 0.4s ease;
 }
 
-.pt-intro__work {
-    margin: 0.4rem 0 0;
-    font-family: var(--font-titles);
-    font-size: 1.2rem;
-    font-style: italic;
-    color: var(--inv-muted);
+/* El atril con la partitura encima */
+.pt-stand {
+    position: relative;
+    width: min(88vw, 21rem);
+    aspect-ratio: 320 / 330;
+    transition: scale 1.2s cubic-bezier(0.55, 0, 0.25, 1), translate 1.2s cubic-bezier(0.55, 0, 0.25, 1);
+    transform-origin: 50% 36%;
 }
 
-.pt-intro__names {
-    margin: 0;
-    font-family: var(--font-script);
-    font-size: clamp(2.1rem, 10vw, 3rem);
-    line-height: 1.05;
-    text-wrap: balance;
+.pt-stand__frame {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
 }
 
-.pt-metronome {
-    width: min(42vw, 9.5rem);
+.pt-stand__desk {
+    fill: color-mix(in srgb, var(--pt-voice-2) 70%, #000);
+}
+
+.pt-stand__ledge,
+.pt-stand__pole {
+    fill: color-mix(in srgb, var(--pt-voice-2) 55%, #000);
+}
+
+.pt-stand__legs {
+    fill: none;
+    stroke: color-mix(in srgb, var(--pt-voice-2) 55%, #000);
+    stroke-width: 7;
+    stroke-linecap: round;
+}
+
+/* La partitura: la hoja y la tapa que se abre como un libro */
+.pt-score {
+    position: absolute;
+    top: 4%;
+    left: 5%;
+    width: 90%;
+    height: 63%;
     padding: 0;
     border: 0;
     background: none;
     cursor: pointer;
+    perspective: 1200px;
 }
 
-.pt-metronome svg {
+.pt-score__page,
+.pt-score__cover {
+    position: absolute;
+    inset: 0;
+    border-radius: 3px;
+    background: var(--pt-paper);
+    box-shadow: 0 10px 18px -10px rgb(0 0 0 / 0.55);
+}
+
+.pt-score__page svg {
     display: block;
     width: 100%;
+    height: 100%;
     overflow: visible;
 }
 
-.pt-metronome__body {
-    fill: var(--pt-voice-2);
-}
-
-.pt-metronome__face {
-    fill: color-mix(in srgb, var(--pt-paper) 88%, var(--pt-voice-2));
-}
-
-.pt-metronome__scale line {
+.pt-score__lines line {
     stroke: var(--pt-line);
-    stroke-width: 1.4;
+    stroke-width: 1;
 }
 
-.pt-metronome__base {
-    fill: color-mix(in srgb, var(--pt-voice-2) 70%, #000);
+.pt-score__voice {
+    font-family: var(--font-script);
+    font-size: 17px;
+    fill: var(--pt-ink);
 }
 
-.pt-metronome__arm {
-    transform-box: view-box;
-    transform-origin: 60px 128px;
-    animation: pt-swing 1.2s ease-in-out infinite alternate;
-}
-
-.pt-metronome__arm line {
+.pt-score__brace {
+    fill: none;
     stroke: var(--pt-ink);
-    stroke-width: 3;
+    stroke-width: 2.4;
     stroke-linecap: round;
 }
 
-.pt-metronome__weight,
-.pt-metronome__pivot {
-    fill: var(--pt-voice-1);
+.pt-score__system,
+.pt-score__final line {
+    stroke: var(--pt-ink);
+    stroke-width: 1.2;
 }
 
-@keyframes pt-swing {
-    from { transform: rotate(-24deg); }
-    to { transform: rotate(24deg); }
+.pt-score__final rect {
+    fill: var(--pt-ink);
+}
+
+.pt-score__note ellipse {
+    fill: currentColor;
+}
+
+.pt-score__note line {
+    stroke: currentColor;
+    stroke-width: 1.6;
+}
+
+.pt-score__note--1 { color: var(--pt-voice-1); }
+.pt-score__note--2 { color: var(--pt-voice-2); }
+
+.pt-score__note {
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: center;
+}
+
+.pt-score__slur {
+    fill: none;
+    stroke-width: 1.4;
+    stroke-linecap: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+}
+
+.pt-score__slur--1 { stroke: var(--pt-voice-1); }
+.pt-score__slur--2 { stroke: var(--pt-voice-2); }
+
+.pt-score__heart {
+    fill: color-mix(in srgb, var(--pt-voice-1) 0%, transparent);
+    stroke: var(--pt-voice-1);
+    stroke-width: 1.6;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+}
+
+.pt-score__fermata {
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+}
+
+.pt-score__fermata path {
+    fill: none;
+    stroke: var(--pt-ink);
+    stroke-width: 1.6;
+    stroke-linecap: round;
+}
+
+.pt-score__fermata circle {
+    fill: var(--pt-ink);
+}
+
+/* La luz que recorre el sistema mientras suena */
+.pt-score__playhead {
+    fill: color-mix(in srgb, var(--pt-voice-1) 16%, transparent);
+    opacity: 0;
+}
+
+.pt-score__cover {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 1rem;
+    background: color-mix(in srgb, var(--pt-voice-2) 12%, var(--pt-paper));
+    box-shadow:
+        inset 0 0 0 6px color-mix(in srgb, var(--pt-voice-2) 12%, var(--pt-paper)),
+        inset 0 0 0 7px var(--pt-line),
+        0 10px 18px -10px rgb(0 0 0 / 0.55);
+    transform-origin: 0 50%;
+    backface-visibility: hidden;
+    transition: transform 0.85s cubic-bezier(0.55, 0.05, 0.25, 1);
+}
+
+.pt-score__opus {
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--inv-soft);
+}
+
+.pt-score__work {
+    font-family: var(--font-titles);
+    font-size: 1.05rem;
+    font-style: italic;
+    color: var(--inv-muted);
+}
+
+.pt-score__names {
+    font-family: var(--font-script);
+    font-size: clamp(1.9rem, 9vw, 2.5rem);
+    line-height: 1.05;
+    text-wrap: balance;
+    color: var(--pt-ink);
+}
+
+/* La batuta, apoyada en diagonal sobre la esquina de la partitura */
+.pt-baton {
+    position: absolute;
+    top: -12%;
+    right: 9%;
+    width: 1.05rem;
+    transform-origin: 50% 96%;
+    rotate: 52deg;
+    animation: pt-baton-rest 2.8s ease-in-out infinite;
+    pointer-events: none;
+}
+
+.pt-baton svg {
+    display: block;
+    width: 100%;
+    overflow: visible;
+    filter: drop-shadow(0 4px 3px rgb(0 0 0 / 0.3));
+}
+
+.pt-baton__shaft {
+    fill: color-mix(in srgb, var(--pt-paper) 80%, #fff);
+    stroke: color-mix(in srgb, var(--pt-ink) 60%, transparent);
+    stroke-width: 0.7;
+}
+
+.pt-baton__grip {
+    fill: color-mix(in srgb, var(--tr-accent) 55%, #6b4a2b);
 }
 
 .pt-count {
-    position: relative;
-    height: 3.5rem;
-    margin: -0.5rem 0 0;
+    position: absolute;
+    top: -3%;
+    left: 50%;
+    width: 3rem;
+    height: 3rem;
+    margin: 0;
+    translate: -50% 0;
     font-family: var(--font-titles);
-    font-size: 3.2rem;
+    font-size: 2.6rem;
     line-height: 1;
     color: var(--pt-voice-1);
+    pointer-events: none;
 }
 
 .pt-count span {
@@ -607,31 +762,107 @@
     margin: 0;
     font-size: 0.85rem;
     color: var(--inv-soft);
+    transition: opacity 0.3s ease;
 }
 
-/* Al tocarlo, el péndulo marca rápido la cuenta del director: 1, 2, 3, 4 */
-.pt-intro.is-counting .pt-metronome__arm {
-    animation-duration: 0.3s;
-    animation-iteration-count: 4;
+@keyframes pt-baton-rest {
+    0%, 100% { rotate: 52deg; }
+    50% { rotate: 47deg; }
+}
+
+/* 1 · La batuta marca la entrada: 1, 2, 3, 4 */
+.pt-intro.is-counting .pt-baton {
+    animation: pt-conduct 1.05s ease-in-out both;
 }
 
 .pt-intro.is-counting .pt-count span {
-    animation: pt-beat 0.3s ease-out both;
+    animation: pt-beat 0.26s ease-out both;
+    animation-delay: calc(0.2s + var(--beat, 0) * 0.22s);
 }
 
-.pt-intro.is-counting .pt-count span:nth-child(2) { animation-delay: 0.3s; }
-.pt-intro.is-counting .pt-count span:nth-child(3) { animation-delay: 0.6s; }
-.pt-intro.is-counting .pt-count span:nth-child(4) { animation-delay: 0.9s; }
+.pt-count span:nth-child(2) { --beat: 1; }
+.pt-count span:nth-child(3) { --beat: 2; }
+.pt-count span:nth-child(4) { --beat: 3; }
+
+.pt-intro.is-counting :is(.pt-intro__hint, .pt-intro__eyebrow) {
+    opacity: 0;
+}
+
+@keyframes pt-conduct {
+    0% { rotate: 52deg; translate: 0 0; opacity: 1; }
+    12% { rotate: 20deg; translate: -0.6rem -0.8rem; }
+    22% { rotate: 70deg; translate: -1.2rem 0.4rem; }
+    36% { rotate: 25deg; translate: -1.8rem -0.2rem; }
+    46% { rotate: 5deg; translate: -2.6rem 0; }
+    60% { rotate: 55deg; translate: -0.8rem 0; }
+    70% { rotate: 80deg; translate: 0.4rem 0.2rem; }
+    84% { rotate: 20deg; translate: -0.8rem -1rem; }
+    92% { rotate: 10deg; translate: -1rem -1.6rem; opacity: 1; }
+    100% { rotate: -20deg; translate: 1rem -5rem; opacity: 0; }
+}
 
 @keyframes pt-beat {
-    0% { opacity: 0; transform: scale(1.6); }
-    30% { opacity: 1; transform: scale(1); }
-    100% { opacity: 0; transform: scale(0.9); }
+    0% { opacity: 0; scale: 1.6; }
+    35% { opacity: 1; scale: 1; }
+    100% { opacity: 0; scale: 0.9; }
 }
 
-.pt-intro.is-counting .pt-intro__hint {
-    opacity: 0;
-    transition: opacity 0.3s ease;
+/* 2 · La tapa se abre y las dos voces se escriben a la par, al paso de la luz */
+.pt-intro.is-counting .pt-score__cover {
+    transform: rotateY(-165deg);
+    transition-delay: 0.85s;
+}
+
+.pt-intro.is-counting .pt-score__playhead {
+    animation: pt-playhead 1.25s linear 1.3s both;
+}
+
+.pt-intro.is-counting .pt-score__note {
+    animation: pt-score-note 0.38s var(--tr-spring) calc(1.38s + var(--n) * 0.16s) both;
+}
+
+.pt-intro.is-counting .pt-score__slur {
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 1.1s ease-in-out 1.45s;
+}
+
+/* 3 · Las voces se encuentran: un corazón y el calderón que lo sostiene */
+.pt-intro.is-counting .pt-score__heart {
+    fill: color-mix(in srgb, var(--pt-voice-1) 28%, transparent);
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 0.6s ease-out 2.45s, fill 0.4s ease 2.85s;
+}
+
+.pt-intro.is-counting .pt-score__fermata {
+    animation: pt-score-note 0.45s var(--tr-spring) 2.85s both;
+}
+
+@keyframes pt-playhead {
+    0% { opacity: 0; transform: translateX(40px); }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { opacity: 0; transform: translateX(262px); }
+}
+
+@keyframes pt-score-note {
+    from { opacity: 0; transform: translateY(-7px) scale(0.5); }
+    to { opacity: 1; transform: none; }
+}
+
+/* 4 · La partitura se acerca y queda la portada */
+.pt-intro.is-open .pt-stand {
+    scale: 1.35;
+    translate: 0 6%;
+}
+
+.pt-intro.is-open {
+    animation-delay: 0.55s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .pt-baton {
+        animation: none;
+    }
 }
 
 /* ── Fondo y pie ───────────────────────────────────────────────────────── */
@@ -756,7 +987,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .pt-metronome__arm,
     .pt-note {
         animation: none;
     }

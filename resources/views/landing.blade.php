@@ -49,6 +49,9 @@
         ! empty($bida['tiktok']) ? ['label' => 'TikTok', 'url' => 'https://www.tiktok.com/@'.$bida['tiktok'], 'icon' => 'tiktok-logo'] : null,
     ]));
     $noun = $isCard ? 'tarjeta' : 'invitación';
+    // Hasta tres diseños van en abanico junto al texto; con más, en fila debajo de la portada
+    $shotsInRow = count($demos) > 3;
+    $demoNote = $page['demo_note'] ?? 'Toca un diseño para abrir su muestra y pruébala como un invitado: confirma, vota o sugiere una canción. Nada se guarda.';
 @endphp
 
 @push('head')
@@ -109,43 +112,16 @@
                     </p>
                 </div>
 
-                @if(count($demos))
-                    {{-- Los diseños: la captura de cómo empieza cada apertura, sobre la foto del evento. Al tocarla se abre la muestra completa --}}
+                @if(count($demos) && ! $shotsInRow)
+                    {{-- Los diseños: la captura de cómo empieza cada apertura, en abanico sobre la foto del evento. Al tocarla se abre la muestra completa --}}
                     <div id="disenos" class="site-landing__stage scroll-mt-24 lg:col-span-7">
                         <div class="site-landing__photo" aria-hidden="true">
                             <x-site.image :key="$page['image']" :priority="true" />
                         </div>
 
-                        <ul class="site-shots site-shots--{{ min(count($demos), 3) }}" aria-label="Diseños">
-                            @foreach($demos as $index => $demo)
-                                <li class="site-shot" style="--i: {{ $index }}">
-                                    <a href="{{ $demo['demoUrl'] }}" class="site-shot__link">
-                                        <span class="site-phone site-shot__phone">
-                                            @if($demo['isNew'])
-                                                <span class="site-badge-new site-shot__badge">Nuevo</span>
-                                            @endif
-                                            <span class="site-phone__screen">
-                                                @if($demo['capture'])
-                                                    <img src="{{ $demo['capture'] }}" width="390" height="844" alt="" decoding="async" @if($index > 0) loading="lazy" @endif>
-                                                @else
-                                                    {{-- Sin captura todavía: la misma apertura en vivo, quieta hasta que se abra la muestra --}}
-                                                    <iframe src="{{ $demo['demoUrl'] }}" title="Apertura de {{ $demo['label'] }}" tabindex="-1" aria-hidden="true" loading="lazy"></iframe>
-                                                @endif
-                                            </span>
-                                        </span>
-                                        <span class="site-shot__caption">
-                                            <span class="site-shot__name">{{ $demo['label'] }}</span>
-                                            <span class="site-shot__tagline">{{ $demo['tagline'] ?? $demo['event'] }}</span>
-                                            <span class="site-shot__cta">Verla completa <x-phosphor-arrow-right aria-hidden="true" /></span>
-                                        </span>
-                                    </a>
-                                </li>
-                            @endforeach
-                        </ul>
+                        @include('site.partials.shots', ['demos' => $demos, 'noun' => $noun, 'layout' => 'fan', 'eager' => true])
 
-                        <p class="site-landing__hint">
-                            {{ $page['demo_note'] ?? 'Toca un diseño para abrir su muestra y pruébala como un invitado: confirma, vota o sugiere una canción. Nada se guarda.' }}
-                        </p>
+                        <p class="site-landing__hint">{{ $demoNote }}</p>
                     </div>
                 @else
                     <div class="site-photo aspect-[4/5] w-full lg:col-span-6 lg:col-start-7">
@@ -153,6 +129,14 @@
                     </div>
                 @endif
             </div>
+
+            @if($shotsInRow)
+                {{-- Con más de tres diseños van en fila, debajo de la portada --}}
+                <div id="disenos" class="site-landing__row scroll-mt-24">
+                    @include('site.partials.shots', ['demos' => $demos, 'noun' => $noun, 'layout' => 'row'])
+                    <p class="site-landing__hint">{{ $demoNote }}</p>
+                </div>
+            @endif
         </section>
 
         {{-- ═══ Qué incluye: lo propio de este evento, en una grilla de filetes ═══ --}}

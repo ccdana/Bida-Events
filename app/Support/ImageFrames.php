@@ -17,8 +17,8 @@ final class ImageFrames
 
     /** Portada: cambia con cada plantilla (clave del catálogo sin «invitations.templates.»). */
     public const HERO = [
-        // Foto a pantalla completa detrás del nombre
-        'xv-premium' => [1080, 1920, 'rect', 'Portada a pantalla completa'],
+        // El espejo ovalado del salón (.ga-mirror__glass, 160:216)
+        'xv-premium' => [1080, 1458, 'oval', 'Foto en el espejo'],
         // Arco de jardín (.inv-boda-arch, 3:4)
         'boda-jardin' => [1080, 1440, 'arch', 'Foto dentro del arco'],
         // El sol entre las nubes (.nb-sun, círculo; las nubes tapan un poco el borde de abajo)

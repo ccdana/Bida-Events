@@ -2,13 +2,16 @@
 
 namespace Tests\Feature;
 
+use App\Http\Controllers\HomeController;
 use App\Services\InvitationModuleService;
 use App\Support\InvitationTemplates;
 use App\Support\ShowcaseDemos;
 use App\Support\TrendTemplates;
 use Database\Seeders\ShowcaseInvitationsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\Concerns\CreatesInvitations;
 use Tests\TestCase;
@@ -83,7 +86,7 @@ class LandingAndTemplateRevisionsTest extends TestCase
         $this->assertStringNotContainsString('babyshower-valentina', $reel[1]);
     }
 
-    public function test_la_gota_opens_pouring_the_water_and_shows_the_photo_inside_a_drop(): void
+    public function test_la_gota_opens_pouring_the_water_and_shows_the_photo_under_the_water(): void
     {
         $data = ShowcaseInvitationsSeeder::data('bautizo-emilia-gota');
         $data['modules']['config']['template'] = InvitationTemplates::BAUTIZO_LA_GOTA;
@@ -93,14 +96,70 @@ class LandingAndTemplateRevisionsTest extends TestCase
         $this->withoutVite()->get(route('invitation.show', $invitation->slug))
             ->assertOk()
             ->assertSee('inv-page inv-gota inv-themed inv-trend', false)
-            // La apertura de la pila con la jarra, ahora en «La gota»
+            // La apertura de la pila con la jarra
             ->assertSee('gt-font__ewer', false)
             ->assertSee('Toca la jarra para verter el agua')
-            ->assertSee('gt-bead', false)
-            // Los padrinos principales van escritos sobre el primer anillo y después cada uno en sus anillos
-            ->assertSee('Mis padrinos:  Natalia Peña y Javier Soliz', false)
-            ->assertSeeInOrder(['gt-ripple', 'Padrinos de bautizo', 'Padrinos de vela'], false)
-            ->assertSee('gt-drop__time', false);
+            // La portada: la gota cae del aire al agua y la foto queda en el centro de las ondas
+            ->assertSeeInOrder(['gt-hero__air', 'gt-hero__fall', 'gt-hero__water', 'gt-pool__ring', 'gt-pool__photo'], false)
+            ->assertSee('gt-when', false)
+            // Los padrinos, uno tras otro como las ondas del agua
+            ->assertSeeInOrder(['gt-ripple', 'Padrinos de bautizo', 'Natalia Peña y Javier Soliz', 'Padrinos de vela'], false)
+            ->assertSee('gt-family', false);
+    }
+
+    public function test_an_event_page_with_many_designs_shows_them_in_a_row_below_the_photo(): void
+    {
+        $this->seed(ShowcaseInvitationsSeeder::class);
+
+        $this->withoutVite()->get(route('landing', 'invitaciones-de-bautizo'))
+            ->assertOk()
+            ->assertSee('id="disenos"', false)
+            ->assertSee('site-shots site-shots--row', false)
+            ->assertDontSee('site-shots--fan', false)
+            ->assertSee('Mapa de estrellas')
+            ->assertSee('Bordado a mano')
+            ->assertSee('href="'.route('invitation.demo', 'bautizo-emilia-estrellas').'"', false)
+            ->assertSee('href="'.route('invitation.demo', 'bautizo-emilia-bordado').'"', false);
+    }
+
+    public function test_the_home_previews_every_design_of_each_event_like_its_page(): void
+    {
+        // Fuera de temporada, Halloween también se prueba en la portada
+        config(['bida.seasons.halloween.ends_at' => '2026-10-31 23:59:59']);
+        $this->travelTo(Carbon::parse('2026-11-05 12:00:00', 'America/La_Paz'));
+        $this->seed(ShowcaseInvitationsSeeder::class);
+
+        $html = $this->withoutVite()->get(route('home'))
+            ->assertOk()
+            // La portada ya no tiene los botones de «Probar una invitación» ni «Escríbenos» debajo del texto
+            ->assertDontSee('Probar una invitación')
+            ->assertDontSee('site-hero__actions', false)
+            // Una pestaña por evento (un índice tipográfico, sin íconos) y su fila de capturas, con el enlace a su página
+            ->assertSee('role="tablist"', false)
+            ->assertSee('site-events__tab', false)
+            ->assertDontSee('site-chip', false)
+            ->assertSeeInOrder(['id="plantillas"', 'Bordado a mano', 'Caldero encantado'], false)
+            ->assertSee('href="'.route('invitation.demo', 'halloween-noche-diego-caldero').'"', false)
+            ->assertSee('href="'.route('landing', 'invitaciones-de-halloween').'"', false)
+            ->getContent();
+
+        $this->assertSame(count(HomeController::designsByEvent(config('bida'))), substr_count($html, 'class="site-tester__panel"'));
+        $this->assertStringNotContainsString('Abrir en pantalla completa', $html);
+    }
+
+    public function test_during_its_season_halloween_is_tried_from_the_season_panel_with_every_design(): void
+    {
+        config(['bida.seasons.halloween.ends_at' => '2026-10-31 23:59:59']);
+        $this->travelTo(Carbon::parse('2026-10-20 12:00:00', 'America/La_Paz'));
+        $this->seed(ShowcaseInvitationsSeeder::class);
+
+        $html = $this->withoutVite()->get(route('home'))->assertOk()->getContent();
+        $templates = Str::betweenFirst($html, 'id="plantillas"', '</section>');
+        $season = Str::betweenFirst($html, 'id="temporada-halloween"', '</section>');
+
+        $this->assertStringNotContainsString('Caldero encantado', $templates);
+        $this->assertStringContainsString('Caldero encantado', $season);
+        $this->assertStringContainsString('Función de medianoche', $season);
     }
 
     /** Aperturas mejoradas y fondos nuevos: lo que distingue a cada una en el HTML. */
@@ -114,6 +173,13 @@ class LandingAndTemplateRevisionsTest extends TestCase
             'Partitura a dos voces' => [TrendTemplates::key('partitura', 'boda'), 'boda-camila-andres', ['pt-ambient__staff', 'pt-ambient__note']],
             'Próxima salida' => [InvitationTemplates::GRADUACION_PROXIMA_SALIDA, 'graduacion-mariana', ['ps-gate__plane', 'ps-gate__status-next', 'ps-pass__scan', 'Embarcando hoy']],
             'Carta de baile' => [InvitationTemplates::XV_CARTA_DE_BAILE, 'xv-isabella', ['cb-ambient__sheen', 'cb-ambient__pair']],
+            'Álbum de stickers' => [InvitationTemplates::CUMPLE_STICKERS, 'cumple-daniela-stickers', ['st-album__slot', 'st-fan st-fan--shiny', 'st-album__done', 'st-pack__label']],
+            'Dos caminos' => [InvitationTemplates::BODA_DOS_CAMINOS, 'boda-camila-andres-caminos', ['dc-map__compass', 'dc-map__walk', 'animateMotion', 'dc-walk__heart']],
+            'Carta de baile: el moño y el lápiz' => [InvitationTemplates::XV_CARTA_DE_BAILE, 'xv-isabella', ['cb-bow__loop', 'cb-cord-half--left', 'cb-inside__written', 'cb-pencil', 'Primera pieza']],
+            'Galería Quince: la prensa y las paredes' => [TrendTemplates::key('galeria', 'xv'), 'xv-isabella', ['gq-press', 'gq-ambient__walls', 'gq-ambient__art', 'gq-ambient__flash']],
+            'Móvil de cuna: el carrusel' => [TrendTemplates::key('movil', 'bautizo'), 'bautizo-emilia', ['mv-intro__projector', 'mv-intro__notes', 'mv-intro__light', 'mv-intro__window']],
+            'Partitura a dos voces: la batuta' => [TrendTemplates::key('partitura', 'boda'), 'boda-camila-andres', ['pt-baton', 'pt-score__cover', 'pt-score__note--2', 'pt-score__heart']],
+            'Noche de gala' => [InvitationTemplates::XV_PREMIUM, 'xv-isabella', ['ga-intro__chandelier', 'Toca la araña para encender el salón', 'ga-mirror__glass', 'ga-plaque', 'ga-ambient__glint']],
         ];
     }
 

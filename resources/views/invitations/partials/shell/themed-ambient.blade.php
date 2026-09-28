@@ -10,6 +10,8 @@
 @php
     // Por tema: tamaño de la baldosa de la textura (0 = sin parallax), sus partículas y su escena de fondo (opcional)
     $themedAmbient = [
+        // Luz de las velas y los destellos de colores de los caireles de la araña
+        'gala' => [0, [['kind' => 'bokeh', 'count' => 8, 'mobile' => 5, 'seed' => 6, 'class' => 'inv-drift--salon']], 'invitations.partials.gala.ambient'],
         // Destellos dorados sobre el terciopelo y las luces de la araña del salón
         'carta' => [480, [['kind' => 'star', 'count' => 14, 'mobile' => 8, 'seed' => 3, 'class' => 'inv-drift--brillo']], 'invitations.partials.carta.ambient'],
         // Pétalos que caen sobre el mapa
@@ -33,14 +35,24 @@
         'partitura' => [0, [['kind' => 'twinkle', 'count' => 10, 'mobile' => 6, 'seed' => 7, 'class' => 'inv-drift--sala']], 'invitations.partials.tendencias.partitura.ambient'],
         // Estrellitas quietas del cuarto del bebé
         'movil' => [0, [['kind' => 'twinkle', 'count' => 12, 'mobile' => 7, 'seed' => 4, 'class' => 'inv-drift--cuarto']]],
+        // El cielo de la noche que gira despacio y las estrellas fugaces que lo cruzan
+        'estrellas' => [0, [['kind' => 'twinkle', 'count' => 8, 'mobile' => 5, 'seed' => 8, 'class' => 'inv-drift--noche']], 'invitations.partials.tendencias.estrellas.ambient'],
+        // El pespunte de los bordes que sigue avanzando y botones de costura que bajan girando
+        'bordado' => [0, [], 'invitations.partials.tendencias.bordado.ambient'],
         // Papelitos del final del show
         'gira' => [0, [['kind' => 'streamer', 'count' => 12, 'mobile' => 7, 'seed' => 6, 'class' => 'inv-drift--show']]],
         // Recortes de revista con las letras del nombre, que caen despacio
         'revista' => [0, [], 'invitations.partials.tendencias.revista.ambient'],
         // Polvo en el haz del proyector
         'funcion' => [0, [['kind' => 'bokeh', 'count' => 12, 'mobile' => 7, 'seed' => 2, 'class' => 'inv-drift--proyector']]],
+        // Bruma de colores por el piso del laboratorio, burbujas que suben y lucecitas que flotan
+        'caldero' => [0, [['kind' => 'twinkle', 'count' => 10, 'mobile' => 6, 'seed' => 9, 'class' => 'inv-drift--luces']], 'invitations.partials.tendencias.caldero.ambient'],
         // Tendederos lejanos con ropita que se mece y burbujas de jabón que suben
         'tendedero' => [0, [], 'invitations.partials.tendencias.tendedero.ambient'],
+        // Bloquecitos con letras que caen dando vueltas
+        'bloques' => [0, [['kind' => 'streamer', 'count' => 8, 'mobile' => 5, 'seed' => 7, 'class' => 'inv-drift--juego']], 'invitations.partials.tendencias.bloques.ambient'],
+        // Estampillas y cajitas que bajan despacio, y papel picado de seda
+        'encomienda' => [0, [['kind' => 'streamer', 'count' => 8, 'mobile' => 5, 'seed' => 3, 'class' => 'inv-drift--seda']], 'invitations.partials.tendencias.encomienda.ambient'],
     ][$page->theme] ?? [0, []];
 
     [$textureLoop, $themedDrifts, $themedScene] = $themedAmbient + [2 => null];

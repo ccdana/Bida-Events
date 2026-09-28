@@ -30,11 +30,16 @@ class TrendTemplatesTest extends TestCase
     {
         return [
             'Galería Quince' => ['galeria', 'xv', 'xv-isabella', ['gq-barrier', 'Toca el cordón para entrar', 'gq-label', 'Mecenas de la exposición', 'Programa de la inauguración']],
-            'Partitura a dos voces' => ['partitura', 'boda', 'boda-camila-andres', ['pt-metronome', 'Concierto para dos voces', 'pt-system', 'Andante', 'Quienes tocan con nosotros']],
+            'Partitura a dos voces' => ['partitura', 'boda', 'boda-camila-andres', ['pt-baton', 'Toca la batuta para empezar', 'Concierto para dos voces', 'pt-system', 'Andante', 'Quienes tocan con nosotros']],
             'Móvil de cuna' => ['movil', 'bautizo', 'bautizo-emilia', ['mv-mobile', 'Toca el móvil para que gire', 'mv-balance', 'mv-step']],
             'Gira mundial' => ['gira', 'cumple', 'cumple-daniela-30', ['gr-band', 'Fecha única', 'Cancelado', 'Line-up', 'Arma el setlist']],
             'Edición especial' => ['revista', 'graduacion', 'graduacion-mariana', ['rv-band', 'En esta edición', 'rv-barcode', 'Agenda', 'Créditos de esta edición']],
             'Función de medianoche' => ['funcion', 'halloween', 'halloween-noche-diego', ['fn-leader', 'Clasificación A', 'fn-billing', 'Cartelera', 'Taquilla']],
+            'Mapa de estrellas' => ['estrellas', 'bautizo', 'bautizo-emilia', ['es-constellation__line', 'Toca la estrella más brillante para unir la constelación', 'es-chart__moon', 'es-point__star', 'Las estrellas que me guían']],
+            'Bordado a mano' => ['bordado', 'bautizo', 'bautizo-emilia', ['bd-needle', 'Toca la aguja para bordar su nombre', 'bd-wreath__backstitch', 'bd-row__stitch', 'N &amp; J', 'E &amp; C']],
+            'Caldero encantado' => ['caldero', 'halloween', 'halloween-noche-diego', ['cl-cauldron', 'Toca el caldero para revolver la poción', 'cl-jar__liquid', 'Receta secreta', 'cl-brewer__bottle', 'cl-step__vial']],
+            'Bloques de juguete' => ['bloques', 'babyshower', 'babyshower-valentina', ['bl-chest', 'Toca el baúl para sacar los bloques', 'bl-cube__face--front', 'bl-floor__time', 'bl-host__block']],
+            'Encomienda especial' => ['encomienda', 'babyshower', 'babyshower-valentina', ['en-tape', 'Toca la cinta para abrir la caja', 'en-waybill', 'Seguimiento del envío', 'Entregado', 'en-postage']],
             'Tendedero' => ['tendedero', 'babyshower', 'babyshower-valentina', ['td-basket', 'Toca el canasto para colgar la ropita', 'td-garment--onesie', 'td-string', 'Anfitrionas']],
         ];
     }
@@ -81,7 +86,7 @@ class TrendTemplatesTest extends TestCase
     {
         $this->seed(EventTypeSeeder::class);
 
-        $themed = collect(TrendTemplates::themes())->pluck('event')->all();
+        $themed = collect(TrendTemplates::themes())->pluck('event')->unique()->all();
         $this->assertEqualsCanonicalizing(['xv', 'boda', 'bautizo', 'cumple', 'graduacion', 'halloween', 'babyshower'], $themed);
 
         $profile = app(EventProfiles::class)->get('babyshower');

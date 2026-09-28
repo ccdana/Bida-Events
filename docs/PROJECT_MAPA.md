@@ -1071,6 +1071,39 @@ Para verlas en producción hay que correr la semilla de muestras: `php artisan d
 | «Birrete al aire» rehecha: el cambio de borla como apertura, la medalla de la promoción con laureles y la carrera en el borde, el cordón de la borla como itinerario y medallas para quienes acompañaron | `partials/birrete`, `themes/birrete.css` |
 | Aperturas nuevas: el canasto de ropa que se cuelga («Tendedero»), la puerta de embarque con el avión que despega («Próxima salida»), el kiosco de revistas («Edición especial»), el escenario que se enciende («Gira mundial») y la sala que se ilumina con puertas que se abren y flashes («Galería Quince») | `partials/tendencias/{tendedero,revista,gira,galeria}/intro.blade.php`, `partials/salidas/intro.blade.php` y sus hojas |
 | Fondos con escena propia: tendederos lejanos y burbujas de jabón, recortes de revista con las letras del nombre, pentagramas que ondulan y notas que suben, focos que barren la sala, luces de la araña que giran en pareja y el brillo del terciopelo; también las nubes y los birretes de las rehechas | `partials/shell/themed-ambient.blade.php` (tercer valor: parcial de la escena), `*/ambient.blade.php` |
+
+### 7.17 Plantillas nuevas, rediseños y la portada con los diseños por evento
+
+| Qué | Dónde |
+| --- | --- |
+| Portada: «Pruébala como invitado» muestra una pestaña por evento con sus diseños como capturas en fila, igual que la página del evento, y el enlace a esa página | `HomeController::designsByEvent`, `home.blade.php`, `site/partials/shots.blade.php` (compartido con `landing.blade.php`), `site/home.css` |
+| Páginas por evento con más de tres diseños: la foto arriba y los diseños en una fila deslizable debajo (`site-shots--row`); con tres o menos, el abanico sobre la foto | `landing.blade.php`, `site/site.css` |
+| «Noche de gala» (XV) rehecha: la araña que se enciende como apertura, la foto en un espejo con marco y corona, el programa como camafeos en un collar de perlas, la corte en placas y columnas, y destellos de los caireles al fondo. Reemplaza la XV clásica (se fueron `partials/xv`, `partials/hero`, `partials/particles` y `themes/xv.css`) | `partials/gala`, `themes/gala.css`, `templates/xv-premium.blade.php` |
+| «La gota» rehecha otra vez: la gota cae del aire al agua, la foto bajo el agua en el centro de las ondas y las secciones sumergidas con bordes de ola | `partials/gota/{hero,ripples}.blade.php`, `themes/gota.css` |
+| «Álbum de stickers»: el sobre cae, los stickers salen en abanico y vuelan a pegarse en los huecos numerados del álbum | `partials/stickers/intro.blade.php`, `themes/stickers.css` |
+| «Dos caminos»: la brújula en la tapa del mapa, dos caminantes que recorren sus rutas hasta encontrarse con un corazón; en la portada los nombres van más juntos | `partials/caminos/{intro,hero}.blade.php`, `themes/caminos.css` |
+| Bautizo «Mapa de estrellas»: se unen las estrellas de una constelación en forma de corazón; carta celeste con las estrellas de ese día (salen de la fecha y el nombre) y la foto como la luna; el día estrella por estrella, los padrinos como estrellas guía y el cielo que gira al fondo | `partials/tendencias/estrellas`, `tendencias/estrellas.css`, PDF `covers/estrellas` |
+| Bautizo «Bordado a mano»: la aguja borda el nombre en el bastidor y después las florcitas; foto en el bastidor con corona bordada, fecha en una etiqueta cosida, el día como muestrario de puntadas y los padrinos como monogramas en bastidores chiquitos | `partials/tendencias/bordado`, `tendencias/bordado.css`, PDF `covers/bordado` |
+| Halloween «Caldero encantado» (para toda la familia): se revuelve el caldero, la poción cambia de color y del humo sale el nombre; la foto en el frasco de la poción, la receta paso a paso y cada sección como una página del recetario | `partials/tendencias/caldero`, `tendencias/caldero.css`, PDF `covers/caldero` |
+| Textos editables nuevos: `sky_label`, `constellation_label`, `potion_label`, `potion_ingredients`, `potion_step` | `TrendTemplates` (`copy`), `EditableTexts` |
+
+### 7.18 Temporadas, portada y aperturas renovadas; dos baby shower nuevas
+
+| Qué | Dónde |
+| --- | --- |
+| Portada sin los botones «Probar una invitación» ni «Escríbenos» bajo el texto (el de WhatsApp sigue en la cabecera) | `home.blade.php` |
+| «Pruébala como invitado»: los eventos como un índice tipográfico (nombre en la letra de los títulos, cantidad de diseños al lado y filete dorado bajo el elegido), en lugar de fichas con ícono | `home.blade.php` (`site-events`), `site/home.css` |
+| Botón de temporadas: un botoncito redondo sin texto (el ícono de cada temporada, que se turnan si hay varias, y un punto que late); lo que dice va en su `aria-label` | `site/partials/season.blade.php`, `site/home.css` («Botón de temporadas») |
+| Panel de temporada: arriba el texto y la oferta (precio, cuenta regresiva, WhatsApp); abajo sus diseños como en la portada, con capturas en fila | `site/partials/season-panel.blade.php` (usa `site/partials/shots`), `site/site.css` («Temporada») |
+| «Noche de gala»: botones de metal pulido con doble filete y un brillo que los recorre; respuestas elegidas en metal con un rombo | `themes/gala.css` («Botones») |
+| «Carta de baile»: el moño se desata, el cordón se corre a los lados, la tapa se abre y un lápiz escribe el nombre del invitado en la primera pieza | `partials/carta/intro.blade.php`, `themes/carta.css` |
+| «Galería Quince»: la prensa prueba flashes, los focos titilan al encenderse y se camina hacia el cuadro del medio; al fondo, paredes con cuadros que acompañan el scroll y flashes de invitados | `partials/tendencias/galeria/{intro,ambient}.blade.php`, `tendencias/galeria.css` |
+| «Móvil de cuna»: el móvil gira como un carrusel en 3D (ángulo animado con `@property --mv-spin`), notas de la cajita de música, estrellas proyectadas y la luz que se enciende desde el móvil | `partials/tendencias/movil/intro.blade.php`, `tendencias/movil.css` |
+| «Partitura a dos voces»: el atril con la partitura y la batuta que marca la entrada; las dos voces se escriben a la par y terminan en un corazón con calderón | `partials/tendencias/partitura/intro.blade.php`, `tendencias/partitura.css` |
+| Baby shower «Bloques de juguete»: el baúl se abre y los bloques forman el nombre; cubo 3D con la foto, torre de bloques, anfitrionas en bloques y secciones como caras de bloque con su letra | `partials/tendencias/bloques`, `tendencias/bloques.css`, PDF `covers/bloques` |
+| Baby shower «Encomienda especial»: la cinta se despega y la caja se abre; la guía del envío con código de barras, el seguimiento del envío, estampillas con matasellos y hojas de cartón con cinta | `partials/tendencias/encomienda`, `tendencias/encomienda.css`, PDF `covers/encomienda` |
+| PDF: cada bloque de la hoja 2 va a la columna donde queda la mayor parte de su alto, y los padrinos con un papel largo cuentan sus renglones (las muestras de baby shower salían en 3 hojas) | `App\Support\Pdf\PrintLayout` |
+| Textos editables nuevos: `parcel_title`, `parcel_content`, `parcel_arrival`, `parcel_address`, `parcel_fragile`, `parcel_care` | `TrendTemplates` (`copy`), `EditableTexts` |
 ---
 
 ## 8. Hoja de ruta sugerida

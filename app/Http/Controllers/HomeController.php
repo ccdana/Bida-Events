@@ -31,6 +31,7 @@ class HomeController extends Controller
             'fromPrice' => $fromPrice,
             'demoUrl' => $this->demoUrl($bida['demo_slug'] ?? null),
             'demos' => $demos,
+            'designs' => self::designsByEvent($bida, $seasons),
             'landings' => self::landingLinks(),
             'share' => ShareMeta::make(
                 "{$bida['brand']} | Invitaciones digitales para bodas, XV años, bautizos y graduaciones",
@@ -108,6 +109,38 @@ class HomeController extends Controller
     {
         return collect(config('bida.landings', []))
             ->map(fn (array $landing, string $slug) => ['url' => route('landing', $slug), 'label' => $landing['link'], 'slug' => $slug, 'event' => $landing['event']])
+            ->values()
+            ->all();
+    }
+
+    /**
+     * Los diseños de cada evento para «Pruébala como invitado»: los mismos de su página (config
+     * «landings», en su orden), con los eventos en el orden de las muestras de la portada. Las
+     * tarjetas y la temporada que se vende hoy (su página) tienen su propio panel: no se mezclan.
+     *
+     * @return list<array{event: string, label: string, icon: string, landingUrl: string, landingLabel: string, demos: list<array<string, mixed>>}>
+     */
+    public static function designsByEvent(array $bida, array $seasons = []): array
+    {
+        $seasonLandings = array_filter(array_column($seasons, 'landing'));
+        $order = array_flip(array_map(fn (array $demo) => $demo['eventKey'], ShowcaseDemos::find($bida['demo_invitations'] ?? [])));
+
+        return collect($bida['landings'] ?? [])
+            ->reject(fn (array $landing, string $slug) => ($landing['kind'] ?? null) === 'card' || empty($landing['demos']) || in_array($slug, $seasonLandings, true))
+            ->map(function (array $landing, string $slug): ?array {
+                $demos = ShowcaseDemos::find($landing['demos']);
+
+                return $demos ? [
+                    'event' => $landing['event'],
+                    'label' => $demos[0]['event'],
+                    'icon' => $demos[0]['icon'],
+                    'landingUrl' => route('landing', $slug),
+                    'landingLabel' => $landing['link'],
+                    'demos' => $demos,
+                ] : null;
+            })
+            ->filter()
+            ->sortBy(fn (array $group) => $order[$group['event']] ?? PHP_INT_MAX)
             ->values()
             ->all();
     }

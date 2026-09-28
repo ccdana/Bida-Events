@@ -64,7 +64,9 @@ class HomePageTest extends TestCase
         $response
             // Ya no va arriba de la portada: un botón que sigue al scroll abre el panel
             ->assertSeeInOrder(['Invitaciones digitales', 'site-seasons__fab', 'id="temporada-halloween"'], false)
-            ->assertSeeInOrder(['De temporada', 'Halloween', '3', 'días'])
+            // Un botoncito sin texto: lo que dice va en su aria-label
+            ->assertSee('aria-label="De temporada: Halloween. Quedan 3 días"', false)
+            ->assertDontSee('site-seasons__name', false)
             // El panel habla de la temporada y lista sus diseños (hoy, uno)
             ->assertSee('Tu fiesta de Halloween empieza en la invitación')
             ->assertSeeInOrder(['Diseños de la temporada', 'Noche de calabazas'])
@@ -75,9 +77,9 @@ class HomePageTest extends TestCase
             // WhatsApp con el precio y el código de la campaña
             ->assertSee(rawurlencode('quiero una invitación para mi fiesta de Halloween (US$ 20)'), false)
             ->assertSee(rawurlencode('Ref. HALLO'), false)
-            // El teléfono carga la muestra recién al abrir el panel
-            ->assertSee('data-lazy-src="'.route('invitation.demo', ['slug' => 'halloween-noche-diego', 'portada' => 1]).'"', false)
-            ->assertDontSee(' src="'.route('invitation.demo', ['slug' => 'halloween-noche-diego', 'portada' => 1]).'"', false)
+            // Los diseños se ven como en la portada: capturas en fila que llevan a cada muestra
+            ->assertSeeInOrder(['id="temporada-halloween"', 'site-shots site-shots--row', 'href="'.route('invitation.demo', 'halloween-noche-diego').'"'], false)
+            ->assertDontSee('data-lazy-src', false)
             // Los enlaces a «#temporada» (servicios) abren el mismo panel
             ->assertSee('href="#temporada"', false);
 
@@ -115,7 +117,8 @@ class HomePageTest extends TestCase
             ->assertOk()
             ->assertSee('id="temporada-amor"', false)
             ->assertSee('id="temporada-halloween"', false)
-            ->assertSee('2 temporadas')
+            ->assertSee('aria-label="2 temporadas: Día del Amor y la Primavera y Halloween. Quedan 11 días"', false)
+            ->assertSee('data-cycle', false)
             ->assertSee('site-seasons__tab', false)
             ->assertSee('Ahora: Día del Amor y la Primavera y Halloween');
 
@@ -160,11 +163,15 @@ class HomePageTest extends TestCase
             ->assertSee('id="plantillas"', false)
             ->assertSee('href="#plantillas"', false)
             ->assertSeeInOrder(['Noche de gala', 'Promesa en el jardín', 'Entre nubes', 'Sopla las velas'])
-            // El teléfono de la sección prueba la muestra interactiva; el de la portada recorre las aperturas
-            ->assertSee('src="'.route('invitation.demo', 'xv-isabella').'"', false)
+            // Cada evento muestra sus diseños como en su página: capturas en fila que llevan a la muestra
+            ->assertSee('site-shots site-shots--row', false)
+            ->assertSee('href="'.route('invitation.demo', 'xv-isabella').'"', false)
+            ->assertSee('Mapa de estrellas')
+            ->assertSee('Caldero encantado')
+            // El teléfono de la portada recorre las aperturas
             ->assertSee('data-cover-reel', false)
             ->assertSee(route('invitation.demo', ['slug' => 'boda-camila-andres', 'portada' => 1]), false)
-            // "Abrir en pantalla completa" lleva a la muestra, no a la invitación real
+            // Las capturas llevan a la muestra, no a la invitación real
             ->assertSee('href="'.route('invitation.demo', 'cumple-daniela-30').'"', false)
             ->assertDontSee('href="'.route('invitation.show', 'cumple-daniela-30').'"', false)
             // La foto y la palabra de la portada siguen el orden del teléfono y cambian con él

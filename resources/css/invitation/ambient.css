@@ -1,5 +1,5 @@
 /* ════════════════════════════════════════════════════════════════════════════
-   INVITACIÓN — Ambiente: partículas de fondo, transición de la portada y
+   INVITACIÓN — Ambiente: partículas que caen o flotan (partials/drift), transición de la portada y
    vista embebida (vista previa del editor y teléfono de la home)
    ════════════════════════════════════════════════════════════════════════════ */
 
@@ -14,71 +14,6 @@ html.inv-embedded body::-webkit-scrollbar {
     display: none;
     width: 0;
     height: 0;
-}
-
-/* ── Partículas de fondo ────────────────────────────────────────────────────
-   Capa fija detrás del contenido: se ven sobre el fondo de la invitación y
-   quedan tapadas por la portada y las secciones con color propio. */
-
-.inv-particles {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    overflow: hidden;
-    pointer-events: none;
-}
-
-.inv-particles span {
-    position: absolute;
-    top: 0;
-    left: var(--x);
-    width: 11px;
-    height: 11px;
-    border-radius: 50%;
-    background: radial-gradient(
-        circle,
-        color-mix(in srgb, var(--primary-color) 65%, #fff) 0 28%,
-        color-mix(in srgb, var(--primary-color) 45%, transparent) 52%,
-        transparent 72%
-    );
-    opacity: 0;
-    will-change: transform, opacity;
-    animation: inv-particle-rise var(--d) linear var(--delay) infinite;
-}
-
-/* En celulares se muestran menos para no distraer ni gastar batería */
-.inv-particles span:nth-child(n + 19) {
-    display: none;
-}
-
-@media (min-width: 768px) {
-    .inv-particles span:nth-child(n + 19) {
-        display: block;
-    }
-}
-
-@keyframes inv-particle-rise {
-    0% {
-        opacity: 0;
-        transform: translate3d(0, 105vh, 0) scale(var(--s));
-    }
-
-    12% {
-        opacity: var(--o);
-    }
-
-    50% {
-        transform: translate3d(var(--dx), 50vh, 0) scale(var(--s));
-    }
-
-    88% {
-        opacity: var(--o);
-    }
-
-    100% {
-        opacity: 0;
-        transform: translate3d(calc(var(--dx) * -0.6), -8vh, 0) scale(var(--s));
-    }
 }
 
 /* ── Portada: se funde con la sección siguiente ─────────────────────────────
@@ -124,11 +59,6 @@ html.inv-embedded body::-webkit-scrollbar {
     border-top-color: transparent;
 }
 
-@media (prefers-reduced-motion: reduce) {
-    .inv-particles {
-        display: none;
-    }
-}
 
 /* ── Partículas por tipo (partials/drift) ───────────────────────────────────
    Hojas, plumas y serpentinas caen por delante del contenido, suaves y sin

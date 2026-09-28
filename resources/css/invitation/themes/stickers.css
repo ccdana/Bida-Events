@@ -591,6 +591,12 @@ a.st-missing:focus-visible {
         var(--bg-color);
 }
 
+.st-intro__eyebrow,
+.st-intro__hint {
+    position: relative;
+    z-index: 5;
+}
+
 .st-intro__eyebrow {
     margin: 0;
     font-family: var(--font-titles);
@@ -756,45 +762,6 @@ a.st-missing:focus-visible {
     transition: transform 0.65s cubic-bezier(0.34, 1.9, 0.5, 1);
 }
 
-/* El sticker que espera adentro: sube cuando la tira se arranca */
-.st-pack__card {
-    position: absolute;
-    inset: 9% 11% 18%;
-    z-index: 0;
-    display: grid;
-    place-content: center;
-    gap: 0.2rem;
-    padding: 0.45rem;
-    border-radius: 0.8rem;
-    background: var(--st-foil);
-    color: var(--bg-color);
-    box-shadow: inset 0 0 0 0.45rem transparent;
-    opacity: 0;
-    transition: translate 0.9s var(--st-spring) 0.2s, rotate 0.9s var(--st-spring) 0.2s, opacity 0.2s ease 0.15s;
-}
-
-.st-pack__card::before {
-    content: '';
-    position: absolute;
-    inset: 0.45rem;
-    z-index: -1;
-    border-radius: 0.5rem;
-    background: var(--primary-color);
-}
-
-.st-pack__card b {
-    font-family: var(--font-script);
-    font-size: clamp(3.5rem, 18vw, 5rem);
-    font-weight: 400;
-    line-height: 0.95;
-}
-
-.st-pack__card small {
-    padding-inline: 0.75rem;
-    font-size: 0.9rem;
-    font-weight: 700;
-}
-
 .st-intro.is-peeling .st-pack {
     animation: none;
 }
@@ -805,10 +772,229 @@ a.st-missing:focus-visible {
     opacity: 0;
 }
 
-.st-intro.is-peeling .st-pack__card {
-    translate: 0 -72%;
-    rotate: -4deg;
-    opacity: 1;
+/* ── El álbum abierto y los stickers que salen del sobre ────────────────── */
+
+/* El escenario: el álbum debajo y el sobre encima, con el mismo centro */
+.st-stage {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 100%;
+    margin-block: 1.6rem 1rem;
+}
+
+.st-stage .st-pack {
+    margin-top: 0;
+}
+
+.st-album {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: min(96vw, 26rem);
+    height: min(27rem, 60svh);
+    translate: -50% -50%;
+    filter: drop-shadow(0 24px 30px rgb(0 0 0 / 0.22));
+    animation: st-album-in 0.8s var(--themed-ease) both;
+}
+
+.st-album__page {
+    background:
+        radial-gradient(circle, var(--st-print) 1px, transparent 1.4px) 0 0 / 14px 14px,
+        color-mix(in srgb, var(--bg-color) 88%, #fff);
+}
+
+.st-album__page--left {
+    border-radius: 0.8rem 0 0 0.8rem;
+    box-shadow: inset -14px 0 18px -14px rgb(0 0 0 / 0.3);
+}
+
+.st-album__page--right {
+    border-radius: 0 0.8rem 0.8rem 0;
+    box-shadow: inset 14px 0 18px -14px rgb(0 0 0 / 0.3);
+}
+
+/* Las casillas numeradas, donde se pega cada sticker */
+.st-album__slot,
+.st-album__done {
+    position: absolute;
+    top: calc(50% + var(--sy));
+    left: calc(50% + var(--sx));
+    display: grid;
+    place-items: center;
+    width: 3.7rem;
+    aspect-ratio: 3 / 4;
+    translate: -50% -50%;
+    border: 2px dashed color-mix(in srgb, var(--text-color) 28%, transparent);
+    border-radius: 0.6rem;
+}
+
+.st-album__slot i {
+    font-family: var(--font-titles);
+    font-size: 1.2rem;
+    font-style: normal;
+    color: color-mix(in srgb, var(--text-color) 30%, transparent);
+}
+
+.st-album__slot--shiny {
+    width: 7rem;
+}
+
+/* Un sticker ya pegado de antes, para que se note que el álbum se está llenando */
+.st-album__done {
+    border: 0;
+    background: var(--st-foil);
+    box-shadow: var(--st-cut), var(--st-shadow);
+    rotate: 5deg;
+}
+
+.st-album__done::after {
+    content: '';
+    width: 55%;
+    aspect-ratio: 1;
+    background: var(--bg-color);
+    clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+}
+
+/* Cada sticker: con su borde troquelado blanco. Esperan escondidos en el centro del sobre */
+.st-fan {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 3;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: 0.15rem;
+    width: 5.2rem;
+    aspect-ratio: 3 / 4;
+    padding: 0.4rem;
+    border-radius: 0.7rem;
+    background: var(--primary-color);
+    color: var(--bg-color);
+    box-shadow: 0 0 0 4px var(--bg-color), var(--st-shadow);
+    translate: -50% -30%;
+    scale: 0.4;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.st-fan b {
+    font-family: var(--font-titles);
+    font-size: 2rem;
+    font-weight: 400;
+    line-height: 1;
+}
+
+.st-fan b.is-small {
+    font-size: 1.25rem;
+}
+
+.st-fan small {
+    font-size: 0.68rem;
+    font-weight: 700;
+    line-height: 1.1;
+    text-align: center;
+}
+
+.st-fan svg {
+    width: 2rem;
+    fill: currentColor;
+}
+
+.st-fan--date { background: var(--secondary-color); color: var(--text-color); }
+.st-fan--time { background: var(--accent-color); color: var(--text-color); }
+.st-fan--place { background: var(--secondary-color); color: var(--text-color); }
+.st-fan--star { background: var(--st-foil); color: var(--bg-color); }
+
+/* El brillante: más grande, con el reflejo tornasol que lo recorre */
+.st-fan--shiny {
+    z-index: 4;
+    width: 7rem;
+    padding: 0.45rem;
+    background: var(--st-foil);
+}
+
+.st-fan--shiny::before {
+    content: '';
+    position: absolute;
+    inset: 0.45rem;
+    z-index: -1;
+    border-radius: 0.45rem;
+    background: var(--primary-color);
+}
+
+.st-fan--shiny::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(115deg, transparent 30%, rgb(255 255 255 / 0.55) 45%, transparent 60%) 0 0 / 300% 100%;
+    animation: st-shine 1.6s ease-in-out infinite;
+}
+
+.st-fan--shiny b {
+    font-family: var(--font-script);
+    font-size: 3.2rem;
+}
+
+.st-fan--shiny small {
+    font-size: 0.8rem;
+}
+
+/* 1 · Se arranca la tira: los stickers salen del sobre y se abren en abanico */
+.st-intro.is-peeling .st-fan {
+    animation: st-fan-out 0.75s var(--st-spring) calc(0.35s + var(--i) * 0.07s) forwards;
+}
+
+/* 2 · El sobre vacío se cae y cada sticker vuela a pegarse en su casilla; la apertura se va después */
+.st-intro.is-open {
+    animation-delay: 1.05s;
+}
+
+.st-intro.is-open .st-pack {
+    translate: 0 70svh;
+    rotate: 14deg;
+    opacity: 0;
+    transition: translate 0.7s cubic-bezier(0.5, 0, 0.9, 0.5), rotate 0.7s ease-in, opacity 0.4s ease 0.3s;
+}
+
+.st-intro.is-open .st-fan {
+    animation: st-fan-stick 0.7s cubic-bezier(0.3, 0.7, 0.4, 1) calc(var(--i) * 0.06s) forwards;
+}
+
+@keyframes st-album-in {
+    from { opacity: 0; scale: 0.92; }
+}
+
+@keyframes st-shine {
+    0%, 30% { background-position: 110% 0; }
+    100% { background-position: -60% 0; }
+}
+
+@keyframes st-fan-out {
+    0% { opacity: 0; translate: -50% -30%; scale: 0.4; rotate: 0deg; }
+    100% { opacity: 1; translate: calc(-50% + var(--fx)) calc(-50% + var(--fy)); scale: 1; rotate: var(--fr); }
+}
+
+@keyframes st-fan-stick {
+    0% { opacity: 1; translate: calc(-50% + var(--fx)) calc(-50% + var(--fy)); scale: 1; rotate: var(--fr); }
+    75% { translate: calc(-50% + var(--sx)) calc(-50% + var(--sy)); scale: 0.78; rotate: var(--sr); }
+    88% { scale: 0.66; }
+    100% { opacity: 1; translate: calc(-50% + var(--sx)) calc(-50% + var(--sy)); scale: 0.71; rotate: var(--sr); }
+}
+
+.st-intro.is-open .st-fan--shiny {
+    animation-name: st-fan-stick-shiny;
+}
+
+@keyframes st-fan-stick-shiny {
+    0% { opacity: 1; translate: calc(-50% + var(--fx)) calc(-50% + var(--fy)); scale: 1; rotate: var(--fr); }
+    75% { translate: calc(-50% + var(--sx)) calc(-50% + var(--sy)); scale: 1.1; rotate: var(--sr); }
+    88% { scale: 0.95; }
+    100% { opacity: 1; translate: calc(-50% + var(--sx)) calc(-50% + var(--sy)); scale: 1; rotate: var(--sr); }
 }
 
 /* ── Modo historia: cada escena se pega con un golpe ────────────────────── */

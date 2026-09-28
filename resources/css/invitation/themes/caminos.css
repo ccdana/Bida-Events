@@ -126,18 +126,19 @@
     background: transparent;
 }
 
+/* El mapa mide lo justo para la foto y los dos nombres pegados a ella, uno arriba y otro abajo */
 .dc-hero__map {
     position: relative;
     width: 100%;
     --dc-meet-size: clamp(14rem, 66vw, 25rem);
     max-width: 60rem;
-    height: clamp(38rem, 96svh, 58rem);
+    height: calc(var(--dc-meet-size) + clamp(10rem, 34vw, 15rem));
     margin-inline: auto;
 }
 
 .dc-hero__eyebrow {
     position: absolute;
-    top: 2%;
+    top: 0;
     left: 1.25rem;
     margin: 0;
     font-size: 0.9rem;
@@ -208,14 +209,16 @@
 }
 
 .dc-name--a {
-    top: 7.5%;
+    top: 1.6rem;
     left: 1.25rem;
+    z-index: 1;
     text-align: left;
 }
 
 .dc-name--b {
     right: 1.25rem;
-    bottom: 3%;
+    bottom: 0;
+    z-index: 1;
     text-align: right;
 }
 
@@ -538,6 +541,38 @@
     transform: rotateY(180deg);
 }
 
+/* La rosa de los vientos: gira apenas, como buscando el norte */
+.dc-map__compass {
+    width: 3.4rem;
+    margin-bottom: 0.3rem;
+    overflow: visible;
+    animation: dc-compass 5s ease-in-out infinite;
+}
+
+.dc-map__compass circle {
+    fill: none;
+    stroke: color-mix(in srgb, var(--text-color) 40%, transparent);
+    stroke-width: 1.2;
+}
+
+.dc-map__compass .dc-map__compass-thin {
+    stroke-dasharray: 1.5 2.5;
+}
+
+.dc-map__compass-star {
+    fill: color-mix(in srgb, var(--text-color) 55%, var(--dc-legend));
+}
+
+.dc-map__compass-north {
+    fill: var(--dc-a);
+}
+
+@keyframes dc-compass {
+    0%, 100% { rotate: -8deg; }
+    45% { rotate: 6deg; }
+    70% { rotate: -2deg; }
+}
+
 .dc-map__initials {
     font-family: var(--font-script);
     font-size: 2rem;
@@ -560,6 +595,103 @@
 .dc-intro.is-open .dc-map {
     scale: 2.6;
     opacity: 0;
+}
+
+/* Los dos que caminan: cada punto recorre su camino dejando la huella y se encuentran en el aro */
+.dc-map__walk {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease 0.75s;
+}
+
+.dc-walk__trail {
+    fill: none;
+    stroke-width: 3.2;
+    stroke-linecap: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+}
+
+.dc-walk__trail--a { stroke: var(--dc-a); }
+.dc-walk__trail--b { stroke: var(--dc-b); }
+
+.dc-walk__pin {
+    opacity: 0;
+    transition: opacity 0.2s ease 0.85s;
+}
+
+.dc-walk__pin circle {
+    stroke: var(--bg-color);
+    stroke-width: 2;
+}
+
+.dc-walk__pin--a circle { fill: var(--dc-a); }
+.dc-walk__pin--b circle { fill: var(--dc-b); }
+
+.dc-walk__pin text {
+    fill: var(--bg-color);
+    font-family: var(--font-titles);
+    font-size: 8px;
+    font-weight: 700;
+}
+
+.dc-walk__meet {
+    fill: none;
+    stroke: var(--dc-b);
+    stroke-width: 2;
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: center;
+}
+
+.dc-walk__heart {
+    fill: var(--dc-a);
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: 50% 80%;
+}
+
+.dc-intro.is-unfolding .dc-map__walk,
+.dc-intro.is-unfolding .dc-walk__pin {
+    opacity: 1;
+}
+
+.dc-intro.is-unfolding .dc-walk__trail {
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 1.25s cubic-bezier(0.45, 0, 0.25, 1) 0.85s;
+}
+
+/* Cuando llegan, el aro late dos veces y aparece el corazón */
+.dc-intro.is-unfolding .dc-walk__meet {
+    animation: dc-meet-pulse 0.8s ease-out 2.05s 2 both;
+}
+
+.dc-intro.is-unfolding .dc-walk__heart {
+    animation: dc-heart-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 2.1s both;
+}
+
+.dc-intro.is-unfolding .dc-walk__pin {
+    animation: dc-pins-meet 0.4s ease 2.05s both;
+}
+
+@keyframes dc-meet-pulse {
+    0% { opacity: 0.9; transform: scale(0.8); }
+    100% { opacity: 0; transform: scale(3); }
+}
+
+@keyframes dc-heart-pop {
+    0% { opacity: 0; transform: scale(0.2); }
+    100% { opacity: 1; transform: scale(1.35); }
+}
+
+@keyframes dc-pins-meet {
+    to { opacity: 0; }
 }
 
 /* ── Modo historia: el mapa se desplaza hasta la próxima parada ─────────── */

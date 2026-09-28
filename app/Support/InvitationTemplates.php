@@ -89,11 +89,13 @@ final class InvitationTemplates
         return [
             self::XV_PREMIUM => [
                 'label' => 'Noche de gala',
-                'tagline' => 'Se abre con un telón, entre destellos dorados',
-                'description' => 'Portada a pantalla completa con la foto, partículas doradas y estilo editorial.',
+                'tagline' => 'La araña se enciende y la foto brilla en un espejo dorado',
+                'description' => 'El gran salón de tus XV: se entra encendiendo la araña de cristal, la foto va en un espejo ovalado de marco dorado con su corona y el nombre en una placa grabada. Cada sección es un panel de la pared con su moldura, el programa es un hilo de perlas y la corte, placas grabadas.',
                 'event' => 'xv',
                 // Familia de plantillas: qué plan de revendedor la incluye (config «reseller_plans»)
                 'collection' => 'clasica',
+                // Armado temático (partials/gala, themes/gala.css): la página lleva la clase inv-gala
+                'theme' => 'gala',
                 // Paleta con la que nace una invitación de este tipo (la misma de la muestra)
                 'palette' => [
                     'primary' => '#C9A96E',
@@ -102,13 +104,31 @@ final class InvitationTemplates
                     'text' => '#1A1A1A',
                     'background' => '#FFFAF5',
                 ],
+                'fonts' => ['titulos' => 'Playfair Display', 'cuerpo' => 'Montserrat', 'script' => 'Great Vibes'],
+                'color_usage' => [
+                    'background' => 'Los paneles del salón.',
+                    'text' => 'El nombre y los textos.',
+                    'primary' => 'El metal: la araña, el marco del espejo, las placas y los botones.',
+                    'secondary' => 'El salón a oscuras de la apertura.',
+                    'accent' => 'El papel labrado de la pared y la luz.',
+                ],
                 // Orden por prioridad del invitado: cuándo y dónde, confirmar, lo emocional, regalos y participación
                 'order' => [
                     'cuenta_regresiva', 'ubicacion', 'itinerario', 'rsvp', 'dress_code', 'video', 'galeria',
                     'destacados', 'regalos', 'playlist', 'encuestas', 'hashtag', 'fotomural', 'post_evento',
                 ],
                 'copy' => [
-                    'intro_hint' => 'Toca para abrir los telones',
+                    'intro_eyebrow' => 'Esta noche te espera',
+                    'intro_hint' => 'Toca la araña para encender el salón',
+                    'itinerary_eyebrow' => 'Así será mi noche',
+                    'court_title' => 'Mi corte de honor',
+                    'court_men' => 'Chambelanes',
+                    'court_women' => 'Damas',
+                    'stories_hint' => 'Toca para seguir la noche',
+                ],
+                'partials' => [
+                    'itinerario' => 'invitations.partials.gala.program',
+                    'destacados' => 'invitations.partials.gala.court',
                 ],
             ],
             self::BODA_JARDIN => [

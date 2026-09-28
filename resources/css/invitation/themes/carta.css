@@ -499,16 +499,119 @@
     box-shadow: var(--cb-frame), 0 28px 50px -24px rgb(0 0 0 / 0.8);
 }
 
-.cb-closed__reserved {
-    font-size: 0.85rem;
+/* La primera hoja: la lista de piezas */
+.cb-closed__inside {
+    justify-content: flex-start;
+    gap: 0;
+    padding: 16% 13% 12%;
+    text-align: left;
+}
+
+/* La sombra de la tapa sobre la hoja, que se va mientras la tapa gira */
+.cb-closed__inside::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgb(0 0 0 / 0.38), rgb(0 0 0 / 0.08) 70%);
+    pointer-events: none;
+    transition: opacity 1s var(--inv-ease) 0.15s;
+}
+
+.cb-inside__title {
+    align-self: center;
+    margin-bottom: 1.1rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    color: var(--inv-accent-ink);
+}
+
+.cb-inside__rows {
+    display: grid;
+    gap: 1rem;
+    width: 100%;
+}
+
+.cb-inside__row {
+    display: grid;
+    gap: 0.2rem;
+}
+
+.cb-inside__piece {
+    font-size: 0.66rem;
+    letter-spacing: 0.06em;
     color: var(--inv-soft);
 }
 
-.cb-closed__guest {
+.cb-inside__reserved {
+    font-size: 0.7rem;
+    color: var(--inv-muted);
+}
+
+/* La línea de puntos donde se anota a la pareja de cada pieza */
+.cb-inside__line {
+    position: relative;
+    display: block;
+    min-height: 1.1rem;
+    border-bottom: 1px dotted color-mix(in srgb, var(--cb-rule) 70%, transparent);
+}
+
+.cb-inside__row.is-reserved .cb-inside__line {
+    min-height: 2.2rem;
+}
+
+.cb-inside__written {
+    display: block;
+    padding-bottom: 0.15rem;
     font-family: var(--font-script);
-    font-size: clamp(1.6rem, 8vw, 2.1rem);
+    font-size: clamp(1.35rem, 6.6vw, 1.75rem);
     line-height: 1.1;
     color: color-mix(in srgb, var(--secondary-color) 70%, var(--text-color));
+    clip-path: inset(-30% 100% -30% 0);
+}
+
+.cb-inside__date {
+    margin-top: auto;
+    align-self: center;
+    font-size: 0.72rem;
+    color: var(--inv-muted);
+}
+
+/* El lápiz: entra desde el costado, escribe el nombre y se levanta */
+.cb-pencil {
+    position: absolute;
+    bottom: 0.2rem;
+    left: 0;
+    z-index: 2;
+    width: 0.8rem;
+    translate: -30% 0;
+    transform-origin: 50% 100%;
+    rotate: 28deg;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.cb-pencil svg {
+    display: block;
+    width: 100%;
+    overflow: visible;
+}
+
+.cb-pencil__wood {
+    fill: color-mix(in srgb, var(--primary-color) 55%, #f3d08a);
+    stroke: color-mix(in srgb, var(--primary-color) 60%, #000);
+    stroke-width: 0.8;
+}
+
+.cb-pencil__lead {
+    fill: #3a3a3a;
+}
+
+.cb-pencil__band {
+    fill: var(--primary-color);
+}
+
+.cb-pencil__eraser {
+    fill: color-mix(in srgb, var(--secondary-color) 55%, #fff);
 }
 
 .cb-closed__cover {
@@ -517,7 +620,18 @@
     background: color-mix(in srgb, var(--accent-color) 34%, var(--bg-color));
     transform-origin: 0 50%;
     backface-visibility: hidden;
-    transition: transform 1s var(--inv-ease);
+    transition: transform 1.05s cubic-bezier(0.55, 0.05, 0.25, 1);
+}
+
+/* La tapa se oscurece a medida que gira */
+.cb-closed__cover::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgb(0 0 0 / 0), rgb(0 0 0 / 0.4));
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.9s ease;
 }
 
 .cb-closed__title {
@@ -545,12 +659,12 @@
     left: -5%;
     right: -5%;
     height: 3rem;
-    transition: translate 0.6s ease-in, opacity 0.5s ease;
 }
 
 .cb-closed__cord svg {
     width: 100%;
     height: 100%;
+    overflow: visible;
 }
 
 .cb-cord-line {
@@ -565,10 +679,56 @@
     stroke-width: 2;
 }
 
+.cb-cord-half {
+    transform-box: fill-box;
+    transition: translate 0.75s cubic-bezier(0.5, 0, 0.3, 1) 0.2s, opacity 0.5s ease 0.45s;
+}
+
+/* El moño en el medio del cordón; la borla cuelga del nudo */
+.cb-closed__bow {
+    position: absolute;
+    top: calc(70% + 1rem);
+    left: 50%;
+    z-index: 1;
+    width: 4.4rem;
+    translate: -50% -50%;
+    animation: cb-bow-breathe 2.6s ease-in-out infinite;
+}
+
+.cb-closed__bow svg {
+    display: block;
+    width: 100%;
+    overflow: visible;
+}
+
+.cb-bow__loop {
+    fill: color-mix(in srgb, var(--primary-color) 22%, transparent);
+    stroke: var(--primary-color);
+    stroke-width: 2.6;
+    transform-box: fill-box;
+    transition: scale 0.4s cubic-bezier(0.5, 0, 0.8, 0.4), opacity 0.35s ease 0.1s;
+}
+
+.cb-bow__loop--left {
+    transform-origin: 100% 50%;
+}
+
+.cb-bow__loop--right {
+    transform-origin: 0 50%;
+}
+
+.cb-bow__knot {
+    fill: color-mix(in srgb, var(--primary-color) 75%, #000);
+    stroke: var(--primary-color);
+    stroke-width: 1.5;
+    transition: opacity 0.3s ease 0.3s;
+}
+
 .cb-closed__tassel {
     position: absolute;
-    top: calc(70% + 0.9rem);
+    top: calc(70% + 1.3rem);
     left: 50%;
+    z-index: 1;
     width: 2.6rem;
     translate: -50% 0;
     transform-origin: 50% 0;
@@ -580,21 +740,103 @@
     50% { rotate: 6deg; }
 }
 
-.cb-intro.is-untied .cb-closed__cord {
-    translate: 0 3.5rem;
+@keyframes cb-bow-breathe {
+    0%, 100% { scale: 1; }
+    50% { scale: 1.06; }
+}
+
+/* 1 · El moño se desata: los lazos se deshacen, el cordón se corre a los lados y la borla cae */
+.cb-intro.is-untied .cb-closed__bow {
+    animation: none;
+}
+
+.cb-intro.is-untied .cb-bow__loop {
+    scale: 0 0.4;
+    opacity: 0;
+}
+
+.cb-intro.is-untied .cb-bow__knot {
+    opacity: 0;
+}
+
+.cb-intro.is-untied .cb-cord-half--left {
+    translate: -70% 0;
+    opacity: 0;
+}
+
+.cb-intro.is-untied .cb-cord-half--right {
+    translate: 70% 0;
     opacity: 0;
 }
 
 .cb-intro.is-untied .cb-closed__tassel {
-    animation: cb-tassel-drop 0.9s cubic-bezier(0.5, 0, 0.9, 0.6) both;
+    animation: cb-tassel-drop 1s cubic-bezier(0.5, 0, 0.9, 0.6) 0.15s both;
 }
 
 @keyframes cb-tassel-drop {
-    to { translate: -50% 70vh; rotate: 40deg; opacity: 0; }
+    0% { translate: -50% 0; rotate: 0deg; }
+    25% { rotate: -18deg; }
+    100% { translate: -50% 70vh; rotate: 40deg; opacity: 0; }
 }
 
+/* 2 · La tapa se abre como un librito; su sombra se va de la hoja */
 .cb-intro.is-open .cb-closed__cover {
     transform: rotateY(-168deg);
+}
+
+.cb-intro.is-open .cb-closed__cover::after {
+    opacity: 1;
+}
+
+.cb-intro.is-open .cb-closed__inside::after {
+    opacity: 0;
+}
+
+/* 3 · El lápiz escribe el nombre en la primera pieza */
+.cb-intro.is-open .cb-inside__written {
+    clip-path: inset(-30% -4% -30% 0);
+    transition: clip-path 0.85s linear 1.05s;
+}
+
+.cb-intro.is-open .cb-pencil {
+    animation: cb-pencil-write 1.55s ease-in-out 0.65s both;
+}
+
+.cb-intro.is-open .cb-pencil svg {
+    animation: cb-pencil-scribble 0.14s ease-in-out 1.05s 6 alternate;
+}
+
+@keyframes cb-pencil-write {
+    0% { left: 115%; bottom: 2rem; opacity: 0; }
+    20% { left: 0; bottom: 0.2rem; opacity: 1; }
+    26% { left: 0; bottom: 0.2rem; }
+    81% { left: 100%; bottom: 0.2rem; opacity: 1; }
+    100% { left: 108%; bottom: 1.6rem; opacity: 0; }
+}
+
+@keyframes cb-pencil-scribble {
+    from { translate: 0 0; }
+    to { translate: 0 -0.3rem; }
+}
+
+/* 4 · La carta se acerca y la apertura se desvanece sobre la portada */
+.cb-intro.is-open {
+    animation-delay: 1.9s;
+}
+
+.cb-intro.is-open .cb-closed {
+    animation: cb-card-near 1.1s cubic-bezier(0.6, 0, 0.4, 1) 1.85s both;
+}
+
+@keyframes cb-card-near {
+    to { scale: 1.3; translate: 0 -3%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cb-closed__bow,
+    .cb-closed__tassel {
+        animation: none;
+    }
 }
 
 /* ── Modo historia: cada escena entra como una carta que se saca del mazo ── */

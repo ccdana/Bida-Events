@@ -807,7 +807,9 @@
 .gq-intro .gq-door {
     padding-top: clamp(6.5rem, 17svh, 8rem);
     background: none;
-    transition: scale 1.3s cubic-bezier(0.5, 0, 0.3, 1), opacity 0.6s ease 0.7s;
+    /* Se camina hacia el cuadro del medio: el acercamiento sale de ahí */
+    transform-origin: 50% 4.1rem;
+    transition: scale 1.7s cubic-bezier(0.55, 0, 0.2, 1) 0.35s, opacity 0.55s ease 1.45s, border-color 0.4s ease;
 }
 
 .gq-door__room {
@@ -828,7 +830,6 @@
     padding: 3px;
     background: var(--gq-brass);
     filter: brightness(0.35);
-    transition: filter 0.35s steps(2) calc(0.3s + var(--a) * 0.18s);
 }
 
 .gq-door__art--2 {
@@ -859,7 +860,6 @@
     background: linear-gradient(180deg, transparent, color-mix(in srgb, #fff 45%, transparent));
     clip-path: polygon(44% 0, 56% 0, 100% 100%, 0 100%);
     opacity: 0;
-    transition: opacity 0.35s steps(2) calc(0.3s + var(--a) * 0.18s);
 }
 
 /* Las dos hojas de vidrio de la puerta, con su reflejo y su manija de latón */
@@ -873,6 +873,19 @@
         linear-gradient(115deg, transparent 30%, color-mix(in srgb, var(--tr-bg) 9%, transparent) 42%, transparent 54%),
         color-mix(in srgb, var(--tr-bg) 5%, transparent);
     transition: translate 0.9s cubic-bezier(0.6, 0, 0.3, 1);
+}
+
+/* El reflejo que cruza el vidrio cada tanto */
+.gq-door__panel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(115deg, transparent 42%, color-mix(in srgb, var(--tr-bg) 16%, transparent) 50%, transparent 58%) 0 0 / 320% 100% no-repeat;
+    animation: gq-glass 6s ease-in-out 1s infinite;
+}
+
+.gq-door__panel--right::before {
+    animation-delay: 1.35s;
 }
 
 .gq-door__panel--left {
@@ -944,13 +957,62 @@
     animation: gq-hint 2.2s ease-in-out 1.5s infinite;
 }
 
-/* 1 · El cordón cae y se encienden los focos de la sala, uno por uno */
+/* La prensa a los costados: flashes chiquitos a destiempo mientras se espera */
+.gq-press {
+    position: absolute;
+    bottom: 18%;
+    width: 5rem;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgb(255 255 255 / 0.95), rgb(255 255 255 / 0.2) 35%, transparent 70%);
+    opacity: 0;
+    pointer-events: none;
+    animation: gq-press 4.6s linear 1.2s infinite;
+}
+
+.gq-press--left { left: 4%; }
+.gq-press--right { right: 6%; bottom: 26%; animation-duration: 6.2s; animation-delay: 2.9s; }
+
+@keyframes gq-press {
+    0%, 90%, 100% { opacity: 0; scale: 0.6; }
+    92% { opacity: 0.85; scale: 1; }
+    95% { opacity: 0.2; scale: 1.2; }
+}
+
+@keyframes gq-glass {
+    0%, 55% { background-position: 110% 0; }
+    100% { background-position: -10% 0; }
+}
+
+/* 1 · El cordón cae y los focos de la sala se encienden uno por uno, titilando */
 .gq-intro.is-unhooked .gq-door__art {
-    filter: none;
+    animation: gq-lamp-art 0.75s linear calc(0.25s + var(--a) * 0.22s) both;
 }
 
 .gq-intro.is-unhooked .gq-door__art::before {
-    opacity: 0.55;
+    animation: gq-lamp-beam 0.75s linear calc(0.25s + var(--a) * 0.22s) both;
+}
+
+.gq-intro.is-unhooked .gq-press {
+    animation: none;
+}
+
+@keyframes gq-lamp-art {
+    0% { filter: brightness(0.35); }
+    18% { filter: brightness(1.15); }
+    30% { filter: brightness(0.45); }
+    48% { filter: brightness(1.1); }
+    60% { filter: brightness(0.7); }
+    100% { filter: none; }
+}
+
+@keyframes gq-lamp-beam {
+    0% { opacity: 0; }
+    18% { opacity: 0.7; }
+    30% { opacity: 0.1; }
+    48% { opacity: 0.6; }
+    60% { opacity: 0.3; }
+    100% { opacity: 0.55; }
 }
 
 .gq-intro.is-unhooked .gq-intro__hint {
@@ -965,9 +1027,22 @@
     opacity: 0;
 }
 
-.gq-intro.is-open .gq-door {
-    scale: 1.6;
+/* Se pasa el cordón: los postes quedan atrás, abajo */
+.gq-intro.is-open .gq-barrier {
+    translate: 0 45%;
     opacity: 0;
+    transition: translate 0.9s cubic-bezier(0.5, 0, 0.3, 1) 0.2s, opacity 0.5s ease 0.35s;
+}
+
+.gq-intro.is-open .gq-door {
+    scale: 4.2;
+    opacity: 0;
+    border-color: transparent;
+}
+
+/* La apertura se desvanece recién cuando el cuadro del medio llena la pantalla */
+.gq-intro.is-open {
+    animation-delay: 1.3s;
 }
 
 .gq-intro.is-open .gq-flash--left {
@@ -1049,6 +1124,125 @@
     to { rotate: 16deg; }
 }
 
+/* Las paredes de la sala con sus cuadros: una baldosa de 960 px que se repite y baja más despacio
+   que el contenido (data-parallax-loop). En el celular los cuadros solo asoman por el borde */
+.gq-ambient__walls {
+    position: fixed;
+    inset: 0 0 -960px;
+    will-change: transform;
+}
+
+.gq-ambient__art {
+    position: absolute;
+    top: var(--top);
+    isolation: isolate;
+    width: var(--w);
+    height: var(--h);
+    padding: 4px;
+    background: var(--gq-brass);
+    box-shadow: 0 12px 20px -12px color-mix(in srgb, var(--tr-text) 60%, transparent);
+    opacity: 0.85;
+}
+
+.gq-ambient__art--left {
+    left: calc(var(--w) * -0.64);
+    rotate: 0.6deg;
+}
+
+.gq-ambient__art--right {
+    right: calc(var(--w) * -0.64);
+    rotate: -0.5deg;
+}
+
+@media (min-width: 1100px) {
+    .gq-ambient__art--left {
+        left: clamp(1.5rem, 5vw, 5rem);
+    }
+
+    .gq-ambient__art--right {
+        right: clamp(1.5rem, 5vw, 5rem);
+    }
+}
+
+/* La obra, sobre su paspartú: tres composiciones con los colores de la paleta */
+.gq-ambient__art i {
+    display: block;
+    height: 100%;
+    border: 4px solid var(--gq-mat);
+    background:
+        radial-gradient(60% 50% at 35% 40%, color-mix(in srgb, var(--tr-primary) 70%, transparent), transparent 70%),
+        radial-gradient(50% 45% at 70% 70%, color-mix(in srgb, var(--tr-accent) 80%, transparent), transparent 70%),
+        color-mix(in srgb, var(--tr-secondary) 30%, var(--gq-mat));
+}
+
+.gq-ambient__art.is-art-2 i {
+    background:
+        linear-gradient(160deg, color-mix(in srgb, var(--tr-primary) 75%, transparent) 0 34%, transparent 34%),
+        radial-gradient(circle at 68% 64%, color-mix(in srgb, var(--tr-accent) 85%, transparent) 0 22%, transparent 23%),
+        color-mix(in srgb, var(--tr-secondary) 22%, var(--gq-mat));
+}
+
+.gq-ambient__art.is-art-3 i {
+    background:
+        repeating-radial-gradient(circle at 50% 55%, color-mix(in srgb, var(--tr-secondary) 55%, transparent) 0 5px, transparent 5px 11px),
+        color-mix(in srgb, var(--tr-accent) 35%, var(--gq-mat));
+}
+
+/* El foquito que ilumina cada cuadro desde arriba */
+.gq-ambient__art::before {
+    content: '';
+    position: absolute;
+    bottom: 30%;
+    left: 50%;
+    z-index: -1;
+    width: 220%;
+    height: 170%;
+    translate: -50% 0;
+    background: radial-gradient(50% 40% at 50% 40%, color-mix(in srgb, #fff 60%, transparent), transparent 72%);
+    animation: gq-art-glow 5s ease-in-out calc(var(--i) * -1.3s) infinite;
+}
+
+/* La cartela con el título de la obra */
+.gq-ambient__art::after {
+    content: '';
+    position: absolute;
+    top: calc(100% + 0.55rem);
+    left: 50%;
+    width: 42%;
+    height: 0.5rem;
+    translate: -50% 0;
+    background: var(--gq-mat);
+    box-shadow: 0 2px 4px -2px color-mix(in srgb, var(--tr-text) 50%, transparent);
+}
+
+@keyframes gq-art-glow {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; }
+}
+
+/* El flash de un invitado: un destello con su cruz de luz, a destiempo */
+.gq-ambient__flash {
+    position: absolute;
+    top: var(--y);
+    left: var(--x);
+    width: 7rem;
+    aspect-ratio: 1;
+    margin: -3.5rem 0 0 -3.5rem;
+    border-radius: 50%;
+    background:
+        linear-gradient(90deg, transparent 10%, color-mix(in srgb, var(--tr-secondary) 45%, #fff) 50%, transparent 90%) 50% 50% / 100% 2px no-repeat,
+        linear-gradient(0deg, transparent 10%, color-mix(in srgb, var(--tr-secondary) 45%, #fff) 50%, transparent 90%) 50% 50% / 2px 100% no-repeat,
+        radial-gradient(closest-side, rgb(255 255 255 / 0.95), color-mix(in srgb, var(--tr-secondary) 30%, rgb(255 255 255 / 0.35)) 32%, transparent 72%);
+    opacity: 0;
+    animation: gq-guest-flash var(--d) linear var(--delay) infinite;
+}
+
+@keyframes gq-guest-flash {
+    0%, 93%, 100% { opacity: 0; scale: 0.4; rotate: 0deg; }
+    94.5% { opacity: 1; scale: 1; }
+    97.5% { opacity: 0.25; scale: 1.25; rotate: 20deg; }
+}
+
 @media (prefers-reduced-motion: reduce) {
     .gq-ambient * {
         animation: none !important;
@@ -1084,7 +1278,9 @@
 
 @media (prefers-reduced-motion: reduce) {
     .gq-intro .gq-rope,
-    .gq-hero__spot {
+    .gq-hero__spot,
+    .gq-press,
+    .gq-door__panel::before {
         animation: none;
     }
 }

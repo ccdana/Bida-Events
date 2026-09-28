@@ -202,7 +202,8 @@ class NewTemplatesAndSeasonTest extends TestCase
         $this->assertSame('#FFFFFF', $options[InvitationTemplates::LIENZO]['palette']['background']);
         $this->assertSame('Inter', $options[InvitationTemplates::LIENZO]['fonts']['titulos']);
         $this->assertSame('Creepster', $options[InvitationTemplates::HALLOWEEN_CALABAZAS]['fonts']['script']);
-        // Las plantillas de siempre no declaran letras: siguen con las del editor
-        $this->assertNull($options[InvitationTemplates::XV_PREMIUM]['fonts']);
+        // «Noche de gala» rehecha trae sus letras; las de siempre no declaran letras y siguen con las del editor
+        $this->assertSame('Great Vibes', $options[InvitationTemplates::XV_PREMIUM]['fonts']['script']);
+        $this->assertNull($options[InvitationTemplates::BODA_JARDIN]['fonts']);
     }
 }

@@ -1,13 +1,11 @@
 {{--
     Pie común de las plantillas: adorno, nombre, fecha, volver al inicio y crédito de Bida Events.
-    Parámetros: footerClass, footerName, footerDate y footerOrnament ('crown', 'balloons', 'pumpkin', 'line' o null).
+    Parámetros: footerClass, footerName, footerDate y footerOrnament ('balloons', 'pumpkin', 'line' o null).
     En celular todo va apilado y centrado; en pantallas anchas la barra inferior se reparte a los lados.
 --}}
 <footer class="inv-footer {{ $footerClass ?? '' }}">
     <div class="inv-footer__inner">
-        @if(($footerOrnament ?? null) === 'crown')
-            @include('invitations.partials.xv.crown', ['class' => 'inv-footer__ornament'])
-        @elseif(($footerOrnament ?? null) === 'balloons')
+        @if(($footerOrnament ?? null) === 'balloons')
             <span class="inv-footer__ornament inv-cumple-trio" aria-hidden="true">
                 @for($balloon = 0; $balloon < 3; $balloon++)
                     @include('invitations.partials.cumple.balloon')

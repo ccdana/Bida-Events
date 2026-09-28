@@ -20,10 +20,10 @@
 
         {{-- Los dos caminos: cada uno en su capa para revelarse desde su nombre --}}
         <svg class="dc-path dc-path--a" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" focusable="false">
-            <path d="M9 21 C14 33 26 27 32 35 S44 45 50 50"/>
+            <path d="M12 17 C16 28 26 25 32 33 S44 44 50 50"/>
         </svg>
         <svg class="dc-path dc-path--b" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" focusable="false">
-            <path d="M91 80 C86 70 74 76 68 66 S56 56 50 50"/>
+            <path d="M88 83 C84 72 74 75 68 67 S56 56 50 50"/>
         </svg>
 
         <h1 class="dc-names">

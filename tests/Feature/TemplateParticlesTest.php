@@ -16,17 +16,18 @@ class TemplateParticlesTest extends TestCase
 
     /** Marcas de cada tipo de partícula en el HTML. */
     private const KINDS = [
-        'inv-particles', 'inv-drift--leaf', 'inv-drift--feather', 'inv-drift--streamer', 'inv-drift--star',
+        'inv-drift--leaf', 'inv-drift--feather', 'inv-drift--streamer', 'inv-drift--star',
         'inv-drift--bokeh', 'inv-drift--twinkle', 'inv-boda-petals', 'inv-boda-butterfly', 'inv-hw-ambient__bat',
         'inv-hw-ambient__ember', 'inv-cumple-ambient__balloon', 'inv-cumple-ambient__confetti',
         // Escenas de fondo propias de las plantillas temáticas (shell/themed-ambient)
         'nb-ambient__cloud', 'br-ambient__cap', 'td-ambient__bubble', 'pt-ambient__note', 'gq-ambient__spot',
-        'cb-ambient__pair', 'rv-ambient__cut',
+        'cb-ambient__pair', 'rv-ambient__cut', 'ga-ambient__glint', 'es-ambient__sky', 'bd-ambient__seam', 'bd-ambient__fall',
+        'cl-ambient__mist', 'cl-ambient__bubble', 'gq-ambient__art', 'gq-ambient__flash', 'bl-ambient__fall', 'en-ambient__fall',
     ];
 
     public function test_every_invitation_template_has_at_least_two_kinds_of_particles(): void
     {
-        foreach (['xv-premium', 'boda-jardin', 'bautizo-cielo', 'cumple-fiesta', 'graduacion-birrete', 'halloween-calabazas', 'lienzo', 'tarjeta-aventura'] as $template) {
+        foreach (['xv-premium', 'boda-jardin', 'bautizo-cielo', 'cumple-fiesta', 'graduacion-birrete', 'halloween-calabazas', 'lienzo', 'tarjeta-aventura', 'bautizo-estrellas', 'bautizo-bordado', 'halloween-caldero', 'babyshower-bloques', 'babyshower-encomienda'] as $template) {
             $invitation = $this->createInvitation(['template' => "invitations.templates.{$template}"]);
 
             $html = $this->withoutVite()->get(route('invitation.show', $invitation->slug))->assertOk()->getContent();

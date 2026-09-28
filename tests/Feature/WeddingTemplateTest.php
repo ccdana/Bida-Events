@@ -45,12 +45,13 @@ class WeddingTemplateTest extends TestCase
             ->get(route('invitation.show', $invitation->slug))
             ->assertOk()
             ->assertSee('Chambelanes')
-            ->assertSee('data-lottie-icon="crown"', false)
-            // Telón de apertura y pie con nombre, fecha y accesos rápidos
-            ->assertSee('inv-page inv-xv', false)
-            ->assertSee('inv-xv-glints', false)
-            ->assertSee('inv-hero__sparkle', false)
-            ->assertSee('inv-xv-intro', false)
+            ->assertSee('Mi corte de honor')
+            // «Noche de gala»: la araña que se enciende, la foto en el espejo y los destellos de los caireles
+            ->assertSee('inv-page inv-gala', false)
+            ->assertSee('inv-themed-intro ga-intro', false)
+            ->assertSee('ga-mirror', false)
+            ->assertSee('ga-ambient__glint', false)
+            ->assertSee('ga-plaque', false)
             ->assertSeeInOrder(['inv-footer__name', 'Sofía Valentina', 'inv-footer__bar', 'Volver al inicio'], false)
             ->assertDontSee('inv-footer__links', false)
             // El crédito lleva al sitio de Bida Events con una invitación a crear la propia

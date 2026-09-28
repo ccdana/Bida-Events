@@ -2,16 +2,18 @@
     Apertura de «Galería Quince»: la entrada de la galería la noche de la inauguración. Por el vidrio
     de la puerta se ve la sala a oscuras con tres cuadros colgados; en el vidrio está rotulada la
     inauguración, una alfombra llega hasta la puerta y, delante, un cordón de terciopelo entre dos
-    postes de latón. Al tocar el cordón se suelta de un poste y cae, se encienden los focos de la sala
-    uno por uno, las puertas se abren, saltan los flashes de la prensa y se entra. Lógica en
-    shell/cover-component; estilos en css/invitation/tendencias/galeria.css.
+    postes de latón. Mientras se espera, un reflejo cruza el vidrio y a los costados la prensa prueba
+    sus flashes. Al tocar el cordón se suelta de un poste y cae, los focos de la sala se encienden uno
+    por uno (titilan, como las lámparas de verdad), las puertas se abren, saltan los flashes y se
+    camina hacia el cuadro del medio hasta la portada. Lógica en shell/cover-component; estilos en
+    css/invitation/tendencias/galeria.css.
 --}}
 @php
     $introDate = \Illuminate\Support\Str::ucfirst($page->eventDate->locale('es')->translatedFormat('j \d\e F · H:i'));
 @endphp
 
 <div class="inv-themed-intro gq-intro"
-    x-data="invitationCover({ part: 950, reveal: 1800, close: 2700 })"
+    x-data="invitationCover({ part: 950, reveal: 2200, close: 3050 })"
     x-show="!closed"
     :class="{ 'is-unhooked': stage >= 1, 'is-open': stage >= 2 }"
     role="dialog"
@@ -19,6 +21,9 @@
     aria-label="Invitación a la exposición de {{ $page->displayName }}">
     <span class="gq-flash gq-flash--left" aria-hidden="true"></span>
     <span class="gq-flash gq-flash--right" aria-hidden="true"></span>
+    {{-- La prensa, a los costados de la alfombra, probando sus flashes --}}
+    <span class="gq-press gq-press--left" aria-hidden="true"></span>
+    <span class="gq-press gq-press--right" aria-hidden="true"></span>
 
     <div class="gq-door">
         <span class="gq-door__light" aria-hidden="true"></span>

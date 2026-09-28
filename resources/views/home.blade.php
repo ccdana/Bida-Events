@@ -11,7 +11,7 @@
 
 @php
     $sections = array_filter([
-        'plantillas' => count($demos) ? 'Plantillas' : null,
+        'plantillas' => count($designs) ? 'Plantillas' : null,
         'incluye' => 'Qué incluye',
         'precios' => 'Precios',
         'preguntas' => 'Preguntas',
@@ -112,17 +112,7 @@
                 <p class="site-enter site-hero__lead" style="--enter-index: 1">
                     Tus invitados la abren desde WhatsApp, confirman en un toque y entran a la fiesta con su pase QR.
                 </p>
-                <div class="site-enter site-hero__actions" style="--enter-index: 2">
-                    <a href="{{ count($demos) ? '#plantillas' : '#precios' }}" class="site-btn site-btn--lg">
-                        {{ count($demos) ? 'Probar una invitación' : 'Ver precios' }}
-                        <x-phosphor-arrow-down class="site-btn__arrow" aria-hidden="true" />
-                    </a>
-                    <a href="{{ $contactUrl }}" target="_blank" rel="noopener" class="site-btn site-btn--ghost site-btn--lg">
-                        <x-phosphor-whatsapp-logo aria-hidden="true" />
-                        Escríbenos
-                    </a>
-                </div>
-                <ul class="site-enter site-hero__facts" style="--enter-index: 3">
+                <ul class="site-enter site-hero__facts" style="--enter-index: 2">
                     <li>Desde {{ \App\Support\Money::format($fromPrice) }}</li>
                     <li>Sin instalar nada</li>
                     <li>Pase QR en la puerta</li>
@@ -234,77 +224,42 @@
             </section>
         @endif
 
-        {{-- ═══ Probar como invitado: a la izquierda los diseños y su descripción, a la derecha el teléfono ═══ --}}
-        @if(count($demos))
-            <section id="plantillas" class="site-tester scroll-mt-20" aria-labelledby="plantillas-titulo"
-                x-data="{ active: 0, loading: true, demos: @js($demos), choose(index) { if (this.active !== index) { this.active = index; this.loading = true; } } }">
+        {{-- ═══ Probar como invitado: los diseños de cada evento como capturas de cómo empieza su apertura ═══ --}}
+        @if(count($designs))
+            <section id="plantillas" class="site-tester scroll-mt-20" aria-labelledby="plantillas-titulo" x-data="{ active: 0 }">
                 <div class="site-tester__layout">
-                    <div class="site-tester__side">
-                        <div class="site-tester__head">
-                            <h2 id="plantillas-titulo" class="site-display site-display--md" data-reveal>Pruébala como invitado</h2>
-                            <p class="site-muted-lead" data-reveal>
-                                Elige un diseño y úsalo dentro del teléfono: confirma, vota, sugiere una canción. Es una muestra, nada se guarda.
-                            </p>
-                        </div>
-
-                        <div class="site-tester__picker" role="tablist" aria-label="Diseños para probar">
-                            @foreach($demos as $index => $demo)
-                                <button type="button" role="tab" id="plantilla-tab-{{ $index }}" aria-controls="plantilla-vista"
-                                    aria-selected="{{ $index === 0 ? 'true' : 'false' }}"
-                                    :aria-selected="(active === {{ $index }}).toString()"
-                                    @click="choose({{ $index }}); $el.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' })"
-                                    @class(['site-chip', 'is-active' => $index === 0])
-                                    :class="{ 'is-active': active === {{ $index }} }">
-                                    <span class="site-chip__icon" aria-hidden="true">
-                                        <x-dynamic-component :component="'phosphor-'.$demo['icon']" />
-                                    </span>
-                                    <span class="min-w-0">
-                                        <span class="site-chip__event">{{ $demo['event'] }}</span>
-                                        <span class="site-chip__name">{{ $demo['label'] }}</span>
-                                    </span>
-                                </button>
-                            @endforeach
-                        </div>
-
-                        <div class="site-tester__info">
-                            @foreach($demos as $index => $demo)
-                                <div x-show="active === {{ $index }}" @if($index > 0) x-cloak @endif>
-                                    <p class="site-tester__text">
-                                        <span class="site-tester__name">{{ $demo['label'] }}.</span>
-                                        {{ $demo['description'] }}
-                                    </p>
-                                    <div class="site-tester__actions">
-                                        <a href="{{ $demo['demoUrl'] }}" target="_blank" rel="noopener" class="site-btn site-btn--ghost">
-                                            Abrir en pantalla completa
-                                            <x-phosphor-arrow-up-right class="site-btn__arrow" aria-hidden="true" />
-                                        </a>
-                                        @php($eventLanding = collect($landings)->firstWhere('event', $demo['eventKey']))
-                                        @if($eventLanding)
-                                            <a href="{{ $eventLanding['url'] }}" class="site-link-arrow">
-                                                {{ $eventLanding['label'] }} <x-phosphor-arrow-right aria-hidden="true" />
-                                            </a>
-                                        @endif
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-
-                    <div class="site-tester__device" data-reveal>
-                        <div class="site-phone site-phone--showcase">
-                            <div id="plantilla-vista" role="tabpanel" aria-labelledby="plantilla-tab-0"
-                                :aria-labelledby="'plantilla-tab-' + active"
-                                class="site-phone__screen" :class="{ 'is-loading': loading }">
-                                <iframe src="{{ $demos[0]['demoUrl'] }}" :src="demos[active].demoUrl"
-                                    title="Invitación de muestra: {{ $demos[0]['title'] }}" :title="'Invitación de muestra: ' + demos[active].title"
-                                    loading="lazy" @load="loading = false"></iframe>
-                            </div>
-                        </div>
-                        <p class="site-tester__hint">
-                            <x-phosphor-hand-tap aria-hidden="true" />
-                            Toca y desliza dentro del teléfono
+                    <div class="site-tester__head">
+                        <h2 id="plantillas-titulo" class="site-display site-display--md" data-reveal>Pruébala como invitado</h2>
+                        <p class="site-muted-lead" data-reveal>
+                            Así empieza cada diseño. Toca uno para abrir su muestra completa y pruébala como un invitado: confirma, vota o sugiere una canción. Nada se guarda.
                         </p>
                     </div>
+
+                    {{-- Índice de eventos: el nombre en la letra de los títulos y cuántos diseños tiene; el
+                         elegido se subraya con un filete dorado --}}
+                    <div class="site-tester__picker site-events" role="tablist" aria-label="Diseños por evento">
+                        @foreach($designs as $index => $group)
+                            <button type="button" role="tab" id="plantilla-tab-{{ $index }}" aria-controls="plantilla-panel-{{ $index }}"
+                                aria-selected="{{ $index === 0 ? 'true' : 'false' }}"
+                                :aria-selected="(active === {{ $index }}).toString()"
+                                @click="active = {{ $index }}; $el.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' })"
+                                @class(['site-events__tab', 'is-active' => $index === 0])
+                                :class="{ 'is-active': active === {{ $index }} }">
+                                <span class="site-events__name">{{ $group['label'] }}</span>
+                                <span class="site-events__count">{{ count($group['demos']) }}<span class="sr-only"> {{ count($group['demos']) === 1 ? 'diseño' : 'diseños' }}</span></span>
+                            </button>
+                        @endforeach
+                    </div>
+
+                    @foreach($designs as $index => $group)
+                        <div id="plantilla-panel-{{ $index }}" role="tabpanel" aria-labelledby="plantilla-tab-{{ $index }}" class="site-tester__panel"
+                            x-show="active === {{ $index }}" @if($index > 0) x-cloak @endif>
+                            @include('site.partials.shots', ['demos' => $group['demos'], 'noun' => 'invitación', 'layout' => 'row', 'label' => 'Diseños de '.$group['label']])
+                            <a href="{{ $group['landingUrl'] }}" class="site-link-arrow site-tester__more">
+                                {{ $group['landingLabel'] }} <x-phosphor-arrow-right aria-hidden="true" />
+                            </a>
+                        </div>
+                    @endforeach
                 </div>
             </section>
         @endif

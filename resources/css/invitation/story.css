@@ -493,7 +493,7 @@ html.inv-cover-waiting .inv-story__hint {
    o usa las flechas. Cada plantilla cambia de escena a su manera y, al pasar, deja su detalle
    (.inv-tale__turn, mientras html.is-turning):
    - Boda: la página se da vuelta y caen hojas.
-   - XV: la escena entra como un fundido de gala y se encienden destellos dorados.
+   - Noche de gala (XV): la escena entra como un fundido de gala y se encienden destellos dorados.
    - Entre nubes (bautizo): sube entre nubes que pasan.
    - Cumpleaños: salta con rebote y cae confeti.
    - Birrete al aire (graduación): se abre desde el centro, como el telón del acto, con destellos dorados.
@@ -716,7 +716,7 @@ body.has-player .inv-tale__controls {
 }
 
 /* XV: fundido de gala con destellos dorados */
-.inv-story-invitation .inv-xv .inv-scene {
+.inv-story-invitation .inv-gala .inv-scene {
     translate: 0 0;
     rotate: 0deg;
     scale: 1.08;
@@ -725,19 +725,19 @@ body.has-player .inv-tale__controls {
     transition: scale 1s var(--inv-ease), opacity 0.7s ease, filter 0.9s var(--inv-ease), visibility 0s linear 1s;
 }
 
-.inv-story-invitation .inv-xv .inv-scene.is-past {
+.inv-story-invitation .inv-gala .inv-scene.is-past {
     scale: 0.93;
     filter: blur(4px);
 }
 
-.inv-story-invitation .inv-xv .inv-scene.is-active {
+.inv-story-invitation .inv-gala .inv-scene.is-active {
     scale: 1;
     opacity: 1;
     filter: none;
     transition-delay: 0s;
 }
 
-.inv-story-invitation.is-turning .inv-xv .inv-tale__turn i {
+.inv-story-invitation.is-turning .inv-gala .inv-tale__turn i {
     width: calc(0.9rem * var(--s));
     height: calc(0.9rem * var(--s));
     background: var(--primary-color);
