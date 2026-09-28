@@ -100,6 +100,23 @@ final class ColorContrast
     }
 
     /**
+     * El color llevado hacia el negro lo justo para que la letra blanca encima llegue al contraste
+     * pedido: un color que ya es oscuro queda igual y uno claro se oscurece hasta leerse. Lo usan
+     * las plantillas que ponen letra clara sobre un bloque del color del cliente (el terciopelo de
+     * los botones y las placas de «Noche de gala»).
+     */
+    public static function deepen(string $color, float $ratio = 7.0): string
+    {
+        $deep = self::mix($color, '#000000', 1.0);
+
+        for ($weight = 0.95; $weight > 0 && self::ratio('#FFFFFF', $deep) < $ratio; $weight -= 0.05) {
+            $deep = self::mix($color, '#000000', $weight);
+        }
+
+        return $deep;
+    }
+
+    /**
      * Resuelve los tonos derivados de una paleta ('primary', 'text', 'background', 'accent').
      *
      * @param  array<string, string>  $palette

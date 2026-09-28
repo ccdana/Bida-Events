@@ -112,6 +112,23 @@ class AccessibleInvitationTest extends TestCase
             ->all();
     }
 
+    /** El terciopelo de «Noche de gala» lleva letra blanca: un secundario oscuro queda igual y uno claro se oscurece. */
+    public function test_the_deep_secondary_always_carries_white_letters(): void
+    {
+        $this->assertSame('#5C3D42', ColorContrast::deepen('#5C3D42'));
+        $this->assertSame('#2C1810', ColorContrast::deepen('#2C1810'));
+
+        foreach (['#F5D0D0', '#C97B84', '#FFFFFF', '#D4AF37', '#F0C04E'] as $light) {
+            $this->assertGreaterThanOrEqual(7.0, ColorContrast::ratio('#FFFFFF', ColorContrast::deepen($light)), $light);
+        }
+
+        $invitation = $this->createInvitation(['template' => InvitationTemplates::XV_PREMIUM]);
+
+        $this->withoutVite()->get(route('invitation.show', $invitation->slug))
+            ->assertOk()
+            ->assertSee('--tr-secondary-deep: #', false);
+    }
+
     public function test_a_photo_description_becomes_the_alt_text(): void
     {
         $invitation = $this->createInvitation(['slug' => 'xv-con-alt']);

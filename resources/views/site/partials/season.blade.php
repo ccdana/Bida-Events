@@ -2,7 +2,8 @@
     Temporadas en la portada (Día del Amor, Halloween…): un botoncito redondo abajo a la derecha que
     acompaña el scroll, sin texto (lo dice su aria-label). Lleva el ícono de cada temporada con su
     color (con varias, se turnan) y un punto que late; al tocarlo se abre una hoja con el panel de
-    cada temporada (site/partials/season-panel). Con varias temporadas, arriba se elige cuál ver.
+    cada temporada (site/partials/season-panel). Con varias temporadas, cada panel lleva arriba el índice
+    para pasar a la otra (con el teclado, también con las flechas).
     «#temporada» abre la primera y «#temporada-{clave}», la suya.
 
     Recibe $seasons (HomeController::seasons). Estilos: home.css («Botón de temporadas») y site.css
@@ -38,18 +39,6 @@
         x-show="open" x-cloak
         x-transition:enter="site-season__sheet--enter" x-transition:enter-start="is-from" x-transition:enter-end="is-to"
         x-transition:leave="site-season__sheet--leave" x-transition:leave-start="is-to" x-transition:leave-end="is-from">
-
-        @if(count($seasons) > 1)
-            <div class="site-seasons__tabs" role="tablist" aria-label="Temporadas">
-                @foreach($seasons as $season)
-                    <button type="button" role="tab" @click="select(@js($season['key']))"
-                        :aria-selected="(current === @js($season['key'])).toString()" aria-selected="{{ $loop->first ? 'true' : 'false' }}"
-                        :class="{ 'is-active': current === @js($season['key']) }" @class(['site-seasons__tab', 'is-active' => $loop->first])>
-                        {{ $season['name'] }}
-                    </button>
-                @endforeach
-            </div>
-        @endif
 
         @foreach($seasons as $season)
             @include('site.partials.season-panel', ['season' => $season])
@@ -98,6 +87,18 @@
 
             select(key) {
                 this.current = key;
+            },
+
+            // Desde el índice de temporadas: el panel que se ve cambia, así que el foco pasa a la
+            // pestaña de la temporada elegida en su propio panel
+            pick(key) {
+                this.select(key);
+                this.$nextTick(() => this.root.querySelector(`[data-season="${key}"] .site-season__tab.is-active`)?.focus());
+            },
+
+            step(offset) {
+                const index = this.keys.indexOf(this.current);
+                this.pick(this.keys[(index + offset + this.keys.length) % this.keys.length]);
             },
 
             close() {

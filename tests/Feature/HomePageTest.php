@@ -119,7 +119,11 @@ class HomePageTest extends TestCase
             ->assertSee('id="temporada-halloween"', false)
             ->assertSee('aria-label="2 temporadas: Día del Amor y la Primavera y Halloween. Quedan 11 días"', false)
             ->assertSee('data-cycle', false)
-            ->assertSee('site-seasons__tab', false)
+            // El índice para pasar de una a otra va dentro de cada panel, con hasta cuándo dura cada una
+            ->assertSee('site-season__switch', false)
+            ->assertSee('role="tabpanel"', false)
+            ->assertSee('Hasta el 31 oct.')
+            ->assertDontSee('site-seasons__tabs', false)
             ->assertSee('Ahora: Día del Amor y la Primavera y Halloween');
 
         // Apagar la del Día del Amor no toca a Halloween

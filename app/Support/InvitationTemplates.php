@@ -108,8 +108,8 @@ final class InvitationTemplates
                 'color_usage' => [
                     'background' => 'Los paneles del salón.',
                     'text' => 'El nombre y los textos.',
-                    'primary' => 'El metal: la araña, el marco del espejo, las placas y los botones.',
-                    'secondary' => 'El salón a oscuras de la apertura.',
+                    'primary' => 'El metal: la araña, el marco del espejo y el marco de las placas y los botones.',
+                    'secondary' => 'El salón a oscuras de la apertura y el terciopelo de las placas y los botones.',
                     'accent' => 'El papel labrado de la pared y la luz.',
                 ],
                 // Orden por prioridad del invitado: cuándo y dónde, confirmar, lo emocional, regalos y participación

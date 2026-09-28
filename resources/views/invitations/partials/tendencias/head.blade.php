@@ -13,5 +13,7 @@
         --tr-ink-primary: {{ $trendInk('primary') }};
         --tr-ink-secondary: {{ $trendInk('secondary') }};
         --tr-ink-accent: {{ $trendInk('accent') }};
+        /* El secundario oscurecido lo justo para llevar letra blanca (ColorContrast::deepen) */
+        --tr-secondary-deep: {{ \App\Support\ColorContrast::deepen($page->colors['secondary']) }};
     }
 </style>

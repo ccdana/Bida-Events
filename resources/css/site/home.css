@@ -1002,36 +1002,6 @@ a:hover > .site-link-arrow svg,
     70%, 100% { opacity: 0; scale: 2.6; }
 }
 
-/* Varias temporadas: se elige cuál ver arriba de la hoja */
-.site-seasons__tabs {
-    position: sticky;
-    top: 0;
-    z-index: 3;
-    display: flex;
-    gap: 0.4rem;
-    padding: 0.75rem;
-    background: color-mix(in srgb, #120c12 88%, transparent);
-    backdrop-filter: blur(10px);
-}
-
-.site-seasons__tab {
-    min-height: 40px;
-    padding: 0 1rem;
-    border: 1px solid rgb(255 255 255 / 0.18);
-    border-radius: 999px;
-    background: none;
-    color: rgb(255 255 255 / 0.8);
-    font: inherit;
-    font-size: 0.92rem;
-    cursor: pointer;
-}
-
-.site-seasons__tab.is-active {
-    border-color: #fff;
-    background: #fff;
-    color: #1d1e20;
-}
-
 @media (max-width: 639px) {
     html.has-cookie-notice .site-seasons__fab {
         display: none;

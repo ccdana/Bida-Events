@@ -2,7 +2,10 @@
     El panel de una temporada dentro de la hoja de temporadas (site/partials/season): arriba, de qué se
     trata y la oferta (precio normal tachado y el de promoción, la cuenta regresiva y el botón de
     WhatsApp); abajo, sus diseños como en la portada: capturas de cómo empieza cada apertura, en fila,
-    que llevan a la muestra completa (site/partials/shots). Recibe $season (HomeController::seasons).
+    que llevan a la muestra completa (site/partials/shots). Con varias temporadas, arriba va el índice
+    para pasar de una a otra: el nombre de cada una y hasta cuándo dura, con un filete dorado debajo de
+    la que se ve (se repite en cada panel para que tome su fondo). Recibe $season y $seasons
+    (HomeController::seasons).
 --}}
 @php
     $seasonLeft = now()->diff($season['endsAt']);
@@ -16,13 +19,15 @@
     $seasonDemos = $season['demos'];
     $seasonProduct = $season['product'] ?? 'tarjeta';
     $seasonId = 'temporada-'.$season['key'];
+    $seasonSwitch = count($seasons ?? []) > 1;
 @endphp
 
 <div id="{{ $seasonId }}" data-season="{{ $season['key'] }}" class="site-season site-season--{{ $season['key'] }}"
     x-show="current === @js($season['key'])" @if(! $loop->first) x-cloak @endif
     x-data="seasonOffer(@js($season['endsAt']->toIso8601String()))"
+    @if($seasonSwitch) role="tabpanel" @endif
     aria-labelledby="{{ $seasonId }}-titulo">
-    <div class="site-season__panel">
+    <div @class(['site-season__panel', 'has-switch' => $seasonSwitch])>
         <span class="site-season__decor" aria-hidden="true">
             @for($piece = 0; $piece < 9; $piece++)
                 <i style="--i: {{ $piece }}"></i>
@@ -32,6 +37,21 @@
         <button type="button" class="site-season__close" @click="close()" aria-label="Cerrar">
             <x-phosphor-x aria-hidden="true" />
         </button>
+
+        @if($seasonSwitch)
+            <div class="site-season__switch" role="tablist" aria-label="Temporadas"
+                @keydown.arrow-right.prevent="step(1)" @keydown.arrow-left.prevent="step(-1)">
+                @foreach($seasons as $other)
+                    @php($isCurrent = $other['key'] === $season['key'])
+                    <button type="button" role="tab" @click="pick(@js($other['key']))"
+                        aria-controls="temporada-{{ $other['key'] }}" aria-selected="{{ $isCurrent ? 'true' : 'false' }}"
+                        tabindex="{{ $isCurrent ? 0 : -1 }}" @class(['site-season__tab', 'is-active' => $isCurrent])>
+                        <span class="site-season__tab-name">{{ $other['name'] }}</span>
+                        <span class="site-season__tab-until">Hasta el {{ $other['endsAt']->locale('es')->translatedFormat('j M') }}</span>
+                    </button>
+                @endforeach
+            </div>
+        @endif
 
         <div class="site-season__head">
             <div class="site-season__copy">

@@ -1104,6 +1104,16 @@ Para verlas en producción hay que correr la semilla de muestras: `php artisan d
 | Baby shower «Encomienda especial»: la cinta se despega y la caja se abre; la guía del envío con código de barras, el seguimiento del envío, estampillas con matasellos y hojas de cartón con cinta | `partials/tendencias/encomienda`, `tendencias/encomienda.css`, PDF `covers/encomienda` |
 | PDF: cada bloque de la hoja 2 va a la columna donde queda la mayor parte de su alto, y los padrinos con un papel largo cuentan sus renglones (las muestras de baby shower salían en 3 hojas) | `App\Support\Pdf\PrintLayout` |
 | Textos editables nuevos: `parcel_title`, `parcel_content`, `parcel_arrival`, `parcel_address`, `parcel_fragile`, `parcel_care` | `TrendTemplates` (`copy`), `EditableTexts` |
+
+### 7.19 Botones de gala, Galería Quince en espejo e índice de temporadas
+
+| Qué | Dónde |
+| --- | --- |
+| «Noche de gala»: la letra ya no va sobre el metal (con un principal rosa o dorado claro no se leía). Las placas (el nombre bajo el espejo y los padrinos) y el botón principal son de terciopelo (el secundario, oscurecido en el servidor solo si hace falta para que la letra blanca llegue a 7:1: `ColorContrast::deepen`, variable `--tr-secondary-deep` de `partials/tendencias/head`) con marco de metal en degradado y filete interior; el secundario, el marco sobre el panel; desactivado legible sobre papel; respuestas elegidas en terciopelo con rombo; encuestas con marca de rombo; campos como tarjetas grabadas que se enmarcan en metal al escribir | `themes/gala.css` («Botones y campos», placas) |
+| «Galería Quince», apertura rehecha en espejo: el rótulo sobre la puerta, la obra principal al centro con una a cada lado, el cordón cerrado al medio con un mosquetón que se abre (cada mitad cae colgando de su poste), focos que se encienden del centro a los lados, las puertas se abren y se camina hasta la obra principal (`origin` del cover centra el acercamiento) mientras la luz de la sala llena la pantalla. Solo `transform` y `opacity`: se quitaron las animaciones de `filter` y `background-position` | `partials/tendencias/galeria/intro.blade.php`, `tendencias/galeria.css` («Apertura») |
+| «Galería Quince», fondo en espejo: cuadros en pares a la misma altura, focos de los costados que barren reflejados (uno al medio que respira en pantallas anchas) y flashes en lugares reflejados que se alternan; las versalitas compensan el espaciado para quedar centradas | `partials/tendencias/galeria/ambient.blade.php`, `tendencias/galeria.css` («Fondo») |
+| «Galería Quince»: el botón desactivado ya no se pinta de terciopelo (parecía activo) | `tendencias/galeria.css` |
+| Temporadas: la franja oscura con pastillas se reemplazó por un índice dentro de cada panel (toma su fondo): nombre en serif, «Hasta el 31 oct.» y filete dorado bajo la que se ve; flechas del teclado para pasar de una a otra | `site/partials/season-panel.blade.php` (`site-season__switch`), `site/partials/season.blade.php` (`pick`, `step`), `site/site.css` |
 ---
 
 ## 8. Hoja de ruta sugerida

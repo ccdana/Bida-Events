@@ -10,9 +10,10 @@
 
    Se carga solo en esta invitación (templates/xv-premium) sobre la base adaptable
    de la colección tendencias. Todo sale de la paleta del editor:
-     pared y paneles = fondo · textos = texto · metal (araña, marcos, placas,
-     botones) = principal · el salón a oscuras = secundario · papel labrado y
-     luz = acento. El metal es un degradado del principal: dorado, rosa o plata.
+     pared y paneles = fondo · textos = texto · metal (araña, marcos y el marco
+     de placas y botones) = principal · el salón a oscuras y el terciopelo de
+     placas y botones = secundario · papel labrado y luz = acento. El metal es un
+     degradado del principal: dorado, rosa o plata.
    ════════════════════════════════════════════════════════════════════════════ */
 
 @import '../tendencias/_base.css';
@@ -411,20 +412,23 @@
     stroke-width: 1.4;
 }
 
-/* La placa grabada con el nombre, colgada al pie del marco */
+/* Las placas (el nombre al pie del espejo y las de los padrinos): terciopelo con marco de metal,
+   como los botones. La letra va clara sobre el terciopelo y nunca sobre el metal, que con un
+   principal rosa o dorado claro dejaba la letra oscura sucia y sin leerse. Un filete de metal
+   por dentro y los dos tornillos a los lados */
 .ga-plaque {
     position: relative;
     display: grid;
     justify-items: center;
-    gap: 0.25rem;
-    padding: 0.75rem 1.8rem 0.85rem;
-    border-radius: 0.35rem;
-    background: var(--ga-metal-grad);
-    color: var(--tr-ink-primary);
-    box-shadow:
-        inset 0 0 0 1px color-mix(in srgb, #fff 35%, transparent),
-        inset 0 0 0 5px color-mix(in srgb, var(--ga-metal-low) 30%, transparent),
-        0 14px 22px -14px rgb(0 0 0 / 0.5);
+    gap: 0.3rem;
+    padding: 0.95rem 2.1rem 1.05rem;
+    border: 2px solid transparent;
+    border-radius: 0.4rem;
+    background: var(--ga-velvet-fill) padding-box, var(--ga-metal-grad) border-box;
+    color: var(--ga-velvet-ink);
+    outline: 1px solid color-mix(in srgb, var(--ga-metal-hi) 45%, transparent);
+    outline-offset: -7px;
+    box-shadow: 0 18px 28px -18px rgb(0 0 0 / 0.6);
 }
 
 .ga-hero > .ga-plaque {
@@ -442,11 +446,11 @@
     height: 0.4rem;
     margin-top: -0.2rem;
     border-radius: 50%;
-    background: radial-gradient(circle at 35% 35%, var(--ga-metal-hi), var(--ga-metal-low));
+    background: radial-gradient(circle at 35% 35%, color-mix(in srgb, var(--ga-metal-hi) 60%, #fff), var(--ga-metal) 60%, var(--ga-metal-low));
 }
 
-.ga-plaque::before { left: 0.6rem; }
-.ga-plaque::after { right: 0.6rem; }
+.ga-plaque::before { left: 0.75rem; }
+.ga-plaque::after { right: 0.75rem; }
 
 .ga-plaque__name {
     margin: 0;
@@ -454,7 +458,7 @@
     font-size: clamp(2.3rem, 11vw, 3.8rem);
     font-weight: 400;
     line-height: 1.05;
-    text-shadow: 0 1px 0 color-mix(in srgb, #fff 30%, transparent);
+    text-shadow: 0 1px 0 rgb(0 0 0 / 0.4);
     text-wrap: balance;
     overflow-wrap: break-word;
 }
@@ -559,47 +563,62 @@
     letter-spacing: 0.12em;
 }
 
-/* ── Botones: medallones de metal pulido con doble filete ──────────────────
-   El principal es metal con luz de arriba, un filete interior claro (como el
-   bisel de una placa) y un brillo que lo recorre cada tanto, como la luz de la
-   araña al pasar. El secundario, el mismo filete doble sobre el panel. Las
-   respuestas elegidas pasan a metal con un rombo delante. */
+/* ── Botones y campos: terciopelo con marco de metal ───────────────────────
+   La letra nunca va sobre el metal: con un principal rosa o dorado claro la
+   tinta oscura encima se veía sucia y la clara no se leía. El botón principal
+   es un cartel de terciopelo del salón a oscuras (el secundario, oscurecido
+   en el servidor solo si hace falta para que la letra blanca se lea: un
+   ciruela queda ciruela y un rosa claro baja a vino) con un marco de metal pulido (el principal) y un filete interior;
+   un brillo lo recorre cada tanto, como la luz de la araña al pasar. El
+   secundario lleva el mismo marco sobre el panel. Los campos son tarjetas
+   grabadas: papel, filete doble y el marco de metal cuando se escribe. Las
+   respuestas elegidas pasan a terciopelo con un rombo de metal delante. */
+
+.inv-gala {
+    --ga-velvet: var(--tr-secondary-deep, color-mix(in srgb, var(--tr-secondary) 45%, #000));
+    /* La luz de arriba del terciopelo, y su sombra abajo */
+    --ga-velvet-hi: color-mix(in srgb, var(--ga-velvet) 86%, #fff);
+    --ga-velvet-low: color-mix(in srgb, var(--ga-velvet) 80%, #000);
+    --ga-velvet-fill: linear-gradient(180deg, var(--ga-velvet-hi), var(--ga-velvet) 45%, var(--ga-velvet-low));
+    --ga-velvet-ink: color-mix(in srgb, var(--tr-accent) 10%, #fff);
+    --ga-field: color-mix(in srgb, var(--tr-accent) 16%, var(--ga-panel));
+    --ga-field-ink: color-mix(in srgb, var(--tr-text) 76%, var(--ga-field));
+}
 
 .inv-gala .inv-btn {
     position: relative;
     isolation: isolate;
     overflow: hidden;
     min-height: 3.25rem;
-    padding-inline: 2rem;
-    border: 1px solid var(--ga-metal-low);
+    padding-inline: 2.1rem;
+    border: 1.5px solid transparent;
     border-radius: 999px;
-    background: linear-gradient(180deg, color-mix(in srgb, var(--ga-metal) 80%, #fff) 0%, var(--ga-metal) 46%, color-mix(in srgb, var(--ga-metal) 84%, #000) 100%);
-    color: var(--tr-ink-primary);
+    background: var(--ga-velvet-fill) padding-box, var(--ga-metal-grad) border-box;
+    color: var(--ga-velvet-ink);
     font-weight: 600;
-    box-shadow:
-        inset 0 1px 0 color-mix(in srgb, #fff 55%, transparent),
-        0 14px 24px -16px var(--ga-metal-low);
-    transition: translate 0.3s var(--tr-ease), box-shadow 0.3s ease, border-color 0.3s ease, background-color 0.3s ease;
+    text-shadow: 0 1px 0 rgb(0 0 0 / 0.35);
+    box-shadow: 0 16px 26px -18px rgb(0 0 0 / 0.6);
+    transition: translate 0.3s var(--tr-ease), box-shadow 0.3s ease;
 }
 
-/* El filete interior */
+/* El filete interior, del mismo metal */
 .inv-gala .inv-btn::before {
     content: '';
     position: absolute;
     inset: 3px;
     z-index: -1;
-    border: 1px solid color-mix(in srgb, #fff 42%, transparent);
+    border: 1px solid color-mix(in srgb, var(--ga-metal-hi) 55%, transparent);
     border-radius: inherit;
     pointer-events: none;
 }
 
-/* El brillo que la recorre */
+/* El brillo que lo recorre */
 .inv-gala .inv-btn::after {
     content: '';
     position: absolute;
     inset: 0;
     z-index: -1;
-    background: linear-gradient(105deg, transparent 38%, color-mix(in srgb, #fff 55%, transparent) 50%, transparent 62%);
+    background: linear-gradient(105deg, transparent 40%, rgb(255 255 255 / 0.16) 50%, transparent 60%);
     translate: -110% 0;
     pointer-events: none;
     animation: ga-btn-gleam 7s ease-in-out 2.5s infinite;
@@ -607,14 +626,13 @@
 
 .inv-gala .inv-btn svg {
     position: relative;
+    color: var(--ga-metal-hi);
 }
 
 @media (hover: hover) {
     .inv-gala .inv-btn:not(:disabled):hover {
         translate: 0 -2px;
-        box-shadow:
-            inset 0 1px 0 color-mix(in srgb, #fff 55%, transparent),
-            0 18px 28px -16px var(--ga-metal-low);
+        box-shadow: 0 20px 30px -18px rgb(0 0 0 / 0.65);
     }
 
     .inv-gala .inv-btn:not(:disabled):hover::after {
@@ -624,9 +642,14 @@
     }
 }
 
-.inv-gala .inv-btn:disabled::after,
-.inv-gala .inv-btn.is-disabled::after {
-    display: none;
+/* Desactivado: el papel del campo con el filete apagado y la letra del texto, que se lea */
+.inv-page.inv-gala .inv-btn:disabled,
+.inv-page.inv-gala .inv-btn.is-disabled {
+    border-color: var(--ga-line);
+    background: var(--ga-field);
+    color: var(--ga-field-ink);
+    text-shadow: none;
+    box-shadow: none;
 }
 
 .inv-gala .inv-btn:disabled::before,
@@ -634,19 +657,29 @@
     border-color: color-mix(in srgb, var(--tr-primary) 18%, transparent);
 }
 
+.inv-gala .inv-btn:disabled::after,
+.inv-gala .inv-btn.is-disabled::after {
+    display: none;
+}
+
+.inv-gala .inv-btn:disabled svg,
+.inv-gala .inv-btn.is-disabled svg {
+    color: currentColor;
+}
+
 .inv-gala .inv-btn--ghost {
-    border-color: var(--ga-line);
-    background: color-mix(in srgb, var(--ga-panel) 70%, transparent);
+    background: linear-gradient(var(--ga-panel), var(--ga-panel)) padding-box, var(--ga-metal-grad) border-box;
     color: var(--tr-text);
-    box-shadow: none;
+    text-shadow: none;
+    box-shadow: 0 12px 22px -20px rgb(0 0 0 / 0.5);
 }
 
 .inv-gala .inv-btn--ghost::before {
-    border-color: color-mix(in srgb, var(--tr-primary) 22%, transparent);
+    border-color: var(--ga-line);
 }
 
 .inv-gala .inv-btn--ghost::after {
-    background: linear-gradient(105deg, transparent 38%, color-mix(in srgb, var(--tr-primary) 14%, transparent) 50%, transparent 62%);
+    background: linear-gradient(105deg, transparent 40%, color-mix(in srgb, var(--tr-primary) 16%, transparent) 50%, transparent 60%);
 }
 
 .inv-gala .inv-btn--ghost svg {
@@ -655,29 +688,42 @@
 
 @media (hover: hover) {
     .inv-gala .inv-btn--ghost:not(:disabled):hover {
-        border-color: var(--ga-metal);
-        background: color-mix(in srgb, var(--tr-primary) 8%, var(--ga-panel));
-        box-shadow: 0 14px 24px -18px var(--ga-metal-low);
+        background: linear-gradient(var(--ga-field), var(--ga-field)) padding-box, var(--ga-metal-grad) border-box;
     }
 }
 
-/* Respuestas de la confirmación (sí / no) y de las encuestas */
+/* Respuestas de la confirmación (sí / no) */
 .inv-gala .inv-choice {
     position: relative;
-    border: 1px solid var(--ga-line);
+    isolation: isolate;
+    border: 1.5px solid var(--ga-line);
     border-radius: 999px;
-    background: color-mix(in srgb, var(--ga-panel) 70%, transparent);
+    background: var(--ga-field);
+    color: var(--tr-text);
     font-family: var(--font-titles);
     font-size: 1.05rem;
-    box-shadow: inset 0 0 0 3px var(--ga-panel), inset 0 0 0 4px color-mix(in srgb, var(--tr-primary) 16%, transparent);
     transition: border-color 0.25s ease, background 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
 }
 
+.inv-gala .inv-choice::after {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    z-index: -1;
+    border: 1px solid color-mix(in srgb, var(--tr-primary) 20%, transparent);
+    border-radius: inherit;
+    pointer-events: none;
+}
+
 .inv-gala .inv-choice.is-selected {
-    border-color: var(--ga-metal-low);
-    background: linear-gradient(180deg, color-mix(in srgb, var(--ga-metal) 80%, #fff), var(--ga-metal) 50%, color-mix(in srgb, var(--ga-metal) 86%, #000));
-    color: var(--tr-ink-primary);
-    box-shadow: inset 0 1px 0 color-mix(in srgb, #fff 55%, transparent), 0 12px 20px -14px var(--ga-metal-low);
+    border-color: transparent;
+    background: var(--ga-velvet-fill) padding-box, var(--ga-metal-grad) border-box;
+    color: var(--ga-velvet-ink);
+    box-shadow: 0 14px 22px -16px rgb(0 0 0 / 0.55);
+}
+
+.inv-gala .inv-choice.is-selected::after {
+    border-color: color-mix(in srgb, var(--ga-metal-hi) 55%, transparent);
 }
 
 .inv-gala .inv-choice.is-selected::before {
@@ -686,27 +732,90 @@
     width: 0.45rem;
     height: 0.45rem;
     margin-right: 0.55rem;
-    background: currentColor;
+    background: var(--ga-metal-hi);
     rotate: 45deg;
     vertical-align: 0.12em;
 }
 
+@media (hover: hover) {
+    .inv-gala .inv-choice:not(.is-selected):hover {
+        border-color: var(--ga-metal);
+    }
+}
+
+/* Encuestas: tarjetas de papel; la marca es un rombo que se llena de terciopelo */
 .inv-gala .inv-poll__option {
     border-color: var(--ga-line);
     border-radius: 0.35rem;
-    background: color-mix(in srgb, var(--ga-panel) 70%, transparent);
-    box-shadow: inset 0 0 0 3px var(--ga-panel), inset 0 0 0 4px color-mix(in srgb, var(--tr-primary) 12%, transparent);
+    background: var(--ga-field);
+    box-shadow: inset 0 0 0 3px var(--ga-field), inset 0 0 0 4px color-mix(in srgb, var(--tr-primary) 14%, transparent);
 }
 
 .inv-gala .inv-poll__option.is-selected {
     border-color: var(--ga-metal);
 }
 
+.inv-gala .inv-poll__bar {
+    background: color-mix(in srgb, var(--tr-primary) 16%, transparent);
+}
+
+.inv-gala .inv-poll__mark {
+    width: 0.8rem;
+    height: 0.8rem;
+    margin-inline: 0.15rem;
+    border-color: var(--ga-metal);
+    border-radius: 0.1rem;
+    rotate: 45deg;
+}
+
+.inv-gala .inv-poll__option.is-selected .inv-poll__mark {
+    border-color: var(--ga-metal);
+    background: var(--ga-velvet);
+    box-shadow: inset 0 0 0 2px var(--ga-field);
+}
+
+@media (hover: hover) {
+    .inv-gala .inv-poll__option:not(:disabled):hover {
+        border-color: var(--ga-metal);
+    }
+}
+
+/* Cuántos van: medallones con el marco de metal */
 .inv-gala .inv-stepper__btn {
-    border-color: var(--ga-line);
+    border: 1.5px solid transparent;
+    background: linear-gradient(var(--ga-field), var(--ga-field)) padding-box, var(--ga-metal-grad) border-box;
+    color: var(--tr-text);
+    box-shadow: inset 0 0 0 3px var(--ga-field), inset 0 0 0 4px color-mix(in srgb, var(--tr-primary) 22%, transparent);
+}
+
+/* Los campos: tarjetas grabadas con su filete; al escribir se enmarcan en metal */
+.inv-gala .inv-input {
+    min-height: 3.25rem;
+    padding: 0.8rem 1rem;
+    border: 1px solid var(--ga-line);
+    border-radius: 0.35rem;
+    background: var(--ga-field);
+    color: var(--tr-text);
+    box-shadow: inset 0 0 0 3px var(--ga-field), inset 0 0 0 4px color-mix(in srgb, var(--tr-primary) 14%, transparent);
+    transition: border-color 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
+}
+
+.inv-gala .inv-input::placeholder {
+    color: color-mix(in srgb, var(--tr-text) 62%, var(--ga-field));
+}
+
+.inv-gala .inv-input:focus {
+    border-color: var(--ga-metal);
     background: var(--ga-panel);
-    color: var(--inv-accent-ink);
-    box-shadow: inset 0 0 0 3px var(--ga-panel), inset 0 0 0 4px color-mix(in srgb, var(--tr-primary) 18%, transparent);
+    box-shadow:
+        inset 0 0 0 3px var(--ga-panel),
+        inset 0 0 0 4px var(--ga-line),
+        0 0 0 4px color-mix(in srgb, var(--tr-primary) 16%, transparent);
+}
+
+/* Junto al campo de la canción el botón va más angosto, que el campo tenga lugar para escribir */
+.inv-gala .inv-playlist__row .inv-btn {
+    padding-inline: 1.25rem;
 }
 
 /* Los pasos de la confirmación sin el filete del fieldset (con la letra de los títulos cruzaba la pregunta) */
@@ -846,12 +955,14 @@
     text-align: center;
 }
 
+/* El papel, grabado en el metal: el principal aclarado, que se lee sobre el terciopelo */
 .ga-plaque__role {
+    padding-left: 0.24em;
     font-size: 0.66rem;
     font-weight: 700;
     letter-spacing: 0.24em;
     text-transform: uppercase;
-    opacity: 0.85;
+    color: color-mix(in srgb, var(--ga-metal-hi) 70%, #fff);
 }
 
 .ga-plaque__names {
@@ -868,7 +979,7 @@
     font-size: 0.88rem;
     font-style: italic;
     line-height: 1.5;
-    opacity: 0.9;
+    color: color-mix(in srgb, var(--ga-velvet-ink) 82%, var(--ga-velvet));
 }
 
 .ga-court {

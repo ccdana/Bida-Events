@@ -169,7 +169,7 @@ class LandingAndTemplateRevisionsTest extends TestCase
             'Tendedero' => [TrendTemplates::key('tendedero', 'babyshower'), 'babyshower-valentina', ['td-basket__peek--onesie', 'td-yard__spare', 'td-ambient__line', 'td-ambient__bubble']],
             'Edición especial' => [TrendTemplates::key('revista', 'graduacion'), 'graduacion-mariana', ['rv-awning', 'rv-rack__issue', 'rv-issue__inside', 'rv-ambient__cut']],
             'Gira mundial' => [TrendTemplates::key('gira', 'cumple'), 'cumple-daniela-30', ['gr-rig__light', 'gr-rig__screen', 'gr-crowd', 'gr-intro__confetti']],
-            'Galería Quince' => [TrendTemplates::key('galeria', 'xv'), 'xv-isabella', ['gq-door__art', 'gq-door__panel--left', 'gq-flash', 'gq-ambient__spot']],
+            'Galería Quince' => [TrendTemplates::key('galeria', 'xv'), 'xv-isabella', ['gq-door__art', 'gq-door__panel--left', 'gq-intro__flood', 'gq-ambient__spot']],
             'Partitura a dos voces' => [TrendTemplates::key('partitura', 'boda'), 'boda-camila-andres', ['pt-ambient__staff', 'pt-ambient__note']],
             'Próxima salida' => [InvitationTemplates::GRADUACION_PROXIMA_SALIDA, 'graduacion-mariana', ['ps-gate__plane', 'ps-gate__status-next', 'ps-pass__scan', 'Embarcando hoy']],
             'Carta de baile' => [InvitationTemplates::XV_CARTA_DE_BAILE, 'xv-isabella', ['cb-ambient__sheen', 'cb-ambient__pair']],
@@ -179,6 +179,9 @@ class LandingAndTemplateRevisionsTest extends TestCase
             'Galería Quince: la prensa y las paredes' => [TrendTemplates::key('galeria', 'xv'), 'xv-isabella', ['gq-press', 'gq-ambient__walls', 'gq-ambient__art', 'gq-ambient__flash']],
             'Móvil de cuna: el carrusel' => [TrendTemplates::key('movil', 'bautizo'), 'bautizo-emilia', ['mv-intro__projector', 'mv-intro__notes', 'mv-intro__light', 'mv-intro__window']],
             'Partitura a dos voces: la batuta' => [TrendTemplates::key('partitura', 'boda'), 'boda-camila-andres', ['pt-baton', 'pt-score__cover', 'pt-score__note--2', 'pt-score__heart']],
+            // La entrada de la galería en espejo: la obra principal al centro, el mosquetón que se abre al medio
+            // y cada mitad del cordón colgando de su poste; los focos del fondo barren reflejados
+            'Galería Quince: en espejo' => [TrendTemplates::key('galeria', 'xv'), 'xv-isabella', ['gq-door__art--main', 'gq-clasp', 'gq-rope-down--left', 'gq-rope-down--right', 'gq-ambient__spot--left', 'gq-ambient__spot--right']],
             'Noche de gala' => [InvitationTemplates::XV_PREMIUM, 'xv-isabella', ['ga-intro__chandelier', 'Toca la araña para encender el salón', 'ga-mirror__glass', 'ga-plaque', 'ga-ambient__glint']],
         ];
     }
