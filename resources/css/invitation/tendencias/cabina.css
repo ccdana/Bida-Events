@@ -1,0 +1,1181 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   INVITACIÓN — «Cabina de fotos» (cumpleaños · colección tendencias)
+
+   Se entra a la cabina de fotos de la fiesta: se aprieta el botón, la
+   pantallita cuenta 3, 2, 1, salta el flash detrás de la cortina en cada pose
+   y la tira baja por la ranura revelándose. La portada es esa tira colgada de
+   su pinza entre las dos cortinas de terciopelo: tres poses de la misma foto
+   (a color, en blanco y negro, en tono cálido con el sticker de la edad), el
+   sello naranja de la fecha y, al pie, el nombre, el día, la hora y el lugar.
+   Toda la invitación baja como una sola tira larga: cada sección es un cuadro
+   con el borde blanco del papel y su sello de la fecha; el programa va pose
+   por pose y la gente favorita sale en su cuadrito con el cartel de iniciales.
+
+   Todo sale de la paleta del editor:
+     interior de la cabina = fondo · papel de las fotos y textos = texto ·
+     cortina, letrero y botones = principal · esmalte de la cabina =
+     secundario · sello de la fecha y luz del flash = acento. El papel de la
+     tira es blanco como el de las cabinas; su tinta la calcula el servidor
+     (--cb-paper-ink). Sin destellos rápidos: tres flashes, uno cada 0,4 s.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+@import './_base.css';
+
+.inv-cabina {
+    --inv-radius: 0.6rem;
+    --cb-paper: #fbf8f3;
+    --cb-dark: color-mix(in srgb, var(--tr-bg) 72%, #000);
+    --cb-velvet:
+        linear-gradient(180deg, rgb(0 0 0 / 0.25), transparent 18%, transparent 80%, rgb(0 0 0 / 0.35)),
+        repeating-linear-gradient(90deg,
+            color-mix(in srgb, var(--tr-primary) 62%, #000) 0,
+            var(--tr-primary) 0.7rem,
+            color-mix(in srgb, var(--tr-primary) 80%, #fff) 1.05rem,
+            var(--tr-primary) 1.4rem,
+            color-mix(in srgb, var(--tr-primary) 62%, #000) 2.2rem);
+    --cb-glow: color-mix(in srgb, var(--tr-accent) 60%, transparent);
+    --themed-from: translate3d(0, 22px, 0);
+
+    background:
+        radial-gradient(90% 45% at 50% 0%, color-mix(in srgb, var(--tr-primary) 14%, transparent), transparent 70%),
+        var(--tr-bg);
+}
+
+.inv-cabina.has-player {
+    padding-bottom: calc(5.25rem + env(safe-area-inset-bottom));
+}
+
+/* ── La tira de fotos (cabina/strip): medidas en em, la achica la apertura ─ */
+
+.cb-strip {
+    display: grid;
+    gap: 0.5em;
+    padding: 0.6em 0.6em 0;
+    border-radius: 0.3em;
+    background: var(--cb-paper);
+    color: var(--cb-paper-ink, #1b1a1f);
+    box-shadow: 0 30px 40px -24px rgb(0 0 0 / 0.8), 0 2px 0 rgb(0 0 0 / 0.08);
+}
+
+.cb-frame {
+    position: relative;
+    margin: 0;
+    aspect-ratio: 5 / 4;
+    overflow: hidden;
+    background: var(--tr-accent);
+}
+
+.cb-frame .tr-cover-img {
+    object-position: 50% 30%;
+}
+
+/* Cada pose con su encuadre y su revelado */
+.cb-frame--2 .tr-cover-img {
+    filter: grayscale(1) contrast(1.1);
+    transform: scale(1.12);
+    transform-origin: 50% 30%;
+}
+
+.cb-frame--3 .tr-cover-img {
+    filter: sepia(0.35) saturate(1.15);
+    transform: scaleX(-1);
+}
+
+.cb-frame .tr-photo-empty {
+    font-size: 2.6em;
+}
+
+.cb-frame--2 .tr-photo-empty {
+    filter: grayscale(1);
+}
+
+/* El revelado: la foto sale oscura y se aclara */
+.cb-frame::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: color-mix(in srgb, var(--tr-accent) 10%, #17120f);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.cb-stamp {
+    position: absolute;
+    right: 0.55em;
+    bottom: 0.4em;
+    z-index: 1;
+    font-family: var(--font-titles);
+    font-size: 0.62em;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--tr-accent);
+    text-shadow: 0 0 0.45em var(--cb-glow), 0 0 1px rgb(0 0 0 / 0.6);
+}
+
+/* El sticker redondo con la edad */
+.cb-sticker {
+    position: absolute;
+    top: 0.8em;
+    right: 0.8em;
+    z-index: 1;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    width: 4.6em;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--tr-primary);
+    color: var(--tr-ink-primary);
+    font-size: 0.62em;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    line-height: 1;
+    text-transform: uppercase;
+    box-shadow: 0 0 0 0.3em var(--cb-paper), 0 6px 10px rgb(0 0 0 / 0.35);
+    rotate: 12deg;
+}
+
+.cb-sticker b {
+    font-family: var(--font-titles);
+    font-size: 2.2em;
+    letter-spacing: -0.02em;
+}
+
+.cb-strip__foot {
+    padding: 0.75em 0.4em 0.95em;
+    text-align: center;
+}
+
+.cb-strip__foot p {
+    margin: 0;
+}
+
+.cb-strip__name {
+    font-family: var(--font-script);
+    font-size: 1.45em;
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+}
+
+.cb-strip__name span {
+    font-size: 0.85em;
+}
+
+.cb-strip__date {
+    margin-top: 0.4em !important;
+    font-size: 0.66em;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.cb-strip__meta {
+    margin-top: 0.2em !important;
+    font-size: 0.8em;
+}
+
+/* ── Apertura: la cabina de la fiesta ───────────────────────────────────── */
+
+.cb-intro.inv-themed-intro {
+    --cb-w: min(72vw, 16rem, 30svh);
+    gap: clamp(0.7rem, 2.2svh, 1.3rem);
+    background:
+        radial-gradient(70% 45% at 50% 38%, color-mix(in srgb, var(--tr-primary) 18%, transparent), transparent 70%),
+        var(--tr-bg);
+    color: var(--tr-text);
+}
+
+/* La luz del flash que sale de la cabina y baña la escena */
+.cb-intro__spill {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(45% 32% at 50% 40%, rgb(255 255 255 / 0.22), transparent 72%);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.cb-intro__eyebrow {
+    max-width: 22ch;
+    margin: 0;
+    font-family: var(--font-titles);
+    font-size: clamp(1rem, 4.6vw, 1.25rem);
+    font-weight: 600;
+    line-height: 1.3;
+    text-wrap: balance;
+    transition: opacity 0.4s ease;
+}
+
+.cb-scene {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    transition: transform 1s cubic-bezier(0.55, 0, 0.2, 1) 0.1s;
+}
+
+.cb-booth {
+    display: grid;
+    justify-items: center;
+    width: var(--cb-w);
+}
+
+/* El letrero encendido de arriba; el resplandor es una capa aparte que sube y baja */
+.cb-booth__sign {
+    position: relative;
+    width: 84%;
+    margin: 0;
+    padding: calc(var(--cb-w) * 0.035) 0 calc(var(--cb-w) * 0.03);
+    border-radius: 0.5rem 0.5rem 0.15rem 0.15rem;
+    background: var(--tr-primary);
+    color: var(--tr-ink-primary);
+    font-family: var(--font-titles);
+    font-size: calc(var(--cb-w) * 0.1);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: 0.22em;
+    text-indent: 0.22em;
+    text-transform: uppercase;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--tr-primary) 55%, #000);
+}
+
+.cb-booth__sign::after {
+    content: '';
+    position: absolute;
+    inset: -40% -12%;
+    z-index: -1;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, color-mix(in srgb, var(--tr-primary) 55%, transparent), transparent);
+    animation: cb-sign 3.4s ease-in-out infinite alternate;
+}
+
+@keyframes cb-sign {
+    from { opacity: 0.45; }
+    to { opacity: 1; }
+}
+
+.cb-booth__body {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    gap: calc(var(--cb-w) * 0.05);
+    width: 100%;
+    padding: calc(var(--cb-w) * 0.07) calc(var(--cb-w) * 0.07) calc(var(--cb-w) * 0.06);
+    border-radius: 0.7rem 0.7rem 0.3rem 0.3rem;
+    background:
+        linear-gradient(90deg, rgb(0 0 0 / 0.2), transparent 12%, transparent 88%, rgb(0 0 0 / 0.2)),
+        var(--tr-secondary);
+    box-shadow: inset 0 2px 0 rgb(255 255 255 / 0.18), 0 26px 30px -18px rgb(0 0 0 / 0.65);
+}
+
+/* La ventana con la cortina corrida */
+.cb-booth__window {
+    position: relative;
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 2.9;
+    overflow: hidden;
+    border-radius: 0.35rem;
+    background: radial-gradient(60% 60% at 50% 40%, color-mix(in srgb, var(--tr-bg) 80%, #fff), var(--cb-dark));
+    box-shadow: inset 0 0 0 3px color-mix(in srgb, var(--tr-secondary) 65%, #000), inset 0 10px 16px rgb(0 0 0 / 0.55);
+}
+
+.cb-booth__flash {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(55% 65% at 50% 45%, #fff, rgb(255 255 255 / 0.55) 45%, transparent 78%);
+    opacity: 0;
+}
+
+/* El resplandor del flash sobre la cortina (más suave que el de la abertura) */
+.cb-booth__glare {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(60% 70% at 50% 45%, rgb(255 255 255 / 0.5), rgb(255 255 255 / 0.12) 60%, transparent 85%);
+    opacity: 0;
+}
+
+.cb-curtain {
+    position: absolute;
+    top: 0.45rem;
+    bottom: 0;
+    width: 47%;
+    background: var(--cb-velvet);
+    box-shadow: 0 0 12px rgb(0 0 0 / 0.5);
+    transform-origin: 50% 0;
+    animation: cb-curtain 5s ease-in-out infinite alternate;
+}
+
+.cb-curtain--left {
+    left: -2%;
+    border-bottom-right-radius: 30% 10%;
+}
+
+.cb-curtain--right {
+    right: -2%;
+    border-bottom-left-radius: 30% 10%;
+    animation-delay: -2.5s;
+}
+
+@keyframes cb-curtain {
+    from { transform: rotate(0.7deg); }
+    to { transform: rotate(-0.7deg); }
+}
+
+.cb-booth__rod {
+    position: absolute;
+    top: 0.2rem;
+    left: 3%;
+    right: 3%;
+    height: 0.32rem;
+    border-radius: 0.2rem;
+    background: linear-gradient(180deg, #e2ded6, #8d877c);
+    box-shadow: 0 2px 3px rgb(0 0 0 / 0.4);
+}
+
+/* La pantallita: primero espera la pose y después cuenta 3, 2, 1 */
+.cb-booth__screen {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 64%;
+    height: calc(var(--cb-w) * 0.13);
+    overflow: hidden;
+    border-radius: 0.3rem;
+    background: var(--cb-dark);
+    box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--tr-secondary) 55%, #000), inset 0 0 12px rgb(0 0 0 / 0.6);
+    color: var(--tr-accent);
+    font-family: var(--font-titles);
+    font-weight: 700;
+}
+
+.cb-booth__ready {
+    font-size: calc(var(--cb-w) * 0.036);
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+    text-transform: uppercase;
+    text-shadow: 0 0 8px var(--cb-glow);
+    animation: cb-ready 2.2s ease-in-out infinite alternate;
+    transition: opacity 0.2s ease;
+}
+
+@keyframes cb-ready {
+    from { opacity: 0.55; }
+    to { opacity: 1; }
+}
+
+.cb-booth__screen i {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font-size: calc(var(--cb-w) * 0.09);
+    font-style: normal;
+    text-shadow: 0 0 10px var(--cb-glow);
+    opacity: 0;
+}
+
+/* El botón grande de la cabina, con su aro cromado y el latido que invita a tocarlo */
+.cb-booth__button {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: calc(var(--cb-w) * 0.32);
+    aspect-ratio: 1;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle at 40% 35%, color-mix(in srgb, var(--tr-accent) 55%, #fff), var(--tr-accent) 55%, color-mix(in srgb, var(--tr-accent) 78%, #000));
+    color: var(--tr-ink-accent);
+    font-family: var(--font-titles);
+    font-size: calc(var(--cb-w) * 0.062);
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow:
+        0 0 0 calc(var(--cb-w) * 0.022) color-mix(in srgb, var(--tr-secondary) 55%, #000),
+        0 0 0 calc(var(--cb-w) * 0.036) #d8d3c8,
+        0 7px 0 calc(var(--cb-w) * 0.036) color-mix(in srgb, var(--tr-secondary) 45%, #000),
+        0 16px 20px calc(var(--cb-w) * 0.02) rgb(0 0 0 / 0.45);
+    transition: transform 0.15s ease;
+}
+
+.cb-booth__button::after {
+    content: '';
+    position: absolute;
+    inset: -22%;
+    border: 2px solid var(--tr-accent);
+    border-radius: 50%;
+    opacity: 0;
+    animation: cb-ping 2.2s ease-out 1.2s infinite;
+}
+
+@keyframes cb-ping {
+    0% { transform: scale(0.82); opacity: 0.8; }
+    100% { transform: scale(1.2); opacity: 0; }
+}
+
+/* La ranura por donde sale la tira */
+.cb-booth__slot {
+    display: grid;
+    justify-items: center;
+    gap: 0.3rem;
+    width: 100%;
+    margin-top: calc(var(--cb-w) * 0.02);
+}
+
+.cb-booth__slot small {
+    font-size: calc(var(--cb-w) * 0.036);
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--tr-ink-secondary);
+}
+
+.cb-booth__slot::after {
+    content: '';
+    width: 50%;
+    height: 0.4rem;
+    border-radius: 0.3rem;
+    background: var(--cb-dark);
+    box-shadow: inset 0 2px 3px rgb(0 0 0 / 0.7);
+}
+
+/* La tira baja por debajo de la cabina, sobre el aviso (que ya se fue): se ve de a poco */
+.cb-drop {
+    position: absolute;
+    top: calc(100% - 0.55rem);
+    left: 50%;
+    width: calc(var(--cb-w) * 0.42);
+    height: calc(var(--cb-w) * 0.8);
+    overflow: hidden;
+    translate: -50% 0;
+}
+
+.cb-strip--intro {
+    font-size: calc(var(--cb-w) * 0.026);
+    transform: translateY(-101%);
+    transition: transform 1.1s cubic-bezier(0.3, 0.1, 0.3, 1) 2.05s;
+}
+
+.cb-strip--intro .cb-frame::after {
+    opacity: 1;
+    transition: opacity 1.4s ease 2.5s;
+}
+
+.cb-intro__guest {
+    margin: 0;
+    font-size: 0.86rem;
+    color: var(--inv-muted);
+    transition: opacity 0.4s ease;
+}
+
+.cb-intro__guest strong {
+    color: var(--tr-text);
+}
+
+.cb-intro__hint {
+    margin: 0;
+    font-size: 0.82rem;
+    color: var(--inv-muted);
+    animation: cb-hint 2.4s ease-in-out 1.5s infinite;
+    transition: opacity 0.3s ease;
+}
+
+@keyframes cb-hint {
+    50% { translate: 0 -3px; }
+}
+
+/* 1 · El botón se hunde, la pantallita cuenta, tres flashes y sale la tira */
+@keyframes cb-count {
+    0% { opacity: 0; transform: scale(1.5); }
+    20% { opacity: 1; transform: scale(1); }
+    80% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+/* Tres flashes en 1,2 s: uno cada 0,4 s, nunca más de tres por segundo */
+@keyframes cb-flash {
+    0%, 33.3%, 66.6%, 100% { opacity: 0; }
+    4%, 37.3%, 70.6% { opacity: 1; }
+    18%, 51.3%, 84.6% { opacity: 0; }
+}
+
+.cb-intro.is-shooting .cb-booth__button {
+    transform: translateY(5px) scale(0.96);
+}
+
+.cb-intro.is-shooting .cb-booth__button::after,
+.cb-intro.is-shooting .cb-booth__ready {
+    animation: none;
+    opacity: 0;
+}
+
+.cb-intro.is-shooting .cb-booth__screen i {
+    animation: cb-count 0.34s ease-out calc(0.12s + var(--n) * 0.34s) both;
+}
+
+.cb-intro.is-shooting :is(.cb-booth__flash, .cb-booth__glare, .cb-intro__spill) {
+    animation: cb-flash 1.2s linear 1.12s both;
+}
+
+.cb-intro.is-shooting .cb-strip--intro {
+    transform: translateY(-34%);
+}
+
+.cb-intro.is-shooting .cb-strip--intro .cb-frame::after {
+    opacity: 0;
+}
+
+.cb-intro.is-shooting :is(.cb-intro__hint, .cb-intro__guest) {
+    opacity: 0;
+    animation: none;
+}
+
+/* 2 · Se acerca la tira hasta la portada */
+.cb-intro.is-open .cb-scene {
+    transform: translateY(-12%) scale(1.3);
+}
+
+.cb-intro.is-open .cb-intro__eyebrow {
+    opacity: 0;
+}
+
+.cb-intro.is-open {
+    animation-delay: 0.7s;
+}
+
+/* ── Portada: la tira colgada entre las cortinas ────────────────────────── */
+
+.cb-hero {
+    position: relative;
+    align-content: start;
+    justify-items: center;
+    gap: 0.6rem;
+    min-height: 100svh;
+    padding: calc(4.8rem + env(safe-area-inset-top)) 1.25rem 1.75rem;
+    overflow: hidden;
+    background:
+        radial-gradient(70% 38% at 50% 38%, color-mix(in srgb, var(--tr-primary) 16%, transparent), transparent 70%),
+        var(--tr-bg);
+    color: var(--tr-text);
+    text-align: center;
+}
+
+.cb-hero > :not(.cb-hero__curtain) {
+    position: relative;
+    z-index: 1;
+}
+
+/* La cenefa de la cabina, con sus ondas */
+.cb-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 2;
+    height: 2.2rem;
+    background:
+        radial-gradient(circle at 50% 0, var(--tr-primary) 0 0.95rem, transparent 1rem) 0 100% / 2.2rem 1.1rem repeat-x,
+        var(--cb-velvet) 0 0 / 100% 1.2rem no-repeat;
+    filter: drop-shadow(0 6px 6px rgb(0 0 0 / 0.35));
+    pointer-events: none;
+}
+
+.cb-hero__curtain {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    z-index: 0;
+    width: 11vw;
+    max-width: 5rem;
+    background: var(--cb-velvet);
+    box-shadow: inset -12px 0 14px -10px rgb(0 0 0 / 0.55), 8px 0 18px -8px rgb(0 0 0 / 0.6);
+}
+
+.cb-hero__curtain--left {
+    left: 0;
+}
+
+.cb-hero__curtain--right {
+    right: 0;
+    scale: -1 1;
+}
+
+.cb-kicker {
+    margin: 0;
+    padding-left: 0.3em;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--tr-accent);
+}
+
+.cb-hero__name {
+    max-width: 76vw;
+    margin: 0;
+    font-family: var(--font-titles);
+    font-size: clamp(2.1rem, 10.5vw, 3.6rem);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+    overflow-wrap: anywhere;
+    text-wrap: balance;
+}
+
+.cb-hang {
+    margin-top: 2.2rem;
+    transform-origin: 50% -1.5rem;
+    animation: cb-sway 5s ease-in-out infinite alternate;
+}
+
+@keyframes cb-sway {
+    from { transform: rotate(-1deg); }
+    to { transform: rotate(1deg); }
+}
+
+/* La pinza que sostiene la tira */
+.cb-hang__clip {
+    position: absolute;
+    top: -1rem;
+    left: 50%;
+    z-index: 3;
+    width: 2.4rem;
+    height: 1.5rem;
+    translate: -50% 0;
+    border-radius: 0.2rem 0.2rem 0.4rem 0.4rem;
+    background: linear-gradient(180deg, #43454c, #17181b);
+    box-shadow: 0 3px 5px rgb(0 0 0 / 0.45);
+}
+
+.cb-hang__clip::before {
+    content: '';
+    position: absolute;
+    bottom: 70%;
+    left: 16%;
+    right: 16%;
+    height: 1.3rem;
+    border: 2px solid #b9bcc2;
+    border-bottom: 0;
+    border-radius: 0.6rem 0.6rem 0 0;
+}
+
+.cb-strip--hero {
+    width: min(62vw, 14.5rem);
+}
+
+.cb-strip--hero .cb-frame::after {
+    animation: cb-develop 1.8s ease 0.5s both;
+}
+
+@keyframes cb-develop {
+    from { opacity: 0.9; }
+    to { opacity: 0; }
+}
+
+.cb-message {
+    max-width: 32ch;
+    margin: 1.8rem 0 0;
+    line-height: 1.7;
+    color: var(--inv-muted);
+    text-wrap: pretty;
+}
+
+.cb-hero__scroll {
+    color: var(--tr-text);
+}
+
+/* ── Secciones: una sola tira larga, cuadro por cuadro ──────────────────── */
+
+.inv-cabina main {
+    padding: 1.2rem 0.75rem 0;
+}
+
+.inv-cabina main > .inv-section {
+    padding-block: 0;
+    border-top: 0;
+}
+
+/* Cada sección es un cuadro: el borde blanco del papel y, adentro, la foto oscura con su viñeta */
+.inv-cabina main > .inv-section > .inv-wrap {
+    position: relative;
+    padding-block: 3rem 3.2rem;
+    border: 0.75rem solid var(--cb-paper);
+    border-bottom-width: 0;
+    background: radial-gradient(90% 55% at 50% 30%, color-mix(in srgb, var(--tr-text) 6%, var(--tr-bg)), var(--tr-bg) 78%);
+}
+
+.inv-cabina main > .inv-section:first-child > .inv-wrap {
+    border-radius: 0.5rem 0.5rem 0 0;
+}
+
+.inv-cabina main > .inv-section:last-child > .inv-wrap {
+    border-bottom-width: 0.75rem;
+    border-radius: 0 0 0.5rem 0.5rem;
+}
+
+/* El sello naranja de la fecha, en la esquina de cada cuadro */
+.inv-cabina main > .inv-section > .inv-wrap::after {
+    content: var(--cb-stamp, '');
+    position: absolute;
+    right: 0.8rem;
+    bottom: 0.65rem;
+    font-family: var(--font-titles);
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    color: var(--tr-accent);
+    text-shadow: 0 0 6px var(--cb-glow);
+    opacity: 0.85;
+}
+
+.inv-cabina .invitation-lottie-framed {
+    display: none;
+}
+
+.inv-cabina .inv-head__eyebrow {
+    padding-left: 0.26em;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.26em;
+    color: var(--tr-accent);
+}
+
+.inv-cabina .inv-head__title {
+    font-size: clamp(1.7rem, 7.4vw, 2.4rem);
+    font-weight: 700;
+    line-height: 1.08;
+    letter-spacing: -0.01em;
+}
+
+/* El filete: tres cuadritos, como la tira */
+.inv-cabina .inv-head__rule {
+    width: 3.3rem;
+    height: 0.75rem;
+    border-radius: 2px;
+    background: linear-gradient(90deg,
+        var(--tr-primary) 0 30%, transparent 30% 35%,
+        var(--tr-accent) 35% 65%, transparent 65% 70%,
+        var(--cb-paper) 70%);
+    opacity: 1;
+}
+
+.inv-cabina :is(.inv-label, .inv-link, .inv-countdown__label) {
+    letter-spacing: 0.14em;
+}
+
+/* Botones: el botón de la cabina, con su canto que se hunde al tocarlo */
+.inv-cabina .inv-btn {
+    min-height: 3.2rem;
+    border: 0;
+    border-radius: 999px;
+    background: var(--tr-primary);
+    color: var(--tr-ink-primary);
+    font-family: var(--font-titles);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    box-shadow: 0 4px 0 color-mix(in srgb, var(--tr-primary) 55%, #000), 0 14px 22px -12px color-mix(in srgb, var(--tr-primary) 60%, transparent);
+}
+
+.inv-cabina .inv-btn:active {
+    translate: 0 3px;
+    box-shadow: 0 1px 0 color-mix(in srgb, var(--tr-primary) 55%, #000);
+}
+
+.inv-cabina .inv-btn--ghost {
+    background: transparent;
+    color: var(--tr-text);
+    box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--tr-text) 55%, transparent);
+}
+
+.inv-cabina .inv-btn:focus-visible {
+    outline: 2px solid var(--tr-accent);
+    outline-offset: 3px;
+}
+
+.inv-cabina .inv-choice {
+    border: 1.5px solid color-mix(in srgb, var(--tr-text) 25%, transparent);
+    border-radius: 0.8rem;
+    background: color-mix(in srgb, var(--tr-text) 5%, var(--tr-bg));
+    font-family: var(--font-titles);
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.inv-cabina .inv-choice.is-selected {
+    border-color: var(--tr-primary);
+    background: var(--tr-primary);
+    color: var(--tr-ink-primary);
+}
+
+.inv-cabina .inv-input {
+    border-bottom: 1.5px solid color-mix(in srgb, var(--tr-text) 40%, transparent);
+}
+
+.inv-cabina .inv-input:focus {
+    border-bottom-color: var(--tr-accent);
+}
+
+.inv-cabina .inv-poll__option,
+.inv-cabina .inv-stepper__btn {
+    border-color: color-mix(in srgb, var(--tr-text) 22%, transparent);
+    background: color-mix(in srgb, var(--tr-text) 5%, var(--tr-bg));
+}
+
+/* Cuenta regresiva: la pantallita de la cabina, con los números encendidos */
+.inv-cabina .inv-countdown__grid {
+    gap: 0.5rem;
+    border-block: 0;
+}
+
+.inv-cabina .inv-countdown__unit,
+.inv-cabina .inv-countdown__unit + .inv-countdown__unit {
+    padding: 1rem 0.2rem 0.8rem;
+    border: 0;
+    border-radius: 0.5rem;
+    background: var(--cb-dark);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tr-text) 12%, transparent), inset 0 0 18px rgb(0 0 0 / 0.5);
+}
+
+.inv-cabina .inv-countdown__value {
+    font-size: clamp(1.6rem, 8vw, 2.2rem);
+    font-weight: 700;
+    color: var(--tr-accent);
+    text-shadow: 0 0 12px var(--cb-glow);
+}
+
+.inv-cabina .inv-gallery__card {
+    border-radius: 0.2rem;
+    box-shadow: 0 0 0 0.35rem var(--cb-paper), 0 24px 30px -18px rgb(0 0 0 / 0.8);
+}
+
+.inv-cabina .inv-dress__swatch {
+    border-radius: 0.2rem;
+    box-shadow: 0 0 0 3px var(--cb-paper);
+}
+
+.inv-cabina .inv-pass {
+    box-shadow: 0 0 0 0.4rem var(--cb-paper), 0 20px 28px -18px rgb(0 0 0 / 0.8);
+}
+
+/* ── Programa: pose por pose ────────────────────────────────────────────── */
+
+.cb-poses {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.6rem 0.9rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.cb-pose {
+    --cb-tone: var(--tr-primary);
+    display: grid;
+    align-content: start;
+    gap: 0.65rem;
+    text-align: center;
+}
+
+.cb-pose:nth-child(3n + 2) { --cb-tone: var(--tr-secondary); }
+.cb-pose:nth-child(3n) { --cb-tone: var(--tr-accent); }
+
+/* Cada momento, un cuadro de la tira: el ícono es la foto y la hora va en el sello */
+.cb-pose__frame {
+    position: relative;
+    display: grid;
+    place-items: center;
+    aspect-ratio: 5 / 4;
+    border: 0.4rem solid var(--cb-paper);
+    border-radius: 0.2rem;
+    background: radial-gradient(85% 85% at 40% 30%, color-mix(in srgb, var(--cb-tone) 58%, var(--tr-bg)), color-mix(in srgb, var(--cb-tone) 16%, var(--tr-bg)) 85%);
+    color: color-mix(in srgb, #fff 90%, transparent);
+    box-shadow: 0 14px 20px -14px #000;
+}
+
+.cb-pose:nth-child(odd) .cb-pose__frame { rotate: -1.5deg; }
+.cb-pose:nth-child(even) .cb-pose__frame { rotate: 1.5deg; }
+
+.cb-pose__icon {
+    width: 40%;
+    height: auto;
+    stroke-width: 1.2;
+    filter: drop-shadow(0 2px 4px rgb(0 0 0 / 0.35));
+}
+
+.cb-pose__stamp {
+    position: absolute;
+    right: 0.4rem;
+    bottom: 0.25rem;
+    font-family: var(--font-titles);
+    font-size: 0.58rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: var(--tr-accent);
+    text-shadow: 0 0 6px var(--cb-glow), 0 0 1px #000;
+}
+
+.cb-pose__time {
+    font-family: var(--font-titles);
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--tr-accent);
+    font-variant-numeric: tabular-nums;
+}
+
+.cb-pose__title {
+    margin: 0.15rem 0 0;
+    font-family: var(--font-titles);
+    font-size: 0.98rem;
+    font-weight: 600;
+    line-height: 1.25;
+    text-wrap: balance;
+}
+
+.cb-pose__text {
+    margin: 0.3rem 0 0;
+    font-size: 0.82rem;
+    line-height: 1.45;
+    color: var(--inv-muted);
+}
+
+/* ── Gente favorita: salen en la foto ───────────────────────────────────── */
+
+.cb-hosts {
+    display: grid;
+    gap: 2rem;
+    margin: 0;
+    padding: 0.4rem 0 0;
+    list-style: none;
+}
+
+.cb-host {
+    display: grid;
+    justify-items: center;
+    gap: 0.35rem;
+    text-align: center;
+}
+
+/* El cuadro con el cartelito de iniciales, escrito con plumón */
+.cb-host__frame {
+    display: grid;
+    place-items: center;
+    width: min(64%, 12rem);
+    aspect-ratio: 5 / 4;
+    margin-bottom: 0.7rem;
+    border: 0.5rem solid var(--cb-paper);
+    border-radius: 0.2rem;
+    background: radial-gradient(85% 85% at 40% 30%, color-mix(in srgb, var(--tr-primary) 60%, var(--tr-bg)), color-mix(in srgb, var(--tr-primary) 18%, var(--tr-bg)) 85%);
+    box-shadow: 0 18px 24px -16px #000;
+    rotate: -2deg;
+}
+
+.cb-host:nth-child(even) .cb-host__frame {
+    rotate: 2deg;
+}
+
+.cb-host__frame b,
+.cb-contact__frame b {
+    padding: 0.15em 0.55em 0.1em;
+    border-radius: 0.15rem;
+    background: var(--cb-paper);
+    color: var(--cb-paper-ink, #1b1a1f);
+    font-family: var(--font-script);
+    font-size: 2.2rem;
+    font-weight: 400;
+    line-height: 1.1;
+    box-shadow: 0 4px 8px rgb(0 0 0 / 0.35);
+    rotate: 4deg;
+}
+
+.cb-host__role {
+    padding-left: 0.2em;
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--tr-accent);
+}
+
+.cb-host__names {
+    font-family: var(--font-titles);
+    font-size: 1.15rem;
+    font-weight: 600;
+    line-height: 1.3;
+    text-wrap: balance;
+}
+
+.cb-host__message {
+    max-width: 30ch;
+    font-size: 0.9rem;
+    line-height: 1.55;
+    color: var(--inv-muted);
+}
+
+/* Cada grupo, una hoja de contactos */
+.cb-sheet {
+    margin-top: 2.4rem;
+    padding-top: 1.8rem;
+    border-top: 1px solid color-mix(in srgb, var(--tr-text) 15%, transparent);
+}
+
+.cb-sheet__title {
+    margin: 0 0 1.1rem;
+    font-family: var(--font-titles);
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-align: center;
+}
+
+/* Los cuadritos se centran fila por fila: nunca queda uno solo corrido a un lado */
+.cb-sheet__grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.1rem 0.6rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.cb-contact {
+    --cb-tone: var(--tr-primary);
+    width: 5.3rem;
+    display: grid;
+    justify-items: center;
+    align-content: start;
+    gap: 0.3rem;
+    text-align: center;
+}
+
+.cb-contact:nth-child(3n + 2) { --cb-tone: var(--tr-secondary); }
+.cb-contact:nth-child(3n) { --cb-tone: var(--tr-accent); }
+
+.cb-contact__frame {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    aspect-ratio: 1;
+    margin-bottom: 0.25rem;
+    border: 0.3rem solid var(--cb-paper);
+    border-radius: 0.15rem;
+    background: radial-gradient(85% 85% at 40% 30%, color-mix(in srgb, var(--cb-tone) 58%, var(--tr-bg)), color-mix(in srgb, var(--cb-tone) 16%, var(--tr-bg)) 85%);
+    box-shadow: 0 12px 16px -12px #000;
+}
+
+.cb-contact__frame b {
+    font-size: 1.3rem;
+}
+
+.cb-contact__name {
+    font-size: 0.86rem;
+    font-weight: 600;
+    line-height: 1.25;
+}
+
+.cb-contact small {
+    font-size: 0.74rem;
+    line-height: 1.35;
+    color: var(--inv-muted);
+}
+
+@media (min-width: 560px) {
+    .cb-hosts {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* ── Fondo: flashes que se disparan despacio en la fiesta ───────────────── */
+
+.inv-cabina .inv-themed-bg__glow {
+    background:
+        radial-gradient(45% 30% at 20% 26%, color-mix(in srgb, var(--tr-primary) 14%, transparent), transparent 70%),
+        radial-gradient(45% 30% at 80% 70%, color-mix(in srgb, var(--tr-secondary) 14%, transparent), transparent 70%);
+}
+
+.cb-ambient {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.cb-ambient__flash {
+    position: absolute;
+    top: var(--top);
+    width: 70vmin;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgb(255 255 255 / 0.2), color-mix(in srgb, var(--tr-accent) 12%, transparent) 45%, transparent 72%);
+    opacity: 0;
+    animation: cb-glow 7s ease-in-out var(--delay) infinite;
+}
+
+.cb-ambient__flash--left { left: -35vmin; }
+.cb-ambient__flash--right { right: -35vmin; }
+
+@keyframes cb-glow {
+    0%, 58%, 100% { opacity: 0; }
+    68% { opacity: 1; }
+    84% { opacity: 0.2; }
+}
+
+.inv-drift--flash {
+    --drift-a: #fff;
+    --drift-b: var(--tr-accent);
+    opacity: 0.4;
+}
+
+/* ── Pie e historia ─────────────────────────────────────────────────────── */
+
+.inv-cabina .inv-cabina-footer {
+    border-top: 0;
+}
+
+.inv-cabina-footer .inv-footer__ornament--line {
+    width: 3.3rem;
+    height: 0.75rem;
+    border-radius: 2px;
+    background: linear-gradient(90deg,
+        var(--tr-primary) 0 30%, transparent 30% 35%,
+        var(--tr-accent) 35% 65%, transparent 65% 70%,
+        var(--cb-paper) 70%);
+}
+
+/* Modo historia: cada escena es la siguiente pose; la que pasa sube como la tira que sale */
+.inv-story-invitation .inv-cabina .inv-scene {
+    --story-scene-bg: var(--tr-bg);
+    translate: 0 8%;
+    opacity: 0;
+    transition: translate 0.7s var(--tr-ease), opacity 0.45s ease, visibility 0s linear 0.7s;
+}
+
+.inv-story-invitation .inv-cabina .inv-scene.is-past {
+    translate: 0 -8%;
+}
+
+.inv-story-invitation .inv-cabina .inv-scene.is-active {
+    translate: 0 0;
+    opacity: 1;
+    transition-delay: 0s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cb-booth__sign::after,
+    .cb-curtain,
+    .cb-booth__ready,
+    .cb-booth__button::after,
+    .cb-intro__hint,
+    .cb-hang,
+    .cb-strip--hero .cb-frame::after,
+    .cb-ambient__flash {
+        animation: none !important;
+    }
+
+    .cb-strip--hero .cb-frame::after {
+        opacity: 0;
+    }
+}

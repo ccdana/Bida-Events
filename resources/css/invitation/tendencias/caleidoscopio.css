@@ -1,0 +1,855 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   INVITACIÓN — «Caleidoscopio» (XV años · colección tendencias)
+
+   Quince años, mil formas de verse. Se entra por el visor de un caleidoscopio:
+   doce espejos muestran el mismo trozo de cristales y los impares lo reflejan,
+   así el dibujo es simétrico de verdad; al tocarlo gira el anillo, los
+   cristales se reacomodan, aparece el «XV» y el visor crece hasta llenar la
+   pantalla. La portada es un «XV» enorme pintado con los colores del prisma con
+   la foto en un hexágono delante; cada sección es una celda de cristal con su
+   mandala, el programa cuelga de una línea de luz y los padrinos forman el
+   rosetón. Al fondo gira, muy despacio, un mandala enorme.
+
+   Todo sale de la paleta del editor (nace oscura, pero funciona con cualquiera):
+     la noche del visor = fondo · la luz y los textos = texto · los tres cristales
+     = principal, secundario y acento. El cristal de las celdas es el texto
+     mezclado con el fondo; sobre el principal va su tinta (--tr-ink-primary).
+   ════════════════════════════════════════════════════════════════════════════ */
+
+@import './_base.css';
+
+.inv-caleidoscopio {
+    --inv-radius: 0.9rem;
+    --ka-glass: color-mix(in srgb, var(--tr-text) 6%, var(--tr-bg));
+    --ka-glass-strong: color-mix(in srgb, var(--tr-text) 11%, var(--tr-bg));
+    --ka-edge: color-mix(in srgb, var(--tr-text) 16%, transparent);
+    --ka-prism: linear-gradient(90deg, var(--tr-primary), var(--tr-accent) 50%, var(--tr-secondary));
+    --ka-prism-conic: conic-gradient(from 0deg, var(--tr-primary), var(--tr-accent), var(--tr-secondary), var(--tr-primary));
+    /* Los cristales: un mosaico de círculos, barras y cuñas de los tres colores, con tamaños de baldosa
+       distintos para que no se note la repetición. Gira detrás de cada espejo */
+    --ka-shards:
+        radial-gradient(circle, color-mix(in srgb, #fff 85%, transparent) 0 5%, transparent 6%) 0 0 / 11% 13%,
+        radial-gradient(circle at 30% 30%, color-mix(in srgb, var(--tr-primary) 88%, transparent) 0 17%, transparent 18%) 0 0 / 23% 21%,
+        radial-gradient(circle at 60% 60%, color-mix(in srgb, var(--tr-secondary) 85%, transparent) 0 12%, transparent 13%) 0 0 / 17% 19%,
+        radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--tr-accent) 85%, transparent) 0 9%, transparent 10%) 0 0 / 13% 29%,
+        linear-gradient(130deg, transparent 44%, color-mix(in srgb, var(--tr-secondary) 70%, transparent) 44% 48%, transparent 48%) 0 0 / 19% 23%,
+        linear-gradient(40deg, transparent 56%, color-mix(in srgb, var(--tr-accent) 80%, transparent) 56% 60%, transparent 60%) 0 0 / 29% 17%,
+        conic-gradient(from 20deg at 50% 50%, transparent 0 22%, color-mix(in srgb, var(--tr-primary) 60%, transparent) 22% 27%, transparent 27%) 0 0 / 31% 27%;
+    --ka-hexagon: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
+    --themed-from: translate3d(0, 24px, 0) scale(0.985);
+
+    background: var(--tr-bg);
+    counter-reset: ka-cell;
+}
+
+.inv-caleidoscopio.has-player {
+    padding-bottom: calc(5.25rem + env(safe-area-inset-bottom));
+}
+
+/* ── Apertura: el visor ─────────────────────────────────────────────────── */
+
+.ka-intro.inv-themed-intro {
+    --ka-scope-w: min(78vw, 22rem, 46svh);
+    gap: clamp(0.8rem, 2.4svh, 1.4rem);
+    background:
+        radial-gradient(60% 45% at 50% 44%, color-mix(in srgb, var(--tr-primary) 16%, transparent), transparent 72%),
+        var(--tr-bg);
+    color: var(--tr-text);
+}
+
+.ka-intro__eyebrow {
+    margin: 0;
+    font-family: var(--font-script);
+    font-size: clamp(1.7rem, 7.5vw, 2.2rem);
+    font-style: italic;
+    line-height: 1;
+    color: color-mix(in srgb, var(--tr-accent) 55%, var(--tr-text));
+    transition: opacity 0.4s ease;
+}
+
+.ka-scope {
+    position: relative;
+    width: var(--ka-scope-w);
+    aspect-ratio: 1;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: none;
+    cursor: pointer;
+    transition: transform 1.1s cubic-bezier(0.55, 0, 0.25, 1), opacity 0.5s ease 0.6s;
+}
+
+/* El anillo del visor con sus marcas de giro */
+.ka-scope__ring {
+    position: absolute;
+    inset: -0.9rem;
+    border-radius: 50%;
+    background:
+        repeating-conic-gradient(from 0deg, color-mix(in srgb, var(--tr-text) 55%, transparent) 0 0.8deg, transparent 0.8deg 10deg),
+        conic-gradient(from 200deg, color-mix(in srgb, var(--tr-text) 22%, var(--tr-bg)), color-mix(in srgb, var(--tr-text) 8%, var(--tr-bg)) 30%, color-mix(in srgb, var(--tr-text) 26%, var(--tr-bg)) 55%, color-mix(in srgb, var(--tr-text) 8%, var(--tr-bg)) 80%, color-mix(in srgb, var(--tr-text) 22%, var(--tr-bg)));
+    -webkit-mask: radial-gradient(closest-side, transparent calc(100% - 0.85rem), #000 calc(100% - 0.8rem));
+    mask: radial-gradient(closest-side, transparent calc(100% - 0.85rem), #000 calc(100% - 0.8rem));
+    box-shadow: 0 0 2.5rem color-mix(in srgb, var(--tr-primary) 25%, transparent);
+    transition: rotate 1.2s cubic-bezier(0.55, 0, 0.25, 1);
+}
+
+.ka-scope__view {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    border-radius: 50%;
+    background: radial-gradient(circle, color-mix(in srgb, var(--tr-text) 10%, var(--tr-bg)), var(--tr-bg) 75%);
+    box-shadow: inset 0 0 1.5rem rgb(0 0 0 / 0.55);
+    transition: rotate 1.2s cubic-bezier(0.55, 0, 0.25, 1);
+}
+
+/* Cada espejo: una porción de 30°; los impares reflejan el dibujo del de al lado */
+.ka-wedge {
+    position: absolute;
+    inset: 0;
+    /* Un poco más de 30° para que no queden rayitas entre espejos */
+    clip-path: polygon(50% 50%, 36.4% -0.5%, 63.6% -0.5%);
+    rotate: calc(var(--w) * 30deg);
+}
+
+.ka-wedge:nth-child(even) {
+    scale: -1 1;
+}
+
+.ka-wedge i {
+    position: absolute;
+    inset: -25%;
+    background: var(--ka-shards);
+    animation: ka-shift 40s linear infinite;
+    transition: translate 1.2s cubic-bezier(0.55, 0, 0.25, 1);
+}
+
+/* El «XV» del centro, que aparece al girar */
+.ka-scope__center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: grid;
+    place-items: center;
+    width: 34%;
+    aspect-ratio: 1.1547;
+    translate: -50% -50%;
+    background: var(--tr-bg);
+    clip-path: var(--ka-hexagon);
+    scale: 0;
+    transition: scale 0.6s var(--tr-spring) 0.75s;
+}
+
+.ka-scope__center b {
+    font-family: var(--font-titles);
+    font-size: clamp(1.5rem, 7vw, 2.1rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    background: var(--ka-prism);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.ka-intro__name {
+    margin: 0.4rem 0 0;
+    font-family: var(--font-titles);
+    font-size: clamp(1.9rem, 9vw, 2.6rem);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+    transition: opacity 0.4s ease;
+}
+
+.ka-intro__meta {
+    display: grid;
+    justify-items: center;
+    gap: 0.2rem;
+    transition: opacity 0.4s ease;
+}
+
+.ka-intro__date {
+    margin: 0;
+    font-size: 0.9rem;
+    letter-spacing: 0.08em;
+}
+
+.ka-intro__guest,
+.ka-intro__hint {
+    margin: 0;
+    font-size: 0.82rem;
+    color: var(--inv-muted);
+}
+
+.ka-intro__hint {
+    animation: ka-hint 2.4s ease-in-out 1.5s infinite;
+    transition: opacity 0.3s ease;
+}
+
+@keyframes ka-shift {
+    to { rotate: 360deg; }
+}
+
+@keyframes ka-hint {
+    50% { translate: 0 -3px; }
+}
+
+/* 1 · Gira el anillo, los cristales se reacomodan y aparece el «XV» en el centro */
+.ka-intro.is-turning .ka-scope__ring {
+    rotate: 120deg;
+}
+
+.ka-intro.is-turning .ka-scope__view {
+    rotate: -60deg;
+}
+
+.ka-intro.is-turning .ka-wedge i {
+    translate: 0 9%;
+}
+
+.ka-intro.is-turning .ka-scope__center {
+    scale: 1;
+}
+
+.ka-intro.is-turning :is(.ka-intro__hint, .ka-intro__eyebrow) {
+    opacity: 0;
+    animation: none;
+}
+
+/* 2 · El visor crece hasta llenar la pantalla y se entra a la portada */
+.ka-intro.is-open .ka-scope {
+    transform: scale(5.5);
+    opacity: 0;
+}
+
+.ka-intro.is-open :is(.ka-intro__name, .ka-intro__meta) {
+    opacity: 0;
+}
+
+.ka-intro.is-open {
+    animation-delay: 0.9s;
+}
+
+/* ── Portada: el «XV» de cristal y la foto en el hexágono ──────────────── */
+
+.ka-hero {
+    align-content: start;
+    justify-items: center;
+    gap: 1rem;
+    min-height: 100svh;
+    padding: calc(4.5rem + env(safe-area-inset-top)) 1.25rem 1.5rem;
+    background:
+        radial-gradient(60% 40% at 50% 30%, color-mix(in srgb, var(--tr-primary) 14%, transparent), transparent 72%),
+        var(--tr-bg);
+    color: var(--tr-text);
+    text-align: center;
+}
+
+.ka-kicker {
+    margin: 0;
+    padding-left: 0.36em;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.36em;
+    text-transform: uppercase;
+    color: var(--inv-accent-ink);
+}
+
+.ka-emblem {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: min(92vw, 26rem);
+}
+
+/* El «XV» pintado con los colores del prisma */
+.ka-emblem__xv {
+    grid-area: 1 / 1;
+    font-family: var(--font-titles);
+    font-size: clamp(9rem, 50vw, 15rem);
+    font-weight: 800;
+    line-height: 0.8;
+    letter-spacing: -0.06em;
+    background: var(--ka-prism-conic);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    opacity: 0.9;
+}
+
+.ka-hex {
+    position: relative;
+    grid-area: 1 / 1;
+    width: min(56vw, 14.5rem);
+    aspect-ratio: 1.1547;
+    margin: 0;
+    filter: drop-shadow(0 20px 26px rgb(0 0 0 / 0.45));
+}
+
+.ka-hex__rim,
+.ka-hex__photo {
+    position: absolute;
+    clip-path: var(--ka-hexagon);
+}
+
+.ka-hex__rim {
+    inset: 0;
+    background: var(--ka-prism-conic);
+}
+
+.ka-hex__photo {
+    inset: 0.4rem;
+    overflow: hidden;
+    background: var(--ka-glass-strong);
+}
+
+.ka-hex__photo .tr-cover-img {
+    object-position: 50% 30%;
+}
+
+.ka-name {
+    margin: 0.4rem 0 0;
+    font-family: var(--font-titles);
+    font-size: clamp(2.3rem, 11vw, 3.8rem);
+    font-weight: 800;
+    line-height: 0.98;
+    letter-spacing: -0.03em;
+    text-wrap: balance;
+    overflow-wrap: break-word;
+}
+
+.ka-name em {
+    font-family: var(--font-script);
+    font-weight: 400;
+    font-style: italic;
+    letter-spacing: 0;
+    color: color-mix(in srgb, var(--tr-accent) 60%, var(--tr-text));
+}
+
+/* Las tres facetas: día, hora y lugar */
+.ka-facets {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.5rem;
+    width: min(100%, 24rem);
+    margin: 0.4rem 0 0;
+}
+
+.ka-facet {
+    position: relative;
+    padding: 0.8rem 1rem 0.85rem;
+    overflow: hidden;
+    border-radius: 0.9rem;
+    background: var(--ka-glass);
+    box-shadow: inset 0 0 0 1px var(--ka-edge);
+    text-align: left;
+}
+
+.ka-facet::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 2px;
+    background: var(--ka-prism);
+}
+
+.ka-facet--wide {
+    grid-column: 1 / -1;
+}
+
+.ka-facet dt {
+    font-size: 0.64rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--inv-accent-ink);
+}
+
+.ka-facet dd {
+    margin: 0.2rem 0 0;
+    font-family: var(--font-titles);
+    font-size: 1.08rem;
+    font-weight: 600;
+    line-height: 1.25;
+}
+
+.ka-message {
+    max-width: 34ch;
+    margin: 0.4rem 0 0;
+    line-height: 1.7;
+    color: var(--inv-muted);
+    text-wrap: pretty;
+}
+
+.ka-hero__scroll {
+    color: var(--tr-text);
+}
+
+/* ── Secciones: celdas de cristal con su mandala ────────────────────────── */
+
+.inv-caleidoscopio main > .inv-section {
+    counter-increment: ka-cell;
+    border-top: 0;
+    padding-block: 2.4rem 0.4rem;
+}
+
+.inv-caleidoscopio main > .inv-section > .inv-wrap {
+    position: relative;
+    width: calc(100% - 1.5rem);
+    padding-block: 3.4rem 2.6rem;
+    border-radius: 1.4rem;
+    background: var(--ka-glass);
+    box-shadow: inset 0 0 0 1px var(--ka-edge), 0 24px 40px -30px rgb(0 0 0 / 0.6);
+}
+
+/* El filo de luz de arriba */
+.inv-caleidoscopio main > .inv-section > .inv-wrap::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 12%;
+    right: 12%;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--ka-prism);
+}
+
+/* Su mandala, centrado sobre el borde, que gira despacio */
+.inv-caleidoscopio main > .inv-section > .inv-wrap::after {
+    content: '';
+    position: absolute;
+    top: -1.5rem;
+    left: 50%;
+    width: 3rem;
+    height: 3rem;
+    margin-left: -1.5rem;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle, var(--tr-bg) 0 18%, transparent 19%),
+        repeating-conic-gradient(from 0deg, var(--tr-primary) 0 15deg, var(--tr-accent) 15deg 30deg, var(--tr-secondary) 30deg 45deg);
+    -webkit-mask: radial-gradient(circle, #000 0 62%, transparent 63% 70%, #000 71%);
+    mask: radial-gradient(circle, #000 0 62%, transparent 63% 70%, #000 71%);
+    box-shadow: 0 0 0 4px var(--tr-bg);
+    animation: ka-spin 30s linear infinite;
+}
+
+.inv-caleidoscopio main > .inv-section:nth-of-type(even) > .inv-wrap::after {
+    animation-direction: reverse;
+    background:
+        radial-gradient(circle, var(--tr-bg) 0 18%, transparent 19%),
+        repeating-conic-gradient(from 7.5deg, var(--tr-secondary) 0 15deg, var(--tr-primary) 15deg 30deg, var(--tr-accent) 30deg 45deg);
+}
+
+@keyframes ka-spin {
+    to { rotate: 360deg; }
+}
+
+.inv-caleidoscopio .invitation-lottie-framed {
+    display: none;
+}
+
+.inv-caleidoscopio .inv-head__eyebrow {
+    padding-left: 0.3em;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.3em;
+    color: var(--inv-accent-ink);
+}
+
+.inv-caleidoscopio .inv-head__title {
+    font-size: clamp(2.2rem, 10vw, 3.3rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+}
+
+.inv-caleidoscopio .inv-head__rule {
+    width: 4rem;
+    height: 3px;
+    border-radius: 3px;
+    background: var(--ka-prism);
+    opacity: 1;
+}
+
+.inv-caleidoscopio :is(.inv-label, .inv-link, .inv-btn, .inv-countdown__label) {
+    letter-spacing: 0.14em;
+}
+
+/* Botones: el primer cristal, con su tinta y un halo de su color */
+.inv-caleidoscopio .inv-btn {
+    min-height: 3.15rem;
+    border: 0;
+    border-radius: 999px;
+    background: var(--tr-primary);
+    color: var(--tr-ink-primary);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, #fff 25%, transparent), 0 12px 26px -12px color-mix(in srgb, var(--tr-primary) 70%, transparent);
+}
+
+.inv-caleidoscopio .inv-btn--ghost {
+    background: var(--ka-glass-strong);
+    color: var(--tr-text);
+    box-shadow: inset 0 0 0 1px var(--ka-edge);
+}
+
+.inv-caleidoscopio .inv-choice {
+    border: 1px solid var(--ka-edge);
+    border-radius: 999px;
+    background: var(--ka-glass-strong);
+    color: var(--tr-text);
+}
+
+.inv-caleidoscopio .inv-choice.is-selected {
+    border-color: var(--tr-primary);
+    background: var(--tr-primary);
+    color: var(--tr-ink-primary);
+    box-shadow: 0 10px 22px -12px color-mix(in srgb, var(--tr-primary) 70%, transparent);
+}
+
+.inv-caleidoscopio .inv-input {
+    padding: 0.8rem 1rem;
+    border: 1px solid var(--ka-edge);
+    border-radius: 0.8rem;
+    background: var(--ka-glass-strong);
+}
+
+.inv-caleidoscopio .inv-input:focus {
+    border-color: var(--tr-secondary);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--tr-secondary) 25%, transparent);
+}
+
+.inv-caleidoscopio .inv-poll__option,
+.inv-caleidoscopio .inv-stepper__btn {
+    border-color: var(--ka-edge);
+    background: var(--ka-glass-strong);
+}
+
+/* Cuenta regresiva: facetas con el filo de luz arriba */
+.inv-caleidoscopio .inv-countdown__grid {
+    gap: 0.5rem;
+    border-block: 0;
+}
+
+.inv-caleidoscopio .inv-countdown__unit,
+.inv-caleidoscopio .inv-countdown__unit + .inv-countdown__unit {
+    position: relative;
+    overflow: hidden;
+    border: 0;
+    border-radius: 0.9rem;
+    background: var(--ka-glass-strong);
+    box-shadow: inset 0 0 0 1px var(--ka-edge);
+}
+
+.inv-caleidoscopio .inv-countdown__unit::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 2px;
+    background: var(--ka-prism);
+}
+
+.inv-caleidoscopio .inv-countdown__value {
+    font-family: var(--font-titles);
+    font-weight: 800;
+}
+
+.inv-caleidoscopio .inv-gallery__card {
+    border-radius: 1rem;
+    box-shadow: 0 0 0 1px var(--ka-edge), 0 24px 34px -22px rgb(0 0 0 / 0.65);
+}
+
+/* Vestimenta: cada color es un cristal hexagonal */
+.inv-caleidoscopio .inv-dress__swatch {
+    border-radius: 0;
+    clip-path: var(--ka-hexagon);
+}
+
+.inv-caleidoscopio .inv-pass {
+    border: 0;
+    border-radius: 1.2rem;
+    background: var(--ka-glass-strong);
+    box-shadow: inset 0 0 0 1px var(--ka-edge);
+}
+
+/* ── Programa: los momentos cuelgan de una línea de luz ─────────────────── */
+
+.ka-prisms {
+    position: relative;
+    display: grid;
+    gap: 1.3rem;
+    margin: 0;
+    padding: 0.4rem 0 0;
+    list-style: none;
+}
+
+.ka-prisms::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 2px;
+    margin-left: -1px;
+    background: linear-gradient(180deg, var(--tr-primary), var(--tr-accent) 50%, var(--tr-secondary));
+    opacity: 0.6;
+}
+
+.ka-prism {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    gap: 0.25rem;
+    padding: 2rem 1.1rem 1.15rem;
+    border-radius: 1rem;
+    background: var(--tr-bg);
+    box-shadow: inset 0 0 0 1px var(--ka-edge);
+    text-align: center;
+}
+
+/* El prisma de cada momento, en el eje; va pasando por los tres colores */
+.ka-prism__gem {
+    position: absolute;
+    top: -0.75rem;
+    left: 50%;
+    width: 1.5rem;
+    height: 1.5rem;
+    margin-left: -0.75rem;
+    background: var(--tr-primary);
+    clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+    box-shadow: 0 0 1rem var(--tr-primary);
+}
+
+.ka-prism:nth-child(3n + 2) .ka-prism__gem { background: var(--tr-accent); }
+.ka-prism:nth-child(3n) .ka-prism__gem { background: var(--tr-secondary); }
+
+.ka-prism__time {
+    font-family: var(--font-titles);
+    font-size: 1.05rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    color: var(--inv-accent-ink);
+    font-variant-numeric: tabular-nums;
+}
+
+.ka-prism__title {
+    margin: 0;
+    font-family: var(--font-titles);
+    font-size: 1.3rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.ka-prism__text {
+    max-width: 32ch;
+    margin: 0.15rem 0 0;
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: var(--inv-muted);
+}
+
+/* ── Padrinos: el rosetón ───────────────────────────────────────────────── */
+
+.ka-rosette {
+    display: grid;
+    gap: 1rem;
+    margin: 0;
+    padding: 0.4rem 0 0;
+    list-style: none;
+}
+
+.ka-sponsor {
+    display: grid;
+    justify-items: center;
+    gap: 0.35rem;
+    padding: 1.3rem 1.1rem 1.3rem;
+    border-radius: 1rem;
+    background: var(--ka-glass-strong);
+    box-shadow: inset 0 0 0 1px var(--ka-edge);
+    text-align: center;
+}
+
+.ka-sponsor__badge {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 3.4rem;
+    aspect-ratio: 1.1547;
+    margin-bottom: 0.3rem;
+    background: var(--ka-prism-conic);
+    clip-path: var(--ka-hexagon);
+}
+
+.ka-sponsor__badge b {
+    display: grid;
+    place-items: center;
+    width: calc(100% - 0.5rem);
+    height: calc(100% - 0.45rem);
+    background: var(--tr-bg);
+    clip-path: var(--ka-hexagon);
+    font-family: var(--font-titles);
+    font-size: 1.3rem;
+    font-weight: 800;
+}
+
+.ka-sponsor__role {
+    padding-left: 0.2em;
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--inv-accent-ink);
+}
+
+.ka-sponsor__names {
+    font-family: var(--font-titles);
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1.25;
+    text-wrap: balance;
+}
+
+.ka-sponsor__message {
+    max-width: 30ch;
+    font-family: var(--font-script);
+    font-size: 1.02rem;
+    font-style: italic;
+    line-height: 1.45;
+    color: var(--inv-muted);
+}
+
+.ka-court {
+    display: grid;
+    gap: 1.6rem;
+    margin-top: 2.2rem;
+    padding-top: 1.8rem;
+    border-top: 1px solid var(--ka-edge);
+}
+
+.ka-court__title {
+    margin: 0 0 0.8rem;
+    font-family: var(--font-titles);
+    font-size: 1.4rem;
+    font-weight: 800;
+    text-align: center;
+}
+
+.ka-court__list {
+    display: grid;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    text-align: center;
+}
+
+.ka-court__name::before {
+    content: '';
+    display: inline-block;
+    width: 0.45rem;
+    height: 0.45rem;
+    margin-right: 0.5rem;
+    vertical-align: 0.15em;
+    background: var(--tr-primary);
+    rotate: 45deg;
+}
+
+.ka-court__list li:nth-child(3n + 2) .ka-court__name::before { background: var(--tr-accent); }
+.ka-court__list li:nth-child(3n) .ka-court__name::before { background: var(--tr-secondary); }
+
+.ka-court__list small {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--inv-muted);
+}
+
+@media (min-width: 560px) {
+    .ka-rosette,
+    .ka-court {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* ── Fondo: el mandala que gira despacio ────────────────────────────────── */
+
+.inv-caleidoscopio .inv-themed-bg__glow {
+    background:
+        radial-gradient(40% 30% at 18% 22%, color-mix(in srgb, var(--tr-primary) 16%, transparent), transparent 70%),
+        radial-gradient(40% 30% at 82% 74%, color-mix(in srgb, var(--tr-secondary) 14%, transparent), transparent 70%);
+}
+
+.ka-ambient {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.ka-ambient__mandala {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 150vmax;
+    height: 150vmax;
+    margin: -75vmax 0 0 -75vmax;
+    border-radius: 50%;
+    background:
+        repeating-conic-gradient(from 0deg, color-mix(in srgb, var(--tr-primary) 55%, transparent) 0 4deg, transparent 4deg 15deg),
+        repeating-conic-gradient(from 7.5deg, color-mix(in srgb, var(--tr-secondary) 45%, transparent) 0 3deg, transparent 3deg 15deg),
+        repeating-radial-gradient(circle, transparent 0 7vmax, color-mix(in srgb, var(--tr-accent) 35%, transparent) 7vmax 7.3vmax);
+    -webkit-mask: radial-gradient(circle, #000 0 8%, transparent 45%);
+    mask: radial-gradient(circle, #000 0 8%, transparent 45%);
+    opacity: 0.18;
+    animation: ka-spin 140s linear infinite;
+}
+
+.inv-drift--prisma {
+    --drift-a: var(--tr-accent);
+    --drift-b: var(--tr-secondary);
+    opacity: 0.7;
+}
+
+/* ── Pie e historia ─────────────────────────────────────────────────────── */
+
+.inv-caleidoscopio .inv-caleidoscopio-footer {
+    border-top: 0;
+}
+
+.inv-caleidoscopio-footer .inv-footer__ornament--line {
+    width: 4rem;
+    height: 3px;
+    border-radius: 3px;
+    background: var(--ka-prism);
+}
+
+/* Modo historia: cada escena entra girando, como un giro del visor */
+.inv-story-invitation .inv-caleidoscopio .inv-scene {
+    --story-scene-bg: var(--tr-bg);
+    rotate: 8deg;
+    scale: 0.9;
+    opacity: 0;
+    transition: rotate 0.8s var(--tr-ease), scale 0.8s var(--tr-ease), opacity 0.5s ease, visibility 0s linear 0.8s;
+}
+
+.inv-story-invitation .inv-caleidoscopio .inv-scene.is-past {
+    rotate: -8deg;
+}
+
+.inv-story-invitation .inv-caleidoscopio .inv-scene.is-active {
+    rotate: 0deg;
+    scale: 1;
+    opacity: 1;
+    transition-delay: 0s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ka-wedge i,
+    .ka-intro__hint,
+    .ka-ambient__mandala,
+    .inv-caleidoscopio main > .inv-section > .inv-wrap::after {
+        animation: none !important;
+    }
+}

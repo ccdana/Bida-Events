@@ -19,16 +19,16 @@ return [
     'modules' => [
         'config' => [
             'colores' => [
-                'primary' => '#C97B84',
-                'secondary' => '#5C3D42',
-                'accent' => '#F8E4E6',
-                'text' => '#3A2828',
-                'background' => '#FFF8F8',
+                'primary' => '#6D1F35',
+                'secondary' => '#35506B',
+                'accent' => '#E6D2B5',
+                'text' => '#1E1A1A',
+                'background' => '#F6F1E9',
             ],
             'tipografias' => [
-                'titulos' => 'Playfair Display',
-                'cuerpo' => 'Montserrat',
-                'script' => 'Great Vibes',
+                'titulos' => 'Bodoni Moda',
+                'cuerpo' => 'Instrument Sans',
+                'script' => 'Mrs Saint Delafield',
             ],
             'modulos' => [
                 'bienvenida' => true,

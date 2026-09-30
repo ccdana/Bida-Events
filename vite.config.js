@@ -3,9 +3,9 @@ import laravel from 'laravel-vite-plugin';
 import tailwindcss from '@tailwindcss/vite';
 
 // Colección «tendencias»: cada plantilla carga solo su hoja (resources/css/invitation/tendencias)
-const tendencias = ['galeria', 'partitura', 'movil', 'estrellas', 'bordado', 'gira', 'revista', 'funcion', 'caldero', 'tendedero', 'bloques', 'encomienda'].map((design) => `resources/css/invitation/tendencias/${design}.css`);
+const tendencias = ['cuento', 'caleidoscopio', 'joyero', 'esencia', 'partitura', 'mesa', 'reloj', 'movil', 'estrellas', 'bordado', 'gira', 'feriado', 'cabina', 'revista', 'funcion', 'caldero', 'tendedero', 'bloques', 'encomienda'].map((design) => `resources/css/invitation/tendencias/${design}.css`);
 // Plantillas rehechas sobre la misma base adaptable: también cargan solo su hoja (resources/css/invitation/themes)
-const temas = ['gota', 'nubes', 'birrete', 'gala'].map((theme) => `resources/css/invitation/themes/${theme}.css`);
+const temas = ['gota', 'nubes', 'birrete', 'atelier'].map((theme) => `resources/css/invitation/themes/${theme}.css`);
 
 // Dentro de Docker (compose.yaml define BIDA_DOCKER) el servidor tiene que escuchar en todas las
 // interfaces para que el navegador del equipo lo alcance, y buscar los cambios por sondeo: los

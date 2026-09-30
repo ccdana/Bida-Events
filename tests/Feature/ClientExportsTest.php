@@ -144,7 +144,7 @@ class ClientExportsTest extends TestCase
         $this->assertSame(count($covers), count(array_unique($covers)), 'Hay plantillas que comparten portada: '.json_encode($covers));
 
         // Una plantilla nueva sin estilo propio hereda la portada de su tipo de evento
-        $this->assertSame('gala', PdfTemplateStyle::for('invitations.templates.xv-lo-que-venga')['cover']);
+        $this->assertSame('atelier', PdfTemplateStyle::for('invitations.templates.xv-lo-que-venga')['cover']);
     }
 
     /** La invitación impresa siempre sale en dos hojas: la invitación y sus detalles. */

@@ -37,6 +37,8 @@ final class InvitationPage
         'Public Sans' => '300;400;500;600;700',
         'Instrument Serif' => '400', 'Fraunces' => '400;600;700', 'Bricolage Grotesque' => '400;500;600;700;800',
         'DM Sans' => '400;500;600;700', 'Bungee' => '400', 'Alfa Slab One' => '400',
+        'Italiana' => '400', 'Mrs Saint Delafield' => '400', 'Pinyon Script' => '400',
+        'Caveat' => '400;600;700', 'Unbounded' => '400;500;600;700;800', 'Permanent Marker' => '400',
     ];
 
     public const NAV_LABELS = [

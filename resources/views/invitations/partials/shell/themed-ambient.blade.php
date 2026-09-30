@@ -10,10 +10,6 @@
 @php
     // Por tema: tamaño de la baldosa de la textura (0 = sin parallax), sus partículas y su escena de fondo (opcional)
     $themedAmbient = [
-        // Luz de las velas y los destellos de colores de los caireles de la araña
-        'gala' => [0, [['kind' => 'bokeh', 'count' => 8, 'mobile' => 5, 'seed' => 6, 'class' => 'inv-drift--salon']], 'invitations.partials.gala.ambient'],
-        // Destellos dorados sobre el terciopelo y las luces de la araña del salón
-        'carta' => [480, [['kind' => 'star', 'count' => 14, 'mobile' => 8, 'seed' => 3, 'class' => 'inv-drift--brillo']], 'invitations.partials.carta.ambient'],
         // Pétalos que caen sobre el mapa
         'caminos' => [480, [['kind' => 'leaf', 'count' => 10, 'mobile' => 6, 'seed' => 2, 'class' => 'inv-drift--petalos']]],
         // Papelitos de celebración con los colores de la terminal
@@ -28,11 +24,23 @@
         'stickers' => [28, [['kind' => 'streamer', 'count' => 14, 'mobile' => 8, 'seed' => 1, 'class' => 'inv-drift--confeti']]],
         // Polvo suspendido en el haz de la linterna
         'expediente' => [0, [['kind' => 'bokeh', 'count' => 12, 'mobile' => 7, 'seed' => 6, 'class' => 'inv-drift--polvo']]],
+        // Hilos sueltos del taller y, a los costados, las cintas métricas que cuelgan
+        'atelier' => [0, [['kind' => 'streamer', 'count' => 8, 'mobile' => 5, 'seed' => 4, 'class' => 'inv-drift--hilo']], 'invitations.partials.atelier.ambient'],
         // ── Colección «tendencias» ──
-        // Focos que barren la sala y el polvo que flota en su luz
-        'galeria' => [0, [['kind' => 'bokeh', 'count' => 10, 'mobile' => 6, 'seed' => 3, 'class' => 'inv-drift--foco']], 'invitations.partials.tendencias.galeria.ambient'],
+        // Estrellitas de papel recortado y, a los costados, el canto de las páginas del libro
+        'cuento' => [0, [['kind' => 'star', 'count' => 10, 'mobile' => 6, 'seed' => 5, 'class' => 'inv-drift--papel']], 'invitations.partials.tendencias.cuento.ambient'],
+        // Un mandala enorme que gira despacio y destellos de dispersión
+        'caleidoscopio' => [0, [['kind' => 'twinkle', 'count' => 12, 'mobile' => 7, 'seed' => 3, 'class' => 'inv-drift--prisma']], 'invitations.partials.tendencias.caleidoscopio.ambient'],
+        // El capitoné del forro con sus botones que destellan y chispas de oro
+        'joyero' => [0, [['kind' => 'twinkle', 'count' => 10, 'mobile' => 6, 'seed' => 5, 'class' => 'inv-drift--joya']], 'invitations.partials.tendencias.joyero.ambient'],
+        // La bruma nacarada del atomizador y luces difusas
+        'esencia' => [0, [['kind' => 'bokeh', 'count' => 10, 'mobile' => 6, 'seed' => 8, 'class' => 'inv-drift--bruma']], 'invitations.partials.tendencias.esencia.ambient'],
         // Notas que suben por pentagramas que ondulan y el brillo de las luces de la sala
         'partitura' => [0, [['kind' => 'twinkle', 'count' => 10, 'mobile' => 6, 'seed' => 7, 'class' => 'inv-drift--sala']], 'invitations.partials.tendencias.partitura.ambient'],
+        // La luz de las velas de la mesa, que tiembla a los dos lados, y su resplandor
+        'mesa' => [0, [['kind' => 'bokeh', 'count' => 10, 'mobile' => 6, 'seed' => 9, 'class' => 'inv-drift--vela']], 'invitations.partials.tendencias.mesa.ambient'],
+        // Engranajes de latón que giran despacio en los bordes, en espejo, y destellos del metal
+        'reloj' => [0, [['kind' => 'twinkle', 'count' => 8, 'mobile' => 5, 'seed' => 6, 'class' => 'inv-drift--laton']], 'invitations.partials.tendencias.reloj.ambient'],
         // Estrellitas quietas del cuarto del bebé
         'movil' => [0, [['kind' => 'twinkle', 'count' => 12, 'mobile' => 7, 'seed' => 4, 'class' => 'inv-drift--cuarto']]],
         // El cielo de la noche que gira despacio y las estrellas fugaces que lo cruzan
@@ -41,6 +49,10 @@
         'bordado' => [0, [], 'invitations.partials.tendencias.bordado.ambient'],
         // Papelitos del final del show
         'gira' => [0, [['kind' => 'streamer', 'count' => 12, 'mobile' => 7, 'seed' => 6, 'class' => 'inv-drift--show']]],
+        // Hojas arrancadas del almanaque que bajan dando vueltas a los costados, en espejo, y papelitos
+        'feriado' => [0, [['kind' => 'streamer', 'count' => 8, 'mobile' => 5, 'seed' => 8, 'class' => 'inv-drift--papelitos']], 'invitations.partials.tendencias.feriado.ambient'],
+        // El resplandor de los flashes que se disparan despacio a los costados y el brillo que queda en el aire
+        'cabina' => [0, [['kind' => 'bokeh', 'count' => 10, 'mobile' => 6, 'seed' => 5, 'class' => 'inv-drift--flash']], 'invitations.partials.tendencias.cabina.ambient'],
         // Recortes de revista con las letras del nombre, que caen despacio
         'revista' => [0, [], 'invitations.partials.tendencias.revista.ambient'],
         // Polvo en el haz del proyector

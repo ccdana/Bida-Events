@@ -112,7 +112,7 @@ class AccessibleInvitationTest extends TestCase
             ->all();
     }
 
-    /** El terciopelo de «Noche de gala» lleva letra blanca: un secundario oscuro queda igual y uno claro se oscurece. */
+    /** La laca de «Esencia XV» lleva letra blanca: un secundario oscuro queda igual y uno claro se oscurece. */
     public function test_the_deep_secondary_always_carries_white_letters(): void
     {
         $this->assertSame('#5C3D42', ColorContrast::deepen('#5C3D42'));

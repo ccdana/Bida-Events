@@ -330,7 +330,7 @@ function invitationForm(config) {
                 'Playfair Display', 'Cormorant Garamond', 'Cinzel', 'Libre Baskerville',
                 'Bodoni Moda', 'Prata', 'Lora', 'Merriweather', 'Fredoka', 'Inter',
                 'Libre Caslon Display', 'Cormorant Infant', 'Barlow Condensed', 'Bagel Fat One', 'Special Elite',
-                'Instrument Serif', 'Fraunces', 'Bricolage Grotesque', 'Bungee',
+                'Instrument Serif', 'Fraunces', 'Bricolage Grotesque', 'Bungee', 'Italiana', 'Unbounded',
             ],
             cuerpo: [
                 'Montserrat', 'Inter', 'Lato', 'Nunito Sans', 'Source Sans 3',
@@ -338,9 +338,9 @@ function invitationForm(config) {
             ],
             script: [
                 'Great Vibes', 'Parisienne', 'Alex Brush', 'Dancing Script',
-                'Sacramento', 'Allura', 'Tangerine', 'Petit Formal Script', 'Creepster', 'Cinzel', 'Inter',
+                'Sacramento', 'Allura', 'Tangerine', 'Petit Formal Script', 'Mrs Saint Delafield', 'Pinyon Script', 'Creepster', 'Cinzel', 'Inter',
                 'Bodoni Moda', 'Libre Caslon Display', 'Cormorant Infant', 'Barlow Condensed', 'Bagel Fat One', 'Special Elite',
-                'Instrument Serif', 'Fraunces', 'Bricolage Grotesque', 'Alfa Slab One', 'Fredoka',
+                'Instrument Serif', 'Fraunces', 'Bricolage Grotesque', 'Alfa Slab One', 'Fredoka', 'Caveat', 'Permanent Marker',
             ],
         },
 

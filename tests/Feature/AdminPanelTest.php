@@ -88,7 +88,7 @@ class AdminPanelTest extends TestCase
             ->assertOk()
             ->assertSee('Familia Quispe')
             ->assertSee('familia.quispe')
-            ->assertSee('Noche de gala')
+            ->assertSee('Atelier')
             ->assertSee(route('invitation.show', $invitation->slug), false)
             // Invitados: en la lista, confirmados, sin responder y personas confirmadas
             ->assertSeeInOrder(['En la lista', '2', 'Confirmaron', '1', 'Sin responder', '1', 'Personas', '3'])

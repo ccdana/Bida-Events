@@ -30,10 +30,12 @@ final class PdfTemplateStyle
     private static function styles(): array
     {
         return [
+            // «Atelier»: la etiqueta tejida y la ficha del desfile
             InvitationTemplates::XV_PREMIUM => [
-                'cover' => 'gala',
-                'motif' => 'destellos',
-                'kicker' => 'Mis XV años',
+                'cover' => 'atelier',
+                'motif' => 'linea',
+                'frame' => 'thin',
+                'kicker' => 'Colección XV',
             ],
             InvitationTemplates::BODA_JARDIN => [
                 'cover' => 'jardin',
@@ -86,12 +88,6 @@ final class PdfTemplateStyle
                 'kicker' => 'Nuestro libro de aventuras',
             ],
             // Colección «nueva»: cada una imprime su propia idea (covers/carnet, mapa, panel…)
-            InvitationTemplates::XV_CARTA_DE_BAILE => [
-                'cover' => 'carnet',
-                'motif' => 'diamante',
-                'frame' => 'double',
-                'kicker' => 'Mis XV años',
-            ],
             InvitationTemplates::BODA_DOS_CAMINOS => [
                 'cover' => 'mapa',
                 'motif' => 'linea',
@@ -136,7 +132,7 @@ final class PdfTemplateStyle
 
     /** Portada que hereda una plantilla nueva según su tipo de evento. */
     private const BY_EVENT = [
-        'xv' => 'gala',
+        'xv' => 'atelier',
         'boda' => 'jardin',
         'bautizo' => 'nubes',
         'cumple' => 'fiesta',

@@ -65,6 +65,8 @@ class InvitationDefaults
             $template = substr($template, strlen('pages.'));
         }
 
+        $template = InvitationTemplates::RENAMED[$template] ?? $template;
+
         $known = isset(InvitationTemplates::all()[$template]) && view()->exists(InvitationTemplates::view($template));
 
         return $known || view()->exists($template) ? $template : $default;

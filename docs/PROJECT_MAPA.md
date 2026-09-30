@@ -467,7 +467,7 @@ propósito y responde `no-store`.
 
 | Archivo | Qué hace |
 | --- | --- |
-| `invitations/templates/xv-premium.blade.php` | Noche de gala: telones de apertura, destellos dorados y marco editorial |
+| `invitations/templates/xv-premium.blade.php` | Atelier (antes «Noche de gala», misma clave): la funda del vestido, el tablero de inspiración y las piezas de molde (ver 7.20) |
 | `invitations/templates/boda-jardin.blade.php` | Promesa en el jardín: sobre con sello de cera, ramas y pétalos |
 | `invitations/templates/bautizo-cielo.blade.php` | Entre nubes: capas de nubes que se abren, la foto como sol entre nubes y cada sección como una nube (armado temático, `partials/nubes`, `themes/nubes.css`) |
 | `invitations/templates/cumple-fiesta.blade.php` | Sopla las velas: pastel con velas, confeti, globos y banderines |
@@ -1026,7 +1026,7 @@ Una por evento, en la colección `nueva` (planes Emprendedor y Agencia; el equip
 
 | Plantilla | La idea | Dónde |
 | --- | --- | --- |
-| XV · Carta de baile | La carta de baile atada con cordón y borla; el programa de la noche con puntos guía y un renglón «Reservado para» con el nombre del invitado | `partials/carta`, `themes/carta.css`, PDF `covers/carnet` |
+| XV · Carta de baile (reemplazada por «Cuento desplegable» en 7.20) | La carta de baile atada con cordón y borla; el programa de la noche con puntos guía y un renglón «Reservado para» con el nombre del invitado | `partials/carta`, `themes/carta.css`, PDF `covers/carnet` |
 | Boda · Dos caminos | Mapa de curvas de nivel: un camino punteado sale de cada nombre y llega al aro del lugar; el día son paradas y la vestimenta y los regalos van como leyenda | `partials/caminos`, `themes/caminos.css`, PDF `covers/mapa` |
 | Graduación · Próxima salida | Panel de salidas con el nombre en paletas que giran, la carrera como franja, la foto en la ventanilla; se entra con pase de abordar y el horario es un tablero | `partials/salidas`, `themes/salidas.css`, PDF `covers/panel` |
 | Bautizo · La gota | Una gota abre ondas; la foto al centro y los padrinos escritos sobre el primer anillo. Neutral: sin símbolos de un credo | `partials/gota`, `themes/gota.css`, PDF `covers/ondas` |
@@ -1114,6 +1114,55 @@ Para verlas en producción hay que correr la semilla de muestras: `php artisan d
 | «Galería Quince», fondo en espejo: cuadros en pares a la misma altura, focos de los costados que barren reflejados (uno al medio que respira en pantallas anchas) y flashes en lugares reflejados que se alternan; las versalitas compensan el espaciado para quedar centradas | `partials/tendencias/galeria/ambient.blade.php`, `tendencias/galeria.css` («Fondo») |
 | «Galería Quince»: el botón desactivado ya no se pinta de terciopelo (parecía activo) | `tendencias/galeria.css` |
 | Temporadas: la franja oscura con pastillas se reemplazó por un índice dentro de cada panel (toma su fondo): nombre en serif, «Hasta el 31 oct.» y filete dorado bajo la que se ve; flechas del teclado para pasar de una a otra | `site/partials/season-panel.blade.php` (`site-season__switch`), `site/partials/season.blade.php` (`pick`, `step`), `site/site.css` |
+
+### 7.20 Las cinco plantillas de XV
+
+Se rehicieron las tres de XV y se sumaron dos. Las tres anteriores se reemplazaron en su lugar: las invitaciones que las usaban pasan al diseño nuevo con todo su contenido.
+
+| Plantilla | Idea | Dónde |
+| --- | --- | --- |
+| «Atelier» (clave `xv-premium`, la de «Noche de gala»; sigue siendo la de XV por defecto) | La semana del desfile en un taller de alta costura: se abre la funda del vestido y el croquis se dibuja en tinta; portada con el tablero de inspiración (foto con alfileres, muestras de tela, etiqueta tejida «Maison {nombre}» y la ficha del desfile); secciones como piezas de molde con su pespunte y el número de pieza; programa sobre una cinta métrica; padrinos como etiquetas del perchero y la corte como el orden de salida; cintas métricas colgadas al fondo | `partials/atelier`, `themes/atelier.css`, PDF `covers/atelier` |
+| «Cuento desplegable» (`xv-cuento`, familia «nueva»; reemplaza a «Carta de baile») | Un libro pop-up: se abre la tapa de tela y se levantan en capas el ventanal, la escalera del vals, los arbustos y las letras de su nombre; portada como primera página (lámina en arco de papel, «Érase una vez…» y capitular); capítulos con número y folio; el programa son páginas que se levantan con su pestaña de hora y su ícono; los padrinos, personajes con medallón y cinta | `partials/tendencias/cuento`, `tendencias/cuento.css`, PDF `covers/cuento` |
+| «Caleidoscopio» (`xv-caleidoscopio`; reemplaza a «Galería Quince») | Un visor de doce espejos (los impares reflejan: simetría real) con un mosaico de cristales que gira; al tocarlo gira el anillo, aparece el «XV» y el visor crece hasta la portada; «XV» pintado con los tres colores y la foto en un hexágono; celdas de cristal con su mandala; programa colgado de una línea de luz; padrinos en rosetón. Nace oscura | `partials/tendencias/caleidoscopio`, `tendencias/caleidoscopio.css`, PDF `covers/caleidoscopio` |
+| «Joyero musical» (`xv-joyero`, nueva) | Se gira la llave, se levanta la tapa con su forro capitoné y sube girando la figura de la quinceañera; portada con el joyero abierto (nombre bordado en la tapa, tiara y relicario con la foto) y la tarjeta de la joyería; bandejas de madera con filete de oro; programa como cadena de dijes con los íconos del itinerario; cada padrino con la joya que le toca por su papel (anillo, tiara, aretes, medalla, collar, pulsera o una gema) | `partials/tendencias/joyero`, `tendencias/joyero.css`, PDF `covers/joyero` |
+| «Esencia XV» (`xv-esencia`, nueva) | La campaña de lanzamiento de su fragancia: se desata el moño, sube el frasco y en la bruma del atomizador aparece su nombre; portada como afiche (nombre como marca, foto con el frasco delante); páginas con filo nacarado; el programa es la pirámide de notas (salida, corazón y fondo) y los padrinos, los créditos del reverso de la caja | `partials/tendencias/esencia`, `tendencias/esencia.css`, PDF `covers/esencia` |
+
+| Qué | Dónde |
+| --- | --- |
+| Migración `2026_09_29_000001_replace_xv_templates`: `xv-carta-de-baile` → `xv-cuento` y `xv-galeria` → `xv-caleidoscopio` (y las muestras `xv-isabella-carta`/`-galeria` toman el nombre nuevo). `InvitationTemplates::RENAMED` resuelve un nombre viejo que llegue por otro lado | `database/migrations`, `InvitationDefaults::resolveTemplate` |
+| Vocabulario de XV propio (`TrendTemplates::XV_VOCABULARY`): los textos del desfile de Atelier no pasan a las otras plantillas de XV | `TrendTemplates` |
+| Tipografías nuevas en el editor: Italiana, Mrs Saint Delafield y Pinyon Script | `InvitationPage::FONT_WEIGHTS`, `admin/invitations/editor/script.blade.php` |
+| Textos editables nuevos: `atelier_*`, `book_*`, `scope_*`, `jewel_card`, `scent_*`; se fueron los de la carta y la galería | `EditableTexts` |
+| Muestras: `xv-isabella` (Atelier, con su paleta), `xv-isabella-cuento`, `-caleidoscopio`, `-joyero`, `-esencia`, con sus capturas | `config/bida.php` (página de XV), `public/images/muestras` |
+
+### 7.21 Dos plantillas nuevas de boda
+
+Con «Promesa en el jardín», «Dos caminos» y «Partitura a dos voces», la boda queda con cinco.
+
+| Plantilla | Idea | Dónde |
+| --- | --- | --- |
+| «Mesa de honor» (`boda-mesa`) | Su lugar en la mesa del banquete, visto desde arriba sobre el mantel de lino: se quita el servilletero, la servilleta se aparta y en el plato aparece el monograma de los novios. Portada con la tarjeta del lugar en caligrafía, la foto pintada en el plato de porcelana entre los cubiertos y el menú con el día, la hora y el salón; secciones como tarjetas con doble filete de oro; el programa es el menú servido por tiempos («Primer tiempo»…); los padrinos, tarjetas de lugar dobladas en carpa; la cuenta regresiva en platitos; velas que tiemblan a los costados | `partials/tendencias/mesa`, `tendencias/mesa.css`, PDF `covers/mesa` |
+| «A la misma hora» (`boda-reloj`) | Dos relojes frente a frente, uno por novio y con su nombre, cada uno en su hora: al darles cuerda las agujas giran hasta la hora de la boda, los segunderos se sincronizan y las esferas se vuelven una. Portada con la foto como esfera (anillo de marfil, romanos, ventanita de la fecha y agujas en la hora de la ceremonia) y tres subesferas; cada sección con su hora en romanos y su riel de minutos; el programa con un relojito por momento en su hora exacta; los padrinos como engranajes que giran; engranajes de latón por los bordes del fondo. El PDF dibuja la esfera con la hora real | `partials/tendencias/reloj`, `tendencias/reloj.css`, PDF `covers/reloj` |
+
+| Qué | Dónde |
+| --- | --- |
+| Textos editables nuevos: `table_seat`, `table_menu`, `table_course`, `watch_brand`, `watch_date`, `watch_time`, `watch_place` | `TrendTemplates` (`copy`), `EditableTexts` |
+| Muestras `boda-camila-andres-mesa` y `boda-camila-andres-reloj`, en la página de bodas, con sus capturas | `config/bida.php`, `public/images/muestras` |
+
+### 7.22 Dos plantillas nuevas de cumpleaños
+
+Con «Sopla las velas», «Álbum de stickers» y «Gira mundial», el cumpleaños queda con cinco.
+
+| Plantilla | Idea | Dónde |
+| --- | --- | --- |
+| «Día feriado» (`cumple-feriado`) | El almanaque de la casa: se arrancan las hojas de los días que faltan hasta el cumpleaños, impreso en rojo como feriado, con el círculo de bolígrafo y la nota «¡Mi cumple!». Portada con el almanaque de pared colgado de su clavo: la foto como lámina, la hoja del día (número, día de la semana, sello «Feriado», nombre, edad, hora, lugar, la luna de ese día calculada y el mensaje como pensamiento del día) y el mes entero con el día marcado y los días pasados tachados. Cada sección es otra hoja con franja, trepado, número y esquina doblada; el programa es la agenda del día con margen rojo; la gente favorita, papelitos pegados y listas con vistos. Hojas arrancadas que bajan por los costados | `partials/tendencias/feriado`, `tendencias/feriado.css`, PDF `covers/feriado` |
+| «Cabina de fotos» (`cumple-cabina`) | La cabina de fotos de la fiesta: se aprieta el botón, la pantallita cuenta 3, 2, 1, salta el flash detrás de la cortina en cada pose (tres, uno cada 0,4 s) y la tira baja por la ranura revelándose. Portada con la tira colgada de su pinza entre las cortinas: tres poses de la misma foto (color, blanco y negro, tono cálido con el sticker de la edad), el sello naranja de la fecha y el pie impreso con nombre, día, hora y lugar. Toda la invitación es una sola tira larga (cada sección, un cuadro con el borde blanco y su sello); el programa va pose por pose y la gente favorita sale en su cuadrito con el cartel de iniciales. El PDF es la tira sin fotos | `partials/tendencias/cabina`, `tendencias/cabina.css`, PDF `covers/cabina` |
+
+| Qué | Dónde |
+| --- | --- |
+| Textos editables nuevos: `cal_holiday`, `cal_line`, `cal_note`, `cal_age`, `cal_thought`, `booth_sign`, `booth_button`, `booth_ready`, `booth_slot`, `booth_age` | `TrendTemplates` (`copy`), `EditableTexts` |
+| Tipografías nuevas en el editor: Caveat y Permanent Marker (script) y Unbounded (títulos). En el PDF, Unbounded y Caveat no tienen archivo estático: la tira de la cabina usa una sans gruesa | `InvitationPage::FONT_WEIGHTS`, `editor/script` |
+| Muestras `cumple-daniela-30-feriado` y `cumple-daniela-30-cabina`, en la página de cumpleaños, con sus capturas | `config/bida.php`, `public/images/muestras` |
 ---
 
 ## 8. Hoja de ruta sugerida

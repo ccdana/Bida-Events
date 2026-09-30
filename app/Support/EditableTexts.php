@@ -188,9 +188,25 @@ final class EditableTexts
         'hero_time_label' => 'Portada: rótulo de la hora', 'hero_class_label' => 'Portada: rótulo del año',
         'reply_title' => 'Respuesta: título', 'reply_intro' => 'Respuesta: introducción',
         'stories_hint' => 'Aviso del modo historia',
-        // «Carta de baile»
-        'card_title' => 'Carta: título de la tapa', 'card_reserved' => 'Carta: antes del nombre del invitado',
-        'card_reserved_any' => 'Carta: frase en el enlace general', 'hero_place_label' => 'Portada: rótulo del lugar',
+        'hero_place_label' => 'Portada: rótulo del lugar',
+        // «Atelier»
+        'atelier_house' => 'Atelier: antes del nombre en la etiqueta', 'atelier_collection' => 'Atelier: colección de la etiqueta',
+        'atelier_sheet' => 'Atelier: título de la ficha', 'atelier_date' => 'Atelier: rótulo de la fecha', 'atelier_time' => 'Atelier: rótulo de la hora',
+        'atelier_place' => 'Atelier: rótulo del lugar', 'atelier_piece' => 'Atelier: palabra antes del número de pieza', 'atelier_look' => 'Atelier: palabra antes del número de look',
+        // «Cuento desplegable»
+        'book_title' => 'Cuento: tapa, antes del nombre', 'book_opening' => 'Cuento: primera frase',
+        'book_chapter' => 'Cuento: palabra antes del número de capítulo', 'book_plate' => 'Cuento: rótulo de la foto',
+        // «Caleidoscopio»
+        'scope_day' => 'Caleidoscopio: rótulo del día', 'scope_time' => 'Caleidoscopio: rótulo de la hora', 'scope_place' => 'Caleidoscopio: rótulo del lugar',
+        // «Mesa de honor»
+        'table_seat' => 'Mesa: tarjeta del lugar sin invitado', 'table_menu' => 'Mesa: título del menú de la portada', 'table_course' => 'Mesa: palabra después del número de tiempo',
+        // «A la misma hora»
+        'watch_brand' => 'Reloj: texto de la esfera', 'watch_date' => 'Reloj: rótulo del día', 'watch_time' => 'Reloj: rótulo de la hora', 'watch_place' => 'Reloj: rótulo del lugar',
+        // «Joyero musical»
+        'jewel_card' => 'Joyero: título de la tarjeta',
+        // «Esencia XV»
+        'scent_line' => 'Esencia: nombre de la fragancia', 'scent_edition' => 'Esencia: palabra antes del año', 'scent_launch' => 'Esencia: rótulo de la fecha',
+        'scent_top' => 'Esencia: primer grupo del programa', 'scent_heart' => 'Esencia: segundo grupo del programa', 'scent_base' => 'Esencia: tercer grupo del programa',
         // «Dos caminos»
         'hero_meet' => 'Portada: antes de la fecha', 'route_end' => 'Recorrido: última parada',
         // «Próxima salida»
@@ -208,10 +224,6 @@ final class EditableTexts
         'case_label' => 'Expediente: rótulo', 'case_open' => 'Expediente: sello', 'case_lead' => 'Expediente: rótulo del nombre',
         'case_seen' => 'Expediente: rótulo de la fecha', 'case_place' => 'Expediente: rótulo del lugar', 'case_notes' => 'Expediente: rótulo del mensaje',
         'lights_on' => 'Botón para encender las luces', 'lights_off' => 'Botón para volver a la linterna',
-        // «Galería Quince»
-        'exhibit_label' => 'Galería: sobre el nombre', 'exhibit_title' => 'Galería: nombre de la obra', 'exhibit_piece' => 'Galería: técnica de la obra',
-        'exhibit_opening' => 'Galería: rótulo de la fecha', 'exhibit_room' => 'Galería: rótulo del lugar', 'exhibit_guest' => 'Galería: antes del invitado',
-        'exhibit_free' => 'Galería: pie de la cédula', 'room_label' => 'Galería: palabra antes del número de sala',
         // «Mapa de estrellas»
         'sky_label' => 'Mapa: título del cielo', 'constellation_label' => 'Apertura: antes del nombre de la constelación',
         // «Caldero encantado»
@@ -223,6 +235,12 @@ final class EditableTexts
         'tour_presents' => 'Gira: sobre el nombre', 'tour_name' => 'Gira: antes de la edad', 'tour_cities' => 'Gira: ciudades canceladas (separadas por ·)',
         'tour_cancelled' => 'Gira: estado de las ciudades', 'tour_only' => 'Gira: sello de la fiesta', 'tour_doors' => 'Gira: rótulo de la hora',
         'tour_wristband' => 'Gira: texto de la pulsera',
+        // «Día feriado»
+        'cal_holiday' => 'Almanaque: rótulo del feriado', 'cal_line' => 'Almanaque: antes del nombre', 'cal_note' => 'Almanaque: nota junto al día marcado',
+        'cal_age' => 'Almanaque: después de la edad', 'cal_thought' => 'Almanaque: rótulo del mensaje',
+        // «Cabina de fotos»
+        'booth_sign' => 'Cabina: letrero', 'booth_button' => 'Cabina: texto del botón', 'booth_slot' => 'Cabina: rótulo de la ranura',
+        'booth_age' => 'Cabina: después de la edad', 'booth_ready' => 'Cabina: pantallita antes de la foto',
         // «Edición especial»
         'mag_name' => 'Revista: nombre', 'mag_issue' => 'Revista: línea de la edición', 'mag_exclusive' => 'Revista: rótulo de la estrella de tapa',
         'mag_party' => 'Revista: titular de la fecha', 'mag_where' => 'Revista: titular del lugar', 'mag_style' => 'Revista: titular de la vestimenta',

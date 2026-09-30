@@ -1,0 +1,982 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   INVITACIÓN — «Esencia XV» (XV años · colección tendencias)
+
+   La quinceañera lanza su propia fragancia y la invitación es la campaña. Se
+   entra desatando el moño de la caja: la cinta se desliza, la tapa sube, el
+   frasco se levanta y el atomizador suelta una bruma nacarada en la que
+   aparece su nombre como marca. La portada es el afiche de la campaña (la línea
+   de la fragancia, su nombre, la foto con el frasco delante y el lanzamiento);
+   cada sección es una página de la campaña con su filo nacarado, el programa
+   es la pirámide de notas (salida, corazón y fondo) y los padrinos van como los
+   créditos del reverso de la caja. Mínima y editorial: mucho aire, filetes
+   finos y una sola joya de color por pantalla.
+
+   Todo sale de la paleta del editor:
+     porcelana = fondo · textos = texto · la fragancia, la cinta y los detalles
+     = principal · la caja, la tapa y los botones = secundario (oscurecido en el
+     servidor lo justo para llevar letra blanca: --tr-secondary-deep) · el nácar
+     del cristal y los brillos = acento.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+@import './_base.css';
+
+.inv-esencia {
+    --inv-radius: 0.15rem;
+    --ez-card: color-mix(in srgb, var(--tr-bg) 45%, #fff);
+    --ez-line: color-mix(in srgb, var(--tr-text) 12%, transparent);
+    --ez-black: var(--tr-secondary-deep, color-mix(in srgb, var(--tr-secondary) 45%, #000));
+    --ez-black-ink: color-mix(in srgb, var(--tr-accent) 8%, #fff);
+    --ez-nacre: linear-gradient(90deg,
+        var(--tr-accent),
+        color-mix(in srgb, var(--tr-primary) 35%, var(--tr-accent)) 35%,
+        color-mix(in srgb, #fff 60%, var(--tr-accent)) 55%,
+        color-mix(in srgb, var(--tr-secondary) 15%, var(--tr-accent)) 80%,
+        var(--tr-accent));
+    --ez-ribbon: linear-gradient(90deg, color-mix(in srgb, var(--tr-primary) 80%, #000), var(--tr-primary) 30%, color-mix(in srgb, var(--tr-primary) 70%, #fff) 50%, var(--tr-primary) 70%, color-mix(in srgb, var(--tr-primary) 80%, #000));
+    --ez-bottle-shape: polygon(38% 0, 62% 0, 62% 14%, 80% 22%, 88% 32%, 88% 100%, 12% 100%, 12% 32%, 20% 22%, 38% 14%);
+    --themed-from: translate3d(0, 20px, 0);
+
+    background: var(--tr-bg);
+    counter-reset: ez-page;
+}
+
+.inv-esencia.has-player {
+    padding-bottom: calc(5.25rem + env(safe-area-inset-bottom));
+}
+
+/* ── El frasco (esencia/bottle) ─────────────────────────────────────────── */
+
+.ez-bottle {
+    display: block;
+    height: auto;
+    overflow: visible;
+    filter: drop-shadow(0 14px 14px rgb(0 0 0 / 0.28));
+}
+
+.ez-bottle__cap { fill: var(--ez-black); }
+
+.ez-bottle__cap-shine {
+    stroke: rgb(255 255 255 / 0.28);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+}
+
+.ez-bottle__collar { fill: color-mix(in srgb, var(--tr-accent) 65%, #fff); }
+.ez-bottle__neck { fill: color-mix(in srgb, var(--tr-accent) 45%, #fff); opacity: 0.8; }
+.ez-bottle__glass-edge { stop-color: color-mix(in srgb, var(--tr-accent) 60%, #fff); stop-opacity: 0.95; }
+.ez-bottle__glass-mid { stop-color: #fff; stop-opacity: 0.6; }
+
+.ez-bottle__glass {
+    stroke: color-mix(in srgb, var(--tr-text) 18%, transparent);
+    stroke-width: 0.8;
+}
+
+.ez-bottle__juice-top { stop-color: color-mix(in srgb, var(--tr-primary) 65%, #fff); }
+.ez-bottle__juice-low { stop-color: var(--tr-primary); }
+
+.ez-bottle__meniscus {
+    stroke: rgb(255 255 255 / 0.6);
+    stroke-width: 1.5;
+}
+
+.ez-bottle__bevel {
+    fill: none;
+    stroke: rgb(255 255 255 / 0.5);
+    stroke-width: 1;
+}
+
+.ez-bottle__shine {
+    stroke: rgb(255 255 255 / 0.55);
+    stroke-width: 3;
+    stroke-linecap: round;
+}
+
+.ez-bottle__label {
+    fill: var(--ez-card);
+    stroke: color-mix(in srgb, var(--tr-text) 25%, transparent);
+    stroke-width: 0.6;
+}
+
+.ez-bottle__initial {
+    font-family: var(--font-titles);
+    font-size: 20px;
+    fill: var(--tr-text);
+}
+
+/* ── Apertura: la caja con su moño ──────────────────────────────────────── */
+
+.ez-intro.inv-themed-intro {
+    --ez-box-w: min(60vw, 15rem, 32svh);
+    gap: clamp(0.8rem, 2.4svh, 1.3rem);
+    background:
+        radial-gradient(60% 45% at 50% 45%, color-mix(in srgb, var(--tr-accent) 45%, transparent), transparent 72%),
+        var(--tr-bg);
+    color: var(--tr-text);
+}
+
+.ez-intro__eyebrow {
+    margin: 0;
+    padding-left: 0.4em;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--inv-accent-ink);
+    transition: opacity 0.4s ease;
+}
+
+.ez-box {
+    position: relative;
+    width: var(--ez-box-w);
+    aspect-ratio: 4 / 5;
+    margin-top: calc(var(--ez-box-w) * 0.35);
+}
+
+.ez-box__bottle {
+    position: absolute;
+    bottom: 10%;
+    left: 50%;
+    z-index: 1;
+    width: 54%;
+    translate: -50% 0;
+    transition: translate 1s cubic-bezier(0.3, 1.2, 0.5, 1) 0.55s;
+}
+
+.ez-box__base {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 2;
+    height: 72%;
+    background:
+        linear-gradient(115deg, transparent 30%, rgb(255 255 255 / 0.06) 45%, transparent 60%),
+        linear-gradient(180deg, color-mix(in srgb, var(--ez-black) 80%, #fff), var(--ez-black) 25%);
+    box-shadow: 0 26px 36px -24px rgb(0 0 0 / 0.6);
+}
+
+.ez-box__lid {
+    position: absolute;
+    top: 0;
+    right: -3%;
+    left: -3%;
+    z-index: 3;
+    display: grid;
+    align-content: end;
+    justify-items: center;
+    gap: 0.15rem;
+    height: 32%;
+    padding-bottom: 0.55rem;
+    overflow: hidden;
+    background:
+        linear-gradient(180deg, color-mix(in srgb, var(--ez-black) 70%, #fff), var(--ez-black) 30%);
+    color: var(--ez-black-ink);
+    box-shadow: 0 6px 10px -6px rgb(0 0 0 / 0.5);
+    transition: translate 0.8s cubic-bezier(0.55, 0, 0.3, 1) 0.3s, rotate 0.8s cubic-bezier(0.55, 0, 0.3, 1) 0.3s, opacity 0.5s ease 0.55s;
+}
+
+/* Un brillo que recorre la laca */
+.ez-box__lid::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(110deg, transparent 40%, rgb(255 255 255 / 0.16) 50%, transparent 60%);
+    translate: -110% 0;
+    animation: ez-shine 5.5s ease-in-out 1.2s infinite;
+}
+
+.ez-box__brand {
+    max-width: 90%;
+    padding-left: 0.16em;
+    font-family: var(--font-titles);
+    font-size: clamp(0.8rem, 3.6vw, 1rem);
+    letter-spacing: 0.16em;
+    line-height: 1.15;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.ez-box__line {
+    font-family: var(--font-script);
+    font-size: 0.8rem;
+    font-style: italic;
+    opacity: 0.85;
+}
+
+/* La cinta cruzada, de satén */
+.ez-ribbon {
+    position: absolute;
+    z-index: 4;
+    pointer-events: none;
+    transition: translate 0.6s cubic-bezier(0.55, 0, 0.35, 1) 0.1s, opacity 0.35s ease 0.3s;
+}
+
+/* La cinta cruza el cuerpo de la caja; la tapa queda libre para la marca */
+.ez-ribbon--v {
+    top: 31%;
+    bottom: 0;
+    left: 50%;
+    width: 12%;
+    margin-left: -6%;
+    background: var(--ez-ribbon);
+}
+
+.ez-ribbon--h {
+    top: 60%;
+    right: 0;
+    left: 0;
+    height: 8%;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--tr-primary) 80%, #000), var(--tr-primary) 30%, color-mix(in srgb, var(--tr-primary) 70%, #fff) 50%, var(--tr-primary) 70%, color-mix(in srgb, var(--tr-primary) 80%, #000));
+}
+
+.ez-bow {
+    position: absolute;
+    top: 64%;
+    left: 50%;
+    z-index: 5;
+    width: 62%;
+    padding: 0;
+    border: 0;
+    background: none;
+    translate: -50% -55%;
+    cursor: pointer;
+    transition: scale 0.35s ease, opacity 0.3s ease;
+}
+
+.ez-bow__svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    filter: drop-shadow(0 4px 3px rgb(0 0 0 / 0.3));
+    transform-origin: 50% 50%;
+    animation: ez-bow 3.2s ease-in-out 1s infinite;
+}
+
+.ez-bow__loop,
+.ez-bow__tail {
+    fill: var(--tr-primary);
+    stroke: color-mix(in srgb, var(--tr-primary) 70%, #000);
+    stroke-width: 1;
+}
+
+.ez-bow__knot {
+    fill: color-mix(in srgb, var(--tr-primary) 80%, #000);
+}
+
+/* La bruma del atomizador: nubecitas que salen en abanico desde la tapa */
+.ez-mist {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    z-index: 3;
+    width: 0;
+    height: 0;
+}
+
+.ez-mist i {
+    position: absolute;
+    top: -2.2rem;
+    left: -2.2rem;
+    width: 4.4rem;
+    height: 4.4rem;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, color-mix(in srgb, color-mix(in srgb, var(--tr-primary) 16%, var(--tr-accent)) 65%, transparent), color-mix(in srgb, color-mix(in srgb, var(--tr-primary) 20%, var(--tr-accent)) 30%, transparent) 55%, transparent);
+    opacity: 0;
+}
+
+.ez-intro__reveal {
+    position: absolute;
+    top: 14%;
+    right: 1.25rem;
+    left: 1.25rem;
+    z-index: 2;
+    margin: 0;
+    padding-left: 0.14em;
+    font-family: var(--font-titles);
+    font-size: clamp(2rem, 10vw, 3rem);
+    letter-spacing: 0.14em;
+    line-height: 1.1;
+    text-align: center;
+    text-transform: uppercase;
+    text-wrap: balance;
+    opacity: 0;
+    translate: 0 0.8rem;
+    transition: opacity 0.8s ease 0.35s, translate 1s var(--tr-ease) 0.35s;
+}
+
+.ez-intro__meta {
+    display: grid;
+    justify-items: center;
+    gap: 0.2rem;
+    transition: opacity 0.4s ease;
+}
+
+.ez-intro__date {
+    margin: 0;
+    font-family: var(--font-titles);
+    font-size: 1.15rem;
+    letter-spacing: 0.06em;
+}
+
+.ez-intro__guest,
+.ez-intro__hint {
+    margin: 0;
+    font-size: 0.82rem;
+    color: var(--inv-muted);
+}
+
+.ez-intro__hint {
+    animation: ez-hint 2.4s ease-in-out 1.5s infinite;
+    transition: opacity 0.3s ease;
+}
+
+@keyframes ez-shine {
+    0%, 55% { translate: -110% 0; }
+    100% { translate: 110% 0; }
+}
+
+@keyframes ez-bow {
+    0%, 70%, 100% { rotate: 0deg; }
+    78% { rotate: -4deg; }
+    86% { rotate: 3deg; }
+}
+
+@keyframes ez-hint {
+    50% { translate: 0 -3px; }
+}
+
+@keyframes ez-puff {
+    0% { opacity: 0; translate: 0 0; scale: 0.3; }
+    25% { opacity: 1; }
+    100% { opacity: 0; translate: calc(var(--side) * 6.5rem) calc(var(--reach) * -5rem); scale: 3.2; }
+}
+
+/* 1 · Se desata el moño: la cinta se desliza, la tapa sube y el frasco se levanta de la caja */
+.ez-intro.is-untied .ez-bow {
+    scale: 0.4;
+    opacity: 0;
+}
+
+.ez-intro.is-untied .ez-bow__svg {
+    animation: none;
+}
+
+.ez-intro.is-untied .ez-ribbon--v {
+    translate: 0 40%;
+    opacity: 0;
+}
+
+.ez-intro.is-untied .ez-ribbon--h {
+    translate: 30% 0;
+    opacity: 0;
+}
+
+.ez-intro.is-untied .ez-box__lid {
+    translate: 0 -130%;
+    rotate: -8deg;
+    opacity: 0;
+}
+
+.ez-intro.is-untied .ez-box__bottle {
+    translate: -50% -72%;
+}
+
+.ez-intro.is-untied :is(.ez-intro__hint, .ez-intro__eyebrow) {
+    opacity: 0;
+    animation: none;
+}
+
+/* 2 · El atomizador suelta su bruma y en ella aparece su nombre */
+.ez-intro.is-open .ez-mist i {
+    animation: ez-puff 1.4s ease-out var(--d) both;
+}
+
+.ez-intro.is-open .ez-intro__reveal {
+    opacity: 1;
+    translate: 0 0;
+}
+
+.ez-intro.is-open .ez-intro__meta {
+    opacity: 0;
+}
+
+.ez-intro.is-open {
+    animation-delay: 1.35s;
+}
+
+/* ── Portada: el afiche de la campaña ───────────────────────────────────── */
+
+.ez-hero {
+    align-content: start;
+    justify-items: center;
+    gap: 1rem;
+    min-height: 100svh;
+    padding: calc(4.75rem + env(safe-area-inset-top)) 1.25rem 1.5rem;
+    background:
+        radial-gradient(55% 38% at 50% 40%, color-mix(in srgb, var(--tr-accent) 50%, transparent), transparent 75%),
+        var(--tr-bg);
+    color: var(--tr-text);
+    text-align: center;
+}
+
+.ez-kicker {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.4rem 0.9rem;
+    margin: 0;
+    font-size: 0.64rem;
+    font-weight: 600;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--inv-accent-ink);
+}
+
+.ez-kicker span + span {
+    padding-left: 0.9rem;
+    border-left: 1px solid var(--ez-line);
+}
+
+.ez-brand {
+    margin: 0;
+    padding-left: 0.12em;
+    font-family: var(--font-titles);
+    font-size: clamp(2.3rem, 11vw, 4.2rem);
+    font-weight: 400;
+    letter-spacing: 0.12em;
+    line-height: 1.02;
+    text-transform: uppercase;
+    text-wrap: balance;
+    overflow-wrap: break-word;
+}
+
+.ez-campaign {
+    position: relative;
+    width: min(78vw, 20rem);
+    margin: 0.6rem 0 2.8rem;
+}
+
+.ez-campaign__photo {
+    display: block;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    background: var(--tr-accent);
+    box-shadow: 0 0 0 1px var(--ez-line), 0 34px 44px -32px rgb(0 0 0 / 0.55);
+}
+
+.ez-campaign__bottle {
+    position: absolute;
+    bottom: -2.6rem;
+    left: 50%;
+    width: 28%;
+    translate: -50% 0;
+}
+
+.ez-launch {
+    display: grid;
+    justify-items: center;
+    gap: 0.25rem;
+}
+
+.ez-launch__label {
+    margin: 0;
+    padding-left: 0.3em;
+    font-size: 0.64rem;
+    font-weight: 600;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--inv-accent-ink);
+}
+
+.ez-launch__when {
+    margin: 0;
+    font-family: var(--font-titles);
+    font-size: 1.45rem;
+    letter-spacing: 0.04em;
+}
+
+.ez-launch__place {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--inv-muted);
+}
+
+.ez-message {
+    max-width: 32ch;
+    margin: 0.4rem 0 0;
+    font-family: var(--font-script);
+    font-size: 1.15rem;
+    font-style: italic;
+    line-height: 1.55;
+    color: var(--inv-muted);
+    text-wrap: pretty;
+}
+
+.ez-hero__scroll {
+    color: var(--tr-text);
+}
+
+/* ── Secciones: las páginas de la campaña ───────────────────────────────── */
+
+.inv-esencia main > .inv-section {
+    counter-increment: ez-page;
+    border-top: 0;
+    padding-block: 1.6rem 0.5rem;
+}
+
+.inv-esencia main > .inv-section > .inv-wrap {
+    position: relative;
+    width: calc(100% - 1.5rem);
+    padding-block: 3.2rem 2.6rem;
+    border-radius: 0.15rem;
+    background: var(--ez-card);
+    box-shadow: inset 0 0 0 1px var(--ez-line), 0 22px 36px -32px rgb(0 0 0 / 0.5);
+}
+
+/* El filo nacarado arriba de cada página */
+.inv-esencia main > .inv-section > .inv-wrap::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 3px;
+    background: var(--ez-nacre);
+}
+
+.inv-esencia .invitation-lottie-framed {
+    display: none;
+}
+
+/* «N.º 03 · …»: el número de página de la campaña */
+.inv-esencia main > .inv-section .inv-head__eyebrow::before {
+    content: 'N.º ' counter(ez-page, decimal-leading-zero) ' · ';
+    color: var(--tr-text);
+}
+
+.inv-esencia .inv-head__eyebrow {
+    padding-left: 0.28em;
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.28em;
+    color: var(--inv-accent-ink);
+}
+
+.inv-esencia .inv-head__title {
+    font-size: clamp(2.3rem, 10vw, 3.4rem);
+    font-weight: 400;
+    letter-spacing: 0.04em;
+}
+
+.inv-esencia .inv-head__rule {
+    width: 3.5rem;
+    height: 1px;
+    background: var(--tr-primary);
+    opacity: 1;
+}
+
+.inv-esencia :is(.inv-label, .inv-link, .inv-btn, .inv-countdown__label) {
+    letter-spacing: 0.2em;
+}
+
+/* Botones: la laca de la caja con letra blanca */
+.inv-esencia .inv-btn {
+    min-height: 3.15rem;
+    border: 0;
+    border-radius: 0.1rem;
+    background: var(--ez-black);
+    color: var(--ez-black-ink);
+    box-shadow: inset 0 -2px 0 var(--tr-primary), 0 14px 22px -16px rgb(0 0 0 / 0.6);
+}
+
+.inv-esencia .inv-btn--ghost {
+    background: transparent;
+    color: var(--tr-text);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tr-text) 32%, transparent);
+}
+
+.inv-esencia .inv-choice {
+    border: 1px solid color-mix(in srgb, var(--tr-text) 28%, transparent);
+    border-radius: 0.1rem;
+    background: transparent;
+    font-family: var(--font-titles);
+    font-size: 1.1rem;
+    letter-spacing: 0.04em;
+}
+
+.inv-esencia .inv-choice.is-selected {
+    border-color: var(--ez-black);
+    background: var(--ez-black);
+    color: var(--ez-black-ink);
+}
+
+.inv-esencia .inv-input {
+    border-bottom: 1px solid color-mix(in srgb, var(--tr-text) 32%, transparent);
+}
+
+.inv-esencia .inv-input:focus {
+    border-bottom-color: var(--tr-primary);
+}
+
+.inv-esencia .inv-poll__option {
+    border-radius: 0.1rem;
+    background: transparent;
+}
+
+/* Cuenta regresiva: «Disponible en», cifras finas entre filetes */
+.inv-esencia .inv-countdown__grid {
+    gap: 0;
+    border-block: 1px solid var(--ez-line);
+}
+
+.inv-esencia .inv-countdown__unit {
+    border: 0;
+    background: transparent;
+}
+
+.inv-esencia .inv-countdown__unit + .inv-countdown__unit {
+    border-left: 1px solid var(--ez-line);
+}
+
+.inv-esencia .inv-countdown__value {
+    font-family: var(--font-titles);
+    font-weight: 400;
+    color: var(--tr-text);
+}
+
+.inv-esencia .inv-gallery__card {
+    border-radius: 0;
+    box-shadow: 0 0 0 1px var(--ez-line), 0 28px 36px -26px rgb(0 0 0 / 0.5);
+}
+
+/* Vestimenta: cada tono es un frasquito */
+.inv-esencia .inv-dress__swatch {
+    border-radius: 0;
+    clip-path: var(--ez-bottle-shape);
+}
+
+.inv-esencia .inv-pass {
+    border: 0;
+    border-radius: 0.15rem;
+    background: var(--ez-card);
+    box-shadow: inset 0 0 0 1px var(--ez-line), inset 0 3px 0 var(--tr-primary);
+}
+
+/* ── Programa: la pirámide de notas ─────────────────────────────────────── */
+
+.ez-pyramid {
+    display: grid;
+    justify-items: center;
+    gap: 0.7rem;
+}
+
+.ez-tier {
+    position: relative;
+    width: 100%;
+    padding: 1.3rem 1.1rem 1rem;
+    background: color-mix(in srgb, var(--tr-accent) 22%, var(--ez-card));
+    box-shadow: inset 0 0 0 1px var(--ez-line);
+}
+
+.ez-tier::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 2px;
+    background: var(--ez-nacre);
+}
+
+.ez-tier--0 { width: 78%; }
+.ez-tier--1 { width: 89%; }
+.ez-tier--2 { width: 100%; }
+
+.ez-tier__label {
+    margin: 0 0 0.4rem;
+    font-family: var(--font-script);
+    font-size: 1.3rem;
+    font-style: italic;
+    font-weight: 400;
+    color: var(--inv-accent-ink);
+}
+
+.ez-tier__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.ez-note {
+    display: grid;
+    gap: 0.12rem;
+    padding: 0.65rem 0;
+}
+
+.ez-note + .ez-note {
+    border-top: 1px solid var(--ez-line);
+}
+
+.ez-note__time {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    color: var(--inv-accent-ink);
+    font-variant-numeric: tabular-nums;
+}
+
+.ez-note__title {
+    font-family: var(--font-titles);
+    font-size: 1.35rem;
+    line-height: 1.2;
+}
+
+.ez-note__text {
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: var(--inv-muted);
+}
+
+@media (min-width: 720px) {
+    .ez-tier--0 { width: 62%; }
+    .ez-tier--1 { width: 81%; }
+}
+
+/* ── Padrinos: los créditos del reverso de la caja ─────────────────────── */
+
+.ez-credits {
+    background: var(--ez-card);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tr-text) 16%, transparent);
+    text-align: left;
+}
+
+.ez-credits__band {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.3rem 1rem;
+    margin: 0;
+    padding: 0.7rem 1.1rem;
+    background: var(--ez-black);
+    color: var(--ez-black-ink);
+    font-size: 0.64rem;
+    font-weight: 600;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+}
+
+.ez-credits__list {
+    margin: 0;
+    padding: 0.3rem 1.1rem 0.6rem;
+    list-style: none;
+}
+
+.ez-credit {
+    padding: 0.95rem 0;
+}
+
+.ez-credit + .ez-credit {
+    border-top: 1px solid var(--ez-line);
+}
+
+.ez-credit__line {
+    display: grid;
+    gap: 0.2rem;
+}
+
+.ez-credit__role {
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--inv-accent-ink);
+}
+
+.ez-credit__dots {
+    display: none;
+}
+
+.ez-credit__names {
+    font-family: var(--font-titles);
+    font-size: 1.3rem;
+    line-height: 1.2;
+}
+
+.ez-credit__message {
+    display: block;
+    margin-top: 0.35rem;
+    font-family: var(--font-script);
+    font-size: 1.02rem;
+    font-style: italic;
+    line-height: 1.45;
+    color: var(--inv-muted);
+}
+
+@media (min-width: 540px) {
+    .ez-credit__line {
+        display: flex;
+        align-items: baseline;
+        gap: 0.6rem;
+    }
+
+    .ez-credit__role {
+        flex: none;
+    }
+
+    /* Los puntos que llevan del papel a los nombres, como en la lista de la caja */
+    .ez-credit__dots {
+        display: block;
+        flex: 1;
+        min-width: 1.5rem;
+        border-bottom: 1.5px dotted color-mix(in srgb, var(--tr-text) 35%, transparent);
+    }
+
+    .ez-credit__names {
+        max-width: 60%;
+        text-align: right;
+    }
+}
+
+.ez-court {
+    display: grid;
+    gap: 1.4rem;
+    padding: 1.3rem 1.1rem 1.4rem;
+    border-top: 1px solid var(--ez-line);
+}
+
+.ez-court__title {
+    margin: 0 0 0.6rem;
+    font-family: var(--font-script);
+    font-size: 1.3rem;
+    font-style: italic;
+    font-weight: 400;
+    color: var(--inv-accent-ink);
+}
+
+.ez-court__list {
+    display: grid;
+    gap: 0.45rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.ez-court__name {
+    font-family: var(--font-titles);
+    font-size: 1.1rem;
+}
+
+.ez-court__list small {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--inv-muted);
+}
+
+@media (min-width: 540px) {
+    .ez-court {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* ── Fondo: la bruma nacarada ───────────────────────────────────────────── */
+
+.inv-esencia .inv-themed-bg__glow {
+    background:
+        radial-gradient(40% 30% at 20% 24%, color-mix(in srgb, var(--tr-accent) 35%, transparent), transparent 70%),
+        radial-gradient(40% 30% at 80% 72%, color-mix(in srgb, var(--tr-primary) 10%, transparent), transparent 70%);
+}
+
+.ez-ambient {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.ez-ambient__mist {
+    position: absolute;
+    width: 80vmax;
+    height: 80vmax;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, color-mix(in srgb, var(--tr-accent) 75%, transparent), transparent 72%);
+    opacity: 0.55;
+}
+
+.ez-ambient__mist--left {
+    top: -25vmax;
+    left: -45vmax;
+    animation: ez-mist-left 28s ease-in-out infinite alternate;
+}
+
+.ez-ambient__mist--right {
+    top: -25vmax;
+    right: -45vmax;
+    animation: ez-mist-right 28s ease-in-out infinite alternate;
+}
+
+.ez-ambient__mist--center {
+    bottom: -55vmax;
+    left: 50%;
+    margin-left: -40vmax;
+    background: radial-gradient(closest-side, color-mix(in srgb, var(--tr-primary) 18%, transparent), transparent 72%);
+    animation: ez-mist-center 22s ease-in-out infinite alternate;
+}
+
+@keyframes ez-mist-left {
+    to { translate: 12vmax 8vmax; }
+}
+
+@keyframes ez-mist-right {
+    to { translate: -12vmax 8vmax; }
+}
+
+@keyframes ez-mist-center {
+    to { translate: 0 -10vmax; }
+}
+
+.inv-drift--bruma {
+    --drift-a: color-mix(in srgb, var(--tr-accent) 70%, #fff);
+    --drift-b: color-mix(in srgb, var(--tr-primary) 40%, #fff);
+    opacity: 0.7;
+}
+
+/* ── Pie e historia ─────────────────────────────────────────────────────── */
+
+.inv-esencia .inv-esencia-footer {
+    border-top: 0;
+}
+
+.inv-esencia-footer .inv-footer__ornament--line {
+    width: 5rem;
+    height: 3px;
+    background: var(--ez-nacre);
+}
+
+/* Modo historia: cada escena aparece como una página de la campaña que se revela */
+.inv-story-invitation .inv-esencia .inv-scene {
+    --story-scene-bg: var(--tr-bg);
+    scale: 1.04;
+    opacity: 0;
+    transition: scale 0.9s var(--tr-ease), opacity 0.6s ease, visibility 0s linear 0.9s;
+}
+
+.inv-story-invitation .inv-esencia .inv-scene.is-past {
+    scale: 0.97;
+}
+
+.inv-story-invitation .inv-esencia .inv-scene.is-active {
+    scale: 1;
+    opacity: 1;
+    transition-delay: 0s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ez-box__lid::after,
+    .ez-bow__svg,
+    .ez-intro__hint,
+    .ez-ambient__mist {
+        animation: none !important;
+    }
+}

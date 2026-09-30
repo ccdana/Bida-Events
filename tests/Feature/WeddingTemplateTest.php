@@ -46,12 +46,12 @@ class WeddingTemplateTest extends TestCase
             ->assertOk()
             ->assertSee('Chambelanes')
             ->assertSee('Mi corte de honor')
-            // «Noche de gala»: la araña que se enciende, la foto en el espejo y los destellos de los caireles
-            ->assertSee('inv-page inv-gala', false)
-            ->assertSee('inv-themed-intro ga-intro', false)
-            ->assertSee('ga-mirror', false)
-            ->assertSee('ga-ambient__glint', false)
-            ->assertSee('ga-plaque', false)
+            // «Atelier»: la funda del vestido, el tablero con la etiqueta de su nombre y las cintas métricas del fondo
+            ->assertSee('inv-page inv-atelier', false)
+            ->assertSee('inv-themed-intro at-intro', false)
+            ->assertSee('at-label__name', false)
+            ->assertSee('at-ambient__tape', false)
+            ->assertSee('at-tag', false)
             ->assertSeeInOrder(['inv-footer__name', 'Sofía Valentina', 'inv-footer__bar', 'Volver al inicio'], false)
             ->assertDontSee('inv-footer__links', false)
             // El crédito lleva al sitio de Bida Events con una invitación a crear la propia

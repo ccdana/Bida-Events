@@ -1,0 +1,1089 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   INVITACIÓN — «A la misma hora» (boda · colección tendencias)
+
+   Cada uno llega con su reloj marcando su propia hora. Se entra dándoles
+   cuerda: las agujas giran hasta la hora de la boda, los segunderos se
+   sincronizan y las dos esferas se acercan hasta volverse una. La portada es la
+   esfera del reloj (la foto al centro, el anillo de marfil con las marcas y los
+   números romanos, la ventanita de la fecha y las agujas en la hora de la
+   ceremonia) con tres subesferas; cada sección lleva su hora en números
+   romanos y su riel de minutos, el programa muestra un relojito por momento con
+   su hora exacta y los padrinos son los engranajes que hacen que todo marche.
+   Al fondo, engranajes de latón giran despacio por los bordes.
+
+   Todo sale de la paleta del editor:
+     esfera de marfil = fondo · números y textos = texto · agujas, botones y
+     acero = principal · latón de la caja y los engranajes = secundario ·
+     subesferas y segundero = acento. La letra va siempre sobre marfil o con la
+     tinta calculada (--tr-ink-primary), nunca sobre el latón.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+@import './_base.css';
+
+.inv-reloj {
+    --inv-radius: 999px;
+    --rl-dial: color-mix(in srgb, var(--tr-bg) 50%, #fff);
+    --rl-brass: var(--tr-secondary);
+    --rl-brass-hi: color-mix(in srgb, var(--tr-secondary) 45%, #fff);
+    --rl-brass-low: color-mix(in srgb, var(--tr-secondary) 65%, #1f170a);
+    --rl-case: conic-gradient(from 30deg, var(--rl-brass-hi), var(--rl-brass) 18%, var(--rl-brass-low) 32%, var(--rl-brass-hi) 50%, var(--rl-brass) 68%, var(--rl-brass-low) 82%, var(--rl-brass-hi));
+    --rl-seconds: color-mix(in srgb, var(--tr-accent) 40%, #9b3d24);
+    --rl-guilloche: repeating-radial-gradient(circle at 50% 50%, transparent 0 3px, color-mix(in srgb, var(--tr-text) 4%, transparent) 3px 4px);
+    --rl-line: color-mix(in srgb, var(--tr-text) 12%, transparent);
+    --themed-from: translate3d(0, 20px, 0);
+
+    background: var(--tr-bg);
+    counter-reset: rl-hour;
+}
+
+.inv-reloj.has-player {
+    padding-bottom: calc(5.25rem + env(safe-area-inset-bottom));
+}
+
+/* ── El engranaje (gears y el fondo): dientes en un aro y el cuerpo con su eje ── */
+
+.rl-gear {
+    position: relative;
+    display: block;
+    aspect-ratio: 1;
+    border-radius: 50%;
+}
+
+.rl-gear::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: repeating-conic-gradient(from 0deg, var(--rl-brass) 0 9deg, transparent 9deg 18deg);
+    -webkit-mask: radial-gradient(closest-side, transparent 0 74%, #000 75%);
+    mask: radial-gradient(closest-side, transparent 0 74%, #000 75%);
+}
+
+.rl-gear i {
+    position: absolute;
+    inset: 12%;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle, transparent 0 16%, var(--rl-brass-low) 17% 21%, transparent 22%),
+        radial-gradient(circle at 35% 30%, var(--rl-brass-hi), var(--rl-brass) 55%, var(--rl-brass-low));
+    -webkit-mask: radial-gradient(circle, transparent 0 14%, #000 15%);
+    mask: radial-gradient(circle, transparent 0 14%, #000 15%);
+}
+
+/* ── Las agujas (esferas de la apertura y de la portada) ────────────────── */
+
+.rl-hand {
+    position: absolute;
+    bottom: 50%;
+    left: 50%;
+    z-index: 2;
+    border-radius: 99px;
+    transform-origin: 50% 100%;
+}
+
+/* ── Apertura: los dos relojes frente a frente ──────────────────────────── */
+
+.rl-intro.inv-themed-intro {
+    --rl-w: min(37vw, 9.5rem, 22svh);
+    --rl-gap: 2.4rem;
+    gap: clamp(0.9rem, 2.6svh, 1.5rem);
+    background:
+        radial-gradient(60% 40% at 50% 46%, color-mix(in srgb, var(--tr-accent) 30%, transparent), transparent 72%),
+        var(--tr-bg);
+    color: var(--tr-text);
+}
+
+.rl-intro__eyebrow {
+    margin: 0;
+    max-width: 20rem;
+    font-family: var(--font-script);
+    font-size: clamp(1.5rem, 6.5vw, 2rem);
+    font-style: italic;
+    line-height: 1.15;
+    color: var(--inv-accent-ink);
+    transition: opacity 0.4s ease;
+}
+
+.rl-pair {
+    display: flex;
+    justify-content: center;
+    gap: var(--rl-gap);
+    padding: 1.4rem 1rem;
+    border: 0;
+    background: none;
+    cursor: pointer;
+}
+
+.rl-watch {
+    position: relative;
+    isolation: isolate;
+    width: var(--rl-w);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    transition: translate 1s cubic-bezier(0.55, 0, 0.25, 1), scale 1s cubic-bezier(0.55, 0, 0.25, 1), opacity 0.4s ease 0.75s;
+}
+
+/* La caja de latón */
+.rl-watch::before {
+    content: '';
+    position: absolute;
+    inset: -8%;
+    z-index: -1;
+    border-radius: 50%;
+    background: var(--rl-case);
+    box-shadow: 0 16px 22px -14px rgb(0 0 0 / 0.55), inset 0 0 0 2px rgb(255 255 255 / 0.2);
+}
+
+.rl-watch__dial {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: var(--rl-guilloche), radial-gradient(circle at 40% 30%, #fff, var(--rl-dial) 70%);
+    box-shadow: inset 0 2px 6px rgb(0 0 0 / 0.25);
+}
+
+/* Las marcas de los minutos y, más largas, las de las horas */
+.rl-watch__dial::before,
+.rl-watch__dial::after,
+.rl-face__ring::before,
+.rl-face__ring::after {
+    content: '';
+    position: absolute;
+    inset: 3%;
+    border-radius: 50%;
+}
+
+.rl-watch__dial::before,
+.rl-face__ring::before {
+    background: repeating-conic-gradient(from -0.4deg, color-mix(in srgb, var(--tr-text) 55%, transparent) 0 0.8deg, transparent 0.8deg 6deg);
+    -webkit-mask: radial-gradient(closest-side, transparent 90%, #000 91%);
+    mask: radial-gradient(closest-side, transparent 90%, #000 91%);
+}
+
+.rl-watch__dial::after,
+.rl-face__ring::after {
+    background: repeating-conic-gradient(from -1.2deg, var(--tr-text) 0 2.4deg, transparent 2.4deg 30deg);
+    -webkit-mask: radial-gradient(closest-side, transparent 82%, #000 83%);
+    mask: radial-gradient(closest-side, transparent 82%, #000 83%);
+}
+
+.rl-watch__numeral {
+    position: absolute;
+    font-family: var(--font-titles);
+    font-size: calc(var(--rl-w) * 0.095);
+    font-weight: 600;
+    line-height: 1;
+}
+
+.rl-watch__numeral--12 { top: 17%; left: 50%; translate: -50% 0; }
+.rl-watch__numeral--6 { bottom: 17%; left: 50%; translate: -50% 0; }
+.rl-watch__numeral--3 { top: 50%; right: 17%; translate: 0 -50%; }
+.rl-watch__numeral--9 { top: 50%; left: 17%; translate: 0 -50%; }
+
+/* El nombre de cada uno, escrito en su esfera */
+.rl-watch__name {
+    position: absolute;
+    top: 60%;
+    left: 50%;
+    max-width: 58%;
+    translate: -50% 0;
+    overflow: hidden;
+    font-size: calc(var(--rl-w) * 0.075);
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+    white-space: nowrap;
+    transition: opacity 0.4s ease;
+}
+
+.rl-watch .rl-hand--hour {
+    width: 5%;
+    height: 25%;
+    margin-left: -2.5%;
+    background: var(--tr-primary);
+    rotate: var(--h0);
+    transition: rotate 1.7s cubic-bezier(0.45, 0, 0.2, 1) 0.15s;
+}
+
+.rl-watch .rl-hand--minute {
+    width: 3.4%;
+    height: 36%;
+    margin-left: -1.7%;
+    background: var(--tr-primary);
+    rotate: var(--m0);
+    transition: rotate 1.7s cubic-bezier(0.45, 0, 0.2, 1) 0.15s;
+}
+
+/* El segundero salta segundo a segundo; cada reloj va a su ritmo hasta que se sincronizan */
+.rl-watch .rl-hand--second {
+    width: 1.3%;
+    height: 42%;
+    margin-left: -0.65%;
+    background: var(--rl-seconds);
+    animation: rl-seconds 60s steps(60) var(--s-delay, 0s) infinite;
+}
+
+.rl-watch__cap {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 3;
+    width: 9%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    translate: -50% -50%;
+    background: radial-gradient(circle at 35% 30%, var(--rl-brass-hi), var(--rl-brass-low));
+}
+
+/* La corona: los dos relojes la tienen hacia el otro, frente a frente */
+.rl-watch__crown {
+    position: absolute;
+    top: 50%;
+    width: 10%;
+    height: 17%;
+    translate: 0 -50%;
+    border-radius: 2px;
+    background:
+        repeating-linear-gradient(180deg, rgb(255 255 255 / 0.3) 0 1px, transparent 1px 3px),
+        var(--rl-brass);
+    box-shadow: 0 2px 3px rgb(0 0 0 / 0.3);
+}
+
+.rl-watch--left .rl-watch__crown { right: -16%; }
+.rl-watch--right .rl-watch__crown { left: -16%; }
+
+.rl-intro__together {
+    display: grid;
+    justify-items: center;
+    gap: 0.3rem;
+    transition: opacity 0.4s ease;
+}
+
+.rl-intro__names {
+    margin: 0;
+    font-family: var(--font-titles);
+    font-size: clamp(1.4rem, 6.4vw, 2rem);
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    line-height: 1.2;
+    text-wrap: balance;
+}
+
+.rl-intro__date {
+    margin: 0;
+    font-size: 0.9rem;
+    letter-spacing: 0.04em;
+}
+
+.rl-intro__guest,
+.rl-intro__hint {
+    margin: 0;
+    font-size: 0.82rem;
+    color: var(--inv-muted);
+}
+
+.rl-intro__hint {
+    animation: rl-hint 2.4s ease-in-out 1.5s infinite;
+    transition: opacity 0.3s ease;
+}
+
+@keyframes rl-seconds {
+    to { rotate: 360deg; }
+}
+
+@keyframes rl-hint {
+    50% { translate: 0 -3px; }
+}
+
+@keyframes rl-crown {
+    50% { scale: 0.7 1; }
+}
+
+@keyframes rl-turn {
+    to { rotate: 360deg; }
+}
+
+/* 1 · Se les da cuerda: las agujas giran hasta la hora de la boda y los segunderos se sincronizan */
+.rl-intro.is-wound .rl-watch .rl-hand--hour {
+    rotate: var(--h1);
+}
+
+.rl-intro.is-wound .rl-watch .rl-hand--minute {
+    rotate: var(--m1);
+}
+
+.rl-intro.is-wound .rl-watch .rl-hand--second {
+    animation-delay: 0s;
+}
+
+.rl-intro.is-wound .rl-watch__crown {
+    animation: rl-crown 0.4s ease 2;
+}
+
+.rl-intro.is-wound :is(.rl-intro__hint, .rl-intro__eyebrow) {
+    opacity: 0;
+    animation: none;
+}
+
+/* 2 · Las dos esferas se acercan hasta volverse una y se entra en ella */
+.rl-intro.is-open .rl-watch--left {
+    translate: calc((var(--rl-w) + var(--rl-gap)) / 2) 0;
+    scale: 1.2;
+}
+
+.rl-intro.is-open .rl-watch--right {
+    translate: calc((var(--rl-w) + var(--rl-gap)) / -2) 0;
+    scale: 1.2;
+    opacity: 0;
+}
+
+.rl-intro.is-open .rl-watch__name {
+    opacity: 0;
+}
+
+.rl-intro.is-open {
+    animation-delay: 1.3s;
+}
+
+/* ── Portada: la esfera del reloj ───────────────────────────────────────── */
+
+.rl-hero {
+    align-content: start;
+    justify-items: center;
+    gap: 1rem;
+    min-height: 100svh;
+    padding: calc(4.75rem + env(safe-area-inset-top)) 1.25rem 1.5rem;
+    background:
+        radial-gradient(60% 40% at 50% 32%, color-mix(in srgb, var(--tr-accent) 30%, transparent), transparent 72%),
+        var(--tr-bg);
+    color: var(--tr-text);
+    text-align: center;
+}
+
+.rl-kicker {
+    margin: 0;
+    padding-left: 0.4em;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--inv-accent-ink);
+}
+
+.rl-face {
+    --rl-f: min(76vw, 19.5rem);
+    position: relative;
+    isolation: isolate;
+    width: var(--rl-f);
+    aspect-ratio: 1;
+    margin-top: 1rem;
+    border-radius: 50%;
+}
+
+.rl-face::before {
+    content: '';
+    position: absolute;
+    inset: -6%;
+    z-index: -1;
+    border-radius: 50%;
+    background: var(--rl-case);
+    box-shadow: 0 26px 34px -22px rgb(0 0 0 / 0.6), inset 0 0 0 2px rgb(255 255 255 / 0.2);
+}
+
+.rl-face__photo {
+    position: absolute;
+    inset: 11%;
+    overflow: hidden;
+    border-radius: 50%;
+    background: var(--tr-accent);
+    box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.1);
+}
+
+/* El anillo de marfil con las marcas y los números */
+.rl-face__ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: var(--rl-guilloche), var(--rl-dial);
+    -webkit-mask: radial-gradient(closest-side, transparent 77.5%, #000 78%);
+    mask: radial-gradient(closest-side, transparent 77.5%, #000 78%);
+}
+
+.rl-face__numeral {
+    position: absolute;
+    font-family: var(--font-titles);
+    font-size: calc(var(--rl-f) * 0.052);
+    font-weight: 600;
+    line-height: 1;
+}
+
+.rl-face__numeral--12 { top: 3.2%; left: 50%; translate: -50% 0; }
+.rl-face__numeral--6 { bottom: 3.2%; left: 50%; translate: -50% 0; }
+.rl-face__numeral--9 { top: 50%; left: 3%; translate: 0 -50%; }
+
+/* La ventanita de la fecha, en el lugar del III */
+.rl-face__date {
+    position: absolute;
+    top: 50%;
+    right: 1.5%;
+    z-index: 1;
+    padding: 0.18rem 0.3rem;
+    translate: 0 -50%;
+    border-radius: 2px;
+    background: #fff;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tr-text) 30%, transparent), inset 0 2px 3px rgb(0 0 0 / 0.12);
+    font-family: var(--font-titles);
+    font-size: calc(var(--rl-f) * 0.036);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    line-height: 1;
+}
+
+/* Las agujas en la hora de la boda, con un borde claro para verse sobre la foto; al aparecer dan una vuelta */
+.rl-face .rl-hand--hour,
+.rl-face .rl-hand--minute {
+    background: var(--tr-primary);
+    box-shadow: 0 0 0 2px color-mix(in srgb, #fff 85%, transparent), 0 6px 10px rgb(0 0 0 / 0.35);
+    animation: rl-hand-in 1.8s cubic-bezier(0.45, 0, 0.2, 1) 0.4s both;
+}
+
+.rl-face .rl-hand--hour {
+    width: 3.2%;
+    height: 22%;
+    margin-left: -1.6%;
+    rotate: var(--h);
+    --rl-from: calc(var(--h) - 360deg);
+}
+
+.rl-face .rl-hand--minute {
+    width: 2.2%;
+    height: 32%;
+    margin-left: -1.1%;
+    rotate: var(--m);
+    --rl-from: calc(var(--m) - 720deg);
+}
+
+.rl-face__cap {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 3;
+    width: 6%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    translate: -50% -50%;
+    background: radial-gradient(circle at 35% 30%, var(--rl-brass-hi), var(--rl-brass-low));
+    box-shadow: 0 0 0 2px color-mix(in srgb, #fff 80%, transparent);
+}
+
+@keyframes rl-hand-in {
+    from { rotate: var(--rl-from); }
+}
+
+.rl-names {
+    margin: 0.8rem 0 0;
+    font-family: var(--font-titles);
+    font-size: clamp(1.8rem, 8.2vw, 3rem);
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    line-height: 1.15;
+    text-wrap: balance;
+    overflow-wrap: break-word;
+}
+
+.rl-names em {
+    font-family: var(--font-script);
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: 0;
+    color: var(--inv-accent-ink);
+}
+
+/* Las subesferas: el día, la hora y el año */
+.rl-subdials {
+    display: flex;
+    justify-content: center;
+    gap: 0.8rem;
+    margin: 0.3rem 0 0;
+}
+
+.rl-subdial,
+.inv-reloj .inv-countdown__unit {
+    position: relative;
+    display: grid;
+    place-content: center;
+    width: 5.4rem;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--rl-guilloche), var(--rl-dial);
+    box-shadow: inset 0 0 0 1.5px var(--rl-brass), inset 0 2px 6px rgb(0 0 0 / 0.14);
+}
+
+/* El riel de marcas de cada subesfera */
+.rl-subdial::before,
+.inv-reloj .inv-countdown__unit::before {
+    content: '';
+    position: absolute;
+    inset: 5%;
+    border-radius: 50%;
+    background: repeating-conic-gradient(from -0.6deg, color-mix(in srgb, var(--tr-text) 45%, transparent) 0 1.2deg, transparent 1.2deg 15deg);
+    -webkit-mask: radial-gradient(closest-side, transparent 86%, #000 87%);
+    mask: radial-gradient(closest-side, transparent 86%, #000 87%);
+}
+
+.rl-subdial dt {
+    font-size: 0.56rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--inv-muted);
+}
+
+.rl-subdial dd {
+    margin: 0.1rem 0 0;
+    font-family: var(--font-titles);
+    font-size: 1.05rem;
+    font-weight: 600;
+    line-height: 1.1;
+}
+
+.rl-subdial dd small {
+    display: block;
+    font-size: 0.66rem;
+    text-transform: uppercase;
+}
+
+.rl-when {
+    margin: 0.5rem 0 0;
+    font-family: var(--font-titles);
+    font-size: 1.05rem;
+    letter-spacing: 0.04em;
+}
+
+.rl-place {
+    display: grid;
+    gap: 0.15rem;
+    margin: 0;
+    font-size: 1rem;
+}
+
+.rl-place span {
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--inv-accent-ink);
+}
+
+.rl-message {
+    max-width: 34ch;
+    margin: 0.3rem 0 0;
+    line-height: 1.7;
+    color: var(--inv-muted);
+    text-wrap: pretty;
+}
+
+.rl-hero__scroll {
+    color: var(--tr-text);
+}
+
+/* ── Secciones: cada una con su hora y su riel de minutos ───────────────── */
+
+.inv-reloj main > .inv-section {
+    counter-increment: rl-hour;
+    border-top: 0;
+    padding-block: 1.7rem 0.6rem;
+}
+
+.inv-reloj main > .inv-section > .inv-wrap {
+    position: relative;
+    width: calc(100% - 1.5rem);
+    padding-block: 3.4rem 2.6rem;
+    border-radius: 1.2rem;
+    background: var(--rl-guilloche), var(--rl-dial);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tr-secondary) 55%, transparent), inset 0 0 0 5px var(--rl-dial), inset 0 0 0 6px color-mix(in srgb, var(--tr-secondary) 25%, transparent), 0 22px 32px -26px rgb(0 0 0 / 0.45);
+}
+
+/* El riel de minutos arriba: una marca por minuto y, más larga, cada cinco */
+.inv-reloj main > .inv-section > .inv-wrap::before {
+    content: '';
+    position: absolute;
+    top: 1rem;
+    left: 50%;
+    width: min(70%, 18rem);
+    height: 0.6rem;
+    translate: -50% 0;
+    background:
+        repeating-linear-gradient(90deg, color-mix(in srgb, var(--tr-text) 55%, transparent) 0 1px, transparent 1px 6px) 0 0 / 100% 45% no-repeat,
+        repeating-linear-gradient(90deg, var(--tr-text) 0 1.5px, transparent 1.5px 30px) 0 0 / 100% 100% no-repeat;
+    opacity: 0.45;
+}
+
+.inv-reloj .invitation-lottie-framed {
+    display: none;
+}
+
+/* «IV · …»: cada sección, su hora en números romanos */
+.inv-reloj main > .inv-section .inv-head__eyebrow::before {
+    content: counter(rl-hour, upper-roman) ' · ';
+    color: var(--tr-primary);
+}
+
+.inv-reloj .inv-head__eyebrow {
+    padding-left: 0.3em;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    color: var(--inv-accent-ink);
+}
+
+.inv-reloj .inv-head__title {
+    font-size: clamp(1.9rem, 8.4vw, 2.8rem);
+    font-weight: 500;
+    letter-spacing: 0.03em;
+}
+
+/* El filete: dos agujas que salen del eje */
+.inv-reloj .inv-head__rule {
+    width: 6rem;
+    height: 0.7rem;
+    background:
+        radial-gradient(circle, var(--rl-brass) 0 0.28rem, transparent 0.3rem) 50% 50% / 100% 100% no-repeat,
+        linear-gradient(var(--tr-primary), var(--tr-primary)) 0 50% / 50% 2px no-repeat,
+        linear-gradient(var(--tr-primary), var(--tr-primary)) 100% 50% / 34% 2px no-repeat;
+    opacity: 1;
+}
+
+.inv-reloj :is(.inv-label, .inv-link, .inv-btn, .inv-countdown__label) {
+    letter-spacing: 0.14em;
+}
+
+/* Botones: el acero de las agujas con el aro de latón */
+.inv-reloj .inv-btn {
+    min-height: 3.15rem;
+    border: 0;
+    border-radius: 999px;
+    background: var(--tr-primary);
+    color: var(--tr-ink-primary);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--tr-secondary) 70%, transparent), 0 12px 20px -14px rgb(0 0 0 / 0.55);
+}
+
+.inv-reloj .inv-btn--ghost {
+    background: var(--rl-dial);
+    color: var(--tr-text);
+    box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--tr-secondary) 70%, transparent);
+}
+
+.inv-reloj .inv-choice {
+    border: 1.5px solid color-mix(in srgb, var(--tr-secondary) 55%, transparent);
+    border-radius: 999px;
+    background: var(--rl-dial);
+}
+
+.inv-reloj .inv-choice.is-selected {
+    border-color: var(--tr-primary);
+    background: var(--tr-primary);
+    color: var(--tr-ink-primary);
+}
+
+.inv-reloj .inv-input {
+    border-bottom: 1.5px solid color-mix(in srgb, var(--tr-secondary) 60%, transparent);
+}
+
+.inv-reloj .inv-input:focus {
+    border-bottom-color: var(--tr-primary);
+}
+
+.inv-reloj .inv-poll__option,
+.inv-reloj .inv-stepper__btn {
+    border-color: color-mix(in srgb, var(--tr-secondary) 50%, transparent);
+    background: var(--rl-dial);
+}
+
+/* Cuenta regresiva: subesferas de cronógrafo */
+.inv-reloj .inv-countdown__grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+    border-block: 0;
+}
+
+.inv-reloj .inv-countdown__unit,
+.inv-reloj .inv-countdown__unit + .inv-countdown__unit {
+    width: 4.6rem;
+    height: 4.6rem;
+    min-height: 0;
+    padding: 0;
+    border: 0;
+}
+
+.inv-reloj .inv-countdown__value {
+    font-family: var(--font-titles);
+    font-size: 1.55rem;
+    font-weight: 600;
+    line-height: 1;
+}
+
+.inv-reloj .inv-countdown__label {
+    font-size: 0.56rem;
+}
+
+.inv-reloj .inv-gallery__card {
+    border-radius: 0.8rem;
+    box-shadow: 0 0 0 0.3rem var(--rl-brass), 0 24px 32px -22px rgb(0 0 0 / 0.55);
+}
+
+/* Vestimenta: cada color es una esfera con su caja */
+.inv-reloj .inv-dress__swatch {
+    border-radius: 50%;
+    box-shadow: 0 0 0 3px var(--rl-brass);
+}
+
+.inv-reloj .inv-pass {
+    border: 0;
+    border-radius: 1rem;
+    background: var(--rl-dial);
+    box-shadow: inset 0 0 0 1.5px var(--rl-brass), inset 0 0 0 5px var(--rl-dial), inset 0 0 0 6px color-mix(in srgb, var(--tr-secondary) 30%, transparent);
+}
+
+/* ── Programa: un relojito por momento ─────────────────────────────────── */
+
+.rl-hours {
+    position: relative;
+    display: grid;
+    gap: 1.4rem;
+    margin: 0;
+    padding: 0.3rem 0 0;
+    list-style: none;
+    text-align: left;
+}
+
+/* La cadena del reloj de bolsillo que une los momentos */
+.rl-hours::before {
+    content: '';
+    position: absolute;
+    top: 0.5rem;
+    bottom: 0.5rem;
+    left: 1.75rem;
+    width: 3px;
+    margin-left: -1.5px;
+    background: repeating-linear-gradient(180deg, var(--rl-brass) 0 5px, transparent 5px 8px);
+}
+
+.rl-moment {
+    display: grid;
+    grid-template-columns: 3.5rem 1fr;
+    align-items: start;
+    column-gap: 0.9rem;
+}
+
+.rl-mini {
+    position: relative;
+    z-index: 1;
+    width: 3.5rem;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(circle at 40% 30%, #fff, var(--rl-dial) 70%);
+    box-shadow: 0 0 0 3px var(--rl-brass), 0 0 0 4px var(--rl-brass-low), 0 6px 10px -4px rgb(0 0 0 / 0.35);
+}
+
+/* Las doce marcas del relojito */
+.rl-mini::before {
+    content: '';
+    position: absolute;
+    inset: 6%;
+    border-radius: 50%;
+    background: repeating-conic-gradient(from -1.5deg, color-mix(in srgb, var(--tr-text) 60%, transparent) 0 3deg, transparent 3deg 30deg);
+    -webkit-mask: radial-gradient(closest-side, transparent 80%, #000 81%);
+    mask: radial-gradient(closest-side, transparent 80%, #000 81%);
+}
+
+/* El eje */
+.rl-mini::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0.3rem;
+    height: 0.3rem;
+    border-radius: 50%;
+    translate: -50% -50%;
+    background: var(--rl-brass-low);
+}
+
+.rl-mini i {
+    position: absolute;
+    bottom: 50%;
+    left: 50%;
+    border-radius: 99px;
+    background: var(--tr-primary);
+    transform-origin: 50% 100%;
+}
+
+.rl-mini__hour {
+    width: 0.18rem;
+    height: 22%;
+    margin-left: -0.09rem;
+    rotate: var(--h);
+}
+
+.rl-mini__minute {
+    width: 0.12rem;
+    height: 33%;
+    margin-left: -0.06rem;
+    rotate: var(--m);
+}
+
+.rl-moment__body {
+    padding-top: 0.15rem;
+}
+
+.rl-moment__time {
+    font-family: var(--font-titles);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--inv-accent-ink);
+    font-variant-numeric: tabular-nums;
+}
+
+.rl-moment__title {
+    margin: 0.1rem 0 0;
+    font-family: var(--font-titles);
+    font-size: 1.15rem;
+    font-weight: 500;
+    line-height: 1.25;
+}
+
+.rl-moment__text {
+    margin: 0.3rem 0 0;
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: var(--inv-muted);
+}
+
+/* ── Padrinos: los engranajes ───────────────────────────────────────────── */
+
+.rl-sponsors {
+    display: grid;
+    gap: 1rem;
+    margin: 0;
+    padding: 0.4rem 0 0;
+    list-style: none;
+}
+
+.rl-sponsor {
+    display: grid;
+    justify-items: center;
+    gap: 0.35rem;
+    padding: 1.3rem 1.1rem;
+    border-radius: 1rem;
+    background: #fff;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tr-secondary) 45%, transparent), 0 14px 22px -18px rgb(0 0 0 / 0.45);
+    text-align: center;
+}
+
+.rl-sponsor__gear {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 4.2rem;
+    aspect-ratio: 1;
+    margin-bottom: 0.3rem;
+}
+
+.rl-sponsor__gear .rl-gear {
+    position: absolute;
+    inset: 0;
+    animation: rl-turn 22s linear infinite;
+}
+
+.rl-sponsor:nth-child(even) .rl-sponsor__gear .rl-gear {
+    animation-direction: reverse;
+}
+
+/* La inicial va en un disco de marfil, nunca sobre el latón */
+.rl-sponsor__gear b {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 52%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--rl-dial);
+    box-shadow: 0 0 0 1px var(--rl-brass-low);
+    font-family: var(--font-titles);
+    font-size: 1.15rem;
+    font-weight: 600;
+}
+
+.rl-sponsor__role {
+    padding-left: 0.2em;
+    font-size: 0.64rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--inv-accent-ink);
+}
+
+.rl-sponsor__names {
+    font-family: var(--font-titles);
+    font-size: 1.15rem;
+    font-weight: 500;
+    line-height: 1.3;
+    text-wrap: balance;
+}
+
+.rl-sponsor__message {
+    max-width: 30ch;
+    font-family: var(--font-script);
+    font-size: 1.05rem;
+    font-style: italic;
+    line-height: 1.45;
+    color: var(--inv-muted);
+}
+
+.rl-court {
+    display: grid;
+    gap: 1.6rem;
+    margin-top: 2.2rem;
+    padding-top: 1.8rem;
+    border-top: 1px solid color-mix(in srgb, var(--tr-secondary) 45%, transparent);
+}
+
+.rl-court__title {
+    margin: 0 0 0.8rem;
+    font-family: var(--font-titles);
+    font-size: 1.2rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-align: center;
+}
+
+.rl-court__list {
+    display: grid;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    text-align: center;
+}
+
+.rl-court__name {
+    font-size: 1.02rem;
+}
+
+.rl-court__list small {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--inv-muted);
+}
+
+@media (min-width: 560px) {
+    .rl-sponsors,
+    .rl-court {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* ── Fondo: engranajes que giran por los bordes ─────────────────────────── */
+
+.inv-reloj .inv-themed-bg__glow {
+    background:
+        radial-gradient(40% 30% at 20% 22%, color-mix(in srgb, var(--tr-accent) 26%, transparent), transparent 70%),
+        radial-gradient(40% 30% at 80% 74%, color-mix(in srgb, var(--tr-primary) 8%, transparent), transparent 70%);
+}
+
+.rl-ambient {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.rl-ambient__gear {
+    position: absolute;
+    opacity: 0.14;
+}
+
+.rl-ambient__gear--left-big,
+.rl-ambient__gear--right-big {
+    top: 16%;
+    width: 17rem;
+    animation: rl-turn 80s linear infinite;
+}
+
+.rl-ambient__gear--left-small,
+.rl-ambient__gear--right-small {
+    top: calc(16% + 13.2rem);
+    width: 8rem;
+    animation: rl-turn 38s linear infinite reverse;
+}
+
+.rl-ambient__gear--left-big { left: -11rem; }
+.rl-ambient__gear--left-small { left: 2.6rem; }
+.rl-ambient__gear--right-big { right: -11rem; animation-direction: reverse; }
+.rl-ambient__gear--right-small { right: 2.6rem; animation-direction: normal; }
+
+@media (max-width: 639px) {
+    .rl-ambient__gear--left-small { left: 0.6rem; }
+    .rl-ambient__gear--right-small { right: 0.6rem; }
+
+    .rl-ambient__gear {
+        opacity: 0.1;
+    }
+}
+
+.inv-drift--laton {
+    --drift-a: color-mix(in srgb, var(--tr-secondary) 50%, #fff);
+    --drift-b: var(--tr-accent);
+    opacity: 0.6;
+}
+
+/* ── Pie e historia ─────────────────────────────────────────────────────── */
+
+.inv-reloj .inv-reloj-footer {
+    border-top: 0;
+}
+
+.inv-reloj-footer .inv-footer__ornament--line {
+    width: 6rem;
+    height: 0.7rem;
+    background:
+        radial-gradient(circle, var(--rl-brass) 0 0.28rem, transparent 0.3rem) 50% 50% / 100% 100% no-repeat,
+        linear-gradient(var(--tr-primary), var(--tr-primary)) 0 50% / 50% 2px no-repeat,
+        linear-gradient(var(--tr-primary), var(--tr-primary)) 100% 50% / 34% 2px no-repeat;
+}
+
+/* Modo historia: cada escena entra girando un poco, como la aguja que avanza */
+.inv-story-invitation .inv-reloj .inv-scene {
+    --story-scene-bg: var(--tr-bg);
+    transform-origin: 50% 120%;
+    rotate: 10deg;
+    opacity: 0;
+    transition: rotate 0.8s var(--tr-ease), opacity 0.5s ease, visibility 0s linear 0.8s;
+}
+
+.inv-story-invitation .inv-reloj .inv-scene.is-past {
+    rotate: -10deg;
+}
+
+.inv-story-invitation .inv-reloj .inv-scene.is-active {
+    rotate: 0deg;
+    opacity: 1;
+    transition-delay: 0s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .rl-watch .rl-hand--second,
+    .rl-intro__hint,
+    .rl-face .rl-hand--hour,
+    .rl-face .rl-hand--minute,
+    .rl-sponsor__gear .rl-gear,
+    .rl-ambient__gear {
+        animation: none !important;
+    }
+}

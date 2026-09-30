@@ -166,7 +166,7 @@ class HomePageTest extends TestCase
             ->assertOk()
             ->assertSee('id="plantillas"', false)
             ->assertSee('href="#plantillas"', false)
-            ->assertSeeInOrder(['Noche de gala', 'Promesa en el jardín', 'Entre nubes', 'Sopla las velas'])
+            ->assertSeeInOrder(['Atelier', 'Promesa en el jardín', 'Entre nubes', 'Sopla las velas'])
             // Cada evento muestra sus diseños como en su página: capturas en fila que llevan a la muestra
             ->assertSee('site-shots site-shots--row', false)
             ->assertSee('href="'.route('invitation.demo', 'xv-isabella').'"', false)

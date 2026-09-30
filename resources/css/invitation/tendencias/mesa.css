@@ -1,0 +1,875 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   INVITACIÓN — «Mesa de honor» (boda · colección tendencias)
+
+   La invitación es su lugar en la mesa del banquete, visto desde arriba sobre
+   el mantel de lino. Se entra quitando el servilletero: la servilleta se aparta
+   y en el plato aparece el monograma de los novios. La portada es el cubierto
+   puesto (la tarjeta con los nombres en caligrafía, la foto pintada en el plato
+   de porcelana con su filete de oro entre el tenedor y el cuchillo, y el menú
+   con el día, la hora y el salón); cada sección es una tarjeta sobre el mantel
+   con su doble filete dorado, el programa es el menú servido por tiempos y los
+   padrinos se sientan en la mesa de honor con su tarjeta doblada en carpa. Dos
+   velas tiemblan a los costados.
+
+   Todo sale de la paleta del editor:
+     mantel = fondo · textos y caligrafía = texto · servilleta, tarjetas de
+     honor y botones = principal · oro de platos, cubiertos y filetes =
+     secundario · porcelana y tarjetas = acento. Sobre la servilleta va la tinta
+     calculada para su color (--tr-ink-primary); el oro nunca lleva letra encima.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+@import './_base.css';
+
+.inv-mesa {
+    --inv-radius: 0.3rem;
+    --ms-card: color-mix(in srgb, var(--tr-accent) 22%, #fff);
+    --ms-porcelain: color-mix(in srgb, var(--tr-accent) 18%, #fff);
+    --ms-gold: var(--tr-secondary);
+    --ms-gold-grad: linear-gradient(135deg,
+        color-mix(in srgb, var(--tr-secondary) 45%, #fff) 0%,
+        var(--tr-secondary) 45%,
+        color-mix(in srgb, var(--tr-secondary) 70%, #2e2210) 72%,
+        color-mix(in srgb, var(--tr-secondary) 55%, #fff) 100%);
+    --ms-line: color-mix(in srgb, var(--tr-text) 12%, transparent);
+    --ms-linen:
+        repeating-linear-gradient(0deg, color-mix(in srgb, var(--tr-text) 3%, transparent) 0 1px, transparent 1px 3px),
+        repeating-linear-gradient(90deg, color-mix(in srgb, var(--tr-text) 3%, transparent) 0 1px, transparent 1px 3px);
+    --ms-candle: color-mix(in srgb, #ffc56b 55%, transparent);
+    --themed-from: translate3d(0, 20px, 0);
+
+    background: var(--ms-linen), var(--tr-bg);
+}
+
+.inv-mesa.has-player {
+    padding-bottom: calc(5.25rem + env(safe-area-inset-bottom));
+}
+
+/* ── Los cubiertos (mesa/cutlery) ───────────────────────────────────────── */
+
+.ms-cutlery {
+    display: block;
+    width: 1.05rem;
+    height: auto;
+    overflow: visible;
+    fill: var(--ms-gold);
+    filter: drop-shadow(0 3px 2px rgb(0 0 0 / 0.22));
+}
+
+.ms-cutlery__line {
+    fill: none;
+    stroke: color-mix(in srgb, var(--tr-secondary) 55%, #2e2210);
+    stroke-width: 0.8;
+}
+
+/* ── El plato: porcelana con su filete de oro, sobre el bajoplato ───────── */
+
+/* Un solo degradado: la porcelana con el borde del hueco y el filete de oro, y afuera el aro del bajoplato */
+.ms-plate {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background:
+        radial-gradient(closest-side, transparent 0 57%, color-mix(in srgb, var(--tr-text) 10%, var(--ms-porcelain)) 57.5% 58.5%, transparent 59%),
+        radial-gradient(closest-side, transparent 0 79.5%, var(--ms-gold) 80% 82%, transparent 82.5%),
+        radial-gradient(closest-side,
+            #fff 0,
+            var(--ms-porcelain) 70%,
+            var(--ms-porcelain) 87.5%,
+            color-mix(in srgb, var(--tr-secondary) 45%, #fff) 88%,
+            var(--tr-secondary) 94%,
+            color-mix(in srgb, var(--tr-secondary) 70%, #2e2210) 100%);
+    box-shadow: 0 16px 24px -14px rgb(0 0 0 / 0.5);
+}
+
+/* ── Apertura: el lugar en la mesa ──────────────────────────────────────── */
+
+.ms-intro.inv-themed-intro {
+    --ms-setting-w: min(86vw, 22rem, 46svh);
+    gap: clamp(0.7rem, 2svh, 1.2rem);
+    background:
+        radial-gradient(60% 45% at 50% 52%, color-mix(in srgb, #fff 55%, transparent), transparent 72%),
+        var(--ms-linen),
+        var(--tr-bg);
+    color: var(--tr-text);
+}
+
+.ms-intro__candle {
+    position: absolute;
+    top: 22%;
+    width: 16rem;
+    aspect-ratio: 1;
+    margin-left: -8rem;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, var(--ms-candle), transparent 72%);
+    pointer-events: none;
+    animation: ms-flicker 2.8s ease-in-out infinite alternate;
+}
+
+.ms-intro__candle--left { left: 8%; }
+.ms-intro__candle--right { left: 92%; animation-delay: -1.4s; }
+
+.ms-intro__eyebrow {
+    margin: 0;
+    font-family: var(--font-titles);
+    font-size: clamp(1.25rem, 5.4vw, 1.6rem);
+    font-style: italic;
+    line-height: 1.2;
+    color: var(--inv-accent-ink);
+    transition: opacity 0.4s ease;
+}
+
+.ms-setting {
+    position: relative;
+    width: var(--ms-setting-w);
+    transition: transform 1.2s cubic-bezier(0.55, 0, 0.2, 1) 0.1s;
+}
+
+/* La tarjeta del lugar, doblada en carpa (arriba asoma el doblez) */
+.ms-placecard {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    gap: 0.15rem;
+    width: 74%;
+    margin: 0 auto 1.3rem;
+    padding: 0.9rem 1rem 0.75rem;
+    border-radius: 0.15rem;
+    background:
+        linear-gradient(180deg, color-mix(in srgb, var(--tr-text) 8%, var(--ms-card)) 0 0.45rem, var(--ms-card) 0.45rem);
+    box-shadow: 0 10px 14px -10px rgb(0 0 0 / 0.4), inset 0 0 0 1px color-mix(in srgb, var(--tr-secondary) 45%, transparent);
+    text-align: center;
+    transition: opacity 0.4s ease;
+}
+
+.ms-placecard__names {
+    font-family: var(--font-script);
+    font-size: clamp(1.5rem, 6.8vw, 2rem);
+    line-height: 1.2;
+    text-wrap: balance;
+}
+
+.ms-placecard__guest {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--inv-muted);
+}
+
+/* Las dos copas, arriba a cada lado */
+.ms-glass {
+    position: absolute;
+    top: 3.6rem;
+    width: 2.6rem;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at 35% 30%, rgb(255 255 255 / 0.85), transparent 38%),
+        radial-gradient(circle, transparent 60%, color-mix(in srgb, var(--tr-text) 14%, transparent) 63%, transparent 68%),
+        color-mix(in srgb, var(--tr-accent) 30%, transparent);
+    box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--tr-text) 18%, transparent), 0 8px 10px -8px rgb(0 0 0 / 0.3);
+    transition: opacity 0.4s ease;
+}
+
+.ms-glass--left { left: -0.2rem; }
+.ms-glass--right { right: -0.2rem; }
+
+.ms-setting__row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.ms-setting__right,
+.ms-hero__right {
+    display: flex;
+    gap: 0.35rem;
+}
+
+.ms-plate__well {
+    position: absolute;
+    inset: 22%;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: 0.2rem;
+    text-align: center;
+    opacity: 0;
+    scale: 0.9;
+    transition: opacity 0.6s ease 0.75s, scale 0.8s var(--tr-ease) 0.75s;
+}
+
+.ms-plate__monogram {
+    font-family: var(--font-script);
+    font-size: clamp(2rem, 9vw, 2.8rem);
+    line-height: 1;
+    color: var(--ms-gold);
+}
+
+.ms-plate__names {
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--tr-text);
+}
+
+/* La servilleta doblada, con su trama y el servilletero de oro */
+.ms-napkin {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 2;
+    width: 34%;
+    height: 76%;
+    padding: 0;
+    border: 0;
+    background: none;
+    translate: -50% -50%;
+    cursor: pointer;
+    transition: translate 0.9s cubic-bezier(0.55, 0, 0.3, 1) 0.3s, rotate 0.9s cubic-bezier(0.55, 0, 0.3, 1) 0.3s, opacity 0.4s ease 1.1s;
+}
+
+.ms-napkin__cloth {
+    position: absolute;
+    inset: 0;
+    border-radius: 0.3rem;
+    background:
+        linear-gradient(90deg, rgb(0 0 0 / 0.14), transparent 22%, transparent 78%, rgb(0 0 0 / 0.14)),
+        repeating-linear-gradient(0deg, rgb(255 255 255 / 0.05) 0 1px, transparent 1px 3px),
+        var(--tr-primary);
+    box-shadow: 0 12px 16px -10px rgb(0 0 0 / 0.45);
+}
+
+/* El doblez del medio */
+.ms-napkin__cloth::after {
+    content: '';
+    position: absolute;
+    top: 6%;
+    bottom: 6%;
+    left: 50%;
+    width: 1px;
+    background: rgb(0 0 0 / 0.15);
+    box-shadow: 1px 0 0 rgb(255 255 255 / 0.12);
+}
+
+.ms-napkin__ring {
+    position: absolute;
+    top: 50%;
+    right: -12%;
+    left: -12%;
+    height: 15%;
+    translate: 0 -50%;
+    border-radius: 0.45rem;
+    background: var(--ms-gold-grad);
+    box-shadow: 0 6px 8px -4px rgb(0 0 0 / 0.4), inset 0 1px 0 rgb(255 255 255 / 0.4);
+    transition: translate 0.5s cubic-bezier(0.55, 0, 0.35, 1), opacity 0.35s ease 0.15s;
+}
+
+/* Un brillo recorre el servilletero mientras se espera */
+.ms-napkin__ring::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(105deg, transparent 40%, rgb(255 255 255 / 0.55) 50%, transparent 60%);
+    translate: -110% 0;
+    animation: ms-gleam 4.5s ease-in-out 1s infinite;
+}
+
+.ms-intro__date {
+    margin: 0.4rem 0 0;
+    font-family: var(--font-titles);
+    font-size: 1.2rem;
+    transition: opacity 0.4s ease;
+}
+
+.ms-intro__hint {
+    margin: 0;
+    font-size: 0.82rem;
+    color: var(--inv-muted);
+    animation: ms-hint 2.4s ease-in-out 1.5s infinite;
+    transition: opacity 0.3s ease;
+}
+
+@keyframes ms-flicker {
+    0% { opacity: 0.55; scale: 0.96; }
+    35% { opacity: 0.8; scale: 1.02; }
+    60% { opacity: 0.62; scale: 0.98; }
+    100% { opacity: 0.85; scale: 1.04; }
+}
+
+@keyframes ms-gleam {
+    0%, 60% { translate: -110% 0; }
+    100% { translate: 110% 0; }
+}
+
+@keyframes ms-hint {
+    50% { translate: 0 -3px; }
+}
+
+/* 1 · Sale el servilletero, la servilleta se aparta y aparece el monograma en el plato */
+.ms-intro.is-unfolded .ms-napkin__ring {
+    translate: 0 260%;
+    opacity: 0;
+}
+
+.ms-intro.is-unfolded .ms-napkin__ring::after {
+    animation: none;
+}
+
+.ms-intro.is-unfolded .ms-napkin {
+    translate: -165% -40%;
+    rotate: -16deg;
+}
+
+.ms-intro.is-unfolded .ms-plate__well {
+    opacity: 1;
+    scale: 1;
+}
+
+.ms-intro.is-unfolded .ms-intro__hint {
+    opacity: 0;
+    animation: none;
+}
+
+/* 2 · Se acerca el plato hasta la portada */
+.ms-intro.is-open .ms-setting {
+    transform: translateY(-8%) scale(1.75);
+}
+
+.ms-intro.is-open :is(.ms-intro__eyebrow, .ms-intro__date, .ms-placecard, .ms-glass) {
+    opacity: 0;
+}
+
+.ms-intro.is-open .ms-napkin {
+    opacity: 0;
+}
+
+.ms-intro.is-open {
+    animation-delay: 1.2s;
+}
+
+/* ── Portada: el cubierto puesto ────────────────────────────────────────── */
+
+.ms-hero {
+    align-content: start;
+    justify-items: center;
+    gap: 1rem;
+    min-height: 100svh;
+    padding: calc(4.5rem + env(safe-area-inset-top)) 1.25rem 1.5rem;
+    background:
+        radial-gradient(40% 30% at 10% 30%, var(--ms-candle), transparent 70%),
+        radial-gradient(40% 30% at 90% 30%, var(--ms-candle), transparent 70%),
+        var(--ms-linen),
+        var(--tr-bg);
+    color: var(--tr-text);
+    text-align: center;
+}
+
+.ms-kicker {
+    margin: 0;
+    padding-left: 0.4em;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--inv-accent-ink);
+}
+
+/* La tarjeta del lugar con los nombres */
+.ms-tent {
+    width: min(88vw, 24rem);
+    padding: 1.2rem 1.2rem 1rem;
+    border-radius: 0.15rem;
+    background:
+        linear-gradient(180deg, color-mix(in srgb, var(--tr-text) 7%, var(--ms-card)) 0 0.55rem, var(--ms-card) 0.55rem);
+    box-shadow: 0 16px 22px -16px rgb(0 0 0 / 0.45), inset 0 0 0 1px color-mix(in srgb, var(--tr-secondary) 50%, transparent);
+}
+
+.ms-tent__names {
+    margin: 0;
+    font-family: var(--font-script);
+    font-size: clamp(2.3rem, 11vw, 3.5rem);
+    font-weight: 400;
+    line-height: 1.12;
+    text-wrap: balance;
+    overflow-wrap: break-word;
+}
+
+.ms-hero__setting {
+    display: grid;
+    grid-template-columns: auto minmax(0, 15rem) auto;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    width: min(92vw, 24rem);
+    margin-top: 0.6rem;
+}
+
+.ms-hero__setting .ms-cutlery {
+    width: 1.2rem;
+}
+
+/* El filete de puntitos dorados del plato de la portada */
+.ms-plate--hero::after {
+    content: '';
+    position: absolute;
+    inset: 7.5%;
+    border-radius: 50%;
+    background: repeating-conic-gradient(var(--ms-gold) 0 1.4deg, transparent 1.4deg 7.5deg);
+    -webkit-mask: radial-gradient(circle, transparent calc(100% - 5px), #000 calc(100% - 4.5px));
+    mask: radial-gradient(circle, transparent calc(100% - 5px), #000 calc(100% - 4.5px));
+    opacity: 0.8;
+}
+
+/* La foto, pintada en el centro del plato */
+.ms-plate__photo {
+    position: absolute;
+    inset: 15%;
+    overflow: hidden;
+    border-radius: 50%;
+    background: var(--tr-accent);
+    box-shadow: 0 0 0 3px var(--ms-porcelain), 0 0 0 4px color-mix(in srgb, var(--tr-secondary) 60%, transparent), inset 0 0 0 1px rgb(0 0 0 / 0.06);
+}
+
+/* El menú de la celebración, con su doble filete de oro */
+.ms-menu {
+    width: min(100%, 22rem);
+    margin-top: 0.6rem;
+    padding: 1.15rem 1.3rem 1.2rem;
+    border-radius: 0.15rem;
+    background: var(--ms-card);
+    box-shadow:
+        inset 0 0 0 1px color-mix(in srgb, var(--tr-secondary) 60%, transparent),
+        inset 0 0 0 5px var(--ms-card),
+        inset 0 0 0 6px color-mix(in srgb, var(--tr-secondary) 35%, transparent),
+        0 16px 24px -20px rgb(0 0 0 / 0.45);
+}
+
+.ms-menu__title {
+    margin: 0 0 0.9rem;
+    font-family: var(--font-titles);
+    font-size: 1.35rem;
+    font-style: italic;
+    font-weight: 600;
+    color: var(--inv-accent-ink);
+}
+
+.ms-menu__fields {
+    display: grid;
+    gap: 0.7rem;
+    margin: 0;
+}
+
+.ms-menu__fields dt {
+    padding-left: 0.2em;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--inv-muted);
+}
+
+.ms-menu__fields dd {
+    margin: 0.1rem 0 0;
+    font-family: var(--font-titles);
+    font-size: 1.2rem;
+    font-weight: 600;
+    line-height: 1.25;
+}
+
+.ms-message {
+    max-width: 34ch;
+    margin: 0.3rem 0 0;
+    line-height: 1.7;
+    color: var(--inv-muted);
+    text-wrap: pretty;
+}
+
+.ms-hero__scroll {
+    color: var(--tr-text);
+}
+
+/* ── Secciones: tarjetas sobre el mantel ────────────────────────────────── */
+
+.inv-mesa main > .inv-section {
+    border-top: 0;
+    padding-block: 1.6rem 0.6rem;
+}
+
+.inv-mesa main > .inv-section > .inv-wrap {
+    width: calc(100% - 1.5rem);
+    padding-block: 3rem 2.6rem;
+    border-radius: 0.15rem;
+    background: var(--ms-card);
+    box-shadow:
+        inset 0 0 0 1px color-mix(in srgb, var(--tr-secondary) 55%, transparent),
+        inset 0 0 0 7px var(--ms-card),
+        inset 0 0 0 8px color-mix(in srgb, var(--tr-secondary) 30%, transparent),
+        0 22px 32px -26px rgb(0 0 0 / 0.45);
+}
+
+.inv-mesa .invitation-lottie-framed {
+    display: none;
+}
+
+.inv-mesa .inv-head__eyebrow {
+    padding-left: 0.3em;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    color: var(--inv-accent-ink);
+}
+
+.inv-mesa .inv-head__title {
+    font-size: clamp(2.3rem, 10vw, 3.4rem);
+    font-style: italic;
+    font-weight: 600;
+}
+
+/* El filete: una línea de oro con su rombo al medio */
+.inv-mesa .inv-head__rule {
+    width: 7rem;
+    height: 0.7rem;
+    background:
+        conic-gradient(from 45deg at 50% 50%, var(--ms-gold) 0 25%, transparent 0 50%, var(--ms-gold) 0 75%, transparent 0) 50% 50% / 0.55rem 0.55rem no-repeat,
+        linear-gradient(var(--ms-gold), var(--ms-gold)) 50% 50% / 100% 1px no-repeat;
+    opacity: 1;
+}
+
+.inv-mesa :is(.inv-label, .inv-link, .inv-btn, .inv-countdown__label) {
+    letter-spacing: 0.14em;
+}
+
+/* Botones: la tela de la servilleta con un filete de oro por dentro */
+.inv-mesa .inv-btn {
+    min-height: 3.15rem;
+    border: 0;
+    border-radius: 0.3rem;
+    background: var(--tr-primary);
+    color: var(--tr-ink-primary);
+    outline: 1px solid color-mix(in srgb, var(--tr-secondary) 70%, transparent);
+    outline-offset: -5px;
+    box-shadow: 0 12px 20px -14px rgb(0 0 0 / 0.55);
+}
+
+.inv-mesa .inv-btn--ghost {
+    background: var(--ms-card);
+    color: var(--tr-text);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tr-secondary) 60%, transparent);
+}
+
+.inv-mesa .inv-btn:focus-visible {
+    outline: 2px solid var(--inv-accent-ink);
+    outline-offset: 3px;
+}
+
+.inv-mesa .inv-choice {
+    border: 1px solid color-mix(in srgb, var(--tr-secondary) 55%, transparent);
+    border-radius: 0.3rem;
+    background: #fff;
+    font-family: var(--font-titles);
+    font-size: 1.1rem;
+    font-style: italic;
+}
+
+.inv-mesa .inv-choice.is-selected {
+    border-color: var(--tr-primary);
+    background: var(--tr-primary);
+    color: var(--tr-ink-primary);
+}
+
+.inv-mesa .inv-input {
+    border-bottom: 1px solid color-mix(in srgb, var(--tr-secondary) 70%, transparent);
+}
+
+.inv-mesa .inv-input:focus {
+    border-bottom-color: var(--tr-primary);
+}
+
+.inv-mesa .inv-poll__option,
+.inv-mesa .inv-stepper__btn {
+    border-color: color-mix(in srgb, var(--tr-secondary) 50%, transparent);
+    background: #fff;
+}
+
+/* Cuenta regresiva: cada cifra en un platito con su filete de oro */
+.inv-mesa .inv-countdown__grid {
+    gap: 0.5rem;
+    border-block: 0;
+}
+
+.inv-mesa .inv-countdown__unit,
+.inv-mesa .inv-countdown__unit + .inv-countdown__unit {
+    display: grid;
+    place-content: center;
+    aspect-ratio: 1;
+    padding: 0.2rem;
+    border: 0;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle, transparent 0 80%, var(--ms-gold) 81% 84%, transparent 85%),
+        radial-gradient(circle at 40% 35%, #fff, var(--ms-porcelain) 70%);
+    box-shadow: 0 10px 14px -10px rgb(0 0 0 / 0.4);
+}
+
+.inv-mesa .inv-countdown__value {
+    font-family: var(--font-titles);
+    font-weight: 600;
+    line-height: 1;
+}
+
+.inv-mesa .inv-gallery__card {
+    border-radius: 0.2rem;
+    box-shadow: 0 0 0 0.35rem #fff, 0 0 0 0.42rem color-mix(in srgb, var(--tr-secondary) 60%, transparent), 0 24px 32px -22px rgb(0 0 0 / 0.5);
+}
+
+/* Vestimenta: cada color es un platito con su filete */
+.inv-mesa .inv-dress__swatch {
+    border-radius: 50%;
+    box-shadow: 0 0 0 3px #fff, 0 0 0 4px color-mix(in srgb, var(--tr-secondary) 60%, transparent);
+}
+
+.inv-mesa .inv-pass {
+    border: 0;
+    border-radius: 0.15rem;
+    background: #fff;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tr-secondary) 55%, transparent), inset 0 0 0 5px #fff, inset 0 0 0 6px color-mix(in srgb, var(--tr-secondary) 30%, transparent);
+}
+
+/* ── Programa: el menú servido por tiempos ──────────────────────────────── */
+
+.ms-courses {
+    display: grid;
+    gap: 1.2rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    text-align: center;
+}
+
+.ms-course {
+    display: grid;
+    justify-items: center;
+    gap: 0.2rem;
+}
+
+/* Entre tiempo y tiempo, el filete de oro con su rombo */
+.ms-course + .ms-course::before {
+    content: '';
+    display: block;
+    width: 5rem;
+    height: 0.6rem;
+    margin-bottom: 1rem;
+    background:
+        conic-gradient(from 45deg at 50% 50%, var(--ms-gold) 0 25%, transparent 0 50%, var(--ms-gold) 0 75%, transparent 0) 50% 50% / 0.45rem 0.45rem no-repeat,
+        linear-gradient(var(--ms-gold), var(--ms-gold)) 50% 50% / 100% 1px no-repeat;
+    opacity: 0.8;
+}
+
+.ms-course__number {
+    padding-left: 0.24em;
+    font-size: 0.64rem;
+    font-weight: 700;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--inv-accent-ink);
+}
+
+.ms-course__time {
+    font-size: 0.85rem;
+    color: var(--inv-muted);
+    font-variant-numeric: tabular-nums;
+}
+
+.ms-course__title {
+    margin: 0;
+    font-family: var(--font-titles);
+    font-size: 1.55rem;
+    font-style: italic;
+    font-weight: 600;
+    line-height: 1.15;
+}
+
+.ms-course__text {
+    max-width: 30ch;
+    margin: 0.1rem 0 0;
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: var(--inv-muted);
+}
+
+/* ── Padrinos: la mesa de honor ─────────────────────────────────────────── */
+
+.ms-seats {
+    display: grid;
+    gap: 1rem;
+    margin: 0;
+    padding: 0.4rem 0 0;
+    list-style: none;
+}
+
+/* La tarjeta de lugar doblada en carpa: arriba se ve el doblez */
+.ms-seat {
+    display: grid;
+    justify-items: center;
+    gap: 0.35rem;
+    padding: 1.6rem 1.1rem 1.2rem;
+    border-radius: 0.15rem;
+    background:
+        linear-gradient(180deg, color-mix(in srgb, var(--tr-text) 7%, #fff) 0 0.55rem, #fff 0.55rem);
+    box-shadow: 0 12px 18px -14px rgb(0 0 0 / 0.45), inset 0 0 0 1px color-mix(in srgb, var(--tr-secondary) 45%, transparent);
+    text-align: center;
+}
+
+.ms-seat__role {
+    padding-left: 0.2em;
+    font-size: 0.64rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--inv-accent-ink);
+}
+
+.ms-seat__names {
+    font-family: var(--font-script);
+    font-size: 1.85rem;
+    line-height: 1.2;
+    text-wrap: balance;
+}
+
+.ms-seat__message {
+    max-width: 30ch;
+    font-size: 0.88rem;
+    font-style: italic;
+    line-height: 1.5;
+    color: var(--inv-muted);
+}
+
+.ms-court {
+    display: grid;
+    gap: 1.6rem;
+    margin-top: 2.2rem;
+    padding-top: 1.8rem;
+    border-top: 1px solid color-mix(in srgb, var(--tr-secondary) 45%, transparent);
+}
+
+.ms-court__title {
+    margin: 0 0 0.8rem;
+    font-family: var(--font-titles);
+    font-size: 1.5rem;
+    font-style: italic;
+    font-weight: 600;
+    text-align: center;
+}
+
+.ms-court__list {
+    display: grid;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    text-align: center;
+}
+
+.ms-court__name {
+    font-family: var(--font-titles);
+    font-size: 1.12rem;
+    font-weight: 600;
+}
+
+.ms-court__list small {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--inv-muted);
+}
+
+@media (min-width: 560px) {
+    .ms-seats,
+    .ms-court {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* ── Fondo: la luz de las velas ─────────────────────────────────────────── */
+
+.inv-mesa .inv-themed-bg__glow {
+    background:
+        radial-gradient(40% 30% at 20% 24%, color-mix(in srgb, var(--tr-accent) 30%, transparent), transparent 70%),
+        radial-gradient(40% 30% at 80% 72%, color-mix(in srgb, var(--tr-primary) 8%, transparent), transparent 70%);
+}
+
+.ms-ambient {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.ms-ambient__glow {
+    position: absolute;
+    top: 18%;
+    width: 70vmin;
+    aspect-ratio: 1;
+    margin-left: -35vmin;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, var(--ms-candle), transparent 72%);
+    opacity: 0.4;
+    animation: ms-flicker 3.2s ease-in-out infinite alternate;
+}
+
+.ms-ambient__glow--left { left: 0; }
+.ms-ambient__glow--right { left: 100%; animation-delay: -1.6s; }
+
+.inv-drift--vela {
+    --drift-a: color-mix(in srgb, #ffc56b 70%, #fff);
+    --drift-b: color-mix(in srgb, var(--tr-secondary) 50%, #fff);
+    opacity: 0.55;
+}
+
+/* ── Pie e historia ─────────────────────────────────────────────────────── */
+
+.inv-mesa .inv-mesa-footer {
+    border-top: 0;
+}
+
+.inv-mesa-footer .inv-footer__ornament--line {
+    width: 7rem;
+    height: 0.7rem;
+    background:
+        conic-gradient(from 45deg at 50% 50%, var(--ms-gold) 0 25%, transparent 0 50%, var(--ms-gold) 0 75%, transparent 0) 50% 50% / 0.55rem 0.55rem no-repeat,
+        linear-gradient(var(--ms-gold), var(--ms-gold)) 50% 50% / 100% 1px no-repeat;
+}
+
+/* Modo historia: cada escena se sirve como un plato que se deja sobre la mesa */
+.inv-story-invitation .inv-mesa .inv-scene {
+    --story-scene-bg: var(--tr-bg);
+    translate: 0 -6%;
+    scale: 1.04;
+    opacity: 0;
+    transition: translate 0.8s var(--tr-ease), scale 0.8s var(--tr-ease), opacity 0.5s ease, visibility 0s linear 0.8s;
+}
+
+.inv-story-invitation .inv-mesa .inv-scene.is-past {
+    translate: 0 6%;
+    scale: 0.97;
+}
+
+.inv-story-invitation .inv-mesa .inv-scene.is-active {
+    translate: 0 0;
+    scale: 1;
+    opacity: 1;
+    transition-delay: 0s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ms-intro__candle,
+    .ms-napkin__ring::after,
+    .ms-intro__hint,
+    .ms-ambient__glow {
+        animation: none !important;
+    }
+}

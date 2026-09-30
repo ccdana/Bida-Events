@@ -29,10 +29,17 @@ class TrendTemplatesTest extends TestCase
     public static function themes(): array
     {
         return [
-            'Galería Quince' => ['galeria', 'xv', 'xv-isabella', ['gq-barrier', 'Toca el cordón para entrar', 'gq-label', 'Mecenas de la exposición', 'Programa de la inauguración']],
+            'Cuento desplegable' => ['cuento', 'xv', 'xv-isabella', ['cu-book__cover', 'Toca el libro para abrirlo', 'cu-popup__layer--mid', 'cu-plate', 'Las páginas de la noche', 'cu-page__tab', 'cu-character__medal']],
+            'Caleidoscopio' => ['caleidoscopio', 'xv', 'xv-isabella', ['ka-wedge', 'Toca para girar el caleidoscopio', 'ka-hex__photo', 'ka-emblem__xv', 'ka-prism__gem', 'ka-sponsor__badge']],
+            'Joyero musical' => ['joyero', 'xv', 'xv-isabella', ['jo-key', 'Toca la llave para abrir el joyero', 'jo-figure', 'jo-locket__photo', 'Los dijes de mi noche', 'jo-charm__pendant', 'jo-jewel__medal']],
+            'Esencia XV' => ['esencia', 'xv', 'xv-isabella', ['ez-bow', 'Toca la cinta para abrir la caja', 'ez-campaign__bottle', 'Eau de Quince', 'Notas de salida', 'ez-credit__names']],
             'Partitura a dos voces' => ['partitura', 'boda', 'boda-camila-andres', ['pt-baton', 'Toca la batuta para empezar', 'Concierto para dos voces', 'pt-system', 'Andante', 'Quienes tocan con nosotros']],
+            'Mesa de honor' => ['mesa', 'boda', 'boda-camila-andres', ['ms-napkin__ring', 'Toca el servilletero para abrir', 'ms-plate__photo', 'Menú de la celebración', 'Primer tiempo', 'ms-seat__names']],
+            'A la misma hora' => ['reloj', 'boda', 'boda-camila-andres', ['rl-watch--left', 'Toca la corona para darles cuerda', 'rl-face__date', 'rl-subdial', 'rl-mini__minute', 'rl-sponsor__gear']],
             'Móvil de cuna' => ['movil', 'bautizo', 'bautizo-emilia', ['mv-mobile', 'Toca el móvil para que gire', 'mv-balance', 'mv-step']],
             'Gira mundial' => ['gira', 'cumple', 'cumple-daniela-30', ['gr-band', 'Fecha única', 'Cancelado', 'Line-up', 'Arma el setlist']],
+            'Día feriado' => ['feriado', 'cumple', 'cumple-daniela-30', ['fd-leaf--past', 'Toca el almanaque para arrancar las hojas', 'fd-sheet__number', 'Pensamiento del día', 'fd-slot__time', 'fd-note__names']],
+            'Cabina de fotos' => ['cabina', 'cumple', 'cumple-daniela-30', ['cb-booth__button', 'Toca el botón para la foto', 'cb-strip--hero', 'cb-stamp', 'cb-pose__frame', 'cb-host__frame']],
             'Edición especial' => ['revista', 'graduacion', 'graduacion-mariana', ['rv-band', 'En esta edición', 'rv-barcode', 'Agenda', 'Créditos de esta edición']],
             'Función de medianoche' => ['funcion', 'halloween', 'halloween-noche-diego', ['fn-leader', 'Clasificación A', 'fn-billing', 'Cartelera', 'Taquilla']],
             'Mapa de estrellas' => ['estrellas', 'bautizo', 'bautizo-emilia', ['es-constellation__line', 'Toca la estrella más brillante para unir la constelación', 'es-chart__moon', 'es-point__star', 'Las estrellas que me guían']],
@@ -101,7 +108,7 @@ class TrendTemplatesTest extends TestCase
 
     public function test_the_themed_collection_comes_with_the_upper_reseller_plans(): void
     {
-        $galeria = TrendTemplates::key('galeria', 'xv');
+        $galeria = TrendTemplates::key('caleidoscopio', 'xv');
 
         $inicial = array_keys(ResellerSubscription::allowedTemplates(User::factory()->reseller('inicial')->make()));
         $emprendedor = array_keys(ResellerSubscription::allowedTemplates(User::factory()->reseller('emprendedor')->make()));
@@ -125,7 +132,17 @@ class TrendTemplatesTest extends TestCase
         $this->withoutVite()->get(route('landing', 'invitaciones-de-boda'))
             ->assertOk()
             ->assertSee(route('invitation.demo', 'boda-camila-andres-partitura'), false)
-            ->assertSee('Partitura a dos voces');
+            ->assertSee('Partitura a dos voces')
+            // Las cinco de boda, con las dos nuevas al final
+            ->assertSeeInOrder(['Promesa en el jardín', 'Dos caminos', 'Partitura a dos voces', 'Mesa de honor', 'A la misma hora'])
+            ->assertSee(route('invitation.demo', 'boda-camila-andres-reloj'), false);
+
+        // Y las cinco de cumpleaños, con las dos nuevas al final
+        $this->withoutVite()->get(route('landing', 'invitaciones-de-cumpleanos'))
+            ->assertOk()
+            ->assertSeeInOrder(['Sopla las velas', 'Álbum de stickers', 'Gira mundial', 'Día feriado', 'Cabina de fotos'])
+            ->assertSee(route('invitation.demo', 'cumple-daniela-30-feriado'), false)
+            ->assertSee(route('invitation.demo', 'cumple-daniela-30-cabina'), false);
     }
 
     public function test_without_a_photo_the_magazine_cover_is_typographic(): void

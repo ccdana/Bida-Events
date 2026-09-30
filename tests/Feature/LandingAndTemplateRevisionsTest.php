@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Http\Controllers\HomeController;
 use App\Services\InvitationModuleService;
+use App\Support\InvitationDefaults;
 use App\Support\InvitationTemplates;
 use App\Support\ShowcaseDemos;
 use App\Support\TrendTemplates;
@@ -162,6 +163,24 @@ class LandingAndTemplateRevisionsTest extends TestCase
         $this->assertStringContainsString('Función de medianoche', $season);
     }
 
+    /** «Carta de baile» y «Galería Quince» se reemplazaron: sus invitaciones pasan al diseño nuevo sin perder nada. */
+    public function test_invitations_with_the_replaced_xv_templates_move_to_the_new_designs(): void
+    {
+        $carta = $this->createInvitation(['template' => 'invitations.templates.xv-carta-de-baile']);
+        $galeria = $this->createInvitation(['template' => 'invitations.templates.xv-galeria']);
+
+        (require database_path('migrations/2026_09_29_000001_replace_xv_templates.php'))->up();
+
+        $this->assertSame(TrendTemplates::key('cuento', 'xv'), $carta->fresh()->template);
+        $this->assertSame(TrendTemplates::key('caleidoscopio', 'xv'), $galeria->fresh()->template);
+
+        // Un nombre viejo que llegue por otro lado (una sesión, un enlace del editor) también se resuelve
+        $this->assertSame(TrendTemplates::key('cuento', 'xv'), InvitationDefaults::resolveTemplate('invitations.templates.xv-carta-de-baile'));
+        $this->assertSame(TrendTemplates::key('caleidoscopio', 'xv'), InvitationDefaults::resolveTemplate('invitations.templates.xv-galeria'));
+
+        $this->withoutVite()->get(route('invitation.show', $carta->slug))->assertOk()->assertSee('inv-page inv-cuento', false);
+    }
+
     /** Aperturas mejoradas y fondos nuevos: lo que distingue a cada una en el HTML. */
     public static function revisions(): array
     {
@@ -169,20 +188,25 @@ class LandingAndTemplateRevisionsTest extends TestCase
             'Tendedero' => [TrendTemplates::key('tendedero', 'babyshower'), 'babyshower-valentina', ['td-basket__peek--onesie', 'td-yard__spare', 'td-ambient__line', 'td-ambient__bubble']],
             'Edición especial' => [TrendTemplates::key('revista', 'graduacion'), 'graduacion-mariana', ['rv-awning', 'rv-rack__issue', 'rv-issue__inside', 'rv-ambient__cut']],
             'Gira mundial' => [TrendTemplates::key('gira', 'cumple'), 'cumple-daniela-30', ['gr-rig__light', 'gr-rig__screen', 'gr-crowd', 'gr-intro__confetti']],
-            'Galería Quince' => [TrendTemplates::key('galeria', 'xv'), 'xv-isabella', ['gq-door__art', 'gq-door__panel--left', 'gq-intro__flood', 'gq-ambient__spot']],
             'Partitura a dos voces' => [TrendTemplates::key('partitura', 'boda'), 'boda-camila-andres', ['pt-ambient__staff', 'pt-ambient__note']],
             'Próxima salida' => [InvitationTemplates::GRADUACION_PROXIMA_SALIDA, 'graduacion-mariana', ['ps-gate__plane', 'ps-gate__status-next', 'ps-pass__scan', 'Embarcando hoy']],
-            'Carta de baile' => [InvitationTemplates::XV_CARTA_DE_BAILE, 'xv-isabella', ['cb-ambient__sheen', 'cb-ambient__pair']],
             'Álbum de stickers' => [InvitationTemplates::CUMPLE_STICKERS, 'cumple-daniela-stickers', ['st-album__slot', 'st-fan st-fan--shiny', 'st-album__done', 'st-pack__label']],
             'Dos caminos' => [InvitationTemplates::BODA_DOS_CAMINOS, 'boda-camila-andres-caminos', ['dc-map__compass', 'dc-map__walk', 'animateMotion', 'dc-walk__heart']],
-            'Carta de baile: el moño y el lápiz' => [InvitationTemplates::XV_CARTA_DE_BAILE, 'xv-isabella', ['cb-bow__loop', 'cb-cord-half--left', 'cb-inside__written', 'cb-pencil', 'Primera pieza']],
-            'Galería Quince: la prensa y las paredes' => [TrendTemplates::key('galeria', 'xv'), 'xv-isabella', ['gq-press', 'gq-ambient__walls', 'gq-ambient__art', 'gq-ambient__flash']],
             'Móvil de cuna: el carrusel' => [TrendTemplates::key('movil', 'bautizo'), 'bautizo-emilia', ['mv-intro__projector', 'mv-intro__notes', 'mv-intro__light', 'mv-intro__window']],
             'Partitura a dos voces: la batuta' => [TrendTemplates::key('partitura', 'boda'), 'boda-camila-andres', ['pt-baton', 'pt-score__cover', 'pt-score__note--2', 'pt-score__heart']],
-            // La entrada de la galería en espejo: la obra principal al centro, el mosquetón que se abre al medio
-            // y cada mitad del cordón colgando de su poste; los focos del fondo barren reflejados
-            'Galería Quince: en espejo' => [TrendTemplates::key('galeria', 'xv'), 'xv-isabella', ['gq-door__art--main', 'gq-clasp', 'gq-rope-down--left', 'gq-rope-down--right', 'gq-ambient__spot--left', 'gq-ambient__spot--right']],
-            'Noche de gala' => [InvitationTemplates::XV_PREMIUM, 'xv-isabella', ['ga-intro__chandelier', 'Toca la araña para encender el salón', 'ga-mirror__glass', 'ga-plaque', 'ga-ambient__glint']],
+            // Las cinco de XV, rehechas: la funda del Atelier, el libro desplegable, el visor del caleidoscopio,
+            // la llave del joyero y la caja del perfume, cada una con su fondo propio
+            'Atelier' => [InvitationTemplates::XV_PREMIUM, 'xv-isabella', ['at-zip__pull', 'at-sketch__gown', 'at-sheet__fields', 'at-ambient__tape--right', 'Toca el cierre para abrir la funda']],
+            'Cuento desplegable' => [TrendTemplates::key('cuento', 'xv'), 'xv-isabella', ['cu-popup__name', 'cu-cover__back', 'cu-message', 'cu-ambient__edge--left']],
+            'Caleidoscopio' => [TrendTemplates::key('caleidoscopio', 'xv'), 'xv-isabella', ['ka-scope__ring', 'ka-scope__center', 'ka-facet--wide', 'ka-ambient__mandala']],
+            'Joyero musical' => [TrendTemplates::key('joyero', 'xv'), 'xv-isabella', ['jo-box__lining', 'jo-figure__svg', 'jo-case__tray', 'jo-ambient__quilt']],
+            // Las dos de boda nuevas: la servilleta que se aparta del plato y los dos relojes que se vuelven uno
+            'Mesa de honor' => [TrendTemplates::key('mesa', 'boda'), 'boda-camila-andres', ['ms-plate__monogram', 'ms-placecard__guest', 'ms-course__number', 'ms-ambient__glow--right']],
+            'A la misma hora' => [TrendTemplates::key('reloj', 'boda'), 'boda-camila-andres', ['rl-hand--second', 'rl-watch__crown', 'rl-intro__together', 'rl-ambient__gear--right-small']],
+            // Las dos de cumpleaños nuevas: las hojas del almanaque que se arrancan y la cabina de fotos con su tira
+            'Día feriado' => [TrendTemplates::key('feriado', 'cumple'), 'cumple-daniela-30', ['fd-leaf--day', 'fd-sticky', 'fd-month__day is-marked', 'fd-ambient__leaf--right']],
+            'Cabina de fotos' => [TrendTemplates::key('cabina', 'cumple'), 'cumple-daniela-30', ['cb-booth__screen', 'cb-strip--intro', 'cb-intro__guest', 'cb-ambient__flash--right']],
+            'Esencia XV' => [TrendTemplates::key('esencia', 'xv'), 'xv-isabella', ['ez-mist', 'ez-intro__reveal', 'ez-tier--2', 'ez-ambient__mist--center']],
         ];
     }
 

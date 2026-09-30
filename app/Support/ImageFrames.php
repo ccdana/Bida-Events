@@ -17,8 +17,8 @@ final class ImageFrames
 
     /** Portada: cambia con cada plantilla (clave del catálogo sin «invitations.templates.»). */
     public const HERO = [
-        // El espejo ovalado del salón (.ga-mirror__glass, 160:216)
-        'xv-premium' => [1080, 1458, 'oval', 'Foto en el espejo'],
+        // La foto sujeta con alfileres en el tablero de inspiración (.at-photo, 4:5)
+        'xv-premium' => [1080, 1350, 'rect', 'Foto del tablero de inspiración'],
         // Arco de jardín (.inv-boda-arch, 3:4)
         'boda-jardin' => [1080, 1440, 'arch', 'Foto dentro del arco'],
         // El sol entre las nubes (.nb-sun, círculo; las nubes tapan un poco el borde de abajo)
@@ -35,8 +35,6 @@ final class ImageFrames
         'tarjeta-aventura' => [1000, 1100, 'rect', 'Foto de la tapa'],
         // Foto vista a través del agua (.story-underwater, 4:5 con arco arriba)
         'we-story-together' => [1080, 1350, 'arch', 'Foto de la portada'],
-        // Foto sujeta con esquineros dentro de la carta (.cb-photo, 4:5)
-        'xv-carta-de-baile' => [1080, 1350, 'rect', 'Foto de la carta'],
         // La foto es el punto donde se juntan los caminos (.dc-meet__photo, círculo)
         'boda-dos-caminos' => [1200, 1200, 'circle', 'Foto del punto de encuentro'],
         // Ventanilla del avión (.ps-window, 4:5 con esquinas muy redondas)

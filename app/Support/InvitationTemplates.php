@@ -31,9 +31,8 @@ final class InvitationTemplates
 
     public const WE_STORY_TOGETHER = 'invitations.templates.we-story-together';
 
-    // Colección «nueva»: una por evento, cada una con su propia idea (ver «theme» en cada entrada)
-    public const XV_CARTA_DE_BAILE = 'invitations.templates.xv-carta-de-baile';
-
+    // Colección «nueva»: una por evento, cada una con su propia idea (ver «theme» en cada entrada).
+    // La de XV («Cuento desplegable») está en la colección «tendencias» (TrendTemplates) con la familia «nueva»
     public const BODA_DOS_CAMINOS = 'invitations.templates.boda-dos-caminos';
 
     public const GRADUACION_PROXIMA_SALIDA = 'invitations.templates.graduacion-proxima-salida';
@@ -45,6 +44,16 @@ final class InvitationTemplates
     public const HALLOWEEN_EXPEDIENTE = 'invitations.templates.halloween-expediente';
 
     public const DEFAULT = self::XV_PREMIUM;
+
+    /**
+     * Plantillas que se reemplazaron por otra (la invitación sigue igual, con el diseño nuevo). La
+     * migración 2026_09_29_000001 ya pasó las guardadas; esto cubre las que lleguen por otro lado
+     * (una sesión abierta, un enlace del editor) y lo usa InvitationDefaults::resolveTemplate.
+     */
+    public const RENAMED = [
+        'invitations.templates.xv-carta-de-baile' => 'invitations.templates.xv-cuento',
+        'invitations.templates.xv-galeria' => 'invitations.templates.xv-caleidoscopio',
+    ];
 
     /**
      * Paleta por defecto de una plantilla. La usan el editor y las pruebas de contraste
@@ -88,29 +97,30 @@ final class InvitationTemplates
     {
         return [
             self::XV_PREMIUM => [
-                'label' => 'Noche de gala',
-                'tagline' => 'La araña se enciende y la foto brilla en un espejo dorado',
-                'description' => 'El gran salón de tus XV: se entra encendiendo la araña de cristal, la foto va en un espejo ovalado de marco dorado con su corona y el nombre en una placa grabada. Cada sección es un panel de la pared con su moldura, el programa es un hilo de perlas y la corte, placas grabadas.',
+                'label' => 'Atelier',
+                'tagline' => 'Su vestido, su colección: la semana del desfile en un taller de alta costura',
+                'description' => 'La invitación es el taller de una casa de alta costura la semana del desfile: se entra abriendo la funda del vestido, el croquis se dibuja en tinta y su nombre queda en la etiqueta tejida. Cada sección es una pieza de molde con su pespunte, el programa es una cinta métrica, la vestimenta un muestrario de telas y los padrinos, etiquetas colgadas del perchero.',
                 'event' => 'xv',
                 // Familia de plantillas: qué plan de revendedor la incluye (config «reseller_plans»)
                 'collection' => 'clasica',
-                // Armado temático (partials/gala, themes/gala.css): la página lleva la clase inv-gala
-                'theme' => 'gala',
+                // Armado temático (partials/atelier, themes/atelier.css): la página lleva la clase inv-atelier.
+                // La clave es la de la antigua «Noche de gala»: las invitaciones que la usaban pasan a este diseño
+                'theme' => 'atelier',
                 // Paleta con la que nace una invitación de este tipo (la misma de la muestra)
                 'palette' => [
-                    'primary' => '#C9A96E',
-                    'secondary' => '#2C1810',
-                    'accent' => '#F5E6D3',
-                    'text' => '#1A1A1A',
-                    'background' => '#FFFAF5',
+                    'primary' => '#6D1F35',
+                    'secondary' => '#35506B',
+                    'accent' => '#E6D2B5',
+                    'text' => '#1E1A1A',
+                    'background' => '#F6F1E9',
                 ],
-                'fonts' => ['titulos' => 'Playfair Display', 'cuerpo' => 'Montserrat', 'script' => 'Great Vibes'],
+                'fonts' => ['titulos' => 'Bodoni Moda', 'cuerpo' => 'Instrument Sans', 'script' => 'Mrs Saint Delafield'],
                 'color_usage' => [
-                    'background' => 'Los paneles del salón.',
-                    'text' => 'El nombre y los textos.',
-                    'primary' => 'El metal: la araña, el marco del espejo y el marco de las placas y los botones.',
-                    'secondary' => 'El salón a oscuras de la apertura y el terciopelo de las placas y los botones.',
-                    'accent' => 'El papel labrado de la pared y la luz.',
+                    'background' => 'El papel de los moldes.',
+                    'text' => 'La tinta del croquis y los textos.',
+                    'primary' => 'La funda del vestido, la etiqueta, las costuras y los botones.',
+                    'secondary' => 'Las marcas de tiza y el hilo de las etiquetas.',
+                    'accent' => 'Las telas del muestrario y la cinta métrica.',
                 ],
                 // Orden por prioridad del invitado: cuándo y dónde, confirmar, lo emocional, regalos y participación
                 'order' => [
@@ -118,17 +128,40 @@ final class InvitationTemplates
                     'destacados', 'regalos', 'playlist', 'encuestas', 'hashtag', 'fotomural', 'post_evento',
                 ],
                 'copy' => [
-                    'intro_eyebrow' => 'Esta noche te espera',
-                    'intro_hint' => 'Toca la araña para encender el salón',
-                    'itinerary_eyebrow' => 'Así será mi noche',
+                    'menu_heading' => 'La colección de',
+                    'intro_eyebrow' => 'Colección XV',
+                    'intro_hint' => 'Toca el cierre para abrir la funda',
+                    'guest_banner_eyebrow' => 'Pase de primera fila para',
+                    'atelier_house' => 'Maison',
+                    'atelier_collection' => 'Colección XV',
+                    'atelier_sheet' => 'Ficha del desfile',
+                    'atelier_date' => 'Fecha',
+                    'atelier_time' => 'Hora',
+                    'atelier_place' => 'Pasarela',
+                    'atelier_piece' => 'Pieza',
+                    'atelier_look' => 'Look',
+                    'countdown_eyebrow' => 'Faltan para el desfile',
+                    'countdown_done_title' => '¡Hoy es el desfile!',
+                    'location_eyebrow' => 'Dónde es el desfile',
+                    'itinerary_eyebrow' => 'El orden del desfile',
+                    'itinerary_empty' => 'Muy pronto publicaremos el orden del desfile.',
+                    'dress_eyebrow' => 'Muestrario de la noche',
+                    'dress_hint' => 'Los tonos de la colección',
+                    'gallery_eyebrow' => 'Lookbook',
+                    'court_eyebrow' => 'Quienes me acompañan',
                     'court_title' => 'Mi corte de honor',
                     'court_men' => 'Chambelanes',
                     'court_women' => 'Damas',
-                    'stories_hint' => 'Toca para seguir la noche',
+                    'rsvp_eyebrow' => 'Tu lugar en primera fila',
+                    'rsvp_submit' => 'Confirmar mi lugar',
+                    'rsvp_confirmed_eyebrow' => 'Tu pase al desfile',
+                    'guest_cta' => 'Confirmar mi lugar',
+                    'mural_eyebrow' => 'Backstage',
+                    'stories_hint' => 'Toca para ver la siguiente pieza',
                 ],
                 'partials' => [
-                    'itinerario' => 'invitations.partials.gala.program',
-                    'destacados' => 'invitations.partials.gala.court',
+                    'itinerario' => 'invitations.partials.atelier.program',
+                    'destacados' => 'invitations.partials.atelier.court',
                 ],
             ],
             self::BODA_JARDIN => [
@@ -579,54 +612,6 @@ final class InvitationTemplates
             // en resources/css/invitation/themes, así no hereda nada de la clásica de su evento. Todo
             // se dibuja con los cinco colores y las tres letras del editor: «color_usage» le cuenta al
             // editor para qué usa cada color esta plantilla.
-            self::XV_CARTA_DE_BAILE => [
-                'label' => 'Carta de baile',
-                'tagline' => 'Una carta de baile atada con un cordón',
-                'description' => 'La invitación es la carta de baile de la noche: se desata el cordón, se abre la tapa y adentro está el programa del vals, la entrada y el brindis, con un lugar reservado a nombre del invitado.',
-                'event' => 'xv',
-                'collection' => 'nueva',
-                'theme' => 'carta',
-                'palette' => [
-                    'primary' => '#94732C',
-                    'secondary' => '#5B2146',
-                    'accent' => '#B9B3D6',
-                    'text' => '#1F2A5C',
-                    'background' => '#F2EFF7',
-                ],
-                'fonts' => ['titulos' => 'Bodoni Moda', 'cuerpo' => 'Instrument Sans', 'script' => 'Bodoni Moda'],
-                'color_usage' => [
-                    'background' => 'La carta: el papel sobre el que va todo.',
-                    'text' => 'La tinta de la carta y el terciopelo que la rodea.',
-                    'primary' => 'El cordón, los filetes dobles y los números del programa.',
-                    'accent' => 'Los recuadros de la carta y el brillo del terciopelo.',
-                    'secondary' => 'La borla del cordón y el sello de «Reservado».',
-                ],
-                // El programa va primero: es lo que se lee en una carta de baile
-                'order' => [
-                    'itinerario', 'cuenta_regresiva', 'ubicacion', 'rsvp', 'dress_code', 'destacados', 'galeria',
-                    'video', 'regalos', 'playlist', 'encuestas', 'hashtag', 'fotomural', 'post_evento',
-                ],
-                'copy' => [
-                    'hero_eyebrow' => 'Mis XV años',
-                    'card_title' => 'Carta de baile',
-                    'card_reserved' => 'Reservado para',
-                    'card_reserved_any' => 'Un lugar reservado para ti',
-                    'hero_day_label' => 'Fecha',
-                    'hero_time_label' => 'Hora',
-                    'hero_place_label' => 'Salón',
-                    'intro_eyebrow' => 'Tienes un lugar en el baile',
-                    'intro_hint' => 'Toca la borla para desatar el cordón',
-                    'itinerary_eyebrow' => 'El programa de la noche',
-                    'itinerary_empty' => 'Muy pronto escribiremos el programa del baile.',
-                    'rsvp_eyebrow' => 'Tu lugar en el baile',
-                    'rsvp_submit' => 'Firmar mi carta',
-                    'guest_cta' => 'Firmar mi carta',
-                    'stories_hint' => 'Toca para pasar a la siguiente pieza',
-                ],
-                'partials' => [
-                    'itinerario' => 'invitations.partials.carta.program',
-                ],
-            ],
             self::BODA_DOS_CAMINOS => [
                 'label' => 'Dos caminos',
                 'tagline' => 'Un mapa donde dos caminos se encuentran',
