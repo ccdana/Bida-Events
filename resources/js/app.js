@@ -114,7 +114,7 @@ if (document.querySelector('[data-inv-story]') && !document.querySelector('[data
     loaders.push(import('./story/invitation.js'));
 }
 
-// ── Plantillas de la colección «nueva» (~2 kB) — parallax del fondo y stickers que se estiran ─
+// ── Plantillas de la colección «nueva» (~3 kB) — parallax del fondo, stickers que se estiran y toques con gesto ─
 if (document.body.classList.contains('inv-themed')) {
     loaders.push(import('./invitation/themed-motion.js'));
 }

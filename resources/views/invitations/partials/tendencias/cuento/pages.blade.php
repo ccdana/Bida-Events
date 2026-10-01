@@ -25,7 +25,7 @@
                                 <p class="cu-page__text">{{ $evento['descripcion'] }}</p>
                             @endif
                         </div>
-                        <span class="cu-page__icon" aria-hidden="true">
+                        <span class="cu-page__icon" data-poke="pop" aria-hidden="true">
                             @include('invitations.partials.itinerary-icon', ['name' => $evento['icono'] ?? null, 'class' => 'cu-page__svg'])
                         </span>
                     </li>

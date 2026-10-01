@@ -42,7 +42,7 @@
                 <ul class="jo-jewels">
                     @foreach($padrinos as $index => $padrino)
                         <li class="jo-jewel" data-step style="--step: {{ $index }}">
-                            <span class="jo-jewel__medal" aria-hidden="true">
+                            <span class="jo-jewel__medal" data-poke="spin" aria-hidden="true">
                                 <svg class="jo-jewel__svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" focusable="false">
                                     @switch($jewelFor($padrino['rol'] ?? null))
                                         @case('anillo')
@@ -96,7 +96,7 @@
                             <h3 class="jo-court__title">{{ $label }}</h3>
                             <ul class="jo-court__list">
                                 @foreach($people as $person)
-                                    <li>
+                                    <li style="--i: {{ $loop->index }}">
                                         <span class="jo-court__name">{{ $person['nombre'] }}</span>
                                         @if(!empty($person['detalle']))
                                             <small>{{ $person['detalle'] }}</small>

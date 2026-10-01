@@ -19,6 +19,7 @@
    ════════════════════════════════════════════════════════════════════════════ */
 
 @import '../tendencias/_base.css';
+@import '../tendencias/_motion.css';
 
 .inv-atelier {
     --inv-radius: 0.2rem;
@@ -45,7 +46,9 @@
     --at-ticks-v:
         repeating-linear-gradient(180deg, color-mix(in srgb, var(--at-tape-ink) 55%, transparent) 0 1px, transparent 1px 6px) 0 0 / 30% 100% no-repeat,
         repeating-linear-gradient(180deg, color-mix(in srgb, var(--at-tape-ink) 75%, transparent) 0 1.5px, transparent 1.5px 30px) 0 0 / 58% 100% no-repeat;
-    --themed-from: translate3d(0, 22px, 0);
+    /* Cada pieza llega como una tela que se tiende sobre la mesa de corte (sin girarla: una sección alta
+       girada asomaría por los costados de la pantalla) */
+    --themed-from: translate3d(0, 26px, 0) scale(0.975);
 
     background: var(--tr-bg);
     counter-reset: at-piece;
@@ -55,228 +58,383 @@
     padding-bottom: calc(5.25rem + env(safe-area-inset-bottom));
 }
 
-/* ── Apertura: la funda del vestido en el riel ─────────────────────────── */
+/* ── Apertura: la entrega del vestido ───────────────────────────────────────
+   Medidas en función del ancho de la funda (--at-bag-w): la funda es de
+   200 × 330 (sus SVG), la percha queda adentro (solo asoma el gancho) y la
+   tarjeta cuelga del gancho sobre el pecho de la funda. */
 
 .at-intro.inv-themed-intro {
-    --at-bag-w: min(68vw, 17.5rem, 36svh);
-    gap: clamp(0.7rem, 2svh, 1.2rem);
+    --at-bag-w: min(66vw, 17rem, 33svh);
+    gap: clamp(0.8rem, 2.2svh, 1.3rem);
     padding: calc(1.5rem + env(safe-area-inset-top)) 1.25rem calc(1.5rem + env(safe-area-inset-bottom));
     background:
-        radial-gradient(65% 50% at 50% 45%, var(--at-paper), transparent 75%),
+        radial-gradient(60% 46% at 50% 44%, var(--at-paper), transparent 76%),
         var(--at-grid),
         var(--tr-bg);
     color: var(--tr-text);
 }
 
+/* La luz del taller sobre la funda */
+.at-intro__light {
+    position: absolute;
+    top: -10%;
+    left: 50%;
+    width: min(130vw, 44rem);
+    height: 92%;
+    margin-left: min(-65vw, -22rem);
+    background: radial-gradient(50% 60% at 50% 30%, color-mix(in srgb, #fff 70%, transparent), transparent 70%);
+    opacity: 0.75;
+    pointer-events: none;
+}
+
 .at-intro__eyebrow {
+    position: relative;
     margin: 0;
-    padding-left: 0.42em;
-    font-size: 0.7rem;
+    padding-left: 0.5em;
+    font-size: 0.66rem;
     font-weight: 600;
-    letter-spacing: 0.42em;
+    letter-spacing: 0.5em;
     text-transform: uppercase;
     color: var(--inv-accent-ink);
-    transition: opacity 0.4s ease;
+    transition: opacity 0.5s ease;
 }
 
 .at-bag {
     position: relative;
     width: var(--at-bag-w);
-    aspect-ratio: 5 / 8.2;
-    margin-top: calc(var(--at-bag-w) * 0.24);
-    perspective: 1000px;
+    aspect-ratio: 200 / 330;
+    margin-top: calc(var(--at-bag-w) * 0.2);
+    perspective: 1100px;
+    filter: drop-shadow(0 26px 22px rgb(0 0 0 / 0.22));
 }
 
-/* El riel: cruza toda la pantalla a la altura del gancho */
+.at-defs {
+    position: absolute;
+    width: 0;
+    height: 0;
+}
+
+/* Los colores de la tela, el forro, el satén, la madera y el bronce */
+.at-fabric__edge { stop-color: color-mix(in srgb, var(--tr-primary) 72%, #000); }
+.at-fabric__mid { stop-color: var(--tr-primary); }
+.at-fabric__seam { stop-color: color-mix(in srgb, var(--tr-primary) 86%, #000); }
+.at-fold__clear { stop-color: #fff; stop-opacity: 0; }
+.at-fold__light { stop-color: #fff; stop-opacity: 0.13; }
+.at-hem__shade { stop-color: #000; stop-opacity: 0.28; }
+.at-lining__edge { stop-color: color-mix(in srgb, var(--tr-primary) 30%, #fff); }
+.at-lining__mid { stop-color: color-mix(in srgb, var(--tr-primary) 14%, #fff); }
+.at-satin__shade { stop-color: color-mix(in srgb, var(--tr-accent) 74%, var(--tr-text)); }
+.at-satin__base { stop-color: var(--tr-accent); }
+.at-satin__light { stop-color: color-mix(in srgb, var(--tr-accent) 35%, #fff); }
+.at-wood__light { stop-color: color-mix(in srgb, var(--tr-accent) 45%, #9a6a3e); }
+.at-wood__dark { stop-color: color-mix(in srgb, var(--tr-accent) 15%, #4f3119); }
+.at-brass__light { stop-color: color-mix(in srgb, var(--tr-accent) 45%, #fff); }
+.at-brass__dark { stop-color: color-mix(in srgb, var(--tr-accent) 60%, #5a3d17); }
+.at-teeth__metal { fill: color-mix(in srgb, var(--tr-accent) 55%, #fff); }
+
+/* El riel de bronce, a la altura del gancho */
 .at-bag__rail {
     position: absolute;
-    top: calc(var(--at-bag-w) * -0.25);
+    top: calc(var(--at-bag-w) * -0.14 - 2px);
     left: 50%;
     width: 100vw;
-    height: 6px;
+    height: 5px;
     translate: -50% 0;
     border-radius: 3px;
     background: var(--at-brass);
-    box-shadow: 0 3px 5px -2px rgb(0 0 0 / 0.35);
+    box-shadow: 0 3px 4px -2px rgb(0 0 0 / 0.35);
 }
 
+/* La percha queda adentro de la funda: el gancho asoma por arriba */
 .at-bag__hanger {
     position: absolute;
-    bottom: 100%;
-    left: 50%;
-    width: 46%;
-    translate: -50% 6%;
+    top: calc(var(--at-bag-w) * -0.124);
+    left: 8%;
+    z-index: 1;
+    width: 84%;
     overflow: visible;
 }
 
 .at-hanger__hook {
     fill: none;
-    stroke: color-mix(in srgb, var(--tr-accent) 55%, var(--tr-text));
-    stroke-width: 3;
+    stroke: url(#at-brass-line);
+    stroke-width: 2.6;
     stroke-linecap: round;
 }
 
-.at-hanger__bar {
-    fill: none;
-    stroke: color-mix(in srgb, var(--tr-secondary) 55%, #5a3d17);
-    stroke-width: 6;
-    stroke-linecap: round;
-    stroke-linejoin: round;
+.at-hanger__wood {
+    fill: url(#at-wood);
+    stroke: color-mix(in srgb, #3a2414 40%, transparent);
+    stroke-width: 0.5;
 }
 
-/* Lo de adentro: papel de molde con su cuadrícula, el croquis y la firma */
-.at-bag__inside {
+.at-hanger__nut {
+    fill: url(#at-brass-line);
+}
+
+/* Adentro: el fondo de la funda y el vestido */
+.at-gown {
     position: absolute;
     inset: 0;
-    display: grid;
-    place-items: center;
-    padding: 12% 8% 6%;
-    border-radius: 0 0 1.1rem 1.1rem;
-    background: var(--at-grid), var(--at-paper);
-    clip-path: polygon(32% 0, 68% 0, 100% 18%, 100% 100%, 0 100%, 0 18%);
-    box-shadow: inset 0 0 2.5rem color-mix(in srgb, var(--tr-text) 10%, transparent);
-}
-
-.at-sketch {
-    width: 92%;
-    height: auto;
+    width: 100%;
+    height: 100%;
     overflow: visible;
 }
 
-.at-sketch path {
+.at-gown__back {
+    fill: url(#at-lining);
+}
+
+.at-gown__loop {
     fill: none;
-    stroke: var(--tr-text);
-    stroke-width: 1.7;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    stroke-dasharray: 1;
-    stroke-dashoffset: 1;
-}
-
-.at-sketch__form path {
-    stroke: color-mix(in srgb, var(--tr-text) 45%, var(--tr-bg));
-}
-
-.at-sketch .at-sketch__fold {
-    stroke-width: 0.8;
-    opacity: 0.55;
-}
-
-/* La capa de tul, más clara */
-.at-sketch .at-sketch__tulle {
+    stroke: color-mix(in srgb, var(--tr-accent) 70%, var(--tr-text));
     stroke-width: 1;
+    opacity: 0.6;
+}
+
+.at-gown__fill {
+    fill: url(#at-satin);
+}
+
+.at-gown__shadow {
+    fill: color-mix(in srgb, var(--tr-accent) 55%, var(--tr-text));
+    opacity: 0.28;
+}
+
+.at-gown__shadow--deep {
+    opacity: 0.4;
+}
+
+.at-gown__shine {
+    fill: #fff;
+    opacity: 0.32;
+}
+
+/* El tul: una capa clara y translúcida sobre la falda */
+.at-gown__tulle {
+    fill: #fff;
+    stroke: #fff;
+    stroke-width: 0.5;
+    fill-opacity: 0.16;
+    stroke-opacity: 0.5;
+}
+
+.at-gown__shine--soft {
+    opacity: 0.18;
+}
+
+.at-gown__hemline,
+.at-gown__seam {
+    fill: none;
+    stroke: color-mix(in srgb, var(--tr-accent) 60%, var(--tr-text));
+    stroke-width: 0.6;
     opacity: 0.45;
 }
 
-.at-sketch__chalk path {
-    stroke: var(--at-chalk);
-    stroke-width: 1.3;
+.at-gown__sash {
+    fill: var(--tr-primary);
+    stroke: color-mix(in srgb, var(--tr-primary) 60%, #fff);
+    stroke-width: 0.4;
 }
 
-.at-sketch__sign {
-    position: absolute;
-    right: 9%;
-    bottom: 6%;
-    font-family: var(--font-script);
-    font-size: clamp(1.7rem, 7.5vw, 2.3rem);
-    line-height: 1;
-    color: var(--tr-primary);
-    rotate: -7deg;
+.at-gown__stones circle {
+    fill: #fff;
+    transform-box: fill-box;
+    transform-origin: center;
+    opacity: 0.85;
+}
+
+/* El brillo que recorre el satén: va recortado a la forma del vestido */
+.at-gown__sheen {
+    fill: url(#at-fold);
     opacity: 0;
 }
 
-/* Las dos hojas de la funda: tela con su trama, hombros inclinados y luz de costado */
-.at-bag__half {
+/* Las dos hojas: cada una gira desde su costado (la puerta) y, adentro, se afloja desde el ruedo */
+.at-bag__panel {
     position: absolute;
     top: 0;
     bottom: 0;
+    z-index: 2;
     width: 50%;
-    background:
-        linear-gradient(90deg, rgb(255 255 255 / 0.1), transparent 35%, rgb(0 0 0 / 0.16)),
-        repeating-linear-gradient(90deg, rgb(255 255 255 / 0.04) 0 2px, transparent 2px 5px),
-        var(--at-fabric);
-    backface-visibility: hidden;
-    transition: transform 1.05s cubic-bezier(0.6, 0, 0.25, 1);
+    transform-style: preserve-3d;
+    transition: transform 1.15s cubic-bezier(0.6, 0, 0.22, 1);
 }
 
-.at-bag__half--left {
+.at-bag__panel--left {
     left: 0;
-    border-bottom-left-radius: 1.1rem;
-    clip-path: polygon(64% 0, 100% 0, 100% 100%, 0 100%, 0 18%);
     transform-origin: 0 50%;
 }
 
-.at-bag__half--right {
+.at-bag__panel--right {
     right: 0;
-    border-bottom-right-radius: 1.1rem;
-    background:
-        linear-gradient(270deg, rgb(255 255 255 / 0.1), transparent 35%, rgb(0 0 0 / 0.16)),
-        repeating-linear-gradient(90deg, rgb(255 255 255 / 0.04) 0 2px, transparent 2px 5px),
-        var(--at-fabric);
-    clip-path: polygon(0 0, 36% 0, 100% 18%, 100% 100%, 0 100%);
     transform-origin: 100% 50%;
 }
 
-/* La V que se abre mientras baja el cierre: deja ver el papel de adentro */
-.at-bag__gap {
+.at-bag__tilt {
     position: absolute;
-    top: 30%;
-    left: 50%;
-    width: 34%;
-    height: 67%;
-    translate: -50% 0;
-    background: var(--at-grid), var(--at-paper);
-    clip-path: polygon(0 0, 100% 0, 50% 100%);
-    transform: scaleY(0);
-    transform-origin: 50% 0;
-    transition: transform 1s cubic-bezier(0.55, 0, 0.35, 1) 0.05s, opacity 0.3s ease;
+    inset: 0;
+    transform-style: preserve-3d;
+    transition: rotate 1.05s cubic-bezier(0.55, 0, 0.35, 1);
 }
 
-/* La etiqueta tejida de la funda: arriba, en el pecho */
-.at-bag__label {
+.at-bag__panel--left .at-bag__tilt { transform-origin: 100% 100%; }
+.at-bag__panel--right .at-bag__tilt { transform-origin: 0 100%; }
+
+.at-bag__face,
+.at-bag__lining {
     position: absolute;
-    top: 11%;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    backface-visibility: hidden;
+}
+
+/* El forro mira hacia atrás. Se dibuja en espejo para que, visto desde atrás, calce con el borde de su
+   hoja; la hoja derecha es la izquierda en espejo (y su forro, entonces, sin espejo) */
+.at-bag__lining {
+    rotate: y 180deg;
+    scale: -1 1;
+    fill: url(#at-lining);
+}
+
+.at-bag__panel--right .at-bag__face {
+    scale: -1 1;
+}
+
+.at-bag__panel--right .at-bag__lining {
+    scale: 1 1;
+}
+
+/* Los dientes de la otra hoja, medio diente corridos: se entrelazan */
+.at-bag__panel--right .at-bag__teeth {
+    fill: url(#at-teeth-b);
+}
+
+.at-bag__fabric {
+    fill: url(#at-fabric);
+}
+
+/* La caída de la tela: dos pliegues de luz */
+.at-bag__drape {
+    fill: url(#at-fold);
+}
+
+.at-bag__drape--soft {
+    opacity: 0.6;
+}
+
+/* El ruedo, un poco más oscuro: la tela que se junta abajo */
+.at-bag__hem {
+    fill: url(#at-hem);
+}
+
+.at-bag__piping {
+    fill: none;
+    stroke: color-mix(in srgb, var(--tr-primary) 50%, #fff);
+    stroke-width: 0.7;
+    stroke-dasharray: 2.2 1.6;
+    opacity: 0.55;
+}
+
+.at-bag__tape {
+    fill: color-mix(in srgb, var(--tr-primary) 62%, #000);
+}
+
+.at-bag__teeth {
+    fill: url(#at-teeth);
+}
+
+/* La tarjeta de la casa: cartulina gruesa con su ojal de bronce, colgada del gancho */
+.at-tag-card {
+    position: absolute;
+    top: calc(var(--at-bag-w) * 0.09);
     left: 50%;
-    z-index: 2;
+    z-index: 4;
     display: grid;
     justify-items: center;
-    gap: 0.1rem;
-    width: 74%;
-    padding: 0.55rem 0.8rem 0.6rem;
+    gap: 0.15rem;
+    width: 64%;
+    padding: 1.15rem 0.7rem 0.75rem;
     translate: -50% 0;
+    border-radius: 0.25rem;
     background: var(--at-weave), var(--at-paper);
+    box-shadow:
+        inset 0 0 0 1px color-mix(in srgb, var(--tr-text) 10%, transparent),
+        inset 0 0 0 4px var(--at-paper),
+        inset 0 0 0 4.6px color-mix(in srgb, var(--tr-accent) 70%, transparent),
+        0 10px 14px -8px rgb(0 0 0 / 0.45);
     color: var(--tr-text);
     text-align: center;
-    clip-path: polygon(0 0, 100% 0, 96% 50%, 100% 100%, 0 100%, 4% 50%);
-    outline: 1px dashed var(--at-seam);
-    outline-offset: -4px;
-    transition: opacity 0.4s ease, translate 0.6s var(--tr-ease);
+    transform-origin: 50% calc(var(--at-bag-w) * -0.12);
+    animation: at-tag-sway 6s ease-in-out infinite alternate;
+    transition: opacity 0.5s ease, translate 0.9s var(--tr-ease);
 }
 
-.at-bag__house {
-    padding-left: 0.32em;
-    font-size: 0.56rem;
+/* El cordón sube hasta el gancho */
+.at-tag-card__cord {
+    position: absolute;
+    bottom: calc(100% - 0.55rem);
+    left: 50%;
+    width: 1px;
+    height: calc(var(--at-bag-w) * 0.13);
+    background: color-mix(in srgb, var(--tr-text) 55%, transparent);
+}
+
+.at-tag-card__eyelet {
+    position: absolute;
+    top: 0.35rem;
+    left: 50%;
+    width: 0.45rem;
+    height: 0.45rem;
+    margin-left: -0.225rem;
+    border-radius: 50%;
+    background: var(--tr-bg);
+    box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--tr-accent) 60%, #5a3d17);
+}
+
+.at-tag-card__house,
+.at-tag-card__line {
+    padding-left: 0.34em;
+    font-size: 0.5rem;
     font-weight: 600;
-    letter-spacing: 0.32em;
+    letter-spacing: 0.34em;
     text-transform: uppercase;
     color: var(--inv-accent-ink);
 }
 
-.at-bag__name {
+.at-tag-card__name {
+    padding: 0.1rem 0 0.2rem;
     font-family: var(--font-titles);
-    font-size: clamp(1.15rem, 5.4vw, 1.5rem);
-    line-height: 1.1;
+    font-size: clamp(1rem, 4.6vw, 1.3rem);
+    line-height: 1.08;
     text-wrap: balance;
 }
 
-/* El cierre: los dientes de metal y el tirador */
+/* El cierre: la parte cerrada debajo del tirador y el tirador de cuero */
+.at-zip__closed {
+    position: absolute;
+    top: 30.5%;
+    bottom: 4.3%;
+    left: 50%;
+    z-index: 3;
+    width: 3.6%;
+    translate: -50% 0;
+    background:
+        repeating-linear-gradient(180deg, color-mix(in srgb, var(--tr-accent) 55%, #fff) 0 1.5px, color-mix(in srgb, var(--tr-accent) 50%, #5a3d17) 1.5px 2px, transparent 2px 3px),
+        color-mix(in srgb, var(--tr-primary) 62%, #000);
+    transform-origin: 50% 100%;
+    transition: scale 1.05s cubic-bezier(0.55, 0, 0.35, 1), opacity 0.3s ease;
+}
+
 .at-zip {
     position: absolute;
     top: 29%;
     bottom: 3%;
     left: 50%;
-    z-index: 3;
-    width: 3.2rem;
+    z-index: 5;
+    width: 3.4rem;
     padding: 0;
     border: 0;
     background: none;
@@ -284,58 +442,78 @@
     cursor: pointer;
 }
 
-.at-zip__teeth {
-    position: absolute;
-    inset: 0 auto 0 50%;
-    width: 7px;
-    translate: -50% 0;
-    background: repeating-linear-gradient(180deg, color-mix(in srgb, var(--tr-accent) 70%, #fff) 0 2px, color-mix(in srgb, var(--tr-accent) 55%, #3d2a10) 2px 3px, transparent 3px 4.5px);
-    transform-origin: 50% 100%;
-    transition: transform 1s cubic-bezier(0.55, 0, 0.35, 1) 0.05s, opacity 0.3s ease;
-}
-
 .at-zip__pull {
     position: absolute;
-    top: -0.4rem;
+    top: 0;
     left: 50%;
-    width: 1.05rem;
-    height: 2.5rem;
-    margin-left: -0.525rem;
-    transition: translate 1s cubic-bezier(0.55, 0, 0.35, 1), opacity 0.3s ease 0.9s;
+    width: 1.1rem;
+    height: 3rem;
+    margin-left: -0.55rem;
+    transition: translate 1.05s cubic-bezier(0.55, 0, 0.35, 1), opacity 0.35s ease 0.95s;
 }
 
+/* El carro de metal que corre por los dientes */
+.at-zip__slider {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 0.8rem;
+    height: 0.95rem;
+    margin-left: -0.4rem;
+    border-radius: 0.25rem 0.25rem 0.4rem 0.4rem;
+    background: var(--at-brass);
+    box-shadow: 0 2px 3px -1px rgb(0 0 0 / 0.45), inset 0 0 0 1px rgb(255 255 255 / 0.35);
+}
+
+/* El tirador de cuero con su remate de bronce */
 .at-zip__tab {
     position: absolute;
-    inset: 0;
-    border-radius: 0.3rem 0.3rem 0.55rem 0.55rem;
-    background: var(--at-brass);
-    box-shadow: 0 4px 6px -2px rgb(0 0 0 / 0.45), inset 0 0 0 1px rgb(255 255 255 / 0.35);
+    top: 0.65rem;
+    left: 50%;
+    width: 0.7rem;
+    height: 2.2rem;
+    margin-left: -0.35rem;
+    border-radius: 0.2rem 0.2rem 0.45rem 0.45rem;
+    background:
+        linear-gradient(90deg, rgb(255 255 255 / 0.12), transparent 40%, rgb(0 0 0 / 0.2)),
+        color-mix(in srgb, var(--tr-primary) 55%, #1a0d10);
+    box-shadow: 0 4px 6px -2px rgb(0 0 0 / 0.45);
     transform-origin: 50% 0;
-    animation: at-pull 3.2s ease-in-out 1s infinite;
+    animation: at-pull 3.4s ease-in-out 1.2s infinite;
 }
 
-.at-zip__pull i {
+.at-zip__tab i {
     position: absolute;
-    top: 55%;
-    left: 50%;
-    width: 0.32rem;
-    height: 0.7rem;
-    margin-left: -0.16rem;
-    border-radius: 0.2rem;
-    background: color-mix(in srgb, var(--at-fabric) 80%, #000);
+    right: 0.12rem;
+    bottom: 0.18rem;
+    left: 0.12rem;
+    height: 0.5rem;
+    border-radius: 0.15rem 0.15rem 0.35rem 0.35rem;
+    background: var(--at-brass);
+}
+
+.at-zip:focus-visible {
+    outline: none;
+}
+
+.at-zip:focus-visible .at-zip__slider {
+    outline: 2px solid var(--tr-text);
+    outline-offset: 3px;
 }
 
 .at-intro__meta {
+    position: relative;
     display: grid;
     justify-items: center;
-    gap: 0.2rem;
-    transition: opacity 0.4s ease;
+    gap: 0.25rem;
+    transition: opacity 0.5s ease;
 }
 
 .at-intro__date {
     margin: 0;
     font-family: var(--font-titles);
     font-size: 1.05rem;
+    letter-spacing: 0.04em;
 }
 
 .at-intro__guest {
@@ -345,97 +523,95 @@
 }
 
 .at-intro__hint {
+    position: relative;
     margin: 0;
-    font-size: 0.82rem;
+    font-size: 0.8rem;
+    letter-spacing: 0.04em;
     color: var(--inv-muted);
-    animation: at-hint 2.4s ease-in-out 1.5s infinite;
+    animation: at-hint 2.6s ease-in-out 1.5s infinite;
     transition: opacity 0.3s ease;
 }
 
 @keyframes at-pull {
-    0%, 60%, 100% { rotate: 0deg; translate: 0 0; }
-    68% { rotate: -7deg; }
-    76% { rotate: 6deg; translate: 0 0.35rem; }
-    84% { rotate: -3deg; translate: 0 0; }
+    0%, 62%, 100% { rotate: 0deg; translate: 0 0; }
+    70% { rotate: -6deg; }
+    78% { rotate: 5deg; translate: 0 0.3rem; }
+    86% { rotate: -2deg; translate: 0 0; }
+}
+
+@keyframes at-tag-sway {
+    from { rotate: -1.4deg; }
+    to { rotate: 1.4deg; }
 }
 
 @keyframes at-hint {
     50% { translate: 0 -3px; }
 }
 
-@keyframes at-draw {
-    to { stroke-dashoffset: 0; }
-}
-
-/* 1 · Baja el cierre: el tirador recorre la funda, los dientes se abren y la V deja ver el papel */
+/* 1 · Baja el cierre: el tirador recorre la funda y las dos hojas se aflojan desde el ruedo */
 .at-intro.is-unzipped .at-zip__pull {
-    translate: 0 calc(var(--at-bag-w) * 1.12);
+    translate: 0 calc(var(--at-bag-w) * 1.06);
 }
 
 .at-intro.is-unzipped .at-zip__tab {
     animation: none;
 }
 
-.at-intro.is-unzipped .at-zip__teeth {
-    transform: scaleY(0);
+.at-intro.is-unzipped .at-zip__closed {
+    scale: 1 0;
 }
 
-.at-intro.is-unzipped .at-bag__gap {
-    transform: scaleY(1);
-}
+.at-intro.is-unzipped .at-bag__panel--left .at-bag__tilt { rotate: -2.4deg; }
+.at-intro.is-unzipped .at-bag__panel--right .at-bag__tilt { rotate: 2.4deg; }
 
 .at-intro.is-unzipped :is(.at-intro__hint, .at-intro__eyebrow) {
     opacity: 0;
     animation: none;
 }
 
-/* 2 · Se abren las dos hojas, el croquis se dibuja en tinta y aparece la firma */
-.at-intro.is-open .at-bag__half--left {
-    transform: rotateY(-105deg);
-}
+/* 2 · Las hojas se abren como puertas (se ve el forro), la tarjeta sube, un brillo recorre el satén y
+   destellan las piedras */
+.at-intro.is-open .at-bag__panel--left { transform: rotateY(-106deg); }
+.at-intro.is-open .at-bag__panel--right { transform: rotateY(106deg); }
 
-.at-intro.is-open .at-bag__half--right {
-    transform: rotateY(105deg);
-}
-
-.at-intro.is-open :is(.at-bag__gap, .at-zip__pull) {
+.at-intro.is-open :is(.at-zip__pull, .at-zip__closed) {
     opacity: 0;
     transition-delay: 0s;
 }
 
-.at-intro.is-open .at-bag__label {
+.at-intro.is-open .at-tag-card {
     opacity: 0;
-    translate: -50% -0.8rem;
+    translate: -50% -1.2rem;
+    transition-delay: 0.35s;
 }
 
 .at-intro.is-open .at-intro__meta {
     opacity: 0;
 }
 
-.at-intro.is-open .at-sketch path {
-    animation: at-draw 1.1s var(--tr-ease) 0.35s forwards;
+.at-intro.is-open .at-gown__sheen {
+    animation: at-sheen 1.4s ease-in-out 0.55s;
 }
 
-.at-intro.is-open .at-sketch__gown path:nth-child(n + 5) {
-    animation-delay: 0.6s;
+.at-intro.is-open .at-gown__stones circle {
+    animation: at-stone 0.9s ease-out calc(0.6s + var(--n) * 45ms);
 }
 
-.at-intro.is-open .at-sketch__gown .at-sketch__fold {
-    animation-delay: 0.9s;
+@keyframes at-sheen {
+    0% { opacity: 0; translate: 0 0; }
+    20%, 75% { opacity: 1; }
+    100% { opacity: 0; translate: 270px 0; }
 }
 
-.at-intro.is-open .at-sketch__chalk path {
-    animation-delay: 1.05s;
+@keyframes at-stone {
+    0% { scale: 1; opacity: 0.85; }
+    40% { scale: 2.4; opacity: 1; }
+    100% { scale: 1; opacity: 0.85; }
 }
 
-.at-intro.is-open .at-sketch__sign {
-    opacity: 1;
-    transition: opacity 0.6s ease 1.2s;
-}
-
-/* La apertura se desvanece con el croquis ya dibujado */
+/* La apertura se desvanece con el vestido a la vista */
 .at-intro.is-open {
-    animation-delay: 1.65s;
+    animation-delay: 1.6s;
 }
 
 /* ── Portada: el tablero de inspiración ─────────────────────────────────── */
@@ -775,13 +951,25 @@
     font-weight: 400;
 }
 
-/* El filete es la línea de corte: un pespunte con sus tijeras */
+/* El filete es la línea de corte: un pespunte con sus tijeras (al aparecer, la tijera da dos cortes y
+   la línea se marca hacia adelante: ver «Movimiento») */
 .inv-atelier .inv-head__rule {
     position: relative;
     width: 9rem;
     height: 1rem;
-    background: repeating-linear-gradient(90deg, var(--at-chalk) 0 6px, transparent 6px 11px) 1.5rem 50% / calc(100% - 1.5rem) 1.5px no-repeat;
+    background: none;
     opacity: 1;
+}
+
+.inv-atelier .inv-head__rule::after {
+    content: '';
+    position: absolute;
+    top: calc(50% - 0.75px);
+    left: 1.5rem;
+    right: 0;
+    height: 1.5px;
+    background: repeating-linear-gradient(90deg, var(--at-chalk) 0 6px, transparent 6px 11px);
+    transform-origin: 0 50%;
 }
 
 .inv-atelier .inv-head__rule::before {
@@ -791,6 +979,7 @@
     left: 0;
     width: 1rem;
     height: 1rem;
+    transform-origin: 30% 50%;
     background: var(--at-chalk);
     -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='5' cy='6' r='3'/%3E%3Ccircle cx='5' cy='18' r='3'/%3E%3Cpath d='M7.5 7.8 L22 16 M7.5 16.2 L22 8'/%3E%3C/svg%3E") center / contain no-repeat;
     mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='5' cy='6' r='3'/%3E%3Ccircle cx='5' cy='18' r='3'/%3E%3Cpath d='M7.5 7.8 L22 16 M7.5 16.2 L22 8'/%3E%3C/svg%3E") center / contain no-repeat;
@@ -1046,8 +1235,19 @@
     clip-path: polygon(16% 0, 84% 0, 100% 12%, 100% 100%, 0 100%, 0 12%);
 }
 
-.at-tag:nth-child(odd) { rotate: -1.2deg; }
-.at-tag:nth-child(even) { rotate: 1.2deg; }
+/* Cada una cuelga apenas torcida; --tr-tilt es también el reposo de su vaivén (tr-swing) */
+.at-tag:nth-child(odd) { --tr-tilt: -1.2deg; }
+.at-tag:nth-child(even) { --tr-tilt: 1.2deg; }
+
+.at-tag {
+    rotate: var(--tr-tilt);
+    /* Se mece desde donde se ata el hilo */
+    transform-origin: 50% -1.6rem;
+}
+
+.at-tag:first-child {
+    transform-origin: 50% -2.8rem;
+}
 
 /* El hilo: las de la primera fila cuelgan del perchero; las demás, de la de arriba */
 .at-tag::before {
@@ -1164,9 +1364,188 @@
         height: 3.7rem;
     }
 
+    .at-tag:nth-child(2) {
+        transform-origin: 50% -2.8rem;
+    }
+
     .at-lineup {
         grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
         column-gap: 2rem;
+    }
+}
+
+/* ── Movimiento: el tablero se arma, las piezas se cortan y cuelgan ────────
+   Gestos comunes en tendencias/_motion.css. El compás del taller es el vaivén
+   de las cintas del fondo (9 s); los retazos tardan tres (27 s). */
+
+/* La portada, pieza por pieza, cuando se retira la funda: la foto se apoya en el
+   tablero, asoman las telas de detrás, se clavan los alfileres, se cose la
+   etiqueta, llega la ficha, se firma y se desenrolla la cinta */
+.at-hero .at-kicker {
+    animation: tr-fall-in 0.8s var(--tr-ease) backwards;
+}
+
+.at-photo {
+    animation: tr-settle 1.1s var(--tr-ease) 0.1s backwards;
+}
+
+.at-board__swatch {
+    animation: at-swatch-out 1s var(--tr-ease) 0.55s backwards;
+}
+
+.at-board__swatch--left { --at-from-x: 55%; }
+.at-board__swatch--right { --at-from-x: -55%; }
+
+.at-pin {
+    animation: tr-press 0.6s var(--tr-ease) 0.8s backwards;
+}
+
+.at-pin--right {
+    animation-delay: 0.92s;
+}
+
+.at-label {
+    animation: at-sew 0.9s var(--tr-ease) 1.05s backwards;
+}
+
+.at-sheet {
+    animation: at-sheet-in 1s var(--tr-ease) 1.3s backwards;
+}
+
+.at-sheet__sign {
+    animation: at-sign 0.9s var(--tr-ease) 2s backwards;
+}
+
+.at-tape--hero {
+    transform-origin: 0 50%;
+    animation: tr-unroll-x 1.1s var(--tr-ease) 1.55s backwards;
+}
+
+.at-message {
+    animation: tr-fade 1s ease 1.75s backwards;
+}
+
+.at-hero__scroll {
+    animation: tr-fade 0.8s ease 2.2s backwards;
+}
+
+@keyframes at-swatch-out {
+    from { opacity: 0; translate: var(--at-from-x) 0; rotate: 0deg; }
+}
+
+/* La etiqueta se cose de un lado al otro */
+@keyframes at-sew {
+    0% { opacity: 0; scale: 0.3 1; }
+    55% { opacity: 1; scale: 1.04 1; }
+    78% { scale: 0.99 1; }
+}
+
+@keyframes at-sheet-in {
+    0% { opacity: 0; translate: 0 1.8rem; rotate: 2.5deg; }
+    70% { rotate: -0.4deg; }
+}
+
+@keyframes at-sign {
+    from { opacity: 0; translate: -0.6rem 0.2rem; scale: 0.85; }
+}
+
+/* Secciones: la tijera da dos cortes y la línea de corte se marca hacia adelante */
+.inv-atelier :is(.reveal.is-visible, .inv-scene.is-active) .inv-head__rule::before {
+    animation: at-snip 0.6s ease-in-out 0.35s backwards;
+}
+
+.inv-atelier :is(.reveal.is-visible, .inv-scene.is-active) .inv-head__rule::after {
+    animation: tr-unroll-x 0.9s var(--tr-ease) 0.6s backwards;
+}
+
+@keyframes at-snip {
+    0%, 100% { rotate: 0deg; }
+    25% { rotate: -16deg; }
+    50% { rotate: 4deg; }
+    75% { rotate: -12deg; }
+}
+
+/* Programa: la cinta baja desenrollándose y cada look se prende con su alfiler cuando la cinta pasa por
+   su altura (--looks: cuántos hay, lo pone program.blade) */
+.at-show::before {
+    transform-origin: 50% 0;
+}
+
+.inv-atelier :is(.reveal.is-visible, .inv-scene.is-active) .at-show::before {
+    animation: tr-unroll-y calc(0.4s + var(--looks, 4) * 0.22s) cubic-bezier(0.3, 0.6, 0.4, 1) 0.2s backwards;
+}
+
+.at-look {
+    --at-at: calc(0.3s + var(--step, 0) * 0.22s);
+    --step-anim: tr-fade;
+}
+
+html:not(.no-js) .inv-atelier .reveal:not(.is-visible) .at-look[data-step] {
+    transform: none;
+}
+
+.inv-atelier .reveal .at-look[data-step] {
+    transition: none;
+}
+
+.inv-atelier :is(.reveal.is-visible, .inv-scene.is-active) .at-look__pin {
+    animation: tr-press 0.55s var(--tr-ease) var(--at-at) backwards;
+}
+
+.inv-atelier :is(.reveal.is-visible, .inv-scene.is-active) :is(.at-look__time, .at-look__body) {
+    animation: at-look-in 0.7s var(--tr-ease) calc(var(--at-at) + 0.12s) backwards;
+}
+
+.at-look__time { --at-from-x: 0.7rem; }
+.at-look__body { --at-from-x: -0.7rem; }
+
+@keyframes at-look-in {
+    from { opacity: 0; translate: var(--at-from-x) 0; }
+}
+
+/* Corte: la barra del perchero se tiende y cada etiqueta cae de su hilo y se mece hasta quedarse quieta */
+.inv-atelier :is(.reveal.is-visible, .inv-scene.is-active) .at-rack__bar {
+    animation: tr-unroll-x 0.8s var(--tr-ease) 0.2s backwards;
+}
+
+.at-tag {
+    --tr-swing: 16deg;
+    --step-anim: tr-swing;
+    --step-duration: 1.8s;
+}
+
+html:not(.no-js) .inv-atelier .reveal:not(.is-visible) .at-tag[data-step] {
+    transform: none;
+}
+
+.inv-atelier .reveal .at-tag[data-step] {
+    transition: rotate 0.7s var(--tr-spring);
+}
+
+html:not(.inv-story-on) .inv-atelier .reveal.is-visible .at-tag[data-step] {
+    animation: tr-swing 1.8s ease-out calc(0.45s + var(--step, 0) * 0.16s) backwards;
+}
+
+/* El orden de salida: cada nombre entra a su turno */
+.inv-atelier :is(.reveal.is-visible, .inv-scene.is-active) .at-lineup__list li {
+    --tr-rise: 0.6rem;
+    animation: tr-rise 0.6s var(--tr-ease) calc(0.5s + var(--i, 0) * 70ms) backwards;
+}
+
+/* Con el mouse: la foto se levanta de sus alfileres y la etiqueta se mece para el otro lado.
+   Al tocar una etiqueta, se mece en su hilo (data-poke, themed-motion.js). */
+@media (hover: hover) and (pointer: fine) {
+    .at-photo {
+        transition: translate 0.6s var(--tr-spring), rotate 0.6s var(--tr-spring);
+    }
+
+    .at-board:hover .at-photo {
+        translate: 0 -0.3rem;
+        rotate: -0.8deg;
+    }
+
+    .inv-atelier .reveal .at-tag[data-step]:hover {
+        rotate: calc(var(--tr-tilt) * -2.5);
     }
 }
 
@@ -1229,6 +1608,61 @@
     to { rotate: 1.5deg; }
 }
 
+/* Retazos cortados con tijera de zigzag que bajan dando vueltas, de a pares en espejo: la tela de la
+   casa y el satén. Tres vaivenes de las cintas por caída (27 s). */
+.at-ambient__scrap {
+    position: absolute;
+    top: -12vh;
+    width: 2.6rem;
+    aspect-ratio: 1;
+    -webkit-mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / 10px 100%;
+    mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / 10px 100%;
+    opacity: 0.45;
+    animation: at-scrap-fall 27s linear var(--delay) infinite;
+    will-change: transform;
+}
+
+.at-ambient__scrap--left {
+    --dir: 1;
+    left: calc(5% + var(--lane) * 9%);
+}
+
+.at-ambient__scrap--right {
+    --dir: -1;
+    right: calc(5% + var(--lane) * 9%);
+}
+
+.at-ambient__scrap--weave {
+    background:
+        repeating-linear-gradient(45deg, rgb(255 255 255 / 0.1) 0 2px, transparent 2px 6px),
+        var(--tr-primary);
+}
+
+.at-ambient__scrap--satin {
+    background:
+        linear-gradient(120deg, rgb(255 255 255 / 0.55), transparent 35%, rgb(255 255 255 / 0.3) 60%, transparent 80%),
+        var(--tr-accent);
+}
+
+@keyframes at-scrap-fall {
+    0% { transform: translate3d(0, 0, 0) rotate(calc(var(--dir) * -15deg)) rotateY(0deg); }
+    25% { transform: translate3d(calc(var(--dir) * 1.6rem), 33vh, 0) rotate(calc(var(--dir) * 40deg)) rotateY(55deg); }
+    50% { transform: translate3d(calc(var(--dir) * -0.3rem), 66vh, 0) rotate(calc(var(--dir) * 95deg)) rotateY(0deg); }
+    75% { transform: translate3d(calc(var(--dir) * 1.2rem), 99vh, 0) rotate(calc(var(--dir) * 150deg)) rotateY(-55deg); }
+    100% { transform: translate3d(0, 132vh, 0) rotate(calc(var(--dir) * 205deg)) rotateY(0deg); }
+}
+
+/* En el celular bajan pegados a los bordes, más chicos */
+@media (max-width: 767px) {
+    .at-ambient__scrap {
+        width: 1.8rem;
+        opacity: 0.35;
+    }
+
+    .at-ambient__scrap--left { left: calc(0.4rem + var(--lane) * 1.4rem); }
+    .at-ambient__scrap--right { right: calc(0.4rem + var(--lane) * 1.4rem); }
+}
+
 .inv-drift--hilo {
     --drift-a: var(--at-chalk);
     --drift-b: var(--tr-primary);
@@ -1270,12 +1704,9 @@
 
 @media (prefers-reduced-motion: reduce) {
     .at-zip__tab,
+    .at-tag-card,
     .at-intro__hint,
     .at-ambient__tape {
         animation: none !important;
-    }
-
-    .at-sketch path {
-        stroke-dashoffset: 0;
     }
 }

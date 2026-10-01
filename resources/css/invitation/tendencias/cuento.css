@@ -18,6 +18,7 @@
    ════════════════════════════════════════════════════════════════════════════ */
 
 @import './_base.css';
+@import './_motion.css';
 
 .inv-cuento {
     --inv-radius: 0.45rem;
@@ -29,10 +30,21 @@
     --cu-cut: 0 2px 0 color-mix(in srgb, var(--tr-text) 10%, transparent), 0 12px 18px -12px rgb(0 0 0 / 0.4);
     /* La viñeta de los títulos: dos hojas y un rombo */
     --cu-fleuron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 24'%3E%3Cpath d='M60 12 C50 3 37 5 33 12 C37 19 50 21 60 12 Z M60 12 C70 3 83 5 87 12 C83 19 70 21 60 12 Z M60 5 L65 12 L60 19 L55 12 Z'/%3E%3Cpath d='M4 12 H28 M92 12 H116' stroke='black' stroke-width='1.6' stroke-linecap='round'/%3E%3Ccircle cx='4' cy='12' r='2.2'/%3E%3Ccircle cx='116' cy='12' r='2.2'/%3E%3C/svg%3E");
-    --themed-from: translate3d(0, 24px, 0);
+    /* Cada capítulo llega como una página que se asienta desde su lomo (en las pares, el lomo va a la derecha).
+       El borde libre viene desde atrás, no hacia adelante: así la página nunca se ve más ancha que la pantalla */
+    --themed-from: perspective(1400px) rotateY(16deg) translate3d(0, 18px, 0);
 
     background: var(--tr-bg);
     counter-reset: cu-chapter;
+}
+
+html:not(.inv-story-on) .inv-cuento main > .inv-section {
+    transform-origin: 0 50%;
+}
+
+html:not(.inv-story-on) .inv-cuento main > .inv-section:nth-of-type(even) {
+    --themed-from: perspective(1400px) rotateY(-16deg) translate3d(0, 18px, 0);
+    transform-origin: 100% 50%;
 }
 
 .inv-cuento.has-player {
@@ -921,6 +933,159 @@ html:not(.no-js) .inv-cuento .reveal:not(.is-visible) .cu-page[data-step] {
     }
 }
 
+/* ── Movimiento: el libro que se despliega ──────────────────────────────────
+   Gestos comunes en tendencias/_motion.css. El compás del libro es el vaivén
+   de las guirnaldas del fondo (7 s): el haz de luz respira en dos y el
+   escenario de papel se inclina en dos. */
+
+/* La portada al abrirse el libro: la lámina se levanta capa por capa como un desplegable (el fondo, el
+   papel del medio y la foto), el título se pone de pie y el texto llega línea a línea */
+.cu-leaf {
+    perspective: 1000px;
+}
+
+.cu-plate {
+    perspective: 700px;
+}
+
+.cu-plate__layer,
+.cu-plate__photo,
+.cu-title {
+    transform-origin: 50% 100%;
+}
+
+.cu-running {
+    animation: tr-fade 0.8s ease backwards;
+}
+
+.cu-plate__layer--back {
+    animation: tr-stand 1s var(--tr-ease) 0.15s backwards;
+}
+
+.cu-plate__layer--mid {
+    animation: tr-stand 1s var(--tr-ease) 0.35s backwards;
+}
+
+.cu-plate__photo {
+    animation: tr-stand 1.1s var(--tr-ease) 0.55s backwards;
+}
+
+.cu-plate__caption {
+    animation: tr-fade 0.8s ease 1s backwards;
+}
+
+.cu-hero .cu-kicker {
+    animation: tr-fade 0.8s ease 0.9s backwards;
+}
+
+.cu-title {
+    --tr-stand-from: 70deg;
+    animation: tr-stand 1.1s var(--tr-ease) 1s backwards;
+}
+
+.cu-fleuron {
+    animation: tr-unroll-x 0.8s var(--tr-ease) 1.3s backwards;
+}
+
+.cu-opening {
+    --tr-rise: 0.6rem;
+    animation: tr-rise 0.9s var(--tr-ease) 1.45s backwards;
+}
+
+.cu-message {
+    animation: tr-fade 1s ease 1.65s backwards;
+}
+
+.cu-colophon > div {
+    --tr-rise: 0.6rem;
+    animation: tr-rise 0.7s var(--tr-ease) 1.85s backwards;
+}
+
+.cu-colophon > div:nth-child(2) { animation-delay: 1.95s; }
+.cu-colophon > div:nth-child(3) { animation-delay: 2.05s; }
+
+.cu-folio,
+.cu-hero__scroll {
+    animation: tr-fade 0.8s ease 2.2s backwards;
+}
+
+/* Secciones: la cinta del marcapáginas cae y la viñeta se abre desde el centro */
+.inv-cuento main > .inv-section > .inv-wrap::before {
+    transform-origin: 50% 0;
+}
+
+.inv-cuento main > :is(.reveal.is-visible, .inv-scene.is-active) > .inv-wrap::before {
+    animation: tr-unroll-y 0.7s var(--tr-ease) 0.55s backwards;
+}
+
+.inv-cuento :is(.reveal.is-visible, .inv-scene.is-active) .inv-head__rule {
+    animation: tr-unroll-x 0.8s var(--tr-ease) 0.45s backwards;
+}
+
+/* Programa: cuando cada página ya se levantó, su pestaña sale de atrás y su medallón salta */
+.inv-cuento :is(.reveal.is-visible, .inv-scene.is-active) .cu-page__tab {
+    animation: cu-tab-out 0.6s var(--tr-ease) calc(0.5s + var(--step, 0) * 90ms) backwards;
+}
+
+.inv-cuento :is(.reveal.is-visible, .inv-scene.is-active) .cu-page__icon {
+    animation: tr-pop 0.6s var(--tr-ease) calc(0.62s + var(--step, 0) * 90ms) backwards;
+}
+
+.cu-page__icon {
+    -webkit-tap-highlight-color: transparent;
+}
+
+@keyframes cu-tab-out {
+    from { opacity: 0; translate: 1.6rem 0; }
+}
+
+/* Personajes: cada tarjeta se pone de pie desde la página, su medallón salta y su cinta se despliega */
+.cu-characters {
+    perspective: 900px;
+}
+
+.cu-character {
+    --step-anim: tr-stand;
+    --step-duration: 1s;
+    transform-origin: 50% 100%;
+}
+
+html:not(.no-js) .inv-cuento .reveal:not(.is-visible) .cu-character[data-step] {
+    transform: none;
+}
+
+.inv-cuento .reveal .cu-character[data-step] {
+    transition: none;
+}
+
+html:not(.inv-story-on) .inv-cuento .reveal.is-visible .cu-character[data-step] {
+    animation: tr-stand 1s var(--tr-ease) calc(0.25s + var(--step, 0) * 0.14s) backwards;
+}
+
+.cu-character__medal {
+    transition: scale 0.4s var(--tr-spring);
+    -webkit-tap-highlight-color: transparent;
+}
+
+.inv-cuento :is(.reveal.is-visible, .inv-scene.is-active) .cu-character__medal {
+    animation: tr-pop 0.6s var(--tr-ease) calc(0.8s + var(--step, 0) * 0.14s) backwards;
+}
+
+.inv-cuento :is(.reveal.is-visible, .inv-scene.is-active) .cu-character__role {
+    animation: tr-unroll-x 0.6s var(--tr-ease) calc(0.95s + var(--step, 0) * 0.14s) backwards;
+}
+
+.inv-cuento :is(.reveal.is-visible, .inv-scene.is-active) .cu-cast__list li {
+    --tr-rise: 0.6rem;
+    animation: tr-rise 0.6s var(--tr-ease) calc(0.4s + var(--i, 0) * 70ms) backwards;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .cu-character:hover .cu-character__medal {
+        scale: 1.07;
+    }
+}
+
 /* ── Fondo: el canto de las hojas y las guirnaldas de papel ────────────── */
 
 .inv-cuento .inv-themed-bg__glow {
@@ -981,6 +1146,133 @@ html:not(.no-js) .inv-cuento .reveal:not(.is-visible) .cu-page[data-step] {
 
 @keyframes cu-garland-right {
     to { rotate: -8deg; }
+}
+
+/* El haz de luz que baja sobre el libro y respira despacio (dos vaivenes de las guirnaldas) */
+.cu-ambient__beam {
+    position: absolute;
+    top: -8vh;
+    left: 50%;
+    width: 140vmin;
+    height: 92vh;
+    margin-left: -70vmin;
+    background: conic-gradient(from 150deg at 50% 0,
+        transparent 0deg,
+        color-mix(in srgb, var(--tr-accent) 35%, transparent) 18deg,
+        color-mix(in srgb, #fff 75%, transparent) 30deg,
+        color-mix(in srgb, var(--tr-accent) 35%, transparent) 42deg,
+        transparent 60deg);
+    -webkit-mask: linear-gradient(to bottom, #000 10%, transparent 88%);
+    mask: linear-gradient(to bottom, #000 10%, transparent 88%);
+    opacity: 0.3;
+    animation: cu-beam 14s ease-in-out infinite alternate;
+}
+
+@keyframes cu-beam {
+    from { opacity: 0.2; }
+    to { opacity: 0.5; }
+}
+
+/* Motas de polvo dorado que flotan en la luz, de a pares en espejo */
+.cu-ambient__mote {
+    position: absolute;
+    top: var(--y);
+    left: var(--x);
+    width: 4px;
+    height: 4px;
+    margin: -2px;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--tr-accent) 30%, #fff);
+    box-shadow: 0 0 6px 1px color-mix(in srgb, var(--tr-accent) 60%, #fff);
+    opacity: 0;
+    animation: cu-mote 7s ease-in-out var(--delay) infinite alternate;
+}
+
+@keyframes cu-mote {
+    0% { opacity: 0.1; translate: 0 0; }
+    50% { opacity: 0.9; }
+    100% { opacity: 0.25; translate: calc(var(--dir) * 1.4rem) -2.2rem; }
+}
+
+/* El escenario del desplegable, al pie: tres capas de papel recortado que se ponen de pie una tras otra
+   cuando se abre el libro y después se inclinan apenas al mismo compás (la de adelante, un poco más) */
+.cu-ambient__stage {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: clamp(6rem, 17vh, 10rem);
+    perspective: 700px;
+    opacity: 0.6;
+}
+
+.cu-ambient__layer {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    transform-origin: 50% 100%;
+    filter: drop-shadow(0 -1px 0 rgb(255 255 255 / 0.55)) drop-shadow(0 6px 6px rgb(0 0 0 / 0.16));
+    animation:
+        tr-stand 1.1s var(--tr-ease) var(--cu-up) backwards,
+        cu-lean 14s ease-in-out calc(var(--cu-up) + 1.1s) infinite alternate;
+}
+
+/* Las colinas del fondo */
+.cu-ambient__layer--hills {
+    --cu-up: 0.3s;
+    --cu-lean: 3deg;
+    height: 62%;
+    background: radial-gradient(ellipse 50% 100% at 50% 100%, color-mix(in srgb, var(--tr-secondary) 55%, var(--tr-bg)) 98%, transparent) 50% 100% / 16rem 100% repeat-x;
+}
+
+/* Una torre del salón con su muralla y su árbol a cada costado, en espejo (el centro lo ocupa la página) */
+.cu-ambient__layer--hall {
+    --cu-up: 0.55s;
+    --cu-lean: 5deg;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    height: 100%;
+}
+
+.cu-ambient__side {
+    width: auto;
+    height: 100%;
+    overflow: visible;
+}
+
+.cu-ambient__side--right {
+    scale: -1 1;
+}
+
+/* Con música, el reproductor ocupa el borde de abajo: el escenario se apoya sobre él */
+.inv-cuento.has-player .cu-ambient__stage {
+    bottom: 4rem;
+}
+
+.cu-ambient__hall { fill: color-mix(in srgb, var(--tr-accent) 70%, #fff); }
+.cu-ambient__tree { fill: color-mix(in srgb, var(--tr-secondary) 75%, var(--tr-bg)); }
+.cu-ambient__window { fill: color-mix(in srgb, var(--tr-secondary) 55%, var(--tr-bg)); }
+
+.cu-ambient__flag {
+    fill: var(--tr-primary);
+    stroke: var(--tr-primary);
+    stroke-width: 1.2;
+    stroke-linejoin: round;
+}
+
+/* Los arbustos de adelante */
+.cu-ambient__layer--bushes {
+    --cu-up: 0.8s;
+    --cu-lean: 8deg;
+    height: 30%;
+    background: radial-gradient(circle 1.7rem at 50% 100%, color-mix(in srgb, var(--tr-primary) 45%, var(--tr-bg)) 97%, transparent) 50% 100% / 2.6rem 100% repeat-x;
+}
+
+@keyframes cu-lean {
+    from { rotate: x 0deg; }
+    to { rotate: x var(--cu-lean); }
 }
 
 @media (min-width: 900px) {

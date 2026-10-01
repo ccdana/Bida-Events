@@ -26,7 +26,7 @@
             @if(count($padrinos))
                 <ul class="ms-seats">
                     @foreach($padrinos as $index => $padrino)
-                        <li class="ms-seat" data-step style="--step: {{ $index }}">
+                        <li class="ms-seat" data-step data-poke="tip" style="--step: {{ $index }}">
                             @if(!empty($padrino['rol']))
                                 <span class="ms-seat__role">{{ $padrino['rol'] }}</span>
                             @endif
@@ -46,7 +46,7 @@
                             <h3 class="ms-court__title">{{ $label }}</h3>
                             <ul class="ms-court__list">
                                 @foreach($people as $person)
-                                    <li>
+                                    <li style="--i: {{ $loop->index }}">
                                         <span class="ms-court__name">{{ $person['nombre'] }}</span>
                                         @if(!empty($person['detalle']))
                                             <small>{{ $person['detalle'] }}</small>

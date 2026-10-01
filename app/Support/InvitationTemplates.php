@@ -46,13 +46,16 @@ final class InvitationTemplates
     public const DEFAULT = self::XV_PREMIUM;
 
     /**
-     * Plantillas que se reemplazaron por otra (la invitación sigue igual, con el diseño nuevo). La
-     * migración 2026_09_29_000001 ya pasó las guardadas; esto cubre las que lleguen por otro lado
-     * (una sesión abierta, un enlace del editor) y lo usa InvitationDefaults::resolveTemplate.
+     * Plantillas que se reemplazaron por otra (la invitación sigue igual, con el diseño nuevo). Las
+     * migraciones 2026_09_29_000001 y 2026_09_30_000001 ya pasaron las guardadas; esto cubre las que
+     * lleguen por otro lado (una sesión abierta, un enlace del editor) y lo usa
+     * InvitationDefaults::resolveTemplate. Siempre apunta a la plantilla vigente: «Galería Quince» se
+     * volvió «Caleidoscopio» y «Caleidoscopio», «El cambio de zapatos».
      */
     public const RENAMED = [
         'invitations.templates.xv-carta-de-baile' => 'invitations.templates.xv-cuento',
-        'invitations.templates.xv-galeria' => 'invitations.templates.xv-caleidoscopio',
+        'invitations.templates.xv-galeria' => 'invitations.templates.xv-zapatos',
+        'invitations.templates.xv-caleidoscopio' => 'invitations.templates.xv-zapatos',
     ];
 
     /**

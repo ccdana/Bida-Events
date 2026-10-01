@@ -15,10 +15,10 @@
         ])
 
         @if(count($eventos) > 0)
-            <ol class="jo-charms">
+            <ol class="jo-charms" style="--charms: {{ count($eventos) }}">
                 @foreach($eventos as $index => $evento)
                     <li class="jo-charm" data-step style="--step: {{ $index }}">
-                        <span class="jo-charm__pendant" aria-hidden="true">
+                        <span class="jo-charm__pendant" data-poke="swing" aria-hidden="true">
                             @include('invitations.partials.itinerary-icon', ['name' => $evento['icono'] ?? null, 'class' => 'jo-charm__icon'])
                         </span>
                         <div class="jo-charm__body">

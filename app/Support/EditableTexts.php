@@ -196,8 +196,11 @@ final class EditableTexts
         // «Cuento desplegable»
         'book_title' => 'Cuento: tapa, antes del nombre', 'book_opening' => 'Cuento: primera frase',
         'book_chapter' => 'Cuento: palabra antes del número de capítulo', 'book_plate' => 'Cuento: rótulo de la foto',
-        // «Caleidoscopio»
-        'scope_day' => 'Caleidoscopio: rótulo del día', 'scope_time' => 'Caleidoscopio: rótulo de la hora', 'scope_place' => 'Caleidoscopio: rótulo del lugar',
+        // «El cambio de zapatos»
+        'shoe_line' => 'Zapatos: línea de la caja, debajo del nombre', 'shoe_made' => 'Zapatos: antes del nombre en la plantilla',
+        'shoe_model' => 'Zapatos: rótulo del modelo', 'shoe_model_name' => 'Zapatos: nombre del modelo', 'shoe_size' => 'Zapatos: rótulo de la talla',
+        'shoe_date' => 'Zapatos: rótulo de la fecha', 'shoe_time' => 'Zapatos: rótulo de la hora', 'shoe_place' => 'Zapatos: rótulo del lugar',
+        'shoe_ref' => 'Zapatos: palabra antes del número de caja', 'shoe_moment' => 'Zapatos: sello del momento del cambio de zapatos',
         // «Mesa de honor»
         'table_seat' => 'Mesa: tarjeta del lugar sin invitado', 'table_menu' => 'Mesa: título del menú de la portada', 'table_course' => 'Mesa: palabra después del número de tiempo',
         // «A la misma hora»

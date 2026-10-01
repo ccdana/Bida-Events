@@ -24,20 +24,20 @@
         'stickers' => [28, [['kind' => 'streamer', 'count' => 14, 'mobile' => 8, 'seed' => 1, 'class' => 'inv-drift--confeti']]],
         // Polvo suspendido en el haz de la linterna
         'expediente' => [0, [['kind' => 'bokeh', 'count' => 12, 'mobile' => 7, 'seed' => 6, 'class' => 'inv-drift--polvo']]],
-        // Hilos sueltos del taller y, a los costados, las cintas métricas que cuelgan
+        // Hilos sueltos del taller; a los costados, las cintas métricas que cuelgan y retazos que bajan en espejo
         'atelier' => [0, [['kind' => 'streamer', 'count' => 8, 'mobile' => 5, 'seed' => 4, 'class' => 'inv-drift--hilo']], 'invitations.partials.atelier.ambient'],
         // ── Colección «tendencias» ──
-        // Estrellitas de papel recortado y, a los costados, el canto de las páginas del libro
+        // Estrellitas de papel recortado; el canto de las páginas, el haz de luz con su polvo dorado y el escenario de papel que se pone de pie
         'cuento' => [0, [['kind' => 'star', 'count' => 10, 'mobile' => 6, 'seed' => 5, 'class' => 'inv-drift--papel']], 'invitations.partials.tendencias.cuento.ambient'],
-        // Un mandala enorme que gira despacio y destellos de dispersión
-        'caleidoscopio' => [0, [['kind' => 'twinkle', 'count' => 12, 'mobile' => 7, 'seed' => 3, 'class' => 'inv-drift--prisma']], 'invitations.partials.tendencias.caleidoscopio.ambient'],
-        // El capitoné del forro con sus botones que destellan y chispas de oro
+        // Pasos de vals que aparecen y se van por los costados, la luz de la vitrina y brillo en el aire
+        'zapatos' => [0, [['kind' => 'twinkle', 'count' => 10, 'mobile' => 6, 'seed' => 3, 'class' => 'inv-drift--brillo']], 'invitations.partials.tendencias.zapatos.ambient'],
+        // El capitoné del forro con sus botones que destellan, perlas que suben y, con la música, ondas al compás del vals
         'joyero' => [0, [['kind' => 'twinkle', 'count' => 10, 'mobile' => 6, 'seed' => 5, 'class' => 'inv-drift--joya']], 'invitations.partials.tendencias.joyero.ambient'],
-        // La bruma nacarada del atomizador y luces difusas
+        // La bruma nacarada, el rocío del atomizador en las esquinas, las estelas de la fragancia y luces difusas
         'esencia' => [0, [['kind' => 'bokeh', 'count' => 10, 'mobile' => 6, 'seed' => 8, 'class' => 'inv-drift--bruma']], 'invitations.partials.tendencias.esencia.ambient'],
         // Notas que suben por pentagramas que ondulan y el brillo de las luces de la sala
         'partitura' => [0, [['kind' => 'twinkle', 'count' => 10, 'mobile' => 6, 'seed' => 7, 'class' => 'inv-drift--sala']], 'invitations.partials.tendencias.partitura.ambient'],
-        // La luz de las velas de la mesa, que tiembla a los dos lados, y su resplandor
+        // Las velas de la mesa a los dos lados, con su llama y su resplandor, y pétalos del ramo que bajan
         'mesa' => [0, [['kind' => 'bokeh', 'count' => 10, 'mobile' => 6, 'seed' => 9, 'class' => 'inv-drift--vela']], 'invitations.partials.tendencias.mesa.ambient'],
         // Engranajes de latón que giran despacio en los bordes, en espejo, y destellos del metal
         'reloj' => [0, [['kind' => 'twinkle', 'count' => 8, 'mobile' => 5, 'seed' => 6, 'class' => 'inv-drift--laton']], 'invitations.partials.tendencias.reloj.ambient'],

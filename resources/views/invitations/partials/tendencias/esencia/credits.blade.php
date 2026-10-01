@@ -53,7 +53,7 @@
                                 <h3 class="ez-court__title">{{ $label }}</h3>
                                 <ul class="ez-court__list">
                                     @foreach($people as $person)
-                                        <li>
+                                        <li style="--i: {{ $loop->index }}">
                                             <span class="ez-court__name">{{ $person['nombre'] }}</span>
                                             @if(!empty($person['detalle']))
                                                 <small>{{ $person['detalle'] }}</small>

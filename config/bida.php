@@ -178,7 +178,7 @@ return [
             'event' => 'xv',
             'link' => 'Invitaciones de XV años',
             'code' => 'XV',
-            'demos' => ['xv-isabella', 'xv-isabella-cuento', 'xv-isabella-caleidoscopio', 'xv-isabella-joyero', 'xv-isabella-esencia'],
+            'demos' => ['xv-isabella', 'xv-isabella-cuento', 'xv-isabella-zapatos', 'xv-isabella-joyero', 'xv-isabella-esencia'],
             'image' => 'event-xv',
             'label' => 'XV años',
             'title' => 'Invitaciones digitales de XV años en Bolivia',

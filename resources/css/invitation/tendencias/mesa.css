@@ -19,6 +19,7 @@
    ════════════════════════════════════════════════════════════════════════════ */
 
 @import './_base.css';
+@import './_motion.css';
 
 .inv-mesa {
     --inv-radius: 0.3rem;
@@ -35,7 +36,11 @@
         repeating-linear-gradient(0deg, color-mix(in srgb, var(--tr-text) 3%, transparent) 0 1px, transparent 1px 3px),
         repeating-linear-gradient(90deg, color-mix(in srgb, var(--tr-text) 3%, transparent) 0 1px, transparent 1px 3px);
     --ms-candle: color-mix(in srgb, #ffc56b 55%, transparent);
-    --themed-from: translate3d(0, 20px, 0);
+    /* Cada tarjeta se deja sobre el mantel: baja apenas desde arriba (nunca más grande que su lugar: no se
+       sale de la pantalla) */
+    --themed-from: translate3d(0, -16px, 0) scale(0.99);
+    /* El pulso de las velas: la llama se mece en 1,6 s y todo el fondo cuenta con él */
+    --ms-pulse: 1.6s;
 
     background: var(--ms-linen), var(--tr-bg);
 }
@@ -793,6 +798,174 @@
     }
 }
 
+/* ── Movimiento: la mesa que se pone ────────────────────────────────────────
+   Gestos comunes en tendencias/_motion.css. El compás es el pulso de las
+   velas del fondo (--ms-pulse, 1,6 s): el resplandor late en dos y los
+   pétalos bajan en dieciséis. Las tarjetas que se ponen de pie llevan su
+   propia perspectiva (ms-stand), así no dependen de la del contenedor. */
+
+/* La portada al quitarse la servilleta: la tarjeta de lugar se pone de pie, el plato se apoya y su
+   filete de oro gira hasta su lugar, el tenedor llega por la izquierda, el cuchillo y la cuchara por
+   la derecha, y el menú se desliza hasta el cubierto */
+.ms-hero .ms-kicker {
+    animation: tr-fade 0.9s ease backwards;
+}
+
+.ms-tent {
+    transform-origin: 50% 100%;
+    animation: ms-stand 1.1s var(--tr-ease) 0.15s backwards;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.ms-plate--hero {
+    animation: ms-plate-set 1.1s var(--tr-ease) 0.45s backwards;
+}
+
+.ms-plate--hero::after {
+    animation: ms-rim 1.6s var(--tr-ease) 0.8s backwards;
+}
+
+.ms-plate__photo > * {
+    animation: ms-photo 2.4s var(--tr-ease) 0.45s backwards;
+}
+
+.ms-hero__fork {
+    --ms-from-x: -0.9rem;
+    --ms-turn: -10deg;
+    animation: ms-lay 0.8s var(--tr-ease) 0.85s backwards;
+}
+
+.ms-hero__right .ms-cutlery {
+    --ms-from-x: 0.9rem;
+    --ms-turn: 10deg;
+    animation: ms-lay 0.8s var(--tr-ease) 0.95s backwards;
+}
+
+.ms-hero__right .ms-cutlery + .ms-cutlery {
+    animation-delay: 1.05s;
+}
+
+.ms-menu {
+    animation: tr-rise 0.9s var(--tr-ease) 1.3s backwards;
+}
+
+.ms-message {
+    animation: tr-fade 1s ease 1.55s backwards;
+}
+
+.ms-hero__scroll {
+    animation: tr-fade 0.8s ease 1.9s backwards;
+}
+
+/* Se pone de pie una tarjeta doblada: la perspectiva va en la animación (ver arriba) */
+@keyframes ms-stand {
+    0% { opacity: 0; transform: perspective(700px) rotateX(-80deg); }
+    35% { opacity: 1; }
+    68% { transform: perspective(700px) rotateX(7deg); }
+    86% { transform: perspective(700px) rotateX(-2deg); }
+    100% { transform: perspective(700px) rotateX(0deg); }
+}
+
+@keyframes ms-plate-set {
+    0% { opacity: 0; translate: 0 -0.8rem; scale: 1.14; }
+    60% { opacity: 1; translate: 0 0.08rem; scale: 0.985; }
+}
+
+@keyframes ms-rim {
+    from { opacity: 0; rotate: -50deg; }
+}
+
+@keyframes ms-photo {
+    from { scale: 1.12; }
+}
+
+@keyframes ms-lay {
+    from { opacity: 0; translate: var(--ms-from-x) 0; rotate: var(--ms-turn); }
+}
+
+/* Con el mouse, el filete de puntitos del plato gira apenas, como cuando se acomoda la vajilla */
+@media (hover: hover) and (pointer: fine) {
+    .ms-plate--hero::after {
+        transition: rotate 1.4s var(--tr-ease);
+    }
+
+    .ms-hero__setting:hover .ms-plate--hero::after {
+        rotate: 24deg;
+    }
+}
+
+/* Secciones: el filete de oro se tiende desde el rombo */
+.inv-mesa :is(.reveal.is-visible, .inv-scene.is-active) .inv-head__rule {
+    animation: tr-unroll-x 0.8s var(--tr-ease) 0.4s backwards;
+}
+
+/* Programa: cada tiempo se sirve (baja apenas y se asienta) y el filete que lo separa del anterior se
+   tiende justo antes */
+.ms-course {
+    --ms-at: calc(0.25s + var(--step, 0) * 0.16s);
+    --step-anim: ms-serve;
+}
+
+html:not(.no-js) .inv-mesa .reveal:not(.is-visible) .ms-course[data-step] {
+    transform: none;
+}
+
+.inv-mesa .reveal .ms-course[data-step] {
+    transition: none;
+}
+
+html:not(.inv-story-on) .inv-mesa .reveal.is-visible .ms-course[data-step] {
+    animation: ms-serve 0.9s var(--tr-ease) var(--ms-at) backwards;
+}
+
+.inv-mesa :is(.reveal.is-visible, .inv-scene.is-active) .ms-course + .ms-course::before {
+    animation: tr-unroll-x 0.7s var(--tr-ease) var(--ms-at) backwards;
+}
+
+@keyframes ms-serve {
+    from { opacity: 0; translate: 0 -0.6rem; scale: 1.05; }
+}
+
+/* La mesa de honor: cada tarjeta de lugar se pone de pie en su turno y el nombre aparece escrito */
+.ms-seat {
+    --ms-at: calc(0.3s + var(--step, 0) * 0.16s);
+    --step-anim: ms-stand;
+    --step-duration: 1.1s;
+    transform-origin: 50% 100%;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html:not(.no-js) .inv-mesa .reveal:not(.is-visible) .ms-seat[data-step] {
+    transform: none;
+}
+
+.inv-mesa .reveal .ms-seat[data-step] {
+    transition: translate 0.45s var(--tr-spring);
+}
+
+html:not(.inv-story-on) .inv-mesa .reveal.is-visible .ms-seat[data-step] {
+    animation: ms-stand 1.1s var(--tr-ease) var(--ms-at) backwards;
+}
+
+.inv-mesa :is(.reveal.is-visible, .inv-scene.is-active) .ms-seat__names {
+    animation: ms-ink 0.9s ease calc(var(--ms-at) + 0.55s) backwards;
+}
+
+@keyframes ms-ink {
+    from { opacity: 0; translate: -0.4rem 0; }
+}
+
+.inv-mesa :is(.reveal.is-visible, .inv-scene.is-active) .ms-court__list li {
+    --tr-rise: 0.6rem;
+    animation: tr-rise 0.6s var(--tr-ease) calc(0.4s + var(--i, 0) * 70ms) backwards;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .inv-mesa .reveal .ms-seat[data-step]:hover {
+        translate: 0 -0.25rem;
+    }
+}
+
 /* ── Fondo: la luz de las velas ─────────────────────────────────────────── */
 
 .inv-mesa .inv-themed-bg__glow {
@@ -823,6 +996,146 @@
 
 .ms-ambient__glow--left { left: 0; }
 .ms-ambient__glow--right { left: 100%; animation-delay: -1.6s; }
+
+/* Las velas en sus candeleros de oro, a los costados del contenido (desde la tableta): la vela es el
+   ::after, el candelero el ::before; arriba, la llama que se mece y su halo, que late con ella */
+.ms-ambient__candle {
+    position: absolute;
+    bottom: 0;
+    display: none;
+    width: 3.4rem;
+    height: min(52vh, 30rem);
+}
+
+/* Con música, el reproductor ocupa el borde de abajo: las velas se apoyan sobre él */
+.inv-mesa.has-player .ms-ambient__candle {
+    bottom: 4rem;
+}
+
+/* Junto a la columna más ancha del contenido (56rem en escritorio), nunca debajo de ella */
+.ms-ambient__candle--left { left: max(1rem, calc(50% - 33rem)); }
+.ms-ambient__candle--right { right: max(1rem, calc(50% - 33rem)); }
+
+@media (min-width: 900px) {
+    .ms-ambient__candle {
+        display: block;
+    }
+}
+
+/* El candelero: el pie, la columna y el platillo */
+.ms-ambient__candle::before {
+    content: '';
+    position: absolute;
+    inset: auto 0 0;
+    height: 40%;
+    background:
+        radial-gradient(ellipse 50% 50% at 50% 50%, var(--ms-gold) 96%, transparent) 50% 0 / 2.6rem 0.8rem no-repeat,
+        linear-gradient(90deg, color-mix(in srgb, var(--tr-secondary) 70%, #2e2210), color-mix(in srgb, var(--tr-secondary) 45%, #fff) 45%, var(--ms-gold)) 50% 0.4rem / 0.7rem calc(100% - 1.3rem) no-repeat,
+        radial-gradient(ellipse 50% 100% at 50% 100%, var(--ms-gold) 96%, transparent) 50% 100% / 100% 1.1rem no-repeat;
+    opacity: 0.85;
+}
+
+/* La vela, de la porcelana de la mesa */
+.ms-ambient__candle::after {
+    content: '';
+    position: absolute;
+    bottom: calc(40% - 0.3rem);
+    left: 50%;
+    width: 1.05rem;
+    height: 56%;
+    margin-left: -0.525rem;
+    border-radius: 0.35rem 0.35rem 0.15rem 0.15rem;
+    background: linear-gradient(90deg, color-mix(in srgb, var(--ms-porcelain) 80%, var(--tr-text)), #fff 45%, var(--ms-porcelain));
+    opacity: 0.9;
+}
+
+.ms-ambient__flame {
+    position: absolute;
+    bottom: calc(96% - 0.3rem);
+    left: 50%;
+    width: 0.8rem;
+    height: 1.7rem;
+    margin-left: -0.4rem;
+    border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%;
+    background: radial-gradient(ellipse 50% 60% at 50% 72%, #fff 0 22%, #ffe3a1 42%, #ffb54d 70%, rgb(255 150 60 / 0) 100%);
+    transform-origin: 50% 100%;
+    animation: ms-flame var(--ms-pulse) ease-in-out infinite alternate;
+}
+
+.ms-ambient__halo {
+    position: absolute;
+    bottom: calc(96% - 7rem);
+    left: 50%;
+    width: 14rem;
+    height: 14rem;
+    margin-left: -7rem;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, var(--ms-candle), transparent 72%);
+    opacity: 0.55;
+    animation: ms-halo var(--ms-pulse) ease-in-out infinite alternate;
+}
+
+/* La vela de la derecha va a contratiempo: las dos llamas nunca se mecen igual */
+.ms-ambient__candle--right :is(.ms-ambient__flame, .ms-ambient__halo) {
+    animation-delay: calc(var(--ms-pulse) / -2);
+}
+
+@keyframes ms-flame {
+    0% { scale: 0.92 1.05; rotate: -2.5deg; }
+    50% { scale: 1.02 0.96; }
+    100% { scale: 0.97 1.03; rotate: 2deg; }
+}
+
+@keyframes ms-halo {
+    from { opacity: 0.45; scale: 0.96; }
+    to { opacity: 0.7; scale: 1.04; }
+}
+
+/* Pétalos del ramo que bajan meciéndose, de a pares en espejo (dieciséis pulsos por caída) */
+.ms-ambient__petal {
+    position: absolute;
+    top: -8vh;
+    width: 1.1rem;
+    height: 1.1rem;
+    /* Un pétalo: dos puntas y el borde curvo, con la vena de luz en diagonal */
+    border-radius: 80% 0 80% 0;
+    background:
+        linear-gradient(135deg, transparent 46%, rgb(255 255 255 / 0.45) 50%, transparent 54%),
+        linear-gradient(135deg, color-mix(in srgb, var(--tr-primary) 30%, #fff), color-mix(in srgb, var(--tr-primary) 70%, #fff));
+    opacity: 0;
+    animation: ms-petal calc(var(--ms-pulse) * 16) linear var(--delay) infinite;
+    will-change: transform, opacity;
+}
+
+.ms-ambient__petal--left {
+    --dir: 1;
+    left: calc(6% + var(--lane) * 9%);
+}
+
+.ms-ambient__petal--right {
+    --dir: -1;
+    right: calc(6% + var(--lane) * 9%);
+}
+
+@keyframes ms-petal {
+    0% { opacity: 0; transform: translate3d(0, 0, 0) rotate(calc(var(--dir) * -30deg)) rotateX(0deg); }
+    6% { opacity: 0.55; }
+    25% { transform: translate3d(calc(var(--dir) * 1.8rem), 30vh, 0) rotate(calc(var(--dir) * 20deg)) rotateX(60deg); }
+    50% { transform: translate3d(calc(var(--dir) * -0.4rem), 60vh, 0) rotate(calc(var(--dir) * 70deg)) rotateX(0deg); }
+    75% { transform: translate3d(calc(var(--dir) * 1.3rem), 90vh, 0) rotate(calc(var(--dir) * 110deg)) rotateX(-60deg); }
+    94% { opacity: 0.45; }
+    100% { opacity: 0; transform: translate3d(0, 116vh, 0) rotate(calc(var(--dir) * 160deg)) rotateX(0deg); }
+}
+
+@media (max-width: 767px) {
+    .ms-ambient__petal {
+        width: 0.8rem;
+        height: 1.05rem;
+    }
+
+    .ms-ambient__petal--left { left: calc(0.4rem + var(--lane) * 1.2rem); }
+    .ms-ambient__petal--right { right: calc(0.4rem + var(--lane) * 1.2rem); }
+}
 
 .inv-drift--vela {
     --drift-a: color-mix(in srgb, #ffc56b 70%, #fff);

@@ -30,7 +30,7 @@ class TrendTemplatesTest extends TestCase
     {
         return [
             'Cuento desplegable' => ['cuento', 'xv', 'xv-isabella', ['cu-book__cover', 'Toca el libro para abrirlo', 'cu-popup__layer--mid', 'cu-plate', 'Las páginas de la noche', 'cu-page__tab', 'cu-character__medal']],
-            'Caleidoscopio' => ['caleidoscopio', 'xv', 'xv-isabella', ['ka-wedge', 'Toca para girar el caleidoscopio', 'ka-hex__photo', 'ka-emblem__xv', 'ka-prism__gem', 'ka-sponsor__badge']],
+            'El cambio de zapatos' => ['zapatos', 'xv', 'xv-isabella', ['zp-sleeve', 'Toca la caja para abrirla', 'Hecho a mano para', 'zp-shoe__name', 'Mis primeros tacones', 'Los pasos de la noche', 'zp-step is-moment', 'El cambio de zapatos', 'zp-shelf__label']],
             'Joyero musical' => ['joyero', 'xv', 'xv-isabella', ['jo-key', 'Toca la llave para abrir el joyero', 'jo-figure', 'jo-locket__photo', 'Los dijes de mi noche', 'jo-charm__pendant', 'jo-jewel__medal']],
             'Esencia XV' => ['esencia', 'xv', 'xv-isabella', ['ez-bow', 'Toca la cinta para abrir la caja', 'ez-campaign__bottle', 'Eau de Quince', 'Notas de salida', 'ez-credit__names']],
             'Partitura a dos voces' => ['partitura', 'boda', 'boda-camila-andres', ['pt-baton', 'Toca la batuta para empezar', 'Concierto para dos voces', 'pt-system', 'Andante', 'Quienes tocan con nosotros']],
@@ -108,7 +108,7 @@ class TrendTemplatesTest extends TestCase
 
     public function test_the_themed_collection_comes_with_the_upper_reseller_plans(): void
     {
-        $galeria = TrendTemplates::key('caleidoscopio', 'xv');
+        $galeria = TrendTemplates::key('zapatos', 'xv');
 
         $inicial = array_keys(ResellerSubscription::allowedTemplates(User::factory()->reseller('inicial')->make()));
         $emprendedor = array_keys(ResellerSubscription::allowedTemplates(User::factory()->reseller('emprendedor')->make()));

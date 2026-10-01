@@ -15,7 +15,7 @@
         ])
 
         @if(count($eventos) > 0)
-            <ol class="at-show">
+            <ol class="at-show" style="--looks: {{ count($eventos) }}">
                 @foreach($eventos as $index => $evento)
                     <li class="at-look" data-step style="--step: {{ $index }}">
                         <time class="at-look__time">{{ $evento['hora'] ?? '' }}</time>

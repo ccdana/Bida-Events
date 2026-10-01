@@ -18,6 +18,7 @@
    ════════════════════════════════════════════════════════════════════════════ */
 
 @import './_base.css';
+@import './_motion.css';
 
 .inv-joyero {
     --inv-radius: 0.35rem;
@@ -41,9 +42,27 @@
     --jo-velvet-fill:
         var(--jo-quilt),
         radial-gradient(ellipse at 50% 20%, color-mix(in srgb, var(--tr-primary) 80%, #fff), var(--tr-primary) 55%, color-mix(in srgb, var(--tr-primary) 80%, #000));
-    --themed-from: translate3d(0, 22px, 0);
+    /* Cada bandeja sale del joyero */
+    --themed-from: translate3d(0, 24px, 0) scale(0.97);
+    /* El compás del vals: tres tiempos de 0,7 s. Todo el movimiento del joyero cuenta con él */
+    --jo-bar: 2.1s;
+    --jo-beat: 0.7s;
+    /* Cuánto se mecen los dijes y el relicario con la música (0 en silencio; ver «Movimiento») */
+    --jo-sway: 0deg;
 
     background: var(--tr-bg);
+    transition: --jo-sway 1.6s ease;
+}
+
+html.inv-music-on .inv-joyero {
+    --jo-sway: 3deg;
+}
+
+/* Registrada para que el vaivén crezca y se calme de a poco cuando empieza o se corta la música */
+@property --jo-sway {
+    syntax: '<angle>';
+    inherits: true;
+    initial-value: 0deg;
 }
 
 .inv-joyero.has-player {
@@ -419,8 +438,35 @@
     background: var(--jo-gold-grad);
 }
 
-.jo-tiara {
+.jo-tiara-wrap {
+    position: relative;
+    display: block;
     width: 6.5rem;
+}
+
+/* Un destello de cuatro puntas sobre cada piedra de la tiara */
+.jo-sparkle {
+    position: absolute;
+    top: var(--y);
+    left: var(--x);
+    width: 1rem;
+    aspect-ratio: 1;
+    margin: -0.5rem 0 0 -0.5rem;
+    background: color-mix(in srgb, var(--tr-accent) 35%, #fff);
+    clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%);
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* La del primer tiempo, más grande */
+.jo-sparkle--downbeat {
+    width: 1.35rem;
+    margin: -0.675rem 0 0 -0.675rem;
+}
+
+.jo-tiara {
+    display: block;
+    width: 100%;
     height: auto;
     fill: var(--jo-gold);
     filter: drop-shadow(0 3px 3px rgb(0 0 0 / 0.35));
@@ -897,6 +943,257 @@
     }
 }
 
+/* ── Movimiento: el joyero al compás del vals ───────────────────────────────
+   Gestos comunes en tendencias/_motion.css. Todo cuenta con el compás de tres
+   tiempos (--jo-bar, --jo-beat). En silencio, el relicario se mece apenas y
+   los destellos son espaciados; mientras suena la música (html.inv-music-on)
+   el vaivén crece de a poco (--jo-sway, registrada), los destellos caen en
+   cada tiempo y los dijes se mecen en contratiempo. */
+
+/* La portada al abrirse el joyero: el estuche se asienta, el nombre se borda, sube la tiara, baja la
+   cadena y el relicario cae en ella y se mece hasta quedar colgando al compás */
+.jo-hero .jo-kicker {
+    animation: tr-fall-in 0.8s var(--tr-ease) backwards;
+}
+
+.jo-case {
+    animation: jo-case-in 1s var(--tr-ease) 0.1s backwards;
+}
+
+.jo-case__name {
+    animation: jo-embroider 1.3s var(--tr-ease) 0.4s backwards;
+}
+
+.jo-tiara-wrap {
+    animation: jo-tiara-in 0.9s var(--tr-spring) 0.6s backwards;
+}
+
+.jo-sparkle {
+    animation: jo-flash var(--jo-glint-cycle, calc(var(--jo-bar) * 3)) ease-out calc(1.45s + var(--n, 0) * var(--jo-beat)) infinite;
+}
+
+html.inv-music-on .jo-sparkle {
+    --jo-glint-cycle: var(--jo-bar);
+}
+
+.jo-chain {
+    animation: jo-chain-in 0.6s var(--tr-ease) 0.85s backwards;
+}
+
+.jo-locket {
+    --tr-swing: 18deg;
+    transform-origin: 50% -0.95rem;
+    animation:
+        tr-swing 2.2s ease-out 0.95s backwards,
+        jo-pendulum calc(var(--jo-bar) * 2) linear 3.15s infinite;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.jo-card {
+    animation: tr-rise 0.9s var(--tr-ease) 1.4s backwards;
+}
+
+.jo-message {
+    animation: tr-fade 1s ease 1.65s backwards;
+}
+
+.jo-hero__scroll {
+    animation: tr-fade 0.8s ease 2s backwards;
+}
+
+@keyframes jo-case-in {
+    from { opacity: 0; translate: 0 1rem; scale: 0.95; }
+}
+
+@keyframes jo-embroider {
+    from { opacity: 0; scale: 0.94; }
+}
+
+@keyframes jo-tiara-in {
+    0% { opacity: 0; translate: 0 0.8rem; scale: 0.8; }
+    70% { opacity: 1; scale: 1.06; }
+}
+
+@keyframes jo-chain-in {
+    from { opacity: 0; translate: 0 -0.5rem; }
+}
+
+/* Un vaivén de péndulo: rápido al pasar por el medio, lento en los extremos. Un compás por lado */
+@keyframes jo-pendulum {
+    0% { rotate: 0deg; animation-timing-function: ease-out; }
+    25% { rotate: calc(1deg + var(--jo-sway)); animation-timing-function: ease-in; }
+    50% { rotate: 0deg; animation-timing-function: ease-out; }
+    75% { rotate: calc(-1deg - var(--jo-sway)); animation-timing-function: ease-in; }
+    100% { rotate: 0deg; }
+}
+
+/* Lo mismo para los dijes, que en silencio no se mecen */
+@keyframes jo-charm-sway {
+    0% { rotate: 0deg; animation-timing-function: ease-out; }
+    25% { rotate: var(--jo-sway); animation-timing-function: ease-in; }
+    50% { rotate: 0deg; animation-timing-function: ease-out; }
+    75% { rotate: calc(var(--jo-sway) * -1); animation-timing-function: ease-in; }
+    100% { rotate: 0deg; }
+}
+
+/* Un destello corto al principio del ciclo y después, quieto */
+@keyframes jo-flash {
+    0% { opacity: 0; scale: 0.2; rotate: 0deg; }
+    8% { opacity: 1; scale: 1; rotate: 45deg; }
+    22%, 100% { opacity: 0; scale: 0.2; rotate: 90deg; }
+}
+
+/* Secciones: cada bandeja sale del joyero, se clavan sus bisagras de oro y la gema del antetítulo
+   gira hasta su lugar */
+.inv-joyero main > :is(.reveal.is-visible, .inv-scene.is-active) > .inv-wrap::before,
+.inv-joyero main > :is(.reveal.is-visible, .inv-scene.is-active) > .inv-wrap::after {
+    animation: tr-press 0.6s var(--tr-ease) 0.3s backwards;
+}
+
+.inv-joyero main > :is(.reveal.is-visible, .inv-scene.is-active) > .inv-wrap::after {
+    animation-delay: 0.4s;
+}
+
+.inv-joyero :is(.reveal.is-visible, .inv-scene.is-active) .inv-head__eyebrow::before {
+    animation: jo-gem 0.8s var(--tr-spring) 0.35s backwards;
+}
+
+@keyframes jo-gem {
+    from { scale: 0; rotate: -120deg; }
+}
+
+/* Programa: la cadena baja y cada dije cae en ella cuando la cadena llega a su altura (--charms: cuántos
+   hay, lo pone charms.blade). Con música se mecen, cada uno a contratiempo del anterior */
+.jo-charms::before {
+    transform-origin: 50% 0;
+}
+
+.inv-joyero :is(.reveal.is-visible, .inv-scene.is-active) .jo-charms::before {
+    animation: tr-unroll-y calc(0.4s + var(--charms, 4) * 0.22s) cubic-bezier(0.3, 0.6, 0.4, 1) 0.2s backwards;
+}
+
+.jo-charm {
+    --jo-at: calc(0.3s + var(--step, 0) * 0.22s);
+    --step-anim: tr-fade;
+}
+
+.jo-charm:nth-child(even) {
+    --jo-phase: var(--jo-bar);
+}
+
+html:not(.no-js) .inv-joyero .reveal:not(.is-visible) .jo-charm[data-step] {
+    transform: none;
+}
+
+.inv-joyero .reveal .jo-charm[data-step] {
+    transition: none;
+}
+
+.jo-charm__pendant {
+    --tr-swing: 22deg;
+    transform-origin: 50% -0.4rem;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.inv-joyero :is(.reveal.is-visible, .inv-scene.is-active) .jo-charm__pendant {
+    animation:
+        tr-swing 1.6s ease-out var(--jo-at) backwards,
+        jo-charm-sway calc(var(--jo-bar) * 2) linear calc(var(--jo-at) + 1.6s + var(--jo-phase, 0s)) infinite;
+    animation-play-state: running, paused;
+}
+
+html.inv-music-on .inv-joyero :is(.reveal.is-visible, .inv-scene.is-active) .jo-charm__pendant {
+    animation-play-state: running, running;
+}
+
+.inv-joyero :is(.reveal.is-visible, .inv-scene.is-active) .jo-charm__body {
+    --tr-rise: 0.8rem;
+    animation: tr-rise 0.7s var(--tr-ease) calc(var(--jo-at) + 0.15s) backwards;
+}
+
+/* Padrinos: cada joya sube desde el terciopelo, su medallón da la vuelta como una moneda y destella; con
+   música, cada medallón vuelve a destellar en su tiempo del compás */
+.jo-jewel {
+    --jo-at: calc(0.3s + var(--step, 0) * 0.15s);
+    --step-anim: jo-jewel-in;
+    perspective: 600px;
+}
+
+html:not(.no-js) .inv-joyero .reveal:not(.is-visible) .jo-jewel[data-step] {
+    transform: none;
+}
+
+.inv-joyero .reveal .jo-jewel[data-step] {
+    transition: none;
+}
+
+html:not(.inv-story-on) .inv-joyero .reveal.is-visible .jo-jewel[data-step] {
+    animation: jo-jewel-in 0.9s var(--tr-ease) var(--jo-at) backwards;
+}
+
+@keyframes jo-jewel-in {
+    from { opacity: 0; translate: 0 1.2rem; scale: 0.96; }
+}
+
+.jo-jewel__medal {
+    position: relative;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.inv-joyero :is(.reveal.is-visible, .inv-scene.is-active) .jo-jewel__medal {
+    animation: jo-coin 1.1s var(--tr-ease) calc(var(--jo-at) + 0.2s) backwards;
+}
+
+@keyframes jo-coin {
+    0% { opacity: 0; rotate: y 180deg; }
+    40% { opacity: 1; }
+    100% { rotate: y 0deg; }
+}
+
+.jo-jewel__medal::after {
+    content: '';
+    position: absolute;
+    top: -0.35rem;
+    right: -0.35rem;
+    width: 1.1rem;
+    aspect-ratio: 1;
+    background: color-mix(in srgb, var(--tr-accent) 35%, #fff);
+    clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.inv-joyero :is(.reveal.is-visible, .inv-scene.is-active) .jo-jewel__medal::after {
+    animation:
+        tr-glint 0.9s ease-in-out calc(var(--jo-at) + 1.1s) backwards,
+        jo-flash var(--jo-bar) ease-out calc(var(--jo-at) + 2s + var(--step, 0) * var(--jo-beat)) infinite;
+    animation-play-state: running, paused;
+}
+
+html.inv-music-on .inv-joyero :is(.reveal.is-visible, .inv-scene.is-active) .jo-jewel__medal::after {
+    animation-play-state: running, running;
+}
+
+.inv-joyero :is(.reveal.is-visible, .inv-scene.is-active) .jo-court__list li {
+    --tr-rise: 0.6rem;
+    animation: tr-rise 0.6s var(--tr-ease) calc(0.4s + var(--i, 0) * 70ms) backwards;
+}
+
+.inv-joyero :is(.reveal.is-visible, .inv-scene.is-active) .jo-court__name::before {
+    animation: tr-pop 0.5s var(--tr-ease) calc(0.6s + var(--i, 0) * 70ms) backwards;
+}
+
+/* Con el mouse, el medallón de cada padrino se inclina hacia la luz */
+@media (hover: hover) and (pointer: fine) {
+    .jo-jewel__medal {
+        transition: rotate 0.6s var(--tr-spring);
+    }
+
+    .jo-jewel:hover .jo-jewel__medal {
+        rotate: y 24deg;
+    }
+}
+
 /* ── Fondo: el capitoné del forro ───────────────────────────────────────── */
 
 .inv-joyero .inv-themed-bg__glow {
@@ -932,12 +1229,91 @@
     background: color-mix(in srgb, var(--tr-accent) 60%, #fff);
     clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%);
     opacity: 0;
-    animation: jo-glint 11s ease-in-out var(--delay) infinite;
+    animation: jo-glint calc(var(--jo-bar) * 6) ease-in-out var(--delay) infinite;
 }
 
 @keyframes jo-glint {
     0%, 86%, 100% { opacity: 0; scale: 0.3; rotate: 0deg; }
     92% { opacity: 0.85; scale: 1; rotate: 45deg; }
+}
+
+/* Perlas sueltas que suben meciéndose por los costados, de a pares en espejo (ocho compases por subida) */
+.jo-ambient__pearl {
+    position: absolute;
+    bottom: -3vh;
+    width: calc(0.75rem * var(--s, 1));
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #fff, color-mix(in srgb, var(--tr-accent) 22%, #fff) 45%, color-mix(in srgb, var(--tr-accent) 55%, var(--tr-bg)));
+    box-shadow: 0 0 0.6rem color-mix(in srgb, var(--tr-accent) 45%, transparent);
+    opacity: 0;
+    animation: jo-pearl calc(var(--jo-bar) * 8) ease-in-out var(--delay) infinite;
+    will-change: transform, opacity;
+}
+
+.jo-ambient__pearl--left {
+    --dir: 1;
+    left: calc(4% + var(--lane) * 6%);
+}
+
+.jo-ambient__pearl--right {
+    --dir: -1;
+    right: calc(4% + var(--lane) * 6%);
+}
+
+@keyframes jo-pearl {
+    0% { opacity: 0; translate: 0 0; }
+    10% { opacity: 0.85; }
+    25% { translate: calc(var(--dir) * 0.9rem) -26vh; }
+    50% { translate: calc(var(--dir) * -0.3rem) -52vh; }
+    75% { opacity: 0.6; translate: calc(var(--dir) * 0.7rem) -78vh; }
+    100% { opacity: 0; translate: 0 -106vh; }
+}
+
+/* Las ondas de la melodía: solo mientras suena la música. Una por tiempo desde cada esquina de abajo, la
+   del primer tiempo más marcada; en silencio se apagan despacio y se detienen */
+.jo-ambient__rings {
+    position: absolute;
+    bottom: 6vh;
+    width: 48vmin;
+    aspect-ratio: 1;
+    opacity: 0;
+    transition: opacity 1.6s ease;
+}
+
+.jo-ambient__rings--left { left: -24vmin; }
+.jo-ambient__rings--right { right: -24vmin; }
+
+.jo-ambient__rings i {
+    position: absolute;
+    inset: 0;
+    border: 1.5px solid color-mix(in srgb, var(--tr-accent) 75%, transparent);
+    border-radius: 50%;
+    opacity: 0;
+    animation: jo-ring var(--jo-bar) ease-out calc(var(--n) * var(--jo-beat)) infinite;
+    animation-play-state: paused;
+}
+
+.jo-ambient__rings i:first-child {
+    border-width: 2.5px;
+}
+
+html.inv-music-on .jo-ambient__rings {
+    opacity: 1;
+}
+
+html.inv-music-on .jo-ambient__rings i {
+    animation-play-state: running;
+}
+
+@keyframes jo-ring {
+    0% { opacity: 0.6; scale: 0.15; }
+    100% { opacity: 0; scale: 1; }
+}
+
+@media (max-width: 767px) {
+    .jo-ambient__pearl--left { left: calc(0.5rem + var(--lane) * 1.1rem); }
+    .jo-ambient__pearl--right { right: calc(0.5rem + var(--lane) * 1.1rem); }
 }
 
 .inv-drift--joya {

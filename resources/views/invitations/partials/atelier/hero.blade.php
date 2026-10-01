@@ -2,7 +2,10 @@
     Portada de «Atelier»: el tablero de inspiración del taller. La foto va sujeta con dos alfileres,
     con muestras de tela asomando detrás; encima de su borde, la etiqueta tejida con su nombre como
     si fuera su propia casa de moda. Debajo, la ficha del desfile (fecha, hora y pasarela) con la firma
-    de la diseñadora, y al pie la cinta métrica. Estilos en themes/atelier.css.
+    de la diseñadora, y al pie la cinta métrica. Al abrirse la funda el tablero se arma pieza por
+    pieza (la foto se apoya, asoman las telas, se clavan los alfileres, se cose la etiqueta, llega la
+    ficha y se desenrolla la cinta); las telas quedan más atrás que la etiqueta al hacer scroll
+    (data-parallax). Estilos en themes/atelier.css.
 --}}
 @php
     $heroEyebrow = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? 'Mis XV años');
@@ -21,12 +24,12 @@
 </style>
 
 <header id="inicio" class="inv-hero at-hero">
-    <p class="at-kicker inv-fade-up">{{ $heroEyebrow }}</p>
+    <p class="at-kicker">{{ $heroEyebrow }}</p>
 
-    <div class="at-board inv-fade-up inv-fade-up--1">
+    <div class="at-board">
         {{-- Muestras de tela que asoman detrás de la foto, una a cada lado --}}
-        <span class="at-board__swatch at-board__swatch--left" aria-hidden="true"></span>
-        <span class="at-board__swatch at-board__swatch--right" aria-hidden="true"></span>
+        <span class="at-board__swatch at-board__swatch--left" data-parallax="-0.06" aria-hidden="true"></span>
+        <span class="at-board__swatch at-board__swatch--right" data-parallax="-0.06" aria-hidden="true"></span>
 
         <figure class="at-photo">
             <span class="at-photo__frame">
@@ -37,7 +40,7 @@
         </figure>
 
         {{-- La etiqueta tejida: su nombre es la casa --}}
-        <div class="at-label">
+        <div class="at-label" data-parallax="0.04">
             <span class="at-label__house">{{ $invCopy['atelier_house'] ?? 'Maison' }}</span>
             <h1 class="at-label__name">{{ $page->displayName }}</h1>
             <span class="at-label__line">{{ $invCopy['atelier_collection'] ?? 'Colección XV' }} · {{ $page->eventDate->format('Y') }}</span>
@@ -45,7 +48,7 @@
     </div>
 
     {{-- La ficha del desfile --}}
-    <div class="at-sheet inv-fade-up inv-fade-up--2">
+    <div class="at-sheet">
         <p class="at-sheet__title">
             <span>{{ $invCopy['atelier_sheet'] ?? 'Ficha del desfile' }}</span>
             <span class="at-sheet__code">N.º {{ $sheetCode }}</span>
@@ -70,7 +73,7 @@
     </div>
 
     @if(!empty($heroMessage))
-        <p class="at-message inv-fade-up inv-fade-up--3">{{ $heroMessage }}</p>
+        <p class="at-message">{{ $heroMessage }}</p>
     @endif
 
     <span class="at-tape at-tape--hero" aria-hidden="true"></span>

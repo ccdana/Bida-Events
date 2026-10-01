@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Http\Controllers\HomeController;
 use App\Services\InvitationModuleService;
+use App\Support\ColorContrast;
 use App\Support\InvitationDefaults;
 use App\Support\InvitationTemplates;
 use App\Support\ShowcaseDemos;
@@ -11,6 +12,7 @@ use App\Support\TrendTemplates;
 use Database\Seeders\ShowcaseInvitationsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -163,22 +165,102 @@ class LandingAndTemplateRevisionsTest extends TestCase
         $this->assertStringContainsString('Función de medianoche', $season);
     }
 
-    /** «Carta de baile» y «Galería Quince» se reemplazaron: sus invitaciones pasan al diseño nuevo sin perder nada. */
+    /**
+     * «Carta de baile», «Galería Quince» y después «Caleidoscopio» se reemplazaron: sus invitaciones
+     * pasan al diseño vigente sin perder nada («Galería Quince» y «Caleidoscopio» terminan en «El cambio
+     * de zapatos»).
+     */
     public function test_invitations_with_the_replaced_xv_templates_move_to_the_new_designs(): void
     {
         $carta = $this->createInvitation(['template' => 'invitations.templates.xv-carta-de-baile']);
         $galeria = $this->createInvitation(['template' => 'invitations.templates.xv-galeria']);
+        $caleidoscopio = $this->createInvitation(['template' => 'invitations.templates.xv-caleidoscopio']);
 
         (require database_path('migrations/2026_09_29_000001_replace_xv_templates.php'))->up();
+        (require database_path('migrations/2026_09_30_000001_replace_caleidoscopio_with_zapatos.php'))->up();
 
         $this->assertSame(TrendTemplates::key('cuento', 'xv'), $carta->fresh()->template);
-        $this->assertSame(TrendTemplates::key('caleidoscopio', 'xv'), $galeria->fresh()->template);
+        $this->assertSame(TrendTemplates::key('zapatos', 'xv'), $galeria->fresh()->template);
+        $this->assertSame(TrendTemplates::key('zapatos', 'xv'), $caleidoscopio->fresh()->template);
 
         // Un nombre viejo que llegue por otro lado (una sesión, un enlace del editor) también se resuelve
         $this->assertSame(TrendTemplates::key('cuento', 'xv'), InvitationDefaults::resolveTemplate('invitations.templates.xv-carta-de-baile'));
-        $this->assertSame(TrendTemplates::key('caleidoscopio', 'xv'), InvitationDefaults::resolveTemplate('invitations.templates.xv-galeria'));
+        $this->assertSame(TrendTemplates::key('zapatos', 'xv'), InvitationDefaults::resolveTemplate('invitations.templates.xv-galeria'));
+        $this->assertSame(TrendTemplates::key('zapatos', 'xv'), InvitationDefaults::resolveTemplate('invitations.templates.xv-caleidoscopio'));
 
         $this->withoutVite()->get(route('invitation.show', $carta->slug))->assertOk()->assertSee('inv-page inv-cuento', false);
+        $this->withoutVite()->get(route('invitation.show', $caleidoscopio->slug))->assertOk()->assertSee('inv-page inv-zapatos', false);
+    }
+
+    /**
+     * Al pasar a «El cambio de zapatos», los colores y letras que el cliente eligió se respetan; los de
+     * «Caleidoscopio» tal cual (la noche del visor, que no eran una elección) toman los de la plantilla nueva.
+     */
+    public function test_moved_caleidoscopio_invitations_keep_their_own_colors_and_drop_the_untouched_night(): void
+    {
+        $untouched = $this->createInvitation(['template' => 'invitations.templates.xv-caleidoscopio']);
+        $custom = $this->createInvitation(['template' => 'invitations.templates.xv-caleidoscopio']);
+        $theme = fn (int $id, array $colors, array $fonts) => DB::table('invitation_themes')->insert([
+            'invitation_id' => $id,
+            'color_primary' => $colors[0], 'color_secondary' => $colors[1], 'color_accent' => $colors[2],
+            'color_text' => $colors[3], 'color_background' => $colors[4],
+            'font_titles' => $fonts[0], 'font_body' => $fonts[1], 'font_script' => $fonts[2],
+            'created_at' => now(), 'updated_at' => now(),
+        ]);
+        $theme($untouched->id, ['#e0457b', '#2EC4B6', '#FFB84D', '#F5F1FF', '#14121F'], ['Bricolage Grotesque', 'Outfit', 'Instrument Serif']);
+        $theme($custom->id, ['#0E7C66', '#1B1B1B', '#F2E8CF', '#1B1B1B', '#FFFFFF'], ['Lora', 'Lato', 'Dancing Script']);
+
+        (require database_path('migrations/2026_09_30_000001_replace_caleidoscopio_with_zapatos.php'))->up();
+
+        $shoes = TrendTemplates::themes()['zapatos'];
+        $moved = DB::table('invitation_themes')->where('invitation_id', $untouched->id)->first();
+        $this->assertSame($shoes['palette']['background'], $moved->color_background);
+        $this->assertSame($shoes['palette']['text'], $moved->color_text);
+        $this->assertSame($shoes['fonts']['titulos'], $moved->font_titles);
+
+        $kept = DB::table('invitation_themes')->where('invitation_id', $custom->id)->first();
+        $this->assertSame('#0E7C66', $kept->color_primary);
+        $this->assertSame('#FFFFFF', $kept->color_background);
+        $this->assertSame('Lora', $kept->font_titles);
+        $this->assertSame(TrendTemplates::key('zapatos', 'xv'), $custom->fresh()->template);
+    }
+
+    /** Con cualquier paleta, también una oscura, el papel de las etiquetas y el de seda se leen con AA. */
+    public function test_the_shoes_template_stays_readable_with_a_dark_palette(): void
+    {
+        $template = TrendTemplates::key('zapatos', 'xv');
+
+        foreach ([
+            'oscura' => ['primary' => '#E0457B', 'secondary' => '#2EC4B6', 'accent' => '#FFB84D', 'text' => '#F5F1FF', 'background' => '#14121F'],
+            'clara con acento oscuro' => ['primary' => '#B5476B', 'secondary' => '#221C20', 'accent' => '#3A2F35', 'text' => '#241E21', 'background' => '#FBF6F1'],
+        ] as $name => $colors) {
+            $data = ShowcaseInvitationsSeeder::data('xv-isabella');
+            $data['modules']['config']['template'] = $template;
+            $data['modules']['config']['colores'] = $colors;
+            $invitation = $this->createInvitation(['template' => $template]);
+            app(InvitationModuleService::class)->syncAllModules($invitation, $data['modules']);
+
+            $html = $this->withoutVite()->get(route('invitation.show', $invitation->slug))->assertOk()->getContent();
+            preg_match('/--zp-paper: (#[0-9a-f]{6});/i', $html, $paper);
+            preg_match('/--zp-paper-ink: (#[0-9a-f]{6});/i', $html, $ink);
+            preg_match('/--zp-tissue-base: (#[0-9a-f]{6});/i', $html, $tissue);
+
+            $this->assertGreaterThanOrEqual(ColorContrast::AA_TEXT, ColorContrast::ratio($ink[1], $paper[1]), "Paleta {$name}: la tinta de las etiquetas");
+            $this->assertGreaterThanOrEqual(ColorContrast::AA_TEXT, ColorContrast::ratio($colors['text'], $tissue[1]), "Paleta {$name}: el texto sobre el papel de seda");
+        }
+    }
+
+    /** La muestra de «Caleidoscopio» toma el nombre de la nueva; una de un cliente con ese slug no se toca. */
+    public function test_the_caleidoscopio_demo_becomes_the_shoes_demo(): void
+    {
+        $demo = $this->createInvitation(['slug' => 'xv-isabella-caleidoscopio', 'template' => 'invitations.templates.xv-caleidoscopio']);
+
+        (require database_path('migrations/2026_09_30_000001_replace_caleidoscopio_with_zapatos.php'))->up();
+
+        $this->assertSame('xv-isabella-zapatos', $demo->fresh()->slug);
+        $this->assertSame(TrendTemplates::key('zapatos', 'xv'), $demo->fresh()->template);
+        $this->assertContains('xv-isabella-zapatos', TrendTemplates::demoSlugsFor('xv'));
+        $this->assertNotContains('xv-isabella-caleidoscopio', TrendTemplates::demoSlugsFor('xv'));
     }
 
     /** Aperturas mejoradas y fondos nuevos: lo que distingue a cada una en el HTML. */
@@ -194,11 +276,11 @@ class LandingAndTemplateRevisionsTest extends TestCase
             'Dos caminos' => [InvitationTemplates::BODA_DOS_CAMINOS, 'boda-camila-andres-caminos', ['dc-map__compass', 'dc-map__walk', 'animateMotion', 'dc-walk__heart']],
             'Móvil de cuna: el carrusel' => [TrendTemplates::key('movil', 'bautizo'), 'bautizo-emilia', ['mv-intro__projector', 'mv-intro__notes', 'mv-intro__light', 'mv-intro__window']],
             'Partitura a dos voces: la batuta' => [TrendTemplates::key('partitura', 'boda'), 'boda-camila-andres', ['pt-baton', 'pt-score__cover', 'pt-score__note--2', 'pt-score__heart']],
-            // Las cinco de XV, rehechas: la funda del Atelier, el libro desplegable, el visor del caleidoscopio,
-            // la llave del joyero y la caja del perfume, cada una con su fondo propio
-            'Atelier' => [InvitationTemplates::XV_PREMIUM, 'xv-isabella', ['at-zip__pull', 'at-sketch__gown', 'at-sheet__fields', 'at-ambient__tape--right', 'Toca el cierre para abrir la funda']],
+            // Las cinco de XV: la funda del Atelier (con el vestido adentro), el libro desplegable, la caja de
+            // la zapatería, la llave del joyero y la caja del perfume (en 3D, sobre su pedestal), cada una con su fondo propio
+            'Atelier' => [InvitationTemplates::XV_PREMIUM, 'xv-isabella', ['at-zip__pull', 'at-bag__lining', 'at-gown__sash', 'at-tag-card__name', 'at-sheet__fields', 'at-ambient__tape--right', 'Toca el cierre para abrir la funda']],
             'Cuento desplegable' => [TrendTemplates::key('cuento', 'xv'), 'xv-isabella', ['cu-popup__name', 'cu-cover__back', 'cu-message', 'cu-ambient__edge--left']],
-            'Caleidoscopio' => [TrendTemplates::key('caleidoscopio', 'xv'), 'xv-isabella', ['ka-scope__ring', 'ka-scope__center', 'ka-facet--wide', 'ka-ambient__mandala']],
+            'El cambio de zapatos' => [TrendTemplates::key('zapatos', 'xv'), 'xv-isabella', ['zp-sleeve__name', 'zp-pull__ribbon', 'zp-tissue--right', 'zp-seal', 'zp-open__print', 'zp-label__size', 'zp-ambient__step', 'Toca la caja para abrirla']],
             'Joyero musical' => [TrendTemplates::key('joyero', 'xv'), 'xv-isabella', ['jo-box__lining', 'jo-figure__svg', 'jo-case__tray', 'jo-ambient__quilt']],
             // Las dos de boda nuevas: la servilleta que se aparta del plato y los dos relojes que se vuelven uno
             'Mesa de honor' => [TrendTemplates::key('mesa', 'boda'), 'boda-camila-andres', ['ms-plate__monogram', 'ms-placecard__guest', 'ms-course__number', 'ms-ambient__glow--right']],
@@ -206,7 +288,7 @@ class LandingAndTemplateRevisionsTest extends TestCase
             // Las dos de cumpleaños nuevas: las hojas del almanaque que se arrancan y la cabina de fotos con su tira
             'Día feriado' => [TrendTemplates::key('feriado', 'cumple'), 'cumple-daniela-30', ['fd-leaf--day', 'fd-sticky', 'fd-month__day is-marked', 'fd-ambient__leaf--right']],
             'Cabina de fotos' => [TrendTemplates::key('cabina', 'cumple'), 'cumple-daniela-30', ['cb-booth__screen', 'cb-strip--intro', 'cb-intro__guest', 'cb-ambient__flash--right']],
-            'Esencia XV' => [TrendTemplates::key('esencia', 'xv'), 'xv-isabella', ['ez-mist', 'ez-intro__reveal', 'ez-tier--2', 'ez-ambient__mist--center']],
+            'Esencia XV' => [TrendTemplates::key('esencia', 'xv'), 'xv-isabella', ['ez-mist', 'ez-intro__reveal', 'ez-cube__lid', 'ez-band--across', 'ez-plinth__top', 'ez-tier--2', 'ez-ambient__mist--center']],
         ];
     }
 

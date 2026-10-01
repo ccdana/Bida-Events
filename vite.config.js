@@ -3,7 +3,7 @@ import laravel from 'laravel-vite-plugin';
 import tailwindcss from '@tailwindcss/vite';
 
 // Colección «tendencias»: cada plantilla carga solo su hoja (resources/css/invitation/tendencias)
-const tendencias = ['cuento', 'caleidoscopio', 'joyero', 'esencia', 'partitura', 'mesa', 'reloj', 'movil', 'estrellas', 'bordado', 'gira', 'feriado', 'cabina', 'revista', 'funcion', 'caldero', 'tendedero', 'bloques', 'encomienda'].map((design) => `resources/css/invitation/tendencias/${design}.css`);
+const tendencias = ['cuento', 'zapatos', 'joyero', 'esencia', 'partitura', 'mesa', 'reloj', 'movil', 'estrellas', 'bordado', 'gira', 'feriado', 'cabina', 'revista', 'funcion', 'caldero', 'tendedero', 'bloques', 'encomienda'].map((design) => `resources/css/invitation/tendencias/${design}.css`);
 // Plantillas rehechas sobre la misma base adaptable: también cargan solo su hoja (resources/css/invitation/themes)
 const temas = ['gota', 'nubes', 'birrete', 'atelier'].map((theme) => `resources/css/invitation/themes/${theme}.css`);
 

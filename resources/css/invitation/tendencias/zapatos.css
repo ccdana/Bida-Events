@@ -1,0 +1,1497 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   INVITACIÓN — «El cambio de zapatos» (XV años · colección tendencias)
+
+   La tradición más tierna de los quince: el papá le cambia las zapatillas
+   por sus primeros tacones. La invitación es la caja de la zapatería: se
+   entra tirando de la cinta del cajón, la funda se desliza, el papel de seda
+   se abre y aparecen los tacones con su nombre en la plantilla. La portada
+   es la caja abierta vista desde arriba (la foto entre las dos zapatillas)
+   con la etiqueta del costado (modelo, talla, fecha, hora y lugar); cada
+   sección es otra caja con su referencia, el programa son los pasos de la
+   noche como huellas de tacón y los padrinos, las cajas apiladas de la
+   vitrina con su etiqueta. Al fondo, pasos de vals que aparecen y se van.
+
+   Todo sale de la paleta del editor:
+     paredes de la tienda = fondo · textos = texto · el satén de las
+     zapatillas, el moño y los botones = principal · las cajas y sus letras =
+     secundario · el papel de seda y el dorado rosa = acento. Sobre la caja va
+     la tinta calculada para su color (--tr-ink-secondary) y sobre el satén,
+     la del principal; las etiquetas son de papel blanco.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+@import './_base.css';
+@import './_motion.css';
+
+.inv-zapatos {
+    --inv-radius: 0.3rem;
+    --zp-box: var(--tr-secondary);
+    --zp-box-ink: var(--tr-ink-secondary);
+    --zp-box-deep: color-mix(in srgb, var(--tr-secondary) 76%, #000);
+    --zp-box-lacquer: linear-gradient(135deg, color-mix(in srgb, var(--tr-secondary) 82%, #fff), var(--tr-secondary) 38%, var(--zp-box-deep));
+    --zp-foil: color-mix(in srgb, var(--tr-accent) 78%, #fff);
+    --zp-paper: color-mix(in srgb, var(--tr-bg) 30%, #fff);
+    /* El papel y su tinta, y la base del papel de seda: los calcula el servidor según la paleta
+       (zapatos/hero: claros sobre un fondo claro, oscuros sobre uno oscuro, siempre con AA) */
+    --zp-paper-ink: var(--tr-text);
+    --zp-tissue-base: color-mix(in srgb, var(--tr-accent) 55%, #fff);
+    --zp-line: color-mix(in srgb, var(--tr-text) 12%, transparent);
+    /* El papel de seda: el acento aclarado, con sus arrugas finas */
+    --zp-tissue:
+        repeating-linear-gradient(118deg, var(--zp-crinkle, rgb(255 255 255 / 0.4)) 0 1px, transparent 1px 8px),
+        repeating-linear-gradient(64deg, rgb(0 0 0 / 0.035) 0 1px, transparent 1px 11px),
+        var(--zp-tissue-base);
+    /* El empapelado de la tienda: rayas muy finas */
+    --zp-wall: repeating-linear-gradient(90deg, color-mix(in srgb, var(--tr-text) 3.5%, transparent) 0 1px, transparent 1px 1.6rem);
+    /* El moño, para filetes y viñetas */
+    --zp-bow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 20'%3E%3Cpath d='M20 10 C15 3 4 1 4 9 C4 16 14 15 20 10 C26 15 36 16 36 9 C36 1 25 3 20 10 Z M18 11 L14 20 L18 18 Z M22 11 L26 20 L22 18 Z'/%3E%3Ccircle cx='20' cy='10' r='3'/%3E%3C/svg%3E");
+    --zp-print: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 72'%3E%3Cpath d='M15 2 C24 2 28 13 27 26 C26 37 22 44 15 44 C8 44 4 37 3 26 C2 13 6 2 15 2 Z'/%3E%3Cellipse cx='15' cy='62' rx='5' ry='6'/%3E%3C/svg%3E");
+    /* Cada sección llega como una caja que se baja del estante */
+    --themed-from: translate3d(0, 22px, 0) scale(0.98);
+
+    background: var(--zp-wall), var(--tr-bg);
+    counter-reset: zp-box;
+}
+
+.inv-zapatos.has-player {
+    padding-bottom: calc(5.25rem + env(safe-area-inset-bottom));
+}
+
+/* ── La zapatilla (zapatos/shoe) ───────────────────────────────────────── */
+
+.zp-shoe {
+    display: block;
+    height: auto;
+    overflow: visible;
+    filter: drop-shadow(0 6px 5px rgb(0 0 0 / 0.25));
+}
+
+.zp-satin__edge { stop-color: color-mix(in srgb, var(--tr-primary) 66%, #000); }
+.zp-satin__light { stop-color: color-mix(in srgb, var(--tr-primary) 55%, #fff); }
+.zp-satin__mid { stop-color: var(--tr-primary); }
+.zp-insole__light { stop-color: color-mix(in srgb, var(--tr-accent) 45%, #fff); }
+.zp-insole__dark { stop-color: color-mix(in srgb, var(--tr-accent) 80%, var(--tr-text) 8%); }
+
+.zp-shoe__sole { fill: color-mix(in srgb, var(--tr-primary) 45%, #1a0f13); }
+
+/* El tacón aguja, del mismo satén oscurecido, y su tapita */
+.zp-heel__dark { stop-color: color-mix(in srgb, var(--tr-primary) 40%, #120a0d); }
+.zp-heel__light { stop-color: color-mix(in srgb, var(--tr-primary) 70%, #fff); }
+.zp-shoe__tip { fill: #1a1416; }
+.zp-shoe__shine { fill: #fff; opacity: 0.35; }
+.zp-shoe__mouth { fill: color-mix(in srgb, var(--tr-primary) 55%, #000); }
+
+.zp-shoe__stitch {
+    fill: none;
+    stroke: color-mix(in srgb, var(--tr-accent) 55%, var(--tr-text));
+    stroke-width: 0.5;
+    stroke-dasharray: 1.4 1.2;
+    opacity: 0.6;
+}
+
+.zp-shoe__cup { fill: rgb(0 0 0 / 0.12); }
+
+.zp-shoe__name {
+    font-family: var(--font-script);
+    font-size: 11px;
+    fill: color-mix(in srgb, var(--tr-primary) 72%, #000);
+}
+
+.zp-shoe__bow path:first-child,
+.zp-shoe__bow circle {
+    fill: color-mix(in srgb, var(--tr-primary) 82%, #000);
+}
+
+.zp-shoe__bow-fold {
+    fill: none;
+    stroke: color-mix(in srgb, var(--tr-primary) 45%, #fff);
+    stroke-width: 0.7;
+    stroke-linecap: round;
+}
+
+/* ── Apertura: la caja de cajón de la zapatería ─────────────────────────────
+   Medidas con --zp-w (el ancho de la caja). La funda tapa el cajón; la cinta
+   asoma abajo. */
+
+.zp-intro.inv-themed-intro {
+    --zp-w: min(66vw, 17rem, 33svh);
+    gap: clamp(0.8rem, 2.4svh, 1.3rem);
+    padding: calc(1.5rem + env(safe-area-inset-top)) 1.25rem calc(1.5rem + env(safe-area-inset-bottom));
+    background:
+        radial-gradient(60% 46% at 50% 46%, color-mix(in srgb, #fff 55%, transparent), transparent 75%),
+        var(--zp-wall),
+        var(--tr-bg);
+    color: var(--tr-text);
+    cursor: pointer;
+}
+
+/* La luz de la vitrina sobre la mesa */
+.zp-intro__light {
+    position: absolute;
+    top: -8%;
+    left: 50%;
+    width: min(120vw, 40rem);
+    height: 85%;
+    margin-left: min(-60vw, -20rem);
+    background: radial-gradient(50% 55% at 50% 35%, color-mix(in srgb, var(--tr-accent) 40%, transparent), transparent 72%);
+    pointer-events: none;
+}
+
+.zp-intro__eyebrow {
+    position: relative;
+    margin: 0;
+    padding-left: 0.46em;
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.46em;
+    text-transform: uppercase;
+    color: var(--inv-accent-ink);
+    transition: opacity 0.5s ease;
+}
+
+.zp-box {
+    position: relative;
+    width: var(--zp-w);
+    aspect-ratio: 3 / 4.15;
+    margin-bottom: calc(var(--zp-w) * 0.14);
+    filter: drop-shadow(0 24px 22px rgb(0 0 0 / 0.25));
+}
+
+/* El cajón: el borde de la caja, el fondo de papel de seda y adentro los tacones */
+.zp-tray {
+    position: absolute;
+    inset: 0;
+    border-radius: calc(var(--zp-w) * 0.025);
+    background: var(--zp-box-lacquer);
+    perspective: 900px;
+}
+
+.zp-tray__floor {
+    position: absolute;
+    inset: 4.5%;
+    border-radius: calc(var(--zp-w) * 0.012);
+    background: var(--zp-tissue);
+    box-shadow: inset 0 0 calc(var(--zp-w) * 0.08) rgb(0 0 0 / 0.28);
+}
+
+.zp-tray__pair {
+    position: absolute;
+    inset: 7% 12%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6%;
+}
+
+.zp-tray__shoe {
+    width: auto;
+    height: 94%;
+}
+
+.zp-tray__shoe--right {
+    rotate: 180deg;
+}
+
+/* Los destellos sobre el satén cuando se abre el papel */
+.zp-tray__sparkles i {
+    position: absolute;
+    top: var(--y);
+    left: var(--x);
+    width: calc(var(--zp-w) * 0.07);
+    aspect-ratio: 1;
+    margin: calc(var(--zp-w) * -0.035);
+    background: #fff;
+    clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%);
+    opacity: 0;
+}
+
+/* El papel de seda: dos hojas que se juntan al medio */
+.zp-tissue {
+    position: absolute;
+    top: 4.5%;
+    bottom: 4.5%;
+    width: 45.5%;
+    background: var(--zp-tissue);
+    box-shadow: 0 0 calc(var(--zp-w) * 0.03) rgb(0 0 0 / 0.12);
+    transition: transform 0.95s cubic-bezier(0.55, 0, 0.25, 1) 0.15s, opacity 0.5s ease 0.6s;
+}
+
+.zp-tissue--left {
+    left: 4.5%;
+    border-radius: 0 0.3rem 0.3rem 0;
+    transform-origin: 0 50%;
+}
+
+.zp-tissue--right {
+    right: 4.5%;
+    border-radius: 0.3rem 0 0 0.3rem;
+    transform-origin: 100% 50%;
+}
+
+/* El sello con su inicial, que cierra el papel */
+.zp-seal {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: grid;
+    place-items: center;
+    width: calc(var(--zp-w) * 0.2);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    translate: -50% -50%;
+    background:
+        radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--tr-primary) 55%, #fff), var(--tr-primary) 55%, color-mix(in srgb, var(--tr-primary) 75%, #000));
+    box-shadow: 0 3px 5px rgb(0 0 0 / 0.3), inset 0 0 0 2px color-mix(in srgb, var(--tr-primary) 55%, #fff);
+    color: var(--tr-ink-primary);
+    font-family: var(--font-titles);
+    font-size: calc(var(--zp-w) * 0.09);
+    line-height: 1;
+    transition: scale 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease 0.1s;
+}
+
+/* La funda de laca, con su nombre como marca y la etiqueta de modelo y talla */
+.zp-sleeve {
+    position: absolute;
+    inset: -2% -2.5%;
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    gap: calc(var(--zp-w) * 0.025);
+    padding: 12% 10% 30%;
+    border-radius: calc(var(--zp-w) * 0.03);
+    background:
+        linear-gradient(115deg, transparent 30%, rgb(255 255 255 / 0.07) 42%, transparent 54%),
+        var(--zp-box-lacquer);
+    color: var(--zp-box-ink);
+    text-align: center;
+    transition: translate 0.95s cubic-bezier(0.6, 0, 0.25, 1) 0.2s, opacity 0.45s ease 0.75s;
+}
+
+/* El filete dorado de la funda */
+.zp-sleeve__frame {
+    position: absolute;
+    inset: calc(var(--zp-w) * 0.045);
+    border: 1px solid color-mix(in srgb, var(--zp-foil) 70%, transparent);
+    border-radius: calc(var(--zp-w) * 0.015);
+    pointer-events: none;
+}
+
+.zp-sleeve__made,
+.zp-sleeve__line {
+    padding-left: 0.36em;
+    font-size: calc(var(--zp-w) * 0.036);
+    font-weight: 600;
+    letter-spacing: 0.36em;
+    text-transform: uppercase;
+    color: var(--zp-foil);
+}
+
+.zp-sleeve__name {
+    font-family: var(--font-titles);
+    font-size: calc(var(--zp-w) * 0.11);
+    line-height: 1.06;
+    text-wrap: balance;
+    overflow-wrap: break-word;
+}
+
+.zp-sleeve__line {
+    margin-top: calc(var(--zp-w) * 0.01);
+}
+
+/* La etiqueta de papel pegada en la funda */
+.zp-sleeve__label {
+    position: absolute;
+    right: 12%;
+    bottom: 9%;
+    left: 12%;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.6rem;
+    padding: calc(var(--zp-w) * 0.035) calc(var(--zp-w) * 0.045);
+    border-radius: 2px;
+    background: var(--zp-paper);
+    color: var(--zp-paper-ink);
+    font-family: var(--font-titles);
+    font-size: calc(var(--zp-w) * 0.05);
+    line-height: 1.15;
+    text-align: left;
+    box-shadow: 0 2px 4px rgb(0 0 0 / 0.25);
+}
+
+.zp-sleeve__label small {
+    display: block;
+    font-family: var(--font-body);
+    font-size: calc(var(--zp-w) * 0.028);
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--inv-muted);
+}
+
+/* La cinta del cajón, que asoma abajo */
+.zp-pull {
+    position: absolute;
+    top: 97%;
+    left: 50%;
+    width: calc(var(--zp-w) * 0.18);
+    height: calc(var(--zp-w) * 0.2);
+    padding: 0;
+    border: 0;
+    background: none;
+    translate: -50% 0;
+    cursor: pointer;
+    transition: opacity 0.4s ease 0.55s;
+}
+
+.zp-pull__ribbon {
+    position: absolute;
+    inset: 0 22%;
+    background: linear-gradient(90deg, color-mix(in srgb, var(--tr-primary) 70%, #000), var(--tr-primary) 30%, color-mix(in srgb, var(--tr-primary) 60%, #fff) 52%, var(--tr-primary) 72%, color-mix(in srgb, var(--tr-primary) 70%, #000));
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%);
+    transform-origin: 50% 0;
+    animation: zp-tug 3.4s ease-in-out 1.4s infinite;
+}
+
+.zp-pull:focus-visible {
+    outline: none;
+}
+
+.zp-pull:focus-visible .zp-pull__ribbon {
+    outline: 2px solid var(--tr-text);
+    outline-offset: 3px;
+}
+
+/* Su nombre, cuando aparecen los tacones */
+.zp-intro__reveal {
+    position: absolute;
+    top: 7%;
+    right: 1.25rem;
+    left: 1.25rem;
+    z-index: 2;
+    display: grid;
+    justify-items: center;
+    gap: 0.3rem;
+    margin: 0;
+    font-family: var(--font-titles);
+    font-size: clamp(1.9rem, 9vw, 2.8rem);
+    line-height: 1.08;
+    text-align: center;
+    text-wrap: balance;
+    opacity: 0;
+    translate: 0 0.6rem;
+    transition: opacity 0.8s ease 0.75s, translate 1s var(--tr-ease) 0.75s;
+}
+
+.zp-intro__reveal small {
+    padding-left: 0.4em;
+    font-family: var(--font-body);
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--inv-accent-ink);
+}
+
+.zp-intro__meta {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    gap: 0.2rem;
+    transition: opacity 0.45s ease;
+}
+
+.zp-intro__date {
+    margin: 0;
+    font-family: var(--font-titles);
+    font-size: 1.2rem;
+    letter-spacing: 0.04em;
+}
+
+.zp-intro__guest,
+.zp-intro__hint {
+    position: relative;
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--inv-muted);
+}
+
+.zp-intro__hint {
+    animation: zp-hint 2.6s ease-in-out 1.5s infinite;
+    transition: opacity 0.3s ease;
+}
+
+@keyframes zp-tug {
+    0%, 62%, 100% { translate: 0 0; scale: 1; }
+    70% { translate: 0 0.3rem; scale: 1 1.06; }
+    80% { translate: 0 0; scale: 1; }
+}
+
+@keyframes zp-hint {
+    50% { translate: 0 -3px; }
+}
+
+@keyframes zp-sparkle {
+    0%, 100% { opacity: 0; scale: 0.2; rotate: 0deg; }
+    45% { opacity: 1; scale: 1; rotate: 45deg; }
+}
+
+@keyframes zp-sheen {
+    0% { opacity: 0; translate: -120% 0; }
+    30%, 70% { opacity: 1; }
+    100% { opacity: 0; translate: 120% 0; }
+}
+
+/* El brillo que recorre el satén cuando se abre el papel */
+.zp-tray::after {
+    content: '';
+    position: absolute;
+    inset: 4.5%;
+    background: linear-gradient(105deg, transparent 35%, rgb(255 255 255 / 0.45) 50%, transparent 65%);
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* 1 · Se tira de la cinta: la cinta se estira y la funda se desliza hacia arriba */
+.zp-intro.is-pulled .zp-pull__ribbon {
+    animation: none;
+    translate: 0 0.5rem;
+    scale: 1 1.12;
+    transition: translate 0.3s ease, scale 0.3s ease;
+}
+
+.zp-intro.is-pulled .zp-pull {
+    opacity: 0;
+}
+
+.zp-intro.is-pulled .zp-sleeve {
+    translate: 0 -118%;
+    opacity: 0;
+}
+
+.zp-intro.is-pulled :is(.zp-intro__hint, .zp-intro__eyebrow, .zp-intro__meta) {
+    opacity: 0;
+    animation: none;
+}
+
+/* 2 · Salta el sello, el papel se abre hacia los dos lados y aparecen los tacones con su brillo */
+.zp-intro.is-open .zp-seal {
+    scale: 1.35;
+    opacity: 0;
+}
+
+.zp-intro.is-open .zp-tissue--left {
+    transform: rotateY(-176deg) scaleX(0.32);
+}
+
+.zp-intro.is-open .zp-tissue--right {
+    transform: rotateY(176deg) scaleX(0.32);
+}
+
+.zp-intro.is-open .zp-tray::after {
+    animation: zp-sheen 1.1s ease-in-out 0.75s;
+}
+
+.zp-intro.is-open .zp-tray__sparkles i {
+    animation: zp-sparkle 0.9s ease-out calc(0.95s + var(--n) * 0.12s);
+}
+
+.zp-intro.is-open .zp-intro__reveal {
+    opacity: 1;
+    translate: 0 0;
+}
+
+.zp-intro.is-open {
+    animation-delay: 1.6s;
+}
+
+/* ── Portada: la caja abierta ───────────────────────────────────────────── */
+
+.zp-hero {
+    align-content: start;
+    justify-items: center;
+    gap: 0.6rem;
+    min-height: 100svh;
+    padding: calc(4.75rem + env(safe-area-inset-top)) 1.25rem 1.5rem;
+    background:
+        radial-gradient(70% 40% at 50% 36%, color-mix(in srgb, var(--tr-accent) 40%, transparent), transparent 72%),
+        var(--zp-wall),
+        var(--tr-bg);
+    color: var(--tr-text);
+    text-align: center;
+}
+
+.zp-kicker,
+.zp-brand__line {
+    margin: 0;
+    padding-left: 0.42em;
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.42em;
+    text-transform: uppercase;
+    color: var(--inv-accent-ink);
+}
+
+.zp-brand {
+    margin: 0.2rem 0 0;
+    font-family: var(--font-titles);
+    font-size: clamp(2.4rem, 11vw, 3.8rem);
+    font-weight: 500;
+    line-height: 1.02;
+    text-wrap: balance;
+    overflow-wrap: break-word;
+}
+
+/* La caja abierta: el borde de laca, el fondo de papel de seda y adentro la foto y las zapatillas */
+.zp-open {
+    position: relative;
+    width: min(88vw, 24rem);
+    margin: 1.1rem 0 0.4rem;
+}
+
+.zp-open__tray {
+    position: relative;
+    display: grid;
+    grid-template-columns: 19% 1fr 19%;
+    align-items: center;
+    gap: 3%;
+    padding: 6% 5%;
+    border-radius: 0.5rem;
+    background: var(--zp-tissue);
+    box-shadow:
+        inset 0 0 0 0.55rem var(--zp-box),
+        inset 0 0 0 0.6rem var(--zp-box-deep),
+        inset 0 0 1.8rem 0.6rem rgb(0 0 0 / 0.22),
+        0 26px 30px -24px rgb(0 0 0 / 0.55);
+}
+
+/* El papel de seda doblado sobre el borde, a cada lado */
+.zp-open__tissue {
+    position: absolute;
+    top: 7%;
+    bottom: 7%;
+    z-index: 1;
+    width: 6%;
+    background: var(--zp-tissue);
+    box-shadow: 0 2px 8px rgb(0 0 0 / 0.14);
+}
+
+.zp-open__tissue--left {
+    left: -3%;
+    border-radius: 0.4rem 0.2rem 0.2rem 0.4rem;
+    transform-origin: 100% 50%;
+}
+
+.zp-open__tissue--right {
+    right: -3%;
+    border-radius: 0.2rem 0.4rem 0.4rem 0.2rem;
+    transform-origin: 0 50%;
+}
+
+.zp-open__shoe {
+    display: block;
+}
+
+.zp-open__shoe .zp-shoe {
+    width: 100%;
+}
+
+.zp-open__shoe--right .zp-shoe {
+    rotate: 180deg;
+}
+
+.zp-open__photo {
+    margin: 0;
+}
+
+/* La foto como una lámina impresa, con su borde blanco */
+.zp-open__print {
+    display: block;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    border: 0.4rem solid var(--zp-paper);
+    background: var(--tr-accent);
+    box-shadow: 0 10px 16px -8px rgb(0 0 0 / 0.45);
+}
+
+.zp-open__print .tr-photo-empty {
+    font-family: var(--font-titles);
+}
+
+/* La etiqueta del costado de la caja: modelo, fecha, hora, lugar, código y talla */
+.zp-label {
+    width: min(100%, 22rem);
+    margin-top: 0.6rem;
+    padding: 0.95rem 1.1rem 0.85rem;
+    border-radius: 0.2rem;
+    background: var(--zp-paper);
+    box-shadow: inset 0 0 0 1px var(--zp-line), 0 14px 22px -18px rgb(0 0 0 / 0.5);
+    color: var(--zp-paper-ink);
+    text-align: left;
+}
+
+.zp-label__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    margin: 0 0 0.7rem;
+    padding-bottom: 0.55rem;
+    border-bottom: 1.5px solid var(--zp-paper-ink);
+}
+
+.zp-label__head span,
+.zp-label__fields dt {
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--inv-muted);
+}
+
+.zp-label__head strong {
+    font-family: var(--font-titles);
+    font-size: 1.15rem;
+    font-weight: 600;
+    text-align: right;
+}
+
+.zp-label__fields {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.6rem 1rem;
+    margin: 0;
+}
+
+.zp-label__wide {
+    grid-column: 1 / -1;
+}
+
+.zp-label__fields dd {
+    margin: 0.12rem 0 0;
+    font-family: var(--font-titles);
+    font-size: 1.15rem;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.zp-label__foot {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+    align-items: end;
+    column-gap: 1rem;
+    margin-top: 0.85rem;
+    padding-top: 0.7rem;
+    border-top: 1px dashed var(--zp-line);
+}
+
+/* El código de barras: barras de distinto grosor */
+.zp-label__bars {
+    height: 1.6rem;
+    background:
+        repeating-linear-gradient(90deg, var(--zp-paper-ink) 0 1px, transparent 1px 3px, var(--zp-paper-ink) 3px 5px, transparent 5px 6px, var(--zp-paper-ink) 6px 7px, transparent 7px 10px);
+    opacity: 0.85;
+}
+
+.zp-label__code {
+    grid-column: 1;
+    font-size: 0.62rem;
+    letter-spacing: 0.32em;
+    font-variant-numeric: tabular-nums;
+    color: var(--inv-muted);
+}
+
+/* La talla en su recuadro */
+.zp-label__size {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    display: grid;
+    justify-items: center;
+    min-width: 3rem;
+    padding: 0.3rem 0.5rem;
+    border: 1.5px solid var(--zp-paper-ink);
+    font-family: var(--font-titles);
+    font-size: 1.35rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.zp-label__size small {
+    font-family: var(--font-body);
+    font-size: 0.5rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+.zp-message {
+    max-width: 34ch;
+    margin: 0.9rem 0 0;
+    line-height: 1.7;
+    color: var(--inv-muted);
+    text-wrap: pretty;
+}
+
+.zp-hero__scroll {
+    color: var(--tr-text);
+}
+
+@media (min-width: 900px) {
+    .zp-hero {
+        grid-template-columns: minmax(0, 25rem) minmax(0, 21rem);
+        justify-content: center;
+        align-content: center;
+        column-gap: 3.5rem;
+    }
+
+    .zp-kicker,
+    .zp-brand,
+    .zp-brand__line,
+    .zp-message,
+    .zp-hero__scroll {
+        grid-column: 1 / -1;
+    }
+
+    .zp-open,
+    .zp-label {
+        grid-row: 4;
+        align-self: center;
+    }
+}
+
+/* ── Secciones: cada una, otra caja abierta con su referencia ──────────── */
+
+.inv-zapatos main > .inv-section {
+    counter-increment: zp-box;
+    border-top: 0;
+    padding-block: 1.7rem 0.6rem;
+}
+
+.inv-zapatos main > .inv-section > .inv-wrap {
+    position: relative;
+    width: calc(100% - 1.5rem);
+    padding-block: 3.2rem 2.6rem;
+    border-radius: 0.5rem;
+    background: var(--zp-tissue);
+    box-shadow:
+        inset 0 0 0 0.45rem var(--zp-box),
+        inset 0 0 0 0.5rem var(--zp-box-deep),
+        inset 0 0 1.6rem 0.5rem rgb(0 0 0 / 0.12),
+        0 22px 32px -26px rgb(0 0 0 / 0.5);
+}
+
+/* La referencia de la caja: una etiqueta de papel en la esquina */
+.inv-zapatos main > .inv-section > .inv-wrap::before {
+    content: var(--zp-ref-label, "Ref.") " " counter(zp-box, decimal-leading-zero);
+    position: absolute;
+    top: 0.95rem;
+    right: 1.05rem;
+    padding: 0.25rem 0.5rem 0.22rem;
+    border-radius: 2px;
+    background: var(--zp-paper);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.2);
+    font-size: 0.56rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--zp-paper-ink);
+}
+
+.inv-zapatos .invitation-lottie-framed {
+    display: none;
+}
+
+.inv-zapatos .inv-head__eyebrow {
+    padding-left: 0.3em;
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.3em;
+    color: var(--inv-accent-ink);
+}
+
+.inv-zapatos .inv-head__title {
+    font-size: clamp(2.3rem, 10vw, 3.4rem);
+    font-weight: 500;
+}
+
+/* El filete: una línea fina con un moño de satén al medio */
+.inv-zapatos .inv-head__rule {
+    position: relative;
+    width: 7.5rem;
+    height: 1rem;
+    background: linear-gradient(var(--tr-primary), var(--tr-primary)) 0 50% / 100% 1px no-repeat;
+    opacity: 1;
+}
+
+.inv-zapatos .inv-head__rule::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 2rem;
+    height: 1rem;
+    margin-left: -1rem;
+    background: var(--tr-primary);
+    -webkit-mask: var(--zp-bow) center / contain no-repeat;
+    mask: var(--zp-bow) center / contain no-repeat;
+}
+
+.inv-zapatos .inv-head__rule::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 2.6rem;
+    height: 1rem;
+    margin-left: -1.3rem;
+    z-index: -1;
+    background: var(--zp-tissue-base);
+}
+
+.inv-zapatos .inv-head {
+    isolation: isolate;
+}
+
+.inv-zapatos :is(.inv-label, .inv-link, .inv-btn, .inv-countdown__label) {
+    letter-spacing: 0.16em;
+}
+
+/* Botones de satén; la letra es la tinta calculada para ese color */
+.inv-zapatos .inv-btn {
+    min-height: 3.15rem;
+    border: 0;
+    border-radius: 2rem;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--tr-primary) 82%, #fff), var(--tr-primary) 55%, color-mix(in srgb, var(--tr-primary) 88%, #000));
+    color: var(--tr-ink-primary);
+    box-shadow: 0 12px 20px -14px rgb(0 0 0 / 0.55), inset 0 1px 0 rgb(255 255 255 / 0.25);
+}
+
+.inv-zapatos .inv-btn--ghost {
+    background: var(--zp-paper);
+    color: var(--zp-paper-ink);
+    box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--tr-primary) 45%, transparent);
+}
+
+.inv-zapatos .inv-btn:focus-visible {
+    outline: 2px solid var(--tr-text);
+    outline-offset: 3px;
+}
+
+.inv-zapatos .inv-choice {
+    border: 1.5px solid color-mix(in srgb, var(--tr-text) 18%, transparent);
+    border-radius: 2rem;
+    background: var(--zp-paper);
+    font-family: var(--font-titles);
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.inv-zapatos .inv-choice.is-selected {
+    border-color: var(--tr-primary);
+    background: var(--tr-primary);
+    color: var(--tr-ink-primary);
+}
+
+.inv-zapatos .inv-input {
+    border-bottom: 1.5px solid color-mix(in srgb, var(--tr-text) 30%, transparent);
+}
+
+.inv-zapatos .inv-input:focus {
+    border-bottom-color: var(--tr-primary);
+}
+
+.inv-zapatos .inv-poll__option,
+.inv-zapatos .inv-stepper__btn {
+    border-color: color-mix(in srgb, var(--tr-text) 18%, transparent);
+    background: var(--zp-paper);
+}
+
+/* Cuenta regresiva: cada cifra en la etiqueta de una caja */
+.inv-zapatos .inv-countdown__grid {
+    gap: 0.45rem;
+    border-block: 0;
+}
+
+.inv-zapatos .inv-countdown__unit,
+.inv-zapatos .inv-countdown__unit + .inv-countdown__unit {
+    border: 0;
+    border-radius: 0.2rem;
+    background: var(--zp-paper);
+    box-shadow: inset 0 0 0 1px var(--zp-line), inset 0 4px 0 var(--zp-box), 0 10px 14px -10px rgb(0 0 0 / 0.4);
+}
+
+.inv-zapatos .inv-countdown__value {
+    font-family: var(--font-titles);
+    font-weight: 600;
+    color: var(--zp-paper-ink);
+}
+
+.inv-zapatos .inv-gallery__card {
+    border-radius: 0.15rem;
+    box-shadow: 0 0 0 0.4rem var(--zp-paper), 0 24px 32px -22px rgb(0 0 0 / 0.55);
+}
+
+/* Vestimenta: cada color es una muestra de satén, redonda y con su brillo */
+.inv-zapatos .inv-dress__swatch {
+    border-radius: 50%;
+    box-shadow: inset -4px -6px 10px rgb(0 0 0 / 0.18), inset 4px 4px 8px rgb(255 255 255 / 0.35), 0 0 0 3px var(--zp-paper);
+}
+
+.inv-zapatos .inv-pass {
+    border: 0;
+    border-radius: 0.2rem;
+    background: var(--zp-paper);
+    box-shadow: inset 0 0 0 1px var(--zp-line), inset 0 4px 0 var(--zp-box);
+}
+
+/* ── Programa: los pasos de la noche ────────────────────────────────────── */
+
+.zp-steps {
+    display: grid;
+    gap: 1.35rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    text-align: left;
+}
+
+.zp-step {
+    display: grid;
+    grid-template-columns: 4rem 1fr;
+    align-items: start;
+    column-gap: 0.9rem;
+}
+
+/* La huella: izquierda y derecha, como quien camina */
+.zp-step__print {
+    justify-self: center;
+    width: 2rem;
+    translate: -0.45rem 0;
+    rotate: -9deg;
+}
+
+.zp-step--right .zp-step__print {
+    translate: 0.45rem 0;
+    rotate: 9deg;
+}
+
+.zp-step__print svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+}
+
+.zp-step__sole,
+.zp-step__heel {
+    fill: var(--zp-paper);
+    stroke: var(--zp-box);
+    stroke-width: 1.4;
+}
+
+.zp-step__number {
+    font-family: var(--font-titles);
+    font-size: 15px;
+    font-weight: 700;
+    fill: var(--zp-paper-ink);
+}
+
+/* El momento del cambio de zapatos: la huella llena y su sello */
+.zp-step.is-moment .zp-step__sole,
+.zp-step.is-moment .zp-step__heel {
+    fill: var(--tr-primary);
+    stroke: color-mix(in srgb, var(--tr-primary) 70%, #000);
+}
+
+.zp-step.is-moment .zp-step__number {
+    fill: var(--tr-ink-primary);
+}
+
+.zp-step__seal {
+    display: inline-block;
+    margin-bottom: 0.35rem;
+    padding: 0.28rem 1rem 0.26rem 0.9rem;
+    background: var(--tr-primary);
+    color: var(--tr-ink-primary);
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    clip-path: polygon(0 0, 100% 0, 94% 50%, 100% 100%, 0 100%);
+}
+
+.zp-step__time {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    color: var(--inv-accent-ink);
+    font-variant-numeric: tabular-nums;
+}
+
+.zp-step__title {
+    margin: 0.12rem 0 0;
+    font-family: var(--font-titles);
+    font-size: 1.4rem;
+    font-weight: 600;
+    line-height: 1.15;
+}
+
+.zp-step__text {
+    margin: 0.3rem 0 0;
+    font-size: 0.9rem;
+    line-height: 1.55;
+    color: var(--inv-muted);
+}
+
+/* ── Padrinos: la vitrina de cajas ──────────────────────────────────────── */
+
+.zp-shelf {
+    display: grid;
+    gap: 1.1rem 1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+/* La caja vista por su costado: laca, con la tapa encima */
+.zp-shelf__box {
+    position: relative;
+    padding: 1.55rem 0.85rem 0.85rem;
+    border-radius: 0.25rem;
+    background: var(--zp-box-lacquer);
+    box-shadow: 0 16px 22px -16px rgb(0 0 0 / 0.55);
+    -webkit-tap-highlight-color: transparent;
+}
+
+.zp-shelf__lid {
+    position: absolute;
+    top: 0;
+    right: -0.25rem;
+    left: -0.25rem;
+    height: 0.95rem;
+    border-radius: 0.2rem 0.2rem 0 0;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--tr-secondary) 78%, #fff), var(--tr-secondary));
+    box-shadow: 0 3px 4px -1px rgb(0 0 0 / 0.45);
+}
+
+/* La etiqueta de papel pegada en el costado */
+.zp-shelf__label {
+    display: grid;
+    justify-items: center;
+    gap: 0.3rem;
+    padding: 0.95rem 0.9rem 0.75rem;
+    border-radius: 2px;
+    background: var(--zp-paper);
+    color: var(--zp-paper-ink);
+    text-align: center;
+    box-shadow: 0 2px 4px rgb(0 0 0 / 0.3);
+}
+
+.zp-shelf__role {
+    display: grid;
+    gap: 0.1rem;
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--inv-accent-ink);
+}
+
+.zp-shelf__role small {
+    font-size: 0.52rem;
+    letter-spacing: 0.24em;
+    color: var(--inv-muted);
+}
+
+.zp-shelf__names {
+    font-family: var(--font-titles);
+    font-size: 1.32rem;
+    font-weight: 600;
+    line-height: 1.2;
+    text-wrap: balance;
+}
+
+.zp-shelf__note {
+    max-width: 30ch;
+    font-size: 0.86rem;
+    font-style: italic;
+    line-height: 1.5;
+    color: var(--inv-muted);
+}
+
+.zp-shelf__foot {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: end;
+    gap: 0.8rem;
+    width: 100%;
+    margin-top: 0.45rem;
+    padding-top: 0.55rem;
+    border-top: 1px dashed var(--zp-line);
+}
+
+.zp-shelf__foot .zp-label__bars {
+    height: 1.1rem;
+}
+
+.zp-shelf__size {
+    display: grid;
+    justify-items: center;
+    min-width: 2.4rem;
+    padding: 0.2rem 0.35rem;
+    border: 1.5px solid var(--zp-paper-ink);
+    font-family: var(--font-titles);
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.zp-shelf__size small {
+    font-family: var(--font-body);
+    font-size: 0.46rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.zp-court {
+    display: grid;
+    gap: 1.6rem;
+    margin-top: 2.2rem;
+    padding-top: 1.8rem;
+    border-top: 1px solid var(--zp-line);
+}
+
+.zp-court__title {
+    margin: 0 0 0.8rem;
+    font-family: var(--font-script);
+    font-size: 2rem;
+    font-weight: 400;
+    text-align: center;
+    color: var(--inv-accent-ink);
+}
+
+.zp-court__list {
+    display: grid;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    text-align: center;
+}
+
+.zp-court__name {
+    font-family: var(--font-titles);
+    font-size: 1.12rem;
+    font-weight: 600;
+}
+
+/* Cada nombre con su moñito */
+.zp-court__name::before {
+    content: '';
+    display: inline-block;
+    width: 1.05rem;
+    height: 0.55rem;
+    margin-right: 0.45rem;
+    vertical-align: 0.1em;
+    background: var(--tr-primary);
+    -webkit-mask: var(--zp-bow) center / contain no-repeat;
+    mask: var(--zp-bow) center / contain no-repeat;
+}
+
+.zp-court__list small {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--inv-muted);
+}
+
+@media (min-width: 560px) {
+    .zp-shelf,
+    .zp-court {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* ── Movimiento ─────────────────────────────────────────────────────────────
+   Gestos comunes en tendencias/_motion.css. El compás es el del vals del
+   fondo: 0,6 s por huella; los pasos del programa se marcan al mismo ritmo. */
+
+/* La portada al abrirse la caja: el nombre aparece, el cajón se asienta, el papel se abre sobre el
+   borde, sube la foto, se apoyan las zapatillas (primero la izquierda) y se pega la etiqueta */
+.zp-hero .zp-kicker {
+    animation: tr-fade 0.9s ease backwards;
+}
+
+.zp-brand {
+    animation: zp-emerge 1.4s var(--tr-ease) 0.1s backwards;
+}
+
+.zp-brand__line {
+    animation: tr-fade 0.9s ease 0.4s backwards;
+}
+
+.zp-open__tray {
+    --tr-rise: 1.4rem;
+    animation: tr-rise 1s var(--tr-ease) 0.25s backwards;
+}
+
+.zp-open__tissue {
+    animation: zp-fold 0.8s var(--tr-ease) 0.6s backwards;
+}
+
+.zp-open__photo {
+    --tr-settle-turn: 0deg;
+    animation: tr-settle 1s var(--tr-ease) 0.55s backwards;
+}
+
+.zp-open__shoe--left .zp-shoe {
+    --tr-settle-turn: -10deg;
+    animation: zp-place 0.9s var(--tr-ease) 0.85s backwards;
+}
+
+.zp-open__shoe--right .zp-shoe {
+    --tr-settle-turn: 190deg;
+    animation: zp-place 0.9s var(--tr-ease) 1s backwards;
+}
+
+.zp-label {
+    animation: zp-stick 0.9s var(--tr-ease) 1.25s backwards;
+}
+
+.zp-message {
+    animation: tr-fade 1s ease 1.5s backwards;
+}
+
+.zp-hero__scroll {
+    animation: tr-fade 0.8s ease 1.8s backwards;
+}
+
+@keyframes zp-emerge {
+    from { opacity: 0; scale: 1.06; translate: 0 0.3rem; }
+}
+
+@keyframes zp-fold {
+    from { opacity: 0; scale: 0 1; }
+}
+
+/* Se apoya la zapatilla: baja apenas girada y queda en su lugar (la derecha va al revés: 180°) */
+@keyframes zp-place {
+    from { opacity: 0; translate: 0 -0.9rem; rotate: var(--tr-settle-turn); scale: 1.08; }
+}
+
+@keyframes zp-stick {
+    0% { opacity: 0; translate: 0 1.2rem; rotate: -3deg; }
+    70% { rotate: 0.6deg; }
+}
+
+/* Secciones: la etiqueta de la referencia se pega y el moño del filete salta */
+.inv-zapatos main > :is(.reveal.is-visible, .inv-scene.is-active) > .inv-wrap::before {
+    animation: zp-stick 0.7s var(--tr-ease) 0.35s backwards;
+}
+
+.inv-zapatos :is(.reveal.is-visible, .inv-scene.is-active) .inv-head__rule::before {
+    animation: tr-pop 0.6s var(--tr-ease) 0.45s backwards;
+}
+
+/* Programa: cada huella se marca a su turno, como pasos; el texto llega después de la huella */
+.zp-step {
+    --zp-at: calc(0.3s + var(--step, 0) * 0.3s);
+    --step-anim: tr-fade;
+}
+
+html:not(.no-js) .inv-zapatos .reveal:not(.is-visible) .zp-step[data-step] {
+    transform: none;
+}
+
+.inv-zapatos .reveal .zp-step[data-step] {
+    transition: none;
+}
+
+.inv-zapatos :is(.reveal.is-visible, .inv-scene.is-active) .zp-step__print svg {
+    animation: zp-stamp 0.55s var(--tr-ease) var(--zp-at) backwards;
+}
+
+.inv-zapatos :is(.reveal.is-visible, .inv-scene.is-active) .zp-step__body {
+    --tr-rise: 0.7rem;
+    animation: tr-rise 0.7s var(--tr-ease) calc(var(--zp-at) + 0.15s) backwards;
+}
+
+.inv-zapatos :is(.reveal.is-visible, .inv-scene.is-active) .zp-step.is-moment .zp-step__seal {
+    animation: tr-pop 0.6s var(--tr-ease) calc(var(--zp-at) + 0.45s) backwards;
+}
+
+/* La huella se marca: baja sobre el piso y queda */
+@keyframes zp-stamp {
+    0% { opacity: 0; scale: 1.5; translate: 0 -0.4rem; }
+    55% { opacity: 1; scale: 0.94; translate: 0 0; }
+    80% { scale: 1.03; }
+}
+
+/* Padrinos: cada caja sale de la vitrina y su etiqueta queda pegada */
+.zp-shelf__box {
+    --zp-at: calc(0.3s + var(--step, 0) * 0.15s);
+    --step-anim: zp-shelf-in;
+}
+
+html:not(.no-js) .inv-zapatos .reveal:not(.is-visible) .zp-shelf__box[data-step] {
+    transform: none;
+}
+
+.inv-zapatos .reveal .zp-shelf__box[data-step] {
+    transition: translate 0.45s var(--tr-spring);
+}
+
+html:not(.inv-story-on) .inv-zapatos .reveal.is-visible .zp-shelf__box[data-step] {
+    animation: zp-shelf-in 0.85s var(--tr-ease) var(--zp-at) backwards;
+}
+
+.inv-zapatos :is(.reveal.is-visible, .inv-scene.is-active) .zp-shelf__label {
+    animation: zp-stick 0.7s var(--tr-ease) calc(var(--zp-at) + 0.35s) backwards;
+}
+
+.inv-zapatos :is(.reveal.is-visible, .inv-scene.is-active) .zp-court__list li {
+    --tr-rise: 0.6rem;
+    animation: tr-rise 0.6s var(--tr-ease) calc(0.4s + var(--i, 0) * 70ms) backwards;
+}
+
+@keyframes zp-shelf-in {
+    from { opacity: 0; translate: 0 1.2rem; scale: 0.96; }
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .inv-zapatos .reveal .zp-shelf__box[data-step]:hover {
+        translate: 0 -0.25rem;
+    }
+
+    .zp-open__shoe .zp-shoe {
+        transition: translate 0.5s var(--tr-spring);
+    }
+
+    .zp-open:hover .zp-open__shoe--left .zp-shoe { translate: -0.2rem -0.3rem; }
+    .zp-open:hover .zp-open__shoe--right .zp-shoe { translate: 0.2rem 0.3rem; }
+}
+
+/* ── Fondo: los pasos del vals ──────────────────────────────────────────── */
+
+.inv-zapatos .inv-themed-bg__glow {
+    background:
+        radial-gradient(40% 30% at 20% 22%, color-mix(in srgb, var(--tr-accent) 40%, transparent), transparent 70%),
+        radial-gradient(40% 30% at 80% 74%, color-mix(in srgb, var(--tr-primary) 9%, transparent), transparent 70%);
+}
+
+.zp-ambient__light {
+    position: absolute;
+    top: -20vh;
+    left: 50%;
+    width: 120vw;
+    height: 60vh;
+    margin-left: -60vw;
+    background: radial-gradient(closest-side, color-mix(in srgb, var(--tr-accent) 30%, transparent), transparent);
+    opacity: 0.7;
+}
+
+/* Un recorrido de seis huellas por costado; el derecho, en espejo */
+.zp-ambient__trail {
+    position: absolute;
+    bottom: 8vh;
+    left: max(0.6rem, 4vw);
+    width: 3.4rem;
+    height: 62vh;
+}
+
+.zp-ambient__trail--right {
+    right: max(0.6rem, 4vw);
+    left: auto;
+    scale: -1 1;
+}
+
+.zp-ambient__step {
+    position: absolute;
+    bottom: calc(var(--n) * 16%);
+    left: 0;
+    width: 1.3rem;
+    aspect-ratio: 30 / 72;
+    background: var(--tr-primary);
+    -webkit-mask: var(--zp-print) center / contain no-repeat;
+    mask: var(--zp-print) center / contain no-repeat;
+    rotate: -12deg;
+    opacity: 0;
+    animation: zp-waltz 3.6s ease-in-out calc(var(--n) * 0.6s) infinite;
+}
+
+/* Izquierda, derecha: la huella impar va corrida, como el otro pie */
+.zp-ambient__step:nth-child(even) {
+    left: 1.6rem;
+    rotate: 12deg;
+}
+
+@keyframes zp-waltz {
+    0% { opacity: 0; scale: 0.8; }
+    10% { opacity: 0.28; scale: 1; }
+    45% { opacity: 0.16; }
+    70%, 100% { opacity: 0; scale: 1; }
+}
+
+@media (max-width: 767px) {
+    .zp-ambient__trail {
+        left: 0.3rem;
+        width: 2.4rem;
+    }
+
+    .zp-ambient__trail--right {
+        right: 0.3rem;
+    }
+
+    .zp-ambient__step {
+        width: 1rem;
+    }
+
+    .zp-ambient__step:nth-child(even) {
+        left: 1.1rem;
+    }
+}
+
+.inv-drift--brillo {
+    --drift-a: color-mix(in srgb, var(--tr-accent) 60%, #fff);
+    --drift-b: color-mix(in srgb, var(--tr-primary) 45%, #fff);
+    opacity: 0.6;
+}
+
+/* ── Pie e historia ─────────────────────────────────────────────────────── */
+
+.inv-zapatos .inv-zapatos-footer {
+    border-top: 0;
+}
+
+.inv-zapatos-footer .inv-footer__ornament--line {
+    width: 7.5rem;
+    height: 1rem;
+    background: linear-gradient(var(--tr-primary), var(--tr-primary)) 0 50% / 100% 1px no-repeat;
+}
+
+/* Modo historia: cada escena es una caja que se baja del estante */
+.inv-story-invitation .inv-zapatos .inv-scene {
+    --story-scene-bg: var(--tr-bg);
+    translate: 0 8%;
+    scale: 0.97;
+    opacity: 0;
+    transition: translate 0.75s var(--tr-ease), scale 0.75s var(--tr-ease), opacity 0.5s ease, visibility 0s linear 0.75s;
+}
+
+.inv-story-invitation .inv-zapatos .inv-scene.is-past {
+    translate: 0 -6%;
+}
+
+.inv-story-invitation .inv-zapatos .inv-scene.is-active {
+    translate: 0 0;
+    scale: 1;
+    opacity: 1;
+    transition-delay: 0s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .zp-pull__ribbon,
+    .zp-intro__hint {
+        animation: none !important;
+    }
+}

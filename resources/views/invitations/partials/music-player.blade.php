@@ -60,9 +60,17 @@ function musicPlayer(src, autoplay) {
             const audio = this.$refs.audio;
             audio.volume = this.volume;
 
-            // El botón refleja lo que pasa de verdad (también si se pausa desde la pantalla de bloqueo)
-            audio.addEventListener('play', () => { this.playing = true; this.started = true; });
-            audio.addEventListener('pause', () => { this.playing = false; });
+            // El botón refleja lo que pasa de verdad (también si se pausa desde la pantalla de bloqueo).
+            // La página también lo sabe (html.inv-music-on): «Joyero musical» mueve su fondo al compás.
+            audio.addEventListener('play', () => {
+                this.playing = true;
+                this.started = true;
+                document.documentElement.classList.add('inv-music-on');
+            });
+            audio.addEventListener('pause', () => {
+                this.playing = false;
+                document.documentElement.classList.remove('inv-music-on');
+            });
 
             const leave = () => {
                 if (!audio.paused) {

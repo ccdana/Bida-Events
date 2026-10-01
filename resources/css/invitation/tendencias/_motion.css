@@ -1,0 +1,135 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   INVITACIÓN — Movimiento de autor (Atelier, Esencia XV, Cuento desplegable,
+   Joyero musical y Mesa de honor)
+
+   La importan solo esas hojas, así que sus reglas no alcanzan a otras
+   plantillas. Tres capas que se mueven con un mismo reloj:
+
+   1. La portada: cada pieza entra con el gesto de su tema, una tras otra. No
+      empieza hasta que la apertura se retira (nueva.css pausa lo que hay en
+      .inv-hero mientras html.inv-cover-waiting).
+   2. El fondo: la escena propia de cada tema (.tr-scene) espera a la apertura
+      igual que la portada, y sus ciclos son múltiplos del compás de su tema
+      (cada hoja lo anota), así el fondo y los detalles laten juntos.
+   3. Las secciones: al aparecer (.reveal.is-visible) o al ser la escena activa
+      del modo historia, sus piezas hacen el gesto del tema. En el modo
+      historia las que tienen [data-step] lo hacen con --step-anim.
+
+   Además, los toques ([data-poke], themed-motion.js) y la música: mientras
+   suena, la página lleva html.inv-music-on (partials/music-player).
+
+   Reglas del movimiento:
+   - Solo transform y opacity, con translate/rotate/scale sueltos: se suman al
+     parallax de themed-motion.js, que escribe transform en línea.
+   - Las entradas terminan en el estado de reposo y usan fill backwards: al
+     terminar vuelven a sus estilos, así el hover y los toques siguen andando.
+   - Con movimiento reducido no se anima nada y todo queda en su lugar.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* ── Gestos comunes ─────────────────────────────────────────────────────── */
+
+/* Sube y aparece (--tr-rise: desde cuánto más abajo) */
+@keyframes tr-rise {
+    from { opacity: 0; translate: 0 var(--tr-rise, 1.25rem); }
+}
+
+/* Baja y aparece */
+@keyframes tr-fall-in {
+    from { opacity: 0; translate: 0 calc(var(--tr-rise, 1.25rem) * -1); }
+}
+
+@keyframes tr-fade {
+    from { opacity: 0; }
+}
+
+/* Se apoya: cae apenas girada, rebota un poco y se asienta */
+@keyframes tr-settle {
+    0% { opacity: 0; translate: 0 -1.4rem; rotate: var(--tr-settle-turn, -4deg); scale: 1.05; }
+    55% { opacity: 1; translate: 0 0.18rem; }
+    80% { translate: 0 -0.05rem; }
+}
+
+/* Se clava: un alfiler, una gema, un broche */
+@keyframes tr-press {
+    0% { opacity: 0; scale: 1.9; }
+    55% { opacity: 1; scale: 0.86; }
+    78% { scale: 1.06; }
+}
+
+/* Salta a su lugar */
+@keyframes tr-pop {
+    0% { opacity: 0; scale: 0.35; }
+    58% { opacity: 1; scale: 1.1; }
+    80% { scale: 0.97; }
+}
+
+/* Se pone de pie desde su pliegue, como las piezas de un desplegable (origen abajo, el padre lleva perspective) */
+@keyframes tr-stand {
+    0% { opacity: 0; rotate: x var(--tr-stand-from, 82deg); }
+    35% { opacity: 1; }
+    68% { rotate: x -7deg; }
+    86% { rotate: x 2.5deg; }
+    100% { rotate: x 0deg; }
+}
+
+/* Se desenrolla a lo ancho o a lo alto (el origen dice desde dónde) */
+@keyframes tr-unroll-x {
+    from { scale: 0 1; }
+}
+
+@keyframes tr-unroll-y {
+    from { scale: 1 0; }
+}
+
+/* Cuelga y se mece hasta quedarse quieta: --tr-tilt es su inclinación de reposo, --tr-swing el primer vaivén */
+@keyframes tr-swing {
+    0% { opacity: 0; rotate: calc(var(--tr-tilt, 0deg) + var(--tr-swing, 14deg)); }
+    16% { opacity: 1; }
+    38% { rotate: calc(var(--tr-tilt, 0deg) - var(--tr-swing, 14deg) * 0.55); }
+    60% { rotate: calc(var(--tr-tilt, 0deg) + var(--tr-swing, 14deg) * 0.28); }
+    80% { rotate: calc(var(--tr-tilt, 0deg) - var(--tr-swing, 14deg) * 0.1); }
+    100% { rotate: var(--tr-tilt, 0deg); }
+}
+
+/* Un destello de cuatro puntas que se enciende y se apaga */
+@keyframes tr-glint {
+    0%, 100% { opacity: 0; scale: 0.2; rotate: 0deg; }
+    45% { opacity: 1; scale: 1; rotate: 45deg; }
+}
+
+/* ── Sincronía con la apertura ──────────────────────────────────────────── */
+
+/* La escena del fondo espera a que se abra la invitación, como la portada */
+html.inv-cover-waiting .tr-scene,
+html.inv-cover-waiting .tr-scene * {
+    animation-play-state: paused !important;
+}
+
+.tr-scene {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+/* ── Movimiento reducido ────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+    .tr-scene *,
+    .tr-scene *::before,
+    .tr-scene *::after,
+    .inv-trend .inv-hero *,
+    .inv-trend .inv-hero *::before,
+    .inv-trend .inv-hero *::after,
+    .inv-trend .reveal *,
+    .inv-trend .reveal *::before,
+    .inv-trend .reveal *::after {
+        animation: none !important;
+    }
+
+    .inv-trend .inv-hero *,
+    .inv-trend .reveal * {
+        transition-duration: 0.01ms !important;
+    }
+}

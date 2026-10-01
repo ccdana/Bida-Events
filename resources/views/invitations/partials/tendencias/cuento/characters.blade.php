@@ -32,7 +32,7 @@
                 <ul class="cu-characters">
                     @foreach($padrinos as $index => $padrino)
                         <li class="cu-character" data-step style="--step: {{ $index }}">
-                            <span class="cu-character__medal" aria-hidden="true">{{ $initialOf($padrino['nombres']) }}</span>
+                            <span class="cu-character__medal" data-poke="pop" aria-hidden="true">{{ $initialOf($padrino['nombres']) }}</span>
                             @if(!empty($padrino['rol']))
                                 <span class="cu-character__role">{{ $padrino['rol'] }}</span>
                             @endif
@@ -52,7 +52,7 @@
                             <h3 class="cu-cast__title">{{ $label }}</h3>
                             <ul class="cu-cast__list">
                                 @foreach($people as $person)
-                                    <li>
+                                    <li style="--i: {{ $loop->index }}">
                                         <span class="cu-cast__name">{{ $person['nombre'] }}</span>
                                         @if(!empty($person['detalle']))
                                             <small>{{ $person['detalle'] }}</small>

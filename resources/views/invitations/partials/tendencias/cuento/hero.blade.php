@@ -2,8 +2,10 @@
     Portada de «Cuento desplegable»: la primera página del cuento. Arriba el titulillo con el nombre del
     libro; la foto es la lámina, dentro de un arco con dos capas de papel detrás que asoman como un
     desplegable; debajo, su nombre como título del cuento, «Érase una vez…» y el mensaje con su letra
-    capitular. Al pie, el colofón con la fecha, la hora y el lugar, y el número de página. Estilos en
-    css/invitation/tendencias/cuento.css.
+    capitular. Al pie, el colofón con la fecha, la hora y el lugar, y el número de página. Al abrirse
+    el libro la lámina se levanta capa por capa como un desplegable, el título se pone de pie y el
+    texto aparece línea a línea; al hacer scroll las capas de papel se separan (data-parallax). Estilos
+    en css/invitation/tendencias/cuento.css.
 --}}
 @php
     $heroEyebrow = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? 'Mis XV años');
@@ -20,7 +22,7 @@
 </style>
 
 <header id="inicio" class="inv-hero cu-hero">
-    <div class="cu-leaf inv-fade-up">
+    <div class="cu-leaf">
         <p class="cu-running">
             <span>{{ $invCopy['book_title'] ?? 'El cuento de' }} {{ $firstName }}</span>
             <span>{{ $chapterLabel }} I</span>
@@ -28,8 +30,8 @@
 
         {{-- La lámina: la foto en su arco, con las capas de papel del desplegable detrás --}}
         <figure class="cu-plate">
-            <span class="cu-plate__layer cu-plate__layer--back" aria-hidden="true"></span>
-            <span class="cu-plate__layer cu-plate__layer--mid" aria-hidden="true"></span>
+            <span class="cu-plate__layer cu-plate__layer--back" data-parallax="-0.06" aria-hidden="true"></span>
+            <span class="cu-plate__layer cu-plate__layer--mid" data-parallax="-0.03" aria-hidden="true"></span>
             <span class="cu-plate__photo">
                 @include('invitations.partials.tendencias.photo', ['widths' => [480, 768, 1200], 'width' => 768, 'sizes' => '(min-width: 640px) 17rem, 62vw'])
             </span>

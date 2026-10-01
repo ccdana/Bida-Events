@@ -2,7 +2,9 @@
     Portada de «Mesa de honor»: el cubierto puesto. Arriba la tarjeta del lugar con los nombres en
     caligrafía; al centro el plato de porcelana con la foto pintada adentro y su filete de oro, entre el
     tenedor y el cuchillo con la cuchara; debajo, el menú de la celebración con el día, la hora y el
-    salón, y el mensaje. Estilos en css/invitation/tendencias/mesa.css.
+    salón, y el mensaje. Al quitarse la servilleta la tarjeta se pone de pie, el plato se apoya y su
+    filete gira hasta su lugar, los cubiertos se colocan a los lados y llega el menú (al tocar la
+    tarjeta se tambalea: data-poke). Estilos en css/invitation/tendencias/mesa.css.
 --}}
 @php
     $heroEyebrow = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? 'Nos casamos');
@@ -12,13 +14,13 @@
 @endphp
 
 <header id="inicio" class="inv-hero ms-hero">
-    <p class="ms-kicker inv-fade-up">{{ $heroEyebrow }}</p>
+    <p class="ms-kicker">{{ $heroEyebrow }}</p>
 
-    <div class="ms-tent inv-fade-up inv-fade-up--1">
+    <div class="ms-tent" data-poke="tip">
         <h1 class="ms-tent__names">{{ $page->displayName }}</h1>
     </div>
 
-    <div class="ms-hero__setting inv-fade-up inv-fade-up--1">
+    <div class="ms-hero__setting">
         @include('invitations.partials.tendencias.mesa.cutlery', ['piece' => 'fork', 'class' => 'ms-hero__fork'])
         <div class="ms-plate ms-plate--hero">
             <span class="ms-plate__photo">
@@ -32,7 +34,7 @@
     </div>
 
     {{-- El menú de la celebración --}}
-    <div class="ms-menu inv-fade-up inv-fade-up--2">
+    <div class="ms-menu">
         <p class="ms-menu__title">{{ $invCopy['table_menu'] ?? 'Menú de la celebración' }}</p>
         <dl class="ms-menu__fields">
             <div>
@@ -53,7 +55,7 @@
     </div>
 
     @if(!empty($heroMessage))
-        <p class="ms-message inv-fade-up inv-fade-up--3">{{ $heroMessage }}</p>
+        <p class="ms-message">{{ $heroMessage }}</p>
     @endif
 
     <a href="#contenido" class="inv-hero__scroll ms-hero__scroll">

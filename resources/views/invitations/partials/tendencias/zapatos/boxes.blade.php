@@ -1,7 +1,8 @@
 {{--
-    Corte de «Atelier»: los padrinos son etiquetas colgadas del perchero del taller, cada una con su
-    hilo, su papel, sus nombres y su mensaje. La corte de honor va como el orden de salida del
-    desfile: damas y chambelanes, cada nombre con su número de look. Recibe $data (módulo destacados).
+    Padrinos de «El cambio de zapatos»: la vitrina de la zapatería. Cada padrino es una caja apilada,
+    vista por su costado, con la tapa encima y la etiqueta pegada: su papel como el modelo, sus nombres,
+    su mensaje como la nota de la etiqueta, el código de barras y la talla. La corte va en dos columnas,
+    cada nombre con su moño. Recibe $data (módulo destacados).
 --}}
 @php
     $normalizePerson = fn ($persona) => is_array($persona)
@@ -14,7 +15,7 @@
     ]);
 @endphp
 
-<section class="inv-section reveal at-court-section" id="destacados">
+<section class="inv-section reveal zp-boxes-section" id="destacados">
     <div class="inv-wrap">
         @include('invitations.partials.section-header', [
             'eyebrow' => $invCopy['court_eyebrow'] ?? 'Quienes me acompañan',
@@ -24,41 +25,43 @@
 
         @if(count($padrinos) || count($court))
             @if(count($padrinos))
-                <div class="at-rack">
-                    <span class="at-rack__bar" aria-hidden="true"></span>
-                    <ul class="at-tags">
-                        @foreach($padrinos as $index => $padrino)
-                            <li class="at-tag" data-step data-poke="swing" style="--step: {{ $index }}">
-                                <span class="at-tag__hole" aria-hidden="true"></span>
+                <ul class="zp-shelf">
+                    @foreach($padrinos as $index => $padrino)
+                        <li class="zp-shelf__box" data-step data-poke="pop" style="--step: {{ $index }}">
+                            <span class="zp-shelf__lid" aria-hidden="true"></span>
+                            <span class="zp-shelf__label">
                                 @if(!empty($padrino['rol']))
-                                    <span class="at-tag__role">{{ $padrino['rol'] }}</span>
+                                    <span class="zp-shelf__role"><small>{{ $invCopy['shoe_model'] ?? 'Modelo' }}</small>{{ $padrino['rol'] }}</span>
                                 @endif
-                                <span class="at-tag__names">{{ $padrino['nombres'] }}</span>
+                                <span class="zp-shelf__names">{{ $padrino['nombres'] }}</span>
                                 @if(!empty($padrino['mensaje']))
-                                    <span class="at-tag__message">{{ $padrino['mensaje'] }}</span>
+                                    <span class="zp-shelf__note">{{ $padrino['mensaje'] }}</span>
                                 @endif
-                            </li>
-                        @endforeach
-                    </ul>
-                </div>
+                                <span class="zp-shelf__foot" aria-hidden="true">
+                                    <span class="zp-label__bars"></span>
+                                    <span class="zp-shelf__size"><small>{{ $invCopy['shoe_ref'] ?? 'Ref.' }}</small>{{ str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) }}</span>
+                                </span>
+                            </span>
+                        </li>
+                    @endforeach
+                </ul>
             @endif
 
             @if(count($court))
-                <div class="at-lineup">
+                <div class="zp-court">
                     @foreach($court as $label => $people)
-                        <div class="at-lineup__group">
-                            <h3 class="at-lineup__title">{{ $label }}</h3>
-                            <ol class="at-lineup__list">
+                        <div class="zp-court__group">
+                            <h3 class="zp-court__title">{{ $label }}</h3>
+                            <ul class="zp-court__list">
                                 @foreach($people as $person)
                                     <li style="--i: {{ $loop->index }}">
-                                        <span class="at-lineup__look">{{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
-                                        <span class="at-lineup__name">{{ $person['nombre'] }}</span>
+                                        <span class="zp-court__name">{{ $person['nombre'] }}</span>
                                         @if(!empty($person['detalle']))
                                             <small>{{ $person['detalle'] }}</small>
                                         @endif
                                     </li>
                                 @endforeach
-                            </ol>
+                            </ul>
                         </div>
                     @endforeach
                 </div>
