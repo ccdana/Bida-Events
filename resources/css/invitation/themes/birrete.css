@@ -161,9 +161,12 @@
     background: none;
     cursor: pointer;
     filter: drop-shadow(0 18px 18px color-mix(in srgb, var(--tr-secondary) 30%, transparent));
-    animation:
-        inv-fade-up 1.1s var(--tr-ease) 0.55s both,
-        br-float 4.5s ease-in-out 1.7s infinite;
+    animation: inv-fade-up 1.1s var(--tr-ease) 0.55s both;
+}
+
+/* El birrete flota en el dibujo: así el cabeceo y el lanzamiento del botón no cortan el vaivén */
+.br-intro__cap .br-cap {
+    animation: br-float 4.5s ease-in-out 1.7s infinite;
 }
 
 .br-intro__shadow {
@@ -177,20 +180,16 @@
     filter: blur(6px);
 }
 
-/* La borla de la izquierda todavía no está: aparece cuando pasa */
-.br-intro .br-cap__tassel--left .br-cap__cord--board {
-    stroke-dasharray: 1;
-    stroke-dashoffset: 1;
+/* En la apertura cruza una sola borla, la de la derecha: la de la izquierda no se dibuja. Mientras
+   cruza, el cordón del tablero se cambia por el cordón en vuelo, que va del botón hasta ella */
+.br-intro .br-cap__tassel--left {
+    display: none;
 }
 
-.br-intro .br-cap__tassel--left .br-cap__hang {
+.br-cap__cord--live {
     opacity: 0;
-    animation: none;
-}
-
-.br-intro .br-cap__tassel--right .br-cap__cord--board {
-    stroke-dasharray: 1;
-    stroke-dashoffset: 0;
+    transform-origin: 120px 78px;
+    vector-effect: non-scaling-stroke;
 }
 
 /* Destellos donde cae la borla */
@@ -239,35 +238,32 @@
     opacity: 0;
 }
 
-/* 1 · La borla sube, cruza el tablero y cae del otro lado meciéndose */
+/* 1 · La borla se levanta, cruza el tablero por encima y cae del otro lado meciéndose hasta calmarse:
+   un péndulo amortiguado que responde a cómo se la lleva (keyframes calculados, ver br-carry). El
+   cordón la sigue desde el botón todo el tiempo, así que nunca hay un cuadro sin borla ni sin cordón */
 .br-intro.is-turning .br-intro__cap {
     animation: br-cap-nod 0.9s ease-in-out forwards;
 }
 
-.br-intro.is-turning .br-cap__tassel--right .br-cap__hang {
-    animation: br-lift-right 0.45s cubic-bezier(0.5, 0, 0.8, 0.4) forwards;
-}
-
 .br-intro.is-turning .br-cap__tassel--right .br-cap__cord--board {
-    transition: stroke-dashoffset 0.35s ease-in 0.3s;
-    stroke-dashoffset: 1;
+    opacity: 0;
 }
 
-.br-intro.is-turning .br-cap__tassel--left .br-cap__cord--board {
-    transition: stroke-dashoffset 0.35s ease-out 0.6s;
-    stroke-dashoffset: 0;
+.br-intro.is-turning .br-cap__tassel--right .br-cap__hang {
+    animation: br-carry 1.9s linear forwards;
 }
 
-.br-intro.is-turning .br-cap__tassel--left .br-cap__hang {
-    animation: br-drop-left 1.1s cubic-bezier(0.3, 0.6, 0.4, 1) 0.85s both;
+.br-intro.is-turning .br-cap__cord--live {
+    opacity: 1;
+    animation: br-cord-follow 1.9s linear forwards;
 }
 
 .br-intro.is-turning .br-intro__spark {
-    animation: br-spark 0.8s ease-out calc(1.05s + var(--i) * 0.03s) forwards;
+    animation: br-spark 0.8s ease-out calc(0.8s + var(--i) * 0.03s) forwards;
 }
 
 .br-intro.is-turning .br-intro__cheer {
-    animation: br-cheer 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 1.05s forwards;
+    animation: br-cheer 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.95s forwards;
 }
 
 .br-intro.is-turning :is(.br-intro__hint, .br-intro__eyebrow) {
@@ -305,19 +301,93 @@
     100% { rotate: 0deg; }
 }
 
-@keyframes br-lift-right {
-    0% { rotate: 0deg; opacity: 1; }
-    100% { rotate: -110deg; opacity: 0; }
+/* El cambio de borla, calculado: el punto del que cuelga recorre un arco del canto derecho (204,88) al
+   izquierdo (36,88) en 0,85 s y la borla es un péndulo amortiguado (largo 70, se calma en ~1 s) que se
+   queda atrás al cruzar y se pasa al llegar. br-cord-follow lleva el cordón del botón (120,78) a ese
+   punto: lo gira y lo estira (el trazo de base mide 100). translate y rotate se componen alrededor
+   del canto, por eso los dos coinciden en cada cuadro */
+@keyframes br-carry {
+    0% { translate: 0.0px 0.0px; rotate: 0.0deg; }
+    2.63% { translate: 0.2px -1.2px; rotate: 0.1deg; }
+    5.26% { translate: 0.4px -4.7px; rotate: 0.3deg; }
+    7.89% { translate: -0.1px -10.5px; rotate: -0.2deg; }
+    10.53% { translate: -2.5px -18.1px; rotate: -2.1deg; }
+    13.16% { translate: -8.7px -26.9px; rotate: -6.2deg; }
+    15.79% { translate: -20.4px -35.9px; rotate: -12.9deg; }
+    18.42% { translate: -39.3px -43.8px; rotate: -22.3deg; }
+    21.05% { translate: -65.9px -48.8px; rotate: -33.5deg; }
+    23.68% { translate: -97.7px -48.8px; rotate: -44.0deg; }
+    26.32% { translate: -124.7px -43.8px; rotate: -47.2deg; }
+    28.95% { translate: -144.3px -35.9px; rotate: -41.7deg; }
+    31.58% { translate: -156.9px -26.9px; rotate: -28.3deg; }
+    34.21% { translate: -163.8px -18.1px; rotate: -9.4deg; }
+    36.84% { translate: -167.0px -10.5px; rotate: 10.8deg; }
+    39.47% { translate: -168.0px -4.7px; rotate: 27.8deg; }
+    42.11% { translate: -168.1px -1.2px; rotate: 38.4deg; }
+    44.74% { translate: -168.0px 0.0px; rotate: 41.4deg; }
+    47.37% { translate: -168.0px 0.0px; rotate: 38.1deg; }
+    50% { translate: -168.0px 0.0px; rotate: 30.3deg; }
+    52.63% { translate: -168.0px 0.0px; rotate: 19.5deg; }
+    55.26% { translate: -168.0px 0.0px; rotate: 7.7deg; }
+    57.89% { translate: -168.0px 0.0px; rotate: -3.4deg; }
+    60.53% { translate: -168.0px 0.0px; rotate: -12.4deg; }
+    63.16% { translate: -168.0px 0.0px; rotate: -18.4deg; }
+    65.79% { translate: -168.0px 0.0px; rotate: -20.9deg; }
+    68.42% { translate: -168.0px 0.0px; rotate: -20.2deg; }
+    71.05% { translate: -168.0px 0.0px; rotate: -16.8deg; }
+    73.68% { translate: -168.0px 0.0px; rotate: -11.6deg; }
+    76.32% { translate: -168.0px 0.0px; rotate: -5.6deg; }
+    78.95% { translate: -168.0px 0.0px; rotate: 0.4deg; }
+    81.58% { translate: -168.0px 0.0px; rotate: 5.4deg; }
+    84.21% { translate: -168.0px 0.0px; rotate: 8.9deg; }
+    86.84% { translate: -168.0px 0.0px; rotate: 10.6deg; }
+    89.47% { translate: -168.0px 0.0px; rotate: 10.6deg; }
+    92.11% { translate: -168.0px 0.0px; rotate: 9.2deg; }
+    94.74% { translate: -168.0px 0.0px; rotate: 6.6deg; }
+    97.37% { translate: -168.0px 0.0px; rotate: 3.5deg; }
+    100% { translate: -168.0px 0.0px; rotate: 0.4deg; }
 }
 
-/* Cae del lado izquierdo como un péndulo que se calma */
-@keyframes br-drop-left {
-    0% { rotate: 110deg; opacity: 0; }
-    15% { opacity: 1; }
-    40% { rotate: -24deg; }
-    62% { rotate: 12deg; }
-    80% { rotate: -5deg; }
-    100% { rotate: 0deg; opacity: 1; }
+@keyframes br-cord-follow {
+    0% { rotate: 6.8deg; scale: 0.846 1; }
+    2.63% { rotate: 6.0deg; scale: 0.846 1; }
+    5.26% { rotate: 3.6deg; scale: 0.846 1; }
+    7.89% { rotate: -0.3deg; scale: 0.839 1; }
+    10.53% { rotate: -5.7deg; scale: 0.819 1; }
+    13.16% { rotate: -12.7deg; scale: 0.772 1; }
+    15.79% { rotate: -22.2deg; scale: 0.687 1; }
+    18.42% { rotate: -37.1deg; scale: 0.561 1; }
+    21.05% { rotate: -64.9deg; scale: 0.428 1; }
+    23.68% { rotate: -109.5deg; scale: 0.411 1; }
+    26.32% { rotate: -140.3deg; scale: 0.529 1; }
+    28.95% { rotate: -156.7deg; scale: 0.657 1; }
+    31.58% { rotate: -166.9deg; scale: 0.748 1; }
+    34.21% { rotate: -174.2deg; scale: 0.802 1; }
+    36.84% { rotate: -179.6deg; scale: 0.830 1; }
+    39.47% { rotate: -183.6deg; scale: 0.841 1; }
+    42.11% { rotate: -186.0deg; scale: 0.845 1; }
+    44.74% { rotate: -186.8deg; scale: 0.846 1; }
+    47.37% { rotate: -186.8deg; scale: 0.846 1; }
+    50% { rotate: -186.8deg; scale: 0.846 1; }
+    52.63% { rotate: -186.8deg; scale: 0.846 1; }
+    55.26% { rotate: -186.8deg; scale: 0.846 1; }
+    57.89% { rotate: -186.8deg; scale: 0.846 1; }
+    60.53% { rotate: -186.8deg; scale: 0.846 1; }
+    63.16% { rotate: -186.8deg; scale: 0.846 1; }
+    65.79% { rotate: -186.8deg; scale: 0.846 1; }
+    68.42% { rotate: -186.8deg; scale: 0.846 1; }
+    71.05% { rotate: -186.8deg; scale: 0.846 1; }
+    73.68% { rotate: -186.8deg; scale: 0.846 1; }
+    76.32% { rotate: -186.8deg; scale: 0.846 1; }
+    78.95% { rotate: -186.8deg; scale: 0.846 1; }
+    81.58% { rotate: -186.8deg; scale: 0.846 1; }
+    84.21% { rotate: -186.8deg; scale: 0.846 1; }
+    86.84% { rotate: -186.8deg; scale: 0.846 1; }
+    89.47% { rotate: -186.8deg; scale: 0.846 1; }
+    92.11% { rotate: -186.8deg; scale: 0.846 1; }
+    94.74% { rotate: -186.8deg; scale: 0.846 1; }
+    97.37% { rotate: -186.8deg; scale: 0.846 1; }
+    100% { rotate: -186.8deg; scale: 0.846 1; }
 }
 
 @keyframes br-spark {

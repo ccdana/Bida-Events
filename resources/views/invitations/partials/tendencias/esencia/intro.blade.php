@@ -15,7 +15,7 @@
 @endphp
 
 <div class="inv-themed-intro ez-intro"
-    x-data="invitationCover({ part: 1450, reveal: 2900, close: 3800 })"
+    x-data="invitationCover({ part: 1100, reveal: 3300, close: 4150 })"
     x-show="!closed"
     :class="{ 'is-untied': stage >= 1, 'is-open': stage >= 2 }"
     role="dialog"
@@ -58,6 +58,7 @@
                     <span class="ez-face ez-face--front"></span>
                     <span class="ez-face ez-face--side"><i class="ez-band ez-band--down"></i></span>
                     <span class="ez-face ez-face--top"><i class="ez-band ez-band--across"></i></span>
+                    <span class="ez-face ez-face--under"></span>
                 </div>
             </div>
 

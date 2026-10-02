@@ -838,6 +838,7 @@ final class InvitationTemplates
                     'sticker_missing' => 'Falta la tuya',
                     'sticker_time' => 'La hora',
                     'sticker_place' => 'El lugar',
+                    'sticker_number' => 'N.º',
                     'menu_heading' => 'El cumpleaños de',
                     'intro_eyebrow' => '¡Estás invitado!',
                     'intro_pack' => 'Stickers de',

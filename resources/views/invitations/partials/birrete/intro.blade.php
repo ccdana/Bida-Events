@@ -10,7 +10,7 @@
 @endphp
 
 <div class="inv-themed-intro br-intro"
-    x-data="invitationCover({ part: 1650, reveal: 2000, close: 3100 })"
+    x-data="invitationCover({ part: 1950, reveal: 2350, close: 3450 })"
     x-show="!closed"
     :class="{ 'is-turning': stage >= 1, 'is-tossed': stage >= 2 }"
     @click="open()"

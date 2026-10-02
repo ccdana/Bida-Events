@@ -210,7 +210,6 @@
     height: 0;
     perspective: 900px;
     animation: ez-hover 6s ease-in-out infinite alternate;
-    transition: translate 0.9s cubic-bezier(0.5, 0, 0.75, 0) 0.2s, opacity 0.5s ease 0.45s, scale 0.9s ease 0.2s;
 }
 
 .ez-cube,
@@ -230,7 +229,6 @@
 
 .ez-cube__lid {
     translate: 0 calc(var(--ez-u) * -0.295) 0;
-    transition: translate 0.75s cubic-bezier(0.45, 0, 0.3, 1) 0.6s, opacity 0.4s ease;
 }
 
 .ez-face {
@@ -309,6 +307,18 @@
     transform: translateY(calc(var(--ez-u) * -0.075)) rotateX(90deg);
 }
 
+/* El forro de la tapa: al subir queda sobre la línea de visión y se ve por debajo, con el nácar del interior */
+.ez-cube__lid .ez-face--under {
+    top: calc(var(--ez-u) * -0.24);
+    left: calc(var(--ez-u) * -0.35);
+    width: calc(var(--ez-u) * 0.7);
+    height: calc(var(--ez-u) * 0.48);
+    background:
+        repeating-linear-gradient(35deg, rgb(255 255 255 / 0.18) 0 2px, transparent 2px 9px),
+        radial-gradient(80% 80% at 50% 40%, color-mix(in srgb, var(--tr-accent) 40%, #fff), var(--tr-accent));
+    transform: translateY(calc(var(--ez-u) * 0.075)) rotateX(-90deg);
+}
+
 /* Un brillo que recorre la laca del frente cada tanto */
 .ez-cube__base .ez-face--front::after {
     content: '';
@@ -375,14 +385,14 @@
 .ez-glow {
     background: radial-gradient(closest-side, #fff, color-mix(in srgb, var(--tr-accent) 60%, #fff) 50%, transparent);
     opacity: 0;
-    transition: opacity 0.6s ease 0.9s;
+    transition: opacity 0.6s ease-out 0.45s;
 }
 
 /* La cinta de satén: cruza la tapa a lo ancho y baja por los costados */
 .ez-band {
     position: absolute;
     display: block;
-    transition: translate 0.55s cubic-bezier(0.55, 0, 0.35, 1) 0.25s, opacity 0.35s ease 0.4s;
+    transition: translate 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.3s, opacity 0.45s ease 0.6s;
 }
 
 .ez-band--down {
@@ -459,7 +469,7 @@
 
 .ez-bow__loop,
 .ez-bow__tails {
-    transition: rotate 0.45s cubic-bezier(0.55, 0, 0.35, 1), scale 0.45s cubic-bezier(0.55, 0, 0.35, 1), translate 0.6s cubic-bezier(0.55, 0, 0.35, 1), opacity 0.35s ease 0.12s;
+    transition: rotate 0.75s cubic-bezier(0.35, 0, 0.2, 1), scale 0.75s cubic-bezier(0.35, 0, 0.2, 1), translate 0.75s cubic-bezier(0.35, 0, 0.2, 1), opacity 0.4s ease 0.35s;
 }
 
 .ez-bow__loop--left { transform-origin: 60px 38px; }
@@ -467,7 +477,7 @@
 .ez-bow__tails { transform-origin: 60px 42px; }
 
 .ez-bow__knot {
-    transition: opacity 0.3s ease 0.2s;
+    transition: opacity 0.3s ease 0.5s;
 }
 
 /* El frasco que sube cuando se abre la caja */
@@ -476,10 +486,10 @@
     top: calc(var(--ez-u) * 0.21);
     left: 50%;
     width: calc(var(--ez-u) * 0.44);
-    translate: -50% 30%;
-    scale: 0.9;
+    translate: -50% 38%;
+    scale: 0.95;
     opacity: 0;
-    transition: translate 1s cubic-bezier(0.3, 1.25, 0.5, 1) 0.2s, scale 1s cubic-bezier(0.3, 1.25, 0.5, 1) 0.2s, opacity 0.5s ease 0.2s;
+    transition: translate 0.95s cubic-bezier(0.22, 0.8, 0.3, 1) 0.05s, scale 0.95s cubic-bezier(0.22, 0.8, 0.3, 1) 0.05s, opacity 0.35s ease 0.05s;
 }
 
 .ez-stage__flacon {
@@ -540,7 +550,7 @@
     text-wrap: balance;
     opacity: 0;
     scale: 1.12 1;
-    transition: opacity 0.9s ease 0.85s, scale 1.4s var(--tr-ease) 0.85s;
+    transition: opacity 0.8s ease 0.75s, scale 1.3s var(--tr-ease) 0.75s;
 }
 
 .ez-intro__reveal small {
@@ -605,6 +615,28 @@
     50% { translate: 0 -3px; }
 }
 
+/* La tapa se levanta de una sola vez: espera a que se suelte la cinta, sube acelerando apenas y, sin
+   frenar, se inclina mostrando su forro y sale del cuadro hacia arriba y a un lado */
+@keyframes ez-lid-off {
+    0%, 22% {
+        translate: 0 calc(var(--ez-u) * -0.295) 0;
+        rotate: 1 0 0.3 0deg;
+        opacity: 1;
+        animation-timing-function: cubic-bezier(0.45, 0, 0.75, 0.55);
+    }
+    58% {
+        translate: calc(var(--ez-u) * 0.03) calc(var(--ez-u) * -0.75) 0;
+        rotate: 1 0 0.3 16deg;
+        opacity: 1;
+        animation-timing-function: cubic-bezier(0.25, 0.45, 0.6, 1);
+    }
+    100% {
+        translate: calc(var(--ez-u) * 0.62) calc(var(--ez-u) * -2.5) 0;
+        rotate: 1 0 0.3 80deg;
+        opacity: 0;
+    }
+}
+
 @keyframes ez-puff {
     0% { opacity: 0; translate: 0 0; scale: 0.3; }
     25% { opacity: 1; }
@@ -617,8 +649,8 @@
     100% { opacity: 0; translate: 260% 0; }
 }
 
-/* 1 · Se desata el moño: las lazadas se abren y se van, las puntas caen, la cinta se desliza, la tapa
-   sube y del interior sale luz */
+/* 1 · Se desata el moño: las puntas caen, las lazadas se aflojan hacia los lados y se desvanecen, la
+   cinta resbala y la tapa se levanta (ez-lid-off, que sigue durante la etapa 2); del interior sale luz */
 .ez-intro.is-untied .ez-bow {
     pointer-events: none;
 }
@@ -628,21 +660,22 @@
 }
 
 .ez-intro.is-untied .ez-bow__loop--left {
-    rotate: -40deg;
-    scale: 0.3;
-    translate: -14px 6px;
+    rotate: -62deg;
+    scale: 0.82;
+    translate: -16px 14px;
     opacity: 0;
 }
 
 .ez-intro.is-untied .ez-bow__loop--right {
-    rotate: 40deg;
-    scale: 0.3;
-    translate: 14px 6px;
+    rotate: 62deg;
+    scale: 0.82;
+    translate: 16px 14px;
     opacity: 0;
 }
 
 .ez-intro.is-untied .ez-bow__tails {
-    translate: 0 30px;
+    rotate: 6deg;
+    translate: 0 26px;
     opacity: 0;
 }
 
@@ -661,7 +694,7 @@
 }
 
 .ez-intro.is-untied .ez-cube__lid {
-    translate: 0 calc(var(--ez-u) * -0.5) 0;
+    animation: ez-lid-off 1.4s linear forwards;
 }
 
 .ez-intro.is-untied .ez-glow {
@@ -673,23 +706,13 @@
     animation: none;
 }
 
-/* 2 · La tapa se va, la caja baja y el frasco sube en su lugar; un destello cruza el cristal, el
-   atomizador suelta su bruma y en ella aparece su nombre */
-.ez-intro.is-open .ez-cube__lid {
-    translate: 0 calc(var(--ez-u) * -1.4) 0;
-    opacity: 0;
-    transition: translate 0.7s cubic-bezier(0.5, 0, 0.75, 0), opacity 0.5s ease 0.15s;
-}
-
+/* 2 · La caja se disuelve mientras el frasco sube de ella y se asienta; un destello cruza el cristal,
+   el atomizador suelta su bruma y en ella aparece su nombre. Antes de pasar a la portada se apaga el
+   escenario (frasco y pedestal) y queda solo su nombre, en el mismo lugar donde lo muestra la portada */
 .ez-intro.is-open .ez-float {
-    translate: 0 calc(var(--ez-u) * 0.25);
-    scale: 0.94;
     opacity: 0;
-    animation: none;
-}
-
-.ez-intro.is-open .ez-stage__shadow {
-    opacity: 0;
+    transform: translateY(calc(var(--ez-u) * 0.08));
+    transition: opacity 0.4s ease-in 0.05s, transform 0.7s ease-in 0.05s;
 }
 
 .ez-intro.is-open .ez-stage__bottle {
@@ -698,12 +721,17 @@
     opacity: 1;
 }
 
+.ez-intro.is-open .ez-stage {
+    opacity: 0;
+    transition: opacity 0.5s ease 1.75s;
+}
+
 .ez-intro.is-open .ez-stage__glint {
-    animation: ez-glint 0.9s ease-in-out 0.85s;
+    animation: ez-glint 0.8s ease-in-out 0.7s;
 }
 
 .ez-intro.is-open .ez-mist i {
-    animation: ez-puff 1.4s ease-out calc(0.95s + var(--d)) both;
+    animation: ez-puff 1.4s ease-out calc(0.75s + var(--d)) both;
 }
 
 .ez-intro.is-open .ez-intro__reveal {
@@ -712,7 +740,7 @@
 }
 
 .ez-intro.is-open {
-    animation-delay: 1.45s;
+    animation-delay: 2.2s;
 }
 
 /* ── Portada: el afiche de la campaña ───────────────────────────────────── */

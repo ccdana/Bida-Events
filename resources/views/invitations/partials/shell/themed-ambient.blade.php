@@ -59,6 +59,8 @@
         'funcion' => [0, [['kind' => 'bokeh', 'count' => 12, 'mobile' => 7, 'seed' => 2, 'class' => 'inv-drift--proyector']]],
         // Bruma de colores por el piso del laboratorio, burbujas que suben y lucecitas que flotan
         'caldero' => [0, [['kind' => 'twinkle', 'count' => 10, 'mobile' => 6, 'seed' => 9, 'class' => 'inv-drift--luces']], 'invitations.partials.tendencias.caldero.ambient'],
+        // Estrellas que titilan sobre la casa; a los costados, en espejo, murciélagos que van y vienen y arañas que bajan por su hilo, y la neblina del jardín
+        'casona' => [0, [['kind' => 'twinkle', 'count' => 10, 'mobile' => 6, 'seed' => 11, 'class' => 'inv-drift--estrellas']], 'invitations.partials.tendencias.casona.ambient'],
         // Tendederos lejanos con ropita que se mece y burbujas de jabón que suben
         'tendedero' => [0, [], 'invitations.partials.tendencias.tendedero.ambient'],
         // Bloquecitos con letras que caen dando vueltas

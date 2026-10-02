@@ -1,8 +1,9 @@
 {{--
     Birrete de «Birrete al aire» visto de tres cuartos: el tablero con su canto, la copa, el botón y la
     borla colgando de un costado. El tablero y la copa toman el color secundario; el cordón, el botón y
-    la borla, el principal (themes/birrete.css). side: right (por defecto), left o both (las dos borlas:
-    la apertura muestra una y la pasa al otro lado). class: clases extra.
+    la borla, el principal (themes/birrete.css). side: right (por defecto), left o both (la apertura: la
+    borla de la derecha cruza al otro lado con el cordón en vuelo y el de la izquierda queda tendido).
+    class: clases extra.
 --}}
 @php
     $capSide = in_array($side ?? 'right', ['left', 'both'], true) ? $side : 'right';
@@ -31,5 +32,9 @@
             </g>
         </g>
     @endforeach
+    @if($capSide === 'both')
+        {{-- El cordón en vuelo: va del botón al punto del que cuelga la borla mientras cruza (birrete.css) --}}
+        <path class="br-cap__cord br-cap__cord--live" d="M120 78 H220"/>
+    @endif
     <circle class="br-cap__button" cx="120" cy="78" r="6"/>
 </svg>

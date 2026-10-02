@@ -223,6 +223,7 @@ final class EditableTexts
         'sticker_age' => 'Sticker: después de la edad', 'sticker_going' => 'Sticker: para confirmar',
         'sticker_missing' => 'Sticker: casilla vacía', 'sticker_time' => 'Sticker: franja de la hora',
         'sticker_place' => 'Sticker: franja del lugar', 'intro_pack' => 'Sobre: antes del nombre',
+        'sticker_number' => 'Programa: antes del número de cada sticker',
         // «Expediente abierto»
         'case_label' => 'Expediente: rótulo', 'case_open' => 'Expediente: sello', 'case_lead' => 'Expediente: rótulo del nombre',
         'case_seen' => 'Expediente: rótulo de la fecha', 'case_place' => 'Expediente: rótulo del lugar', 'case_notes' => 'Expediente: rótulo del mensaje',
@@ -231,6 +232,10 @@ final class EditableTexts
         'sky_label' => 'Mapa: título del cielo', 'constellation_label' => 'Apertura: antes del nombre de la constelación',
         // «Caldero encantado»
         'potion_label' => 'Frasco: etiqueta', 'potion_ingredients' => 'Frasco: ingredientes', 'potion_step' => 'Receta: palabra antes del número',
+        // «Casa de muñecas de medianoche»
+        'house_welcome' => 'Casa: antes del nombre al abrirse', 'house_room' => 'Casa: palabra antes del número de cada cuarto',
+        'house_date' => 'Casa: rótulo del calendario', 'house_time' => 'Casa: rótulo del reloj', 'house_place' => 'Casa: letrero del jardín',
+        'house_stair' => 'Escalera: palabra antes del número de escalón',
         // «Partitura a dos voces»
         'score_program' => 'Partitura: encabezado', 'score_title' => 'Partitura: nombre de la obra', 'score_opus' => 'Partitura: número de obra',
         'score_date' => 'Partitura: rótulo de la fecha', 'score_hall' => 'Partitura: rótulo del lugar',

@@ -87,7 +87,7 @@ class SignatureMotionTest extends TestCase
      */
     public function test_section_entrances_never_make_a_section_wider_than_the_screen(): void
     {
-        foreach (['themes/atelier.css', 'tendencias/esencia.css', 'tendencias/joyero.css', 'tendencias/cuento.css', 'tendencias/zapatos.css', 'tendencias/mesa.css'] as $sheet) {
+        foreach (['themes/atelier.css', 'tendencias/esencia.css', 'tendencias/joyero.css', 'tendencias/cuento.css', 'tendencias/zapatos.css', 'tendencias/mesa.css', 'tendencias/casona.css'] as $sheet) {
             preg_match_all('/--themed-from:\s*([^;]+);/', file_get_contents(resource_path("css/invitation/{$sheet}")), $matches);
 
             $this->assertNotEmpty($matches[1], "{$sheet} no define su entrada de sección");

@@ -1,0 +1,1881 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   INVITACIÓN — «Casa de muñecas de medianoche» (Halloween · colección tendencias)
+
+   La fiesta es una casa de muñecas de las antiguas, de noche. Se entra tocando
+   la aldaba: se encienden las ventanas de abajo hacia arriba, se asoma el
+   fantasma de la buhardilla y la fachada se abre en dos hojas. La portada es la
+   casa por dentro, simétrica: el retrato en el salón, el calendario y el reloj
+   de pie en los cuartos de abajo y el lugar en el letrero del jardín. Cada
+   sección es otro cuarto con su placa y su lámpara; el programa es la escalera y
+   los anfitriones, la galería de retratos. Para toda la familia: un fantasma
+   amable, el gato del tejado, murciélagos y arañas que solo pasean.
+
+   Todo sale de la paleta del editor:
+     la noche y la fachada = fondo · textos y el papel de los cuadros = texto ·
+     la luz de ventanas y lámparas, las placas de latón y los botones = principal ·
+     el papel tapiz y el tejado = secundario · el fantasma, la luna y los brillos
+     = acento. Las placas llevan la tinta calculada para el principal
+     (--tr-ink-primary) y los cuadros de papel invierten texto y fondo, así se
+     leen con cualquier paleta. Nunca hay texto sobre un degradado.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+@import './_base.css';
+@import './_motion.css';
+
+.inv-casona {
+    --inv-radius: 0.3rem;
+    /* La casa por fuera: las tablas de la fachada, las molduras y el tejado */
+    --cs-siding: color-mix(in srgb, var(--tr-bg) 84%, var(--tr-text));
+    --cs-siding-deep: color-mix(in srgb, var(--tr-bg) 72%, #000);
+    --cs-clapboard: repeating-linear-gradient(180deg, transparent 0 0.85rem, color-mix(in srgb, #000 24%, transparent) 0.85rem 0.95rem);
+    --cs-trim: color-mix(in srgb, var(--tr-text) 62%, var(--tr-bg));
+    --cs-roof: color-mix(in srgb, var(--tr-secondary) 30%, var(--tr-bg));
+    --cs-roof-line: color-mix(in srgb, var(--tr-secondary) 52%, var(--tr-bg));
+    /* Adentro: el papel tapiz (rayas y florcitas apenas marcadas) y la madera */
+    --cs-paper: color-mix(in srgb, var(--tr-secondary) 15%, var(--tr-bg));
+    --cs-wallpaper:
+        radial-gradient(circle, color-mix(in srgb, var(--tr-secondary) 22%, transparent) 0.11rem, transparent 0.15rem) 0.8rem 0.8rem / 1.6rem 1.6rem,
+        repeating-linear-gradient(90deg, color-mix(in srgb, var(--tr-secondary) 8%, transparent) 0 0.5rem, transparent 0.5rem 1.6rem),
+        var(--cs-paper);
+    --cs-wood: color-mix(in srgb, var(--tr-secondary) 14%, color-mix(in srgb, var(--tr-bg) 72%, #6b4a2e));
+    --cs-wood-deep: color-mix(in srgb, var(--cs-wood) 72%, #000);
+    --cs-wood-grain: repeating-linear-gradient(90deg, transparent 0 2.6rem, color-mix(in srgb, #000 16%, transparent) 2.6rem 2.66rem, transparent 2.66rem 4.1rem, color-mix(in srgb, #fff 5%, transparent) 4.1rem 4.16rem);
+    --cs-tread: color-mix(in srgb, var(--tr-primary) 28%, var(--cs-wood));
+    /* La luz de las lámparas y el latón */
+    --cs-glow: color-mix(in srgb, var(--tr-primary) 42%, transparent);
+    --cs-frame: color-mix(in srgb, var(--tr-primary) 58%, color-mix(in srgb, var(--tr-bg) 50%, #4a3010));
+    /* Los cuadros de papel (calendario, libro de visitas): texto y fondo invertidos */
+    --cs-card: var(--tr-text);
+    --cs-card-ink: var(--tr-bg);
+    --cs-ghost: color-mix(in srgb, var(--tr-accent) 22%, #fff);
+    --cs-bat: color-mix(in srgb, var(--tr-bg) 74%, var(--tr-text));
+    /* Cada sección entra como un cuarto que se enciende: solo baja un poco */
+    --themed-from: translate3d(0, 24px, 0);
+
+    background: var(--tr-bg);
+    counter-reset: cs-room;
+}
+
+.inv-casona.has-player {
+    padding-bottom: calc(5.25rem + env(safe-area-inset-bottom));
+}
+
+/* ── Las piezas: fantasma, murciélago y tejado ──────────────────────────── */
+
+.cs-ghost {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+}
+
+.cs-ghost__sheet { fill: var(--cs-ghost); }
+.cs-ghost__shade { fill: color-mix(in srgb, var(--tr-accent) 40%, transparent); opacity: 0.5; }
+.cs-ghost__eye,
+.cs-ghost__mouth { fill: color-mix(in srgb, var(--tr-bg) 80%, #000); }
+.cs-ghost__cheek { fill: var(--tr-secondary); opacity: 0.55; }
+
+.cs-bat {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    fill: var(--cs-bat);
+}
+
+.cs-bat__wing {
+    transform-box: view-box;
+    transform-origin: 32px 12px;
+}
+
+.cs-roof {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+}
+
+.cs-roof__body { fill: var(--cs-roof); }
+
+.cs-roof__tile {
+    fill: none;
+    stroke: var(--cs-roof-line);
+    stroke-width: 1.2;
+}
+
+.cs-roof__eave {
+    fill: none;
+    stroke: var(--cs-trim);
+    stroke-width: 5;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+}
+
+.cs-roof__frame { fill: var(--cs-trim); }
+.cs-roof__glass { fill: color-mix(in srgb, var(--tr-bg) 70%, #000); }
+
+.cs-roof__glow {
+    fill: var(--tr-primary);
+    opacity: 0.85;
+}
+
+.cs-roof__ghost {
+    transform-box: view-box;
+}
+
+.cs-roof__muntin {
+    fill: none;
+    stroke: var(--cs-trim);
+    stroke-width: 3;
+}
+
+.cs-roof__cat-body { fill: color-mix(in srgb, var(--tr-bg) 80%, #000); }
+
+.cs-roof__cat-tail {
+    fill: none;
+    stroke: color-mix(in srgb, var(--tr-bg) 80%, #000);
+    stroke-width: 3.4;
+    stroke-linecap: round;
+}
+
+.cs-roof__cat-eye { fill: var(--tr-primary); }
+
+/* ── Apertura: la casa cerrada ──────────────────────────────────────────────
+   Medidas con --cs-w (el ancho de la fachada). La fachada son dos hojas con
+   bisagras a los costados (preserve-3d: por delante las tablas y las ventanas,
+   por detrás el papel tapiz); adentro esperan los cuartos y su nombre. */
+
+.cs-intro.inv-themed-intro {
+    --cs-w: min(70vw, 17.5rem, 34svh);
+    gap: clamp(0.7rem, 2.2svh, 1.2rem);
+    padding: calc(1.5rem + env(safe-area-inset-top)) 1.25rem calc(1.5rem + env(safe-area-inset-bottom));
+    background:
+        radial-gradient(70% 40% at 50% 22%, color-mix(in srgb, var(--tr-accent) 13%, transparent), transparent 72%),
+        linear-gradient(180deg, var(--tr-bg) 40%, color-mix(in srgb, var(--tr-bg) 78%, #000));
+    color: var(--tr-text);
+    cursor: pointer;
+}
+
+/* La luna detrás de la cumbrera, con el gato recortado encima */
+.cs-intro__moon {
+    position: absolute;
+    top: -26%;
+    left: 50%;
+    z-index: -1;
+    width: 46%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(circle at 40% 38%, color-mix(in srgb, var(--tr-accent) 10%, #fff), color-mix(in srgb, var(--tr-accent) 26%, #fff) 58%, color-mix(in srgb, var(--tr-accent) 42%, var(--tr-bg)));
+    box-shadow: 0 0 3rem 1rem color-mix(in srgb, var(--tr-accent) 16%, transparent);
+    translate: -50% 0;
+    opacity: 0.88;
+    pointer-events: none;
+}
+
+.cs-intro__eyebrow {
+    position: relative;
+    margin: 0 0 calc(var(--cs-w) * 0.16);
+    padding-left: 0.4em;
+    font-family: var(--font-script);
+    font-size: 0.72rem;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--inv-accent-ink);
+    transition: opacity 0.5s ease;
+}
+
+.cs-doll {
+    position: relative;
+    width: var(--cs-w);
+    filter: drop-shadow(0 22px 22px rgb(0 0 0 / 0.4));
+}
+
+.cs-doll__roof {
+    position: relative;
+    z-index: 0;
+    isolation: isolate;
+    width: 112%;
+    margin: 0 0 -1px -6%;
+}
+
+.cs-doll__box {
+    position: relative;
+    aspect-ratio: 1 / 0.92;
+    perspective: 1100px;
+}
+
+/* Adentro: los tres cuartos encendidos y su nombre en el de arriba */
+.cs-doll__inside {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template: 1fr 1fr / 1fr 1fr;
+    gap: calc(var(--cs-w) * 0.025);
+    padding: calc(var(--cs-w) * 0.025);
+    background: var(--cs-siding-deep);
+}
+
+.cs-doll__room {
+    position: relative;
+    overflow: hidden;
+    background: var(--cs-wallpaper);
+    box-shadow: inset 0 calc(var(--cs-w) * -0.035) 0 var(--cs-wood), inset 0 0.8rem 1rem -0.5rem rgb(0 0 0 / 0.5);
+}
+
+.cs-doll__room--up {
+    grid-column: 1 / -1;
+}
+
+.cs-doll__lamp {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(70% 75% at 50% 0%, var(--cs-glow), transparent 72%);
+    opacity: 0;
+    transition: opacity 0.7s ease 0.25s;
+}
+
+.cs-doll__welcome {
+    position: absolute;
+    top: calc(var(--cs-w) * 0.025);
+    right: 0.4rem;
+    left: 0.4rem;
+    height: 46%;
+    display: grid;
+    place-content: center;
+    gap: 0.2rem;
+    margin: 0;
+    text-align: center;
+    opacity: 0;
+    translate: 0 0.5rem;
+    transition: opacity 0.6s ease 0.55s, translate 0.8s var(--tr-ease) 0.55s;
+}
+
+.cs-doll__welcome small {
+    font-family: var(--font-script);
+    font-size: 0.62rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--inv-accent-ink);
+}
+
+.cs-doll__welcome span {
+    font-family: var(--font-titles);
+    font-size: clamp(1.15rem, 6.4vw, 1.7rem);
+    font-style: italic;
+    font-weight: 600;
+    line-height: 1.05;
+    text-wrap: balance;
+}
+
+/* Las dos hojas de la fachada */
+.cs-doll__half {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 50%;
+    transform-style: preserve-3d;
+    transition: rotate 1.15s cubic-bezier(0.55, 0, 0.2, 1);
+}
+
+.cs-doll__half--left {
+    left: 0;
+    transform-origin: 0 50%;
+}
+
+.cs-doll__half--right {
+    right: 0;
+    transform-origin: 100% 50%;
+}
+
+.cs-doll__face,
+.cs-doll__back {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+}
+
+.cs-doll__face {
+    background: var(--cs-clapboard), var(--cs-siding);
+}
+
+.cs-doll__half--left .cs-doll__face {
+    box-shadow: inset 0.28rem 0 0 var(--cs-trim), inset -1px 0 0 rgb(0 0 0 / 0.5);
+}
+
+.cs-doll__half--right .cs-doll__face {
+    box-shadow: inset -0.28rem 0 0 var(--cs-trim), inset 1px 0 0 rgb(255 255 255 / 0.08);
+}
+
+.cs-doll__back {
+    rotate: y 180deg;
+    background: var(--cs-wallpaper);
+    box-shadow: inset 0 0 1.2rem rgb(0 0 0 / 0.4);
+}
+
+/* Las ventanas: arco, vidrio oscuro, la luz detrás de la cruz y las cortinas */
+.cs-window {
+    position: absolute;
+    overflow: hidden;
+    border-radius: 50% 50% 0.12rem 0.12rem / 30% 30% 0.12rem 0.12rem;
+    background: color-mix(in srgb, var(--tr-bg) 66%, #000);
+    box-shadow: 0 0 0 calc(var(--cs-w) * 0.014) var(--cs-trim), 0 calc(var(--cs-w) * 0.03) 0 calc(var(--cs-w) * 0.008) var(--cs-trim);
+}
+
+.cs-window--up {
+    top: 10%;
+    left: 28%;
+    width: 44%;
+    aspect-ratio: 0.74;
+}
+
+.cs-window--down {
+    top: 56%;
+    left: 14%;
+    width: 34%;
+    aspect-ratio: 0.74;
+}
+
+.cs-doll__half--right .cs-window--down {
+    right: 14%;
+    left: auto;
+}
+
+.cs-window__glow,
+.cs-door__glow {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(80% 70% at 50% 35%, color-mix(in srgb, var(--tr-primary) 50%, #fff), var(--tr-primary) 55%, color-mix(in srgb, var(--tr-primary) 70%, #000));
+    opacity: 0;
+    transition: opacity 0.45s ease calc(0.3s + var(--n, 0) * 0.28s);
+}
+
+/* La cruz del marco y las cortinas recogidas a los lados */
+.cs-window::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(90deg, transparent calc(50% - 0.09rem), var(--cs-trim) calc(50% - 0.09rem) calc(50% + 0.09rem), transparent calc(50% + 0.09rem)),
+        linear-gradient(180deg, transparent 52%, var(--cs-trim) 52% calc(52% + 0.18rem), transparent calc(52% + 0.18rem)),
+        radial-gradient(60% 90% at 0% 0%, color-mix(in srgb, var(--tr-secondary) 55%, var(--tr-bg)) 55%, transparent 56%),
+        radial-gradient(60% 90% at 100% 0%, color-mix(in srgb, var(--tr-secondary) 55%, var(--tr-bg)) 55%, transparent 56%);
+    background-size: 100% 100%, 100% 100%, 34% 70%, 34% 70%;
+    background-position: 0 0, 0 0, 0 0, 100% 0;
+    background-repeat: no-repeat;
+}
+
+/* La puerta doble: una hoja en cada mitad, con su tablero y su luz por la rendija */
+.cs-door {
+    position: absolute;
+    bottom: 0;
+    width: 30%;
+    height: 40%;
+    overflow: hidden;
+    background:
+        linear-gradient(180deg, transparent 12%, color-mix(in srgb, #000 22%, transparent) 12% 13%, transparent 13% 54%, color-mix(in srgb, #000 22%, transparent) 54% 55%, transparent 55%),
+        color-mix(in srgb, var(--tr-secondary) 26%, color-mix(in srgb, var(--tr-bg) 62%, #000));
+    box-shadow: inset 0 0 0 calc(var(--cs-w) * 0.012) var(--cs-trim);
+}
+
+.cs-door--left {
+    right: 0;
+    border-radius: 100% 0 0 0 / 34% 0 0 0;
+}
+
+.cs-door--right {
+    left: 0;
+    border-radius: 0 100% 0 0 / 0 34% 0 0;
+}
+
+.cs-door__glow {
+    inset: auto 0 0;
+    height: 6%;
+}
+
+/* La aldaba: una argolla de latón que cuelga de su placa, en la hoja derecha de la puerta */
+.cs-knocker {
+    position: absolute;
+    bottom: 17%;
+    left: 50%;
+    z-index: 3;
+    width: calc(var(--cs-w) * 0.16);
+    aspect-ratio: 1;
+    margin-left: calc(var(--cs-w) * 0.012);
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.cs-knocker::before {
+    content: '';
+    position: absolute;
+    top: 8%;
+    left: 50%;
+    width: 34%;
+    aspect-ratio: 1;
+    margin-left: -17%;
+    border-radius: 50%;
+    background: var(--tr-primary);
+    box-shadow: inset 0 -2px 0 color-mix(in srgb, #000 30%, transparent);
+}
+
+.cs-knocker__ring {
+    position: absolute;
+    top: 20%;
+    left: 50%;
+    width: 52%;
+    aspect-ratio: 1;
+    margin-left: -26%;
+    border: calc(var(--cs-w) * 0.016) solid var(--tr-primary);
+    border-radius: 50%;
+    transform-origin: 50% 0;
+    animation: cs-knocker-idle 3.2s ease-in-out 1.4s infinite;
+}
+
+.cs-knocker:focus-visible {
+    outline: 2px solid var(--tr-text);
+    outline-offset: 3px;
+    border-radius: 50%;
+}
+
+.cs-doll__base {
+    display: block;
+    height: calc(var(--cs-w) * 0.05);
+    margin: 0 -4%;
+    border-radius: 0.15rem;
+    background:
+        repeating-linear-gradient(90deg, transparent 0 1.1rem, color-mix(in srgb, #000 30%, transparent) 1.1rem 1.18rem),
+        color-mix(in srgb, var(--tr-bg) 70%, var(--tr-text));
+}
+
+.cs-intro__meta {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    gap: 0.2rem;
+    transition: opacity 0.4s ease;
+}
+
+.cs-intro__date {
+    margin: 0;
+    font-family: var(--font-titles);
+    font-size: 1.1rem;
+}
+
+.cs-intro__guest,
+.cs-intro__hint {
+    position: relative;
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--inv-muted);
+}
+
+.cs-intro__hint {
+    animation: cs-hint 2.6s ease-in-out 1.5s infinite;
+    transition: opacity 0.3s ease;
+}
+
+/* La buhardilla y el gato antes de tocar: vidrio apagado, fantasma escondido */
+.cs-intro .cs-roof__glow {
+    opacity: 0;
+    transition: opacity 0.5s ease 1.05s;
+}
+
+.cs-intro .cs-roof__ghost {
+    translate: 0 30px;
+    transition: translate 0.7s var(--tr-ease) 1.15s;
+}
+
+.cs-intro .cs-roof__cat-eye {
+    opacity: 0.25;
+    transition: opacity 0.3s ease 0.15s;
+}
+
+/* 1 · La aldaba golpea dos veces; se encienden la puerta, las ventanas de abajo, las de arriba y la
+   buhardilla, donde se asoma el fantasma; al gato le brillan los ojos */
+.cs-intro.is-knocked .cs-knocker {
+    pointer-events: none;
+}
+
+.cs-intro.is-knocked .cs-knocker__ring {
+    animation: cs-knock 0.55s ease-in-out;
+}
+
+.cs-intro.is-knocked :is(.cs-window__glow, .cs-door__glow, .cs-roof__glow, .cs-roof__cat-eye) {
+    opacity: 1;
+}
+
+.cs-intro.is-knocked .cs-roof__ghost {
+    translate: 0 0;
+}
+
+.cs-intro.is-knocked :is(.cs-intro__hint, .cs-intro__eyebrow, .cs-intro__meta) {
+    opacity: 0;
+    animation: none;
+}
+
+/* 2 · La fachada se abre en dos hacia los costados y aparecen los cuartos encendidos con su nombre */
+.cs-intro.is-open .cs-knocker {
+    opacity: 0;
+}
+
+.cs-intro.is-open .cs-doll__half--left {
+    rotate: y -118deg;
+}
+
+.cs-intro.is-open .cs-doll__half--right {
+    rotate: y 118deg;
+}
+
+.cs-intro.is-open .cs-doll__lamp,
+.cs-intro.is-open .cs-doll__welcome {
+    opacity: 1;
+}
+
+.cs-intro.is-open .cs-doll__welcome {
+    translate: 0 0;
+}
+
+.cs-intro.is-open {
+    animation-delay: 1.6s;
+}
+
+@keyframes cs-knocker-idle {
+    0%, 70%, 100% { rotate: 0deg; }
+    78% { rotate: -14deg; }
+    86% { rotate: 6deg; }
+}
+
+/* Dos golpes de la argolla contra la placa */
+@keyframes cs-knock {
+    0% { rotate: 0deg; }
+    18% { rotate: -32deg; }
+    34% { rotate: 0deg; }
+    52% { rotate: -26deg; }
+    70% { rotate: 0deg; }
+    84% { rotate: -6deg; }
+    100% { rotate: 0deg; }
+}
+
+@keyframes cs-hint {
+    50% { translate: 0 -3px; }
+}
+
+/* ── Portada: la casa por dentro ────────────────────────────────────────── */
+
+.cs-hero {
+    display: grid;
+    align-content: start;
+    justify-items: center;
+    min-height: 100svh;
+    padding: calc(4.6rem + env(safe-area-inset-top)) 0.9rem 3rem;
+    overflow: hidden;
+    color: var(--tr-text);
+    text-align: center;
+    background: transparent;
+}
+
+.cs-kicker {
+    margin: 0;
+    padding-left: 0.36em;
+    font-family: var(--font-script);
+    font-size: 0.74rem;
+    letter-spacing: 0.36em;
+    text-transform: uppercase;
+    color: var(--inv-accent-ink);
+}
+
+.cs-name {
+    position: relative;
+    z-index: 2;
+    max-width: 100%;
+    margin: 0.55rem 0 0.6rem;
+    font-family: var(--font-titles);
+    font-size: clamp(2.6rem, 12.5vw, 4.4rem);
+    font-style: italic;
+    font-weight: 600;
+    line-height: 0.98;
+    text-wrap: balance;
+    overflow-wrap: break-word;
+}
+
+.cs-house {
+    --cs-w: min(94vw, 26rem);
+    position: relative;
+    width: var(--cs-w);
+    margin-top: 1.6rem;
+}
+
+.cs-house__roof {
+    position: relative;
+    z-index: 1;
+    width: 108%;
+    margin: 0 0 -1px -4%;
+}
+
+/* La luna detrás de la cumbrera, con el gato recortado encima */
+.cs-house__moon {
+    position: absolute;
+    top: -6%;
+    left: 50%;
+    z-index: -1;
+    width: 34%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(circle at 40% 38%, color-mix(in srgb, var(--tr-accent) 10%, #fff), color-mix(in srgb, var(--tr-accent) 26%, #fff) 58%, color-mix(in srgb, var(--tr-accent) 42%, var(--tr-bg)));
+    box-shadow: 0 0 3.5rem 1.2rem color-mix(in srgb, var(--tr-accent) 16%, transparent);
+    translate: -50% 0;
+    opacity: 0.85;
+}
+
+.cs-house__bat {
+    position: absolute;
+    top: 4%;
+    width: 13%;
+}
+
+.cs-house__bat--left { left: 6%; }
+.cs-house__bat--right { right: 6%; scale: -1 1; }
+
+/* El cascarón: los muros que rodean los cuartos y el piso entre los dos niveles */
+.cs-house__body {
+    display: grid;
+    gap: 0.45rem;
+    padding: 0.45rem;
+    background: var(--cs-siding-deep);
+    box-shadow: inset 0 0 0 0.16rem color-mix(in srgb, var(--cs-trim) 50%, transparent);
+}
+
+.cs-room {
+    position: relative;
+    overflow: hidden;
+    background: var(--cs-wallpaper);
+    box-shadow: inset 0 -0.7rem 0 var(--cs-wood), inset 0 -0.78rem 0 var(--cs-wood-deep), inset 0 0.9rem 1.2rem -0.6rem rgb(0 0 0 / 0.5);
+}
+
+/* La luz de la lámpara del cuarto */
+.cs-room__light {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(75% 65% at 50% 0%, var(--cs-glow), transparent 72%);
+    pointer-events: none;
+}
+
+/* Arriba, el salón: el retrato entre dos apliques */
+.cs-room--hall {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    justify-items: center;
+    padding: 1.1rem 0.5rem 1.6rem;
+}
+
+.cs-frame {
+    position: relative;
+    z-index: 1;
+    width: min(42vw, 10.5rem);
+    margin: 0;
+    padding: 0.42rem;
+    border-radius: 50% 50% 0.3rem 0.3rem / 30% 30% 0.3rem 0.3rem;
+    background: var(--cs-frame);
+    box-shadow:
+        inset 0 0 0 0.12rem color-mix(in srgb, #fff 22%, transparent),
+        inset 0 0 0 0.3rem color-mix(in srgb, #000 22%, transparent),
+        0 16px 22px -12px rgb(0 0 0 / 0.65);
+}
+
+.cs-frame__photo {
+    display: block;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    border-radius: 50% 50% 0.15rem 0.15rem / 30% 30% 0.15rem 0.15rem;
+    background: var(--cs-paper);
+}
+
+/* El aplique: la vela sobre su platillo, con la llama que titila */
+.cs-sconce {
+    position: relative;
+    display: block;
+    width: 1.4rem;
+    height: 3.6rem;
+}
+
+.cs-sconce i {
+    position: absolute;
+    bottom: 0.9rem;
+    left: 50%;
+    width: 0.5rem;
+    height: 1.5rem;
+    margin-left: -0.25rem;
+    border-radius: 0.12rem 0.12rem 0 0;
+    background: var(--cs-trim);
+}
+
+/* La llama */
+.cs-sconce i::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    width: 0.55rem;
+    height: 0.95rem;
+    margin-left: -0.275rem;
+    border-radius: 50% 50% 50% 50% / 64% 64% 36% 36%;
+    background: radial-gradient(circle at 50% 70%, #fff 0 18%, var(--tr-primary) 45%, color-mix(in srgb, var(--tr-primary) 40%, transparent) 75%);
+    box-shadow: 0 0 1rem 0.4rem var(--cs-glow);
+    transform-origin: 50% 100%;
+    animation: cs-flame 2.4s ease-in-out infinite;
+}
+
+/* El platillo y el brazo contra la pared */
+.cs-sconce::after {
+    content: '';
+    position: absolute;
+    bottom: 0.55rem;
+    left: 0;
+    width: 100%;
+    height: 0.38rem;
+    border-radius: 0 0 50% 50%;
+    background: var(--cs-frame);
+    box-shadow: 0 0.38rem 0 -0.1rem var(--cs-frame);
+}
+
+.cs-sconce--right i::before {
+    animation-delay: -1.1s;
+}
+
+/* El fantasma que se asoma detrás del retrato */
+.cs-hall__ghost {
+    position: absolute;
+    top: 26%;
+    left: 50%;
+    z-index: 0;
+    width: 2.6rem;
+    margin-left: -1.3rem;
+}
+
+/* Abajo: calendario, puerta y reloj de pie */
+.cs-house__lower {
+    display: grid;
+    grid-template-columns: 1fr 0.7fr 1fr;
+    gap: 0.45rem;
+}
+
+.cs-room--side {
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    gap: 0.45rem;
+    min-height: 10.5rem;
+    padding: 0.9rem 0.35rem 1.5rem;
+}
+
+/* El calendario de pared: de papel (texto y fondo invertidos), con su franja de latón */
+.cs-calendar {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    justify-items: center;
+    width: 86%;
+    max-width: 6.6rem;
+    margin: 0;
+    padding: 0 0 0.45rem;
+    overflow: hidden;
+    border-radius: 0.2rem;
+    background: var(--cs-card);
+    color: var(--cs-card-ink);
+    box-shadow: 0 10px 14px -8px rgb(0 0 0 / 0.6);
+    rotate: -2deg;
+    transform-origin: 50% 0;
+}
+
+.cs-calendar__label {
+    width: 100%;
+    margin-bottom: 0.3rem;
+    padding: 0.22rem 0.2rem;
+    background: var(--tr-primary);
+    color: var(--tr-ink-primary);
+    font-family: var(--font-script);
+    font-size: 0.56rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.cs-calendar__weekday,
+.cs-calendar__month {
+    font-size: 0.7rem;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.cs-calendar__day {
+    font-family: var(--font-titles);
+    font-size: 2.3rem;
+    font-weight: 600;
+    line-height: 1;
+}
+
+/* La puerta de entrada, con su vidrio de abanico encendido */
+.cs-entry {
+    position: relative;
+    display: grid;
+    align-content: end;
+    justify-items: center;
+    padding-top: 0.6rem;
+    background: var(--cs-clapboard), var(--cs-siding);
+}
+
+.cs-entry__transom {
+    width: 70%;
+    aspect-ratio: 2;
+    margin-bottom: 0.2rem;
+    border-radius: 100% 100% 0 0 / 100% 100% 0 0;
+    background:
+        repeating-conic-gradient(from -90deg at 50% 100%, transparent 0 16deg, var(--cs-trim) 16deg 18deg),
+        radial-gradient(circle at 50% 100%, color-mix(in srgb, var(--tr-primary) 50%, #fff), var(--tr-primary) 70%);
+    box-shadow: 0 0 0 0.16rem var(--cs-trim), 0 0 1.2rem 0.2rem var(--cs-glow);
+}
+
+.cs-entry__door {
+    position: relative;
+    width: 72%;
+    height: 6.2rem;
+    border-radius: 0.2rem 0.2rem 0 0;
+    background:
+        linear-gradient(180deg, transparent 10%, color-mix(in srgb, #000 22%, transparent) 10% 12%, transparent 12% 52%, color-mix(in srgb, #000 22%, transparent) 52% 54%, transparent 54%),
+        linear-gradient(90deg, transparent 48%, color-mix(in srgb, #000 30%, transparent) 48% 52%, transparent 52%),
+        color-mix(in srgb, var(--tr-secondary) 26%, color-mix(in srgb, var(--tr-bg) 62%, #000));
+    box-shadow: inset 0 0 0 0.16rem var(--cs-trim);
+}
+
+.cs-entry__knob {
+    position: absolute;
+    top: 56%;
+    left: 60%;
+    width: 0.4rem;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--tr-primary);
+}
+
+/* El reloj de pie: corona, esfera con las agujas en la hora de la fiesta y la caja con el péndulo */
+.cs-clock {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    justify-items: center;
+    width: 3.3rem;
+}
+
+.cs-clock__crown {
+    width: 100%;
+    height: 0.9rem;
+    border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+    background: var(--cs-wood-deep);
+}
+
+.cs-clock__face {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle, var(--cs-card-ink) 0 0.14rem, transparent 0.16rem),
+        repeating-conic-gradient(from -1deg, var(--cs-card-ink) 0 2deg, transparent 2deg 30deg) center / 86% 86% no-repeat,
+        var(--cs-card);
+    box-shadow: 0 0 0 0.22rem var(--cs-wood-deep), inset 0 0 0 0.42rem var(--cs-card);
+}
+
+.cs-clock__hand {
+    position: absolute;
+    bottom: 50%;
+    left: 50%;
+    width: 0.14rem;
+    height: 36%;
+    margin-left: -0.07rem;
+    border-radius: 0.1rem;
+    background: var(--cs-card-ink);
+    transform-origin: 50% 100%;
+    rotate: var(--a);
+}
+
+.cs-clock__hand--hour {
+    width: 0.2rem;
+    height: 25%;
+    margin-left: -0.1rem;
+}
+
+.cs-clock__case {
+    position: relative;
+    width: 70%;
+    height: 3.2rem;
+    overflow: hidden;
+    border-radius: 0 0 0.15rem 0.15rem;
+    background: var(--cs-wood-deep);
+    box-shadow: inset 0 0 0 0.3rem var(--cs-wood);
+}
+
+/* El péndulo marca el segundo, de lado a lado */
+.cs-clock__pendulum {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 0.12rem;
+    height: 72%;
+    margin-left: -0.06rem;
+    background: var(--tr-primary);
+    transform-origin: 50% 0;
+    animation: cs-pendulum 2s ease-in-out infinite;
+}
+
+.cs-clock__pendulum::after {
+    content: '';
+    position: absolute;
+    bottom: -0.3rem;
+    left: 50%;
+    width: 0.7rem;
+    aspect-ratio: 1;
+    margin-left: -0.35rem;
+    border-radius: 50%;
+    background: var(--tr-primary);
+}
+
+.cs-clock__time {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    margin: 0;
+    line-height: 1.1;
+}
+
+.cs-clock__time span {
+    font-family: var(--font-script);
+    font-size: 0.58rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--inv-muted);
+}
+
+.cs-clock__time strong {
+    font-family: var(--font-titles);
+    font-size: 1.35rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+/* El zócalo de piedra y los escalones de la entrada */
+.cs-house__base {
+    position: relative;
+    display: block;
+    height: 1.05rem;
+    margin: 0 -3%;
+    border-radius: 0.15rem;
+    background:
+        repeating-linear-gradient(90deg, transparent 0 1.3rem, color-mix(in srgb, #000 30%, transparent) 1.3rem 1.38rem),
+        color-mix(in srgb, var(--tr-bg) 68%, var(--tr-text));
+}
+
+.cs-house__steps {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    width: 24%;
+    height: 0.45rem;
+    margin-left: -12%;
+    background: color-mix(in srgb, var(--tr-bg) 62%, var(--tr-text));
+    box-shadow: 0 0.45rem 0 0.35rem color-mix(in srgb, var(--tr-bg) 70%, var(--tr-text));
+}
+
+/* El letrero del jardín: una tabla de madera colgada de su poste, con el lugar */
+.cs-signpost {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    margin: 2rem 0 0;
+    padding-bottom: 1.5rem;
+}
+
+.cs-signpost::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    z-index: -1;
+    width: 0.6rem;
+    height: 100%;
+    margin-left: -0.3rem;
+    background: var(--cs-wood-deep);
+}
+
+.cs-signpost__board {
+    position: relative;
+    display: grid;
+    gap: 0.2rem;
+    max-width: min(84vw, 20rem);
+    padding: 0.7rem 1.3rem 0.8rem;
+    border-radius: 0.2rem;
+    background: var(--cs-wood);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, #000 25%, transparent), 0 14px 18px -12px rgb(0 0 0 / 0.6);
+    font-family: var(--font-titles);
+    font-size: 1.2rem;
+    font-weight: 600;
+    line-height: 1.2;
+    rotate: -1.5deg;
+    transform-origin: 50% 0;
+    text-wrap: balance;
+}
+
+.cs-signpost__board small {
+    font-family: var(--font-script);
+    font-size: 0.6rem;
+    font-weight: 400;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--inv-accent-ink);
+}
+
+/* Los clavos */
+.cs-signpost__board::before,
+.cs-signpost__board::after {
+    content: '';
+    position: absolute;
+    top: 0.45rem;
+    width: 0.32rem;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--tr-text) 55%, var(--tr-bg));
+}
+
+.cs-signpost__board::before { left: 0.45rem; }
+.cs-signpost__board::after { right: 0.45rem; }
+
+.cs-message {
+    max-width: 27rem;
+    margin: 1.6rem auto 0;
+    padding-inline: 0.6rem;
+    font-size: 1rem;
+    line-height: 1.65;
+    color: var(--inv-muted);
+    text-wrap: pretty;
+}
+
+/* ── Secciones: cada una, otro cuarto de la casa ─────────────────────────────
+   El papel tapiz, los muros y el piso de madera; arriba, la placa del cuarto
+   (CSS counter) y la lámpara que se enciende al llegar. */
+
+.inv-casona main > .inv-section {
+    counter-increment: cs-room;
+    border-top: 0;
+    padding-block: 1.6rem 0.4rem;
+}
+
+.inv-casona main > .inv-section > .inv-wrap {
+    position: relative;
+    width: calc(100% - 1.25rem);
+    padding-block: 3.6rem 3.4rem;
+    overflow: clip;
+    border-radius: 0.2rem;
+    background: var(--cs-wallpaper);
+    box-shadow:
+        inset 0 0 0 0.5rem var(--cs-siding-deep),
+        inset 0 0 0 0.62rem color-mix(in srgb, var(--cs-trim) 45%, transparent),
+        inset 0 1.4rem 1.6rem -0.4rem rgb(0 0 0 / 0.4),
+        0 26px 30px -24px rgb(0 0 0 / 0.65);
+}
+
+/* El piso de tablas */
+.inv-casona main > .inv-section > .inv-wrap::after {
+    content: '';
+    position: absolute;
+    right: 0.5rem;
+    bottom: 0.5rem;
+    left: 0.5rem;
+    height: 1.5rem;
+    background: var(--cs-wood-grain), var(--cs-wood);
+    box-shadow: inset 0 0.2rem 0 var(--cs-wood-deep);
+    pointer-events: none;
+}
+
+/* La placa de latón del cuarto */
+.inv-casona main > .inv-section > .inv-wrap::before {
+    content: var(--cs-room-label, "Cuarto") " " counter(cs-room, decimal-leading-zero);
+    position: absolute;
+    top: 1.1rem;
+    left: 50%;
+    padding: 0.28rem 0.7rem 0.24rem;
+    border-radius: 0.15rem;
+    background: var(--tr-primary);
+    color: var(--tr-ink-primary);
+    box-shadow: 0 2px 4px rgb(0 0 0 / 0.35);
+    font-family: var(--font-script);
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    translate: -50% 0;
+}
+
+.inv-casona .invitation-lottie-framed {
+    display: none;
+}
+
+/* La lámpara del cuarto: el resplandor detrás del encabezado */
+.inv-casona .inv-head {
+    position: relative;
+    isolation: isolate;
+}
+
+.inv-casona .inv-head::before {
+    content: '';
+    position: absolute;
+    top: -3rem;
+    left: 50%;
+    z-index: -1;
+    width: min(26rem, 120%);
+    height: 13rem;
+    background: radial-gradient(closest-side, var(--cs-glow), transparent);
+    translate: -50% 0;
+    opacity: 0.55;
+    pointer-events: none;
+}
+
+.inv-casona .inv-head__eyebrow {
+    padding-left: 0.3em;
+    font-family: var(--font-script);
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    color: var(--inv-accent-ink);
+}
+
+.inv-casona .inv-head__title {
+    font-size: clamp(2.2rem, 10vw, 3.3rem);
+    font-style: italic;
+    font-weight: 600;
+}
+
+/* El filete: una línea fina cortada al medio por el candelabro de tres velas */
+.inv-casona .inv-head__rule {
+    position: relative;
+    width: 8rem;
+    height: 1.3rem;
+    background:
+        linear-gradient(var(--cs-trim), var(--cs-trim)) 0 75% / calc(50% - 1.7rem) 1px no-repeat,
+        linear-gradient(var(--cs-trim), var(--cs-trim)) 100% 75% / calc(50% - 1.7rem) 1px no-repeat;
+    opacity: 1;
+}
+
+.inv-casona .inv-head__rule::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 2.6rem;
+    height: 1.3rem;
+    margin-left: -1.3rem;
+    background: var(--tr-primary);
+    -webkit-mask: var(--cs-candelabra) center / contain no-repeat;
+    mask: var(--cs-candelabra) center / contain no-repeat;
+}
+
+.inv-casona {
+    --cs-candelabra: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 52 26'%3E%3Cpath d='M26 0 C24 3 24 5 26 6 C28 5 28 3 26 0 Z M10 4 C8 7 8 9 10 10 C12 9 12 7 10 4 Z M42 4 C40 7 40 9 42 10 C44 9 44 7 42 4 Z'/%3E%3Crect x='24.5' y='7' width='3' height='9'/%3E%3Crect x='8.5' y='11' width='3' height='6'/%3E%3Crect x='40.5' y='11' width='3' height='6'/%3E%3Cpath d='M6 17 H46 C46 20 42 21 30 21 V24 H36 V26 H16 V24 H22 V21 C10 21 6 20 6 17 Z'/%3E%3C/svg%3E");
+}
+
+.inv-casona :is(.inv-label, .inv-link, .inv-btn, .inv-countdown__label) {
+    letter-spacing: 0.14em;
+}
+
+/* Botones: la luz de una lámpara; la letra es la tinta calculada para ese color */
+.inv-casona .inv-btn {
+    min-height: 3.15rem;
+    border: 0;
+    border-radius: 0.35rem;
+    background: var(--tr-primary);
+    color: var(--tr-ink-primary);
+    box-shadow: 0 0 1.4rem -0.2rem var(--cs-glow), 0 12px 18px -14px rgb(0 0 0 / 0.6);
+}
+
+.inv-casona .inv-btn--ghost {
+    background: transparent;
+    color: var(--tr-text);
+    box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--tr-primary) 60%, transparent);
+}
+
+.inv-casona .inv-btn:focus-visible {
+    outline: 2px solid var(--tr-text);
+    outline-offset: 3px;
+}
+
+/* Las respuestas son dos puertas de arco: la elegida se ilumina */
+.inv-casona .inv-choice {
+    border: 1.5px solid color-mix(in srgb, var(--tr-text) 24%, transparent);
+    border-radius: 2.2rem 2.2rem 0.3rem 0.3rem;
+    background: color-mix(in srgb, var(--tr-bg) 70%, transparent);
+    font-family: var(--font-titles);
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.inv-casona .inv-choice.is-selected {
+    border-color: var(--tr-primary);
+    background: var(--tr-primary);
+    color: var(--tr-ink-primary);
+    box-shadow: 0 0 1.6rem -0.2rem var(--cs-glow);
+}
+
+.inv-casona .inv-input {
+    border-bottom: 1.5px solid color-mix(in srgb, var(--tr-text) 30%, transparent);
+}
+
+.inv-casona .inv-input:focus {
+    border-bottom-color: var(--tr-primary);
+}
+
+.inv-casona .inv-poll__option,
+.inv-casona .inv-stepper__btn {
+    border-color: color-mix(in srgb, var(--tr-text) 20%, transparent);
+    background: color-mix(in srgb, var(--tr-bg) 60%, transparent);
+}
+
+/* Cuenta regresiva: cada cifra en una ventana de arco encendida */
+.inv-casona .inv-countdown__grid {
+    gap: 0.5rem;
+    border-block: 0;
+}
+
+.inv-casona .inv-countdown__unit,
+.inv-casona .inv-countdown__unit + .inv-countdown__unit {
+    border: 0;
+    border-radius: 2.4rem 2.4rem 0.2rem 0.2rem;
+    background: radial-gradient(80% 70% at 50% 30%, color-mix(in srgb, var(--tr-primary) 22%, var(--tr-bg)), var(--tr-bg));
+    box-shadow: inset 0 0 0 0.2rem var(--cs-trim), 0 0.35rem 0 -0.05rem var(--cs-trim), 0 0 1.2rem -0.4rem var(--cs-glow);
+}
+
+.inv-casona .inv-countdown__value {
+    font-family: var(--font-titles);
+    font-weight: 600;
+    color: var(--tr-text);
+}
+
+/* La galería: cuadros con su marco */
+.inv-casona .inv-gallery__card {
+    border-radius: 0.15rem;
+    box-shadow: 0 0 0 0.4rem var(--cs-frame), 0 0 0 0.5rem color-mix(in srgb, #000 30%, transparent), 0 24px 30px -20px rgb(0 0 0 / 0.65);
+}
+
+/* Vestimenta: cada color, una muestra de pintura redonda con su borde */
+.inv-casona .inv-dress__swatch {
+    border-radius: 50%;
+    box-shadow: inset -4px -6px 10px rgb(0 0 0 / 0.2), 0 0 0 3px var(--cs-trim);
+}
+
+.inv-casona .inv-pass {
+    border: 0;
+    border-radius: 0.3rem;
+    background: color-mix(in srgb, var(--tr-bg) 75%, transparent);
+    box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--tr-primary) 60%, transparent);
+}
+
+/* ── Programa: la escalera ──────────────────────────────────────────────── */
+
+.cs-stairs-wrap {
+    position: relative;
+    max-width: 36rem;
+    margin: 0 auto;
+}
+
+.cs-stairs__ghost {
+    position: absolute;
+    top: -0.6rem;
+    right: 0.1rem;
+    z-index: 2;
+    width: 2.6rem;
+    animation: cs-float 4s ease-in-out infinite alternate;
+}
+
+.cs-stairs {
+    --cs-shift: min(5vw, 1.6rem);
+    display: grid;
+    gap: 0.6rem;
+    margin: 0;
+    padding: 1.6rem 0 0;
+    list-style: none;
+}
+
+/* Cada escalón baja un poco más a la derecha que el anterior */
+.cs-stair {
+    margin-left: calc(var(--rise, 0) * var(--cs-shift));
+    margin-right: calc((4 - var(--rise, 0)) * var(--cs-shift) * 0.35);
+}
+
+.cs-stair__plank {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 1rem 0.9rem 0.85rem;
+    border-radius: 0.2rem;
+    background: var(--cs-wood-grain), var(--cs-wood);
+    box-shadow:
+        inset 0 0.36rem 0 var(--cs-tread),
+        inset 0 0.42rem 0 var(--cs-wood-deep),
+        0 0.45rem 0 -0.05rem var(--cs-wood-deep),
+        0 16px 20px -14px rgb(0 0 0 / 0.65);
+    text-align: left;
+}
+
+/* La placa de latón de la contrahuella: el escalón y la hora */
+.cs-stair__plate {
+    display: grid;
+    justify-items: center;
+    min-width: 4.3rem;
+    padding: 0.3rem 0.45rem 0.35rem;
+    border-radius: 0.18rem;
+    background: var(--tr-primary);
+    color: var(--tr-ink-primary);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, #000 22%, transparent), 0 2px 3px rgb(0 0 0 / 0.35);
+}
+
+.cs-stair__plate small {
+    font-family: var(--font-script);
+    font-size: 0.52rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.cs-stair__plate time {
+    font-family: var(--font-titles);
+    font-size: 1.2rem;
+    font-weight: 600;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+}
+
+.cs-stair__body {
+    min-width: 0;
+}
+
+.cs-stair__title {
+    margin: 0;
+    font-family: var(--font-titles);
+    font-size: 1.12rem;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--tr-text);
+    overflow-wrap: break-word;
+}
+
+.cs-stair__text {
+    margin: 0.2rem 0 0;
+    font-size: 0.88rem;
+    line-height: 1.45;
+    color: var(--inv-muted);
+}
+
+@media (min-width: 720px) {
+    .cs-stairs {
+        --cs-shift: 2.4rem;
+    }
+}
+
+/* ── Anfitriones: la galería de retratos ────────────────────────────────── */
+
+.cs-portraits {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+    justify-content: center;
+    gap: 2.4rem 1.4rem;
+    margin: 0.6rem 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.cs-portrait {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    gap: 0.55rem;
+    padding-top: 1.7rem;
+    text-align: center;
+    transform-origin: 50% 0;
+}
+
+/* El alambre del clavo al marco */
+.cs-portrait__wire {
+    position: absolute;
+    top: 0.2rem;
+    left: 50%;
+    width: 6rem;
+    height: 1.7rem;
+    margin-left: -3rem;
+    background:
+        linear-gradient(to top right, transparent calc(50% - 0.6px), var(--cs-trim) calc(50% - 0.6px) calc(50% + 0.6px), transparent calc(50% + 0.6px)) 0 0 / 50% 100% no-repeat,
+        linear-gradient(to top left, transparent calc(50% - 0.6px), var(--cs-trim) calc(50% - 0.6px) calc(50% + 0.6px), transparent calc(50% + 0.6px)) 100% 0 / 50% 100% no-repeat;
+}
+
+.cs-portrait__wire::before {
+    content: '';
+    position: absolute;
+    top: -0.2rem;
+    left: 50%;
+    width: 0.45rem;
+    aspect-ratio: 1;
+    margin-left: -0.225rem;
+    border-radius: 50%;
+    background: var(--cs-trim);
+}
+
+.cs-portrait__frame {
+    display: block;
+    width: 8.8rem;
+    padding: 0.45rem;
+    border-radius: 50% 50% 0.3rem 0.3rem / 30% 30% 0.3rem 0.3rem;
+    background: var(--cs-frame);
+    box-shadow: inset 0 0 0 0.12rem color-mix(in srgb, #fff 22%, transparent), inset 0 0 0 0.3rem color-mix(in srgb, #000 22%, transparent), 0 16px 22px -14px rgb(0 0 0 / 0.7);
+}
+
+.cs-portrait__velvet {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 4 / 5;
+    border-radius: 50% 50% 0.15rem 0.15rem / 30% 30% 0.15rem 0.15rem;
+    background: radial-gradient(circle at 50% 35%, color-mix(in srgb, var(--tr-secondary) 42%, var(--tr-bg)), color-mix(in srgb, var(--tr-secondary) 20%, var(--tr-bg)));
+    font-family: var(--font-titles);
+    font-size: 3.2rem;
+    font-style: italic;
+    font-weight: 600;
+    color: var(--tr-text);
+}
+
+.cs-portrait__plate {
+    padding: 0.26rem 0.7rem 0.22rem;
+    border-radius: 0.15rem;
+    background: var(--tr-primary);
+    color: var(--tr-ink-primary);
+    font-family: var(--font-script);
+    font-size: 0.62rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+.cs-portrait__names {
+    margin: 0.1rem 0 0;
+    font-family: var(--font-titles);
+    font-size: 1.35rem;
+    font-weight: 600;
+    line-height: 1.2;
+    text-wrap: balance;
+}
+
+.cs-portrait__note {
+    max-width: 19rem;
+    margin: 0;
+    font-size: 0.92rem;
+    font-style: italic;
+    line-height: 1.5;
+    color: var(--inv-muted);
+}
+
+/* El libro de visitas: hojas de papel (texto y fondo invertidos) con renglones */
+.cs-guestbook {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+    gap: 1rem;
+    max-width: 36rem;
+    margin: 2.4rem auto 0;
+}
+
+.cs-guestbook__page {
+    padding: 1rem 1.1rem 1.1rem;
+    border-radius: 0.2rem;
+    background: var(--cs-card);
+    color: var(--cs-card-ink);
+    box-shadow: 0 14px 20px -14px rgb(0 0 0 / 0.65);
+    text-align: left;
+}
+
+.cs-guestbook__title {
+    margin: 0 0 0.5rem;
+    font-family: var(--font-script);
+    font-size: 0.7rem;
+    font-weight: 400;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+.cs-guestbook__list {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.cs-guestbook__list li {
+    display: grid;
+    padding: 0.45rem 0 0.4rem;
+    border-bottom: 1px dashed color-mix(in srgb, var(--cs-card-ink) 35%, transparent);
+}
+
+.cs-guestbook__name {
+    font-family: var(--font-titles);
+    font-size: 1.1rem;
+    font-style: italic;
+    font-weight: 600;
+}
+
+.cs-guestbook__list small {
+    font-size: 0.8rem;
+    opacity: 0.8;
+}
+
+/* ── Movimiento ─────────────────────────────────────────────────────────────
+   Gestos comunes en tendencias/_motion.css. El compás de la casa es el del
+   péndulo: 2 s de lado a lado; la llama y el fantasma laten en múltiplos. */
+
+/* La portada al abrirse la casa: la casa se asienta, los cuartos se encienden uno por uno y cada
+   pieza llega a su lugar */
+.cs-hero .cs-kicker {
+    animation: tr-fade 0.9s ease backwards;
+}
+
+.cs-name {
+    animation: cs-name-in 1.2s var(--tr-ease) 0.1s backwards;
+}
+
+.cs-house__moon {
+    animation: tr-fade 1.4s ease 0.2s backwards;
+}
+
+.cs-house__roof .cs-roof {
+    --tr-rise: 0.8rem;
+    animation: tr-fall-in 0.9s var(--tr-ease) 0.25s backwards;
+}
+
+.cs-house__body {
+    --tr-rise: 1.2rem;
+    animation: tr-rise 1s var(--tr-ease) 0.15s backwards;
+}
+
+.cs-room__light {
+    animation: cs-light-on 1s ease calc(0.6s + var(--n, 0) * 0.3s) backwards;
+}
+
+.cs-frame {
+    --tr-settle-turn: -3deg;
+    animation: tr-settle 1s var(--tr-ease) 1.2s backwards;
+}
+
+.cs-calendar {
+    --tr-tilt: -2deg;
+    --tr-swing: 12deg;
+    animation: tr-swing 1.3s ease-out 1.1s backwards;
+}
+
+.cs-clock {
+    --tr-rise: 0.8rem;
+    animation: tr-rise 0.9s var(--tr-ease) 1.3s backwards;
+}
+
+.cs-clock__time {
+    animation: tr-fade 0.8s ease 1.5s backwards;
+}
+
+.cs-house__bat .cs-bat__wing,
+.cs-ambient__bat .cs-bat__wing {
+    animation: cs-flap 0.5s ease-in-out infinite alternate;
+}
+
+.cs-house__bat {
+    animation: cs-hover 4s ease-in-out infinite alternate;
+}
+
+.cs-house__bat--right {
+    animation-delay: -2s;
+}
+
+/* El fantasma del salón se asoma detrás del retrato y se vuelve a esconder */
+.cs-hall__ghost {
+    animation: cs-peek 8s ease-in-out 2.4s infinite;
+}
+
+.cs-signpost__board {
+    --tr-tilt: -1.5deg;
+    --tr-swing: 9deg;
+    animation: tr-swing 1.4s ease-out 1.5s backwards;
+}
+
+.cs-message {
+    animation: tr-fade 1s ease 1.8s backwards;
+}
+
+.cs-hero__scroll {
+    animation: tr-fade 0.8s ease 2s backwards;
+}
+
+@keyframes cs-name-in {
+    from { opacity: 0; translate: 0 0.5rem; }
+}
+
+/* Se enciende la lámpara: chispea y queda */
+@keyframes cs-light-on {
+    0% { opacity: 0; }
+    30% { opacity: 0.75; }
+    42% { opacity: 0.15; }
+    62% { opacity: 1; }
+    74% { opacity: 0.6; }
+    100% { opacity: 1; }
+}
+
+@keyframes cs-flame {
+    0%, 100% { scale: 1 1; opacity: 1; }
+    25% { scale: 0.92 1.08; opacity: 0.92; }
+    50% { scale: 1.05 0.95; opacity: 1; }
+    75% { scale: 0.96 1.04; opacity: 0.9; }
+}
+
+@keyframes cs-pendulum {
+    0%, 100% { rotate: 12deg; }
+    50% { rotate: -12deg; }
+}
+
+@keyframes cs-flap {
+    from { scale: 1 1; }
+    to { scale: 1 0.3; }
+}
+
+@keyframes cs-hover {
+    from { translate: 0 0; }
+    to { translate: 0 -0.4rem; }
+}
+
+@keyframes cs-float {
+    from { translate: 0 0; rotate: -3deg; }
+    to { translate: 0 -0.5rem; rotate: 3deg; }
+}
+
+@keyframes cs-peek {
+    0%, 12%, 62%, 100% { translate: 0 0; rotate: 0deg; }
+    24%, 50% { translate: 3.4rem -0.4rem; rotate: 10deg; }
+}
+
+/* Secciones: la lámpara del cuarto se enciende y la placa se asienta */
+.inv-casona :is(.reveal.is-visible, .inv-scene.is-active) .inv-head::before {
+    animation: cs-light-on 1.1s ease 0.2s backwards;
+}
+
+.inv-casona main > :is(.reveal.is-visible, .inv-scene.is-active) > .inv-wrap::before {
+    animation: cs-plate 0.7s var(--tr-ease) 0.3s backwards;
+}
+
+.inv-casona :is(.reveal.is-visible, .inv-scene.is-active) .inv-head__rule::before {
+    animation: tr-pop 0.6s var(--tr-ease) 0.45s backwards;
+}
+
+@keyframes cs-plate {
+    from { opacity: 0; translate: -50% -0.6rem; }
+}
+
+/* Escalera: cada escalón baja a su lugar, uno tras otro, y su placa se clava */
+.cs-stair {
+    --step-anim: tr-rise;
+}
+
+.inv-casona :is(.reveal.is-visible, .inv-scene.is-active) .cs-stair__plate {
+    animation: tr-press 0.55s var(--tr-ease) calc(0.35s + var(--step, 0) * 0.12s) backwards;
+}
+
+/* Retratos: cada uno se mece en su clavo hasta quedarse quieto */
+.cs-portrait {
+    --step-anim: tr-swing;
+    --tr-swing: 7deg;
+}
+
+html:not(.no-js) .inv-casona .reveal:not(.is-visible) .cs-portrait[data-step] {
+    transform: none;
+}
+
+.inv-casona .reveal .cs-portrait[data-step] {
+    transition: opacity 0.6s ease calc(0.2s + var(--step, 0) * 0.15s);
+}
+
+html:not(.inv-story-on) .inv-casona .reveal.is-visible .cs-portrait[data-step] {
+    animation: tr-swing 1.5s ease-out calc(0.25s + var(--step, 0) * 0.15s) backwards;
+}
+
+.inv-casona :is(.reveal.is-visible, .inv-scene.is-active) .cs-guestbook__list li {
+    --tr-rise: 0.5rem;
+    animation: tr-rise 0.6s var(--tr-ease) calc(0.4s + var(--i, 0) * 80ms) backwards;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .cs-stair__plank {
+        transition: translate 0.35s var(--tr-spring);
+    }
+
+    .cs-stair:hover .cs-stair__plank {
+        translate: 0 -0.2rem;
+    }
+}
+
+/* ── Fondo: la noche alrededor de la casa ───────────────────────────────── */
+
+.inv-casona .inv-themed-bg__glow {
+    background:
+        radial-gradient(40% 30% at 50% 0%, color-mix(in srgb, var(--tr-accent) 10%, transparent), transparent 70%),
+        radial-gradient(40% 30% at 15% 80%, color-mix(in srgb, var(--tr-primary) 6%, transparent), transparent 70%),
+        radial-gradient(40% 30% at 85% 80%, color-mix(in srgb, var(--tr-primary) 6%, transparent), transparent 70%);
+}
+
+/* Murciélagos que van y vienen, uno por costado y en espejo */
+.cs-ambient__flight {
+    position: absolute;
+    top: 16vh;
+    left: 0;
+    width: 2.4rem;
+    opacity: 0;
+    animation: cs-flit 12s ease-in-out infinite;
+}
+
+.cs-ambient__flight--right {
+    right: 0;
+    left: auto;
+    scale: -1 1;
+    top: 34vh;
+    animation-delay: -6s;
+}
+
+@keyframes cs-flit {
+    0% { opacity: 0; translate: -3rem 0; }
+    8% { opacity: 0.55; }
+    30% { translate: 16vw -4vh; }
+    50% { translate: 26vw 2vh; opacity: 0.55; }
+    70% { translate: 12vw 6vh; }
+    88% { opacity: 0.55; }
+    100% { opacity: 0; translate: -3rem 3vh; }
+}
+
+/* Arañas que bajan por su hilo y vuelven a subir, una por costado */
+.cs-ambient__spider {
+    position: absolute;
+    top: 0;
+    left: max(0.4rem, 5vw);
+    width: 1.3rem;
+    opacity: 0.5;
+    translate: 0 -2rem;
+    animation: cs-spider 6s ease-in-out infinite;
+}
+
+.cs-ambient__spider--right {
+    right: max(0.4rem, 5vw);
+    left: auto;
+    animation-delay: -3s;
+}
+
+.cs-ambient__thread {
+    position: absolute;
+    bottom: 60%;
+    left: 50%;
+    width: 1px;
+    height: 60vh;
+    background: color-mix(in srgb, var(--tr-text) 35%, transparent);
+}
+
+.cs-ambient__body {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.cs-ambient__legs {
+    fill: none;
+    stroke: var(--cs-bat);
+    stroke-width: 1.6;
+    stroke-linecap: round;
+}
+
+.cs-ambient__abdomen { fill: var(--cs-bat); }
+.cs-ambient__eye { fill: var(--tr-primary); }
+
+@keyframes cs-spider {
+    0%, 100% { translate: 0 -2rem; }
+    45%, 60% { translate: 0 14vh; }
+}
+
+/* La neblina del jardín, en dos capas que se corren despacio */
+.cs-ambient__fog {
+    position: absolute;
+    bottom: -6vh;
+    left: -20vw;
+    width: 140vw;
+    height: 26vh;
+    background:
+        radial-gradient(45% 60% at 30% 70%, color-mix(in srgb, var(--tr-accent) 12%, transparent), transparent 70%),
+        radial-gradient(40% 55% at 72% 62%, color-mix(in srgb, var(--tr-text) 7%, transparent), transparent 70%);
+    animation: cs-fog 24s ease-in-out infinite alternate;
+}
+
+.cs-ambient__fog--front {
+    bottom: -10vh;
+    opacity: 0.8;
+    animation-duration: 18s;
+    animation-direction: alternate-reverse;
+}
+
+@keyframes cs-fog {
+    from { translate: -6vw 0; }
+    to { translate: 6vw 0; }
+}
+
+.inv-drift--estrellas {
+    --drift-a: color-mix(in srgb, var(--tr-accent) 50%, #fff);
+    --drift-b: color-mix(in srgb, var(--tr-primary) 50%, #fff);
+    opacity: 0.55;
+}
+
+/* ── Pie e historia ─────────────────────────────────────────────────────── */
+
+.inv-casona .inv-casona-footer {
+    border-top: 0;
+}
+
+.inv-casona-footer .inv-footer__ornament--line {
+    width: 8rem;
+    height: 1px;
+    background: var(--cs-trim);
+}
+
+/* Modo historia: cada escena es un cuarto que se enciende */
+.inv-story-invitation .inv-casona .inv-scene {
+    --story-scene-bg: var(--tr-bg);
+    translate: 0 6%;
+    opacity: 0;
+    transition: translate 0.75s var(--tr-ease), opacity 0.5s ease, visibility 0s linear 0.75s;
+}
+
+.inv-story-invitation .inv-casona .inv-scene.is-past {
+    translate: 0 -5%;
+}
+
+.inv-story-invitation .inv-casona .inv-scene.is-active {
+    translate: 0 0;
+    opacity: 1;
+    transition-delay: 0s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cs-knocker__ring,
+    .cs-intro__hint,
+    .cs-sconce i::before,
+    .cs-clock__pendulum,
+    .cs-hall__ghost,
+    .cs-house__bat,
+    .cs-bat__wing,
+    .cs-stairs__ghost {
+        animation: none !important;
+    }
+}

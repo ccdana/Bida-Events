@@ -272,7 +272,7 @@ class LandingAndTemplateRevisionsTest extends TestCase
             'Gira mundial' => [TrendTemplates::key('gira', 'cumple'), 'cumple-daniela-30', ['gr-rig__light', 'gr-rig__screen', 'gr-crowd', 'gr-intro__confetti']],
             'Partitura a dos voces' => [TrendTemplates::key('partitura', 'boda'), 'boda-camila-andres', ['pt-ambient__staff', 'pt-ambient__note']],
             'Próxima salida' => [InvitationTemplates::GRADUACION_PROXIMA_SALIDA, 'graduacion-mariana', ['ps-gate__plane', 'ps-gate__status-next', 'ps-pass__scan', 'Embarcando hoy']],
-            'Álbum de stickers' => [InvitationTemplates::CUMPLE_STICKERS, 'cumple-daniela-stickers', ['st-album__slot', 'st-fan st-fan--shiny', 'st-album__done', 'st-pack__label']],
+            'Álbum de stickers' => [InvitationTemplates::CUMPLE_STICKERS, 'cumple-daniela-stickers', ['st-album__slot', 'st-fan st-fan--shiny', 'st-album__done', 'st-pack__label', 'st-list__row', 'st-chip__no', 'N.º 1']],
             'Dos caminos' => [InvitationTemplates::BODA_DOS_CAMINOS, 'boda-camila-andres-caminos', ['dc-map__compass', 'dc-map__walk', 'animateMotion', 'dc-walk__heart']],
             'Móvil de cuna: el carrusel' => [TrendTemplates::key('movil', 'bautizo'), 'bautizo-emilia', ['mv-intro__projector', 'mv-intro__notes', 'mv-intro__light', 'mv-intro__window']],
             'Partitura a dos voces: la batuta' => [TrendTemplates::key('partitura', 'boda'), 'boda-camila-andres', ['pt-baton', 'pt-score__cover', 'pt-score__note--2', 'pt-score__heart']],
@@ -288,7 +288,11 @@ class LandingAndTemplateRevisionsTest extends TestCase
             // Las dos de cumpleaños nuevas: las hojas del almanaque que se arrancan y la cabina de fotos con su tira
             'Día feriado' => [TrendTemplates::key('feriado', 'cumple'), 'cumple-daniela-30', ['fd-leaf--day', 'fd-sticky', 'fd-month__day is-marked', 'fd-ambient__leaf--right']],
             'Cabina de fotos' => [TrendTemplates::key('cabina', 'cumple'), 'cumple-daniela-30', ['cb-booth__screen', 'cb-strip--intro', 'cb-intro__guest', 'cb-ambient__flash--right']],
-            'Esencia XV' => [TrendTemplates::key('esencia', 'xv'), 'xv-isabella', ['ez-mist', 'ez-intro__reveal', 'ez-cube__lid', 'ez-band--across', 'ez-plinth__top', 'ez-tier--2', 'ez-ambient__mist--center']],
+            'Esencia XV' => [TrendTemplates::key('esencia', 'xv'), 'xv-isabella', ['ez-mist', 'ez-intro__reveal', 'ez-cube__lid', 'ez-face--under', 'ez-band--across', 'ez-plinth__top', 'ez-tier--2', 'ez-ambient__mist--center']],
+            // La borla del birrete cruza con el cordón en vuelo: nunca hay un cuadro sin borla ni sin cordón
+            'Birrete al aire' => [InvitationTemplates::GRADUACION_BIRRETE, 'graduacion-mariana', ['br-cap__cord--live', 'br-cap__tassel--right', 'br-intro__cheer']],
+            // Halloween: la casa de muñecas que se abre en dos
+            'Casa de muñecas de medianoche' => [TrendTemplates::key('casona', 'halloween'), 'halloween-noche-diego', ['cs-doll__back', 'cs-window__glow', 'cs-roof__ghost', 'cs-ambient__spider--right', 'cs-hall__ghost']],
         ];
     }
 

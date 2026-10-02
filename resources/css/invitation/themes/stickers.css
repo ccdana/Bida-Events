@@ -498,88 +498,178 @@ a.st-missing:focus-visible {
     rotate: 0deg;
 }
 
-/* ── La fiesta: casillas numeradas del álbum ────────────────────────────── */
+/* ── La fiesta: la lista de la colección ───────────────────────────────────
+   Una línea punteada impresa baja por la página; en ella va cada momento como
+   un sticker chico (la hora en la cara, el número de colección en la franja),
+   pegado en su casilla, con el título y la descripción impresos al lado. En
+   pantallas anchas la línea va al centro y los textos se turnan a cada lado. */
 
-.st-album {
+.st-list {
+    --st-chip: 5.4rem;
+    position: relative;
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 2.4rem 1.1rem;
-    margin: 0;
-    padding: 1rem 0.3rem 0;
+    gap: 1.7rem;
+    max-width: 34rem;
+    margin: 0 auto;
+    padding: 0.6rem 0 0;
     list-style: none;
 }
 
-@media (min-width: 720px) {
-    .st-album {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 2.6rem 1.6rem;
-    }
+/* La línea impresa que une las casillas, por el centro de los stickers */
+.st-list::before {
+    content: '';
+    position: absolute;
+    top: 2.2rem;
+    bottom: 2.2rem;
+    left: calc(var(--st-chip) / 2 + 0.4rem);
+    border-left: 2px dashed var(--st-print);
 }
 
-.st-album__slot {
+.st-list__row {
     position: relative;
     display: grid;
-    grid-template-rows: auto 1fr;
-    gap: 0.75rem;
+    grid-template-columns: calc(var(--st-chip) + 0.8rem) 1fr;
+    align-items: center;
+    gap: 1.1rem;
 }
 
-/* El número impreso de la casilla, en orden de la fiesta */
-.st-album__no {
-    position: absolute;
-    top: -0.85rem;
-    left: -0.5rem;
-    z-index: 2;
+/* La casilla impresa: tapa la línea y asoma detrás del sticker torcido */
+.st-list__slot {
+    position: relative;
     display: grid;
     place-items: center;
-    min-width: 1.7rem;
-    height: 1.7rem;
-    padding-inline: 0.35rem;
-    border: 1.5px solid var(--st-print);
-    border-radius: 999px;
+    padding: 0.4rem;
+    border-radius: 1.2rem;
     background: var(--bg-color);
-    color: var(--inv-muted);
-    font-size: 0.78rem;
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
 }
 
-.st-album .st-fig {
-    --tilt: -2deg;
+.st-list__slot::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 1.5px solid var(--st-print);
+    border-radius: 1.2rem;
 }
 
-.st-album__slot:nth-child(even) .st-fig {
-    --tilt: 2deg;
+.st-fig--chip {
+    --tilt: -3deg;
+    width: var(--st-chip);
+    height: auto;
+    padding: 0.28rem;
+    border-radius: 0.8rem;
 }
 
-.st-album__slot:nth-child(3n + 2) .st-fig {
+.st-list__row:nth-child(even) .st-fig--chip {
+    --tilt: 3deg;
+}
+
+.st-list__row:nth-child(4n + 2) .st-fig--chip {
     --fig-face: var(--accent-color);
     --fig-ink: var(--text-color);
     --fig-band: var(--primary-color);
     --fig-band-ink: var(--bg-color);
 }
 
-.st-album__slot:nth-child(3n + 3) .st-fig {
+.st-list__row:nth-child(4n + 3) .st-fig--chip {
     --fig-face: var(--secondary-color);
     --fig-ink: var(--text-color);
     --fig-band: var(--text-color);
     --fig-band-ink: var(--bg-color);
 }
 
-.st-album .st-fig__face {
-    min-height: 5.5rem;
-    padding: 0.6rem 0.4rem;
+.st-list__row:nth-child(4n + 4) .st-fig--chip {
+    --fig-face: var(--text-color);
+    --fig-ink: var(--bg-color);
+    --fig-band: var(--accent-color);
+    --fig-band-ink: var(--text-color);
 }
 
-.st-album .st-fig__band {
-    font-size: 0.92rem;
+.st-fig--chip .st-fig__face {
+    min-height: 3.3rem;
+    padding: 0.45rem 0.2rem;
+    border-radius: 0.55rem 0.55rem 0 0;
 }
 
-.st-album__caption {
+.st-chip__time {
+    font-family: var(--font-script);
+    font-size: 1.4rem;
+    font-weight: 400;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.st-fig--chip .st-chip__no {
+    padding: 0.22rem 0.3rem 0.26rem;
+    border-radius: 0 0 0.55rem 0.55rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+}
+
+.st-list__text {
+    min-width: 0;
+}
+
+.st-list__title {
     margin: 0;
-    font-size: 0.88rem;
+    font-family: var(--font-titles);
+    font-size: 1.3rem;
+    font-weight: 400;
+    line-height: 1.15;
+    color: var(--text-color);
+    text-wrap: balance;
+    overflow-wrap: break-word;
+}
+
+.st-list__caption {
+    margin: 0.3rem 0 0;
+    font-size: 0.92rem;
     line-height: 1.5;
     color: var(--inv-muted);
     text-wrap: pretty;
+}
+
+@media (min-width: 720px) {
+    .st-list {
+        --st-chip: 6rem;
+        gap: 1.4rem;
+        max-width: 48rem;
+    }
+
+    .st-list::before {
+        left: 50%;
+        margin-left: -1px;
+    }
+
+    .st-list__row {
+        grid-template-columns: 1fr calc(var(--st-chip) + 0.8rem) 1fr;
+        gap: 1.6rem;
+    }
+
+    .st-list__slot {
+        grid-row: 1;
+        grid-column: 2;
+    }
+
+    .st-list__row:nth-child(odd) .st-list__text {
+        grid-row: 1;
+        grid-column: 3;
+    }
+
+    .st-list__row:nth-child(even) .st-list__text {
+        grid-row: 1;
+        grid-column: 1;
+        text-align: right;
+    }
+
+    .st-chip__time {
+        font-size: 1.6rem;
+    }
+}
+
+/* Al aparecer la sección, cada sticker se pega en su casilla, uno tras otro */
+.inv-stickers .reveal.is-visible .st-fig--chip {
+    animation: st-stick 0.65s var(--st-spring) calc(0.3s + var(--step, 0) * 110ms) both;
 }
 
 /* ── Apertura: el sobre de stickers ─────────────────────────────────────── */
@@ -1099,6 +1189,7 @@ a.st-missing:focus-visible {
 
 @media (prefers-reduced-motion: reduce) {
     .st-hero .st-fig,
+    .inv-stickers .reveal.is-visible .st-fig--chip,
     .st-fig__shine,
     .st-fig.is-poked,
     .inv-stickers .inv-choice.is-selected {
