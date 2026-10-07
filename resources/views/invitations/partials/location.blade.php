@@ -1,9 +1,6 @@
 @php
-    $lat = $ubicacion['lat'] ?? null;
-    $lng = $ubicacion['lng'] ?? null;
-    $hasCoords = is_numeric($lat) && is_numeric($lng);
-    $mapEmbed = $hasCoords ? "https://maps.google.com/maps?q={$lat},{$lng}&z=15&output=embed" : null;
-    $mapsNavUrl = $ubicacion['maps_url'] ?? ($hasCoords ? "https://www.google.com/maps/dir/?api=1&destination={$lat},{$lng}" : null);
+    $mapEmbed = \App\Support\MapsLinkParser::embedUrl($ubicacion);
+    $mapsNavUrl = \App\Support\MapsLinkParser::directionsUrl($ubicacion);
     $imageUrl = $ubicacion['imagen_lugar'] ?? null;
     $placeName = $ubicacion['nombre_lugar'] ?? null;
     $address = $ubicacion['direccion'] ?? null;

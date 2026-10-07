@@ -1950,7 +1950,8 @@ function invitationForm(config) {
             if (!this.hasLocationCoordinates()) return '#';
             const lat = this.modules.ubicacion.lat;
             const lng = this.modules.ubicacion.lng;
-            return this.modules.ubicacion.maps_url?.trim() || this.buildMapsUrl(lat, lng);
+            const link = this.modules.ubicacion.maps_url?.trim();
+            return /^https?:\/\//i.test(link || '') ? link : this.buildMapsUrl(lat, lng);
         },
 
         googleMapsEmbedUrl() {
@@ -2112,8 +2113,10 @@ function invitationForm(config) {
                     this.modules.ubicacion.nombre_lugar = extractedName;
                 }
 
+                // Coordenadas sueltas ("-17.39,-66.16") no son un enlace: el botón «Cómo llegar» necesita uno de mapa
+                const typedLink = this.modules.ubicacion.maps_url;
                 this.setLocationCoordinates(coords.lat, coords.lng, {
-                    mapsUrl: this.modules.ubicacion.maps_url,
+                    mapsUrl: /^https?:\/\//i.test(typedLink || '') ? typedLink : this.buildMapsUrl(coords.lat, coords.lng),
                     pan: true,
                 });
             } catch (error) {

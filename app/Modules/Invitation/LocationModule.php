@@ -7,6 +7,7 @@ use App\Models\InvitationLocation;
 use App\Modules\Concerns\ReadsValues;
 use App\Modules\Concerns\ReplacesOrderedRows;
 use App\Modules\Module;
+use App\Support\MapsLinkParser;
 
 /** Ubicación del evento: una fila, lista para sumar otra (ceremonia y fiesta) sin cambiar el esquema. */
 class LocationModule extends Module
@@ -54,12 +55,24 @@ class LocationModule extends Module
 
     public function save(Invitation $invitation, array $data): void
     {
+        $latitude = $this->number($data['lat'] ?? null);
+        $longitude = $this->number($data['lng'] ?? null);
+        $mapUrl = $this->text($data['maps_url'] ?? null);
+
+        if ($mapUrl !== null && ! MapsLinkParser::webUrl($mapUrl) && ($typed = MapsLinkParser::parse($mapUrl))) {
+            // Coordenadas escritas a mano en el campo del enlace: se guardan como punto y como enlace de mapa real
+            [$latitude, $longitude] = [$typed['lat'], $typed['lng']];
+            $mapUrl = MapsLinkParser::buildUrl($typed['lat'], $typed['lng']);
+        } elseif ($mapUrl !== null) {
+            $mapUrl = MapsLinkParser::webUrl($mapUrl) ?? $mapUrl;
+        }
+
         $row = [
             'name' => $this->text($data['nombre_lugar'] ?? null, 255),
             'address' => $this->text($data['direccion'] ?? null, 500),
-            'latitude' => $this->number($data['lat'] ?? null),
-            'longitude' => $this->number($data['lng'] ?? null),
-            'map_url' => $this->text($data['maps_url'] ?? null),
+            'latitude' => $latitude,
+            'longitude' => $longitude,
+            'map_url' => $mapUrl,
             'image_url' => $this->text($data['imagen_lugar'] ?? null),
             'note' => $this->text($data['nota'] ?? null),
         ];

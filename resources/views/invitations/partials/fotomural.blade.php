@@ -15,11 +15,16 @@
 
         @unless($readOnly)
             <div class="inv-actions inv-mural__actions" data-needs-js>
-                <button type="button" class="inv-btn inv-btn--block" @click="$refs.fileInput.click()" :disabled="uploading">
+                {{-- El botón principal abre la cámara trasera del celular (capture); en computador cae al selector de archivos --}}
+                <button type="button" class="inv-btn inv-btn--block" @click="$refs.cameraInput.click()" :disabled="uploading">
                     @include('invitations.partials.icon', ['name' => 'camera', 'class' => 'inv-btn__icon', 'animated' => false])
                     <span x-text="uploading ? 'Subiendo foto…' : @js($invCopy['mural_button'] ?? 'Compartir una foto')">{{ $invCopy['mural_button'] ?? 'Compartir una foto' }}</span>
                 </button>
-                <input type="file" x-ref="fileInput" accept="image/*" class="sr-only" tabindex="-1" @change="upload">
+                <button type="button" class="inv-btn inv-btn--ghost inv-btn--block" @click="$refs.galleryInput.click()" :disabled="uploading">
+                    Elegir de la galería
+                </button>
+                <input type="file" x-ref="cameraInput" accept="image/*" capture="environment" class="sr-only" tabindex="-1" aria-hidden="true" @change="upload">
+                <input type="file" x-ref="galleryInput" accept="image/*" class="sr-only" tabindex="-1" aria-hidden="true" @change="upload">
                 <p class="inv-help">{{ $invCopy['mural_help'] ?? 'Puedes usar la cámara o elegir una foto de tu galería.' }}</p>
             </div>
 

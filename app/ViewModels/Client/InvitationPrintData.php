@@ -4,6 +4,7 @@ namespace App\ViewModels\Client;
 
 use App\Models\Invitation;
 use App\Support\InvitationTemplates;
+use App\Support\MapsLinkParser;
 use App\Support\Pdf\PdfAssets;
 use App\Support\Pdf\PdfMotifs;
 use App\Support\Pdf\PdfTemplateStyle;
@@ -146,17 +147,11 @@ class InvitationPrintData
             return null;
         }
 
-        $mapsUrl = $this->text($data['maps_url'] ?? null);
-
-        if (! $mapsUrl && is_numeric($data['lat'] ?? null) && is_numeric($data['lng'] ?? null)) {
-            $mapsUrl = "https://www.google.com/maps/search/?api=1&query={$data['lat']},{$data['lng']}";
-        }
-
         return [
             'name' => $name,
             'address' => $address,
             'note' => $this->text($data['nota'] ?? null),
-            'qr' => $this->assets->qr($mapsUrl),
+            'qr' => $this->assets->qr(MapsLinkParser::directionsUrl($data)),
         ];
     }
 
