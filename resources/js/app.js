@@ -79,19 +79,21 @@ const createLoader = () => {
 const loaders = [];
 
 // ── Video.js (~500 kB) — solo si hay reproductores de video ─────────────
+// No bloquea el arranque de Alpine: ningún x-data lo necesita y el reproductor se inicia solo al cargar.
 if (document.querySelector('[data-video-player]')) {
-    loaders.push(import('./video-player.js'));
+    import('./video-player.js').catch((error) => console.error('[Bida Events] Error al cargar el reproductor:', error));
 }
 
 // ── Lottie Icons (~1 MB) — solo si hay iconos animados ──────────────────
+// Tampoco bloquea Alpine: son adornos; las galerías e itinerarios los piden con window.initLottieIcons?.()
 if (document.querySelector('[data-lottie-icon]')) {
-    loaders.push(
-        import('./lottie-icons.js').then(({ initLottieIcons, refreshLottieIconColors }) => {
+    import('./lottie-icons.js')
+        .then(({ initLottieIcons, refreshLottieIconColors }) => {
             window.initLottieIcons = initLottieIcons;
             window.refreshLottieIconColors = refreshLottieIconColors;
             initLottieIcons();
-        }),
-    );
+        })
+        .catch((error) => console.error('[Bida Events] Error al cargar los iconos animados:', error));
 }
 
 // ── Gallery Stack (~110 kB con motion) — solo si hay galería ────────────

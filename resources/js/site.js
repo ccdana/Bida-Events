@@ -154,6 +154,21 @@ function initCoverReels() {
     document.querySelectorAll('[data-cover-reel]').forEach((reel) => {
         const first = reel.querySelector('[data-cover-reel-frame]');
 
+        // La muestra del teléfono es una invitación completa (CSS, JS, fuentes): espera a que la home
+        // termine de cargar y el navegador esté libre, para no competir con lo que el visitante ya ve
+        if (first?.hasAttribute('data-defer-until-idle')) {
+            const start = () => {
+                first.src = first.dataset.lazySrc;
+                delete first.dataset.lazySrc;
+                initCoverReel(reel);
+            };
+            const whenIdle = () => ('requestIdleCallback' in window ? requestIdleCallback(start, { timeout: 2000 }) : setTimeout(start, 300));
+
+            document.readyState === 'complete' ? whenIdle() : window.addEventListener('load', whenIdle, { once: true });
+
+            return;
+        }
+
         // Teléfono dentro de un panel cerrado (la temporada de la portada): no carga nada hasta que
         // el panel se abre y avisa con «reel:wake»
         if (first?.dataset.lazySrc) {
