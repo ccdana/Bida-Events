@@ -42,7 +42,7 @@ class InvitationPolicyMatrixTest extends TestCase
         $this->assertFalse($this->otherClient->can('view', $this->invitation));
         $this->assertTrue($this->admin->can('view', $this->invitation));
 
-        $this->actingAs($this->otherClient)->get(route('client.invitation.show', $this->invitation))->assertForbidden();
+        $this->actingAs($this->otherClient)->get(route('client.invitation.show', $this->invitation))->assertRedirect()->assertSessionHas('access_notice');
         $this->actingAs($this->owner)->get(route('client.invitation.show', $this->invitation))->assertOk();
     }
 
@@ -54,7 +54,7 @@ class InvitationPolicyMatrixTest extends TestCase
         foreach (array_keys(InvitationExport::TYPES) as $type) {
             $this->actingAs($this->otherClient)
                 ->post(route('client.export.store', [$this->invitation, $type]))
-                ->assertForbidden();
+                ->assertRedirect()->assertSessionHas('access_notice');
         }
 
         // Tampoco puede consultar ni descargar un archivo que pidió el dueño
@@ -66,8 +66,8 @@ class InvitationPolicyMatrixTest extends TestCase
             'path' => 'exports/prueba.xlsx',
         ]);
 
-        $this->actingAs($this->otherClient)->get(route('client.export.status', $export))->assertForbidden();
-        $this->actingAs($this->otherClient)->get(route('client.export.download', $export))->assertForbidden();
+        $this->actingAs($this->otherClient)->get(route('client.export.status', $export))->assertRedirect()->assertSessionHas('access_notice');
+        $this->actingAs($this->otherClient)->get(route('client.export.download', $export))->assertRedirect()->assertSessionHas('access_notice');
     }
 
     public function test_update(): void
@@ -77,8 +77,8 @@ class InvitationPolicyMatrixTest extends TestCase
         $this->assertFalse($this->otherClient->can('update', $this->invitation));
         $this->assertTrue($this->admin->can('update', $this->invitation));
 
-        $this->actingAs($this->owner)->get(route('admin.invitations.edit', $this->invitation))->assertForbidden();
-        $this->actingAs($this->otherClient)->put(route('admin.invitations.update', $this->invitation), ['title' => 'Ajena'])->assertForbidden();
+        $this->actingAs($this->owner)->get(route('admin.invitations.edit', $this->invitation))->assertRedirect()->assertSessionHas('access_notice');
+        $this->actingAs($this->otherClient)->put(route('admin.invitations.update', $this->invitation), ['title' => 'Ajena'])->assertRedirect()->assertSessionHas('access_notice');
 
         $this->assertSame('XV Años de prueba', $this->invitation->fresh()->title);
     }
@@ -92,11 +92,11 @@ class InvitationPolicyMatrixTest extends TestCase
         $guest = $this->invitation->guests()->create(['name' => 'Familia Mamani', 'passes_allocated' => 2]);
         $this->actingAs($this->otherClient);
 
-        $this->get(route('admin.guests.index', $this->invitation))->assertForbidden();
-        $this->post(route('admin.guests.store', $this->invitation), ['name' => 'Colado', 'passes_allocated' => 9])->assertForbidden();
-        $this->put(route('admin.guests.update', [$this->invitation, $guest]), ['name' => 'Cambiado', 'passes_allocated' => 9])->assertForbidden();
-        $this->post(route('admin.guests.token', [$this->invitation, $guest]))->assertForbidden();
-        $this->delete(route('admin.guests.destroy', [$this->invitation, $guest]))->assertForbidden();
+        $this->get(route('admin.guests.index', $this->invitation))->assertRedirect()->assertSessionHas('access_notice');
+        $this->post(route('admin.guests.store', $this->invitation), ['name' => 'Colado', 'passes_allocated' => 9])->assertRedirect()->assertSessionHas('access_notice');
+        $this->put(route('admin.guests.update', [$this->invitation, $guest]), ['name' => 'Cambiado', 'passes_allocated' => 9])->assertRedirect()->assertSessionHas('access_notice');
+        $this->post(route('admin.guests.token', [$this->invitation, $guest]))->assertRedirect()->assertSessionHas('access_notice');
+        $this->delete(route('admin.guests.destroy', [$this->invitation, $guest]))->assertRedirect()->assertSessionHas('access_notice');
 
         $this->assertSame('Familia Mamani', $guest->fresh()->name);
         $this->assertSame(1, $this->invitation->guests()->count());
@@ -115,7 +115,7 @@ class InvitationPolicyMatrixTest extends TestCase
 
         $this->actingAs($this->otherClient)
             ->patch(route('client.contributions.update', [$this->invitation, $song]), ['moderation_status' => GuestContribution::HIDDEN])
-            ->assertForbidden();
+            ->assertRedirect()->assertSessionHas('access_notice');
 
         $this->assertSame(GuestContribution::VISIBLE, $song->fresh()->moderation_status);
     }

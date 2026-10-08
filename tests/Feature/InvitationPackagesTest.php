@@ -112,8 +112,8 @@ class InvitationPackagesTest extends TestCase
         $invitation = $this->invitationWith(Packages::STANDARD);
         $invitation->update(['user_id' => $client->id]);
 
-        $this->actingAs($client)->withoutVite()->get(route('client.invitation.show', $invitation))->assertForbidden();
-        $this->actingAs($client)->post(route('client.export.store', [$invitation, 'invitation-pdf']))->assertForbidden();
+        $this->actingAs($client)->withoutVite()->get(route('client.invitation.show', $invitation))->assertRedirect()->assertSessionHas('access_notice');
+        $this->actingAs($client)->post(route('client.export.store', [$invitation, 'invitation-pdf']))->assertRedirect()->assertSessionHas('access_notice');
 
         $this->actingAs($client)->withoutVite()->get(route('client.dashboard'))
             ->assertOk()

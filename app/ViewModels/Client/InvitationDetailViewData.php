@@ -5,6 +5,7 @@ namespace App\ViewModels\Client;
 use App\EventProfiles\EventProfiles;
 use App\Models\GuestContribution;
 use App\Models\Invitation;
+use App\Models\PollVote;
 use App\Modules\Card\ReplyModule;
 use App\Modules\Module;
 use App\Support\CloudinaryImage;
@@ -67,7 +68,7 @@ class InvitationDetailViewData
             'isPhoto' => $contribution->type === 'live_photo',
             // Respuesta del destinatario de una tarjeta: se lee completa
             'isReply' => $contribution->type === ReplyModule::CONTRIBUTION_TYPE,
-            'url' => $contribution->type === 'live_photo' ? CloudinaryImage::url($contribution->file_path, 200) : null,
+            'url' => $contribution->type === 'live_photo' ? CloudinaryImage::url($contribution->file_path, 480) : null,
             'text' => $contribution->type === 'live_photo' ? 'Foto del fotomural' : (string) $contribution->content_text,
             'author' => $contribution->guest?->name,
             'date' => $contribution->created_at?->locale('es')->translatedFormat('j \d\e F, H:i'),
@@ -82,6 +83,9 @@ class InvitationDetailViewData
         $photos = $media->where('isPhoto', true)->values();
         $songs = $media->where('isPhoto', false)->values();
 
+        // Cómo van las encuestas de la invitación (las tarjetas no llevan)
+        $polls = $isCard ? new Collection : $this->polls($invitation);
+
         $isPublished = $invitation->status === 'active'
             && (! $invitation->expires_at || ! $invitation->expires_at->isBefore(now()->startOfDay()));
 
@@ -93,6 +97,7 @@ class InvitationDetailViewData
             'media',
             'photos',
             'songs',
+            'polls',
             'confirmed',
             'declined',
             'pending',
@@ -112,6 +117,51 @@ class InvitationDetailViewData
             // Las tarjetas se mandan a una sola persona: no llevan lista de invitados
             'canAddGuests' => ! $isCard,
         ];
+    }
+
+    /**
+     * Resultados de cada encuesta: votos y porcentaje por opción, con una sola consulta agrupada.
+     * Las opciones se numeran igual que al votar (option_index = posición en la lista).
+     */
+    private function polls(Invitation $invitation): Collection
+    {
+        $polls = $invitation->polls()->with('options')->get();
+
+        if ($polls->isEmpty()) {
+            return new Collection;
+        }
+
+        $tally = PollVote::query()
+            ->whereIn('invitation_poll_id', $polls->modelKeys())
+            ->selectRaw('invitation_poll_id, option_index, COUNT(*) as total')
+            ->groupBy('invitation_poll_id', 'option_index')
+            ->toBase()
+            ->get()
+            ->groupBy('invitation_poll_id');
+
+        return $polls->map(function ($poll) use ($tally) {
+            $votes = ($tally[$poll->id] ?? collect())->pluck('total', 'option_index');
+            $total = (int) $votes->sum();
+
+            $options = $poll->options->values()->map(function ($option, int $index) use ($votes, $total) {
+                $count = (int) ($votes[$index] ?? 0);
+
+                return [
+                    'label' => $option->label,
+                    'votes' => $count,
+                    'percent' => $total > 0 ? (int) round($count / $total * 100) : 0,
+                ];
+            });
+
+            $top = $options->max('votes');
+
+            return [
+                'question' => $poll->question,
+                'total' => $total,
+                // La opción que va ganando se resalta (y todas las empatadas), solo si ya hay votos
+                'options' => $options->map(fn (array $option) => $option + ['leads' => $total > 0 && $option['votes'] === $top])->all(),
+            ];
+        })->values();
     }
 
     /** Los celulares bolivianos de 8 dígitos se completan con el código de país para WhatsApp. */

@@ -19,10 +19,10 @@ class AccessControlTest extends TestCase
 
         $this->actingAs($intruder);
 
-        $this->get(route('client.invitation.show', $invitation))->assertForbidden();
-        $this->post(route('client.export.store', [$invitation, 'guests-excel']))->assertForbidden();
-        $this->post(route('client.export.store', [$invitation, 'guests-pdf']))->assertForbidden();
-        $this->post(route('client.export.store', [$invitation, 'invitation-pdf']))->assertForbidden();
+        $this->get(route('client.invitation.show', $invitation))->assertRedirect()->assertSessionHas('access_notice');
+        $this->post(route('client.export.store', [$invitation, 'guests-excel']))->assertRedirect()->assertSessionHas('access_notice');
+        $this->post(route('client.export.store', [$invitation, 'guests-pdf']))->assertRedirect()->assertSessionHas('access_notice');
+        $this->post(route('client.export.store', [$invitation, 'invitation-pdf']))->assertRedirect()->assertSessionHas('access_notice');
     }
 
     public function test_policy_grants_owner_read_access_and_admin_full_access(): void

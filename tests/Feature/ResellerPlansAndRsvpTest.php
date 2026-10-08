@@ -105,6 +105,6 @@ class ResellerPlansAndRsvpTest extends TestCase
         $this->assertTrue(Hash::check('mi-clave-nueva', $reseller->fresh()->password));
 
         // Un cliente común no tiene esta página
-        $this->actingAs(User::factory()->create())->get(route('client.account'))->assertForbidden();
+        $this->actingAs(User::factory()->create())->get(route('client.account'))->assertRedirect()->assertSessionHas('access_notice');
     }
 }

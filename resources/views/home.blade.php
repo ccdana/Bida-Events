@@ -130,7 +130,7 @@
                     @if(count($demos)) data-cover-reel="{{ json_encode($coverReel, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) }}" @endif>
                     <div class="site-phone__screen">
                         @if(count($demos))
-                            <iframe data-lazy-src="{{ $demos[0]['coverUrl'] }}" data-defer-until-idle title="Apertura de las invitaciones de muestra" tabindex="-1" aria-hidden="true" data-cover-reel-frame></iframe>
+                            <iframe data-defer-src="{{ $demos[0]['coverUrl'] }}" data-defer-until-idle title="Apertura de las invitaciones de muestra" tabindex="-1" aria-hidden="true" data-cover-reel-frame></iframe>
                         @elseif($demoUrl)
                             <iframe src="{{ $demoUrl }}" title="Vista previa de una invitación de ejemplo" loading="lazy" tabindex="-1" aria-hidden="true"></iframe>
                         @endif

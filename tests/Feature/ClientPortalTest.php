@@ -112,7 +112,7 @@ class ClientPortalTest extends TestCase
 
         $this->actingAs($this->owner)
             ->delete(route('client.guests.destroy', [$invitation, $confirmed]))
-            ->assertForbidden();
+            ->assertRedirect()->assertSessionHas('access_notice');
         $this->assertModelExists($confirmed);
     }
 
@@ -125,12 +125,12 @@ class ClientPortalTest extends TestCase
         // Otro cliente no toca la lista ajena
         $this->actingAs(User::factory()->create())
             ->post(route('client.guests.store', $invitation), $payload)
-            ->assertForbidden();
+            ->assertRedirect()->assertSessionHas('access_notice');
 
         // Una tarjeta se manda a una sola persona: no tiene lista de invitados
         $this->actingAs($this->owner)
             ->post(route('client.guests.store', $card), $payload)
-            ->assertForbidden();
+            ->assertRedirect()->assertSessionHas('access_notice');
 
         $this->assertDatabaseCount('guests', 0);
 

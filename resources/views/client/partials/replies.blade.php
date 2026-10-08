@@ -2,6 +2,8 @@
     Respuestas a una tarjeta: lo que escribió quien la recibió y con qué flor respondió.
     Se leen completas, no en una línea. Recibe $invitation y $replies.
 --}}
+@include('client.partials.moderation-script')
+
 <section class="site-enter mt-10" style="--enter-index: 3">
     <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2 border-b border-site-line pb-3">
         <h2 class="text-xl font-semibold tracking-tight">Respuestas a tu tarjeta</h2>
@@ -19,7 +21,8 @@
     @else
         <div class="mt-5 grid gap-4 md:grid-cols-2">
             @foreach($replies as $reply)
-                <article class="flex flex-col rounded-[16px] border border-site-line bg-site-surface p-5 {{ $reply['isHidden'] ? 'opacity-60' : '' }}">
+                <article class="flex flex-col rounded-[16px] border border-site-line bg-site-surface p-5 transition-opacity" :class="hidden && 'opacity-60'"
+                    x-data="moderation(@js(route('client.contributions.update', [$invitation, $reply['id']])), @js($reply['isHidden']))">
                     @if($reply['reaction'])
                         <p class="flex flex-wrap items-center gap-x-2 text-sm font-medium text-site-accent">
                             <x-phosphor-flower-tulip class="size-5" aria-hidden="true" />
@@ -38,15 +41,14 @@
                             @if($reply['date'])
                                 · {{ $reply['date'] }}
                             @endif
-                            @if($reply['isHidden'])
-                                <span class="font-medium text-site-ink">· Oculta</span>
-                            @endif
+                            <span x-show="hidden" @if(! $reply['isHidden']) x-cloak @endif class="font-medium text-site-ink">· Oculta</span>
                         </p>
-                        <form method="POST" action="{{ route('client.contributions.update', [$invitation, $reply['id']]) }}">
+                        <form method="POST" action="{{ route('client.contributions.update', [$invitation, $reply['id']]) }}" @submit.prevent="toggle()">
                             @csrf
                             @method('PATCH')
                             <input type="hidden" name="moderation_status" value="{{ $reply['isHidden'] ? 'visible' : 'hidden' }}">
-                            <button type="submit" class="admin-link-button">{{ $reply['isHidden'] ? 'Mostrar' : 'Ocultar' }}</button>
+                            <button type="submit" class="admin-link-button" :disabled="busy" x-text="hidden ? 'Mostrar' : 'Ocultar'">{{ $reply['isHidden'] ? 'Mostrar' : 'Ocultar' }}</button>
+                            <span class="sr-only" role="status" x-text="message"></span>
                         </form>
                     </div>
                 </article>

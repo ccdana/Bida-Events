@@ -42,6 +42,7 @@
             </header>
 
             <main class="panel-content">
+                @include('layouts.partials.access-notice')
                 @yield('content')
             </main>
         </div>
@@ -66,6 +67,7 @@
         </header>
 
         <main class="mx-auto max-w-6xl px-5 py-8 lg:px-8 lg:py-12">
+            @include('layouts.partials.access-notice')
             @yield('content')
         </main>
 

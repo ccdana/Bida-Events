@@ -31,8 +31,16 @@ class ContributionController extends Controller
             InvitationCacheService::forgetFotomural($invitation->id);
         }
 
-        return back()->with('success', $validated['moderation_status'] === GuestContribution::HIDDEN
+        $hidden = $validated['moderation_status'] === GuestContribution::HIDDEN;
+        $message = $hidden
             ? 'Listo, ya no se muestra en la invitación.'
-            : 'Listo, vuelve a mostrarse en la invitación.');
+            : 'Listo, vuelve a mostrarse en la invitación.';
+
+        // El panel lo cambia sin recargar la página
+        if ($request->expectsJson()) {
+            return response()->json(['success' => true, 'hidden' => $hidden, 'message' => $message]);
+        }
+
+        return back()->with('success', $message);
     }
 }

@@ -49,6 +49,7 @@
         @endif
 
         <main class="panel-content">
+            @include('layouts.partials.access-notice')
             @yield('content')
         </main>
     </div>

@@ -83,7 +83,7 @@ class ClientExportsTest extends TestCase
         $this->getJson(route('client.export.status', $excel['id']))->assertOk()->assertJsonPath('status', 'ready');
 
         $this->actingAs(User::factory()->create());
-        $this->get(route('client.export.download', $excel['id']))->assertForbidden();
+        $this->get(route('client.export.download', $excel['id']))->assertRedirect()->assertSessionHas('access_notice');
     }
 
     public function test_guest_report_gives_the_numbers_to_plan_the_event(): void

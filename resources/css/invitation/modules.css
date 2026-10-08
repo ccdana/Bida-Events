@@ -493,8 +493,14 @@
 
 /* ── Hashtag ────────────────────────────────────────────────────────────── */
 
-/* Una sola línea: si la etiqueta no cabe, fitText() (hashtag.blade.php) reduce la letra */
+/* Pase lo que pase con el texto, la sección nunca ensancha la página (antes de que fitText() corra) */
+.inv-hashtag {
+    overflow-x: clip;
+}
+
+/* Una sola línea: si la etiqueta no cabe, fitText() (hashtag.blade.php) reduce la letra o la pasa a varias líneas */
 .inv-hashtag__tag {
+    max-width: 100%;
     padding-block: 1.25rem;
     border-block: 1px solid var(--inv-line);
     font-family: var(--font-titles);
@@ -515,7 +521,20 @@
 .inv-hashtag__tag.is-wrapped,
 .inv-hashtag__tag.is-wrapped .inv-hashtag__text {
     white-space: normal;
+    overflow-wrap: normal;
+    text-wrap: balance;
+    line-height: 1.25;
+}
+
+/* Última salida: una sola palabra interminable que ni a la letra mínima cabe */
+.inv-hashtag__tag.is-broken,
+.inv-hashtag__tag.is-broken .inv-hashtag__text {
     overflow-wrap: anywhere;
+}
+
+.inv-hashtag__tag.is-wrapped .inv-hashtag__text {
+    display: block;
+    padding-inline: 0;
 }
 
 /* ── Encuestas ──────────────────────────────────────────────────────────── */

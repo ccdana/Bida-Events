@@ -131,6 +131,10 @@
         @include('client.partials.replies')
     @endif
 
+    @if($polls->isNotEmpty())
+        @include('client.partials.poll-results')
+    @endif
+
     @if($photos->isNotEmpty())
         @include('client.partials.contribution-photos')
     @endif

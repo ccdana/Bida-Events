@@ -104,8 +104,8 @@ class SeptemberRequestsTest extends TestCase
             ->assertDontSee('Familia del Equipo');
 
         // Un cliente o un revendedor no entran a esta página
-        $this->actingAs($teamClient)->get(route('admin.clients.index'))->assertForbidden();
-        $this->actingAs($reseller)->get(route('admin.clients.index'))->assertForbidden();
+        $this->actingAs($teamClient)->get(route('admin.clients.index'))->assertRedirect()->assertSessionHas('access_notice');
+        $this->actingAs($reseller)->get(route('admin.clients.index'))->assertRedirect()->assertSessionHas('access_notice');
     }
 
     public function test_a_reseller_event_can_be_their_own_without_spending_a_client_access(): void
@@ -237,7 +237,7 @@ class SeptemberRequestsTest extends TestCase
             ->assertDontSee('Boda de un cliente')
             ->assertViewHas('filterRoute', 'admin.showcase');
 
-        $this->actingAs(User::factory()->create())->get(route('admin.showcase'))->assertForbidden();
+        $this->actingAs(User::factory()->create())->get(route('admin.showcase'))->assertRedirect()->assertSessionHas('access_notice');
     }
 
     public function test_halloween_can_be_turned_off_and_on_again_from_settings(): void

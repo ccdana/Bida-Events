@@ -3,6 +3,8 @@
     miniatura y se abre en YouTube) o el nombre de la canción escrito. Se pueden ocultar sin borrarlas.
     Recibe $invitation y $songs.
 --}}
+@include('client.partials.moderation-script')
+
 <section class="site-enter mt-10 overflow-hidden rounded-[16px] border border-site-line bg-site-surface" style="--enter-index: 5" aria-labelledby="canciones-invitados">
     <div class="flex flex-wrap items-end justify-between gap-2 border-b border-site-line px-5 py-4">
         <div>
@@ -14,7 +16,8 @@
 
     <ul class="divide-y divide-site-line">
         @foreach($songs as $item)
-            <li class="flex items-center gap-4 px-5 py-3 {{ $item['isHidden'] ? 'opacity-60' : '' }}">
+            <li class="flex items-center gap-4 px-5 py-3 transition-opacity" :class="hidden && 'opacity-60'"
+                x-data="moderation(@js(route('client.contributions.update', [$invitation, $item['id']])), @js($item['isHidden']))">
                 @if($item['youtubeId'])
                     <a href="https://www.youtube.com/watch?v={{ $item['youtubeId'] }}" target="_blank" rel="noopener"
                         class="relative block w-24 shrink-0 overflow-hidden rounded-[10px] bg-site-tint" aria-label="Ver el video en YouTube">
@@ -38,17 +41,16 @@
                     @endif
                     <p class="mt-0.5 text-sm text-site-muted">
                         {{ $item['meta'] }}
-                        @if($item['isHidden'])
-                            <span class="font-medium text-site-ink">· Oculta</span>
-                        @endif
+                        <span x-show="hidden" @if(! $item['isHidden']) x-cloak @endif class="font-medium text-site-ink">· Oculta</span>
                     </p>
                 </div>
 
-                <form method="POST" action="{{ route('client.contributions.update', [$invitation, $item['id']]) }}">
+                <form method="POST" action="{{ route('client.contributions.update', [$invitation, $item['id']]) }}" @submit.prevent="toggle()">
                     @csrf
                     @method('PATCH')
                     <input type="hidden" name="moderation_status" value="{{ $item['isHidden'] ? 'visible' : 'hidden' }}">
-                    <button type="submit" class="admin-link-button">{{ $item['isHidden'] ? 'Mostrar' : 'Ocultar' }}</button>
+                    <button type="submit" class="admin-link-button" :disabled="busy" x-text="hidden ? 'Mostrar' : 'Ocultar'">{{ $item['isHidden'] ? 'Mostrar' : 'Ocultar' }}</button>
+                    <span class="sr-only" role="status" x-text="message"></span>
                 </form>
             </li>
         @endforeach

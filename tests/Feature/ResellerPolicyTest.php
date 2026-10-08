@@ -54,10 +54,10 @@ class ResellerPolicyTest extends TestCase
 
     public function test_the_reseller_middleware_lets_only_resellers_through(): void
     {
-        $this->actingAs(User::factory()->create())->get(route('client.invitations.create'))->assertForbidden();
+        $this->actingAs(User::factory()->create())->get(route('client.invitations.create'))->assertRedirect()->assertSessionHas('access_notice');
         // Un revendedor vencido entra a la sección, pero la policy no lo deja crear
         $this->actingAs(User::factory()->reseller(renewsAt: now()->subDay()->toDateString())->create())
             ->get(route('client.invitations.create'))
-            ->assertForbidden();
+            ->assertRedirect()->assertSessionHas('access_notice');
     }
 }

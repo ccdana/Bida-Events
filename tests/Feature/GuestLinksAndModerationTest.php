@@ -74,7 +74,7 @@ class GuestLinksAndModerationTest extends TestCase
 
         $this->actingAs($client)
             ->patch(route('client.contributions.update', [$otherInvitation, $photo]), ['moderation_status' => 'hidden'])
-            ->assertForbidden();
+            ->assertRedirect()->assertSessionHas('access_notice');
     }
 
     public function test_hidden_songs_do_not_reach_the_public_playlist(): void

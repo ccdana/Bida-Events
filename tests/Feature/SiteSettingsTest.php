@@ -38,7 +38,7 @@ class SiteSettingsTest extends TestCase
 
     public function test_only_the_admin_opens_the_settings(): void
     {
-        $this->actingAs(User::factory()->create())->get(route('admin.settings'))->assertForbidden();
+        $this->actingAs(User::factory()->create())->get(route('admin.settings'))->assertRedirect()->assertSessionHas('access_notice');
 
         $this->actingAs($this->admin)
             ->get(route('admin.settings'))

@@ -107,7 +107,7 @@ class ResellerEditorTest extends TestCase
         $foreign = $this->createInvitation(['reseller_id' => User::factory()->reseller()->create()->id]);
 
         $this->actingAs($this->reseller)->withoutVite()->get(route('client.invitations.edit', $own))->assertOk();
-        $this->actingAs($this->reseller)->get(route('client.invitations.edit', $foreign))->assertForbidden();
+        $this->actingAs($this->reseller)->get(route('client.invitations.edit', $foreign))->assertRedirect()->assertSessionHas('access_notice');
 
         $this->actingAs($this->reseller)
             ->put(route('client.invitations.update', $own), $this->payload(['slug' => 'xv-propia', 'title' => 'Nuevo título']))
@@ -117,7 +117,7 @@ class ResellerEditorTest extends TestCase
 
         $this->actingAs($this->reseller)
             ->put(route('client.invitations.update', $foreign), $this->payload(['slug' => $foreign->slug]))
-            ->assertForbidden();
+            ->assertRedirect()->assertSessionHas('access_notice');
     }
 
     public function test_an_expired_reseller_keeps_its_panel_but_cannot_create_or_edit(): void
@@ -127,18 +127,18 @@ class ResellerEditorTest extends TestCase
 
         $this->actingAs($this->reseller)->withoutVite()->get(route('client.dashboard'))->assertOk();
         $this->actingAs($this->reseller)->get(route('client.invitation.show', $own))->assertOk();
-        $this->actingAs($this->reseller)->get(route('client.invitations.edit', $own))->assertForbidden();
-        $this->actingAs($this->reseller)->post(route('client.invitations.store'), $this->payload())->assertForbidden();
+        $this->actingAs($this->reseller)->get(route('client.invitations.edit', $own))->assertRedirect()->assertSessionHas('access_notice');
+        $this->actingAs($this->reseller)->post(route('client.invitations.store'), $this->payload())->assertRedirect()->assertSessionHas('access_notice');
         // Tampoco usa las herramientas del editor (subidas, vista previa)
-        $this->actingAs($this->reseller)->post(route('client.editor.preview.store'), [])->assertForbidden();
+        $this->actingAs($this->reseller)->post(route('client.editor.preview.store'), [])->assertRedirect()->assertSessionHas('access_notice');
     }
 
     public function test_a_normal_client_does_not_reach_the_editor(): void
     {
         $client = User::factory()->create();
 
-        $this->actingAs($client)->get(route('client.invitations.create'))->assertForbidden();
-        $this->actingAs($client)->post(route('client.editor.media.upload'), [])->assertForbidden();
+        $this->actingAs($client)->get(route('client.invitations.create'))->assertRedirect()->assertSessionHas('access_notice');
+        $this->actingAs($client)->post(route('client.editor.media.upload'), [])->assertRedirect()->assertSessionHas('access_notice');
     }
 
     private function payload(array $overrides = []): array

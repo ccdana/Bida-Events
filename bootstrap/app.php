@@ -7,9 +7,12 @@ use App\Http\Middleware\EnsureUserIsClient;
 use App\Http\Middleware\EnsureUserIsReseller;
 use App\Http\Middleware\LogSlowRequests;
 use App\Http\Middleware\SecurityHeaders;
+use App\Support\AccessDeniedRedirect;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -33,5 +36,12 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        // En los paneles, un 403 no muestra una página de error: vuelve con un aviso
+        $exceptions->render(function (HttpException $e, Request $request) {
+            if ($e->getStatusCode() === 403 && AccessDeniedRedirect::handles($request)) {
+                return AccessDeniedRedirect::respond($request, $e->getMessage());
+            }
+
+            return null;
+        });
     })->create();

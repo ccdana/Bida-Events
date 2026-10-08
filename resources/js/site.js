@@ -158,8 +158,8 @@ function initCoverReels() {
         // termine de cargar y el navegador esté libre, para no competir con lo que el visitante ya ve
         if (first?.hasAttribute('data-defer-until-idle')) {
             const start = () => {
-                first.src = first.dataset.lazySrc;
-                delete first.dataset.lazySrc;
+                first.src = first.dataset.deferSrc;
+                delete first.dataset.deferSrc;
                 initCoverReel(reel);
             };
             const whenIdle = () => ('requestIdleCallback' in window ? requestIdleCallback(start, { timeout: 2000 }) : setTimeout(start, 300));

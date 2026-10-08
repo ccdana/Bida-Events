@@ -70,7 +70,7 @@ class ResellerClientTest extends TestCase
 
         $this->actingAs($reseller)
             ->post(route('client.invitations.client.store', $foreign), ['name' => 'Intruso'])
-            ->assertForbidden();
+            ->assertRedirect()->assertSessionHas('access_notice');
 
         // Ni borrar un cliente que creó el equipo en una invitación suya
         $teamClient = User::factory()->create();
@@ -78,7 +78,7 @@ class ResellerClientTest extends TestCase
 
         $this->actingAs($reseller)
             ->delete(route('client.invitations.client.destroy', $own))
-            ->assertForbidden();
+            ->assertRedirect()->assertSessionHas('access_notice');
         $this->assertModelExists($teamClient);
     }
 

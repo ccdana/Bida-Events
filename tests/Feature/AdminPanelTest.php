@@ -128,7 +128,7 @@ class AdminPanelTest extends TestCase
 
         $this->actingAs($client)
             ->delete(route('admin.invitations.destroy', $invitation))
-            ->assertForbidden();
+            ->assertRedirect()->assertSessionHas('access_notice');
 
         $this->assertModelExists($invitation);
     }

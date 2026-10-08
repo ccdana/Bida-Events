@@ -205,9 +205,9 @@ class ResellerAdminTest extends TestCase
     {
         $reseller = User::factory()->reseller()->create();
 
-        $this->actingAs($reseller)->get(route('admin.resellers.index'))->assertForbidden();
+        $this->actingAs($reseller)->get(route('admin.resellers.index'))->assertRedirect()->assertSessionHas('access_notice');
         $this->actingAs($reseller)
             ->post(route('admin.resellers.payments.store', $reseller), ['plan' => 'agencia', 'amount' => 0, 'request_token' => (string) Str::uuid()])
-            ->assertForbidden();
+            ->assertRedirect()->assertSessionHas('access_notice');
     }
 }
