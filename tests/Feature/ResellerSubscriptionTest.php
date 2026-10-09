@@ -27,19 +27,43 @@ class ResellerSubscriptionTest extends TestCase
 
     public function test_the_subscription_is_active_only_while_it_is_paid_and_not_expired(): void
     {
+        config(['payments.grace_days' => 0]);
+
         $this->assertTrue(User::factory()->reseller(renewsAt: '2026-11-15')->make()->hasActiveSubscription());
 
-        // El día de la renovación ya hay que pagar, y los días anteriores tampoco cuentan
+        // Sin días de gracia, el día de la renovación ya hay que pagar, y los días anteriores tampoco cuentan
         $this->assertFalse(User::factory()->reseller(renewsAt: '2026-10-15')->make()->hasActiveSubscription());
         $this->assertFalse(User::factory()->reseller(renewsAt: '2026-10-01')->make()->hasActiveSubscription());
 
-        // Con fecha futura pero sin estar activa, tampoco
-        $this->assertFalse(User::factory()->reseller(renewsAt: '2026-11-15', status: 'past_due')->make()->hasActiveSubscription());
+        // Con el cobro atrasado (la tarjeta no pasó) vale hasta la fecha; cancelada o terminada, no
+        $this->assertTrue(User::factory()->reseller(renewsAt: '2026-11-15', status: 'past_due')->make()->hasActiveSubscription());
         $this->assertFalse(User::factory()->reseller(renewsAt: '2026-11-15', status: 'canceled')->make()->hasActiveSubscription());
 
         // Nunca pagó, o no es revendedor
         $this->assertFalse(User::factory()->make(['is_reseller' => true, 'subscription_status' => 'active'])->hasActiveSubscription());
         $this->assertFalse(User::factory()->make()->hasActiveSubscription());
+    }
+
+    public function test_the_grace_days_keep_the_editor_open_after_the_due_date(): void
+    {
+        config(['payments.grace_days' => 3]);
+
+        // Venció ayer: sigue pudiendo crear, y se le avisa hasta cuándo
+        $yesterday = User::factory()->reseller(renewsAt: '2026-10-14')->make();
+        $this->assertTrue($yesterday->hasActiveSubscription());
+        $this->assertTrue(ResellerSubscription::inGrace($yesterday));
+        $this->assertSame('2026-10-16', ResellerSubscription::graceEndsAt($yesterday)->toDateString());
+
+        // Vence hoy: también en gracia; con cobro atrasado, igual
+        $this->assertTrue(ResellerSubscription::inGrace(User::factory()->reseller(renewsAt: '2026-10-15')->make()));
+        $this->assertTrue(User::factory()->reseller(renewsAt: '2026-10-13', status: 'past_due')->make()->hasActiveSubscription());
+
+        // Tres días después del vencimiento ya se bloquea
+        $this->assertFalse(User::factory()->reseller(renewsAt: '2026-10-12')->make()->hasActiveSubscription());
+        $this->assertFalse(ResellerSubscription::inGrace(User::factory()->reseller(renewsAt: '2026-10-12')->make()));
+
+        // Al día no está en gracia
+        $this->assertFalse(ResellerSubscription::inGrace(User::factory()->reseller(renewsAt: '2026-11-15')->make()));
     }
 
     public function test_the_plan_comes_from_the_configuration(): void

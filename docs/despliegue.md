@@ -483,6 +483,7 @@ nano .env
 | `OPERATIONS_ALERT_EMAIL` | Tu correo personal, para las alertas |
 | `AUTH_REGISTRATION` | `false` hasta que estén los pagos (paso 6.4) |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Paso 6.4 (vacíos: sin botón de Google) |
+| `PAYMENTS_ENABLED`, `LEMONSQUEEZY_*` | Paso 6.5 (`false` y vacíos hasta tener la cuenta de Lemon Squeezy) |
 | `BIDA_WHATSAPP` | Número del negocio con código de país, sin `+` (ej. `59171234567`) |
 | `BIDA_EMAIL` | `hola@bida-events.com` |
 | `BIDA_CITY`, `BIDA_INSTAGRAM`, `BIDA_TIKTOK`, `BIDA_FACEBOOK` | Datos reales |
@@ -664,6 +665,52 @@ GOOGLE_CLIENT_SECRET=GOCSPX-xxxxxxxx
 Sin esas dos variables el botón «Continuar con Google» no aparece. **`AUTH_REGISTRATION`** queda en
 `false` hasta que estén listos los pagos: así solo entran las cuentas que ya existen (también con
 Google, si su correo coincide). Con `true` cualquiera puede abrir una cuenta.
+
+### 6.5 Cobro con tarjeta: Lemon Squeezy
+
+Lemon Squeezy cobra los planes de «Hazlo tú» como vendedor oficial (se encarga de los impuestos de
+cada país) y te transfiere lo cobrado. Primero confirma con su soporte que acepta pagos hacia tu
+cuenta en Bolivia. Todo se arma primero en **modo de prueba** (interruptor *Test mode* del panel).
+
+1. Cuenta en [lemonsqueezy.com](https://www.lemonsqueezy.com) y una tienda. *Settings › Stores*:
+   anota el número de la tienda → `LEMONSQUEEZY_STORE_ID`.
+2. *Products › New product*: «Hazlo tú», tipo **suscripción**, con **una variante por plan**
+   (Inicial, Aliado, Emprendedor, Agencia), cobro **mensual**, cada una con el **mismo precio** que
+   tiene el plan en Ajustes. El número de cada variante (se ve al editarla, o en la API) va en
+   `LEMONSQUEEZY_VARIANT_INICIAL`, `_ALIADO`, `_EMPRENDEDOR` y `_AGENCIA`.
+3. *Settings › API*: crea una API key → `LEMONSQUEEZY_API_KEY`.
+4. *Settings › Webhooks › +*: URL `https://bida-events.com/webhooks/lemonsqueezy`, un *Signing
+   secret* largo inventado por ti → `LEMONSQUEEZY_SIGNING_SECRET`, y marca estos eventos:
+   `order_created`, `order_refunded`, `subscription_created`, `subscription_updated`,
+   `subscription_cancelled`, `subscription_resumed`, `subscription_expired`, `subscription_paused`,
+   `subscription_unpaused`, `subscription_payment_success`, `subscription_payment_failed` y
+   `subscription_payment_refunded`.
+5. *Settings › Customer portal*: deja que el cliente cambie de plan (entre las variantes de
+   «Hazlo tú»), de tarjeta y cancele.
+
+```dotenv
+PAYMENTS_ENABLED=true
+LEMONSQUEEZY_API_KEY=eyJ0eXAiOi...
+LEMONSQUEEZY_STORE_ID=12345
+LEMONSQUEEZY_SIGNING_SECRET=un-secreto-largo
+LEMONSQUEEZY_TEST_MODE=true      # mientras pruebas
+LEMONSQUEEZY_VARIANT_INICIAL=111111
+LEMONSQUEEZY_VARIANT_ALIADO=222222
+LEMONSQUEEZY_VARIANT_EMPRENDEDOR=333333
+LEMONSQUEEZY_VARIANT_AGENCIA=444444
+```
+
+**Probar** (con el modo de prueba y su tarjeta de prueba `4242 4242 4242 4242`): entra con una
+cuenta de cliente con el correo confirmado → «Hazlo tú» → «Elegir» un plan → «Continuar al pago» →
+paga → vuelves a «Estamos confirmando tu pago» y en segundos el plan queda activo. En Revendedores
+aparece con «Con tarjeta: se renueva sola». Si el plan no se activa, mira *Settings › Webhooks*
+(Lemon Squeezy muestra cada aviso y la respuesta) y `php artisan bida:salud`.
+
+Para salir del modo de prueba: activa la tienda, crea la API key y el webhook **del modo real**
+(son distintos de los de prueba), cambia esas variables y `LEMONSQUEEZY_TEST_MODE=false`.
+
+Con `PAYMENTS_ENABLED=true` los botones de los planes llevan a pagar en línea; WhatsApp queda
+como canal de ayuda. Para abrir el sitio a cuentas nuevas, `AUTH_REGISTRATION=true` (paso 6.4).
 
 ---
 

@@ -39,7 +39,8 @@ class ResellerDashboardTest extends TestCase
             ->assertOk()
             ->assertSee('Tu suscripción vence en 3 días');
 
-        $expired = User::factory()->reseller(renewsAt: now()->subDays(2)->toDateString())->create();
+        // Vencido y pasados los días de gracia (config «payments.grace_days»)
+        $expired = User::factory()->reseller(renewsAt: now()->subDays(10)->toDateString())->create();
         $invitation = $this->createInvitation(['reseller_id' => $expired->id]);
 
         $this->actingAs($expired)->withoutVite()->get(route('client.dashboard'))

@@ -123,7 +123,8 @@ class ResellerEditorTest extends TestCase
     public function test_an_expired_reseller_keeps_its_panel_but_cannot_create_or_edit(): void
     {
         $own = $this->createInvitation(['reseller_id' => $this->reseller->id]);
-        $this->reseller->update(['subscription_renews_at' => now()->subDay()->toDateString()]);
+        // Vencido y pasados los días de gracia
+        $this->reseller->update(['subscription_renews_at' => now()->subDays(10)->toDateString()]);
 
         $this->actingAs($this->reseller)->withoutVite()->get(route('client.dashboard'))->assertOk();
         $this->actingAs($this->reseller)->get(route('client.invitation.show', $own))->assertOk();

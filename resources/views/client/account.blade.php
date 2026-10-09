@@ -55,6 +55,57 @@
             </dl>
         </section>
 
+        {{-- Plan y pagos: para revendedores, o para quien puede empezar uno pagando en línea --}}
+        @if($user->isReseller() || $payOnline)
+            <section class="site-enter admin-card" style="--enter-index: 2" aria-labelledby="plan-pagos">
+                <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
+                    <h2 id="plan-pagos" class="text-lg font-semibold tracking-tight">Plan y pagos</h2>
+                    @if($payOnline)
+                        <a href="{{ route('client.subscription') }}" class="text-sm font-medium underline underline-offset-4">
+                            {{ $user->renewsAutomatically() ? 'Administrar mi suscripción' : ($user->isReseller() ? 'Renovar o cambiar de plan' : 'Elegir un plan') }}
+                        </a>
+                    @endif
+                </div>
+
+                @if($user->isReseller())
+                    <p class="mt-1 text-sm text-site-muted">
+                        Plan {{ $user->planConfig()['name'] ?? 'sin elegir' }}
+                        @if($user->subscription_renews_at)
+                            · {{ $user->renewsAutomatically() ? 'se renueva solo con tarjeta el' : ($user->hasActiveSubscription() ? 'pagado hasta el' : 'venció el') }}
+                            {{ $user->subscription_renews_at->locale('es')->translatedFormat('j \d\e F \d\e Y') }}
+                        @endif
+                    </p>
+                @else
+                    <p class="mt-1 text-sm text-site-muted">Con un plan de «Hazlo tú» armas tus propias invitaciones con nuestras plantillas.</p>
+                @endif
+
+                @if($payments->isNotEmpty())
+                    <table class="mt-5 w-full text-sm">
+                        <caption class="sr-only">Últimos pagos</caption>
+                        <thead class="text-left text-site-muted">
+                            <tr>
+                                <th scope="col" class="pb-2 font-normal">Fecha</th>
+                                <th scope="col" class="pb-2 font-normal">Plan</th>
+                                <th scope="col" class="pb-2 text-right font-normal">Monto</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-site-line">
+                            @foreach($payments as $payment)
+                                <tr>
+                                    <td class="py-2 tabular-nums">{{ $payment->paid_at->format('d/m/Y') }}</td>
+                                    <td class="py-2">
+                                        {{ config("bida.reseller_plans.{$payment->plan}.name", $payment->plan) }}
+                                        <span class="text-site-muted">· {{ $payment->providerLabel() }}</span>
+                                    </td>
+                                    <td class="py-2 text-right tabular-nums">{{ \App\Support\Money::format($payment->amount, $payment->currency) }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                @endif
+            </section>
+        @endif
+
         <section class="site-enter admin-card" style="--enter-index: 2" aria-labelledby="cambiar-correo">
             <h2 id="cambiar-correo" class="text-lg font-semibold tracking-tight">{{ filled($user->email) ? 'Cambiar el correo' : 'Agregar un correo' }}</h2>
             <p class="mt-1 text-sm text-site-muted">Te enviamos un enlace para confirmarlo. Ahí te llegarán también los avisos de tu cuenta.</p>

@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\InvitationExport;
+use App\Models\WebhookEvent;
 use App\Services\BackupService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
@@ -13,7 +14,7 @@ use Throwable;
 
 /**
  * Revisión cada hora (routes/console.php): trabajos fallidos, cola detenida, exportaciones
- * atascadas, respaldos y disco. Si algo está mal lo deja en storage/logs/operations-*.log y,
+ * atascadas, avisos de pago sin aplicar o para revisar, respaldos y disco. Si algo está mal lo deja en storage/logs/operations-*.log y,
  * con OPERATIONS_ALERT_EMAIL, manda un correo.
  */
 class HealthCheck extends Command
@@ -28,6 +29,8 @@ class HealthCheck extends Command
             $this->failedJobs(),
             $this->stalledQueue(),
             $this->stuckExports(),
+            $this->pendingPaymentNotices(),
+            $this->paymentsToReview(),
             $this->latestBackup($backups),
             $this->latestRestoreTest($backups),
             $this->freeDisk(),
@@ -95,6 +98,31 @@ class HealthCheck extends Command
             ->count());
 
         return $this->check('Exportaciones atascadas', $stuck === 0, $stuck === null ? 'no se pudo leer' : "{$stuck} pendientes hace más de 15 min");
+    }
+
+    /** Avisos de las pasarelas que no se aplicaron: un cobro que no activó la suscripción. */
+    private function pendingPaymentNotices(): array
+    {
+        $pending = $this->safeCount(fn () => WebhookEvent::whereNull('processed_at')
+            ->where('created_at', '<', now()->subMinutes(15))
+            ->count());
+
+        return $this->check('Avisos de pago sin aplicar', $pending === 0, $pending === null
+            ? 'no se pudo leer'
+            : "{$pending} hace más de 15 min (php artisan bida:reprocesar-avisos)");
+    }
+
+    /** Cobros que llegaron pero no se pudieron aplicar (orden desconocida, monto distinto): se revisan a mano. */
+    private function paymentsToReview(): array
+    {
+        $count = $this->safeCount(fn () => WebhookEvent::whereNotNull('processed_at')
+            ->whereNotNull('error')
+            ->where('processed_at', '>=', now()->subDays(7))
+            ->count());
+
+        return $this->check('Pagos para revisar (7 días)', $count === 0, $count === null
+            ? 'no se pudo leer'
+            : "{$count} (detalle en webhook_events y en operations.log)");
     }
 
     private function latestBackup(BackupService $backups): array

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Client;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Client\UpdateEmailRequest;
 use App\Http\Requests\Client\UpdatePasswordRequest;
+use App\Payments\PaymentGateways;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -18,9 +19,16 @@ use Illuminate\View\View;
  */
 class AccountController extends Controller
 {
-    public function edit(): View
+    public function edit(PaymentGateways $gateways): View
     {
-        return view('client.account', ['user' => auth()->user()]);
+        $user = auth()->user();
+
+        return view('client.account', [
+            'user' => $user,
+            // Plan y pagos: los últimos pagos (a mano, tarjeta o QR) y si puede pagar en línea
+            'payments' => $user->subscriptionPayments()->latest('paid_at')->latest('id')->limit(6)->get(),
+            'payOnline' => (bool) $gateways->availableMethods(),
+        ]);
     }
 
     public function updateEmail(UpdateEmailRequest $request): RedirectResponse

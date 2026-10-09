@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Payments\PaymentGateways;
 use App\Support\InvitationTemplates;
 use App\Support\LeadSource;
 use App\Support\LegalPages;
@@ -40,7 +41,11 @@ class PublicPagesController extends Controller
         $whatsapp = fn (string $message): string => LeadSource::whatsappUrl($request, $message, self::DIY_CODE);
         $templates = collect(InvitationTemplates::all());
 
+        $gateways = app(PaymentGateways::class);
+
         $plans = collect(Offers::resellerPlans())->map(fn (array $plan, string $key): array => $plan + [
+            // Con el pago en línea encendido, «Elegir» lleva a pagar; si no, a WhatsApp como siempre
+            'checkout' => $gateways->availableMethods($key) ? route('client.subscription', ['plan' => $key]) : null,
             'key' => $key,
             'templates_count' => $templates->filter(fn (array $template) => in_array($template['collection'] ?? 'clasica', $plan['collections'] ?? [], true))->count(),
             // Cuánto sale cada invitación si se usa todo el cupo del mes

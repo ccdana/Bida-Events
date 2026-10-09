@@ -113,17 +113,22 @@
                                     </td>
                                     <td class="tabular-nums">
                                         {{ $row['renewsLabel'] }}
+                                        @if($row['renewal'])
+                                            <span class="mt-0.5 block text-xs text-site-muted">{{ $row['renewal'] }}</span>
+                                        @endif
                                         @if($row['lastPayment'])
                                             <span class="mt-0.5 block text-xs text-site-muted">
-                                                Último pago: {{ \App\Support\Money::format($row['lastPayment']->amount, $row['lastPayment']->currency) }}, {{ $row['lastPayment']->paid_at->format('d/m/Y') }}
+                                                Último pago: {{ \App\Support\Money::format($row['lastPayment']->amount, $row['lastPayment']->currency) }}, {{ $row['lastPayment']->paid_at->format('d/m/Y') }} · {{ $row['lastPayment']->providerLabel() }}
                                             </span>
-                                            {{-- Un pago cargado por error se anula y la fecha vuelve a la anterior --}}
-                                            <form method="POST" action="{{ route('admin.resellers.payments.destroy', [$row['reseller'], $row['lastPayment']]) }}"
-                                                onsubmit="return confirm('¿Anular el último pago de {{ e($row['reseller']->name) }}? La fecha de renovación vuelve a la anterior.')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="mt-1 text-xs text-site-danger underline underline-offset-2">Anular este pago</button>
-                                            </form>
+                                            {{-- Un pago registrado por error se anula y la fecha vuelve a la anterior; los de tarjeta o QR se devuelven en la pasarela --}}
+                                            @if($row['lastPayment']->isManual())
+                                                <form method="POST" action="{{ route('admin.resellers.payments.destroy', [$row['reseller'], $row['lastPayment']]) }}"
+                                                    onsubmit="return confirm('¿Anular el último pago de {{ e($row['reseller']->name) }}? La fecha de renovación vuelve a la anterior.')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="mt-1 text-xs text-site-danger underline underline-offset-2">Anular este pago</button>
+                                                </form>
+                                            @endif
                                         @endif
                                     </td>
                                     <td class="tabular-nums">{{ $row['quotaLabel'] }}</td>

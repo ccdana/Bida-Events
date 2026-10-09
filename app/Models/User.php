@@ -69,6 +69,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'is_admin' => 'boolean',
             'is_reseller' => 'boolean',
             'subscription_renews_at' => 'date',
+            'cancel_at_period_end' => 'boolean',
         ];
     }
 
@@ -103,10 +104,16 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->belongsTo(User::class, 'created_by_reseller_id');
     }
 
-    /** Pagos de suscripción registrados por el administrador (solo revendedores). */
+    /** Pagos de suscripción: los registrados a mano y los cobrados en línea. */
     public function subscriptionPayments(): HasMany
     {
         return $this->hasMany(SubscriptionPayment::class);
+    }
+
+    /** Compras en línea, pagadas o no. */
+    public function paymentOrders(): HasMany
+    {
+        return $this->hasMany(PaymentOrder::class);
     }
 
     public function isAdmin(): bool
@@ -121,14 +128,32 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * La suscripción vale mientras esté activa y su fecha de renovación todavía no haya llegado.
-     * El día exacto de la renovación ya cuenta como vencida: ese día hay que pagar.
+     * La suscripción vale mientras esté al día (o con el pago atrasado, que la pasarela reintenta)
+     * y no hayan pasado los días de gracia desde el vencimiento (config «payments.grace_days»). Con
+     * 0 días, el día exacto de la renovación ya cuenta como vencida. Cancelada o terminada, no vale.
      */
     public function hasActiveSubscription(): bool
     {
-        return $this->subscription_status === 'active'
+        return in_array($this->subscription_status, ['active', 'past_due'], true)
             && $this->subscription_renews_at !== null
-            && $this->subscription_renews_at->isFuture();
+            && $this->subscription_renews_at->copy()->startOfDay()->addDays(max(0, (int) config('payments.grace_days', 0)))->isFuture();
+    }
+
+    /**
+     * Tiene una suscripción en una pasarela que cobra sola cada mes (tarjeta) y que sigue viva: al
+     * día o con un cobro atrasado. Para cambiar de plan o de tarjeta usa el portal de la pasarela.
+     */
+    public function hasRecurringSubscription(): bool
+    {
+        return $this->payment_provider !== null
+            && $this->provider_subscription_id !== null
+            && in_array($this->subscription_status, ['active', 'past_due'], true);
+    }
+
+    /** Se va a renovar sola en la próxima fecha (no canceló la renovación). */
+    public function renewsAutomatically(): bool
+    {
+        return $this->hasRecurringSubscription() && ! $this->cancel_at_period_end;
     }
 
     /** Configuración del plan del revendedor (config/bida.php, «reseller_plans»); null si no tiene. */

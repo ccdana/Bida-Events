@@ -29,6 +29,8 @@ Corre cada hora y revisa:
 | Trabajos fallidos | Hay al menos `ALERT_FAILED_JOBS` en las últimas 24 horas |
 | Cola | Un trabajo espera más de `ALERT_PENDING_JOB_MINUTES` (no hay worker) |
 | Exportaciones atascadas | Un Excel o PDF lleva más de 15 minutos «preparando…» |
+| Avisos de pago sin aplicar | Un aviso de una pasarela lleva más de 15 minutos sin aplicarse (ver «Pagos en línea») |
+| Pagos para revisar | En los últimos 7 días llegó un cobro que no se pudo aplicar: orden desconocida o monto distinto |
 | Último respaldo | Tiene más de `ALERT_BACKUP_MAX_AGE_HOURS` (26 h) |
 | Prueba de restauración | Nunca se probó, falló, o tiene más de 8 días |
 | Disco | Queda menos de `ALERT_MIN_FREE_DISK_PERCENT` (10 %) libre |
@@ -41,6 +43,39 @@ Para correrla a mano: `php artisan bida:salud` (con `--sin-correo` no manda nada
 
 Los trabajos fallidos se ven con `php artisan queue:failed`, se reintentan con
 `php artisan queue:retry all` y se borran solos a los 30 días.
+
+## Pagos en línea
+
+Cada pasarela avisa lo que pasó con un cobro a `/webhooks/{pasarela}`. El aviso se valida por su
+firma, se guarda una sola vez en `webhook_events` y se aplica en la cola (`ProcessWebhookEvent`).
+Una orden cobrada (`payment_orders`) registra el pago en `subscription_payments` y extiende la
+suscripción. Pase lo que pase, ningún pago suma meses dos veces.
+
+- **Aviso sin aplicar** (la cola estaba caída, la base no respondía): queda con `processed_at`
+  vacío y su error. Se vuelve a aplicar con `php artisan bida:reprocesar-avisos`.
+- **Pago para revisar**: el cobro llegó, pero no corresponde a una orden nuestra, el monto o el
+  plan no coinciden, o es la renovación de una suscripción que no conocemos. No se activa nada: el
+  aviso queda procesado con la nota en `error` y una línea «Pago para revisar» en
+  `operations.log`. Hay que mirarlo en la pasarela y, si corresponde, registrar el pago a mano
+  desde Revendedores, o corregir la orden y correr
+  `php artisan bida:reprocesar-avisos --id=<id del aviso>`.
+- Los pagos con tarjeta o QR **no se anulan** desde Revendedores: se devuelven en la pasarela, y
+  su aviso de devolución completa anula el pago y devuelve la fecha a la anterior. Una devolución
+  parcial no cambia la suscripción (queda anotada en `operations.log`).
+
+### Tarjeta (Lemon Squeezy)
+
+- La suscripción se renueva sola cada mes. Cada renovación cobrada suma un mes; la fecha de
+  renovación del sitio se alinea con la próxima fecha de cobro de Lemon Squeezy.
+- **Cobro fallido**: la cuenta queda «Cobro fallido» (`past_due`). Puede seguir creando durante
+  los días de gracia (`PAYMENTS_GRACE_DAYS`, 3) mientras Lemon Squeezy reintenta el cobro (unas dos
+  semanas). Si un reintento cobra, vuelve a estar al día sola.
+- **Cancelación**: sigue al día hasta su fecha y ahí termina (Revendedores muestra «canceló la
+  renovación»). Cambiar de plan, de tarjeta o cancelar lo hace el cliente desde «Mi plan ›
+  Administrar mi suscripción» (el portal de Lemon Squeezy).
+- Si en la tabla aparece «Pago para revisar» por un plan distinto, revisa que cada variante de
+  Lemon Squeezy sea la de su plan (`LEMONSQUEEZY_VARIANT_*`). Si un cobro sale menor que el precio
+  del sitio, `operations.log` lo avisa: iguala el precio de la variante con el de Ajustes.
 
 ## Respaldos
 

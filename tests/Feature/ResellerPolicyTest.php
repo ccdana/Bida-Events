@@ -22,7 +22,7 @@ class ResellerPolicyTest extends TestCase
         $this->assertTrue(User::factory()->create(['is_admin' => true])->can('create', Invitation::class));
 
         $this->assertFalse(User::factory()->create()->can('create', Invitation::class));
-        $this->assertFalse(User::factory()->reseller(renewsAt: now()->subDay()->toDateString())->create()->can('create', Invitation::class));
+        $this->assertFalse(User::factory()->reseller(renewsAt: now()->subDays(10)->toDateString())->create()->can('create', Invitation::class));
         $this->assertFalse(User::factory()->reseller(status: 'canceled')->create()->can('create', Invitation::class));
     }
 
@@ -37,8 +37,8 @@ class ResellerPolicyTest extends TestCase
         $this->assertFalse($reseller->can('update', $foreign));
         $this->assertFalse($reseller->can('update', $unassigned));
 
-        // Vencido: sigue viendo lo suyo, pero ya no lo edita
-        $reseller->update(['subscription_renews_at' => now()->subDay()->toDateString()]);
+        // Vencido y pasados los días de gracia: sigue viendo lo suyo, pero ya no lo edita
+        $reseller->update(['subscription_renews_at' => now()->subDays(10)->toDateString()]);
         $this->assertFalse($reseller->fresh()->can('update', $own));
         $this->assertTrue($reseller->fresh()->can('view', $own));
     }
@@ -55,8 +55,8 @@ class ResellerPolicyTest extends TestCase
     public function test_the_reseller_middleware_lets_only_resellers_through(): void
     {
         $this->actingAs(User::factory()->create())->get(route('client.invitations.create'))->assertRedirect()->assertSessionHas('access_notice');
-        // Un revendedor vencido entra a la sección, pero la policy no lo deja crear
-        $this->actingAs(User::factory()->reseller(renewsAt: now()->subDay()->toDateString())->create())
+        // Un revendedor vencido (pasados los días de gracia) entra a la sección, pero la policy no lo deja crear
+        $this->actingAs(User::factory()->reseller(renewsAt: now()->subDays(10)->toDateString())->create())
             ->get(route('client.invitations.create'))
             ->assertRedirect()->assertSessionHas('access_notice');
     }

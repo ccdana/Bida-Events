@@ -23,6 +23,7 @@ use App\Http\Controllers\Client\ExportController;
 use App\Http\Controllers\Client\GuestController as ClientGuestController;
 use App\Http\Controllers\Client\InvitationController as ClientInvitationController;
 use App\Http\Controllers\Client\ResellerClientController;
+use App\Http\Controllers\Client\SubscriptionController;
 use App\Http\Controllers\EventLandingController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Public\ContributionController;
@@ -31,6 +32,7 @@ use App\Http\Controllers\Public\InvitationController as PublicInvitationControll
 use App\Http\Controllers\Public\RsvpController;
 use App\Http\Controllers\PublicPagesController;
 use App\Http\Controllers\SeoController;
+use App\Http\Controllers\Webhooks\PaymentWebhookController;
 use App\Models\Invitation;
 use App\Support\LegalPages;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
@@ -67,6 +69,13 @@ Route::middleware('lead.source')->group(function () {
 Route::withoutMiddleware([StartSession::class, ShareErrorsFromSession::class, ValidateCsrfToken::class])->group(function () {
     Route::get('/sitemap.xml', [SeoController::class, 'sitemap'])->name('sitemap');
     Route::get('/llms.txt', [SeoController::class, 'llms'])->name('llms');
+
+    // Avisos de las pasarelas de pago (los manda su servidor, no un navegador: sin sesión ni CSRF;
+    // la firma de cada pasarela es lo que los valida)
+    Route::post('/webhooks/{provider}', PaymentWebhookController::class)
+        ->where('provider', '[a-z0-9]+')
+        ->middleware('throttle:payment-webhooks')
+        ->name('webhooks.payments');
 });
 
 // Control de entrada el día del evento (teléfono del personal de la puerta). Fuera de /p para que
@@ -155,7 +164,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     // Clientes: los del equipo y los que crea cada revendedor
     Route::get('/clientes', [AdminClientController::class, 'index'])->name('clients.index');
 
-    // Revendedores: alta y pagos de su suscripción (el cobro es manual, no hay pasarela)
+    // Revendedores: alta y pagos de su suscripción registrados a mano (los de tarjeta o QR llegan solos)
     Route::get('/revendedores', [ResellerController::class, 'index'])->name('resellers.index');
     Route::post('/revendedores', [ResellerController::class, 'store'])->name('resellers.store');
     Route::post('/revendedores/{reseller}/pagos', [ResellerController::class, 'registerPayment'])->name('resellers.payments.store');
@@ -194,6 +203,12 @@ Route::prefix('client')->name('client.')->middleware(['auth', 'client'])->group(
     Route::put('/cuenta/correo', [AccountController::class, 'updateEmail'])->middleware('throttle:6,1')->name('account.email');
     Route::put('/cuenta/contrasena', [AccountController::class, 'updatePassword'])->middleware('throttle:6,1')->name('account.password');
     Route::post('/cuenta/contrasena/enlace', [AccountController::class, 'sendPasswordLink'])->middleware('throttle:3,1')->name('account.password-link');
+
+    // Pagar un plan de «Hazlo tú» en línea (PAYMENTS_ENABLED): elegir, ir a la pasarela y esperar su aviso
+    Route::get('/suscripcion', [SubscriptionController::class, 'show'])->name('subscription');
+    Route::post('/suscripcion', [SubscriptionController::class, 'store'])->middleware('throttle:6,1')->name('subscription.store');
+    Route::get('/suscripcion/orden/{order:public_id}', [SubscriptionController::class, 'order'])->whereUuid('order')->name('subscription.order');
+    Route::get('/suscripcion/portal', [SubscriptionController::class, 'portal'])->middleware('throttle:10,1')->name('subscription.portal');
 
     // Revendedores: arman sus propias invitaciones con el mismo editor que el administrador.
     // «reseller» deja pasar solo a revendedores; la policy exige además la suscripción al día.

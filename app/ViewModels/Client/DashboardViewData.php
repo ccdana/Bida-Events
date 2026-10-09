@@ -6,6 +6,7 @@ use App\EventProfiles\EventProfiles;
 use App\Models\Invitation;
 use App\Models\User;
 use App\Modules\Module;
+use App\Payments\PaymentGateways;
 use App\Support\InvitationTemplates;
 use App\Support\ResellerSubscription;
 use Illuminate\Support\Collection;
@@ -62,10 +63,19 @@ class DashboardViewData
         $daysLeft = ResellerSubscription::daysLeft($user);
         $active = $user->hasActiveSubscription();
         $hasQuota = ResellerSubscription::hasQuotaLeft($user);
+        // Con tarjeta se renueva sola: el aviso de vencimiento solo hace falta si canceló o falló el cobro
+        $autoRenews = $user->renewsAutomatically() && $user->subscription_status === 'active';
+        $payOnline = (bool) app(PaymentGateways::class)->availableMethods();
+        $graceEnds = ResellerSubscription::graceEndsAt($user)?->locale('es')->translatedFormat('j \d\e F');
 
         $warning = match (true) {
-            $daysLeft === null => 'Tu suscripción todavía no está activa. Escríbenos para registrar tu primer pago.',
+            $daysLeft === null => $payOnline
+                ? 'Tu suscripción todavía no está activa. Elige tu plan y paga en línea para empezar.'
+                : 'Tu suscripción todavía no está activa. Escríbenos para registrar tu primer pago.',
             ! $active => 'Tu suscripción venció: tus invitaciones siguen en línea, pero no puedes crear ni editar hasta renovarla.',
+            $user->subscription_status === 'past_due' => "No pudimos cobrar la renovación con tu tarjeta. Revisa tu medio de pago antes del {$graceEnds} para no perder el acceso al editor.",
+            ResellerSubscription::inGrace($user) => "Tu suscripción venció. Tienes hasta el {$graceEnds} para renovarla sin perder el acceso al editor.",
+            $autoRenews => null,
             $daysLeft <= ResellerSubscription::WARNING_DAYS => $daysLeft === 1
                 ? 'Tu suscripción vence mañana. Renuévala para no perder el acceso al editor.'
                 : "Tu suscripción vence en {$daysLeft} días. Renuévala para no perder el acceso al editor.",
@@ -79,7 +89,12 @@ class DashboardViewData
             'quotaLabel' => $limit === null ? "{$used} este mes (sin tope)" : "{$used} de {$limit}",
             'renewsLabel' => $user->subscription_renews_at?->locale('es')->translatedFormat('j \d\e F \d\e Y'),
             'isActive' => $active,
+            // Ya pasó la fecha (aunque siga en los días de gracia): «venció el», no «renueva el»
+            'isPastDue' => $daysLeft !== null && $daysLeft < 0,
+            'autoRenews' => $autoRenews,
             'warning' => $warning,
+            // Junto al aviso: pagar o renovar en línea (o el portal de la tarjeta, si el cobro falló)
+            'payUrl' => $warning && $payOnline ? route('client.subscription') : null,
             'isExpired' => $daysLeft !== null && ! $active,
             'canCreate' => $active && $hasQuota,
             // Por qué no puede crear, para decirlo junto al botón

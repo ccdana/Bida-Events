@@ -328,7 +328,8 @@
                                 @endforeach
                             </ul>
 
-                            <a href="{{ $plan['whatsapp'] }}" target="_blank" rel="noopener"
+                            {{-- Con el pago en línea, a pagar el plan (pide entrar o crear cuenta); si no, a WhatsApp --}}
+                            <a href="{{ $plan['checkout'] ?? $plan['whatsapp'] }}" @unless($plan['checkout']) target="_blank" rel="noopener" @endunless
                                 @class(['site-btn site-btn--lg mt-10 justify-center', 'site-btn--ghost' => ! $featured])>
                                 Elegir {{ $plan['name'] }}
                                 <x-phosphor-arrow-right class="site-btn__arrow" aria-hidden="true" />

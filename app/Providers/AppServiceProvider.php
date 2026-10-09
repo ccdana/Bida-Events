@@ -159,6 +159,10 @@ class AppServiceProvider extends ServiceProvider
             ->by('verification-email|'.$request->user()?->id)
             ->response(fn () => back()->with('status', 'Ya te enviamos el enlace. Espera un minuto antes de pedir otro.')));
 
+        // Avisos de las pasarelas: generoso (reintentan en ráfagas), pero con techo por si alguien inunda la ruta
+        RateLimiter::for('payment-webhooks', fn (Request $request) => Limit::perMinute(300)
+            ->by('payment-webhooks|'.$request->route('provider').'|'.$request->ip()));
+
         // Ida y vuelta a Google: un ingreso son dos peticiones
         RateLimiter::for('google', fn (Request $request) => Limit::perMinute(20)
             ->by('google|'.$request->ip())

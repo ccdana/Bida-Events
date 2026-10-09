@@ -36,7 +36,7 @@
                     <p class="mt-1 text-sm text-site-muted">
                         invitaciones creadas este mes
                         @if($reseller['renewsLabel'])
-                            · {{ $reseller['isActive'] ? 'renueva el' : 'venció el' }} {{ $reseller['renewsLabel'] }}
+                            · {{ match (true) { $reseller['isPastDue'] => 'venció el', $reseller['autoRenews'] => 'se renueva solo el', default => 'renueva el' } }} {{ $reseller['renewsLabel'] }}
                         @endif
                     </p>
                 </div>
@@ -64,7 +64,12 @@
                     'bg-site-tint' => $reseller['isActive'],
                 ]) role="status">
                     <x-phosphor-bell-ringing class="size-5 shrink-0" aria-hidden="true" />
-                    {{ $reseller['warning'] }}
+                    <span>
+                        {{ $reseller['warning'] }}
+                        @if($reseller['payUrl'])
+                            <a href="{{ $reseller['payUrl'] }}" class="ml-1 font-medium underline underline-offset-4">{{ $reseller['isActive'] ? 'Renovar' : 'Pagar ahora' }}</a>
+                        @endif
+                    </span>
                 </p>
             @endif
         </section>

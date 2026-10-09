@@ -30,10 +30,11 @@ class VerifyEmailController extends Controller
         // Marca el correo como verificado y dispara el evento Verified (si ya lo estaba, no hace nada)
         $request->fulfill();
 
-        // Directo al panel: pasar por /dashboard (otra redirección) gastaría el aviso antes de mostrarlo
-        $panel = $request->user()->isAdmin() ? 'admin.dashboard' : 'client.dashboard';
+        // A lo que estaba por hacer (pagar un plan que eligió antes de crear la cuenta) o directo al
+        // panel: pasar por /dashboard (otra redirección) gastaría el aviso antes de mostrarlo
+        $panel = $request->user()->isAdmin() ? route('admin.dashboard') : route('client.dashboard');
 
-        return redirect()->route($panel)->with('success', 'Listo: tu correo quedó confirmado.');
+        return redirect()->intended($panel)->with('success', 'Listo: tu correo quedó confirmado.');
     }
 
     public function send(Request $request): RedirectResponse

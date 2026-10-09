@@ -5,7 +5,7 @@
 @section('auth')
     <h1 class="site-enter text-3xl font-semibold tracking-tight sm:text-4xl" style="--enter-index: 1">Confirma tu correo</h1>
     <p class="site-enter mt-3 leading-relaxed text-site-muted" style="--enter-index: 2">
-        Te enviamos un enlace a <span class="font-medium text-site-ink">{{ $email }}</span>. Ábrelo desde tu correo y tu cuenta queda lista.
+        Te enviamos un enlace a <span class="font-medium text-site-ink">{{ $email }}</span>. Ábrelo desde tu correo y tu cuenta queda lista{{ str_contains((string) session('url.intended'), '/client/suscripcion') ? ': después sigues con el pago de tu plan' : '' }}.
         Si no lo ves en unos minutos, revisa la carpeta de spam.
     </p>
 

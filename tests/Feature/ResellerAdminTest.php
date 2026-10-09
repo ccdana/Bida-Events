@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\SubscriptionPayment;
 use App\Models\User;
+use App\Services\SubscriptionActivator;
 use App\Support\SiteSettings;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
@@ -135,6 +136,26 @@ class ResellerAdminTest extends TestCase
         $this->actingAs($this->admin)->delete(route('admin.resellers.payments.destroy', [$reseller, $first]));
         $this->assertNull($reseller->fresh()->subscription_renews_at);
         $this->assertFalse($reseller->fresh()->hasActiveSubscription());
+    }
+
+    public function test_a_card_or_qr_payment_is_shown_with_its_origin_and_not_annulled_by_hand(): void
+    {
+        $reseller = User::factory()->create(['is_reseller' => true, 'reseller_plan' => 'aliado', 'name' => 'Paga con tarjeta']);
+        $payment = app(SubscriptionActivator::class)->recordPayment($reseller, 'aliado', [
+            'amount' => 14, 'currency' => 'USD', 'provider' => 'lemonsqueezy', 'external_id' => 'ls_123',
+        ]);
+
+        $this->actingAs($this->admin)->get(route('admin.resellers.index'))
+            ->assertOk()
+            ->assertSee('· tarjeta')
+            ->assertDontSee(route('admin.resellers.payments.destroy', [$reseller, $payment]));
+
+        $this->actingAs($this->admin)
+            ->delete(route('admin.resellers.payments.destroy', [$reseller, $payment]))
+            ->assertStatus(422);
+
+        $this->assertModelExists($payment);
+        $this->assertSame('2026-11-15', $reseller->fresh()->subscription_renews_at->toDateString());
     }
 
     public function test_the_admin_sets_the_price_and_quota_of_each_plan(): void

@@ -20,7 +20,8 @@
                 : null,
             'nav' => [
                 ['label' => 'Mis eventos', 'url' => route('client.dashboard'), 'icon' => 'squares-four', 'active' => request()->routeIs('client.dashboard', 'client.invitation.show')],
-                ['label' => 'Mi plan', 'url' => route('diy').'#planes', 'icon' => 'seal-check', 'active' => false],
+                // Con el pago en línea, su plan y sus pagos; si no, los planes de la página pública
+                ['label' => 'Mi plan', 'url' => config('payments.enabled') ? route('client.subscription') : route('diy').'#planes', 'icon' => 'seal-check', 'active' => request()->routeIs('client.subscription*')],
                 ['label' => 'Mi cuenta', 'url' => route('client.account'), 'icon' => 'user-circle', 'active' => request()->routeIs('client.account')],
                 ['label' => 'Ver el sitio', 'url' => route('home'), 'icon' => 'arrow-square-out', 'active' => false],
             ],
