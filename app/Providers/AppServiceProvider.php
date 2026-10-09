@@ -5,9 +5,12 @@ namespace App\Providers;
 use App\EventProfiles\EventProfiles;
 use App\Modules\ModuleRegistry;
 use App\Support\SiteSettings;
+use Illuminate\Auth\Notifications\ResetPassword;
+use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Middleware\TrustProxies;
 use Illuminate\Http\Request;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
@@ -43,7 +46,36 @@ class AppServiceProvider extends ServiceProvider
 
         $this->configureTrustedProxies();
         $this->configureRateLimiting();
+        $this->configureAccountEmails();
         $this->reportFailedJobs();
+    }
+
+    /**
+     * Los correos de la cuenta (confirmar el correo y crear una contraseña nueva) en español y con la
+     * firma de la marca. El resto del diseño es el de las notificaciones de Laravel (lang/es.json).
+     */
+    protected function configureAccountEmails(): void
+    {
+        $signature = 'El equipo de '.config('bida.brand');
+
+        VerifyEmail::toMailUsing(fn (object $notifiable, string $url) => (new MailMessage)
+            ->subject('Confirma tu correo')
+            ->greeting('Hola, '.Str::before((string) $notifiable->name, ' ').':')
+            ->line('Toca el botón para confirmar que este correo es tuyo. Con eso queda lista tu cuenta.')
+            ->action('Confirmar mi correo', $url)
+            ->line('El enlace vale 60 minutos. Si no abriste una cuenta en '.config('bida.brand').', ignora este mensaje.')
+            ->salutation($signature));
+
+        ResetPassword::toMailUsing(fn (object $notifiable, string $token) => (new MailMessage)
+            ->subject('Crea una contraseña nueva')
+            ->greeting('Hola, '.Str::before((string) $notifiable->name, ' ').':')
+            ->line('Recibimos un pedido para cambiar la contraseña de tu cuenta.')
+            ->action('Crear una contraseña nueva', route('password.reset', [
+                'token' => $token,
+                'email' => $notifiable->getEmailForPasswordReset(),
+            ]))
+            ->line('El enlace vale '.config('auth.passwords.users.expire').' minutos y sirve una sola vez. Si no lo pediste, ignora este mensaje: tu contraseña sigue igual.')
+            ->salutation($signature));
     }
 
     /**
@@ -108,5 +140,28 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('login', fn (Request $request) => Limit::perMinute((int) config('optimizations.rate_limits.login'))
             ->by(Str::lower((string) $request->input('username')).'|'.$request->ip())
             ->response(fn () => back()->withErrors(['username' => $message])->onlyInput('username')));
+
+        // Cuentas nuevas: por IP, por minuto y por día (frena a quien las crea en serie)
+        $emailThrottled = fn () => back()->withErrors(['email' => $message])->onlyInput('name', 'email');
+
+        RateLimiter::for('register', fn (Request $request) => [
+            Limit::perMinute((int) config('optimizations.rate_limits.register'))->by('register|'.$request->ip())->response($emailThrottled),
+            Limit::perDay(30)->by('register-day|'.$request->ip())->response($emailThrottled),
+        ]);
+
+        // Enlaces para crear una contraseña nueva: por IP y por correo (cada uno manda un correo)
+        RateLimiter::for('password-email', fn (Request $request) => [
+            Limit::perMinute((int) config('optimizations.rate_limits.password_email'))->by('password-email|'.$request->ip())->response($emailThrottled),
+            Limit::perHour(6)->by('password-email|'.Str::lower(trim((string) $request->input('email'))))->response($emailThrottled),
+        ]);
+
+        RateLimiter::for('verification-email', fn (Request $request) => Limit::perMinute(2)
+            ->by('verification-email|'.$request->user()?->id)
+            ->response(fn () => back()->with('status', 'Ya te enviamos el enlace. Espera un minuto antes de pedir otro.')));
+
+        // Ida y vuelta a Google: un ingreso son dos peticiones
+        RateLimiter::for('google', fn (Request $request) => Limit::perMinute(20)
+            ->by('google|'.$request->ip())
+            ->response(fn () => redirect()->route('login')->withErrors(['username' => $message])));
     }
 }

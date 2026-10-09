@@ -43,6 +43,7 @@
 
             <main class="panel-content">
                 @include('layouts.partials.access-notice')
+                @include('layouts.partials.verify-notice')
                 @yield('content')
             </main>
         </div>
@@ -60,7 +61,14 @@
                     @if($panelUser?->is_admin)
                         <a href="{{ route('admin.dashboard') }}" class="admin-link-button mr-2">Panel admin</a>
                     @endif
-                    <span class="mr-1 hidden text-sm text-site-muted sm:inline">{{ $panelUser?->name }}</span>
+                    @if($panelUser && ! $panelUser->is_admin)
+                        <a href="{{ route('client.account') }}" @class(['mr-1 text-sm transition-colors hover:text-site-ink', 'font-medium text-site-ink' => request()->routeIs('client.account'), 'text-site-muted' => ! request()->routeIs('client.account')])
+                            @if(request()->routeIs('client.account')) aria-current="page" @endif>
+                            <span class="hidden sm:inline">{{ $panelUser->name }} · </span>Mi cuenta
+                        </a>
+                    @else
+                        <span class="mr-1 hidden text-sm text-site-muted sm:inline">{{ $panelUser?->name }}</span>
+                    @endif
                     @include('layouts.partials.panel-actions')
                 </div>
             </div>
@@ -68,6 +76,7 @@
 
         <main class="mx-auto max-w-6xl px-5 py-8 lg:px-8 lg:py-12">
             @include('layouts.partials.access-notice')
+            @include('layouts.partials.verify-notice')
             @yield('content')
         </main>
 

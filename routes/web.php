@@ -9,7 +9,12 @@ use App\Http\Controllers\Admin\MediaUploadController;
 use App\Http\Controllers\Admin\PreviewController;
 use App\Http\Controllers\Admin\ResellerController;
 use App\Http\Controllers\Admin\SettingsController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Client\AccountController;
 use App\Http\Controllers\Client\ContributionController as ClientContributionController;
 use App\Http\Controllers\Client\DashboardController as ClientDashboardController;
@@ -93,6 +98,32 @@ Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [LoginController::class, 'login'])->middleware('throttle:login');
     Route::get('/client/login', fn () => redirect()->route('login'))->name('client.login');
+
+    // Cuenta nueva desde el sitio (se apaga con AUTH_REGISTRATION=false)
+    Route::get('/registro', [RegisterController::class, 'create'])->name('register');
+    Route::post('/registro', [RegisterController::class, 'store'])->middleware('throttle:register');
+
+    // «¿Olvidaste tu contraseña?»: enlace por correo para crear una nueva
+    Route::get('/contrasena/olvide', [ForgotPasswordController::class, 'create'])->name('password.request');
+    Route::post('/contrasena/olvide', [ForgotPasswordController::class, 'store'])->middleware('throttle:password-email')->name('password.email');
+
+    // Entrar con Google (solo si hay credenciales en .env)
+    Route::middleware('throttle:google')->group(function () {
+        Route::get('/auth/google', [GoogleController::class, 'redirect'])->name('auth.google');
+        Route::get('/auth/google/callback', [GoogleController::class, 'callback'])->name('auth.google.callback');
+    });
+});
+
+// La contraseña nueva desde el enlace del correo. Fuera de «guest»: también lo abre quien lo pidió
+// desde «Mi cuenta» con la sesión iniciada (al guardar, se cierran todas sus sesiones)
+Route::get('/contrasena/nueva/{token}', [ResetPasswordController::class, 'create'])->name('password.reset');
+Route::post('/contrasena/nueva', [ResetPasswordController::class, 'store'])->middleware('throttle:6,1')->name('password.store');
+
+// Confirmar el correo de una cuenta abierta desde el sitio
+Route::middleware('auth')->group(function () {
+    Route::get('/correo/confirmar', [VerifyEmailController::class, 'notice'])->name('verification.notice');
+    Route::get('/correo/confirmar/{id}/{hash}', [VerifyEmailController::class, 'verify'])->middleware(['signed', 'throttle:6,1'])->name('verification.verify');
+    Route::post('/correo/confirmar', [VerifyEmailController::class, 'send'])->middleware('throttle:verification-email')->name('verification.send');
 });
 
 Route::post('/logout', [LoginController::class, 'logout'])->middleware('auth')->name('logout');
@@ -158,13 +189,15 @@ Route::prefix('client')->name('client.')->middleware(['auth', 'client'])->group(
     Route::get('/', [ClientDashboardController::class, 'index'])->name('dashboard');
     Route::get('/invitations/{invitation}', [ClientDashboardController::class, 'show'])->can('view', 'invitation')->name('invitation.show');
 
+    // Su cuenta: el correo (para recuperar la contraseña y recibir avisos) y una contraseña propia
+    Route::get('/cuenta', [AccountController::class, 'edit'])->name('account');
+    Route::put('/cuenta/correo', [AccountController::class, 'updateEmail'])->middleware('throttle:6,1')->name('account.email');
+    Route::put('/cuenta/contrasena', [AccountController::class, 'updatePassword'])->middleware('throttle:6,1')->name('account.password');
+    Route::post('/cuenta/contrasena/enlace', [AccountController::class, 'sendPasswordLink'])->middleware('throttle:3,1')->name('account.password-link');
+
     // Revendedores: arman sus propias invitaciones con el mismo editor que el administrador.
     // «reseller» deja pasar solo a revendedores; la policy exige además la suscripción al día.
     Route::middleware('reseller')->group(function () {
-        // Su cuenta: cambia la contraseña que le dio el administrador por una propia
-        Route::get('/cuenta', [AccountController::class, 'edit'])->name('account');
-        Route::put('/cuenta/contrasena', [AccountController::class, 'updatePassword'])->middleware('throttle:6,1')->name('account.password');
-
         Route::get('/invitaciones/nueva', [ClientInvitationController::class, 'create'])->can('create', Invitation::class)->name('invitations.create');
         Route::post('/invitaciones', [ClientInvitationController::class, 'store'])->can('create', Invitation::class)->name('invitations.store');
         Route::get('/invitations/{invitation}/editar', [ClientInvitationController::class, 'edit'])->can('update', 'invitation')->name('invitations.edit');

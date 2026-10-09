@@ -32,6 +32,9 @@ return [
     'rate_limits' => [
         // Peticiones por minuto; los endpoints públicos se limitan por IP e invitación
         'login' => env('RATE_LIMIT_LOGIN', 5),
+        // Cuentas nuevas por IP y pedidos de enlace para cambiar la contraseña por correo e IP
+        'register' => env('RATE_LIMIT_REGISTER', 5),
+        'password_email' => env('RATE_LIMIT_PASSWORD_EMAIL', 5),
         'rsvp' => env('RATE_LIMIT_RSVP', 10),
         'songs' => env('RATE_LIMIT_SONGS', 10),
         'photos' => env('RATE_LIMIT_PHOTOS', 10),

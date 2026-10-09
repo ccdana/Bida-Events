@@ -5,7 +5,7 @@ namespace App\Http\Requests\Client;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Password;
 
-/** El revendedor cambia su contraseña: pide la actual y la nueva dos veces. */
+/** El cliente o el revendedor cambia su contraseña: pide la actual y la nueva dos veces. */
 class UpdatePasswordRequest extends FormRequest
 {
     protected $dontFlash = ['current_password', 'password', 'password_confirmation'];

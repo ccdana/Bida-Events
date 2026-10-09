@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Http\Controllers\Auth\Concerns\RedirectsAfterLogin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -9,6 +10,8 @@ use Illuminate\Support\Str;
 
 class LoginController extends Controller
 {
+    use RedirectsAfterLogin;
+
     public function showLoginForm()
     {
         return view('auth.login');
@@ -17,45 +20,29 @@ class LoginController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'username' => ['required', 'string', 'max:60'],
+            'username' => ['required', 'string', 'max:255'],
             'password' => ['required', 'string'],
         ], [
-            'username.required' => 'Escribe tu usuario.',
+            'username.required' => 'Escribe tu usuario o tu correo.',
             'password.required' => 'Escribe tu contraseña.',
         ]);
 
-        // Los usuarios se guardan en minúsculas: "Maria.Valenzuela" también funciona
+        // Un mismo campo para el usuario que da el equipo y para el correo de las cuentas del sitio.
+        // Los dos se guardan en minúsculas: "Maria.Valenzuela" también funciona
+        $login = Str::lower(trim((string) $request->input('username')));
         $credentials = [
-            'username' => Str::lower(trim((string) $request->input('username'))),
+            str_contains($login, '@') ? 'email' : 'username' => $login,
             'password' => (string) $request->input('password'),
         ];
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
-            $user = Auth::user();
-            $intended = $request->session()->get('url.intended');
-            if (is_string($intended)) {
-                $path = parse_url($intended, PHP_URL_PATH) ?: '/';
 
-                if (in_array($path, ['/', '/login', '/client/login', '/dashboard'], true)) {
-                    $request->session()->forget('url.intended');
-                    $intended = null;
-                }
-            }
-
-            if ($user->isAdmin()) {
-                return $intended
-                    ? redirect()->intended(route('admin.dashboard'))
-                    : redirect()->route('admin.dashboard');
-            }
-
-            return $intended
-                ? redirect()->intended(route('client.dashboard'))
-                : redirect()->route('client.dashboard');
+            return $this->redirectAfterLogin($request, Auth::user());
         }
 
         return back()->withErrors([
-            'username' => 'El usuario o la contraseña no son correctos.',
+            'username' => 'El usuario, el correo o la contraseña no son correctos.',
         ])->onlyInput('username');
     }
 

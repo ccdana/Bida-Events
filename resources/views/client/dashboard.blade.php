@@ -12,6 +12,13 @@
 
     @include('client.partials.export-status')
 
+    @if(session('success'))
+        <p class="site-enter mt-6 flex items-center gap-2 rounded-[12px] border border-site-line bg-site-surface px-4 py-3 text-sm" role="status">
+            <x-phosphor-check-circle class="size-5 shrink-0 text-site-accent" aria-hidden="true" />
+            {{ session('success') }}
+        </p>
+    @endif
+
     @if($errors->has('quota'))
         <p class="site-enter mt-6 flex items-start gap-2 rounded-[12px] border border-site-danger/40 bg-site-danger/10 px-4 py-3 text-sm text-site-danger" role="alert">
             <x-phosphor-warning-circle class="size-5 shrink-0" aria-hidden="true" />
@@ -170,8 +177,12 @@
                 @if($reseller)
                     <p class="mt-1 max-w-[40ch] text-site-muted">Crea la primera con «Nueva invitación»: aparecerá aquí con sus confirmaciones.</p>
                 @else
-                    <p class="mt-1 max-w-[40ch] text-site-muted">Cuando armemos tu invitación, aparecerá aquí con sus confirmaciones.</p>
-                    <a href="{{ route('home') }}#contacto" class="admin-link-button mt-6">Contactar al equipo</a>
+                    {{-- Cliente del equipo que espera su invitación, o cuenta recién abierta desde el sitio --}}
+                    <p class="mt-1 max-w-[44ch] text-site-muted">Cuando armemos tu invitación, aparecerá aquí con sus confirmaciones. Si prefieres armarlas tú, elige un plan de «Hazlo tú».</p>
+                    <div class="mt-6 flex flex-wrap justify-center gap-2">
+                        <a href="{{ route('diy') }}#planes" class="admin-primary-button">Ver los planes</a>
+                        <a href="{{ route('home') }}#contacto" class="admin-link-button">Contactar al equipo</a>
+                    </div>
                 @endif
             @endif
         </div>

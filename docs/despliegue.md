@@ -481,6 +481,8 @@ nano .env
 | `CLOUDINARY_URL` | `cloudinary://API_KEY:API_SECRET@CLOUD_NAME` (paso 6.1) |
 | `MAIL_*` | Paso 6.2 |
 | `OPERATIONS_ALERT_EMAIL` | Tu correo personal, para las alertas |
+| `AUTH_REGISTRATION` | `false` hasta que estén los pagos (paso 6.4) |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Paso 6.4 (vacíos: sin botón de Google) |
 | `BIDA_WHATSAPP` | Número del negocio con código de país, sin `+` (ej. `59171234567`) |
 | `BIDA_EMAIL` | `hola@bida-events.com` |
 | `BIDA_CITY`, `BIDA_INSTAGRAM`, `BIDA_TIKTOK`, `BIDA_FACEBOOK` | Datos reales |
@@ -591,7 +593,8 @@ cada mes; los videos son lo que más gasta.
 **Recibir** en `hola@bida-events.com` (gratis): Cloudflare → *Email → Email Routing* → activa,
 agrega la regla `hola@` → tu Gmail. Cloudflare crea solo los registros MX.
 
-**Enviar** (alertas de `bida:salud`): cuenta en [resend.com](https://resend.com), *Domains →
+**Enviar** (alertas de `bida:salud` y los correos de las cuentas: confirmar el correo y crear una
+contraseña nueva): cuenta en [resend.com](https://resend.com), *Domains →
 Add domain* `bida-events.com`, y agrega en Cloudflare los registros DNS que te indique (SPF y
 DKIM). Luego, en `.env`:
 
@@ -639,6 +642,28 @@ rclone config
 Una vez al mes, descarga un respaldo a tu PC y prueba restaurarlo en local (ver
 `docs/operacion.md`, «Restaurar un respaldo»). Además, `bida:probar-respaldo` lo prueba solo
 cada domingo en el servidor.
+
+### 6.4 Cuentas: registro y entrar con Google
+
+Las cuentas abiertas desde el sitio (`/registro`) entran con su correo o con Google; las que arma
+el equipo siguen entrando con su usuario. Los enlaces para confirmar el correo y para crear una
+contraseña nueva salen por el correo del paso 6.2: **sin él configurado nadie puede recuperar su
+cuenta**.
+
+**Google** (gratis): en [console.cloud.google.com](https://console.cloud.google.com) crea un
+proyecto → *APIs y servicios → Pantalla de consentimiento de OAuth* (tipo *Externo*, nombre
+«Bida Events», el logo, y los enlaces a `/legal/privacidad` y `/legal/terminos`) → *Credenciales →
+Crear credenciales → ID de cliente de OAuth* (tipo *Aplicación web*), con la URI de redirección
+autorizada `https://bida-events.com/auth/google/callback`. Copia el ID y el secreto:
+
+```dotenv
+GOOGLE_CLIENT_ID=xxxxxxxx.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=GOCSPX-xxxxxxxx
+```
+
+Sin esas dos variables el botón «Continuar con Google» no aparece. **`AUTH_REGISTRATION`** queda en
+`false` hasta que estén listos los pagos: así solo entran las cuentas que ya existen (también con
+Google, si su correo coincide). Con `true` cualquiera puede abrir una cuenta.
 
 ---
 

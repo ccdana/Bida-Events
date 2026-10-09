@@ -2,15 +2,22 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 
-class User extends Authenticatable
+/**
+ * Las cuentas que arma el equipo entran con su usuario y pueden no tener correo. Las que se abren
+ * desde el sitio entran con el correo (verificado) o con Google. Solo la compra exige el correo
+ * verificado (middleware «verified»); el resto del panel no lo pide.
+ */
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
@@ -25,6 +32,8 @@ class User extends Authenticatable
         'username',
         'email',
         'password',
+        'google_id',
+        'avatar_url',
         'is_admin',
         'is_reseller',
         'reseller_plan',
@@ -61,6 +70,14 @@ class User extends Authenticatable
             'is_reseller' => 'boolean',
             'subscription_renews_at' => 'date',
         ];
+    }
+
+    /** El correo se guarda en minúsculas y sin espacios: así se busca al iniciar sesión. */
+    protected function email(): Attribute
+    {
+        return Attribute::make(
+            set: fn (?string $value) => filled($value) ? Str::lower(trim($value)) : null,
+        );
     }
 
     public function invitations(): HasMany

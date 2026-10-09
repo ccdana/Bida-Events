@@ -104,7 +104,7 @@ class ResellerPlansAndRsvpTest extends TestCase
 
         $this->assertTrue(Hash::check('mi-clave-nueva', $reseller->fresh()->password));
 
-        // Un cliente común no tiene esta página
-        $this->actingAs(User::factory()->create())->get(route('client.account'))->assertRedirect()->assertSessionHas('access_notice');
+        // Un cliente común también tiene su cuenta (correo y contraseña), sin el plan
+        $this->actingAs(User::factory()->create())->withoutVite()->get(route('client.account'))->assertOk()->assertDontSee('Sin plan');
     }
 }
