@@ -3,10 +3,23 @@
 @section('title', 'Crea tu cuenta | '.config('bida.brand'))
 
 @section('auth')
+    <x-site.journey :current="2" class="site-enter mb-8" style="--enter-index: 0" />
+
     <h1 class="site-enter text-3xl font-semibold tracking-tight sm:text-4xl" style="--enter-index: 1">Crea tu cuenta</h1>
-    <p class="site-enter mt-3 leading-relaxed text-site-muted" style="--enter-index: 2">
-        Con tu cuenta eliges tu plan y armas invitaciones con nuestras plantillas, para tu familia o para tus clientes.
-    </p>
+    @if($chosenPlan)
+        {{-- Quien eligió un plan en «Hazlo tú» lo ve aquí: sabe qué va a pagar después de confirmar su correo --}}
+        <p class="site-enter mt-3 leading-relaxed text-site-muted" style="--enter-index: 2">
+            Tu plan: <span class="font-medium text-site-ink">{{ $chosenPlan['name'] }}</span>, {{ $chosenPlan['price'] }} al mes · {{ $chosenPlan['quota'] }}.
+            <a href="{{ route('diy') }}#comparar" class="font-medium text-site-ink underline underline-offset-4 transition-colors hover:text-site-accent">Cambiar</a>
+        </p>
+        <p class="site-enter mt-2 text-sm leading-relaxed text-site-muted" style="--enter-index: 2">
+            Creas tu cuenta, confirmas tu correo y pagas el plan. Después armas tu invitación.
+        </p>
+    @else
+        <p class="site-enter mt-3 leading-relaxed text-site-muted" style="--enter-index: 2">
+            Con tu cuenta eliges tu plan y armas tus invitaciones con nuestras plantillas, para tu evento o para tus clientes.
+        </p>
+    @endif
 
     @include('auth.partials.google', ['index' => 3])
 

@@ -10,6 +10,11 @@
     ])
 
     <div class="grid max-w-3xl gap-8">
+        {{-- Quien todavía no tiene plan está en el paso 3: pagar para poder crear su invitación --}}
+        @unless($user->isReseller())
+            <x-site.journey :current="3" class="site-enter" />
+        @endunless
+
         <header class="site-enter">
             <h1 class="text-3xl font-semibold tracking-tight md:text-4xl">{{ $user->isReseller() ? 'Mi plan' : 'Elige tu plan' }}</h1>
             <p class="mt-2 max-w-[60ch] text-site-muted">
@@ -66,7 +71,7 @@
             @if($methods === [])
                 <p class="site-enter admin-card text-site-muted" style="--enter-index: 2">
                     El pago en línea no está disponible en este momento.
-                    <a href="{{ route('diy') }}#planes" class="font-medium text-site-ink underline underline-offset-4">Escríbenos</a> y lo activamos contigo.
+                    <a href="{{ route('diy') }}#comparar" class="font-medium text-site-ink underline underline-offset-4">Escríbenos</a> y lo activamos contigo.
                 </p>
             @else
                 {{-- El total cambia con el plan, la forma de pago (su moneda) y los meses (solo sin renovación automática) --}}
@@ -104,7 +109,7 @@
                                         </span>
                                     </span>
                                     <span class="mt-1 block text-sm text-site-muted">
-                                        {{ $plan['quota_per_month'] === null ? 'Invitaciones sin tope' : $plan['quota_per_month'].' invitaciones al mes' }} · {{ $plan['summary'] ?? '' }}
+                                        {{ $plan['quota_per_month'] === null ? 'Invitaciones sin tope' : ($plan['quota_per_month'] === 1 ? '1 invitación al mes' : $plan['quota_per_month'].' invitaciones al mes') }} · {{ $plan['summary'] ?? '' }}
                                     </span>
                                     @if($user->reseller_plan === $key && $user->isReseller())
                                         <span class="mt-1 block text-xs font-medium text-site-accent">Tu plan actual</span>

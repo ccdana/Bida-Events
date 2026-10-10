@@ -178,16 +178,27 @@
                 <p class="mt-1 max-w-[40ch] text-site-muted">Prueba con otra palabra del nombre.</p>
                 <a href="{{ route('client.dashboard') }}" class="admin-link-button mt-6">Ver todos mis eventos</a>
             @else
-                <h2 class="mt-4 text-lg font-medium">Todavía no tienes eventos</h2>
                 @if($reseller)
-                    <p class="mt-1 max-w-[40ch] text-site-muted">Crea la primera con «Nueva invitación»: aparecerá aquí con sus confirmaciones.</p>
+                    {{-- Con plan: lo que sigue es crear la primera invitación --}}
+                    <x-site.journey :current="4" class="mb-8 w-full max-w-md text-left" />
+                    <h2 class="text-lg font-medium">Crea tu primera invitación</h2>
+                    <p class="mt-1 max-w-[40ch] text-site-muted">Elige una plantilla, sube tus fotos y publícala. Aparecerá aquí con sus confirmaciones.</p>
+                    @if($reseller['canCreate'])
+                        <a href="{{ route('client.invitations.create') }}" class="admin-primary-button mt-6">
+                            <x-phosphor-plus-bold aria-hidden="true" />
+                            Nueva invitación
+                        </a>
+                    @endif
                 @else
-                    {{-- Cliente del equipo que espera su invitación, o cuenta recién abierta desde el sitio --}}
-                    <p class="mt-1 max-w-[44ch] text-site-muted">Cuando armemos tu invitación, aparecerá aquí con sus confirmaciones. Si prefieres armarlas tú, elige un plan de «Hazlo tú».</p>
+                    {{-- Cuenta recién abierta (o cliente del equipo que espera su invitación): el paso que sigue es elegir el plan --}}
+                    <x-site.journey :current="3" class="mb-8 w-full max-w-md text-left" />
+                    <h2 class="text-lg font-medium">Elige tu plan y crea tu primera invitación</h2>
+                    <p class="mt-1 max-w-[44ch] text-site-muted">Con un plan armas tus invitaciones tú mismo, desde una sola. Si prefieres que las hagamos nosotros, escríbenos.</p>
                     <div class="mt-6 flex flex-wrap justify-center gap-2">
-                        <a href="{{ route('diy') }}#planes" class="admin-primary-button">Ver los planes</a>
-                        <a href="{{ route('home') }}#contacto" class="admin-link-button">Contactar al equipo</a>
+                        <a href="{{ $startUrl }}" class="admin-primary-button">Elegir mi plan</a>
+                        <a href="{{ route('home') }}#precios" class="admin-link-button">Que me la hagan</a>
                     </div>
+                    <p class="mt-6 max-w-[44ch] text-sm text-site-muted">Si el equipo ya está armando tu invitación, aparecerá aquí cuando esté lista.</p>
                 @endif
             @endif
         </div>

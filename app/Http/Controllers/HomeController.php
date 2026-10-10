@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Invitation;
+use App\Support\DiyPlans;
 use App\Support\LeadSource;
 use App\Support\Money;
 use App\Support\Offers;
@@ -19,23 +20,32 @@ class HomeController extends Controller
         // Cada mensaje lleva el código de origen (LeadSource) para saber de qué campaña escribió
         $whatsapp = fn (string $message): string => LeadSource::whatsappUrl($request, $message, LeadSource::HOME);
         $fromPrice = Offers::lowestPackagePrice();
+        // El modelo principal: que cada persona arme su invitación con un plan mensual
+        $diyFromPrice = (int) collect(Offers::resellerPlans())->min('final_price');
         $demos = ShowcaseDemos::find($bida['demo_invitations'] ?? []);
+        $diy = DiyPlans::make($request, LeadSource::HOME);
 
         return view('home', [
             'bida' => $bida,
             'user' => $request->user(),
             'contactUrl' => $whatsapp('Hola {brand}, quiero información sobre las invitaciones digitales.'),
+            // Lo principal: los planes mensuales (cada quien arma su invitación)
+            'plans' => $diy['plans'],
+            'featuredPlan' => $diy['featuredPlan'],
+            'collections' => $diy['collections'],
+            // Lo adicional: que el equipo la haga (paquetes, pago único)
             'packages' => $this->packages($bida['packages'], $whatsapp),
             'seasons' => $seasons = self::seasons($request),
             'services' => self::services($seasons, $fromPrice, count($demos) > 0),
             'fromPrice' => $fromPrice,
+            'diyFromPrice' => $diyFromPrice,
             'demoUrl' => $this->demoUrl($bida['demo_slug'] ?? null),
             'demos' => $demos,
             'designs' => self::designsByEvent($bida, $seasons),
             'landings' => self::landingLinks(),
             'share' => ShareMeta::make(
                 "{$bida['brand']} | Invitaciones digitales para bodas, XV años, bautizos y graduaciones",
-                'Invitaciones digitales con confirmación de asistencia, pase QR y control de entrada, música, fotos y mapa. Se comparten por WhatsApp. Paquetes desde '.Money::format($fromPrice).'.',
+                'Crea tu invitación digital con plantillas profesionales, confirmación de asistencia y pase QR, o pídenos que la hagamos. Planes desde '.Money::format($diyFromPrice).' al mes.',
                 ShareMeta::defaultImage(),
                 route('home'),
             ),
@@ -92,7 +102,7 @@ class HomeController extends Controller
                 'fromPrice' => match ($service['price'] ?? null) {
                     'season' => collect($seasons)->min('final_price'),
                     'packages' => $fromPrice,
-                    'reseller' => collect(config('bida.reseller_plans', []))->min('price'),
+                    'reseller' => collect(Offers::resellerPlans())->min('final_price'),
                     default => null,
                 },
                 // Los planes de profesionales se pagan por mes

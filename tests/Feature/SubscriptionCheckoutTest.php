@@ -48,6 +48,9 @@ class SubscriptionCheckoutTest extends TestCase
 
     public function test_the_plans_page_offers_the_card_and_hazlo_tu_links_to_it(): void
     {
+        // Quien no tiene cuenta pasa primero por crearla, con su plan, y de ahí sigue al pago
+        $this->withoutVite()->get(route('diy'))->assertOk()->assertSee(route('register', ['plan' => 'aliado']), false);
+
         $this->actingAs(User::factory()->create())->withoutVite()->get(route('client.subscription', ['plan' => 'emprendedor']))
             ->assertOk()
             ->assertSee('Elige tu plan')
@@ -57,6 +60,7 @@ class SubscriptionCheckoutTest extends TestCase
             ->assertDontSee('Pago en Bolivia')
             ->assertDontSee('Cuántos meses pagas');
 
+        // Quien ya entró va directo a pagar
         $this->withoutVite()->get(route('diy'))->assertOk()->assertSee(route('client.subscription', ['plan' => 'aliado']), false);
 
         // Sin credenciales de Lemon Squeezy no se ofrece la tarjeta

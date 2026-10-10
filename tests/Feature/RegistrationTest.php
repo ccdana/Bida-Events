@@ -20,6 +20,23 @@ class RegistrationTest extends TestCase
         config(['auth.registration' => true, 'services.google.client_id' => null, 'services.google.client_secret' => null]);
     }
 
+    public function test_arriving_with_a_plan_shows_it_and_continues_to_its_payment_after_confirming(): void
+    {
+        $this->withoutVite()->get('/registro?plan=aliado')
+            ->assertOk()
+            ->assertSee('Tu plan:')
+            ->assertSee('Aliado')
+            ->assertSee('Paso 2 de 4');
+
+        // El plan viaja con la sesión: al confirmar el correo sigue el pago de ese plan
+        $this->assertSame(route('client.subscription', ['plan' => 'aliado']), session('url.intended'));
+
+        // Un plan que no existe no se guarda
+        $this->flushSession();
+        $this->withoutVite()->get('/registro?plan=inventado')->assertOk()->assertDontSee('Tu plan:');
+        $this->assertNull(session('url.intended'));
+    }
+
     public function test_a_visitor_opens_an_account_and_is_asked_to_confirm_the_email(): void
     {
         Notification::fake();
@@ -152,7 +169,7 @@ class RegistrationTest extends TestCase
             ->assertSee('Confirma tu correo')
             ->assertSee('luis@correo.com')
             // Una cuenta nueva sin eventos ve los planes
-            ->assertSee(route('diy').'#planes', false);
+            ->assertSee(route('diy').'#comparar', false);
 
         $this->actingAs(User::factory()->create())->withoutVite()->get(route('client.dashboard'))->assertDontSee('Confirma tu correo');
     }

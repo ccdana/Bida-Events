@@ -144,11 +144,12 @@ La API key, el webhook y los ids de prueba son **distintos** de los reales.
 ### 2.2 Producto con un plan por variante
 
 1. *Products › + New product*: nombre «Hazlo tú», tipo **Subscription**.
-2. Crea **cuatro variantes**, una por plan, cada una **mensual** y con el **mismo precio que el
+2. Crea **cinco variantes**, una por plan, cada una **mensual** y con el **mismo precio que el
    plan tiene hoy en el sitio** (Admin › Ajustes, el precio con descuento si tiene):
 
    | Variante | Precio (hoy) | Variable |
    | --- | --- | --- |
+   | Única | US$ 5 | `LEMONSQUEEZY_VARIANT_UNICA` |
    | Inicial | US$ 9 | `LEMONSQUEEZY_VARIANT_INICIAL` |
    | Aliado | US$ 14 | `LEMONSQUEEZY_VARIANT_ALIADO` |
    | Emprendedor | US$ 29 | `LEMONSQUEEZY_VARIANT_EMPRENDEDOR` |
@@ -197,6 +198,7 @@ LEMONSQUEEZY_API_KEY=eyJ0eXAiOiJKV1Qi...
 LEMONSQUEEZY_STORE_ID=12345
 LEMONSQUEEZY_SIGNING_SECRET=el-secreto-del-paso-2.4
 LEMONSQUEEZY_TEST_MODE=true
+LEMONSQUEEZY_VARIANT_UNICA=555555
 LEMONSQUEEZY_VARIANT_INICIAL=111111
 LEMONSQUEEZY_VARIANT_ALIADO=222222
 LEMONSQUEEZY_VARIANT_EMPRENDEDOR=333333

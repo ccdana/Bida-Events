@@ -2,8 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Payments\PaymentGateways;
-use App\Support\InvitationTemplates;
+use App\Support\DiyPlans;
 use App\Support\LeadSource;
 use App\Support\LegalPages;
 use App\Support\Money;
@@ -31,49 +30,32 @@ class PublicPagesController extends Controller
     public const GUIDE_UPDATED_AT = '2026-09-24';
 
     /**
-     * «Hazlo tú»: planes mensuales para armar invitaciones propias (revendedores). Qué se obtiene en
-     * detalle, para quién sirve, cuentas claras con un ejemplo y los planes con su precio de hoy
-     * (config «bida.reseller_plans» con lo que el administrador cambió en Ajustes, descuentos incluidos).
+     * «Hazlo tú»: el plan mensual para armar invitaciones propias y venderlas (revendedores) es lo
+     * principal; que el equipo se las haga («paquetes») es lo secundario. Los precios salen de la
+     * config «bida.reseller_plans» con lo que el administrador cambió en Ajustes (descuentos
+     * incluidos); el precio de venta de ejemplo solo se usa en las preguntas.
      */
     public function diy(Request $request): View
     {
         $bida = config('bida');
         $whatsapp = fn (string $message): string => LeadSource::whatsappUrl($request, $message, self::DIY_CODE);
-        $templates = collect(InvitationTemplates::all());
-
-        $gateways = app(PaymentGateways::class);
-
-        $plans = collect(Offers::resellerPlans())->map(fn (array $plan, string $key): array => $plan + [
-            // Con el pago en línea encendido, «Elegir» lleva a pagar; si no, a WhatsApp como siempre
-            'checkout' => $gateways->availableMethods($key) ? route('client.subscription', ['plan' => $key]) : null,
-            'key' => $key,
-            'templates_count' => $templates->filter(fn (array $template) => in_array($template['collection'] ?? 'clasica', $plan['collections'] ?? [], true))->count(),
-            // Cuánto sale cada invitación si se usa todo el cupo del mes
-            'cost_per_invitation' => $plan['quota_per_month'] ? round($plan['final_price'] / $plan['quota_per_month'], 2) : null,
-            'example_margin' => $plan['quota_per_month'] ? $plan['quota_per_month'] * self::EXAMPLE_RESALE_PRICE - $plan['final_price'] : null,
-            'whatsapp' => $whatsapp("Hola {brand}, quiero el plan {$plan['name']} de Hazlo tú (".Money::format($plan['final_price']).' al mes).'),
-        ])->values()->all();
+        $diy = DiyPlans::make($request, self::DIY_CODE);
+        $plans = $diy['plans'];
 
         return view('hazlo-tu', [
             'bida' => $bida,
             'user' => $request->user(),
             'plans' => $plans,
-            // El que se destaca: el primero con marca propia, el que más conviene a quien vende invitaciones
-            'featuredPlan' => collect($plans)->firstWhere('white_label', true)['key'] ?? null,
-            'collections' => [
-                'lienzo' => ['label' => 'Plantilla en blanco', 'templates' => $templates->where('collection', 'lienzo')->pluck('label')->all()],
-                'clasica' => ['label' => 'Plantillas clásicas', 'templates' => $templates->where('collection', 'clasica')->pluck('label')->all()],
-                'temporada' => ['label' => 'Plantillas de temporada', 'templates' => $templates->where('collection', 'temporada')->pluck('label')->all()],
-                // Las que se suman durante el año; mientras no haya, la página dice que llegan
-                'nueva' => ['label' => 'Plantillas nuevas de cada evento', 'templates' => $templates->where('collection', 'nueva')->pluck('label')->all()],
-            ],
-            'demo' => ShowcaseDemos::find($bida['professionals']['demos'] ?? [])[0] ?? null,
+            'featuredPlan' => $diy['featuredPlan'],
+            'collections' => $diy['collections'],
+            // Lo secundario: que el equipo haga la invitación (pago único por invitación)
+            'packages' => HomeController::packages($bida['packages'], $whatsapp),
             'examplePrice' => self::EXAMPLE_RESALE_PRICE,
             'contactUrl' => $whatsapp('Hola {brand}, quiero saber cómo funciona Hazlo tú para armar mis propias invitaciones.'),
             'landings' => HomeController::landingLinks(),
             'share' => ShareMeta::make(
-                "Hazlo tú: crea tus propias invitaciones digitales | {$bida['brand']}",
-                'Tu propio panel para crear invitaciones digitales con plantillas profesionales, confirmación de asistencia, pase QR y control de entrada. Planes mensuales desde '.Money::format(collect($plans)->min('final_price')).', sin comisión por invitación.',
+                "Hazlo tú: haz tus propias invitaciones digitales y véndelas con tu marca | {$bida['brand']}",
+                'Arma tus propias invitaciones digitales con plantillas profesionales, para tu evento o para vender con tu marca. Desde '.Money::format(collect($plans)->min('final_price')).' al mes, sin comisión por invitación.',
                 ShareMeta::defaultImage(),
                 route('diy'),
             ),

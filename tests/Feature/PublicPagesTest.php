@@ -27,22 +27,25 @@ class PublicPagesTest extends TestCase
 
         $this->withoutVite()->get(route('diy'))
             ->assertOk()
-            ->assertSee('Tu propio panel para crear invitaciones digitales')
-            // Beneficios explicados, con la entrada por QR
-            ->assertSee('Qué obtienes con Hazlo tú')
-            ->assertSee('Control de entrada el día del evento')
-            ->assertSee('Cuentas claras')
-            ->assertSeeInOrder(['Inicial', '9', 'USD al mes', 'Aliado', 'US$ 20', '16', 'USD al mes', '9 invitaciones al mes', 'Emprendedor', 'Agencia', 'Invitaciones sin tope'])
+            // La página arranca en lo que ganas: sin el módulo de portada ni las tarjetas de planes, que viven en la portada
+            ->assertDontSee('Haz tus propias invitaciones.')
+            ->assertDontSee('site-plans--pro', false)
+            ->assertSee('Un negocio de invitaciones, sin montarlo desde cero')
+            ->assertSee('Lo que cobras es tuyo')
+            ->assertSee('Tu marca al frente')
+            ->assertSee('Entrada con QR el día del evento')
+            // La comparación es donde se elige: cada plan con su precio de hoy y su descuento (Aliado: 20 → 16)
+            ->assertSee('id="comparar"', false)
+            ->assertSeeInOrder(['Compara los planes punto por punto', 'Única', 'US$ 5', 'Inicial', 'US$ 9', 'Aliado', 'US$ 20', 'US$ 16', 'Emprendedor', 'Agencia'])
+            // La pregunta de cuánto se gana usa el cupo y el precio de hoy (9 × 25 − 16)
+            ->assertSee('suman US$ 225 y te quedan US$ 209 después del plan')
             // La comparación dice qué desbloquea cada plan
             ->assertSeeInOrder(['Accesos para clientes al mes', 'Plantilla en blanco', 'Plantillas clásicas', 'Plantillas de temporada', 'Plantillas nuevas de cada evento', 'Confirmación por WhatsApp', 'Confirmación con pase QR', 'Tu marca al pie'])
-            ->assertSee('Noche de calabazas')
+            // Lo secundario: que lo haga el equipo, con los paquetes de hoy
+            ->assertSeeInOrder(['Te la hacemos nosotros', 'Básico', 'US$ 22', 'Estándar', 'US$ 43', 'Premium', 'US$ 72'])
             // WhatsApp con el plan y el código de la página
             ->assertSee(rawurlencode('quiero el plan Aliado de Hazlo tú (US$ 16 al mes)'), false)
-            ->assertSee(rawurlencode('Ref. HAZLO'), false)
-            // Las muestras del teléfono se pueden abrir
-            ->assertSee(route('invitation.demo', 'lienzo-casa-molina'), false);
-
-        $this->withoutVite()->get(route('invitation.demo', 'lienzo-casa-molina'))->assertOk();
+            ->assertSee(rawurlencode('Ref. HAZLO'), false);
     }
 
     public function test_the_legal_pages_exist_and_are_linked_from_every_site_page(): void

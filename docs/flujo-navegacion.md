@@ -1,0 +1,194 @@
+# Recorridos del sitio: a dónde lleva cada botón
+
+Mapa de navegación de Bida Events con el modelo principal primero: **cada persona arma su propia
+invitación con un plan mensual («Hazlo tú»)**. Lo adicional es que el equipo se la haga («Te la
+hacemos», paquetes de pago único por WhatsApp).
+
+Los diagramas se leen de arriba hacia abajo (o de izquierda a derecha en el último). Los nombres entre
+llaves son datos que cambian: `{plan}`, `{paquete}`, `{evento}`, `{slug}`, `X` es la clave del plan.
+
+## El recorrido principal
+
+De la portada a la primera invitación publicada, pasando por elegir el plan, crear la cuenta, confirmar el correo y pagar.
+
+```mermaid
+flowchart TD
+  A["Portada /"] -->|"Crear mi invitación · Planes · Elegir mi plan"| P["Planes de la portada #planes"]
+  OT["Guía, páginas por evento, legales"] -->|"Crear mi invitación (cabecera)"| B["/hazlo-tu#comparar<br/>tabla con «Elegir»"]
+  P -->|"Quiero {plan}"| R["/registro?plan=X"]
+  B -->|"Elegir"| R
+  R -->|"Crear mi cuenta"| V["/correo/confirmar"]
+  V -->|"enlace del correo"| S["/client/suscripcion?plan=X"]
+  S -->|"Pagar"| O["/client/suscripcion/orden/ID"]
+  O -->|"plan activo"| C["/client/invitaciones/nueva"]
+  C -->|"guardar"| E["/client/invitations/ID/editar"]
+  E -->|"publicar y compartir"| L["/p/slug (enlace público)"]
+```
+
+## Qué hace «Quiero {plan}»
+
+El mismo botón lleva a tres lugares distintos según haya pago en línea, sesión iniciada y registro abierto.
+
+```mermaid
+flowchart TD
+  Q["Botón «Quiero {plan}»<br/>portada · «Elegir» en /hazlo-tu"] --> M{"¿Hay pago en línea<br/>para ese plan?"}
+  M -->|"No"| W["WhatsApp con el plan<br/>y el código Ref."]
+  M -->|"Sí"| U{"¿Ya inició sesión?"}
+  U -->|"Sí"| S["/client/suscripcion?plan=X"]
+  U -->|"No"| G{"¿Registro abierto?"}
+  G -->|"Sí"| R["/registro?plan=X<br/>guarda el plan elegido"]
+  G -->|"No"| L["/login y vuelve<br/>a /client/suscripcion?plan=X"]
+```
+
+## Entrar, registrarse y volver
+
+Quien crea la cuenta sigue al pago del plan que eligió; quien ingresa vuelve a la página que quería abrir o a su panel.
+
+```mermaid
+flowchart TD
+  R["/registro?plan=X"] -->|"Crear mi cuenta o Google"| N["Cuenta nueva sin plan<br/>sesión iniciada"]
+  N --> V["/correo/confirmar"]
+  V -->|"abre el enlace del correo"| I["Correo confirmado"]
+  I --> T{"¿Quedó un destino<br/>pendiente?"}
+  T -->|"Sí: el plan elegido"| S["/client/suscripcion?plan=X"]
+  T -->|"No"| D["/client (Mis eventos)"]
+  LG["/login"] -->|"Ingresar o Google"| Z{"¿Destino pendiente distinto<br/>de / /login /registro /dashboard?"}
+  Z -->|"Sí"| S2["Ese destino"]
+  Z -->|"No · es admin"| A["/admin"]
+  Z -->|"No · es cliente"| D
+```
+
+## El pago y la activación del plan
+
+El plan se activa cuando se confirma el cobro, por el aviso de la pasarela o por la verificación programada, no por volver a la página.
+
+```mermaid
+flowchart TD
+  S["/client/suscripcion"] --> E{"¿Correo confirmado?"}
+  E -->|"No"| AC["/client/cuenta<br/>agregar o confirmar correo"]
+  E -->|"Sí"| F{"Forma de pago"}
+  F -->|"Tarjeta · Lemon Squeezy"| LS["Página de pago de la pasarela<br/>(fuera del sitio)"]
+  F -->|"QR Bolivia · Libélula"| O["/client/suscripcion/orden/ID<br/>muestra el QR"]
+  LS -->|"vuelve al sitio"| O
+  O -->|"consulta cada 3 s"| P{"¿Cobro confirmado?"}
+  WH["Aviso de la pasarela<br/>/webhooks/proveedor"] -->|"cola ProcessWebhookEvent"| P
+  VP["Programador<br/>bida:verificar-pagos cada 5 min"] --> P
+  P -->|"Sí"| OK["Plan activo<br/>Crear mi primera invitación"]
+  P -->|"No"| W["Sigue esperando"]
+```
+
+## Lo adicional: te la hacemos
+
+Los paquetes no pasan por cuenta ni pago en línea: salen todos por WhatsApp y el equipo deja la invitación en el panel del cliente.
+
+```mermaid
+flowchart LR
+  H["Portada · Te la hacemos<br/>#precios"] -->|"Elegir {paquete}"| WA["WhatsApp con el paquete<br/>y Ref. de origen"]
+  HZ["/hazlo-tu · Pedir {paquete}"] --> WA
+  LD["Páginas por evento<br/>Elegir {paquete}"] --> WA
+  WA --> EQ["El equipo arma la invitación<br/>con el cliente"]
+  EQ --> CP["/client · Ver invitados<br/>Abrir mi invitación"]
+```
+
+## Botón por botón
+
+### Portada (`/`)
+
+| Botón o enlace | Lleva a | Notas |
+| --- | --- | --- |
+| Logo | / | Vuelve a la portada |
+| Planes · Plantillas · Qué incluye · Te la hacemos · Preguntas | #planes · #plantillas · #incluye · #precios · #preguntas | Anclas dentro de la misma página |
+| Crear mi invitación (cabecera) | #planes | Baja a los planes de la propia portada; en las demás páginas va a /hazlo-tu#comparar |
+| Ícono de WhatsApp (cabecera) | wa.me con el mensaje y Ref. HOME | Acción secundaria |
+| Ingresar / Mi panel | /login · /dashboard | Según haya sesión |
+| Hazlo tú · Elegir mi plan | #planes | Primer bloque de servicios |
+| Te la hacemos · Ver los paquetes | #precios | Paquetes, pago único |
+| Diseños de temporada | #temporada o la página de la temporada | Solo mientras la temporada se vende |
+| Pestañas de evento (Pruébala como invitado) | /muestra/{slug} | Muestra interactiva, nada se guarda |
+| Ver todos los diseños de {evento} | /invitaciones-de-{evento} | Página por evento |
+| Así funciona · Elegir mi plan | #planes |  |
+| Quiero {plan} / Quiero el plan Única | Ver «Qué hace Quiero {plan}» | Registro con el plan, pago o WhatsApp |
+| Comparar lo que incluye cada plan | /hazlo-tu#comparar | Comparación completa, que la portada no repite |
+| Elegir {paquete} | wa.me con el paquete y su precio | Lo adicional |
+| Botón flotante de temporadas | Panel de la temporada → WhatsApp o su página |  |
+
+### Hazlo tú (`/hazlo-tu`)
+
+| Botón o enlace | Lleva a | Notas |
+| --- | --- | --- |
+| Planes (menú) | #comparar | La página ya no repite las tarjetas de la portada |
+| Plan {nombre} (en «Para quién») | #comparar |  |
+| Elegir (última fila de la comparación) | Ver «Qué hace Quiero {plan}» | Tabla punto por punto en #comparar, con las plantillas de cada familia |
+| Pedir {paquete} | wa.me con el paquete | Lo adicional |
+| Ver todo lo que incluye cada paquete | /#precios |  |
+| Elegir mi plan (cierre) | #comparar |  |
+| Tengo una duda | wa.me con el mensaje de Hazlo tú (Ref. HAZLO) |  |
+
+### Registro y correo (`/registro · /correo/confirmar`)
+
+| Botón o enlace | Lleva a | Notas |
+| --- | --- | --- |
+| Crear mi cuenta | /correo/confirmar | Crea el usuario, envía el correo y deja la sesión iniciada |
+| Entrar con Google | /auth/google → /auth/google/callback → destino pendiente o /client | Solo si hay credenciales de Google |
+| Cambiar (plan elegido) | /hazlo-tu#comparar |  |
+| Ingresa | /login |  |
+| Términos · política de privacidad | /legal/terminos · /legal/privacidad |  |
+| Enlace del correo | /client/suscripcion?plan=X o /client | Al plan elegido si lo había |
+| Enviarme otro enlace | Misma página, con aviso | POST /correo/confirmar |
+| Cámbialo en tu cuenta | /client/cuenta |  |
+| Ir a mi panel | /dashboard → /client o /admin |  |
+
+### Mi plan (pago) (`/client/suscripcion`)
+
+| Botón o enlace | Lleva a | Notas |
+| --- | --- | --- |
+| Confirmar mi correo / Agregar mi correo | /client/cuenta | Hace falta para pagar en línea |
+| Pagar (tarjeta) | Página de pago de Lemon Squeezy → /client/suscripcion/orden/ID | Se renueva sola cada mes |
+| Pagar (QR Bolivia) | /client/suscripcion/orden/ID | Muestra el QR en bolivianos |
+| Administrar mi suscripción | /client/suscripcion/portal → portal de la pasarela | Solo con tarjeta |
+| Crear mi primera invitación (plan activo) | /client/invitaciones/nueva | En la página de la orden |
+| Ir a mi panel | /client |  |
+
+### Panel del cliente (`/client`)
+
+| Botón o enlace | Lleva a | Notas |
+| --- | --- | --- |
+| Nueva invitación | /client/invitaciones/nueva | Solo con plan activo y cupo; si no, queda desactivado con el motivo |
+| Elegir mi plan (panel vacío) | /client/suscripcion o /hazlo-tu#comparar | La primera si hay pago en línea |
+| Que me la hagan | /#precios |  |
+| Pagar ahora / Renovar | /client/suscripcion | Aviso de vencimiento |
+| Ver invitados / Ver respuestas | /client/invitations/{id} |  |
+| Editar | /client/invitations/{id}/editar | Solo revendedor al día |
+| Abrir mi invitación · Copiar enlace | /p/{slug} | Solo si está publicada |
+| Mi plan · Mi cuenta · Ver el sitio (menú) | /client/suscripcion o /hazlo-tu#comparar · /client/cuenta · / |  |
+
+### Páginas por evento (`/invitaciones-de-boda, /invitaciones-xv-anos…`)
+
+| Botón o enlace | Lleva a | Notas |
+| --- | --- | --- |
+| Crear mi invitación (cabecera) | /hazlo-tu#comparar |  |
+| Ver los planes (aviso «¿Prefieres armarla tú?») | /hazlo-tu#comparar |  |
+| Diseños (capturas) | /muestra/{slug} |  |
+| Escríbenos · Elegir {paquete} | wa.me con el mensaje del evento | Código propio de cada página |
+| La quiero por {precio} (temporada) | wa.me con el precio de temporada |  |
+
+### Pie del sitio (`En todas las páginas`)
+
+| Botón o enlace | Lleva a | Notas |
+| --- | --- | --- |
+| Invitaciones: Boda, XV años, Bautizo… | /invitaciones-de-{evento} |  |
+| Hazlo tú · Guía de invitaciones | /hazlo-tu · /guia-invitaciones-digitales |  |
+| Precios | /#precios |  |
+| Mi panel / Ingresar | /dashboard · /login |  |
+| Privacidad · Cookies · Términos | /legal/{página} |  |
+| Escríbenos por WhatsApp · correo | wa.me · mailto |  |
+| Instagram · Facebook · TikTok | Redes (sitio externo) |  |
+
+## De dónde sale cada destino
+
+- Lógica de los planes y de «Elegir»: `app/Support/DiyPlans.php`.
+- Portada: `app/Http/Controllers/HomeController.php` y `resources/views/home.blade.php`.
+- Hazlo tú: `app/Http/Controllers/PublicPagesController.php` y `resources/views/hazlo-tu.blade.php`.
+- Cuenta y redirecciones: `RegisterController`, `VerifyEmailController`, `LoginController`
+  (trait `RedirectsAfterLogin`) y la ruta `/dashboard` de `routes/web.php`.
+- Pago: `app/Http/Controllers/Client/SubscriptionController.php` y `app/Payments`.

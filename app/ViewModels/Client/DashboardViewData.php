@@ -48,6 +48,8 @@ class DashboardViewData
             'search' => $search,
             'total' => $rows->count(),
             'reseller' => $user?->isReseller() ? $this->reseller($user) : null,
+            // Dónde elegir el plan: pagarlo aquí si hay pago en línea; si no, ver los planes y escribirnos
+            'startUrl' => app(PaymentGateways::class)->availableMethods() ? route('client.subscription') : route('diy').'#comparar',
         ];
     }
 

@@ -24,6 +24,8 @@
                 }, 3000)
             },
         }">
+        <x-site.journey :current="$order->isPaid() ? 4 : 3" class="site-enter" />
+
         @if($order->isPaid())
             <header class="site-enter">
                 <h1 class="text-3xl font-semibold tracking-tight md:text-4xl">Listo: tu plan {{ $planName }} está activo</h1>
@@ -38,7 +40,7 @@
             </header>
             <div class="site-enter flex flex-wrap gap-3" style="--enter-index: 1">
                 @if($user->can('create', \App\Models\Invitation::class))
-                    <a href="{{ route('client.invitations.create') }}" class="admin-primary-button min-h-11">Crear una invitación</a>
+                    <a href="{{ route('client.invitations.create') }}" class="admin-primary-button min-h-11">Crear mi primera invitación</a>
                 @endif
                 <a href="{{ route('client.dashboard') }}" class="admin-link-button min-h-11">Ir a mi panel</a>
             </div>

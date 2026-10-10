@@ -392,20 +392,30 @@ return [
     'templates_disabled' => [],
 
     /*
-    | Lo que ofrece la marca, en la sección «Servicios» de la portada. «price» toma el
-    | precio de hoy: «packages» (el paquete más barato), «season» (la temporada vigente) o
+    | Lo que ofrece la marca, en la sección «Servicios» de la portada. El primero es el modelo
+    | principal (que la persona arme su invitación, «Hazlo tú»); los otros dos son secundarios.
+    | «price» toma el precio de hoy: «packages» (el paquete más barato), «season» (la temporada vigente) o
     | «reseller» (el plan mensual más barato para profesionales).
     | «href» acepta un ancla, «season» (la temporada o su página) o una URL.
     */
     'services' => [
         [
+            'key' => 'hazlo',
+            'name' => 'Hazlo tú',
+            'text' => 'Armas tu invitación con nuestras plantillas, desde tu propio panel y cuando quieras: para tu evento, tu familia o tus clientes. Un plan al mes, sin comisión por invitación.',
+            'occasions' => ['Tu evento', 'Si organizas varios', 'Fotógrafos y salones', 'Emprendedores de eventos'],
+            'price' => 'reseller',
+            'href' => '#planes',
+            'cta' => 'Elegir mi plan',
+        ],
+        [
             'key' => 'invitaciones',
-            'name' => 'Invitaciones digitales',
-            'text' => 'La invitación web de tu evento: se abre con una animación, tus invitados confirman asistencia desde su enlace y tú sigues la lista desde tu panel.',
+            'name' => 'Te la hacemos',
+            'text' => 'Nos cuentas tu evento y armamos la invitación contigo: se abre con una animación, tus invitados confirman asistencia desde su enlace y tú sigues la lista desde tu panel.',
             'occasions' => ['Bodas', 'XV años', 'Bautizos', 'Cumpleaños', 'Y cualquier celebración'],
             'price' => 'packages',
-            'href' => '#plantillas',
-            'cta' => 'Ver las plantillas',
+            'href' => '#precios',
+            'cta' => 'Ver los paquetes',
         ],
         [
             'key' => 'temporada',
@@ -415,15 +425,6 @@ return [
             'price' => 'season',
             'href' => 'season',
             'cta' => 'Ver la temporada',
-        ],
-        [
-            'key' => 'hazlo',
-            'name' => 'Hazlo tú',
-            'text' => 'Tu propio panel para armar invitaciones con nuestras plantillas, cuando quieras y para quien quieras: tu familia, tus clientes o tu negocio. Un plan al mes, sin comisión por invitación.',
-            'occasions' => ['Si organizas varios eventos', 'Fotógrafos y salones', 'Emprendedores de eventos'],
-            'price' => 'reseller',
-            'href' => '/hazlo-tu',
-            'cta' => 'Ver los planes',
         ],
     ],
 
@@ -556,6 +557,20 @@ return [
     | (Supuesto) Precios, cupos y qué incluye cada plan, pendientes de confirmar con el dueño.
     */
     'reseller_plans' => [
+        // Una sola invitación: para quien organiza un único evento y no necesita un cupo mayor
+        'unica' => [
+            'name' => 'Única',
+            'price' => 5,
+            'promo_price' => null,
+            'quota_per_month' => 1,
+            'collections' => ['lienzo', 'clasica'],
+            'rsvp' => ['whatsapp'],
+            'white_label' => false,
+            'cycle_months' => 1,
+            'templates' => null,
+            'summary' => 'Para un solo evento: una invitación con la plantilla que elijas.',
+            'features' => ['1 invitación al mes', 'Plantilla en blanco y plantillas clásicas', 'Acceso para tu cliente en el evento'],
+        ],
         'inicial' => [
             'name' => 'Inicial',
             'price' => 9,

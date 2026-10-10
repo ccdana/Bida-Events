@@ -23,7 +23,7 @@
 ## Hazlo tú (planes mensuales)
 
 @foreach($plans as $plan)
-- Plan {!! $plan['name'] !!}: {!! \App\Support\Money::format($plan['final_price']) !!} al mes, {!! $plan['quota_per_month'] === null ? 'invitaciones sin tope' : $plan['quota_per_month'].' invitaciones al mes' !!}{!! ! empty($plan['white_label']) ? ', con la marca del cliente al pie' : '' !!}.
+- Plan {!! $plan['name'] !!}: {!! \App\Support\Money::format($plan['final_price']) !!} al mes, {!! $plan['quota_per_month'] === null ? 'invitaciones sin tope' : ($plan['quota_per_month'] === 1 ? '1 invitación al mes' : $plan['quota_per_month'].' invitaciones al mes') !!}{!! ! empty($plan['white_label']) ? ', con la marca del cliente al pie' : '' !!}.
 @endforeach
 
 ## Páginas

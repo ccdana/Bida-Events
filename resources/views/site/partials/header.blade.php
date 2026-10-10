@@ -1,6 +1,12 @@
 {{--
     Cabecera del sitio público. Recibe $navLinks (href => texto), $contactUrl, $accountUrl y $accountLabel.
+    La acción principal lleva a elegir el plan de «Hazlo tú» (el modelo principal: cada quien arma su
+    invitación); escribir por WhatsApp queda como acción secundaria.
 --}}
+@php
+    // En la portada baja a sus planes; en las demás páginas, a la comparación de «Hazlo tú» (donde se elige)
+    $ctaUrl = request()->routeIs('home') ? '#planes' : route('diy').'#comparar';
+@endphp
 <header data-site-header x-data="{ open: false }" @keydown.escape.window="open = false"
     class="site-header sticky top-0 z-40" :class="{ 'is-open': open }">
     <div class="mx-auto flex h-16 max-w-7xl items-center justify-between gap-6 px-5 lg:h-[72px] lg:px-8">
@@ -17,9 +23,12 @@
         <div class="hidden items-center gap-5 lg:flex">
             @include('layouts.partials.theme-toggle')
             <a href="{{ $accountUrl }}" class="site-nav-link text-[0.95rem] font-medium text-site-muted hover:text-site-ink">{{ $accountLabel }}</a>
-            <a href="{{ $contactUrl }}" target="_blank" rel="noopener" class="site-btn" data-magnetic>
+            <a href="{{ $contactUrl }}" target="_blank" rel="noopener" class="site-header__chat" aria-label="Escríbenos por WhatsApp">
                 <x-phosphor-whatsapp-logo aria-hidden="true" />
-                Escríbenos
+            </a>
+            <a href="{{ $ctaUrl }}" class="site-btn" data-magnetic>
+                Crear mi invitación
+                <x-phosphor-arrow-right class="site-btn__arrow" aria-hidden="true" />
             </a>
         </div>
 
@@ -44,11 +53,15 @@
             @endforeach
         </nav>
         <div class="mt-6 grid gap-3">
-            <a href="{{ $contactUrl }}" target="_blank" rel="noopener" class="site-btn site-btn--lg justify-center">
-                <x-phosphor-whatsapp-logo aria-hidden="true" />
-                Escríbenos
+            <a href="{{ $ctaUrl }}" @click="open = false" class="site-btn site-btn--lg justify-center">
+                Crear mi invitación
+                <x-phosphor-arrow-right class="site-btn__arrow" aria-hidden="true" />
             </a>
             <a href="{{ $accountUrl }}" class="site-btn site-btn--ghost site-btn--lg justify-center">{{ $accountLabel }}</a>
+            <a href="{{ $contactUrl }}" target="_blank" rel="noopener" class="site-link-arrow justify-center py-2">
+                <x-phosphor-whatsapp-logo class="size-5" aria-hidden="true" />
+                O escríbenos por WhatsApp
+            </a>
         </div>
     </div>
 </header>

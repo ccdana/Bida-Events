@@ -5,9 +5,9 @@
 <section id="precios" class="scroll-mt-20 border-t border-site-line bg-site-surface" aria-labelledby="precios-titulo">
     <div class="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-28">
         <div class="max-w-3xl">
-            <h2 id="precios-titulo" class="site-display site-display--md" data-reveal>Elige tu paquete</h2>
+            <h2 id="precios-titulo" class="site-display site-display--md" data-reveal>{{ $plansTitle ?? 'Elige tu paquete' }}</h2>
             <p class="site-muted-lead" data-reveal>
-                Pago único por invitación, en dólares ({{ \App\Support\Money::code() }}). Cada paquete incluye todo lo del anterior.
+                {{ $plansLead ?? 'Pago único por invitación, en dólares ('.\App\Support\Money::code().'). Cada paquete incluye todo lo del anterior.' }}
             </p>
         </div>
 

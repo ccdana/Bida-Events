@@ -6,18 +6,19 @@
     titulares), filetes finos y fotos. Datos: HomeController (paquetes, temporadas, servicios, muestras).
     Estilos: resources/css/site/site.css y resources/css/site/home.css.
 --}}
-@section('title', $bida['brand'].' | Invitaciones digitales para bodas, XV años, bautizos y graduaciones')
-@section('description', 'Invitaciones digitales con confirmación de asistencia, pase QR y control de entrada, música, fotos y mapa. Se comparten por WhatsApp. Paquetes desde '.\App\Support\Money::format($fromPrice).'.')
+@section('title', $bida['brand'].' | Crea tu invitación digital para bodas, XV años, bautizos y graduaciones')
+@section('description', 'Crea tu invitación digital con plantillas profesionales, confirmación de asistencia y pase QR, o pídenos que la hagamos. Planes desde '.\App\Support\Money::format($diyFromPrice).' al mes, paquetes desde '.\App\Support\Money::format($fromPrice).'.')
 
 @php
+    // Los planes mensuales (el modelo principal) abren el menú; «Te la hacemos» es lo adicional
     $sections = array_filter([
+        'planes' => 'Planes',
         'plantillas' => count($designs) ? 'Plantillas' : null,
         'incluye' => 'Qué incluye',
-        'precios' => 'Precios',
+        'precios' => 'Te la hacemos',
         'preguntas' => 'Preguntas',
     ]);
-    $navLinks = collect($sections)->mapWithKeys(fn (string $label, string $id) => ['#'.$id => $label])->all()
-        + [route('diy') => 'Hazlo tú'];
+    $navLinks = collect($sections)->mapWithKeys(fn (string $label, string $id) => ['#'.$id => $label])->all();
     $accountUrl = $user ? route('dashboard') : route('login');
     $accountLabel = $user ? 'Mi panel' : 'Ingresar';
     $showcase = $bida['showcase'];
@@ -52,21 +53,23 @@
             ['icon' => 'file-text', 'title' => 'Tu lista, lista para imprimir', 'text' => 'En Premium: invitados, confirmaciones y alimentación en PDF o Excel para el salón y el catering, y la invitación para imprimir.'],
         ],
     ];
+    // El recorrido principal: la persona arma su propia invitación con un plan mensual
     $steps = [
-        ['icon' => 'chat-circle-text', 'title' => 'Nos escribes', 'text' => 'Cuéntanos qué celebras, la fecha y el lugar. Te ayudamos a elegir el paquete por WhatsApp.'],
-        ['icon' => 'pencil-simple-line', 'title' => 'Diseñamos contigo', 'text' => 'Armamos tu invitación con tus fotos, colores y textos. Revisas la vista previa y pides cambios.'],
-        ['icon' => 'paper-plane-tilt', 'title' => 'Compartes tu enlace', 'text' => 'Recibes el enlace general y, según tu paquete, uno personal para cada invitado.'],
+        ['icon' => 'credit-card', 'title' => 'Eliges tu plan', 'text' => 'Desde una sola invitación hasta las que necesites cada mes. Creas tu cuenta y empiezas el mismo día.'],
+        ['icon' => 'pencil-simple-line', 'title' => 'Armas tu invitación', 'text' => 'Eliges la plantilla, subes tus fotos y cambias colores, letras y textos mientras la ves en vivo.'],
+        ['icon' => 'paper-plane-tilt', 'title' => 'La compartes', 'text' => 'Publicas y envías tu enlace por WhatsApp; tus invitados la abren sin instalar nada.'],
         ['icon' => 'list-checks', 'title' => 'Sigues las confirmaciones', 'text' => 'Ves en tu panel quién confirmó, cuántas personas asistirán y, el día del evento, quién ya llegó.'],
     ];
     $faqs = [
+        ['¿Puedo armar mi propia invitación?', 'Sí, es la forma principal de usar '.$bida['brand'].'. Con Hazlo tú eliges un plan mensual, tienes tu propio panel con nuestras plantillas y armas tus invitaciones cuando quieras, sin comisión por invitación. Hay un plan para una sola invitación y otros para quien organiza varios eventos o las vende a sus clientes.'],
         ['¿Qué es una invitación digital?', 'Es una página web con los datos de tu evento (fecha, lugar, itinerario, fotos y música) que tus invitados abren desde un enlace, por lo general enviado por WhatsApp. A diferencia de una imagen, permite confirmar asistencia, ver el mapa y recibir un pase de entrada con código QR.'],
         ['¿Para qué tipo de eventos sirve?', 'Bodas, XV años, bautizos, cumpleaños, graduaciones, fiestas de temporada como Halloween y cualquier celebración. Adaptamos los textos y las secciones a tu evento.'],
         ['¿Mis invitados necesitan instalar algo?', 'No. La invitación se abre en el navegador del celular desde el enlace que compartes.'],
         ['¿Cómo confirman asistencia y cómo se controla la entrada?', 'En el paquete Estándar, cada invitado recibe su enlace personal y confirma por WhatsApp: se abre el mensaje con su nombre y cuántas personas van. En Premium la respuesta queda guardada en tu panel y el invitado recibe un pase con código QR; el día del evento, quien recibe a los invitados lo escanea con su teléfono y ve si puede pasar.'],
         ['¿Puedo hacer cambios después de compartirla?', 'Sí. Horarios, ubicación y textos se actualizan en el mismo enlace, así tus invitados siempre ven la versión correcta.'],
         ['¿Cuánto tardan en entregarla?', 'Depende del paquete y de cuándo nos envíes las fotos y los datos. Te damos una fecha de entrega al confirmar tu pedido.'],
-        ['¿Puedo armar mis propias invitaciones?', 'Sí. Con Hazlo tú tienes tu propio panel y nuestras plantillas por un plan mensual, sin comisión por invitación. Sirve si organizas varios eventos o si vendes invitaciones a tus clientes.'],
-        ['¿Cómo se realiza el pago?', 'Coordinamos el pago por WhatsApp (transferencia o QR) cuando eliges tu paquete, antes de empezar el diseño. Los precios están en dólares.'],
+        ['¿Y si prefiero que me la hagan?', 'También lo hacemos: eliges un paquete, nos cuentas tu evento y armamos la invitación contigo. Es un pago único por invitación.'],
+        ['¿Cómo se realiza el pago?', 'El plan de Hazlo tú se paga cada mes, en línea o coordinado por WhatsApp. Los paquetes se coordinan por WhatsApp (transferencia o QR) antes de empezar el diseño. Los precios están en dólares.'],
     ];
     $socials = array_values(array_filter([
         ! empty($bida['instagram']) ? ['label' => 'Instagram', 'url' => 'https://www.instagram.com/'.$bida['instagram'].'/', 'icon' => 'instagram-logo'] : null,
@@ -81,6 +84,7 @@
         return $position === false ? null : ['url' => $demo['coverUrl'], 'label' => $demo['label'], 'rotator' => $position];
     }, $demos)));
     [$mainService, $otherServices] = [$services[0] ?? null, array_slice($services, 1)];
+    $serviceOverlines = ['hazlo' => 'La armas tú', 'invitaciones' => 'Te la hacemos', 'temporada' => 'Por temporada'];
 @endphp
 
 @push('head')
@@ -97,9 +101,9 @@
         <section data-rotator data-rotator-interval="3200" @if(count($demos)) data-rotator-driven @endif class="site-hero">
             <div class="site-hero__copy">
                 <h1 class="site-enter site-display">
-                    <span class="sr-only">Invitaciones digitales para bodas, XV años, bautizos, cumpleaños y graduaciones</span>
+                    <span class="sr-only">Arma tu invitación digital para bodas, XV años, bautizos, cumpleaños y graduaciones</span>
                     <span aria-hidden="true">
-                        Invitaciones digitales
+                        Arma tu invitación digital
                         <span class="site-hero__for">para
                             <span class="site-rotator site-hero__word" data-rotator-group>
                                 @foreach($showcase as $index => $event)
@@ -110,10 +114,10 @@
                     </span>
                 </h1>
                 <p class="site-enter site-hero__lead" style="--enter-index: 1">
-                    Tus invitados la abren desde WhatsApp, confirman en un toque y entran a la fiesta con su pase QR.
+                    Elige una plantilla, pon tus fotos y compártela por WhatsApp. Tus invitados confirman en un toque y entran a la fiesta con su pase QR.
                 </p>
                 <ul class="site-enter site-hero__facts" style="--enter-index: 2">
-                    <li>Desde {{ \App\Support\Money::format($fromPrice) }}</li>
+                    <li>La armas tú desde {{ \App\Support\Money::format($diyFromPrice) }} al mes</li>
                     <li>Sin instalar nada</li>
                     <li>Pase QR en la puerta</li>
                 </ul>
@@ -168,8 +172,8 @@
         @if($mainService)
             <section id="servicios" class="site-offer scroll-mt-20" aria-labelledby="servicios-titulo">
                 <div class="site-offer__intro">
-                    <h2 id="servicios-titulo" class="site-display site-display--md" data-reveal>Tres maneras de tener tu invitación</h2>
-                    <p class="site-muted-lead" data-reveal>La diseñamos contigo, la eliges de la temporada o la armas tú mismo.</p>
+                    <h2 id="servicios-titulo" class="site-display site-display--md" data-reveal>Elige cómo quieres tu invitación</h2>
+                    <p class="site-muted-lead" data-reveal>La armas tú con tu propio panel, nos la pides o la eliges de la temporada.</p>
                 </div>
 
                 <div class="site-offer__grid">
@@ -186,12 +190,12 @@
                             </div>
                         </figure>
                         <div class="site-offer__body">
-                            <p class="site-overline">Te la diseñamos</p>
+                            <p class="site-overline">{{ $serviceOverlines[$mainService['key']] ?? '' }}</p>
                             <h3 class="site-offer__name">{{ $mainService['name'] }}</h3>
                             <p class="site-offer__text">{{ $mainService['text'] }}</p>
                             <p class="site-offer__meta">
                                 @if($mainService['fromPrice'])
-                                    <span>Desde <b>{{ \App\Support\Money::format($mainService['fromPrice']) }}</b></span>
+                                    <span>Desde <b>{{ \App\Support\Money::format($mainService['fromPrice']) }}</b>@if($mainService['priceSuffix'] ?? null) {{ $mainService['priceSuffix'] }}@endif</span>
                                 @endif
                                 <span class="site-link-arrow">{{ $mainService['cta'] }} <x-phosphor-arrow-right aria-hidden="true" /></span>
                             </p>
@@ -206,7 +210,7 @@
                                     @if($service['live'])
                                         <span class="site-live-dot" aria-hidden="true"></span> Ahora: {{ $service['live'] }}
                                     @else
-                                        {{ $service['key'] === 'hazlo' ? 'Tu propio panel' : 'Por temporada' }}
+                                        {{ $serviceOverlines[$service['key']] ?? 'Por temporada' }}
                                     @endif
                                 </p>
                                 <h3 class="site-offer__name site-offer__name--sm">{{ $service['name'] }}</h3>
@@ -300,13 +304,17 @@
             </div>
         </section>
 
-        {{-- ═══ Cómo trabajamos: la línea se dibuja con el scroll ═══ --}}
+        {{-- ═══ Cómo funciona: el recorrido de quien arma su invitación; la línea se dibuja con el scroll ═══ --}}
         <section class="border-t border-site-line">
             <div class="mx-auto grid max-w-7xl gap-12 px-5 py-20 lg:grid-cols-12 lg:gap-8 lg:px-8 lg:py-28">
                 <div class="lg:col-span-5">
                     <div class="lg:sticky lg:top-32">
-                        <h2 class="site-display site-display--md" data-reveal>Así trabajamos</h2>
-                        <p class="site-muted-lead" data-reveal>De tu primer mensaje a las confirmaciones de tus invitados.</p>
+                        <h2 class="site-display site-display--md" data-reveal>Así funciona</h2>
+                        <p class="site-muted-lead" data-reveal>De elegir tu plan a las confirmaciones de tus invitados.</p>
+                        <a href="#planes" class="site-btn mt-8" data-reveal>
+                            Elegir mi plan
+                            <x-phosphor-arrow-right class="site-btn__arrow" aria-hidden="true" />
+                        </a>
                     </div>
                 </div>
 
@@ -326,7 +334,18 @@
             </div>
         </section>
 
-        @include('site.partials.plans')
+        {{-- Lo principal: los planes mensuales para armar tu propia invitación --}}
+        @include('site.partials.diy-plans', [
+            'diyTitle' => 'Elige tu plan y arma tu invitación',
+            'diyLead' => 'Desde una sola invitación hasta las que necesites cada mes, sin comisión. Precios por mes, en dólares ('.\App\Support\Money::code().'); cada plan suma al anterior.',
+            'diyMoreLink' => true,
+        ])
+
+        {{-- Lo adicional: que el equipo la haga (paquetes, pago único) --}}
+        @include('site.partials.plans', [
+            'plansTitle' => 'Si prefieres que la hagamos nosotros',
+            'plansLead' => 'Nos cuentas tu evento y armamos la invitación contigo. Pago único por invitación, en dólares ('.\App\Support\Money::code().'); cada paquete incluye todo lo del anterior.',
+        ])
 
         @include('site.partials.faqs', ['faqs' => $faqs])
     </main>

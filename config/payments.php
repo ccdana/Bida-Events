@@ -68,6 +68,7 @@ return [
         // Crea los cobros en modo de prueba (tarjetas de prueba, sin dinero real)
         'test_mode' => (bool) env('LEMONSQUEEZY_TEST_MODE', false),
         'variants' => [
+            'unica' => env('LEMONSQUEEZY_VARIANT_UNICA'),
             'inicial' => env('LEMONSQUEEZY_VARIANT_INICIAL'),
             'aliado' => env('LEMONSQUEEZY_VARIANT_ALIADO'),
             'emprendedor' => env('LEMONSQUEEZY_VARIANT_EMPRENDEDOR'),
