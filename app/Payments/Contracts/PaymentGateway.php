@@ -21,6 +21,12 @@ interface PaymentGateway
     /** ¿Puede cobrar este plan? (por ejemplo, Lemon Squeezy necesita la variante del plan). */
     public function supportsPlan(string $plan): bool;
 
+    /** Moneda en la que cobra (USD la tarjeta internacional, BOB el QR de Bolivia). */
+    public function currency(): string;
+
+    /** Se renueva sola cada mes (tarjeta) o cada pago cubre los meses que se eligieron (QR). */
+    public function isRecurring(): bool;
+
     /** Abre el cobro de la orden en la pasarela y dice cómo sigue el comprador. */
     public function createCheckout(PaymentOrder $order): Checkout;
 

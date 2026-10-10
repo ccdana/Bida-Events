@@ -27,6 +27,16 @@ class FakePaymentGateway implements PaymentGateway
         return true;
     }
 
+    public function currency(): string
+    {
+        return 'USD';
+    }
+
+    public function isRecurring(): bool
+    {
+        return false;
+    }
+
     public function createCheckout(PaymentOrder $order): Checkout
     {
         return new Checkout(redirectUrl: 'https://pasarela.test/pagar/'.$order->public_id, providerRef: 'chk_'.$order->id);

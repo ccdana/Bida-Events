@@ -1534,15 +1534,15 @@ html[data-theme='dark'] .adm-device {
 
 .ed-head {
     flex-shrink: 0;
-    padding: 1rem 1.25rem 0.85rem;
+    padding: 0.2rem 0.6rem 0.9rem;
     border-bottom: 1px solid var(--site-line);
 }
 
 .ed-progress {
     display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin-top: 0.75rem;
+    flex-direction: column;
+    gap: 0.45rem;
+    margin-top: 0.7rem;
 }
 
 .ed-progress__bar {
@@ -1567,27 +1567,21 @@ html[data-theme='dark'] .adm-device {
     color: var(--site-muted);
 }
 
-.ed-mobile-bar {
-    display: flex;
-    justify-content: space-between;
-    gap: 0.5rem;
-    margin-top: 0.75rem;
-}
-
 .ed-rail {
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    width: 15rem;
+    width: 14.5rem;
     flex-shrink: 0;
     padding: 0.9rem 0.6rem 1.5rem;
     overflow-y: auto;
     border-right: 1px solid var(--site-line);
+    background: var(--site-bg);
 }
 
 @media (min-width: 1280px) {
     .ed-rail {
-        width: 16.5rem;
+        width: 15.5rem;
     }
 }
 
@@ -1762,22 +1756,8 @@ html[data-theme='dark'] .adm-device {
         background: rgb(10 10 10 / 0.45);
     }
 
-    .ed-preview.is-open {
-        position: fixed;
-        inset: 0;
-        z-index: 80;
-        display: flex;
-    }
-
     #invitation-form > .flex-1 {
         padding-inline: 1.1rem;
-    }
-}
-
-@media (min-width: 1024px) {
-    .ed-mobile-bar,
-    .ed-preview__back {
-        display: none;
     }
 }
 
@@ -1791,4 +1771,234 @@ html[data-theme='dark'] .adm-device {
 .adm-switch:disabled {
     opacity: 0.35;
     cursor: not-allowed;
+}
+
+/* ── Editor: lienzo (lista · vista previa · panel) ──────────────────────────
+   La invitación ocupa el centro y manda: se toca una sección para editarla.
+   En el celular la vista previa llena la pantalla y el panel es una hoja
+   que sube desde abajo, con las secciones como fichas.
+   ──────────────────────────────────────────────────────────────────────── */
+
+.ed-shell {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+}
+
+.ed-preview {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.ed-preview__bar {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.7rem 1.25rem;
+    border-bottom: 1px solid var(--site-line);
+}
+
+.ed-preview__spacer {
+    width: 6rem;
+}
+
+.ed-device-switch {
+    display: flex;
+    gap: 2px;
+    padding: 3px;
+    border: 1px solid var(--site-line);
+    border-radius: 999px;
+    background: var(--site-bg);
+    font-size: 0.8rem;
+}
+
+.ed-device-switch button {
+    min-height: 2rem;
+    padding: 0 0.85rem;
+    border: 0;
+    border-radius: 999px;
+    background: none;
+    color: var(--site-muted);
+    font: inherit;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.ed-device-switch button.is-on {
+    background: var(--site-ink);
+    color: var(--site-bg);
+}
+
+.ed-preview__stage {
+    flex: 1;
+    min-height: 0;
+    padding: 1.25rem 1.5rem 0.5rem;
+}
+
+.ed-preview__hint {
+    flex-shrink: 0;
+    padding: 0.55rem 1rem 0.8rem;
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--site-muted);
+}
+
+.ed-panel {
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    width: 25rem;
+    min-height: 0;
+    border-left: 1px solid var(--site-line);
+    background: var(--site-bg);
+}
+
+@media (min-width: 1280px) {
+    .ed-panel {
+        width: 28rem;
+    }
+}
+
+.ed-panel__top {
+    display: none;
+}
+
+@media (max-width: 1023px) {
+    .ed-shell {
+        position: relative;
+    }
+
+    .ed-preview {
+        padding-bottom: 52dvh;
+    }
+
+    .ed-preview__bar {
+        padding: 0.5rem 1rem;
+    }
+
+    .ed-preview__spacer,
+    .ed-device-switch,
+    .ed-preview__hint {
+        display: none;
+    }
+
+    .ed-preview__stage {
+        padding: 0;
+    }
+
+    .ed-preview .adm-device {
+        max-width: none !important;
+        padding: 0;
+        border-radius: 0;
+        background: transparent;
+        box-shadow: none;
+    }
+
+    .ed-preview .adm-device iframe {
+        border-radius: 0;
+    }
+
+    .ed-panel {
+        position: absolute;
+        inset-inline: 0;
+        bottom: 0;
+        z-index: 30;
+        width: auto;
+        height: 52dvh;
+        border-left: 0;
+        border-top: 1px solid var(--site-line);
+        border-radius: 22px 22px 0 0;
+        box-shadow: 0 -18px 40px -22px rgb(0 0 0 / 0.35);
+        transition: height 0.3s var(--site-ease);
+    }
+
+    .ed-panel.is-tall {
+        height: calc(100% - 0.75rem);
+    }
+
+    .ed-panel__top {
+        display: block;
+        flex-shrink: 0;
+    }
+
+    .ed-panel__handle {
+        display: block;
+        width: 100%;
+        height: 1.5rem;
+        border: 0;
+        background: none;
+        cursor: pointer;
+    }
+
+    .ed-panel__handle::after {
+        content: '';
+        display: block;
+        width: 2.5rem;
+        height: 4px;
+        margin: 0.55rem auto 0;
+        border-radius: 999px;
+        background: var(--site-line);
+    }
+
+    .ed-chips {
+        display: flex;
+        gap: 0.5rem;
+        padding: 0.1rem 1rem 0.7rem;
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+
+    .ed-chips::-webkit-scrollbar {
+        display: none;
+    }
+
+    .ed-chip {
+        display: inline-flex;
+        flex-shrink: 0;
+        align-items: center;
+        min-height: 2.5rem;
+        padding: 0 0.95rem;
+        border: 1px solid var(--site-line);
+        border-radius: 999px;
+        background: var(--site-surface);
+        color: var(--site-ink);
+        font: inherit;
+        font-size: 0.85rem;
+        font-weight: 500;
+        white-space: nowrap;
+        cursor: pointer;
+    }
+
+    .ed-chip.is-issue {
+        border-color: var(--site-danger);
+    }
+
+    .ed-chip.is-active {
+        border-color: var(--site-ink);
+        background: var(--site-ink);
+        color: var(--site-bg);
+    }
+
+    .ed-panel #invitation-form > .flex-1 {
+        padding-inline: 1.1rem;
+    }
+
+    /* La barra de abajo, compacta: lo que falta ya se ve en las fichas */
+    .ed-panel .admin-editor-pending {
+        display: none;
+    }
+
+    .ed-panel #invitation-form > .sticky {
+        padding: 0.5rem 1rem;
+    }
+
+    .ed-panel .site-btn--lg {
+        min-height: 2.75rem;
+        padding-inline: 1.1rem;
+        font-size: 0.9rem;
+    }
 }

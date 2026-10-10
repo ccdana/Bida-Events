@@ -7,9 +7,10 @@
         </p>
     @endunless
 
-    <div class="flex min-h-0 flex-1">
+    <div class="ed-shell" :class="{ 'is-tall': sheetTall }">
         @include('admin.invitations.editor.sidebar')
         @include('admin.invitations.editor.preview')
+        @include('admin.invitations.editor.panel')
     </div>
 
     {{--

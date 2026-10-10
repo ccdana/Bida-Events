@@ -6,7 +6,8 @@ use Carbon\CarbonInterface;
 
 /**
  * Cómo sigue el comprador después de abrir el cobro en la pasarela: ir a su página de pago (tarjeta)
- * o escanear un QR que mostramos nosotros.
+ * o escanear un QR que mostramos nosotros, con la página de la pasarela como alternativa (Tigo Money,
+ * tarjeta boliviana…).
  */
 final class Checkout
 {
@@ -17,5 +18,7 @@ final class Checkout
         // Id del cobro en la pasarela (se guarda en la orden)
         public readonly ?string $providerRef = null,
         public readonly ?CarbonInterface $expiresAt = null,
+        // Junto al QR: la página de la pasarela con sus otras formas de pago
+        public readonly ?string $paymentPageUrl = null,
     ) {}
 }

@@ -26,5 +26,8 @@ Schedule::command('invitations:purge-contributions')->dailyAt('03:30')->withoutO
 // Trabajos fallidos, cola detenida, respaldos y disco; avisa por correo si OPERATIONS_ALERT_EMAIL está definido
 Schedule::command('bida:salud')->hourly()->withoutOverlapping();
 
+// Cobros en línea: confirma los pendientes con la pasarela (por si su aviso no llegó) y vence los no pagados
+Schedule::command('bida:verificar-pagos')->everyFiveMinutes()->withoutOverlapping();
+
 // La tabla failed_jobs no crece sin límite: se conservan 30 días
 Schedule::command('queue:prune-failed --hours=720')->daily();

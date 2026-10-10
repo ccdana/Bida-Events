@@ -70,9 +70,9 @@ Route::withoutMiddleware([StartSession::class, ShareErrorsFromSession::class, Va
     Route::get('/sitemap.xml', [SeoController::class, 'sitemap'])->name('sitemap');
     Route::get('/llms.txt', [SeoController::class, 'llms'])->name('llms');
 
-    // Avisos de las pasarelas de pago (los manda su servidor, no un navegador: sin sesión ni CSRF;
-    // la firma de cada pasarela es lo que los valida)
-    Route::post('/webhooks/{provider}', PaymentWebhookController::class)
+    // Avisos de las pasarelas de pago (los manda su servidor, no un navegador: sin sesión ni CSRF).
+    // Los valida cada pasarela: por su firma (Lemon Squeezy, POST) o consultándole el pago (Libélula, GET)
+    Route::match(['get', 'post'], '/webhooks/{provider}', PaymentWebhookController::class)
         ->where('provider', '[a-z0-9]+')
         ->middleware('throttle:payment-webhooks')
         ->name('webhooks.payments');

@@ -13,9 +13,10 @@ use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Donde las pasarelas avisan lo que pasó con un cobro (/webhooks/lemonsqueezy, /webhooks/cucu…).
- * Se comprueba la firma, se guarda el aviso una sola vez y se responde enseguida; aplicarlo
- * (activar la suscripción) se hace en la cola. Sin sesión ni CSRF: lo llama un servidor, no un navegador.
+ * Donde las pasarelas avisan lo que pasó con un cobro (/webhooks/lemonsqueezy, /webhooks/libelula).
+ * Cada pasarela valida su aviso (por firma, o consultándole el pago si no firma), se guarda una sola
+ * vez y se responde enseguida; aplicarlo (activar la suscripción) se hace en la cola. Sin sesión ni
+ * CSRF: lo llama un servidor, no un navegador.
  */
 class PaymentWebhookController extends Controller
 {

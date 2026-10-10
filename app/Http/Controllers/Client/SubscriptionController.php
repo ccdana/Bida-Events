@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Client\StartCheckoutRequest;
 use App\Models\PaymentOrder;
 use App\Payments\PaymentGateways;
+use App\Payments\SubscriptionPrice;
 use App\Support\Money;
 use App\Support\Offers;
 use Illuminate\Http\JsonResponse;
@@ -20,7 +21,8 @@ use Throwable;
  * al volver de su página: volver no prueba que se haya pagado.
  *
  * Con la tarjeta la suscripción se renueva sola; para cambiar de plan, de tarjeta o cancelar, el
- * cliente va al portal de la pasarela (así nunca quedan dos suscripciones cobrándose a la vez).
+ * cliente va al portal de la pasarela (así nunca quedan dos suscripciones cobrándose a la vez). Con
+ * el QR de Bolivia cada pago cubre los meses que elige (1, 3 o 12), en bolivianos.
  */
 class SubscriptionController extends Controller
 {
@@ -36,11 +38,25 @@ class SubscriptionController extends Controller
             ? (string) $request->query('plan')
             : ($user->reseller_plan && array_key_exists($user->reseller_plan, $plans) ? $user->reseller_plan : array_key_first($plans));
 
+        $methods = $this->gateways->availableMethods();
+
         return view('client.subscription.show', [
             'user' => $user,
             'plans' => $plans,
             'selected' => old('plan', $selected),
-            'methods' => $this->gateways->availableMethods(),
+            'methods' => $methods,
+            // Por método: su moneda, si se renueva sola y lo que cuesta cada plan por cada cantidad de meses
+            'pricing' => collect($methods)->map(function (string $provider) {
+                $gateway = $this->gateways->get($provider);
+
+                return [
+                    'currency' => $gateway->currency(),
+                    'symbol' => Money::symbol($gateway->currency()),
+                    'recurring' => $gateway->isRecurring(),
+                    'prices' => SubscriptionPrice::table($gateway->currency()),
+                ];
+            })->all(),
+            'prepay' => SubscriptionPrice::prepayOptions(),
             'needsEmail' => blank($user->email) || ! $user->hasVerifiedEmail(),
             'recurring' => $user->hasRecurringSubscription(),
             'canOpenPortal' => $user->hasRecurringSubscription() && $this->gateways->subscriptionManager($user->payment_provider) !== null,
@@ -67,10 +83,16 @@ class SubscriptionController extends Controller
             return back()->withInput()->withErrors(['method' => 'Esa forma de pago no está disponible para este plan. Elige otra o escríbenos.']);
         }
 
-        // Ya tiene una tarjeta que se renueva sola: otra compra la cobraría dos veces
-        if ($method === 'card' && $user->renewsAutomatically()) {
+        $gateway = $this->gateways->get($provider);
+
+        // Ya tiene una tarjeta que se renueva sola: otra compra la cobraría dos veces. Con QR sí puede
+        // pagar por adelantado (cuando la tarjeta no se renueva sola, por ejemplo)
+        if ($gateway->isRecurring() && $user->renewsAutomatically()) {
             return back()->withInput()->withErrors(['plan' => 'Ya pagas con tarjeta y se renueva sola. Para cambiar de plan, entra a «Administrar mi suscripción».']);
         }
+
+        // La tarjeta cobra mes a mes; con QR se pueden pagar varios meses de una vez
+        $months = $gateway->isRecurring() ? 1 : (int) ($request->validated('months') ?? 1);
 
         // Una sola compra abierta por pasarela: la anterior sin pagar queda vencida
         $user->paymentOrders()->pending()->where('provider', $provider)->get()
@@ -79,14 +101,14 @@ class SubscriptionController extends Controller
         $order = PaymentOrder::forSubscription(
             $user,
             $plan,
-            1,
-            number_format(Offers::planPrice(config("bida.reseller_plans.{$plan}")), 2, '.', ''),
-            Money::code(),
+            $months,
+            SubscriptionPrice::amount($plan, $months, $gateway->currency()),
+            $gateway->currency(),
             $provider,
         );
 
         try {
-            $checkout = $this->gateways->get($provider)->createCheckout($order);
+            $checkout = $gateway->createCheckout($order);
         } catch (Throwable $e) {
             report($e);
             $order->close(PaymentOrder::FAILED, 'No se pudo abrir el cobro en la pasarela');
@@ -94,7 +116,12 @@ class SubscriptionController extends Controller
             return back()->withInput()->withErrors(['method' => 'No pudimos abrir el pago. Inténtalo de nuevo en un momento.']);
         }
 
-        $order->forceFill(['provider_ref' => $checkout->providerRef, 'expires_at' => $checkout->expiresAt])->save();
+        $order->forceFill([
+            'provider_ref' => $checkout->providerRef,
+            'expires_at' => $checkout->expiresAt,
+            // El QR y la página de la pasarela se muestran en la página de la orden
+            'meta' => array_filter(['qr_image' => $checkout->qrImage, 'payment_page_url' => $checkout->paymentPageUrl]) ?: null,
+        ])->save();
 
         // Tarjeta: a la página de pago de la pasarela. QR: lo muestra la página de la orden
         return $checkout->redirectUrl

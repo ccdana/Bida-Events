@@ -50,6 +50,16 @@ class LemonSqueezyGateway implements ManagesSubscriptions, PaymentGateway
         return filled($this->config("variants.{$plan}"));
     }
 
+    public function currency(): string
+    {
+        return 'USD';
+    }
+
+    public function isRecurring(): bool
+    {
+        return true;
+    }
+
     public function createCheckout(PaymentOrder $order): Checkout
     {
         $variant = $this->config("variants.{$order->plan}") ?: throw new DomainException("El plan «{$order->plan}» no tiene variante en Lemon Squeezy.");

@@ -77,6 +77,20 @@ suscripción. Pase lo que pase, ningún pago suma meses dos veces.
   Lemon Squeezy sea la de su plan (`LEMONSQUEEZY_VARIANT_*`). Si un cobro sale menor que el precio
   del sitio, `operations.log` lo avisa: iguala el precio de la variante con el de Ajustes.
 
+### Pago en Bolivia (Libélula)
+
+- Cada compra es un cobro en bolivianos por los meses elegidos (1, 3 o 12); no se renueva sola.
+  El QR vale hasta la medianoche del día siguiente; después la orden queda «vencida». Si igual se
+  paga, se activa.
+- `bida:verificar-pagos` corre cada 5 minutos: pregunta a Libélula por los cobros pendientes de los
+  últimos 3 días (por si su aviso no llegó) y vence los que pasaron su fecha. Se puede correr a
+  mano.
+- El aviso de Libélula no se cree por sí solo: siempre se confirma con su consulta de pagos. Si
+  Libélula no responde, queda una línea «Libélula no respondió la consulta de pagos» en
+  `operations.log` y se reintenta en la próxima vuelta.
+- Un pago por un monto distinto del cobro (por ejemplo, si se editó la deuda en Libélula) queda en
+  «Pagos para revisar».
+
 ## Respaldos
 
 ### Qué se respalda

@@ -154,9 +154,12 @@ function invitationForm(config) {
         slugManual: config.slugManual ?? false,
         activeTab: 'general',
         activeGroup: 'config',
-        // Celular: la lista de secciones y la vista previa se abren a pantalla completa
+        // Celular: la lista de secciones es un cajón y el panel una hoja que sube sobre la vista previa
         railOpen: false,
-        previewOpen: false,
+        sheetTall: false,
+        skipPreviewScroll: false,
+        // Tamaño del aparato en la vista previa: phone, tablet o desktop
+        previewDevice: 'phone',
         previewUrl: config.previewUrl,
         previewStoreUrl: config.previewStoreUrl,
         previewKey: config.previewKey ?? 'draft',
@@ -603,7 +606,10 @@ function invitationForm(config) {
             this.$watch('meta', () => this.schedulePreview(), { deep: true });
             // La vista previa sigue a la pestaña: al cambiar de módulo (o al recargarse) salta a su sección
             this.$watch('activeTab', () => this.focusPreviewSection(true));
-            this.$nextTick(() => this.$refs.previewFrame?.addEventListener('load', () => this.focusPreviewSection(false)));
+            this.$nextTick(() => this.$refs.previewFrame?.addEventListener('load', () => {
+                this.setupPreviewEditing();
+                this.focusPreviewSection(false);
+            }));
             this.$watch('modules.ubicacion.lat', () => this.syncLocationMarker());
             this.$watch('modules.ubicacion.lng', () => this.syncLocationMarker());
             this.$watch('cropperScale', (value, oldValue) => {
@@ -993,7 +999,91 @@ function invitationForm(config) {
             return !code || code === 'bienvenida' ? 'inicio' : code.replaceAll('_', '-');
         },
 
-        /** Lleva la vista previa a la sección que se está editando y, al cambiar de pestaña, la marca un momento. */
+        get previewWidth() {
+            return { phone: 390, tablet: 768, desktop: 1180 }[this.previewDevice] ?? 390;
+        },
+
+        /** Id de sección en la invitación (como los de previewSectionId) → pestaña que la edita. */
+        previewSectionMap() {
+            const map = {};
+            this.flatTabs.forEach(tab => {
+                if (!tab.moduleCode) return;
+                map[tab.moduleCode === 'bienvenida' ? 'inicio' : tab.moduleCode.replaceAll('_', '-')] = tab;
+            });
+            return map;
+        },
+
+        /**
+         * Edición sobre la invitación: al pasar el cursor una sección se marca con su nombre y al tocarla
+         * se abre su panel. Se prepara en cada carga del marco (cada recarga trae un documento nuevo).
+         */
+        setupPreviewEditing() {
+            const doc = this.$refs.previewFrame?.contentDocument;
+            if (!doc || !doc.body || doc.body.dataset.edReady) return;
+            doc.body.dataset.edReady = '1';
+
+            const style = doc.createElement('style');
+            style.textContent = [
+                '.ed-hover{outline:2px dashed rgba(138,106,28,.9)!important;outline-offset:-3px;cursor:pointer}',
+                '.ed-active{outline:2px solid #8a6a1c!important;outline-offset:-3px}',
+                '.ed-hover::before,.ed-active::before{position:absolute;z-index:2147483000;top:0;left:0;padding:4px 9px;border-radius:0 0 8px 0;background:#8a6a1c;color:#fff;font:500 11px/1.2 system-ui,sans-serif;letter-spacing:0;text-transform:none;pointer-events:none}',
+                '.ed-hover::before{content:attr(data-ed-label) " · editar"}',
+                '.ed-active::before{content:attr(data-ed-label) " · editando"}',
+            ].join('');
+            doc.head.appendChild(style);
+
+            const sections = this.previewSectionMap();
+            Object.entries(sections).forEach(([id, tab]) => {
+                const el = doc.getElementById(id);
+                if (el) el.dataset.edLabel = tab.label;
+            });
+
+            const find = (node) => {
+                for (let el = node?.nodeType === 1 ? node : node?.parentElement; el && el !== doc.body; el = el.parentElement) {
+                    if (el.id && sections[el.id] && el.dataset.edLabel) return el;
+                }
+                return null;
+            };
+
+            let hovered = null;
+            const unhover = () => { hovered?.classList.remove('ed-hover'); hovered = null; };
+
+            doc.addEventListener('mouseover', (event) => {
+                const el = find(event.target);
+                if (el === hovered) return;
+                unhover();
+                if (el && !el.classList.contains('ed-active')) {
+                    this.ensurePositioned(el);
+                    el.classList.add('ed-hover');
+                    hovered = el;
+                }
+            });
+            doc.addEventListener('mouseleave', unhover);
+
+            doc.addEventListener('click', (event) => {
+                const el = find(event.target);
+                if (!el) return;
+                // Los enlaces que sacarían la vista previa de la invitación no navegan: se edita, no se visita
+                const link = event.target.closest?.('a[href]');
+                if (link && !(link.getAttribute('href') ?? '').startsWith('#')) event.preventDefault();
+                this.sheetTall = false;
+                const tabId = sections[el.id].id;
+                // Se tocó dentro de la invitación: no hace falta desplazarla hasta la sección
+                if (tabId === this.activeTab) {
+                    this.focusPreviewSection(false);
+                } else {
+                    this.skipPreviewScroll = true;
+                    this.selectTab(tabId);
+                }
+            }, true);
+        },
+
+        ensurePositioned(el) {
+            const view = el.ownerDocument.defaultView;
+            if (view.getComputedStyle(el).position === 'static') el.style.position = 'relative';
+        },
+
+        /** Lleva la vista previa a la sección que se está editando y la deja marcada mientras se edita. */
         focusPreviewSection(smooth = true) {
             const doc = this.$refs.previewFrame?.contentDocument;
             if (!doc || !doc.body) return;
@@ -1004,16 +1094,19 @@ function invitationForm(config) {
             // Solo se desplaza la invitación dentro del marco: scrollIntoView movería también el editor
             // y el campo donde se está escribiendo se iría de la pantalla
             const view = doc.defaultView;
-            view.scrollTo({ top: section.getBoundingClientRect().top + view.scrollY, behavior: smooth ? 'smooth' : 'auto' });
+            if (this.skipPreviewScroll) {
+                this.skipPreviewScroll = false;
+            } else {
+                view.scrollTo({ top: section.getBoundingClientRect().top + view.scrollY, behavior: smooth ? 'smooth' : 'auto' });
+            }
 
-            // En cada recarga por tipear no se marca: distraería
-            if (!smooth) return;
-
-            section.style.transition = 'outline-color 0.6s ease';
-            section.style.outline = '3px dashed rgba(201, 169, 110, 0.9)';
-            section.style.outlineOffset = '-6px';
-            clearTimeout(this.previewFocusTimer);
-            this.previewFocusTimer = setTimeout(() => { section.style.outlineColor = 'transparent'; }, 1400);
+            // La sección abierta queda marcada hasta que se abra otra (y se conserva en cada recarga)
+            doc.querySelectorAll('.ed-active').forEach(el => el.classList.remove('ed-active'));
+            if (section.dataset.edLabel && this.currentTab?.moduleCode) {
+                this.ensurePositioned(section);
+                section.classList.remove('ed-hover');
+                section.classList.add('ed-active');
+            }
         },
 
         schedulePreview() {

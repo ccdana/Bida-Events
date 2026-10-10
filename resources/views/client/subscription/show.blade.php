@@ -5,8 +5,8 @@
 {{-- Elegir el plan de «Hazlo tú» y pagarlo en línea; con tarjeta, administrar la suscripción que se renueva sola --}}
 @section('content')
     @php($methodLabels = [
-        'card' => ['Tarjeta de crédito o débito', 'Visa, Mastercard y más, desde cualquier país. Se renueva sola cada mes y la cancelas cuando quieras.'],
-        'qr' => ['QR desde tu banco', 'Escaneas el QR con la app de cualquier banco de Bolivia y se activa al instante.'],
+        'card' => ['Tarjeta de crédito o débito', 'Visa, Mastercard y más, desde cualquier país, en dólares. Se renueva sola cada mes y la cancelas cuando quieras.'],
+        'qr' => ['Pago en Bolivia: QR, Tigo Money o tarjeta boliviana', 'Escaneas el QR con la app de cualquier banco, en bolivianos. Pagas los meses que elijas y se activa al confirmarse; no se renueva sola.'],
     ])
 
     <div class="grid max-w-3xl gap-8">
@@ -69,15 +69,29 @@
                     <a href="{{ route('diy') }}#planes" class="font-medium text-site-ink underline underline-offset-4">Escríbenos</a> y lo activamos contigo.
                 </p>
             @else
+                {{-- El total cambia con el plan, la forma de pago (su moneda) y los meses (solo sin renovación automática) --}}
                 <form method="POST" action="{{ route('client.subscription.store') }}" class="site-enter grid gap-8" style="--enter-index: 2"
-                    x-data="{ sending: false }" @submit="sending = true">
+                    x-data="{
+                        sending: false,
+                        plan: @js($selected),
+                        method: @js(old('method', array_key_first($methods))),
+                        months: {{ (int) old('months', 1) }},
+                        pricing: @js($pricing),
+                        get current() { return this.pricing[this.method] ?? null },
+                        get total() { return this.current?.prices?.[this.plan]?.[this.current.recurring ? 1 : this.months] ?? null },
+                        money(value) {
+                            const number = Number(value)
+                            const digits = Number.isInteger(number) ? 0 : 2
+                            return number.toLocaleString('es-BO', { minimumFractionDigits: digits, maximumFractionDigits: digits })
+                        },
+                    }" @submit="sending = true">
                     @csrf
 
                     <fieldset class="grid gap-3">
                         <legend class="mb-3 text-lg font-semibold tracking-tight">Plan</legend>
                         @foreach($plans as $key => $plan)
                             <label class="flex cursor-pointer items-start gap-4 rounded-[14px] border border-site-line bg-site-surface p-4 transition-colors hover:border-site-ink/30 has-[:checked]:border-site-accent has-[:checked]:bg-site-tint">
-                                <input type="radio" name="plan" value="{{ $key }}" class="mt-1 size-4 accent-[var(--site-accent)]" @checked($selected === $key) required>
+                                <input type="radio" name="plan" value="{{ $key }}" x-model="plan" class="mt-1 size-4 accent-[var(--site-accent)]" @checked($selected === $key) required>
                                 <span class="min-w-0 flex-1">
                                     <span class="flex flex-wrap items-baseline justify-between gap-x-4">
                                         <span class="font-semibold">{{ $plan['name'] }}</span>
@@ -107,7 +121,7 @@
                         <legend class="mb-3 text-lg font-semibold tracking-tight">Cómo pagar</legend>
                         @foreach($methods as $method => $provider)
                             <label class="flex cursor-pointer items-start gap-4 rounded-[14px] border border-site-line bg-site-surface p-4 transition-colors hover:border-site-ink/30 has-[:checked]:border-site-accent has-[:checked]:bg-site-tint">
-                                <input type="radio" name="method" value="{{ $method }}" class="mt-1 size-4 accent-[var(--site-accent)]" @checked(old('method', array_key_first($methods)) === $method) required>
+                                <input type="radio" name="method" value="{{ $method }}" x-model="method" class="mt-1 size-4 accent-[var(--site-accent)]" @checked(old('method', array_key_first($methods)) === $method) required>
                                 <span>
                                     <span class="font-semibold">{{ $methodLabels[$method][0] ?? $method }}</span>
                                     <span class="mt-1 block text-sm text-site-muted">{{ $methodLabels[$method][1] ?? '' }}</span>
@@ -119,14 +133,41 @@
                         @enderror
                     </fieldset>
 
+                    {{-- Pagar varios meses de una vez: solo con las formas de pago que no se renuevan solas --}}
+                    @if(count($prepay) > 1 && collect($pricing)->contains(fn ($method) => ! $method['recurring']))
+                        <fieldset class="grid gap-3" x-show="current && ! current.recurring" x-cloak>
+                            <legend class="mb-3 text-lg font-semibold tracking-tight">Cuántos meses pagas</legend>
+                            <div class="flex flex-wrap gap-2">
+                                @foreach($prepay as $count => $discount)
+                                    <label class="cursor-pointer rounded-full border border-site-line bg-site-surface px-4 py-2 text-sm transition-colors hover:border-site-ink/30 has-[:checked]:border-site-accent has-[:checked]:bg-site-tint has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-site-accent">
+                                        <input type="radio" name="months" value="{{ $count }}" x-model.number="months" class="sr-only" @checked((int) old('months', 1) === $count)>
+                                        <span class="font-medium">{{ $count === 1 ? '1 mes' : "{$count} meses" }}</span>
+                                        @if($discount > 0)
+                                            <span class="text-site-accent">· {{ $discount }} % menos</span>
+                                        @endif
+                                    </label>
+                                @endforeach
+                            </div>
+                            @error('months')
+                                <p class="text-sm text-site-danger">{{ $message }}</p>
+                            @enderror
+                        </fieldset>
+                    @endif
+
                     <div class="grid gap-3">
+                        <p class="text-lg" x-show="total" x-cloak aria-live="polite">
+                            Total:
+                            <span class="font-semibold tabular-nums" x-text="current.symbol + ' ' + money(total)"></span>
+                            <span class="text-site-muted" x-text="current.recurring ? 'al mes, se renueva solo' : (months === 1 ? 'por 1 mes' : 'por ' + months + ' meses')"></span>
+                        </p>
                         <div>
                             <button type="submit" class="admin-primary-button min-h-12 px-6" :disabled="sending" @disabled($needsEmail)>
                                 <span x-text="sending ? 'Abriendo el pago…' : 'Continuar al pago'">Continuar al pago</span>
                             </button>
                         </div>
                         <p class="max-w-[60ch] text-sm leading-relaxed text-site-muted">
-                            Los precios están en dólares; al pagar con tarjeta se suman los impuestos de tu país. Tu plan se activa en cuanto se confirma el cobro.
+                            Con tarjeta internacional se cobra en dólares y se suman los impuestos de tu país; en Bolivia, en bolivianos al cambio oficial.
+                            Tu plan se activa en cuanto se confirma el cobro.
                             Al continuar aceptas los <a href="{{ route('legal', 'terminos') }}" class="underline underline-offset-4">términos</a>.
                         </p>
                     </div>

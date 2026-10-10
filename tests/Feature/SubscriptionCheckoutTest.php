@@ -52,8 +52,10 @@ class SubscriptionCheckoutTest extends TestCase
             ->assertOk()
             ->assertSee('Elige tu plan')
             ->assertSee('Tarjeta de crédito o débito')
-            ->assertSee('value="emprendedor" class="mt-1 size-4 accent-[var(--site-accent)]" checked', false)
-            ->assertDontSee('QR desde tu banco');
+            ->assertSee('value="emprendedor" x-model="plan" class="mt-1 size-4 accent-[var(--site-accent)]" checked', false)
+            // Sin appkey de Libélula no se ofrece el pago en Bolivia, ni los meses por adelantado
+            ->assertDontSee('Pago en Bolivia')
+            ->assertDontSee('Cuántos meses pagas');
 
         $this->withoutVite()->get(route('diy'))->assertOk()->assertSee(route('client.subscription', ['plan' => 'aliado']), false);
 

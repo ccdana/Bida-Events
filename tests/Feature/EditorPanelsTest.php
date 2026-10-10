@@ -30,10 +30,10 @@ class EditorPanelsTest extends TestCase
         return collect($matches)->mapWithKeys(fn (array $m) => [$m[2] => $m[1]])->all();
     }
 
-    /** Paneles que el editor tiene a mano: los de la barra lateral y los propios de cada módulo. */
+    /** Paneles que el editor tiene a mano: los del panel de edición y los propios de cada módulo. */
     private function panelSources(): array
     {
-        $sidebar = file_get_contents(resource_path('views/admin/invitations/editor/sidebar.blade.php'));
+        $sidebar = file_get_contents(resource_path('views/admin/invitations/editor/panel.blade.php'));
         preg_match_all("/@include\('(admin\.invitations\.panels\.[a-z0-9.\-_]+)'/", $sidebar, $matches);
 
         $views = $matches[1];

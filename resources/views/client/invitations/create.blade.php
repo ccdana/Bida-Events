@@ -11,7 +11,8 @@
     <a href="{{ route('client.dashboard') }}" class="admin-link-button">Cancelar</a>
     <button type="button" onclick="document.getElementById('invitation-form').requestSubmit()" class="admin-primary-button">
         <x-phosphor-plus-bold aria-hidden="true" />
-        Crear invitación
+        <span class="sm:hidden">Crear</span>
+        <span class="hidden sm:inline">Crear invitación</span>
     </button>
 @endsection
 

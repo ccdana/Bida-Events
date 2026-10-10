@@ -1,6 +1,7 @@
 <?php
 
 use App\Payments\Gateways\LemonSqueezyGateway;
+use App\Payments\Gateways\LibelulaGateway;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,12 +25,24 @@ return [
     // Pasarela de cada método de pago (clave de «drivers»)
     'methods' => [
         'card' => env('PAYMENTS_CARD_PROVIDER', 'lemonsqueezy'),
-        'qr' => env('PAYMENTS_QR_PROVIDER', 'cucu'),
+        'qr' => env('PAYMENTS_QR_PROVIDER', 'libelula'),
     ],
 
-    // Clase de cada pasarela. CUCU (QR) se suma al integrarla.
+    // Clase de cada pasarela
     'drivers' => [
         'lemonsqueezy' => LemonSqueezyGateway::class,
+        'libelula' => LibelulaGateway::class,
+    ],
+
+    /*
+    | Pagar varios meses de una vez, solo con QR (la tarjeta se cobra sola cada mes): meses que se
+    | ofrecen => descuento en % sobre el precio mensual de hoy. Con QR hay que escanear en cada pago,
+    | así que pagar por adelantado le ahorra pasos al revendedor.
+    */
+    'prepay' => [
+        1 => 0,
+        3 => (int) env('PAYMENTS_PREPAY_3_DISCOUNT', 0),
+        12 => (int) env('PAYMENTS_PREPAY_12_DISCOUNT', 0),
     ],
 
     /*
@@ -62,11 +75,27 @@ return [
         ],
     ],
 
+    /*
+    | Libélula (QR de cualquier banco de Bolivia, Tigo Money y tarjetas bolivianas). Cobra una
+    | comisión por cada pago, sin mensualidad. Cobra en bolivianos (precio del plan × «bob_rate» de
+    | config/bida.php). Guía de integración v2.7.1 (2020), confirmar con Libélula:
+    | - appkey: la clave que Libélula da a cada comercio.
+    | - base_url: producción https://api.todotix.com; pruebas http://www.todotix.com:10888.
+    | - Su aviso de pago (GET a /webhooks/libelula) no viene firmado: no se le cree por sí solo, se
+    |   confirma cada pago consultando a Libélula con el appkey (consultar_pagos).
+    */
+    'libelula' => [
+        'appkey' => env('LIBELULA_APPKEY'),
+        'base_url' => env('LIBELULA_BASE_URL', 'https://api.todotix.com'),
+        // Libélula emite la factura del pago (requiere tener la facturación configurada con ellos)
+        'invoice' => (bool) env('LIBELULA_EMITE_FACTURA', false),
+    ],
+
     // Cómo se nombra el origen de cada pago en el historial
     'labels' => [
         'manual' => 'registrado a mano',
         'lemonsqueezy' => 'tarjeta',
-        'cucu' => 'QR',
+        'libelula' => 'QR',
     ],
 
 ];
