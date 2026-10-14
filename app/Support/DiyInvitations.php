@@ -5,7 +5,9 @@ namespace App\Support;
 use App\EventProfiles\EventProfiles;
 use App\Models\Invitation;
 use App\Models\User;
+use App\Modules\Module;
 use App\Modules\ModuleRegistry;
+use App\Payments\InvitationPrice;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
@@ -90,18 +92,34 @@ final class DiyInvitations
     }
 
     /**
-     * El nivel con el que se publica pagando: el que piden sus partes y, si ya no le queda una
-     * gratuita (y esta no lo es), por lo menos Básico.
+     * ¿Se puede publicar gratis? Las invitaciones sí; una tarjeta no (sin sus partes no queda nada que
+     * mandar). Que le quede una gratuita en la cuenta se revisa aparte (freeAvailable).
+     */
+    public static function allowsFree(Invitation $invitation): bool
+    {
+        return app(EventProfiles::class)->forTemplate($invitation->template)->kind() === Module::KIND_INVITATION;
+    }
+
+    /**
+     * El nivel con el que se publica pagando: el que piden sus partes y, si no puede ser gratuita (ya
+     * usó la suya, o es una tarjeta), por lo menos Básico. Un diseño de temporada con precio propio se
+     * publica con todo (Premium) por ese precio (App\Payments\InvitationPrice).
      */
     public static function publishTier(Invitation $invitation, array $modules): string
     {
         $required = self::requiredTier($invitation, $modules);
+        $canBeFree = $invitation->package === Packages::FREE
+            || (self::allowsFree($invitation) && self::freeAvailable($invitation->user, $invitation));
 
-        if ($required === Packages::FREE && $invitation->package !== Packages::FREE && ! self::freeAvailable($invitation->user, $invitation)) {
-            return Packages::BASIC;
+        if ($required === Packages::FREE && $canBeFree) {
+            return Packages::FREE;
         }
 
-        return $required;
+        if (InvitationPrice::seasonPrice($invitation) !== null) {
+            return Packages::PREMIUM;
+        }
+
+        return Packages::higherTier($required, Packages::BASIC);
     }
 
     /** Ya tiene pagado lo que piden sus partes (o es gratuita y no pide más). */

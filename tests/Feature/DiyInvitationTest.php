@@ -87,8 +87,8 @@ class DiyInvitationTest extends TestCase
         $this->assertNull($config['diyTiers']['paid']);
         $this->assertSame(route('client.editor.preview.store'), $config['previewStoreUrl']);
         $this->assertSame([], $config['clients']->all());
-        // Las de temporada se venden aparte
-        $this->assertNotContains(InvitationTemplates::HALLOWEEN_CALABAZAS, $config['templateOptions']->pluck('value')->all());
+        // Las de temporada también se arman (mientras su temporada se vende; si no, con su motivo)
+        $this->assertContains(InvitationTemplates::HALLOWEEN_CALABAZAS, $config['templateOptions']->pluck('value')->all());
 
         // Y usa las herramientas del editor
         $this->actingAs($this->owner)

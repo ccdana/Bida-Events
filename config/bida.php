@@ -455,6 +455,8 @@ return [
             'price' => 14,
             'promo_price' => 11,
             'promo_label' => 'Promoción de temporada',
+            // «Hazlo tú» con un diseño de esta temporada: precio único con todo (null = el precio de su nivel)
+            'diy_price' => null,
             'templates' => ['tarjeta-ana-luis', 'tarjeta-libro-aventuras', 'historia-ana-luis'],
             'landing' => 'tarjetas-dia-del-amor',
             'whatsapp' => 'Hola {brand}, quiero una tarjeta del Día del Amor ({price}).',
@@ -473,6 +475,8 @@ return [
             'price' => 26,
             'promo_price' => 20,
             'promo_label' => 'Promoción de temporada',
+            // «Hazlo tú» con un diseño de esta temporada: precio único con todo (null = el precio de su nivel)
+            'diy_price' => null,
             'templates' => ['halloween-noche-diego', 'halloween-expediente-diego', 'halloween-noche-diego-funcion', 'halloween-noche-diego-caldero', 'halloween-noche-diego-casona'],
             'landing' => 'invitaciones-de-halloween',
             'whatsapp' => 'Hola {brand}, quiero una invitación para mi fiesta de Halloween ({price}).',
@@ -488,13 +492,24 @@ return [
     |  - drafts_limit: borradores sin publicar que puede tener a la vez.
     |  - free_per_account: invitaciones gratuitas por cuenta (una vez gratuita, sigue siéndolo).
     |  - days_after_event: cuánto sigue en línea después del evento, la gratuita y la pagada.
-    |  - collections: familias de plantillas que se ofrecen (las de temporada se venden aparte).
+    |  - collections: familias de plantillas que se ofrecen (las de temporada, solo mientras se venden).
+    |  - prices: lo que cuesta publicarla con cada nivel, un pago único (App\Payments\InvitationPrice).
+    |    Subir de nivel cobra la diferencia. «promo_price» es el precio con descuento (null = sin
+    |    descuento). Se cambian en Ajustes. Una temporada puede tener su precio único («diy_price» en
+    |    «seasons»): sus diseños se publican con todo por ese precio.
+    |
+    | (Supuesto) Precios, pendientes de confirmar con el dueño: menos que «Te la hacemos» del mismo nivel.
     */
     'diy' => [
         'drafts_limit' => (int) env('BIDA_DIY_DRAFTS_LIMIT', 3),
         'free_per_account' => 1,
         'days_after_event' => ['gratis' => 7, 'paid' => 30],
-        'collections' => ['lienzo', 'clasica', 'nueva', 'tendencias'],
+        'collections' => ['lienzo', 'clasica', 'nueva', 'tendencias', 'temporada'],
+        'prices' => [
+            'basico' => ['price' => 9, 'promo_price' => null],
+            'estandar' => ['price' => 19, 'promo_price' => null],
+            'premium' => ['price' => 35, 'promo_price' => null],
+        ],
     ],
 
     /*

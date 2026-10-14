@@ -60,6 +60,8 @@ return [
     |   APP_URL/webhooks/lemonsqueezy.
     | - variants: un producto de suscripción mensual con una variante por plan, cada una con el
     |   mismo precio que el plan tiene en el sitio (Ajustes). La variante dice qué plan se compró.
+    | - variants.invitacion: un producto de pago único («Invitación») con una sola variante. Cada
+    |   checkout lleva su precio (custom_price): el nivel de «Hazlo tú» o la diferencia al subir de nivel.
     */
     'lemonsqueezy' => [
         'api_key' => env('LEMONSQUEEZY_API_KEY'),
@@ -73,6 +75,8 @@ return [
             'aliado' => env('LEMONSQUEEZY_VARIANT_ALIADO'),
             'emprendedor' => env('LEMONSQUEEZY_VARIANT_EMPRENDEDOR'),
             'agencia' => env('LEMONSQUEEZY_VARIANT_AGENCIA'),
+            // «Hazlo tú»: pago único, el precio va en cada checkout
+            'invitacion' => env('LEMONSQUEEZY_VARIANT_INVITACION'),
         ],
     ],
 

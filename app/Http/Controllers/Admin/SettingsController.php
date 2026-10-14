@@ -56,6 +56,8 @@ class SettingsController extends Controller
                 'price' => (int) $season['price'],
                 'promo_price' => ($season['promo_price'] ?? '') === '' ? null : (int) $season['promo_price'],
                 'ends_at' => $this->date($season['ends_at'] ?? null),
+                // «Hazlo tú» con un diseño de la temporada: precio único (vacío = el de su nivel)
+                'diy_price' => ($season['diy_price'] ?? '') === '' ? null : (int) $season['diy_price'],
             ])
             ->all());
 
@@ -65,6 +67,14 @@ class SettingsController extends Controller
                 'price' => (int) $plan['price'],
                 'promo_price' => ($plan['promo_price'] ?? '') === '' ? null : (int) $plan['promo_price'],
                 'quota_per_month' => ($plan['quota_per_month'] ?? '') === '' ? null : (int) $plan['quota_per_month'],
+            ])
+            ->all());
+
+        SiteSettings::put('diy_prices', collect($request->input('diy_prices', []))
+            ->only(array_keys(config('bida.diy.prices', [])))
+            ->map(fn (array $tier) => [
+                'price' => (int) $tier['price'],
+                'promo_price' => ($tier['promo_price'] ?? '') === '' ? null : (int) $tier['promo_price'],
             ])
             ->all());
 

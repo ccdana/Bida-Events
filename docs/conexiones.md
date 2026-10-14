@@ -167,6 +167,19 @@ La API key, el webhook y los ids de prueba son **distintos** de los reales.
 > revisar» y no se activa. Si cambias un precio en Ajustes, cambia también la variante (los que ya
 > están suscritos siguen con su precio anterior).
 
+### 2.2 b Producto de pago único para «Hazlo tú»
+
+La invitación que arma cada persona se paga una vez, al publicarla (o al subirla de nivel).
+
+1. *Products › + New product*: nombre «Invitación», tipo **Single payment**, con **una sola
+   variante** y cualquier precio (por ejemplo US$ 1).
+2. Su id → `LEMONSQUEEZY_VARIANT_INVITACION`.
+
+> No hace falta igualar precios: cada checkout lleva el suyo (`custom_price`), el del nivel que se
+> publica en Admin › Ajustes › «Hazlo tú: publicar con cada nivel», o la diferencia al subir de
+> nivel, y el nombre del cobro dice cuál es («Invitación Estándar · «XV de Sofía»»). Sin esta
+> variable, «Hazlo tú» solo ofrece el QR (si está Libélula) o WhatsApp.
+
 ### 2.3 API key
 
 *Settings › API › +*: nombre `Bida Events` → copia la clave → `LEMONSQUEEZY_API_KEY`.
@@ -203,6 +216,7 @@ LEMONSQUEEZY_VARIANT_INICIAL=111111
 LEMONSQUEEZY_VARIANT_ALIADO=222222
 LEMONSQUEEZY_VARIANT_EMPRENDEDOR=333333
 LEMONSQUEEZY_VARIANT_AGENCIA=444444
+LEMONSQUEEZY_VARIANT_INVITACION=666666
 ```
 
 ### 2.7 Probar (modo de prueba)

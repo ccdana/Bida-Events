@@ -8,7 +8,8 @@ use Illuminate\Support\Facades\Cache;
 /**
  * Lo que el administrador maneja desde el panel sin tocar el código: los precios de los paquetes,
  * la promoción y hasta cuándo dura, cada temporada (encendida o no, precio y fecha, por separado),
- * qué plantillas de temporada se ofrecen hoy, el precio y el cupo de cada plan de revendedor y los
+ * qué plantillas de temporada se ofrecen hoy, el precio y el cupo de cada plan de revendedor, el
+ * precio de cada nivel de «Hazlo tú» y los
  * datos de contacto (WhatsApp, correo y redes sociales) que se ven en todo el sitio.
  *
  * Lo guardado se aplica sobre config/bida.php al arrancar (AppServiceProvider), así que el resto
@@ -20,7 +21,7 @@ final class SiteSettings
     private const CACHE_KEY = 'bida.site-settings';
 
     /** Grupos que se guardan; cualquier otro nombre se ignora. */
-    public const GROUPS = ['promo', 'packages', 'season', 'templates', 'reseller_plans', 'contact'];
+    public const GROUPS = ['promo', 'packages', 'season', 'templates', 'reseller_plans', 'diy_prices', 'contact'];
 
     /** Datos de contacto que se cambian desde Ajustes (claves de config/bida.php). */
     public const CONTACT_FIELDS = ['whatsapp', 'email', 'instagram', 'facebook', 'tiktok'];
@@ -38,6 +39,7 @@ final class SiteSettings
         self::applyPromo($stored['promo'] ?? []);
         self::applySeasons($stored['season'] ?? []);
         self::applyResellerPlans($stored['reseller_plans'] ?? []);
+        self::applyDiyPrices($stored['diy_prices'] ?? []);
         self::applyContact($stored['contact'] ?? []);
 
         config(['bida.templates_disabled' => $stored['templates']['disabled'] ?? []]);
@@ -71,10 +73,22 @@ final class SiteSettings
                     'price' => (int) ($season['price'] ?? 0),
                     'promo_price' => isset($season['promo_price']) ? (int) $season['promo_price'] : null,
                     'ends_at' => $season['ends_at'] ?? null,
+                    'diy_price' => isset($season['diy_price']) ? (int) $season['diy_price'] : null,
                 ])
                 ->values()
                 ->all(),
             'templates' => ['disabled' => (array) config('bida.templates_disabled', [])],
+            // «Hazlo tú»: cada nivel pagado, con el resumen del paquete del mismo nombre
+            'diy_prices' => collect(config('bida.diy.prices', []))
+                ->map(fn (array $tier, string $key) => [
+                    'key' => $key,
+                    'name' => Packages::tierNames()[$key] ?? $key,
+                    'summary' => collect(config('bida.packages', []))->firstWhere('key', $key)['summary'] ?? '',
+                    'price' => (int) $tier['price'],
+                    'promo_price' => isset($tier['promo_price']) ? (int) $tier['promo_price'] : null,
+                ])
+                ->values()
+                ->all(),
             'contact' => collect(self::CONTACT_FIELDS)->mapWithKeys(fn (string $field) => [$field => (string) config("bida.{$field}", '')])->all(),
             'reseller_plans' => collect(config('bida.reseller_plans', []))
                 ->map(fn (array $plan, string $key) => [
@@ -200,6 +214,25 @@ final class SiteSettings
         }
     }
 
+    /** Precio normal y con descuento de cada nivel de «Hazlo tú», por su clave. */
+    private static function applyDiyPrices(array $prices): void
+    {
+        foreach ($prices as $key => $values) {
+            if (! is_array($values) || ! is_array(config("bida.diy.prices.{$key}"))) {
+                continue;
+            }
+
+            if (array_key_exists('price', $values)) {
+                config(["bida.diy.prices.{$key}.price" => (int) $values['price']]);
+            }
+
+            if (array_key_exists('promo_price', $values)) {
+                $promo = $values['promo_price'];
+                config(["bida.diy.prices.{$key}.promo_price" => $promo === null || $promo === '' ? null : (int) $promo]);
+            }
+        }
+    }
+
     /**
      * Cada temporada por su clave: encendida o apagada, precio y fecha de término. Son
      * independientes: apagar el Día del Amor no toca a Halloween. Lo guardado antes de que hubiera
@@ -221,7 +254,7 @@ final class SiteSettings
                 config(["bida.seasons.{$key}.active" => (bool) $values['active']]);
             }
 
-            foreach (['price', 'promo_price'] as $field) {
+            foreach (['price', 'promo_price', 'diy_price'] as $field) {
                 if (array_key_exists($field, $values)) {
                     config(["bida.seasons.{$key}.{$field}" => $values[$field] === null || $values[$field] === '' ? null : (int) $values[$field]]);
                 }

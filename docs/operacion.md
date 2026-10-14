@@ -62,6 +62,12 @@ suscripción. Pase lo que pase, ningún pago suma meses dos veces.
 - Los pagos con tarjeta o QR **no se anulan** desde Revendedores: se devuelven en la pasarela, y
   su aviso de devolución completa anula el pago y devuelve la fecha a la anterior. Una devolución
   parcial no cambia la suscripción (queda anotada en `operations.log`).
+- **«Hazlo tú»** (órdenes con `purpose` = `invitation`): el cobro publica la invitación con su nivel
+  y queda en `invitation_payments` (`App\Services\InvitationActivator`). Subir de nivel cobra la
+  diferencia. Una devolución completa la vuelve al nivel que tenía (si era la primera compra, vuelve
+  a borrador y se oculta). Si el cobro es de una invitación que ya se borró, o se devuelve un pago
+  que no es el último de esa invitación, queda «Pago para revisar»: el nivel se corrige a mano desde
+  el editor del administrador («Paquete»).
 
 ### Tarjeta (Lemon Squeezy)
 

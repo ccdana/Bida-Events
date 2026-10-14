@@ -12,8 +12,8 @@ trait LemonSqueezyPayloads
 {
     protected const LS_SECRET = 'whsec-de-prueba';
 
-    /** Variantes de prueba de cada plan. */
-    protected const LS_VARIANTS = ['inicial' => '101', 'aliado' => '102', 'emprendedor' => '103', 'agencia' => '104'];
+    /** Variantes de prueba de cada plan y la del pago único de «Hazlo tú». */
+    protected const LS_VARIANTS = ['inicial' => '101', 'aliado' => '102', 'emprendedor' => '103', 'agencia' => '104', 'invitacion' => '199'];
 
     protected function configureLemonSqueezy(): void
     {
@@ -23,6 +23,8 @@ trait LemonSqueezyPayloads
             'payments.lemonsqueezy.store_id' => '7',
             'payments.lemonsqueezy.signing_secret' => self::LS_SECRET,
             'payments.lemonsqueezy.variants' => self::LS_VARIANTS,
+            // Sin depender del .env de quien corre las pruebas (LEMONSQUEEZY_TEST_MODE)
+            'payments.lemonsqueezy.test_mode' => false,
         ]);
     }
 

@@ -55,8 +55,8 @@ class LibelulaGateway implements PaymentGateway
     public function createCheckout(PaymentOrder $order): Checkout
     {
         $user = $order->user ?? throw new DomainException('La orden no tiene cuenta.');
-        $planName = config("bida.reseller_plans.{$order->plan}.name", $order->plan);
-        $concept = "Plan {$planName} de «Únete» · ".($order->months === 1 ? '1 mes' : "{$order->months} meses");
+        // El plan y sus meses, o la invitación de «Hazlo tú» y su nivel
+        $concept = $order->concept();
         [$firstName, $lastName] = array_pad(explode(' ', trim($user->name), 2), 2, '');
         // Vence a la medianoche de mañana (hora de Bolivia): da tiempo a pagar por banca por internet
         $expiresAt = now()->timezone(config('app.timezone'))->addDay()->endOfDay();
@@ -67,7 +67,7 @@ class LibelulaGateway implements PaymentGateway
             'identificador' => $order->public_id,
             // Libélula agrega ?transaction_id=… a esta URL cuando se paga
             'callback_url' => route('webhooks.payments', ['provider' => 'libelula', 'orden' => $order->public_id]),
-            'url_retorno' => route('client.subscription.order', $order->public_id),
+            'url_retorno' => $order->returnUrl(),
             'descripcion' => "{$concept} · {$order->reference_code}",
             'nombre_cliente' => $firstName,
             'apellido_cliente' => $lastName,

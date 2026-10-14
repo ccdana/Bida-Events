@@ -30,8 +30,9 @@ flowchart TD
 Cualquier cuenta del sitio (que no sea revendedor) arma su propia invitación con todo desbloqueado. Al
 publicarla, el nivel sale de las partes encendidas (`App\Support\DiyInvitations`): **Gratis** (portada,
 cuenta regresiva y ubicación, con la marca de Bida Events a la vista, una por cuenta) o **Básico,
-Estándar y Premium** (los mismos módulos que los paquetes del equipo). Mientras no hay pago en línea por
-nivel, el nivel pagado se pide por WhatsApp y lo activa el equipo desde el editor del administrador.
+Estándar y Premium** (los mismos módulos que los paquetes del equipo), un pago único con tarjeta
+(Lemon Squeezy) o QR (Libélula). Subir de nivel cobra la diferencia. Sin pago en línea, el nivel se
+pide por WhatsApp y lo activa el equipo desde el editor del administrador.
 
 ```mermaid
 flowchart TD
@@ -39,14 +40,19 @@ flowchart TD
   N -->|"Crear invitación (borrador)"| E["/client/mi-invitacion/ID/editar<br/>todo desbloqueado, «Nivel …» en la barra"]
   E -->|"Publicar"| P["/client/mi-invitacion/ID/publicar"]
   P -->|"Publicar gratis (apaga lo que no trae)"| L["/p/slug con la franja de Bida Events"]
-  P -->|"Pedir {nivel} por WhatsApp"| W["wa.me (Ref. HAZLO)"]
-  W -->|"el equipo pone el nivel en el editor"| L2["/p/slug con todo lo que armó"]
+  P -->|"Pagar y publicar (tarjeta o QR)"| O["/client/mi-invitacion/orden/ID<br/>espera el aviso del cobro"]
+  O -->|"cobro confirmado"| L2["/p/slug con todo lo que armó"]
+  P -->|"Pedir {nivel} por WhatsApp (sin pago en línea)"| W["wa.me (Ref. HAZLO)"]
+  W -->|"el equipo pone el nivel en el editor"| L2
   E -->|"Subir a {nivel} (publicada con menos)"| P
 ```
 
 - Hasta 3 borradores sin publicar a la vez (`bida.diy.drafts_limit`); un borrador se puede borrar desde el panel.
 - Publicar exige el correo confirmado. La gratuita queda en línea hasta 7 días después del evento; la pagada, 30.
 - Ya publicada, lo que se encienda por encima de su nivel no se ve hasta subirla de nivel.
+- Precios: Admin › Ajustes › «Hazlo tú: publicar con cada nivel». Una temporada puede tener su precio
+  único («Hazlo tú, precio único»): sus diseños se publican con todo por ese precio. Una tarjeta no tiene
+  versión gratuita.
 
 ## Qué hace «Elegir {plan}»
 

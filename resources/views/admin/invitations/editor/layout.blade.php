@@ -60,6 +60,11 @@
                 Mientras la armas, todo está abierto para que la pruebes. El nivel sale de las partes que dejes
                 encendidas: la gratuita trae la portada, la cuenta regresiva y la ubicación.
             </p>
+            {{-- El precio entero solo antes de pagar un nivel; subir de nivel cobra la diferencia (página de publicar) --}}
+            <p class="ed-dialog__text" x-show="config.diyTiers?.prices?.[diyRequiredTier] && [null, 'gratis'].includes(config.diyTiers?.paid ?? null)" x-cloak>
+                <span x-text="config.diyTiers?.paid ? 'Subirla a ' + diyTierName(diyRequiredTier) + ' cuesta' : 'Publicarla así cuesta'"></span>
+                <strong x-text="config.diyTiers?.prices?.[diyRequiredTier]"></strong>, un pago único.
+            </p>
             <p class="ed-dialog__text" x-show="config.diyTiers?.paid" x-cloak>
                 Ya está publicada con el nivel <strong x-text="diyTierName(config.diyTiers?.paid)"></strong>.
             </p>

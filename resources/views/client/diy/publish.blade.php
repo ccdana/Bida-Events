@@ -98,12 +98,59 @@
                         @endif
                         <p class="mt-4 text-sm text-site-muted">En línea hasta el {{ $paidUntil->locale('es')->translatedFormat('j \d\e F \d\e Y') }}, sin la franja de invitación gratuita.</p>
 
+                        {{-- Pago único: el precio del nivel, la diferencia si ya tenía otro o el precio de su temporada --}}
+                        <p class="mt-5 flex flex-wrap items-baseline gap-x-2">
+                            <span class="text-3xl font-semibold tracking-tight tabular-nums">{{ $dueLabel }}</span>
+                            <span class="text-sm text-site-muted">
+                                @if($isSeasonPrice)
+                                    precio de temporada, con todo
+                                @elseif($isUpgrade)
+                                    la diferencia con tu nivel {{ $currentTierName }}
+                                @else
+                                    pago único
+                                @endif
+                            </span>
+                        </p>
+
                         <div class="mt-auto pt-6">
-                            <a href="{{ $contactUrl }}" target="_blank" rel="noopener" class="admin-primary-button min-h-11">
-                                <x-phosphor-whatsapp-logo aria-hidden="true" />
-                                Pedir {{ $tierName }} por WhatsApp
-                            </a>
-                            <p class="mt-3 text-sm text-site-muted">El pago en línea llega muy pronto. Mientras, escríbenos y activamos tu invitación con este nivel.</p>
+                            @if($due === 0)
+                                {{-- Sin nada que cobrar (por ejemplo, con un descuento nuevo) --}}
+                                <form method="POST" action="{{ route('client.diy.checkout', $invitation) }}">
+                                    @csrf
+                                    <button type="submit" class="admin-primary-button min-h-11" @disabled($needsEmail)>Activar {{ $tierName }}</button>
+                                </form>
+                            @elseif($payMethods !== [])
+                                <form method="POST" action="{{ route('client.diy.checkout', $invitation) }}" class="grid gap-3" x-data="{ sending: false }" @submit="sending = true">
+                                    @csrf
+                                    <fieldset class="grid gap-2">
+                                        <legend class="sr-only">Cómo pagar</legend>
+                                        @foreach($payMethods as $method => $option)
+                                            <label class="flex cursor-pointer items-start gap-3 rounded-[12px] border border-site-line p-3 text-sm transition-colors hover:border-site-ink/30 has-[:checked]:border-site-accent has-[:checked]:bg-site-tint">
+                                                <input type="radio" name="method" value="{{ $method }}" class="mt-0.5 size-4 accent-[var(--site-accent)]" @checked($loop->first) required>
+                                                <span class="min-w-0 flex-1">
+                                                    <span class="flex flex-wrap items-baseline justify-between gap-x-3">
+                                                        <span class="font-medium">{{ $option['label'] }}</span>
+                                                        <span class="font-semibold tabular-nums">{{ $option['amount'] }}</span>
+                                                    </span>
+                                                    <span class="mt-0.5 block text-site-muted">{{ $option['note'] }}</span>
+                                                </span>
+                                            </label>
+                                        @endforeach
+                                    </fieldset>
+                                    <button type="submit" class="admin-primary-button min-h-11" :disabled="sending || @js($needsEmail)" @disabled($needsEmail)>
+                                        <x-phosphor-lock-simple aria-hidden="true" />
+                                        <span x-text="sending ? 'Abriendo el pago…' : @js($currentTierName ? 'Pagar y subir a '.$tierName : 'Pagar y publicar')">{{ $currentTierName ? 'Pagar y subir a '.$tierName : 'Pagar y publicar' }}</span>
+                                    </button>
+                                    <p class="text-sm text-site-muted">Tu invitación se publica sola en cuanto se confirma el pago.</p>
+                                </form>
+                            @else
+                                {{-- Sin pago en línea encendido: se pide por WhatsApp y el equipo activa el nivel --}}
+                                <a href="{{ $contactUrl }}" target="_blank" rel="noopener" class="admin-primary-button min-h-11">
+                                    <x-phosphor-whatsapp-logo aria-hidden="true" />
+                                    Pedir {{ $tierName }} por WhatsApp
+                                </a>
+                                <p class="mt-3 text-sm text-site-muted">Escríbenos y activamos tu invitación con este nivel.</p>
+                            @endif
                         </div>
                     </section>
                 @endunless

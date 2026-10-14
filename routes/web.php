@@ -238,6 +238,9 @@ Route::prefix('client')->name('client.')->middleware(['auth', 'client'])->group(
         Route::delete('/{invitation}', [DiyInvitationController::class, 'destroy'])->can('deleteOwn', 'invitation')->name('destroy');
         Route::get('/{invitation}/publicar', [DiyInvitationController::class, 'publish'])->can('editOwn', 'invitation')->name('publish');
         Route::post('/{invitation}/publicar', [DiyInvitationController::class, 'storePublish'])->middleware('throttle:10,1')->can('editOwn', 'invitation')->name('publish.store');
+        // Pagar el nivel (o la diferencia al subir de nivel) en línea y esperar el aviso del cobro
+        Route::post('/{invitation}/pagar', [DiyInvitationController::class, 'checkout'])->middleware('throttle:6,1')->can('editOwn', 'invitation')->name('checkout');
+        Route::get('/orden/{order:public_id}', [DiyInvitationController::class, 'order'])->whereUuid('order')->name('order');
     });
 
     // Herramientas del editor (revendedor al día o «Hazlo tú»): los mismos controladores que usa el

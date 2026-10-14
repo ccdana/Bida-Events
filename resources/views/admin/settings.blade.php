@@ -135,6 +135,46 @@
                         @endforeach
                     </div>
                 </section>
+
+                {{-- «Hazlo tú»: lo que cuesta publicar con cada nivel la invitación que arma la persona (App\Payments\InvitationPrice) --}}
+                <section class="set-block">
+                    <div class="set-block__head">
+                        <div>
+                            <h2 class="set-block__title">Hazlo tú: publicar con cada nivel</h2>
+                            <p class="set-block__text">
+                                Un pago único por invitación armada por la persona, con los mismos módulos que el paquete del mismo nombre.
+                                La gratuita no se cobra; subir de nivel cobra la diferencia. El descuento vale mientras esté cargado.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="set-list">
+                        <div class="set-list__head" aria-hidden="true">
+                            <span>Nivel</span><span>Precio ({{ $currency }})</span><span>Con descuento</span>
+                        </div>
+                        @foreach($settings['diy_prices'] as $tier)
+                            <div class="set-list__row">
+                                <div class="min-w-0">
+                                    <p class="font-medium">{{ $tier['name'] }}</p>
+                                    <p class="text-sm text-site-muted">{{ $tier['summary'] }}</p>
+                                </div>
+                                <div>
+                                    <label for="diy-precio-{{ $tier['key'] }}" class="admin-label set-list__label">Precio ({{ $currency }})</label>
+                                    <input id="diy-precio-{{ $tier['key'] }}" type="number" min="0" max="100000" required class="admin-input"
+                                        name="diy_prices[{{ $tier['key'] }}][price]" value="{{ old('diy_prices.'.$tier['key'].'.price', $tier['price']) }}">
+                                </div>
+                                <div>
+                                    <label for="diy-promo-{{ $tier['key'] }}" class="admin-label set-list__label">Con descuento</label>
+                                    <input id="diy-promo-{{ $tier['key'] }}" type="number" min="0" max="100000" class="admin-input" placeholder="Sin descuento"
+                                        name="diy_prices[{{ $tier['key'] }}][promo_price]" value="{{ old('diy_prices.'.$tier['key'].'.promo_price', $tier['promo_price']) }}">
+                                    @error('diy_prices.'.$tier['key'].'.promo_price')
+                                        <p class="mt-1.5 text-sm text-site-danger">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </section>
             </div>
 
             {{-- ══ Temporadas: cada una se enciende, se apaga y se ajusta por separado ══ --}}
@@ -184,6 +224,13 @@
                                 @error('seasons.'.$season['key'].'.promo_price')
                                     <p class="mt-1.5 text-sm text-site-danger">{{ $message }}</p>
                                 @enderror
+                            </div>
+                            <div>
+                                <label for="season-diy-{{ $season['key'] }}" class="admin-label">Hazlo tú, precio único</label>
+                                <input id="season-diy-{{ $season['key'] }}" type="number" min="0" max="100000" class="admin-input" placeholder="El de su nivel"
+                                    name="seasons[{{ $season['key'] }}][diy_price]" value="{{ old('seasons.'.$season['key'].'.diy_price', $season['diy_price']) }}"
+                                    aria-describedby="season-diy-hint-{{ $season['key'] }}">
+                                <p id="season-diy-hint-{{ $season['key'] }}" class="mt-1.5 text-xs text-site-muted">Quien la arma solo la publica con todo por este precio. Vacío: paga según su nivel.</p>
                             </div>
                             <div class="set-fields__wide">
                                 <label for="season-ends-{{ $season['key'] }}" class="admin-label">Hasta cuándo se vende</label>

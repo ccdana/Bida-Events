@@ -7,6 +7,7 @@ use App\EventProfiles\EventProfiles;
 use App\Models\EventType;
 use App\Models\Invitation;
 use App\Models\User;
+use App\Payments\InvitationPrice;
 use App\Services\InvitationPreviewSession;
 use App\Services\MediaUploadService;
 use App\Support\ColorPalettes;
@@ -15,6 +16,7 @@ use App\Support\EditableTexts;
 use App\Support\ImageFrames;
 use App\Support\InvitationDefaults;
 use App\Support\InvitationTemplates;
+use App\Support\Money;
 use App\Support\Packages;
 use App\Support\ResellerSubscription;
 use App\Support\SampleContent;
@@ -220,6 +222,8 @@ class InvitationEditorViewData
             'modules' => $this->moduleTiers(),
             'paid' => Packages::isTier($invitation?->package) ? $invitation->package : null,
             'publishUrl' => $invitation ? route('client.diy.publish', $invitation) : null,
+            // Lo que cuesta hoy publicarla con cada nivel («US$ 19»), para el aviso del nivel
+            'prices' => collect(InvitationPrice::tierPrices())->map(fn (array $price) => Money::format($price['final']))->all(),
         ];
     }
 

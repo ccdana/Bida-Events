@@ -19,6 +19,8 @@ use Illuminate\Support\Facades\Http;
  * Tarjeta internacional con Lemon Squeezy (vendedor oficial: cobra los impuestos de cada país).
  * Cada plan es una variante de un producto de suscripción mensual; Lemon Squeezy cobra el primer
  * mes en su página de pago y después renueva solo, y avisa cada cosa a /webhooks/lemonsqueezy.
+ * «Hazlo tú» es un producto de pago único con una sola variante («invitacion»): cada checkout lleva
+ * su precio (custom_price) y su nombre, el nivel que se compra o la diferencia al subir de nivel.
  *
  * Qué aviso se usa para qué (docs.lemonsqueezy.com › Webhooks › Event types):
  * - order_created: el primer pago. Trae nuestra orden en custom_data → activa la suscripción.
@@ -62,7 +64,8 @@ class LemonSqueezyGateway implements ManagesSubscriptions, PaymentGateway
 
     public function createCheckout(PaymentOrder $order): Checkout
     {
-        $variant = $this->config("variants.{$order->plan}") ?: throw new DomainException("El plan «{$order->plan}» no tiene variante en Lemon Squeezy.");
+        $product = $order->isForInvitation() ? 'invitacion' : $order->plan;
+        $variant = $this->config("variants.{$product}") ?: throw new DomainException("«{$product}» no tiene variante en Lemon Squeezy.");
         $user = $order->user ?? throw new DomainException('La orden no tiene cuenta.');
         $expiresAt = now()->addDay();
 
@@ -70,7 +73,7 @@ class LemonSqueezyGateway implements ManagesSubscriptions, PaymentGateway
             'product_options' => [
                 'enabled_variants' => [(int) $variant],
                 // Al pagar, vuelve a la página que espera el aviso del cobro
-                'redirect_url' => route('client.subscription.order', $order->public_id),
+                'redirect_url' => $order->returnUrl(),
             ],
             'checkout_options' => ['locale' => 'es'],
             'checkout_data' => [
@@ -81,6 +84,12 @@ class LemonSqueezyGateway implements ManagesSubscriptions, PaymentGateway
             ],
             'expires_at' => $expiresAt->toIso8601ZuluString(),
         ];
+
+        // «Hazlo tú»: el precio lo pone el sitio (el nivel o la diferencia), en centavos, y el nombre dice qué es
+        if ($order->isForInvitation()) {
+            $attributes['custom_price'] = (int) round((float) $order->amount * 100);
+            $attributes['product_options']['name'] = $order->concept();
+        }
 
         if ($this->config('test_mode')) {
             $attributes['test_mode'] = true;

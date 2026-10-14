@@ -8,28 +8,38 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Client\StoreDiyInvitationRequest;
 use App\Http\Requests\Client\UpdateDiyInvitationRequest;
 use App\Models\Invitation;
+use App\Models\PaymentOrder;
+use App\Payments\InvitationPrice;
+use App\Payments\PaymentGateways;
+use App\Services\InvitationActivator;
 use App\Services\InvitationCacheService;
 use App\Services\InvitationModuleService;
 use App\Services\InvitationPreviewSession;
 use App\Support\DiyInvitations;
 use App\Support\InvitationDefaults;
 use App\Support\LeadSource;
+use App\Support\Money;
 use App\Support\Packages;
 use App\ViewModels\Admin\InvitationEditorViewData;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+use Throwable;
 
 /**
  * «Hazlo tú»: el dueño arma su propia invitación con el mismo editor que el equipo, sin pagar antes.
  *
  * Mientras es borrador tiene todo desbloqueado. «Publicar» guarda y, la primera vez (o si ahora pide
  * un nivel mayor que el que tiene), pasa por la página de publicar: gratis apagando lo que no incluye,
- * o con el nivel que piden sus partes. Las reglas están en App\Support\DiyInvitations.
+ * o pagando el nivel que piden sus partes (tarjeta o QR; subir de nivel cobra la diferencia). Se
+ * publica recién cuando la pasarela avisa que cobró (InvitationActivator), como los planes.
+ * Las reglas están en App\Support\DiyInvitations y los precios en App\Payments\InvitationPrice.
  *
  * Quién entra lo deciden las rutas: la policy (createOwn / editOwn).
  */
@@ -40,6 +50,7 @@ class DiyInvitationController extends Controller
     public function __construct(
         protected InvitationModuleService $moduleService,
         protected InvitationEditorViewData $editorData,
+        protected PaymentGateways $gateways,
     ) {}
 
     public function create(): View|RedirectResponse
@@ -177,9 +188,13 @@ class DiyInvitationController extends Controller
 
         $tier = DiyInvitations::publishTier($invitation, $modulos);
         $names = Packages::tierNames();
-        // La gratuita se ofrece si todavía es borrador (o ya es gratuita) y le queda una en la cuenta
-        $canGoFree = ($invitation->package === null && DiyInvitations::freeAvailable($user, $invitation))
-            || $invitation->package === Packages::FREE;
+        // La gratuita se ofrece si todavía es borrador (o ya es gratuita) y le queda una en la cuenta;
+        // una tarjeta no tiene versión gratuita
+        $canGoFree = DiyInvitations::allowsFree($invitation) && (($invitation->package === null && DiyInvitations::freeAvailable($user, $invitation))
+            || $invitation->package === Packages::FREE);
+        // Lo que cuesta llegar a ese nivel (la diferencia, si ya pagó otro) y cómo se paga hoy
+        $due = $tier === Packages::FREE ? 0 : InvitationPrice::due($invitation, $tier);
+        $methods = $tier === Packages::FREE ? [] : $this->gateways->availableMethods('invitacion');
 
         return view('client.diy.publish', [
             'invitation' => $invitation,
@@ -196,10 +211,19 @@ class DiyInvitationController extends Controller
             ),
             'paidUntil' => DiyInvitations::expiresAt($invitation->event_date, $tier),
             'canGoFree' => $canGoFree,
-            'freeUsedElsewhere' => $invitation->package === null && ! $canGoFree,
+            'freeUsedElsewhere' => $invitation->package === null && ! $canGoFree && DiyInvitations::allowsFree($invitation),
             'freeOff' => DiyInvitations::modulesAbove($invitation, $modulos, Packages::FREE),
             'freeUntil' => DiyInvitations::expiresAt($invitation->event_date, Packages::FREE),
-            // El pago en línea de cada nivel llega después: mientras, se activa por WhatsApp
+            'due' => $due,
+            'dueLabel' => Money::format($due),
+            'isUpgrade' => InvitationPrice::hasPaid($invitation),
+            'isSeasonPrice' => InvitationPrice::seasonPrice($invitation) !== null,
+            // Tarjeta y QR, cada uno con lo que cobra en su moneda; sin pago en línea, por WhatsApp
+            'payMethods' => collect($methods)->map(function (string $provider, string $method) use ($due) {
+                $currency = $this->gateways->get($provider)->currency();
+
+                return ['amount' => Money::format(InvitationPrice::amount($due, $currency), $currency)] + self::METHOD_LABELS[$method];
+            })->all(),
             'contactUrl' => LeadSource::whatsappUrl(
                 $request,
                 "Hola {brand}, quiero publicar mi invitación «{$invitation->title}» con el nivel {$names[$tier]}.",
@@ -240,6 +264,10 @@ class DiyInvitationController extends Controller
                     throw ValidationException::withMessages(['publish' => 'Tu invitación ya tiene un nivel pagado: no hace falta publicarla gratis.']);
                 }
 
+                if (! DiyInvitations::allowsFree($invitation)) {
+                    throw ValidationException::withMessages(['publish' => 'Una tarjeta no tiene versión gratuita.']);
+                }
+
                 if ($invitation->package !== Packages::FREE && ! DiyInvitations::freeAvailable($user, $invitation)) {
                     throw ValidationException::withMessages(['publish' => 'Ya usaste tu invitación gratuita. Esta se publica con un nivel pagado.']);
                 }
@@ -260,6 +288,96 @@ class DiyInvitationController extends Controller
             ->with('success', "¡«{$invitation->title}» ya está publicada! Copia el enlace y compártelo con tus invitados.");
     }
 
+    /**
+     * Pagar el nivel que piden sus partes (o la diferencia, si ya tenía uno): abre la orden y va a la
+     * pasarela. Se publica cuando la pasarela avisa que cobró, no al volver de su página.
+     */
+    public function checkout(Request $request, Invitation $invitation, InvitationActivator $activator): RedirectResponse
+    {
+        $user = $request->user();
+        $back = fn (string $message) => redirect()->route('client.diy.publish', $invitation)->withErrors(['publish' => $message]);
+
+        // La pasarela necesita un correo real para el recibo
+        if (! $user->hasVerifiedEmail()) {
+            return $back('Confirma tu correo para publicar tu invitación.');
+        }
+
+        $modulos = $this->moduleService->resolveModules($invitation);
+        $tier = DiyInvitations::publishTier($invitation, $modulos);
+
+        if ($tier === Packages::FREE || (DiyInvitations::isCovered($invitation, $modulos) && $invitation->status === 'active')) {
+            return redirect()->route('client.diy.publish', $invitation);
+        }
+
+        $due = InvitationPrice::due($invitation, $tier);
+
+        // Sin diferencia que cobrar (un descuento nuevo, por ejemplo): sube de nivel sin pasar por la pasarela
+        if ($due === 0) {
+            $activator->grant($invitation, $tier);
+
+            return redirect()->route('client.dashboard')
+                ->with('success', "«{$invitation->title}» ya está publicada con el nivel ".Packages::tierNames()[$invitation->package].'.');
+        }
+
+        $method = $request->validate(
+            ['method' => ['required', 'string', Rule::in(PaymentGateways::METHODS)]],
+            ['method.required' => 'Elige cómo pagar.', 'method.in' => 'Esa forma de pago no existe.'],
+        )['method'];
+        $provider = $this->gateways->providerFor($method, 'invitacion');
+
+        if (! $provider) {
+            return $back('Esa forma de pago no está disponible. Elige otra o escríbenos.');
+        }
+
+        $gateway = $this->gateways->get($provider);
+
+        // Una sola compra abierta por invitación: la anterior sin pagar queda vencida
+        PaymentOrder::pending()->where('invitation_id', $invitation->id)->get()
+            ->each(fn (PaymentOrder $order) => $order->close(PaymentOrder::EXPIRED, 'Reemplazada por una compra nueva'));
+
+        $order = PaymentOrder::forInvitation($invitation, $tier, InvitationPrice::amount($due, $gateway->currency()), $gateway->currency(), $provider);
+
+        try {
+            $checkout = $gateway->createCheckout($order);
+        } catch (Throwable $e) {
+            report($e);
+            $order->close(PaymentOrder::FAILED, 'No se pudo abrir el cobro en la pasarela');
+
+            return $back('No pudimos abrir el pago. Inténtalo de nuevo en un momento.');
+        }
+
+        $order->forceFill([
+            'provider_ref' => $checkout->providerRef,
+            'expires_at' => $checkout->expiresAt,
+            // El QR y la página de la pasarela se muestran en la página de la orden
+            'meta' => array_merge($order->meta ?? [], array_filter(['qr_image' => $checkout->qrImage, 'payment_page_url' => $checkout->paymentPageUrl])),
+        ])->save();
+
+        // Tarjeta: a la página de pago de la pasarela. QR: lo muestra la página de la orden
+        return $checkout->redirectUrl
+            ? redirect()->away($checkout->redirectUrl)
+            : redirect()->route('client.diy.order', $order->public_id);
+    }
+
+    /** A dónde vuelve el comprador: espera (consultando cada pocos segundos) el aviso del cobro. */
+    public function order(Request $request, PaymentOrder $order): View|JsonResponse
+    {
+        abort_unless((int) $order->user_id === (int) $request->user()->id && $order->isForInvitation(), 404);
+
+        if ($request->wantsJson()) {
+            return response()->json(['status' => $order->status]);
+        }
+
+        $invitation = $order->invitation;
+
+        return view('client.diy.order', [
+            'order' => $order,
+            'invitation' => $invitation,
+            'tierName' => Packages::tierNames()[$order->plan] ?? $order->plan,
+            'publicUrl' => $invitation?->status === 'active' ? route('invitation.show', $invitation->slug) : null,
+        ]);
+    }
+
     /** Borrar un borrador que nunca se publicó (policy deleteOwn): libera su lugar para crear otro. */
     public function destroy(Invitation $invitation): RedirectResponse
     {
@@ -270,6 +388,12 @@ class DiyInvitationController extends Controller
 
         return redirect()->route('client.dashboard')->with('success', "Borramos el borrador «{$title}».");
     }
+
+    /** Cómo se presenta cada forma de pago en la página de publicar. */
+    private const METHOD_LABELS = [
+        'card' => ['label' => 'Tarjeta de crédito o débito', 'note' => 'Visa, Mastercard y más, desde cualquier país, en dólares.'],
+        'qr' => ['label' => 'QR de Bolivia, Tigo Money o tarjeta boliviana', 'note' => 'Escaneas el QR con la app de cualquier banco, en bolivianos.'],
+    ];
 
     private function draftsMessage(): string
     {

@@ -2,20 +2,23 @@
 
 namespace App\Payments;
 
+use App\Models\InvitationPayment;
 use App\Models\PaymentOrder;
 use App\Models\SubscriptionPayment;
 use App\Models\User;
 use App\Models\WebhookEvent;
+use App\Services\InvitationActivator;
 use App\Services\SubscriptionActivator;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 /**
  * Aplica un aviso guardado de una pasarela:
- * - una orden cobrada activa la suscripción; una rechazada o vencida se cierra;
+ * - una orden cobrada activa la suscripción (o publica la invitación de «Hazlo tú» con su nivel);
+ *   una rechazada o vencida se cierra;
  * - una renovación cobrada suma un mes; una que falla deja el pago atrasado;
  * - un cambio de la suscripción (cancelada, terminada, otro plan) se refleja en la cuenta;
- * - una devolución completa anula el pago y la fecha vuelve a la anterior.
+ * - una devolución completa anula el pago y la fecha (o el nivel de la invitación) vuelve a la anterior.
  *
  * Un cobro que no se puede aplicar y no se arreglaría reintentando (una orden que no existe, un
  * monto que no coincide, una renovación de una suscripción que no conocemos) queda procesado con su
@@ -24,7 +27,10 @@ use Illuminate\Support\Str;
  */
 class WebhookProcessor
 {
-    public function __construct(private readonly SubscriptionActivator $activator) {}
+    public function __construct(
+        private readonly SubscriptionActivator $activator,
+        private readonly InvitationActivator $invitations,
+    ) {}
 
     public function process(WebhookEvent $webhook): void
     {
@@ -66,6 +72,10 @@ class WebhookProcessor
             );
         }
 
+        if ($order->isForInvitation()) {
+            return $this->invitationPaid($provider, $order, $event);
+        }
+
         // La pasarela dice qué plan cobró (Lemon Squeezy, por la variante): tiene que ser el de la orden
         $chargedPlan = $event->extra['plan'] ?? null;
 
@@ -87,6 +97,30 @@ class WebhookProcessor
         }
 
         $this->warnIfPriceDiffers($order, $event);
+
+        return null;
+    }
+
+    /**
+     * Una orden de «Hazlo tú» cobrada publica la invitación con su nivel. Lemon Squeezy dice qué
+     * producto cobró (la variante «invitacion»): tiene que ser ese.
+     */
+    private function invitationPaid(string $provider, PaymentOrder $order, GatewayEvent $event): ?string
+    {
+        $chargedPlan = $event->extra['plan'] ?? null;
+
+        if ($chargedPlan !== null && $chargedPlan !== 'invitacion') {
+            return $this->needsReview("Se cobró el plan «{$chargedPlan}» y la orden {$order->reference_code} es de una invitación", $provider, $event);
+        }
+
+        if (! $order->invitation) {
+            return $this->needsReview("La invitación de la orden {$order->reference_code} ya no existe", $provider, $event);
+        }
+
+        $this->invitations->completeOrder($order, $event->externalId, [
+            'amount' => $event->extra['charged_amount'] ?? null,
+            'currency' => $event->extra['charged_currency'] ?? null,
+        ]);
 
         return null;
     }
@@ -171,6 +205,17 @@ class WebhookProcessor
         $payment = $event->externalId
             ? SubscriptionPayment::where('provider', $provider)->where('external_id', $event->externalId)->first()
             : null;
+
+        // Un cobro de «Hazlo tú»: la invitación vuelve al nivel que tenía
+        $invitationPayment = ! $payment && $event->externalId
+            ? InvitationPayment::where('provider', $provider)->where('external_id', $event->externalId)->first()
+            : null;
+
+        if ($invitationPayment && ($event->extra['full'] ?? false)) {
+            return $this->invitations->refund($invitationPayment)
+                ? null
+                : $this->needsReview("Devolución de un pago de invitación que no es el último ({$event->externalId}): revisar su nivel a mano", $provider, $event);
+        }
 
         if (! $payment || ! ($event->extra['full'] ?? false)) {
             Log::channel('operations')->info('Devolución sin cambios en la suscripción', [
