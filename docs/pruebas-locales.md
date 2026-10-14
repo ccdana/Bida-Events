@@ -255,7 +255,7 @@ En modo de prueba no hace falta activar la tienda, verificar identidad ni poner 
 ### 5.3 Crear el producto con los 4 planes
 
 1. Menú de la izquierda → **Store** → **Products** → **+ New product**.
-2. **Name:** `Hazlo tú`. Descripción: la que quieras (la ve el comprador al pagar).
+2. **Name:** `Únete`. Descripción: la que quieras (la ve el comprador al pagar).
 3. En **Pricing**, elige **Subscription**.
 4. Baja a **Variants** → **Add variant** y crea una por plan. En cada variante: el nombre, el
    precio, **Subscription** y repetir cada **1 month** (*Monthly*):

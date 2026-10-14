@@ -1,7 +1,7 @@
 # Recorridos del sitio: a dónde lleva cada botón
 
 Mapa de navegación de Bida Events con el modelo principal primero: **cada persona arma su propia
-invitación con un plan mensual («Hazlo tú»)**. Lo adicional es que el equipo se la haga («Te la
+invitación con un plan mensual («Únete»)**. Lo adicional es que el equipo se la haga («Te la
 hacemos», paquetes de pago único por WhatsApp).
 
 Los diagramas se leen de arriba hacia abajo (o de izquierda a derecha en el último). Los nombres entre
@@ -14,8 +14,8 @@ De la portada a la primera invitación publicada, pasando por elegir el plan, cr
 ```mermaid
 flowchart TD
   A["Portada /"] -->|"Crear mi invitación · Planes · Elegir mi plan"| P["Planes de la portada #planes"]
-  OT["Guía, páginas por evento, legales"] -->|"Crear mi invitación (cabecera)"| B["/hazlo-tu#comparar<br/>tabla con «Elegir»"]
-  P -->|"Quiero {plan}"| R["/registro?plan=X"]
+  OT["Guía, páginas por evento, legales"] -->|"Crear mi invitación (cabecera)"| B["/unete#planes<br/>planes con «Elegir»"]
+  P -->|"Elegir {plan}"| R["/registro?plan=X"]
   B -->|"Elegir"| R
   R -->|"Crear mi cuenta"| V["/correo/confirmar"]
   V -->|"enlace del correo"| S["/client/suscripcion?plan=X"]
@@ -25,13 +25,13 @@ flowchart TD
   E -->|"publicar y compartir"| L["/p/slug (enlace público)"]
 ```
 
-## Qué hace «Quiero {plan}»
+## Qué hace «Elegir {plan}»
 
 El mismo botón lleva a tres lugares distintos según haya pago en línea, sesión iniciada y registro abierto.
 
 ```mermaid
 flowchart TD
-  Q["Botón «Quiero {plan}»<br/>portada · «Elegir» en /hazlo-tu"] --> M{"¿Hay pago en línea<br/>para ese plan?"}
+  Q["Botón «Elegir {plan}»<br/>portada y /unete"] --> M{"¿Hay pago en línea<br/>para ese plan?"}
   M -->|"No"| W["WhatsApp con el plan<br/>y el código Ref."]
   M -->|"Sí"| U{"¿Ya inició sesión?"}
   U -->|"Sí"| S["/client/suscripcion?plan=X"]
@@ -84,7 +84,7 @@ Los paquetes no pasan por cuenta ni pago en línea: salen todos por WhatsApp y e
 ```mermaid
 flowchart LR
   H["Portada · Te la hacemos<br/>#precios"] -->|"Elegir {paquete}"| WA["WhatsApp con el paquete<br/>y Ref. de origen"]
-  HZ["/hazlo-tu · Pedir {paquete}"] --> WA
+  HZ["/unete · Pedir {paquete}"] --> WA
   LD["Páginas por evento<br/>Elegir {paquete}"] --> WA
   WA --> EQ["El equipo arma la invitación<br/>con el cliente"]
   EQ --> CP["/client · Ver invitados<br/>Abrir mi invitación"]
@@ -98,31 +98,32 @@ flowchart LR
 | --- | --- | --- |
 | Logo | / | Vuelve a la portada |
 | Planes · Plantillas · Qué incluye · Te la hacemos · Preguntas | #planes · #plantillas · #incluye · #precios · #preguntas | Anclas dentro de la misma página |
-| Crear mi invitación (cabecera) | #planes | Baja a los planes de la propia portada; en las demás páginas va a /hazlo-tu#comparar |
+| Crear mi invitación (cabecera) | #planes | Baja a los planes de la propia portada; en las demás páginas va a /unete#planes |
 | Ícono de WhatsApp (cabecera) | wa.me con el mensaje y Ref. HOME | Acción secundaria |
 | Ingresar / Mi panel | /login · /dashboard | Según haya sesión |
-| Hazlo tú · Elegir mi plan | #planes | Primer bloque de servicios |
+| Únete · Elegir mi plan | #planes | Primer bloque de servicios |
 | Te la hacemos · Ver los paquetes | #precios | Paquetes, pago único |
 | Diseños de temporada | #temporada o la página de la temporada | Solo mientras la temporada se vende |
 | Pestañas de evento (Pruébala como invitado) | /muestra/{slug} | Muestra interactiva, nada se guarda |
 | Ver todos los diseños de {evento} | /invitaciones-de-{evento} | Página por evento |
 | Así funciona · Elegir mi plan | #planes |  |
-| Quiero {plan} / Quiero el plan Única | Ver «Qué hace Quiero {plan}» | Registro con el plan, pago o WhatsApp |
-| Comparar lo que incluye cada plan | /hazlo-tu#comparar | Comparación completa, que la portada no repite |
+| Elegir {plan} (cada columna) | Ver «Qué hace Elegir {plan}» | Registro con el plan, pago o WhatsApp |
+| Ver el detalle de cada plan | /unete#planes | Los mismos planes con lo que trae cada uno |
 | Elegir {paquete} | wa.me con el paquete y su precio | Lo adicional |
 | Botón flotante de temporadas | Panel de la temporada → WhatsApp o su página |  |
 
-### Hazlo tú (`/hazlo-tu`)
+### Únete (`/unete`)
 
 | Botón o enlace | Lleva a | Notas |
 | --- | --- | --- |
-| Planes (menú) | #comparar | La página ya no repite las tarjetas de la portada |
-| Plan {nombre} (en «Para quién») | #comparar |  |
-| Elegir (última fila de la comparación) | Ver «Qué hace Quiero {plan}» | Tabla punto por punto en #comparar, con las plantillas de cada familia |
+| Planes (menú) | #planes | Mismas columnas que los paquetes, con el detalle de cada plan |
+| Plan {nombre} (en «Para quién») | #planes |  |
+| Elegir {plan} | Ver «Qué hace Elegir {plan}» | Registro con el plan, pago o WhatsApp |
+| Escríbenos (¿Necesitas algo distinto?) | wa.me con el mensaje de Únete (Ref. HAZLO) | Última celda de la cuadrícula |
 | Pedir {paquete} | wa.me con el paquete | Lo adicional |
 | Ver todo lo que incluye cada paquete | /#precios |  |
-| Elegir mi plan (cierre) | #comparar |  |
-| Tengo una duda | wa.me con el mensaje de Hazlo tú (Ref. HAZLO) |  |
+| Elegir mi plan (cierre) | #planes |  |
+| Tengo una duda | wa.me con el mensaje de Únete (Ref. HAZLO) |  |
 
 ### Registro y correo (`/registro · /correo/confirmar`)
 
@@ -130,7 +131,7 @@ flowchart LR
 | --- | --- | --- |
 | Crear mi cuenta | /correo/confirmar | Crea el usuario, envía el correo y deja la sesión iniciada |
 | Entrar con Google | /auth/google → /auth/google/callback → destino pendiente o /client | Solo si hay credenciales de Google |
-| Cambiar (plan elegido) | /hazlo-tu#comparar |  |
+| Cambiar (plan elegido) | /unete#planes |  |
 | Ingresa | /login |  |
 | Términos · política de privacidad | /legal/terminos · /legal/privacidad |  |
 | Enlace del correo | /client/suscripcion?plan=X o /client | Al plan elegido si lo había |
@@ -154,20 +155,20 @@ flowchart LR
 | Botón o enlace | Lleva a | Notas |
 | --- | --- | --- |
 | Nueva invitación | /client/invitaciones/nueva | Solo con plan activo y cupo; si no, queda desactivado con el motivo |
-| Elegir mi plan (panel vacío) | /client/suscripcion o /hazlo-tu#comparar | La primera si hay pago en línea |
+| Elegir mi plan (panel vacío) | /client/suscripcion o /unete#planes | La primera si hay pago en línea |
 | Que me la hagan | /#precios |  |
 | Pagar ahora / Renovar | /client/suscripcion | Aviso de vencimiento |
 | Ver invitados / Ver respuestas | /client/invitations/{id} |  |
 | Editar | /client/invitations/{id}/editar | Solo revendedor al día |
 | Abrir mi invitación · Copiar enlace | /p/{slug} | Solo si está publicada |
-| Mi plan · Mi cuenta · Ver el sitio (menú) | /client/suscripcion o /hazlo-tu#comparar · /client/cuenta · / |  |
+| Mi plan · Mi cuenta · Ver el sitio (menú) | /client/suscripcion o /unete#planes · /client/cuenta · / |  |
 
 ### Páginas por evento (`/invitaciones-de-boda, /invitaciones-xv-anos…`)
 
 | Botón o enlace | Lleva a | Notas |
 | --- | --- | --- |
-| Crear mi invitación (cabecera) | /hazlo-tu#comparar |  |
-| Ver los planes (aviso «¿Prefieres armarla tú?») | /hazlo-tu#comparar |  |
+| Crear mi invitación (cabecera) | /unete#planes |  |
+| Ver los planes (aviso «¿Prefieres armarla tú?») | /unete#planes |  |
 | Diseños (capturas) | /muestra/{slug} |  |
 | Escríbenos · Elegir {paquete} | wa.me con el mensaje del evento | Código propio de cada página |
 | La quiero por {precio} (temporada) | wa.me con el precio de temporada |  |
@@ -176,8 +177,8 @@ flowchart LR
 
 | Botón o enlace | Lleva a | Notas |
 | --- | --- | --- |
-| Invitaciones: Boda, XV años, Bautizo… | /invitaciones-de-{evento} |  |
-| Hazlo tú · Guía de invitaciones | /hazlo-tu · /guia-invitaciones-digitales |  |
+| Invitaciones: Boda, XV años, Bautizo… | /invitaciones-de-{evento} | Las de temporada (Halloween, Día del Amor) no van fijas en el pie |
+| Únete · Guía de invitaciones | /unete · /guia-invitaciones-digitales |  |
 | Precios | /#precios |  |
 | Mi panel / Ingresar | /dashboard · /login |  |
 | Privacidad · Cookies · Términos | /legal/{página} |  |
@@ -188,7 +189,7 @@ flowchart LR
 
 - Lógica de los planes y de «Elegir»: `app/Support/DiyPlans.php`.
 - Portada: `app/Http/Controllers/HomeController.php` y `resources/views/home.blade.php`.
-- Hazlo tú: `app/Http/Controllers/PublicPagesController.php` y `resources/views/hazlo-tu.blade.php`.
+- Únete: `app/Http/Controllers/PublicPagesController.php` y `resources/views/unete.blade.php`.
 - Cuenta y redirecciones: `RegisterController`, `VerifyEmailController`, `LoginController`
   (trait `RedirectsAfterLogin`) y la ruta `/dashboard` de `routes/web.php`.
 - Pago: `app/Http/Controllers/Client/SubscriptionController.php` y `app/Payments`.

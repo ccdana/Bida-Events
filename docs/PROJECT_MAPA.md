@@ -14,7 +14,7 @@ La aplicación tiene cinco áreas principales:
 
 | Área | Quién la usa | Rutas principales |
 | --- | --- | --- |
-| Sitio público y páginas SEO | Cualquier visitante | `/`, páginas por tipo de evento, `/guia-invitaciones-digitales`, `/hazlo-tu`, páginas legales |
+| Sitio público y páginas SEO | Cualquier visitante | `/`, páginas por tipo de evento, `/guia-invitaciones-digitales`, `/unete`, páginas legales |
 | Invitaciones y tarjetas públicas | Invitados con enlace | `/p/{slug}`, `/p/{slug}/i/{token}`, `/muestra/{slug}` |
 | Control de entrada | Personal de puerta | `/puerta/{doorToken}`, `/entrada/{slug}/{token}` |
 | Administración | Usuarios con rol administrador | `/admin/**` |
@@ -157,7 +157,7 @@ Ya existen títulos y descripciones por página, metadatos Open Graph/Twitter, d
 | Prioridad | Recomendación | Motivo y punto de partida |
 | --- | --- | --- |
 | Alta | Añadir `rel="canonical"` para cada página pública indexable y verificar que apunte al host y protocolo canónicos. Mantener parámetros de campaña fuera de esa URL. | No aparece una etiqueta canonical en los layouts revisados. La página ya genera URL limpia para Open Graph; reaprovechar esa lógica evita variantes duplicadas por UTM o parámetros. |
-| Alta | Dar a cada URL del sitemap una fecha `lastmod` que cambie solo al editar realmente esa página. | `SeoController::sitemap()` usa la fecha de hoy para inicio, Hazlo tú y todas las landings; esto declara cambios diarios aunque el contenido no haya cambiado. La guía y las páginas legales ya tienen fechas explícitas. |
+| Alta | Dar a cada URL del sitemap una fecha `lastmod` que cambie solo al editar realmente esa página. | `SeoController::sitemap()` usa la fecha de hoy para inicio, Únete y todas las landings; esto declara cambios diarios aunque el contenido no haya cambiado. La guía y las páginas legales ya tienen fechas explícitas. |
 | Alta | Configurar Google Search Console y Bing Webmaster Tools para el dominio productivo; enviar el sitemap y revisar indexación, consultas, errores y páginas excluidas. | El repositorio contiene sitemap, robots y guía de validación; la conexión de cuentas y el envío del sitemap son tareas del despliegue, no se confirman desde el código. |
 | Media | Comprobar que títulos, descripciones, preguntas visibles, JSON-LD, ofertas y precios coincidan en cada landing; validar URLs y resultados estructurados tras cambios de plantilla. | Hay datos estructurados compartidos y ofertas dinámicas. Mantener una sola fuente de verdad evita que el marcado prometa algo que la página no muestra. |
 | Media | Revisar la cobertura geográfica y los datos de entidad antes de publicarlos: nombre, WhatsApp/teléfono, ciudad, redes y áreas realmente atendidas. | El marcado declara Bolivia y Latinoamérica; la guía y `config/bida.php` son fuentes de esos datos. No añadir direcciones, reseñas o presencia local que el negocio no pueda verificar. |
@@ -219,7 +219,7 @@ El brief dejó en blanco la temática, la palabra clave y el público. Se tomaro
 | Temática o nicho | Invitaciones digitales (página web por evento) para bodas, XV años, bautizos, cumpleaños y graduaciones, con confirmación de asistencia, pase QR y control de entrada. Bolivia y Latinoamérica, en español. |
 | Palabra clave principal | «invitaciones digitales» |
 | Secundarias | «invitación digital para boda / XV años / bautizo», «invitación digital con confirmación de asistencia», «invitación con código QR», «cuánto cuesta una invitación digital», «control de entrada con QR para eventos» |
-| Público objetivo | 1) Familias y parejas que organizan un evento (compra única). 2) Quien arma varias invitaciones o las vende: familias con varios eventos, fotógrafos, salones y organizadores (plan mensual «Hazlo tú»). |
+| Público objetivo | 1) Familias y parejas que organizan un evento (compra única). 2) Quien arma varias invitaciones o las vende: familias con varios eventos, fotógrafos, salones y organizadores (plan mensual «Únete»). |
 
 Si alguno de estos datos es distinto, se cambia aquí y en `resources/views/guia.blade.php`.
 
@@ -231,7 +231,7 @@ Si alguno de estos datos es distinto, se cambia aquí y en `resources/views/guia
 | Datos estructurados | `site/partials/structured-data.blade.php` | Organization (entidad única con `@id`), WebSite, Service con Offers en USD, FAQPage, BreadcrumbList y Article (en la guía). |
 | `llms.txt` | `/llms.txt` (`SeoController::llms`, vista `seo/llms`) | Resumen en Markdown para los modelos: qué es la marca, qué vende, precios de hoy y dónde está cada cosa. |
 | `robots.txt` | `public/robots.txt` | Bloquea invitaciones, muestras, paneles y la puerta (`/puerta/`, `/entrada/`) y declara el sitemap. Es estático porque nginx y el healthcheck de Docker lo usan; una prueba verifica que siga a `SeoController::PRIVATE_PATHS`. |
-| `sitemap.xml` | `/sitemap.xml` (`SeoController::sitemap`) | Portada, guía, Hazlo tú, páginas por evento y legales, con `lastmod` y prioridad. |
+| `sitemap.xml` | `/sitemap.xml` (`SeoController::sitemap`) | Portada, guía, Únete, páginas por evento y legales, con `lastmod` y prioridad. |
 | Sin sesión | rutas de `sitemap` y `llms` | Responden sin cookies, con `Cache-Control: public, max-age=3600`: rápidas para los rastreadores y cacheables. |
 
 ---
@@ -339,7 +339,7 @@ La introducción y la primera sección clave están publicadas en la guía. Van 
   verificables (precios de la configuración) y privacidad explicada.
 - **Entidades y semántica**: invitación digital, confirmación de asistencia (RSVP), código QR,
   control de entrada, WhatsApp, tipos de evento; enlazado interno de la guía a cada página por evento
-  y a Hazlo tú, y desde el pie del sitio a la guía.
+  y a Únete, y desde el pie del sitio a la guía.
 - **Intención conversacional**: H2 formulados como la pregunta que se hace («¿Qué es…?», «Cuánto
   cuesta…», «Cuándo enviar…»).
 

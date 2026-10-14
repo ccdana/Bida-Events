@@ -7,10 +7,48 @@
         </p>
     @endunless
 
-    <div class="ed-shell" :class="{ 'is-tall': sheetTall }">
-        @include('admin.invitations.editor.sidebar')
-        @include('admin.invitations.editor.preview')
-        @include('admin.invitations.editor.panel')
+    {{--
+        Editor estilo Canva: a la izquierda las partes que se encienden y apagan (modules); al centro la
+        invitación como lienzo con su barra de herramientas (preview); al tocar un texto o una foto, una
+        burbuja con solo ese campo (panel). Una invitación nueva empieza por el asistente (wizard).
+    --}}
+    <div class="ed-shell relative" :class="{ 'is-guest': guestView, 'is-editing': isEditingPart }">
+        @include('admin.invitations.editor.modules')
+        <div class="ed-canvas" x-ref="canvas" :class="{ 'has-bubble': isBubble }">
+            @include('admin.invitations.editor.preview')
+            @include('admin.invitations.editor.panel')
+        </div>
+        @include('admin.invitations.editor.wizard')
+    </div>
+
+    {{-- Antes de publicar: lo que sigue de ejemplo y lo que falta, con atajo a cada parte --}}
+    <div class="ed-dialog-backdrop" x-show="publishDialog" x-cloak x-transition.opacity
+        @click.self="publishDialog = false" @keydown.escape.window="publishDialog = false">
+        <div class="ed-dialog" role="dialog" aria-modal="true" aria-labelledby="publish-title">
+            <h2 id="publish-title" class="ed-dialog__title">Antes de publicar</h2>
+            <p class="ed-dialog__text" x-show="examplesTotal > 0">
+                Todavía hay cosas de ejemplo en tu invitación. Si no las cambias, tus invitados las verán tal cual.
+            </p>
+            <ul class="ed-dialog__list">
+                <template x-for="item in examplesLeft" :key="'ej-' + item.tab.id">
+                    <li>
+                        <span><strong x-text="item.tab.label"></strong>
+                            <small x-text="item.count === 1 ? '1 cosa de ejemplo' : item.count + ' cosas de ejemplo'"></small></span>
+                        <button type="button" class="ed-dialog__fix" @click="fixPart(item.tab.id)">Cambiar</button>
+                    </li>
+                </template>
+                <template x-for="item in pendingIssues" :key="'pend-' + item.tabId + item.issue">
+                    <li>
+                        <span><strong x-text="item.label"></strong> <small x-text="item.issue"></small></span>
+                        <button type="button" class="ed-dialog__fix" @click="fixPart(item.tabId)">Completar</button>
+                    </li>
+                </template>
+            </ul>
+            <div class="ed-dialog__actions">
+                <button type="button" class="ed-wiz-btn" @click="publishDialog = false">Seguir editando</button>
+                <button type="button" class="ed-wiz-btn ed-wiz-btn--primary" @click="publish()">Publicar igual</button>
+            </div>
+        </div>
     </div>
 
     {{--

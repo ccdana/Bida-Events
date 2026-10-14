@@ -2,7 +2,8 @@
     $showMusicPlayer = ($flags['musica'] ?? false) && !empty($musica['audio_url'] ?? null);
 @endphp
 @if($showMusicPlayer)
-<div class="inv-player"
+{{-- data-ed: en el editor se toca para cambiar la música (admin/invitations/editor/script) --}}
+<div class="inv-player" data-ed="musica"
     x-data="musicPlayer(@js($musica['audio_url']), @js((bool) ($musica['autoplay'] ?? false)))"
     x-init="init()">
 

@@ -143,7 +143,7 @@ La API key, el webhook y los ids de prueba son **distintos** de los reales.
 
 ### 2.2 Producto con un plan por variante
 
-1. *Products › + New product*: nombre «Hazlo tú», tipo **Subscription**.
+1. *Products › + New product*: nombre «Únete», tipo **Subscription**.
 2. Crea **cinco variantes**, una por plan, cada una **mensual** y con el **mismo precio que el
    plan tiene hoy en el sitio** (Admin › Ajustes, el precio con descuento si tiene):
 
@@ -186,7 +186,7 @@ La API key, el webhook y los ids de prueba son **distintos** de los reales.
 ### 2.5 Portal del cliente
 
 *Settings › Customer portal*: activa que el cliente pueda **cambiar de plan** (entre las variantes
-de «Hazlo tú»), **actualizar la tarjeta** y **cancelar**. El sitio lo abre desde «Mi plan ›
+de «Únete»), **actualizar la tarjeta** y **cancelar**. El sitio lo abre desde «Mi plan ›
 Administrar mi suscripción».
 
 ### 2.6 Variables
@@ -207,7 +207,7 @@ LEMONSQUEEZY_VARIANT_AGENCIA=444444
 
 ### 2.7 Probar (modo de prueba)
 
-1. Entra con una cuenta de cliente **con el correo confirmado** → «Mi plan» (o «Hazlo tú» →
+1. Entra con una cuenta de cliente **con el correo confirmado** → «Mi plan» (o «Únete» →
    «Elegir») → plan Inicial → «Tarjeta de crédito o débito» → «Continuar al pago».
 2. Paga con la tarjeta de prueba `4242 4242 4242 4242`, cualquier fecha futura y cualquier CVC.
 3. Vuelves a «Estamos confirmando tu pago» y en segundos dice «Listo: tu plan Inicial está activo».
@@ -320,7 +320,7 @@ sudo supervisorctl restart bida-worker
 php artisan bida:salud --sin-correo
 ```
 
-Desde ese momento, en «Hazlo tú» el botón «Elegir» de cada plan lleva a pagar en línea (antes iba
+Desde ese momento, en «Únete» el botón «Elegir» de cada plan lleva a pagar en línea (antes iba
 a WhatsApp). Solo se ofrecen las formas de pago que tienen sus credenciales: si falta Libélula,
 solo aparece la tarjeta, y al revés.
 
@@ -328,7 +328,7 @@ solo aparece la tarjeta, y al revés.
 
 1. Ventana privada → `bida-events.com/registro` → crea una cuenta con un correo tuyo.
 2. Llega «Confirma tu correo» (Zoho) → ábrelo → la cuenta queda confirmada.
-3. «Hazlo tú» → «Elegir» un plan → paga con tarjeta o QR.
+3. «Únete» → «Elegir» un plan → paga con tarjeta o QR.
 4. El plan queda activo, aparece «Nueva invitación» y en Admin › Revendedores la cuenta figura
    «Al día» con su pago.
 5. `php artisan bida:salud --sin-correo`: «Avisos de pago sin aplicar» y «Pagos para revisar» en OK.

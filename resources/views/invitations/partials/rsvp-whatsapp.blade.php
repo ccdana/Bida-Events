@@ -9,7 +9,7 @@
     $maxPasses = $guest ? max(1, (int) $guest->passes_allocated) : 10;
     $eventText = $invitation->title.' ('.$page->eventDate->locale('es')->translatedFormat('j \d\e F').')';
 @endphp
-<section class="inv-section reveal inv-rsvp" id="rsvp"
+<section class="inv-section reveal inv-rsvp" id="rsvp" data-ed="rsvp_whatsapp"
     x-data="rsvpWhatsapp(@js($page->rsvpWhatsapp), @js($eventText), {{ $maxPasses }}, @js($guest?->name ?? ''))">
     <div class="inv-wrap">
         @include('invitations.partials.section-header', [

@@ -7,6 +7,7 @@ use App\Models\Invitation;
 use App\Support\InvitationModuleRules;
 use App\Support\InvitationTemplates;
 use App\Support\TemplateAvailability;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Validator;
 
 /**
@@ -20,6 +21,24 @@ trait ValidatesInvitationModules
         $this->merge([
             'modulos_data' => InvitationModuleRules::decode($this->input('modulos', [])),
         ]);
+
+        // El asistente de creación arma la dirección con el nombre: si ya existe, le suma un número
+        // en lugar de devolver un error que quien crea la invitación no sabría resolver
+        if ($this->boolean('slug_auto') && $this->isMethod('post')) {
+            $this->merge(['slug' => $this->uniqueSlug((string) $this->input('slug'))]);
+        }
+    }
+
+    private function uniqueSlug(string $slug): string
+    {
+        $base = Str::slug($slug) ?: 'invitacion';
+        $candidate = $base;
+
+        for ($n = 2; Invitation::where('slug', $candidate)->exists(); $n++) {
+            $candidate = $base.'-'.$n;
+        }
+
+        return $candidate;
     }
 
     protected function moduleRules(): array

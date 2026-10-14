@@ -7,10 +7,10 @@
 
     <h1 class="site-enter text-3xl font-semibold tracking-tight sm:text-4xl" style="--enter-index: 1">Crea tu cuenta</h1>
     @if($chosenPlan)
-        {{-- Quien eligió un plan en «Hazlo tú» lo ve aquí: sabe qué va a pagar después de confirmar su correo --}}
+        {{-- Quien eligió un plan en «Únete» lo ve aquí: sabe qué va a pagar después de confirmar su correo --}}
         <p class="site-enter mt-3 leading-relaxed text-site-muted" style="--enter-index: 2">
             Tu plan: <span class="font-medium text-site-ink">{{ $chosenPlan['name'] }}</span>, {{ $chosenPlan['price'] }} al mes · {{ $chosenPlan['quota'] }}.
-            <a href="{{ route('diy') }}#comparar" class="font-medium text-site-ink underline underline-offset-4 transition-colors hover:text-site-accent">Cambiar</a>
+            <a href="{{ route('diy') }}#planes" class="font-medium text-site-ink underline underline-offset-4 transition-colors hover:text-site-accent">Cambiar</a>
         </p>
         <p class="site-enter mt-2 text-sm leading-relaxed text-site-muted" style="--enter-index: 2">
             Creas tu cuenta, confirmas tu correo y pagas el plan. Después armas tu invitación.

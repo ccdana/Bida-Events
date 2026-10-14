@@ -214,13 +214,13 @@
             </section>
         @else
             {{-- El modelo principal: también puede armarla la propia persona, con un plan mensual --}}
-            <section class="border-t border-site-line" aria-label="Hazlo tú">
+            <section class="border-t border-site-line" aria-label="Únete">
                 <div class="mx-auto flex max-w-7xl flex-col gap-4 px-5 py-10 sm:flex-row sm:items-center sm:justify-between lg:px-8">
                     <p class="max-w-[52ch] text-lg leading-snug">
                         <span class="font-medium">¿Prefieres armarla tú?</span>
-                        <span class="text-site-muted">Con «Hazlo tú» creas tu {{ $noun }} con nuestras plantillas desde {{ \App\Support\Money::format(collect(\App\Support\Offers::resellerPlans())->min('final_price')) }} al mes.</span>
+                        <span class="text-site-muted">Con «Únete» creas tu {{ $noun }} con nuestras plantillas desde {{ \App\Support\Money::format(collect(\App\Support\Offers::resellerPlans())->min('final_price')) }} al mes.</span>
                     </p>
-                    <a href="{{ route('diy') }}#comparar" class="site-link-arrow shrink-0">
+                    <a href="{{ route('diy') }}#planes" class="site-link-arrow shrink-0">
                         Ver los planes
                         <x-phosphor-arrow-right aria-hidden="true" />
                     </a>

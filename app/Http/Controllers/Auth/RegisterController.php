@@ -26,7 +26,7 @@ class RegisterController extends Controller
     {
         abort_unless(AuthOptions::registrationOpen(), 404);
 
-        // Quien eligió un plan en «Hazlo tú» llega con él: al crear y confirmar la cuenta, sigue el pago
+        // Quien eligió un plan en «Únete» llega con él: al crear y confirmar la cuenta, sigue el pago
         $plan = $request->query('plan');
 
         if (is_string($plan) && isset(Offers::resellerPlans()[$plan])) {

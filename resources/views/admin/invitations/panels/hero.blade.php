@@ -1,6 +1,6 @@
 <div x-show="activeTab === 'hero'" x-cloak class="space-y-2">
     @include('admin.partials.panel-intro', [
-        'eyebrow' => 'Banner principal',
+        'eyebrow' => 'Portada',
         'title' => 'Portada de la invitación',
         'description' => 'es lo primero que aparece al abrir el enlace: subtítulo, nombre en letra manuscrita, mensaje y fecha sobre la foto de fondo.',
         'tip' => 'Usa una foto vertical con el rostro en la parte superior: el texto se ubica al centro y la imagen se oscurece un poco para que se lea bien.',

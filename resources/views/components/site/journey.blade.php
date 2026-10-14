@@ -1,5 +1,5 @@
 {{--
-    Los cuatro pasos de quien arma su propia invitación («Hazlo tú»): elegir el plan, crear la cuenta
+    Los cuatro pasos de quien arma su propia invitación («Únete»): elegir el plan, crear la cuenta
     (con su correo confirmado), pagar y crear la invitación. Se muestra en el registro, al confirmar
     el correo, al pagar y en el panel vacío, para que siempre se sepa en qué paso se está y qué sigue.
     «current» es el paso de hoy (1 a 4): los anteriores van marcados como hechos. Estilos: home.css.

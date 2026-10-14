@@ -1,11 +1,11 @@
 {{--
     Cabecera del sitio público. Recibe $navLinks (href => texto), $contactUrl, $accountUrl y $accountLabel.
-    La acción principal lleva a elegir el plan de «Hazlo tú» (el modelo principal: cada quien arma su
+    La acción principal lleva a elegir el plan de «Únete» (el modelo principal: cada quien arma su
     invitación); escribir por WhatsApp queda como acción secundaria.
 --}}
 @php
-    // En la portada baja a sus planes; en las demás páginas, a la comparación de «Hazlo tú» (donde se elige)
-    $ctaUrl = request()->routeIs('home') ? '#planes' : route('diy').'#comparar';
+    // En la portada baja a sus planes; en las demás páginas, a la comparación de «Únete» (donde se elige)
+    $ctaUrl = request()->routeIs('home') ? '#planes' : route('diy').'#planes';
 @endphp
 <header data-site-header x-data="{ open: false }" @keydown.escape.window="open = false"
     class="site-header sticky top-0 z-40" :class="{ 'is-open': open }">

@@ -1,71 +1,38 @@
 {{--
     Precios de los paquetes (pago único por invitación). Recibe $packages (con su enlace de WhatsApp)
-    y $contactUrl. Con la promoción encendida, el precio normal va tachado junto al de hoy.
+    y $contactUrl. Con la promoción encendida, el precio normal va tachado junto al de hoy. La columna
+    es la misma que la de los planes mensuales de «Únete» (components/site/price-card).
 --}}
+@use('App\Support\Money')
+
 <section id="precios" class="scroll-mt-20 border-t border-site-line bg-site-surface" aria-labelledby="precios-titulo">
     <div class="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-28">
         <div class="max-w-3xl">
             <h2 id="precios-titulo" class="site-display site-display--md" data-reveal>{{ $plansTitle ?? 'Elige tu paquete' }}</h2>
             <p class="site-muted-lead" data-reveal>
-                {{ $plansLead ?? 'Pago único por invitación, en dólares ('.\App\Support\Money::code().'). Cada paquete incluye todo lo del anterior.' }}
+                {{ $plansLead ?? 'Pago único por invitación, en dólares ('.Money::code().'). Cada paquete incluye todo lo del anterior.' }}
             </p>
         </div>
 
         <div class="site-plans mt-14">
             @foreach($packages as $index => $package)
-                @php($featured = $package['featured'] ?? false)
-                @php($premium = $package['premium'] ?? false)
-                <article @class(['site-plan', 'site-plan--featured' => $featured, 'site-plan--premium' => $premium])
-                    data-reveal style="--reveal-index: {{ $index }}">
-                    <div class="site-plan__head">
-                        <h3 class="site-plan__name">
-                            {{ $package['name'] }}
-                            @if($premium)
-                                <x-phosphor-crown-simple-fill class="site-plan__crown" aria-hidden="true" />
-                            @endif
-                        </h3>
-                        @if($featured)
-                            <span class="site-plan__tag">Recomendado</span>
-                        @elseif($premium)
-                            <span class="site-plan__tag">Experiencia completa</span>
-                        @endif
-                    </div>
-
-                    <p class="site-plan__amount">
-                        @if(! empty($package['old_price']))
-                            <del class="site-plan__old"><span class="sr-only">Antes </span>{{ \App\Support\Money::format($package['old_price']) }}</del>
-                            <span class="sr-only">, ahora</span>
-                        @endif
-                        <span class="flex items-baseline gap-2">
-                            <span class="site-plan__price">{{ $package['final_price'] ?? $package['price'] }}</span>
-                            <span class="text-xl text-site-muted">{{ \App\Support\Money::code() }}</span>
-                        </span>
-                    </p>
-                    @if(! empty($package['old_price']))
-                        <p class="site-plan__saving">Ahorras {{ \App\Support\Money::format($package['old_price'] - $package['final_price']) }}</p>
-                    @endif
-
-                    <p class="mt-4 max-w-[36ch] leading-relaxed text-site-muted">{{ $package['summary'] }}</p>
-
-                    <ul class="site-plan__features">
-                        @foreach($package['features'] as $feature)
-                            <li>
-                                <x-phosphor-check-bold class="site-plan__check" aria-hidden="true" />
-                                <span>{{ $feature }}</span>
-                            </li>
-                        @endforeach
-                    </ul>
-
-                    <a href="{{ $package['whatsapp'] }}" target="_blank" rel="noopener"
-                        @class([
-                            'site-btn site-btn--lg mt-10 justify-center',
-                            'site-btn--gold' => $premium,
-                            'site-btn--ghost' => ! $featured && ! $premium,
-                        ])>
-                        Elegir {{ $package['name'] }}
-                        <x-phosphor-arrow-right class="site-btn__arrow" aria-hidden="true" />
-                    </a>
-                </article>
+                @php($featured = (bool) ($package['featured'] ?? false))
+                @php($premium = (bool) ($package['premium'] ?? false))
+                <x-site.price-card
+                    :name="$package['name']"
+                    :price="$package['final_price'] ?? $package['price']"
+                    :old="! empty($package['old_price']) ? Money::format($package['old_price']) : null"
+                    :suffix="Money::code()"
+                    :saving="! empty($package['old_price']) ? 'Ahorras '.Money::format($package['old_price'] - $package['final_price']) : null"
+                    :summary="$package['summary']"
+                    :features="$package['features']"
+                    :featured="$featured"
+                    :premium="$premium"
+                    :tag="$featured ? 'Recomendado' : ($premium ? 'Experiencia completa' : null)"
+                    :url="$package['whatsapp']"
+                    :external="true"
+                    :cta="'Elegir '.$package['name']"
+                    :index="$index" />
             @endforeach
         </div>
 

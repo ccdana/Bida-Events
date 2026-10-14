@@ -5,7 +5,7 @@
     <title>@yield('title', 'Mis eventos') | {{ config('bida.brand') }}</title>
 </head>
 {{--
-    Panel del cliente. El revendedor (Hazlo tú) maneja muchos eventos: tiene la barra lateral con su
+    Panel del cliente. El revendedor (Únete) maneja muchos eventos: tiene la barra lateral con su
     navegación y los filtros de sus invitaciones, igual que el administrador. El cliente de un evento
     ve una cabecera simple.
 --}}
@@ -21,7 +21,7 @@
             'nav' => [
                 ['label' => 'Mis eventos', 'url' => route('client.dashboard'), 'icon' => 'squares-four', 'active' => request()->routeIs('client.dashboard', 'client.invitation.show')],
                 // Con el pago en línea, su plan y sus pagos; si no, los planes de la página pública
-                ['label' => 'Mi plan', 'url' => config('payments.enabled') ? route('client.subscription') : route('diy').'#comparar', 'icon' => 'seal-check', 'active' => request()->routeIs('client.subscription*')],
+                ['label' => 'Mi plan', 'url' => config('payments.enabled') ? route('client.subscription') : route('diy').'#planes', 'icon' => 'seal-check', 'active' => request()->routeIs('client.subscription*')],
                 ['label' => 'Mi cuenta', 'url' => route('client.account'), 'icon' => 'user-circle', 'active' => request()->routeIs('client.account')],
                 ['label' => 'Ver el sitio', 'url' => route('home'), 'icon' => 'arrow-square-out', 'active' => false],
             ],

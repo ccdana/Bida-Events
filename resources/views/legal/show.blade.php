@@ -10,7 +10,7 @@
 @php
     $navLinks = [
         route('home') => 'Inicio',
-        route('diy') => 'Hazlo tú',
+        route('diy') => 'Únete',
     ];
     $accountUrl = $user ? route('dashboard') : route('login');
     $accountLabel = $user ? 'Mi panel' : 'Ingresar';

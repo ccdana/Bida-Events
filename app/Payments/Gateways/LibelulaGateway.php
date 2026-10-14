@@ -56,7 +56,7 @@ class LibelulaGateway implements PaymentGateway
     {
         $user = $order->user ?? throw new DomainException('La orden no tiene cuenta.');
         $planName = config("bida.reseller_plans.{$order->plan}.name", $order->plan);
-        $concept = "Plan {$planName} de «Hazlo tú» · ".($order->months === 1 ? '1 mes' : "{$order->months} meses");
+        $concept = "Plan {$planName} de «Únete» · ".($order->months === 1 ? '1 mes' : "{$order->months} meses");
         [$firstName, $lastName] = array_pad(explode(' ', trim($user->name), 2), 2, '');
         // Vence a la medianoche de mañana (hora de Bolivia): da tiempo a pagar por banca por internet
         $expiresAt = now()->timezone(config('app.timezone'))->addDay()->endOfDay();

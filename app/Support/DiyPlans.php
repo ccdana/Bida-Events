@@ -6,7 +6,7 @@ use App\Payments\PaymentGateways;
 use Illuminate\Http\Request;
 
 /**
- * Los planes mensuales de «Hazlo tú» listos para mostrarlos (portada y página «Hazlo tú»): precio de
+ * Los planes mensuales de «Únete» listos para mostrarlos (portada y página «Únete»): precio de
  * hoy con su descuento, a dónde lleva «Elegir» y las familias de plantillas de cada plan.
  */
 final class DiyPlans
@@ -30,7 +30,7 @@ final class DiyPlans
                 : null,
             'key' => $key,
             'templates_count' => $templates->filter(fn (array $template) => in_array($template['collection'] ?? 'clasica', $plan['collections'] ?? [], true))->count(),
-            'whatsapp' => LeadSource::whatsappUrl($request, "Hola {brand}, quiero el plan {$plan['name']} de Hazlo tú (".Money::format($plan['final_price']).' al mes).', $leadCode),
+            'whatsapp' => LeadSource::whatsappUrl($request, "Hola {brand}, quiero el plan {$plan['name']} de Únete (".Money::format($plan['final_price']).' al mes).', $leadCode),
         ])->values()->all();
 
         return [

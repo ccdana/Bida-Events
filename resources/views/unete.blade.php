@@ -1,7 +1,7 @@
 @extends('layouts.site')
 
 {{--
-    «Hazlo tú»: el plan mensual para armar invitaciones propias y venderlas (revendedores). Es el
+    «Únete»: el plan mensual para armar invitaciones propias y venderlas (revendedores). Es el
     modelo principal del negocio; lo secundario es que el equipo se las haga («paquetes»). Ver
     PublicPagesController::diy.
 
@@ -11,7 +11,7 @@
     inventado: ni cuentas regresivas ni testimonios. Todo lo que se promete existe en el panel del
     revendedor.
 --}}
-@section('title', 'Hazlo tú: haz tus propias invitaciones digitales y véndelas con tu marca | '.$bida['brand'])
+@section('title', 'Únete: haz tus propias invitaciones digitales y véndelas con tu marca | '.$bida['brand'])
 @section('description', 'Arma tus propias invitaciones digitales con plantillas profesionales, para tu evento o para vender con tu marca. Desde '.\App\Support\Money::format(collect($plans)->min('final_price')).' al mes, sin comisión por invitación.')
 
 @use('App\Support\Money')
@@ -19,7 +19,7 @@
 @php
     $navLinks = [
         '#que-obtienes' => 'Qué ganas',
-        '#comparar' => 'Planes',
+        '#planes' => 'Planes',
         '#te-la-hacemos' => 'Te la hacemos',
         '#preguntas' => 'Preguntas',
     ];
@@ -61,7 +61,7 @@
     $example = collect($plans)->firstWhere('key', 'aliado') ?? collect($plans)->first();
     $exampleSales = ($example['quota_per_month'] ?? 0) * $examplePrice;
     $faqs = [
-        ['¿Qué es Hazlo tú?', 'Es un plan mensual que te da tu propio panel en '.$bida['brand'].' para armar invitaciones digitales con nuestras plantillas y venderlas con tu marca, o usarlas en tus propios eventos. Pagas el mes y armas las invitaciones que tu plan permite.'],
+        ['¿Qué es Únete?', 'Es un plan mensual que te da tu propio panel en '.$bida['brand'].' para armar invitaciones digitales con nuestras plantillas y venderlas con tu marca, o usarlas en tus propios eventos. Pagas el mes y armas las invitaciones que tu plan permite.'],
         ['¿Cuánto puedo ganar?', 'Depende de a cuánto vendas y cuántas armes. Por ejemplo, con el plan '.$example['name'].' ('.Money::format($example['final_price']).' al mes), '.$example['quota_per_month'].' invitaciones vendidas a '.Money::format($examplePrice).' suman '.Money::format($exampleSales).' y te quedan '.Money::format($exampleSales - $example['final_price']).' después del plan. El precio de venta lo decides tú.'],
         ['¿Cobran comisión por invitación?', 'No. Pagas el plan del mes y lo que cobras por cada invitación es tuyo.'],
         ['¿Necesito saber diseñar?', 'No. Eliges una plantilla, cargas las fotos y los datos del evento y la invitación ya se ve bien. Si quieres ir más lejos, cambias colores, letras y cada texto.'],
@@ -77,9 +77,9 @@
 @push('head')
     @include('site.partials.structured-data', [
         'faqs' => $faqs,
-        'serviceName' => 'Hazlo tú: plan mensual para crear y vender invitaciones digitales',
+        'serviceName' => 'Únete: plan mensual para crear y vender invitaciones digitales',
         'offers' => array_map(fn (array $plan) => ['name' => 'Plan '.$plan['name'].' (mensual)', 'price' => $plan['final_price'], 'description' => $plan['summary'] ?? ''], $plans),
-        'breadcrumbs' => [[$bida['brand'], route('home')], ['Hazlo tú', route('diy')]],
+        'breadcrumbs' => [[$bida['brand'], route('home')], ['Únete', route('diy')]],
     ])
 @endpush
 
@@ -120,7 +120,7 @@
                     <li>
                         <span class="site-diy-who__who">{{ $profile['who'] }}</span>
                         <span class="site-diy-who__how">{{ $profile['how'] }}</span>
-                        <a href="#comparar" class="site-diy-who__plan site-link-arrow">Plan {{ $profile['plan'] }} <x-phosphor-arrow-right aria-hidden="true" /></a>
+                        <a href="#planes" class="site-diy-who__plan site-link-arrow">Plan {{ $profile['plan'] }} <x-phosphor-arrow-right aria-hidden="true" /></a>
                     </li>
                 @endforeach
             </ul>
@@ -140,8 +140,12 @@
             </ol>
         </section>
 
-        {{-- ═══ Planes: la comparación punto por punto, con «Elegir» en la última fila ═══ --}}
-        @include('site.partials.diy-compare')
+        {{-- ═══ Planes: la misma interfaz que los paquetes, con el detalle de cada uno ═══ --}}
+        @include('site.partials.diy-plans', [
+            'diyTitle' => 'Elige tu plan',
+            'diyLead' => 'Precios por mes, en dólares ('.Money::code().'). Cada plan suma al anterior y trae lo que ves en la lista.',
+            'diyDetail' => true,
+        ])
 
         {{-- ═══ Lo secundario: te la hacemos nosotros ═══ --}}
         <section id="te-la-hacemos" class="site-diy-service scroll-mt-20" aria-labelledby="te-la-hacemos-titulo">
@@ -182,7 +186,7 @@
         <section class="site-diy-final" aria-labelledby="cierre-titulo">
             <h2 id="cierre-titulo" class="site-display" data-reveal>Empieza hoy con tu primera invitación.</h2>
             <div class="site-hero__actions" data-reveal>
-                <a href="#comparar" class="site-btn site-btn--lg">
+                <a href="#planes" class="site-btn site-btn--lg">
                     Elegir mi plan
                     <x-phosphor-arrow-right class="site-btn__arrow" aria-hidden="true" />
                 </a>

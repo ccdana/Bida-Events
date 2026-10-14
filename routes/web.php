@@ -45,12 +45,14 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 Route::middleware('lead.source')->group(function () {
     Route::get('/', HomeController::class)->name('home');
 
-    // «Hazlo tú»: planes mensuales para armar invitaciones propias (revendedores con suscripción)
-    Route::get('/hazlo-tu', [PublicPagesController::class, 'diy'])->name('diy');
+    // «Únete»: planes mensuales para armar invitaciones propias (revendedores con suscripción)
+    Route::get('/unete', [PublicPagesController::class, 'diy'])->name('diy');
 
     // Guía pública sobre invitaciones digitales (contenido pensado para buscadores y respuestas de IA)
     Route::get('/guia-invitaciones-digitales', [PublicPagesController::class, 'guide'])->name('guide');
-    Route::permanentRedirect('/para-profesionales', '/hazlo-tu');
+    // Las direcciones anteriores de la página siguen funcionando (enlaces compartidos, buscadores)
+    Route::permanentRedirect('/para-profesionales', '/unete');
+    Route::permanentRedirect('/hazlo-tu', '/unete');
 
     // Privacidad, cookies y términos (App\Support\LegalPages)
     Route::get('/legal/{page}', [PublicPagesController::class, 'legal'])
@@ -204,7 +206,7 @@ Route::prefix('client')->name('client.')->middleware(['auth', 'client'])->group(
     Route::put('/cuenta/contrasena', [AccountController::class, 'updatePassword'])->middleware('throttle:6,1')->name('account.password');
     Route::post('/cuenta/contrasena/enlace', [AccountController::class, 'sendPasswordLink'])->middleware('throttle:3,1')->name('account.password-link');
 
-    // Pagar un plan de «Hazlo tú» en línea (PAYMENTS_ENABLED): elegir, ir a la pasarela y esperar su aviso
+    // Pagar un plan de «Únete» en línea (PAYMENTS_ENABLED): elegir, ir a la pasarela y esperar su aviso
     Route::get('/suscripcion', [SubscriptionController::class, 'show'])->name('subscription');
     Route::post('/suscripcion', [SubscriptionController::class, 'store'])->middleware('throttle:6,1')->name('subscription.store');
     Route::get('/suscripcion/orden/{order:public_id}', [SubscriptionController::class, 'order'])->whereUuid('order')->name('subscription.order');

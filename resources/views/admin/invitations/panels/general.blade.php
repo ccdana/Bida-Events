@@ -1,6 +1,6 @@
 <div x-show="activeTab === 'general'" x-cloak class="space-y-4">
     @include('admin.partials.panel-intro', [
-        'eyebrow' => 'General',
+        'eyebrow' => 'Datos del evento',
         'title' => 'Datos del evento',
         'description' => 'el título, la fecha y la hora que aparecen en la invitación y en la cuenta regresiva.',
     ])

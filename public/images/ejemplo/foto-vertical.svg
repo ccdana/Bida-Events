@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350" role="img" aria-label="Foto de ejemplo: Tu foto aquí">
+<rect width="1080" height="1350" fill="#ece4d6"/>
+<g fill="none" stroke="#5b4a33" stroke-width="10.8" stroke-linecap="round" stroke-linejoin="round" opacity=".55" transform="translate(540 599.4) scale(1.08)">
+<rect x="-130" y="-100" width="260" height="200" rx="22"/>
+<circle cx="55" cy="-38" r="26"/>
+<path d="M-130 70 L-40 -10 L30 50 L70 20 L130 70"/>
+</g>
+<text x="540" y="804.6" text-anchor="middle" font-family="Outfit, Helvetica, Arial, sans-serif" font-size="58.32000000000001" font-weight="600" fill="#5b4a33" opacity=".75">Tu foto aquí</text>
+</svg>

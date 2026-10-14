@@ -76,7 +76,7 @@
                         @endif
                     </p>
                 @else
-                    <p class="mt-1 text-sm text-site-muted">Con un plan de «Hazlo tú» armas tus propias invitaciones con nuestras plantillas.</p>
+                    <p class="mt-1 text-sm text-site-muted">Con un plan de «Únete» armas tus propias invitaciones con nuestras plantillas.</p>
                 @endif
 
                 @if($payments->isNotEmpty())

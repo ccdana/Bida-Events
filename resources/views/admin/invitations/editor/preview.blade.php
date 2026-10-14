@@ -1,29 +1,70 @@
 {{--
-    Lienzo: la invitación manda. Al tocar una sección dentro de la vista previa se abre su panel
-    (script: setupPreviewEditing). Arriba, el estado y el tamaño del aparato; en el celular ocupa
-    toda la zona sobre la hoja de edición. Estilos: admin.css («Editor»).
+    La invitación es el lienzo («tocar y cambiar»): cada texto o foto se toca y se cambia en una burbuja
+    junto a él (editor/panel); el botón negro «Cambiar …» de cada parte muestra todo lo de esa parte.
+    Arriba, la barra de herramientas: las partes (celular), los datos del evento, los colores y letras,
+    el tamaño del aparato, «Ver como invitado» y publicar. Estilos: admin.css («Editor: estilo Canva»).
 --}}
-<div class="ed-preview min-w-0 flex-1 flex-col bg-site-surface">
-    <div class="ed-preview__bar">
-        <p class="flex items-center gap-2.5 text-sm font-medium" aria-live="polite">
-            <span class="relative flex size-2">
-                <span class="absolute inline-flex size-full animate-ping rounded-full bg-site-accent opacity-60" x-show="previewLoading"></span>
-                <span class="relative inline-flex size-2 rounded-full bg-site-accent"></span>
-            </span>
-            <span x-text="previewLoading ? 'Actualizando' : 'Vista previa'">Vista previa</span>
-        </p>
-        <div class="ed-device-switch" role="radiogroup" aria-label="Tamaño de la vista previa">
-            <template x-for="option in [{ id: 'phone', label: 'Celular' }, { id: 'tablet', label: 'Tableta' }, { id: 'desktop', label: 'Computadora' }]" :key="option.id">
-                <button type="button" role="radio" :aria-checked="(previewDevice === option.id).toString()"
-                    :class="{ 'is-on': previewDevice === option.id }" @click="previewDevice = option.id" x-text="option.label"></button>
-            </template>
-        </div>
-        <span class="ed-preview__spacer" aria-hidden="true"></span>
+<div class="ed-toolbar" role="toolbar" aria-label="Herramientas del editor">
+    <button type="button" class="ed-tool ed-tool--parts" @click="modulesOpen = true">
+        <x-phosphor-squares-four aria-hidden="true" />
+        Partes
+    </button>
+    <button type="button" class="ed-tool" :class="{ 'is-on': panelMode === 'full' && activeTab === 'general' }" @click="openFull('general')">
+        <x-phosphor-calendar-blank aria-hidden="true" />
+        Datos del evento
+    </button>
+    <button type="button" class="ed-tool" :class="{ 'is-on': panelMode === 'full' && activeTab === 'estetica' }" @click="openFull('estetica')">
+        <x-phosphor-palette aria-hidden="true" />
+        Colores y letras
+    </button>
+
+    <div class="ed-device-switch" role="radiogroup" aria-label="Tamaño de la vista previa">
+        <template x-for="option in [{ id: 'phone', label: 'Celular' }, { id: 'tablet', label: 'Tableta' }, { id: 'desktop', label: 'Computadora' }]" :key="option.id">
+            <button type="button" role="radio" :aria-checked="(previewDevice === option.id).toString()"
+                :class="{ 'is-on': previewDevice === option.id }" @click="previewDevice = option.id; $nextTick(() => placeBubble())" x-text="option.label"></button>
+        </template>
     </div>
+
+    <span class="ed-toolbar__status" aria-live="polite" x-text="previewLoading ? 'Actualizando…' : ''"></span>
+
+    <button type="button" role="switch" class="ed-tool" :class="{ 'is-on': guestView }"
+        :aria-checked="guestView.toString()" @click="guestView = !guestView">
+        <x-phosphor-eye aria-hidden="true" />
+        Ver como invitado
+    </button>
+
+    <template x-if="config.isCreate">
+        <button type="button" class="ed-tool ed-tool--primary" @click="document.getElementById('invitation-form').requestSubmit()" :disabled="mediaUploading">
+            <x-phosphor-plus aria-hidden="true" />
+            Crear invitación
+        </button>
+    </template>
+    <template x-if="!config.isCreate">
+        <span class="contents">
+            <button type="button" class="ed-tool ed-tool--primary" x-show="!isPublished" @click="requestPublish()" :disabled="mediaUploading">
+                <x-phosphor-paper-plane-tilt aria-hidden="true" />
+                Publicar
+            </button>
+            <button type="button" class="ed-tool ed-tool--published" x-show="isPublished" :disabled="mediaUploading"
+                @click="if (confirm('¿Ocultar la invitación? Tus invitados dejarán de verla hasta que la publiques otra vez.')) unpublish()"
+                title="Está visible para tus invitados. Tócalo para ocultarla.">
+                <x-phosphor-check-circle aria-hidden="true" />
+                Publicada
+            </button>
+        </span>
+    </template>
+</div>
+
+<div class="ed-preview">
+    <p class="ed-preview__tip" x-show="!guestView && panelMode === 'closed'" x-cloak x-transition.opacity>
+        Toca un <strong>texto</strong> o una <strong>foto</strong> para cambiarlo
+    </p>
+    <p class="ed-preview__tip ed-preview__tip--guest" x-show="guestView" x-cloak>
+        Así la recibirán tus invitados. Para seguir cambiando cosas, apaga «Ver como invitado».
+    </p>
     <div class="ed-preview__stage">
         <div class="adm-device mx-auto h-full w-full" :style="`max-width:${previewWidth}px`">
             <iframe x-ref="previewFrame" src="about:blank" class="size-full rounded-[1.6rem] bg-white" title="Vista previa de la invitación"></iframe>
         </div>
     </div>
-    <p class="ed-preview__hint">Toca cualquier sección de la invitación para editarla</p>
 </div>

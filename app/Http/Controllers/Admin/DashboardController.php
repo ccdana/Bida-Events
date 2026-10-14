@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 
 /**
  * Las invitaciones del panel, en dos listas que no se mezclan: las de los clientes y las de muestra
- * (las que el sitio enseña para probar: portada, temporadas, «Hazlo tú» y páginas por evento).
+ * (las que el sitio enseña para probar: portada, temporadas, «Únete» y páginas por evento).
  */
 class DashboardController extends Controller
 {

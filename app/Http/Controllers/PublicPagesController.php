@@ -13,12 +13,12 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 /**
- * Páginas públicas que no son de un evento: «Hazlo tú» (planes mensuales para crear invitaciones
+ * Páginas públicas que no son de un evento: «Únete» (planes mensuales para crear invitaciones
  * propias) y las legales (privacidad, cookies y términos).
  */
 class PublicPagesController extends Controller
 {
-    /** Código de WhatsApp de la página «Hazlo tú» («Ref. HAZLO-…»). */
+    /** Código de WhatsApp de la página «Únete» («Ref. HAZLO-…»). */
     public const DIY_CODE = 'HAZLO';
 
     /** Precio de ejemplo al que se vende una invitación, para la tabla «Cuentas claras». (Supuesto) */
@@ -30,7 +30,7 @@ class PublicPagesController extends Controller
     public const GUIDE_UPDATED_AT = '2026-09-24';
 
     /**
-     * «Hazlo tú»: el plan mensual para armar invitaciones propias y venderlas (revendedores) es lo
+     * «Únete»: el plan mensual para armar invitaciones propias y venderlas (revendedores) es lo
      * principal; que el equipo se las haga («paquetes») es lo secundario. Los precios salen de la
      * config «bida.reseller_plans» con lo que el administrador cambió en Ajustes (descuentos
      * incluidos); el precio de venta de ejemplo solo se usa en las preguntas.
@@ -42,7 +42,7 @@ class PublicPagesController extends Controller
         $diy = DiyPlans::make($request, self::DIY_CODE);
         $plans = $diy['plans'];
 
-        return view('hazlo-tu', [
+        return view('unete', [
             'bida' => $bida,
             'user' => $request->user(),
             'plans' => $plans,
@@ -51,10 +51,10 @@ class PublicPagesController extends Controller
             // Lo secundario: que el equipo haga la invitación (pago único por invitación)
             'packages' => HomeController::packages($bida['packages'], $whatsapp),
             'examplePrice' => self::EXAMPLE_RESALE_PRICE,
-            'contactUrl' => $whatsapp('Hola {brand}, quiero saber cómo funciona Hazlo tú para armar mis propias invitaciones.'),
+            'contactUrl' => $whatsapp('Hola {brand}, quiero saber cómo funciona Únete para armar mis propias invitaciones.'),
             'landings' => HomeController::landingLinks(),
             'share' => ShareMeta::make(
-                "Hazlo tú: haz tus propias invitaciones digitales y véndelas con tu marca | {$bida['brand']}",
+                "Únete: haz tus propias invitaciones digitales y véndelas con tu marca | {$bida['brand']}",
                 'Arma tus propias invitaciones digitales con plantillas profesionales, para tu evento o para vender con tu marca. Desde '.Money::format(collect($plans)->min('final_price')).' al mes, sin comisión por invitación.',
                 ShareMeta::defaultImage(),
                 route('diy'),

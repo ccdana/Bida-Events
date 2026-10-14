@@ -38,7 +38,7 @@
         ['¿Cómo confirman asistencia los invitados?', 'Cada invitado recibe su propio enlace, elige si va y cuántas personas de las que tiene asignadas lo acompañan. Quien organiza ve las respuestas al momento en su panel y puede descargarlas en PDF o Excel.'],
         ['¿Cómo funciona el control de entrada con código QR?', 'Al confirmar, cada invitado recibe un pase con código QR. El día del evento, quien recibe en la puerta abre un enlace en su teléfono y escanea el pase: ve el nombre, cuántas personas pueden entrar y si el pase ya se usó. Un pase no sirve dos veces.'],
         ['¿Las invitaciones digitales aparecen en Google?', 'No deberían. Las de '.$brand.' están marcadas para que los buscadores no las indexen: solo las abre quien tiene el enlace, y los datos de los invitados solo los ve quien organiza.'],
-        ['¿Puedo hacer mis propias invitaciones digitales?', 'Sí. Con Hazlo tú tienes un panel propio con las mismas plantillas y el mismo editor, desde '.$money($fromPlan).' al mes y sin comisión por invitación. Sirve para familias con varios eventos y para fotógrafos, salones u organizadores.'],
+        ['¿Puedo hacer mis propias invitaciones digitales?', 'Sí. Con Únete tienes un panel propio con las mismas plantillas y el mismo editor, desde '.$money($fromPlan).' al mes y sin comisión por invitación. Sirve para familias con varios eventos y para fotógrafos, salones u organizadores.'],
     ];
 
     $includes = [
@@ -95,7 +95,7 @@
 @section('content')
     <div data-header-sentinel class="pointer-events-none absolute inset-x-0 top-0 h-4" aria-hidden="true"></div>
 
-    @include('site.partials.header', ['navLinks' => [route('home') => 'Inicio', route('diy') => 'Hazlo tú', '#preguntas' => 'Preguntas']])
+    @include('site.partials.header', ['navLinks' => [route('home') => 'Inicio', route('diy') => 'Únete', '#preguntas' => 'Preguntas']])
 
     <main class="mx-auto max-w-7xl px-5 pb-24 pt-10 lg:px-8 lg:pt-16">
         <nav class="text-sm text-site-muted" aria-label="Ruta">
@@ -234,7 +234,7 @@
                         </table>
                     </div>
                     <p>
-                        Si armas varias invitaciones al año, o las vendes a tus clientes, <a href="{{ route('diy') }}">Hazlo tú</a> te da
+                        Si armas varias invitaciones al año, o las vendes a tus clientes, <a href="{{ route('diy') }}">Únete</a> te da
                         un panel propio desde {{ $money($fromPlan) }} al mes, sin comisión por invitación.
                     </p>
                 </section>

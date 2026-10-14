@@ -1,6 +1,6 @@
 <div x-show="activeTab === 'playlist'" x-cloak class="space-y-2">
     @include('admin.partials.panel-intro', [
-        'eyebrow' => 'Playlist',
+        'eyebrow' => 'Canciones de los invitados',
         'title' => 'Canciones sugeridas',
         'description' => 'un campo para sugerir una canción (nombre o enlace de YouTube) y la lista de sugerencias; las de YouTube se pueden escuchar ahí mismo.',
         'tip' => 'En la vista previa no se pueden enviar canciones: pruébalo desde el enlace público.',

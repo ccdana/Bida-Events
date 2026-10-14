@@ -31,9 +31,9 @@ class HomePageTest extends TestCase
             // Solo con los precios: sin texto de la promoción sobre los paquetes
             ->assertDontSee('Promoción de inauguración')
             ->assertSee('Ahorras US$ 7')
-            // Servicios: primero «Hazlo tú» (el modelo principal), luego que la hagamos nosotros y lo de temporada, cada uno con su precio de hoy (en dólares)
+            // Servicios: primero «Únete» (el modelo principal), luego que la hagamos nosotros y lo de temporada, cada uno con su precio de hoy (en dólares)
             ->assertSee('id="servicios"', false)
-            ->assertSeeInOrder(['Hazlo tú', 'Desde', 'US$ 5', 'al mes', 'Te la hacemos', 'Desde', 'US$ 22', 'Diseños de temporada'])
+            ->assertSeeInOrder(['Únete', 'Desde', 'US$ 5', 'al mes', 'Te la hacemos', 'Desde', 'US$ 22', 'Diseños de temporada'])
             ->assertSee(route('diy'), false)
             // Los recuerdos en vivo van dentro de lo que incluye la invitación, y ya no hay sección de contacto
             ->assertSeeInOrder(['id="incluye"', 'Pase QR y control de entrada', 'Fotomural en vivo', 'id="precios"'], false)
@@ -62,13 +62,33 @@ class HomePageTest extends TestCase
 
     public function test_the_monthly_plans_come_first_and_the_done_for_you_packages_after_them(): void
     {
-        $this->get(route('home'))
+        $html = $this->get(route('home'))
             ->assertOk()
             // Primero los planes mensuales con su precio, después lo que hacemos nosotros
-            ->assertSeeInOrder(['id="planes"', 'Elige tu plan y arma tu invitación', 'Inicial', 'Aliado', 'Emprendedor', 'Agencia', '¿Solo necesitas una invitación?', 'Única', 'id="precios"', 'Si prefieres que la hagamos nosotros', 'Básico', 'Estándar', 'Premium'], false)
-            // Elegir un plan sin cuenta lleva a crearla con ese plan elegido
-            ->assertSee('Quiero Aliado')
-            ->assertSee('id="planes"', false);
+            ->assertSeeInOrder(['id="planes"', 'Elige tu plan y arma tu invitación', 'Única', 'Inicial', 'Aliado', 'Emprendedor', 'Agencia', 'id="precios"', 'Si prefieres que la hagamos nosotros', 'Básico', 'Estándar', 'Premium'], false)
+            // Sin pago en línea, elegir un plan abre WhatsApp con ese plan (con el pago, pasa por crear la cuenta)
+            ->assertSee('Elegir Aliado')
+            ->assertSee(rawurlencode('quiero el plan Aliado de Únete'), false)
+            ->assertSee('Ver el detalle de cada plan')
+            ->getContent();
+
+        // Los dos módulos usan la misma columna de precios
+        $this->assertGreaterThanOrEqual(8, substr_count($html, 'class="site-plan__head"'));
+    }
+
+    public function test_the_footer_does_not_pin_the_temporary_season_pages(): void
+    {
+        // Halloween y el Día del Amor se encienden y se apagan solas: no van fijas en el pie
+        config(['bida.seasons.halloween.ends_at' => '2026-10-31 23:59:59']);
+        $this->travelTo(Carbon::parse('2026-10-20 12:00:00', 'America/La_Paz'));
+        $this->seed(ShowcaseInvitationsSeeder::class);
+
+        $html = $this->withoutVite()->get(route('home'))->assertOk()->getContent();
+        $footer = Str::between($html, '<footer class="site-foot">', '</footer>');
+
+        $this->assertStringContainsString(route('landing', 'invitaciones-de-boda'), $footer);
+        $this->assertStringNotContainsString(route('landing', 'invitaciones-de-halloween'), $footer);
+        $this->assertStringNotContainsString(route('landing', 'tarjetas-dia-del-amor'), $footer);
     }
 
     public function test_the_season_waits_behind_a_floating_button_with_its_countdown_and_promo_price(): void

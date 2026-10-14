@@ -42,7 +42,7 @@ class SubscriptionCheckoutTest extends TestCase
         $this->actingAs($user)->get(route('client.subscription'))->assertNotFound();
         $this->actingAs($user)->post(route('client.subscription.store'), ['plan' => 'aliado', 'method' => 'card'])->assertNotFound();
 
-        // «Hazlo tú» sigue llevando a WhatsApp
+        // «Únete» sigue llevando a WhatsApp
         $this->withoutVite()->get(route('diy'))->assertOk()->assertDontSee(route('client.subscription', ['plan' => 'aliado']), false);
     }
 

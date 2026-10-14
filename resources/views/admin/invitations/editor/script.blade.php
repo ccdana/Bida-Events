@@ -154,10 +154,38 @@ function invitationForm(config) {
         slugManual: config.slugManual ?? false,
         activeTab: 'general',
         activeGroup: 'config',
-        // Celular: la lista de secciones es un cajón y el panel una hoja que sube sobre la vista previa
-        railOpen: false,
+        // Celular: el panel es una hoja que sube sobre la vista previa; la manija la estira
         sheetTall: false,
+        // Panel («tocar y cambiar», ver panelView): 'field', 'section', 'full' o 'closed'. Una invitación
+        // nueva que volvió con errores del guardado abre «Datos del evento» para corregirlos.
+        panelMode: config.isCreate && !config.wizard ? 'full' : 'closed',
+        // Las opciones de la parte abierta (panelMode 'section') y el campo a la vista ('field')
+        sectionChoices: [],
+        focusContainerEl: null,
+        fieldLabel: '',
+        fieldHelp: '',
+        // Ayuda «?» abierta: 'panel' (la burbuja) o 'part:<pestaña>' (una fila de la barra lateral)
+        helpOpen: null,
+        // Burbuja junto a lo tocado: dónde va y a qué elemento de la vista previa señala
+        bubble: { left: 0, top: 0, side: 'right', arrow: 40, ready: false },
+        bubbleAnchor: null,
+        // Celular: la barra lateral de partes se abre como cajón
+        modulesOpen: false,
+        // Parte recién encendida que se mostrará cuando la vista previa se recargue con ella
+        revealPart: null,
+        frameSeq: 0,
+        partNotice: '',
+        publishDialog: false,
+        // Asistente de creación (editor/wizard)
+        wizardOpen: !!config.wizard,
+        wizardStep: 1,
+        wizardError: '',
+        wizardSaving: false,
+        wizardCard: { de: '', para: '' },
+        // «Ver como invitado»: la vista previa sin botones «Cambiar», para probarla como la recibirán
+        guestView: false,
         skipPreviewScroll: false,
+        previewScrollY: null,
         // Tamaño del aparato en la vista previa: phone, tablet o desktop
         previewDevice: 'phone',
         previewUrl: config.previewUrl,
@@ -214,11 +242,11 @@ function invitationForm(config) {
         allTabGroups: [
             {
                 id: 'config',
-                label: 'Configuración',
+                label: 'Lo básico',
                 description: 'Datos base y diseño visual',
                 tabs: [
-                    { id: 'general', label: 'General', hint: 'Título, cliente y fechas' },
-                    { id: 'estetica', label: 'Estética', hint: 'Colores y tipografías' },
+                    { id: 'general', label: 'Datos del evento', hint: 'Nombre, fecha, hora y enlace' },
+                    { id: 'estetica', label: 'Colores y letras', hint: 'Cómo se ve toda la invitación' },
                 ],
             },
             {
@@ -247,18 +275,18 @@ function invitationForm(config) {
             },
             {
                 id: 'presentacion',
-                label: 'Presentación',
+                label: 'Portada y lugar',
                 description: 'Primera impresión del evento',
                 tabs: [
-                    { id: 'hero', label: 'Banner principal', moduleCode: 'bienvenida', hint: 'Foto, nombre y fecha de portada' },
+                    { id: 'hero', label: 'Portada', moduleCode: 'bienvenida', hint: 'Foto, nombre y fecha de arriba' },
                     { id: 'ubicacion', label: 'Ubicación', moduleCode: 'ubicacion', hint: 'Lugar, mapa y cómo llegar' },
                     { id: 'itinerario', label: 'Itinerario', moduleCode: 'itinerario', hint: 'Horarios de la noche' },
-                    { id: 'dress', label: 'Dress code', moduleCode: 'dress_code', hint: 'Qué usar, colores y qué evitar' },
+                    { id: 'dress', label: 'Cómo vestir', moduleCode: 'dress_code', hint: 'Qué usar, colores y qué evitar' },
                 ],
             },
             {
                 id: 'contenido',
-                label: 'Contenido',
+                label: 'Fotos y personas',
                 description: 'Historias y medios del evento',
                 tabs: [
                     { id: 'destacados', label: 'Invitados de honor', moduleCode: 'destacados', hint: 'Chambelanes, damitas y padrinos' },
@@ -268,28 +296,28 @@ function invitationForm(config) {
             },
             {
                 id: 'interaccion',
-                label: 'Interacción',
+                label: 'Para tus invitados',
                 description: 'Participación de los invitados',
                 tabs: [
                     { id: 'musica', label: 'Música', moduleCode: 'musica', hint: 'Canción de fondo' },
-                    { id: 'playlist', label: 'Playlist', moduleCode: 'playlist', hint: 'Los invitados sugieren canciones' },
+                    { id: 'playlist', label: 'Canciones de los invitados', moduleCode: 'playlist', hint: 'Te sugieren qué poner en la fiesta' },
                     { id: 'hashtag', label: 'Hashtag', moduleCode: 'hashtag', hint: 'Etiqueta para compartir fotos' },
                     { id: 'encuestas', label: 'Encuestas', moduleCode: 'encuestas', hint: 'Preguntas con votación' },
                     { id: 'regalos', label: 'Regalos', moduleCode: 'regalos', hint: 'Transferencia, tienda y sobres' },
                     // Dos formas de confirmar; una invitación usa una sola (encender una apaga la otra)
-                    { id: 'rsvp_whatsapp', label: 'Confirmación por WhatsApp', moduleCode: 'rsvp_whatsapp', hint: 'Te llega la respuesta de cada invitado' },
-                    { id: 'rsvp', label: 'Confirmación con pase QR', moduleCode: 'rsvp', hint: 'Respuesta guardada y pase de entrada' },
+                    { id: 'rsvp_whatsapp', label: 'Confirmar por WhatsApp', moduleCode: 'rsvp_whatsapp', hint: 'Te llega la respuesta de cada invitado' },
+                    { id: 'rsvp', label: 'Confirmar con pase QR', moduleCode: 'rsvp', hint: 'Respuesta guardada y pase de entrada' },
                 ],
             },
             {
                 id: 'logistica',
-                label: 'Logística',
+                label: 'Extras',
                 description: 'Utilidades antes y después del evento',
                 tabs: [
                     { id: 'countdown', label: 'Cuenta regresiva', moduleCode: 'cuenta_regresiva', hint: 'Tiempo que falta para el evento' },
-                    { id: 'agendar', label: 'Calendario', moduleCode: 'agendar', hint: 'Botón para guardar la fecha' },
-                    { id: 'fotomural', label: 'Fotomural', moduleCode: 'fotomural', hint: 'Fotos de invitados en vivo' },
-                    { id: 'post_evento', label: 'Post-evento', moduleCode: 'post_evento', hint: 'Fotos oficiales después de la fiesta' },
+                    { id: 'agendar', label: 'Guardar en el calendario', moduleCode: 'agendar', hint: 'Botón para agendar la fecha' },
+                    { id: 'fotomural', label: 'Muro de fotos', moduleCode: 'fotomural', hint: 'Fotos de los invitados en vivo' },
+                    { id: 'post_evento', label: 'Después de la fiesta', moduleCode: 'post_evento', hint: 'Gracias y fotos oficiales' },
                 ],
             },
         ],
@@ -579,13 +607,14 @@ function invitationForm(config) {
 
         // Publicar es un cambio de estado explícito: se guarda en el mismo envío del formulario
         publish() {
+            this.publishDialog = false;
             this.meta.status = 'active';
-            this.$refs.saveButton?.click();
+            this.$nextTick(() => document.getElementById('invitation-form')?.requestSubmit());
         },
 
         unpublish() {
             this.meta.status = 'inactive';
-            this.$refs.saveButton?.click();
+            this.$nextTick(() => document.getElementById('invitation-form')?.requestSubmit());
         },
 
         init() {
@@ -606,10 +635,26 @@ function invitationForm(config) {
             this.$watch('meta', () => this.schedulePreview(), { deep: true });
             // La vista previa sigue a la pestaña: al cambiar de módulo (o al recargarse) salta a su sección
             this.$watch('activeTab', () => this.focusPreviewSection(true));
+            this.$watch('panelMode', () => this.markPreviewActive());
+            this.$watch('guestView', (value) => {
+                this.$refs.previewFrame?.contentDocument?.body?.classList.toggle('ed-guest', value);
+                if (value) this.finishEditing();
+            });
             this.$nextTick(() => this.$refs.previewFrame?.addEventListener('load', () => {
                 this.setupPreviewEditing();
-                this.focusPreviewSection(false);
+                this.restorePreviewScroll();
+                this.revealNewPart();
             }));
+            // La burbuja sigue a lo tocado: al cambiar de tamaño el panel o la ventana
+            this.$nextTick(() => {
+                if (!window.ResizeObserver) return;
+                // El panel cambia de alto y el celular se corre para dejarle lugar: la burbuja se reubica
+                const observer = new ResizeObserver(() => this.placeBubble());
+                [this.$refs.panel, this.$refs.previewFrame].forEach(el => el && observer.observe(el));
+                this.$refs.previewFrame?.closest('.ed-preview__stage')?.addEventListener('transitionend', () => this.placeBubble());
+            });
+            window.addEventListener('resize', () => this.placeBubble());
+            this.$watch('panelMode', () => this.$nextTick(() => this.placeBubble()));
             this.$watch('modules.ubicacion.lat', () => this.syncLocationMarker());
             this.$watch('modules.ubicacion.lng', () => this.syncLocationMarker());
             this.$watch('cropperScale', (value, oldValue) => {
@@ -885,10 +930,15 @@ function invitationForm(config) {
             }
         },
 
+        /** Abrir una parte: sus opciones; desde «Todas las opciones» (Anterior / Siguiente), su formulario entero. */
         selectTab(tabId) {
+            if (this.panelMode !== 'full') {
+                this.openSection(tabId);
+                return;
+            }
             this.activeTab = tabId;
             this.syncActiveGroup();
-            // Cada sección empieza arriba: al cambiar no se queda a mitad de la anterior
+            // Cada parte empieza arriba: al cambiar no se queda a mitad de la anterior
             this.$nextTick(() => document.getElementById('invitation-form')?.scrollTo({ top: 0 }));
         },
 
@@ -950,14 +1000,15 @@ function invitationForm(config) {
             if (flags.rsvp && flags.rsvp_whatsapp) flags.rsvp = false;
         },
 
-        toggleModuleForTab(tab) {
+        /** Mostrar u ocultar una parte. Desde la lista no se abre: solo cambia el interruptor. */
+        toggleModuleForTab(tab, navigate = true) {
             if (!tab.moduleCode || !this.packageIncludes(tab.moduleCode)) return;
             const enabled = !this.modules.config.modulos[tab.moduleCode];
             this.modules.config.modulos[tab.moduleCode] = enabled;
             // Encender una confirmación apaga la otra
             const other = { rsvp: 'rsvp_whatsapp', rsvp_whatsapp: 'rsvp' }[tab.moduleCode];
             if (enabled && other) this.modules.config.modulos[other] = false;
-            this.onModuleToggle(tab.moduleCode, enabled);
+            if (navigate) this.onModuleToggle(tab.moduleCode, enabled);
         },
 
         defaultModuleVisibility() {
@@ -988,59 +1039,851 @@ function invitationForm(config) {
             };
         },
 
-        /**
-         * Sección de la vista previa que corresponde a la pestaña abierta: la del módulo (sus ids son
-         * el código con guiones: dress_code → #dress-code) o la portada para General, Estética y el banner.
-         */
-        previewSectionId() {
-            const tab = this.tabGroups.flatMap(group => group.tabs).find(item => item.id === this.activeTab);
-            const code = tab?.moduleCode;
-
-            return !code || code === 'bienvenida' ? 'inicio' : code.replaceAll('_', '-');
-        },
-
         get previewWidth() {
             return { phone: 390, tablet: 768, desktop: 1180 }[this.previewDevice] ?? 390;
         },
 
-        /** Id de sección en la invitación (como los de previewSectionId) → pestaña que la edita. */
-        previewSectionMap() {
-            const map = {};
-            this.flatTabs.forEach(tab => {
-                if (!tab.moduleCode) return;
-                map[tab.moduleCode === 'bienvenida' ? 'inicio' : tab.moduleCode.replaceAll('_', '-')] = tab;
+        /**
+         * El panel («tocar y cambiar», igual en la computadora y en el celular):
+         * - 'field': una burbuja junto a lo que se tocó, con solo ese campo (el nombre, una foto, la hora de un momento)
+         * - 'section': la burbuja de una parte con lo que se puede cambiar de ella, una fila por bloque
+         * - 'full': el formulario entero de una parte en un panel lateral («Datos del evento», «Colores y
+         *   letras», «Ver todas las opciones»)
+         * - 'closed': nada abierto. Las partes se encienden y apagan en la barra lateral (editor/modules).
+         * En el celular la burbuja y el panel son hojas que suben desde abajo.
+         */
+        get panelView() {
+            return this.panelMode;
+        },
+
+        /** Hay una parte abierta (un campo, sus opciones o todo su formulario). */
+        get isEditingPart() {
+            return ['field', 'section', 'full'].includes(this.panelMode);
+        },
+
+        /** Burbuja junto a lo tocado (un campo o las opciones de una parte); 'full' es un panel lateral. */
+        get isBubble() {
+            return this.panelMode === 'field' || this.panelMode === 'section';
+        },
+
+        /** Celular y tableta: el panel es una hoja que sube desde abajo. */
+        isCompactEditor() {
+            return window.matchMedia('(max-width: 1023px)').matches;
+        },
+
+        /** «Listo»: se cierra y queda la invitación a la vista. */
+        finishEditing() {
+            this.clearFieldFocus();
+            this.panelMode = 'closed';
+            this.sheetTall = false;
+            this.helpOpen = null;
+            this.partNotice = '';
+            this.bubbleAnchor = null;
+        },
+
+        /** La flecha de la burbuja: de un campo a las opciones de su parte; de ahí, se cierra. */
+        goBack() {
+            if (this.panelMode !== 'section' && this.currentTab?.moduleCode) {
+                this.openSection(this.activeTab);
+            } else {
+                this.finishEditing();
+            }
+        },
+
+        /** Las opciones de una parte; si tiene un solo bloque (o ninguno reconocible), su formulario entero. */
+        openSection(tabId) {
+            this.clearFieldFocus();
+            this.helpOpen = null;
+            this.partNotice = '';
+            this.activeTab = tabId;
+            this.syncActiveGroup();
+            this.panelMode = 'section';
+            this.sheetTall = false;
+            this.$nextTick(() => {
+                this.sectionChoices = this.buildSectionChoices();
+                if (this.sectionChoices.length <= 1) {
+                    this.openFull(tabId);
+                    return;
+                }
+                this.bubbleAnchor = this.previewSectionElement(tabId);
+                this.placeBubble();
             });
-            return map;
+        },
+
+        /** El formulario entero de una parte (sin parte: la abierta), en el panel lateral. */
+        openFull(tabId = null) {
+            this.clearFieldFocus();
+            this.helpOpen = null;
+            if (tabId) {
+                this.activeTab = tabId;
+                this.syncActiveGroup();
+            }
+            this.panelMode = 'full';
+            this.bubbleAnchor = null;
+            this.modulesOpen = false;
+            this.$nextTick(() => document.getElementById('invitation-form')?.scrollTo({ top: 0 }));
+        },
+
+        // ── Las partes de la invitación (barra lateral: editor/modules) ──
+
+        /** Las partes que se encienden y apagan: todas menos los datos y los colores (esos van arriba). */
+        get partGroups() {
+            return this.tabGroups
+                .map(group => ({ ...group, tabs: group.tabs.filter(tab => tab.moduleCode) }))
+                .filter(group => group.tabs.length);
+        },
+
+        /** Lo que dice cada parte en la barra lateral: qué le falta, si está apagada o qué es. */
+        partStatus(tab) {
+            const status = this.tabStatus(tab);
+            if (status === 'locked') return this.packageLockLabel(tab);
+            if (status === 'off') return 'Apagada';
+            const examples = this.examplesOf(tab);
+            if (examples) return examples === 1 ? '1 cosa de ejemplo por cambiar' : examples + ' cosas de ejemplo por cambiar';
+            if (status === 'issue') return this.tabIssues(tab)[0];
+            return tab.hint;
+        },
+
+        /** Encender o apagar una parte. Encendida y vacía, nace con su ejemplo y la invitación baja hasta ella. */
+        togglePart(tab) {
+            if (!tab.moduleCode || this.packageLockLabel(tab)) return;
+            const enabling = !this.isTabEnabled(tab);
+            this.toggleModuleForTab(tab, false);
+            if (!enabling) {
+                if (this.activeTab === tab.id && this.isEditingPart) this.finishEditing();
+                return;
+            }
+            this.fillWithSample(tab.moduleCode);
+            // Se ve cuando la vista previa se recargue con ella; si no aparece, le falta un dato propio
+            this.revealPart = { tabId: tab.id, after: this.previewSeq };
+            if (this.isCompactEditor()) this.modulesOpen = false;
+        },
+
+        /** Desde la barra lateral: la invitación baja hasta la parte y se abren sus opciones. */
+        goToPart(tab) {
+            if (!this.isTabEnabled(tab)) {
+                this.togglePart(tab);
+                return;
+            }
+            this.modulesOpen = false;
+            const section = this.previewSectionElement(tab.id);
+            if (section) {
+                this.skipPreviewScroll = true;
+                this.scrollPreviewTo(section);
+            }
+            this.openSection(tab.id);
+        },
+
+        previewSectionElement(tabId) {
+            return this.$refs.previewFrame?.contentDocument?.querySelector('[data-ed-tab="' + tabId + '"]') ?? null;
+        },
+
+        scrollPreviewTo(el, smooth = true) {
+            const view = el?.ownerDocument?.defaultView;
+            if (!view) return;
+            view.scrollTo({ top: Math.max(0, el.getBoundingClientRect().top + view.scrollY - 24), behavior: smooth ? 'smooth' : 'auto' });
         },
 
         /**
-         * Edición sobre la invitación: al pasar el cursor una sección se marca con su nombre y al tocarla
-         * se abre su panel. Se prepara en cada carga del marco (cada recarga trae un documento nuevo).
+         * Tras recargar la vista previa con una parte recién encendida: baja hasta ella y la resalta un
+         * momento. Si no aparece es porque le falta algo que el ejemplo no puede traer (la canción, el
+         * número de WhatsApp): se abre su formulario para cargarlo.
+         */
+        revealNewPart() {
+            const pending = this.revealPart;
+            if (!pending || this.frameSeq <= pending.after) return;
+            this.revealPart = null;
+
+            const section = this.previewSectionElement(pending.tabId);
+            if (!section) {
+                this.openFull(pending.tabId);
+                this.partNotice = 'Para que esta parte se vea en la invitación, completa lo que pide aquí abajo.';
+                return;
+            }
+            // Algunas plantillas vuelven arriba al terminar de cargar: se baja un instante después
+            setTimeout(() => {
+                if (!section.isConnected) return;
+                this.scrollPreviewTo(section);
+                section.classList.add('ed-flash');
+                setTimeout(() => section.classList.remove('ed-flash'), 1800);
+            }, 450);
+        },
+
+        // ── Contenido de ejemplo (App\Support\SampleContent) ──
+
+        /** Si una parte tiene algo propio: un texto o una lista distinta de cómo nace vacía. */
+        moduleHasContent(code) {
+            const walk = (value, empty) => {
+                if (typeof value === 'string') return value.trim() !== '' && value !== empty;
+                if (Array.isArray(value)) return value.some((item, index) => walk(item, Array.isArray(empty) ? empty[index] : undefined));
+                if (value && typeof value === 'object') {
+                    return Object.keys(value).some(key => walk(value[key], empty && typeof empty === 'object' ? empty[key] : undefined));
+                }
+                return false;
+            };
+
+            return walk(this.modules[code], this.config.moduleDefaults?.[code]);
+        },
+
+        /**
+         * Completa una parte con el contenido de ejemplo de su evento: solo lo que está vacío, así no se
+         * pisa nada escrito. Sin «force», una parte que ya tiene algo propio se deja como está.
+         */
+        fillWithSample(code, force = false) {
+            const sample = this.config.samples?.[this.profile.code]?.[code];
+            if (!sample || typeof sample !== 'object' || Array.isArray(sample)) return;
+            if (!force && this.moduleHasContent(code)) return;
+
+            const isEmpty = (value) => value === undefined || value === null || value === ''
+                || (Array.isArray(value) && value.length === 0)
+                || (typeof value === 'object' && !Array.isArray(value) && Object.values(value).every(isEmpty));
+            const current = this.modules[code];
+            const next = current && typeof current === 'object' && !Array.isArray(current) ? { ...current } : {};
+
+            Object.entries(sample).forEach(([key, value]) => {
+                if (isEmpty(next[key])) next[key] = JSON.parse(JSON.stringify(value));
+            });
+            this.modules[code] = next;
+        },
+
+        /** Lo de ejemplo que sigue sin cambiar en las partes encendidas («Tu foto aquí», «Escribe aquí…»). */
+        get examplesLeft() {
+            const placeholders = new Set(this.config.samplePlaceholders ?? []);
+            if (!placeholders.size) return [];
+
+            const count = (value) => {
+                if (typeof value === 'string') return placeholders.has(value.trim()) ? 1 : 0;
+                if (Array.isArray(value)) return value.reduce((sum, item) => sum + count(item), 0);
+                if (value && typeof value === 'object') return Object.values(value).reduce((sum, item) => sum + count(item), 0);
+                return 0;
+            };
+
+            return this.flatTabs
+                .filter(tab => tab.moduleCode && this.isTabEnabled(tab))
+                .map(tab => ({ tab, count: count(this.modules[tab.moduleCode]) }))
+                .filter(item => item.count > 0);
+        },
+
+        examplesOf(tab) {
+            return this.examplesLeft.find(item => item.tab.id === tab.id)?.count ?? 0;
+        },
+
+        get examplesTotal() {
+            return this.examplesLeft.reduce((sum, item) => sum + item.count, 0);
+        },
+
+        /** «Publicar»: si queda algo de ejemplo o por completar, primero se avisa con atajos a cada parte. */
+        requestPublish() {
+            if (this.examplesLeft.length || this.pendingIssues.length) {
+                this.publishDialog = true;
+                return;
+            }
+            this.publish();
+        },
+
+        /** Desde el aviso de publicar: cerrarlo y abrir la parte para cambiar lo de ejemplo. */
+        fixPart(tabId) {
+            this.publishDialog = false;
+            const section = this.previewSectionElement(tabId);
+            if (section) this.scrollPreviewTo(section);
+            this.skipPreviewScroll = true;
+            this.openSection(tabId);
+        },
+
+        // ── Ayuda «?»: para qué se sugiere usar cada parte y cada campo ──
+
+        partHelp(tab) {
+            return (tab && this.partHelpTexts[tab.id]) || tab?.hint || '';
+        },
+
+        /** La ayuda de un campo: la propia, la nota que trae el panel o la de su parte. */
+        helpForField(container, label) {
+            const own = [...(this.fieldHelpTexts[this.activeTab] ?? []), ...this.fieldHelpTexts._]
+                .find(([pattern]) => pattern.test(label));
+            if (own) return own[1];
+
+            const note = [...container.querySelectorAll('p')]
+                .map(p => p.textContent.replace(/\s+/g, ' ').trim())
+                .find(text => text.length > 24 && text !== label);
+
+            return note || this.partHelp(this.currentTab);
+        },
+
+        get currentHelp() {
+            return this.panelMode === 'field' ? (this.fieldHelp || this.partHelp(this.currentTab)) : this.partHelp(this.currentTab);
+        },
+
+        partHelpTexts: {
+            general: 'El nombre del evento, la fecha y la hora. Con la fecha se arma la cuenta regresiva y el botón para agendar.',
+            estetica: 'Los colores y las letras de toda la invitación. Úsalo para que combine con tu fiesta (por ejemplo, con los colores de la decoración).',
+            hero: 'Es lo primero que ven tus invitados al abrir el enlace: la foto principal, el nombre y una frase. Una buena foto aquí hace toda la diferencia.',
+            ubicacion: 'Dónde es el evento, con un botón que abre el mapa para llegar. Sugerido siempre que haya un lugar físico.',
+            itinerario: 'Los momentos de la fiesta con su hora (recepción, vals, cena…). Ayuda a que nadie se pierda lo importante.',
+            dress: 'Cómo pedirles que vengan vestidos y qué colores evitar. Úsalo si tu fiesta tiene un estilo o un color especial.',
+            destacados: 'Las personas especiales del evento: padrinos, damas, chambelanes. Un lindo gesto para agradecerles.',
+            galeria: 'Fotos que tus invitados deslizan. Sugerido para compartir tus mejores fotos antes de la fiesta.',
+            video: 'Un video corto, como un «save the date». Úsalo si tienes un video que quieras compartir.',
+            musica: 'Una canción que suena al abrir la invitación. Elige una que te represente.',
+            playlist: 'Tus invitados sugieren canciones para la fiesta y tú las ves en tu panel. Ideal para que el DJ ponga lo que les gusta.',
+            hashtag: 'Una etiqueta para que todos compartan sus fotos de la fiesta en redes y las encuentres juntas.',
+            encuestas: 'Preguntas divertidas para tus invitados, con votación. Sirve para animar antes de la fiesta.',
+            regalos: 'Cómo pueden hacerte un regalo: lista de regalos, transferencia o sobres. Úsalo solo si quieres mencionarlo.',
+            rsvp_whatsapp: 'Tus invitados confirman si van y te llega la respuesta a tu WhatsApp. Lo más simple para saber cuántos van.',
+            rsvp: 'Tus invitados confirman si van y reciben un pase con QR para la entrada. Sugerido para eventos con lista de invitados.',
+            countdown: 'Muestra cuánto falta para el evento (días, horas, minutos). Genera emoción.',
+            agendar: 'Un botón para guardar la fecha en el calendario del celular, así nadie se olvida.',
+            fotomural: 'Tus invitados suben sus fotos durante la fiesta y se ven juntas. Ideal para tener todos los recuerdos.',
+            post_evento: 'Después de la fiesta, un agradecimiento y las fotos oficiales para tus invitados.',
+            relato: 'Su historia contada en momentos, con una anécdota y una promesa.',
+            dedicatoria: 'La carta: de quién, para quién y lo que le quieres decir. Es el corazón de la tarjeta.',
+            juntos_desde: 'Un contador del tiempo que llevan juntos desde una fecha especial.',
+            respuesta: 'Quien recibe la tarjeta te puede responder con unas palabras.',
+            historia: 'Capítulos de su historia, cada uno con fecha, texto y foto.',
+            recuerdos: 'Fotos especiales, cada una con una nota.',
+            collage: 'Un collage de fotos con formas y flores.',
+            marcos: 'Fotos enmarcadas, cada una con un pie de foto.',
+            memoria: 'Un juego de memoria con sus fotos: encontrar los pares.',
+            aventuras: 'Lo que les falta vivir juntos: viajes, planes y sueños.',
+        },
+
+        // Por parte (y «_» para todas): la etiqueta del campo → para qué se sugiere usarlo
+        fieldHelpTexts: {
+            _: [
+                [/imagen|foto|portada/i, 'Usa una foto nítida y vertical, con la cara en la parte de arriba. Después puedes encuadrarla.'],
+                [/t[ií]tulo de la secci[oó]n|^t[ií]tulo$/i, 'El título que se ve arriba de esta parte. Corto y claro.'],
+                [/descripci[oó]n/i, 'Un detalle breve. Si no hace falta, déjalo vacío y no se muestra.'],
+                [/mensaje/i, 'Unas palabras para tus invitados. Mejor corto y cálido: dos o tres líneas.'],
+            ],
+            hero: [
+                [/nombre/i, 'El nombre que se ve en grande en la portada. Escríbelo como quieres que se lea.'],
+                [/subt[ií]tulo|frase/i, 'Una frase corta arriba del nombre, por ejemplo «Mis XV años» o «Nos casamos».'],
+                [/fecha/i, 'La fecha tal como quieres que se lea en la portada, por ejemplo «Sábado 14 de marzo».'],
+            ],
+            ubicacion: [
+                [/nombre del lugar/i, 'El nombre del salón, la iglesia o la casa. Es lo que tus invitados buscarán.'],
+                [/direcci[oó]n/i, 'Calle, número y zona. Ayuda a llegar aunque no abran el mapa.'],
+                [/mapa|coordenadas/i, 'Pega el enlace o las coordenadas de Google Maps: así funciona el botón «Cómo llegar».'],
+                [/nota/i, 'Un dato útil para llegar: dónde estacionar, por qué puerta entrar.'],
+            ],
+            itinerario: [
+                [/hora/i, 'La hora de este momento, por ejemplo 19:30.'],
+                [/t[ií]tulo/i, 'Qué pasa en este momento, en pocas palabras: «Vals», «Cena», «Fiesta».'],
+            ],
+            rsvp_whatsapp: [
+                [/whatsapp|n[uú]mero/i, 'El número donde quieres recibir las confirmaciones, con el código del país (por ejemplo 591).'],
+            ],
+            general: [
+                [/t[ií]tulo/i, 'El nombre del evento. Se usa en el enlace y al compartir la invitación.'],
+                [/direcci[oó]n de la invitaci[oó]n/i, 'Es el final del enlace que vas a compartir. Usa minúsculas y guiones.'],
+            ],
+        },
+
+        // ── La burbuja junto a lo tocado (solo en la computadora; en el celular es una hoja abajo) ──
+
+        /**
+         * Ubica la burbuja al costado del celular de la vista previa, a la altura de lo tocado, con una
+         * flecha que lo señala. Si no cabe al costado (vista de computadora), va debajo de lo tocado.
+         */
+        placeBubble() {
+            if (!this.isBubble || this.isCompactEditor()) {
+                this.bubble = { ...this.bubble, ready: false };
+                return;
+            }
+            const canvas = this.$refs.canvas?.getBoundingClientRect();
+            const frame = this.$refs.previewFrame?.getBoundingClientRect();
+            const panel = this.$refs.panel;
+            if (!canvas || !frame || !panel) return;
+
+            const anchor = this.bubbleAnchor?.isConnected ? this.bubbleAnchor : null;
+            const box = anchor ? anchor.getBoundingClientRect() : { top: 40, height: 0, left: 0, width: frame.width };
+            const width = 360;
+            const gap = 18;
+            const margin = 12;
+            const minTop = 72;
+            const height = panel.offsetHeight || 280;
+            const anchorTop = frame.top - canvas.top + Math.max(0, Math.min(box.top, frame.height - 24));
+            const anchorMid = anchorTop + Math.min(Math.max(box.height, 24), 140) / 2;
+
+            let left;
+            let side;
+            if (canvas.right - frame.right - gap >= width + margin) {
+                left = frame.right - canvas.left + gap;
+                side = 'right';
+            } else if (frame.left - canvas.left - gap >= width + margin) {
+                left = frame.left - canvas.left - gap - width;
+                side = 'left';
+            } else {
+                left = Math.min(Math.max(margin, frame.left - canvas.left + box.left), canvas.width - width - margin);
+                side = 'below';
+            }
+
+            const wanted = side === 'below' ? anchorTop + Math.min(box.height, 160) + gap : anchorMid - 44;
+            const top = Math.max(minTop, Math.min(wanted, canvas.height - height - margin));
+
+            this.bubble = {
+                left: Math.round(left),
+                top: Math.round(top),
+                side,
+                arrow: Math.round(Math.min(Math.max(22, anchorMid - top), height - 22)),
+                ready: true,
+            };
+        },
+
+        get bubbleStyle() {
+            if (!this.isBubble || !this.bubble.ready) return '';
+            return 'left:' + this.bubble.left + 'px;top:' + this.bubble.top + 'px;--ed-arrow:' + this.bubble.arrow + 'px';
+        },
+
+        // ── Asistente de creación: evento, diseño y datos antes de ver la vista previa ──
+
+        /** Los tipos de evento agrupados: invitaciones (todo el año y temporadas) y tarjetas. */
+        get wizardEventGroups() {
+            const groups = [];
+            ['invitation', 'card'].forEach(kind => {
+                this.eventTypeGroups(kind).forEach(group => groups.push({
+                    name: kind === 'card' ? 'Tarjetas · ' + group.name : group.name,
+                    types: group.types,
+                }));
+            });
+            return groups;
+        },
+
+        wizardChooseEvent(type) {
+            if (this.eventTypeDisabledReason(type)) return;
+            const kind = type.kind ?? 'invitation';
+            if (kind !== (this.profile.kind ?? 'invitation')) this.chooseKind(kind);
+            this.chooseEventType(type);
+            this.wizardError = '';
+            this.wizardStep = 2;
+        },
+
+        wizardChooseTemplate(option) {
+            if (option.disabledReason) return;
+            this.meta.template = option.value;
+            this.wizardError = '';
+            this.wizardStep = 3;
+        },
+
+        get wizardName() {
+            return String(this.modules.bienvenida?.nombre_quinceanera || this.modules.bienvenida?.nombre || '').trim();
+        },
+
+        /** Crea la invitación con lo elegido: las partes del evento nacen con su ejemplo y se abre la vista previa. */
+        finishWizard() {
+            this.wizardError = '';
+            const card = this.isCard;
+
+            if (card) {
+                if (!this.wizardCard.para.trim()) {
+                    this.wizardError = 'Escribe para quién es la tarjeta.';
+                    return;
+                }
+            } else {
+                this.syncHeroName();
+                if (!this.wizardName) {
+                    this.wizardError = 'Falta un dato: ' + String(this.heroFields[0]?.label ?? 'el nombre').toLowerCase() + '.';
+                    return;
+                }
+                if (!this.eventDatePart) {
+                    this.wizardError = 'Elige la fecha del evento.';
+                    return;
+                }
+            }
+
+            // Las partes que trae el evento nacen con su ejemplo (los nombres escritos se conservan)
+            (this.profile.enabledByDefault ?? []).forEach(code => this.fillWithSample(code, true));
+
+            if (card) {
+                this.modules.dedicatoria = {
+                    ...(this.modules.dedicatoria ?? {}),
+                    para: this.wizardCard.para.trim(),
+                    de: this.wizardCard.de.trim() || (this.modules.dedicatoria?.de ?? ''),
+                };
+            }
+
+            const name = card ? this.wizardCard.para.trim() : this.wizardName;
+            this.meta.title = card
+                ? 'Para ' + name
+                : (['lienzo', 'halloween'].includes(this.profile.code) ? name : this.profile.label + ' de ' + name);
+            this.meta.slug = this.slugify(this.meta.title);
+            this.syncEventDateTime();
+
+            this.wizardSaving = true;
+            this.$nextTick(() => document.getElementById('invitation-form')?.requestSubmit());
+        },
+
+        // ── Los campos del panel, leídos de sus propias vistas (admin/invitations/panels) ──
+
+        /** El contenedor del panel de una parte: <div x-show="activeTab === 'hero'">. */
+        tabPanelRoot(tabId) {
+            return [...document.querySelectorAll('#invitation-form [x-show]')]
+                .find(el => el.getAttribute('x-show').trim() === "activeTab === '" + tabId + "'") ?? null;
+        },
+
+        /** De qué parte es un campo: la del panel que lo contiene (los textos editables, la abierta). */
+        tabOfControl(control) {
+            for (let el = control; el && el.id !== 'invitation-form'; el = el.parentElement) {
+                const match = /^activeTab === '([^']+)'$/.exec(el.getAttribute?.('x-show')?.trim() ?? '');
+                if (match) return match[1];
+            }
+            return this.activeTab;
+        },
+
+        /** Oculto dentro del panel por una condición (x-show deja display:none en el elemento). */
+        hiddenInPanel(el, root) {
+            for (let node = el; node && node !== root; node = node.parentElement) {
+                if (node.style?.display === 'none') return true;
+            }
+            return false;
+        },
+
+        /** El nombre de un bloque del panel: su etiqueta, su título o su acordeón (no el botón «Elegir archivo»). */
+        panelLabelElement(el) {
+            return [...el.querySelectorAll('.admin-accordion-trigger p, .admin-eyebrow, .admin-label, label, h3')]
+                .find(label => !label.querySelector('input, select, textarea')) ?? null;
+        },
+
+        panelLabelOf(el) {
+            return (this.panelLabelElement(el)?.textContent ?? '').replace(/\s+/g, ' ').trim();
+        },
+
+        /** El bloque de un campo: lo más chico que lo contiene junto con su nombre (etiqueta, título o acordeón). */
+        fieldContainer(control) {
+            const stop = document.querySelector('#invitation-form > .flex-1');
+            const isPanelRoot = (el) => el === stop || el.matches('[x-show^="activeTab ==="]');
+
+            // Una foto: su tarjeta entera (la foto, su descripción y sus botones), sin las otras fotos
+            if (control.tagName === 'IMG') {
+                let card = control;
+                while (card.parentElement && !isPanelRoot(card.parentElement) && card.parentElement.querySelectorAll('img').length === 1) {
+                    card = card.parentElement;
+                }
+                return card;
+            }
+
+            let el = control;
+            while (el.parentElement && el.parentElement !== stop && !el.parentElement.matches('[x-show^="activeTab ==="]')) {
+                el = el.parentElement;
+                if (this.panelLabelElement(el)) return el;
+            }
+            return el;
+        },
+
+        /** Una fila por bloque de la parte abierta que tenga algo para escribir o elegir. */
+        buildSectionChoices() {
+            const root = this.tabPanelRoot(this.activeTab);
+            if (!root) return [];
+
+            const controls = 'input:not([type=hidden]):not([type=checkbox]):not([type=radio]), textarea, select';
+            const visible = (el) => el.tagName !== 'TEMPLATE' && !el.classList.contains('ed-intro') && !this.hiddenInPanel(el, root);
+            let blocks = [...root.children].filter(visible);
+            // Paneles que envuelven todo en un solo bloque: se baja un nivel
+            for (let depth = 0; depth < 2 && blocks.length === 1 && blocks[0].children.length > 1; depth++) {
+                blocks = [...blocks[0].children].filter(visible);
+            }
+            blocks = blocks.filter(block => block.querySelector(controls));
+
+            const labels = blocks.map(block => this.panelLabelOf(block));
+            const repeated = (label) => labels.filter(item => item === label).length > 1;
+
+            return blocks.map((block, index) => {
+                const values = [...block.querySelectorAll('input[type=text], input:not([type]), textarea')]
+                    .filter(input => !this.hiddenInPanel(input, block))
+                    .map(input => String(input.value ?? '').replace(/\s+/g, ' ').trim())
+                    .filter(Boolean);
+                const image = [...block.querySelectorAll('img[src]')].map(img => img.getAttribute('src')).find(Boolean) ?? null;
+                const own = labels[index];
+                // Los elementos de una lista (cada momento, cada foto) se reconocen por lo que dicen
+                const label = !own || repeated(own) ? (values.slice(0, 2).join(' · ') || own || 'Elemento ' + (index + 1)) : own;
+                const summary = label === own ? (values[0] ?? (image ? 'Foto elegida' : '')) : values.slice(2).join(' · ');
+
+                return { id: index, el: block, label, summary: summary.length > 70 ? summary.slice(0, 68) + '…' : summary, image };
+            });
+        },
+
+        openChoice(choice) {
+            const control = choice.el.querySelector('input[type=text], input:not([type]), textarea');
+            this.focusContainer(choice.el, control, choice.label);
+        },
+
+        /**
+         * Deja a la vista solo un bloque del panel: se marcan el bloque y sus antepasados, y el CSS esconde
+         * todo lo demás («.ed-focus-path», admin.css). Abre sus acordeones y pone el cursor en el campo.
+         */
+        focusContainer(container, control = null, label = '', tapped = null) {
+            this.clearFieldFocus();
+            this.activeTab = this.tabOfControl(container);
+            this.syncActiveGroup();
+            this.panelMode = 'field';
+            this.sheetTall = false;
+            this.helpOpen = null;
+            this.partNotice = '';
+            this.focusContainerEl = container;
+            this.fieldLabel = label || this.panelLabelOf(container) || (container.querySelector('img') ? 'Foto' : (this.currentTab?.label ?? ''));
+
+            this.fieldHelp = this.helpForField(container, this.fieldLabel);
+
+            const stop = document.querySelector('#invitation-form > .flex-1');
+            container.classList.add('ed-focus-field');
+            // Su nombre ya está arriba («Cambiar · …»): no se repite encima del campo
+            const title = this.panelLabelElement(container);
+            if (title && title.textContent.replace(/\s+/g, ' ').trim() === this.fieldLabel) {
+                (title.closest('.admin-accordion-trigger') ?? title).classList.add('ed-focus-title');
+            }
+            for (let el = container.parentElement; el; el = el.parentElement) {
+                el.classList.add('ed-focus-path');
+                if (el === stop) break;
+            }
+            [container, ...container.querySelectorAll('.admin-accordion')].forEach(el => {
+                if (!el.matches('.admin-accordion')) return;
+                try {
+                    const scope = Alpine.$data(el);
+                    if ('open' in scope) scope.open = true;
+                } catch (error) {
+                    // Acordeón sin estado propio: queda como está
+                }
+            });
+
+            this.$nextTick(() => {
+                document.getElementById('invitation-form')?.scrollTo({ top: 0 });
+                if (control && control.offsetParent !== null) {
+                    control.focus({ preventScroll: true });
+                    // El cursor al final del texto, listo para seguir escribiendo
+                    if (typeof control.setSelectionRange === 'function' && /^(text|search|tel|url|email|)$/.test(control.type ?? '')) {
+                        const end = control.value.length;
+                        control.setSelectionRange(end, end);
+                    }
+                }
+                const marked = this.markPreviewActive();
+                this.bubbleAnchor = tapped?.isConnected ? tapped : marked;
+                this.placeBubble();
+                if (this.bubbleAnchor) this.keepPreviewTargetVisible(this.bubbleAnchor);
+            });
+        },
+
+        clearFieldFocus() {
+            document.querySelectorAll('#invitation-form .ed-focus-field, #invitation-form .ed-focus-path, #invitation-form .ed-focus-title')
+                .forEach(el => el.classList.remove('ed-focus-field', 'ed-focus-path', 'ed-focus-title'));
+            this.focusContainerEl = null;
+            this.fieldLabel = '';
+            this.fieldHelp = '';
+        },
+
+        // ── La invitación que se toca ──
+
+        /**
+         * Dónde se toca cada parte en la invitación. Primero lo que la plantilla marca con data-ed="código"
+         * (la música, el botón de agendar, cada confirmación); si no, la sección con el id del módulo
+         * (el código con guiones: dress_code → #dress-code; la portada es #inicio).
+         * Devuelve [{ el, tab }] para las partes que están en la vista previa.
+         */
+        previewTargets(doc) {
+            const tabs = {};
+            this.flatTabs.forEach(tab => { if (tab.moduleCode) tabs[tab.moduleCode] = tab; });
+
+            const targets = [];
+            const taken = new Set();
+
+            doc.querySelectorAll('[data-ed]').forEach(el => {
+                const tab = tabs[el.dataset.ed];
+                if (tab) {
+                    targets.push({ el, tab });
+                    taken.add(el);
+                }
+            });
+
+            Object.entries(tabs).forEach(([code, tab]) => {
+                const el = doc.getElementById(code === 'bienvenida' ? 'inicio' : code.replaceAll('_', '-'));
+                if (el && !taken.has(el) && !el.dataset.ed) targets.push({ el, tab });
+            });
+
+            return targets;
+        },
+
+        /**
+         * Los textos y las fotos de la invitación que salen de un campo del panel. Se reconocen por su
+         * valor: un texto de la vista previa igual al de un campo (sin contar espacios, comillas ni
+         * mayúsculas) o una foto con el mismo archivo. Así sirve en todas las plantillas sin marcarlas.
+         * Lo que no se reconoce (fechas con otro formato, textos de la plantilla) se cambia desde las
+         * opciones de su parte.
+         */
+        collectPreviewFields(doc, fields = []) {
+            const form = document.getElementById('invitation-form');
+            if (!form) return [];
+
+            const norm = (value) => String(value ?? '')
+                .replace(/[ \s]+/g, ' ')
+                .replace(/^[\s"“”«»'‘’]+|[\s"“”«»'‘’.,;:!¡?¿]+$/g, '')
+                .trim()
+                .toLowerCase();
+            const fileKey = (url) => {
+                try {
+                    const last = new URL(url, window.location.href).pathname.split('/').filter(Boolean).pop() ?? '';
+                    return last.replace(/\.[a-z0-9]+$/i, '').toLowerCase();
+                } catch (error) {
+                    return '';
+                }
+            };
+
+            const byValue = new Map();
+            let longest = 0;
+            form.querySelectorAll('input:not([type]), input[type=text], input[type=email], input[type=tel], textarea').forEach(control => {
+                const value = norm(control.value);
+                // Números sueltos (una edad, un día) aparecen en muchos lados: no alcanzan para reconocer
+                if (value.length < 2 || (/^\d+$/.test(value) && value.length < 4)) return;
+                if (!byValue.has(value)) byValue.set(value, []);
+                byValue.get(value).push(control);
+                longest = Math.max(longest, value.length);
+            });
+
+            const byImage = new Map();
+            form.querySelectorAll('img[src]').forEach(img => {
+                const key = fileKey(img.getAttribute('src'));
+                if (key.length < 4 || img.getAttribute('src').startsWith('blob:')) return;
+                if (!byImage.has(key)) byImage.set(key, []);
+                byImage.get(key).push(img);
+            });
+
+            const register = (el, candidates, kind) => {
+                if (el.dataset.edField) return;
+                const sectionTab = el.closest('[data-ed-tab]')?.dataset.edTab;
+                const control = candidates.find(item => this.tabOfControl(item) === sectionTab) ?? candidates[0];
+                el.dataset.edField = String(fields.length);
+                el.dataset.edKind = kind;
+                fields.push({ el, control, container: this.fieldContainer(control), kind });
+            };
+
+            const walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT);
+            while (walker.nextNode()) {
+                const node = walker.currentNode;
+                if (!node.nodeValue.trim()) continue;
+                let el = node.parentElement;
+                for (let depth = 0; el && el !== doc.body && depth < 6; depth++, el = el.parentElement) {
+                    if (['SCRIPT', 'STYLE', 'NOSCRIPT', 'TEMPLATE', 'TITLE'].includes(el.tagName)) break;
+                    if (el.dataset.edField) break;
+                    const text = norm(el.textContent);
+                    if (text.length > longest + 4) break;
+                    const candidates = byValue.get(text);
+                    if (candidates) {
+                        register(el, candidates, 'text');
+                        break;
+                    }
+                }
+            }
+
+            if (byImage.size > 0) {
+                doc.querySelectorAll('img').forEach(img => {
+                    const candidates = byImage.get(fileKey(img.currentSrc || img.getAttribute('src') || ''));
+                    if (candidates) register(img, candidates, 'image');
+                });
+                doc.querySelectorAll('[style*="url("]').forEach(el => {
+                    const url = /url\((['"]?)([^'")]+)\1\)/.exec(el.getAttribute('style'))?.[2];
+                    const candidates = url ? byImage.get(fileKey(url)) : null;
+                    if (candidates) register(el, candidates, 'image');
+                });
+            }
+
+            return fields;
+        },
+
+        /**
+         * El campo bajo el dedo. Muchas plantillas ponen capas decorativas encima o dejan los textos sin
+         * recibir toques, así que se mira la caja de cada campo: primero los textos (lo más chico que
+         * contenga el punto), después las fotos.
+         */
+        previewFieldAt(doc, event) {
+            const fields = this.$refs.previewFrame?._edFields ?? [];
+            const direct = event.target.closest?.('[data-ed-field]');
+            if (direct?.dataset.edKind === 'text') return fields[Number(direct.dataset.edField)] ?? null;
+
+            const under = (kind) => fields
+                .filter(field => field.kind === kind && field.el.isConnected)
+                .map(field => ({ field, box: field.el.getBoundingClientRect() }))
+                .filter(({ box }) => box.width > 0 && box.height > 0
+                    && event.clientX >= box.left - 2 && event.clientX <= box.right + 2
+                    && event.clientY >= box.top - 2 && event.clientY <= box.bottom + 2)
+                .sort((a, b) => a.box.width * a.box.height - b.box.width * b.box.height)[0]?.field ?? null;
+
+            return under('text') ?? (direct ? fields[Number(direct.dataset.edField)] ?? null : null) ?? under('image');
+        },
+
+        /** El botón negro «Cambiar …» de una parte (dibujado con ::before arriba a la izquierda). */
+        hitsSectionButton(section, event) {
+            const box = section.getBoundingClientRect();
+            const place = section.dataset.edPlace;
+            if (place === 'above') return false;
+            const top = place === 'inside' ? 6 : 10;
+            return event.clientY >= box.top + top - 4 && event.clientY <= box.top + top + 44
+                && event.clientX >= box.left && event.clientX <= box.left + Math.min(box.width, 280);
+        },
+
+        /**
+         * «Tocar y cambiar»: cada parte lleva un botón negro «Cambiar …» y cada texto o foto que sale de un
+         * campo se marca con un borde punteado. Tocar un texto o una foto abre solo ese campo; tocar el
+         * botón o el resto de la parte, sus opciones. Se prepara en cada carga del marco.
          */
         setupPreviewEditing() {
             const doc = this.$refs.previewFrame?.contentDocument;
             if (!doc || !doc.body || doc.body.dataset.edReady) return;
             doc.body.dataset.edReady = '1';
+            doc.body.classList.toggle('ed-guest', this.guestView);
+
+            const touch = window.matchMedia('(hover: none)').matches || this.isCompactEditor();
+            doc.body.classList.toggle('ed-touch', touch);
 
             const style = doc.createElement('style');
             style.textContent = [
-                '.ed-hover{outline:2px dashed rgba(138,106,28,.9)!important;outline-offset:-3px;cursor:pointer}',
-                '.ed-active{outline:2px solid #8a6a1c!important;outline-offset:-3px}',
-                '.ed-hover::before,.ed-active::before{position:absolute;z-index:2147483000;top:0;left:0;padding:4px 9px;border-radius:0 0 8px 0;background:#8a6a1c;color:#fff;font:500 11px/1.2 system-ui,sans-serif;letter-spacing:0;text-transform:none;pointer-events:none}',
-                '.ed-hover::before{content:attr(data-ed-label) " · editar"}',
-                '.ed-active::before{content:attr(data-ed-label) " · editando"}',
+                '[data-ed-tab]{cursor:pointer}',
+                '[data-ed-tab]::before{content:"✎  " attr(data-ed-action);position:absolute;z-index:2147483000;top:10px;left:10px;right:auto;bottom:auto;display:flex;align-items:center;min-height:40px;max-width:calc(100% - 20px);padding:0 16px 0 14px;border-radius:22px;background:#1d1e20;color:#fff;font:600 14px/1 system-ui,-apple-system,sans-serif;letter-spacing:0;text-transform:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 6px 16px -6px rgba(0,0,0,.55);pointer-events:none;transform:none;opacity:1}',
+                // Lo que flota (la música): un botón chico encima, a la derecha, para no tapar la invitación
+                '[data-ed-place="above"]::before{top:auto;bottom:calc(100% + 6px);left:auto;right:0;min-height:32px;padding:0 12px;font-size:12px;content:"✎  " attr(data-ed-label)}',
+                '[data-ed-place="inside"]::before{top:6px;left:6px}',
+                '.ed-hover{outline:2px dashed rgba(138,106,28,.75)!important;outline-offset:-3px}',
+                '.ed-active{outline:2px solid rgba(138,106,28,.55)!important;outline-offset:-3px}',
+                '.ed-active::before{content:"Cambiando · " attr(data-ed-label);background:#8a6a1c}',
+                // Cada texto o foto que se puede cambiar: punteado en el celular; con el cursor encima en la computadora
+                '[data-ed-field]{cursor:text;border-radius:4px}',
+                '[data-ed-kind="image"]{cursor:pointer}',
+                '.ed-touch [data-ed-field]{outline:1.5px dashed rgba(138,106,28,.6);outline-offset:3px}',
+                '[data-ed-field]:hover{outline:2px dashed #8a6a1c!important;outline-offset:3px;background-color:rgba(138,106,28,.08)}',
+                '.ed-field-active{outline:3px solid #8a6a1c!important;outline-offset:3px;background-color:rgba(138,106,28,.12)}',
+                // Las fotos suelen ir dentro de marcos que recortan: su borde va por dentro
+                '.ed-touch [data-ed-kind="image"],[data-ed-kind="image"]:hover,[data-ed-kind="image"].ed-field-active{outline-offset:-4px!important}',
+                '[data-ed-kind="image"].ed-field-active{outline-width:4px!important}',
+                '.ed-guest [data-ed-tab],.ed-guest [data-ed-field]{cursor:auto;outline:none!important;background-color:transparent!important}',
+                '.ed-guest [data-ed-tab]::before{display:none}',
+                // Una parte recién encendida se resalta un momento
+                '@keyframes ed-flash{0%,60%{box-shadow:inset 0 0 0 4px #8a6a1c,0 0 0 9999px rgba(138,106,28,.08)}100%{box-shadow:inset 0 0 0 4px transparent}}',
+                '.ed-flash{animation:ed-flash 1.8s ease-out}',
             ].join('');
             doc.head.appendChild(style);
 
-            const sections = this.previewSectionMap();
-            Object.entries(sections).forEach(([id, tab]) => {
-                const el = doc.getElementById(id);
-                if (el) el.dataset.edLabel = tab.label;
+            const view = doc.defaultView;
+            this.previewTargets(doc).forEach(({ el, tab }) => {
+                el.dataset.edTab = tab.id;
+                el.dataset.edLabel = tab.label;
+                el.dataset.edAction = 'Cambiar ' + tab.label.charAt(0).toLowerCase() + tab.label.slice(1);
+                const position = view.getComputedStyle(el).position;
+                // Lo que flota (la música) lleva el botón encima; lo chico, adentro y más ceñido
+                if (position === 'fixed' || position === 'sticky') {
+                    el.dataset.edPlace = 'above';
+                } else {
+                    this.ensurePositioned(el);
+                    if (el.offsetHeight < 90) el.dataset.edPlace = 'inside';
+                }
             });
+
+            // Los textos y las fotos se buscan cuando la plantilla ya armó todo (algunas lo hacen al cargar)
+            this.$refs.previewFrame._edFields = this.collectPreviewFields(doc);
+            setTimeout(() => {
+                if (this.$refs.previewFrame?.contentDocument !== doc) return;
+                this.collectPreviewFields(doc, this.$refs.previewFrame._edFields);
+                this.markPreviewActive();
+            }, 900);
 
             const find = (node) => {
                 for (let el = node?.nodeType === 1 ? node : node?.parentElement; el && el !== doc.body; el = el.parentElement) {
-                    if (el.id && sections[el.id] && el.dataset.edLabel) return el;
+                    if (el.dataset.edTab) return el;
                 }
                 return null;
             };
@@ -1049,33 +1892,111 @@ function invitationForm(config) {
             const unhover = () => { hovered?.classList.remove('ed-hover'); hovered = null; };
 
             doc.addEventListener('mouseover', (event) => {
+                if (this.guestView) return;
                 const el = find(event.target);
                 if (el === hovered) return;
                 unhover();
                 if (el && !el.classList.contains('ed-active')) {
-                    this.ensurePositioned(el);
                     el.classList.add('ed-hover');
                     hovered = el;
                 }
             });
             doc.addEventListener('mouseleave', unhover);
 
+            // La burbuja acompaña a lo tocado mientras se desplaza la invitación
+            let placing = false;
+            view.addEventListener('scroll', () => {
+                if (placing || !this.isBubble) return;
+                placing = true;
+                requestAnimationFrame(() => {
+                    placing = false;
+                    this.placeBubble();
+                });
+            }, { passive: true });
+
+            // Al tocar, la invitación no reacciona (no se abren hojas, no se envían formularios, no se pasa
+            // de escena): se abre lo que se tocó. Con «Ver como invitado» responde como siempre.
             doc.addEventListener('click', (event) => {
-                const el = find(event.target);
-                if (!el) return;
-                // Los enlaces que sacarían la vista previa de la invitación no navegan: se edita, no se visita
-                const link = event.target.closest?.('a[href]');
-                if (link && !(link.getAttribute('href') ?? '').startsWith('#')) event.preventDefault();
-                this.sheetTall = false;
-                const tabId = sections[el.id].id;
-                // Se tocó dentro de la invitación: no hace falta desplazarla hasta la sección
-                if (tabId === this.activeTab) {
-                    this.focusPreviewSection(false);
-                } else {
-                    this.skipPreviewScroll = true;
-                    this.selectTab(tabId);
+                if (this.guestView) return;
+                const section = find(event.target);
+                const field = this.previewFieldAt(doc, event);
+                if (!section && !field) return;
+
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                unhover();
+
+                if (field && !(section && this.hitsSectionButton(section, event))) {
+                    // Se tocó dentro de la invitación: no hace falta desplazarla
+                    this.skipPreviewScroll = this.tabOfControl(field.control) !== this.activeTab;
+                    this.focusContainer(field.container, field.kind === 'text' ? field.control : null, '', field.el);
+                    return;
                 }
+
+                this.skipPreviewScroll = section.dataset.edTab !== this.activeTab;
+                this.openSection(section.dataset.edTab);
             }, true);
+        },
+
+        /**
+         * Marca en la invitación lo que se está cambiando: la parte abierta y, si es un campo, ese texto
+         * o esa foto (todas sus apariciones). Devuelve lo marcado más específico.
+         */
+        markPreviewActive() {
+            const doc = this.$refs.previewFrame?.contentDocument;
+            if (!doc?.body) return null;
+
+            doc.querySelectorAll('.ed-active, .ed-field-active').forEach(el => el.classList.remove('ed-active', 'ed-field-active'));
+            if (!this.isEditingPart) return null;
+
+            const section = doc.querySelector('[data-ed-tab="' + this.activeTab + '"]');
+            section?.classList.remove('ed-hover');
+            section?.classList.add('ed-active');
+
+            if (this.panelMode !== 'field' || !this.focusContainerEl) return section;
+
+            const container = this.focusContainerEl;
+            const hits = (this.$refs.previewFrame._edFields ?? [])
+                .filter(field => field.el.isConnected && (field.container === container || container.contains(field.control)))
+                .map(field => field.el);
+            hits.forEach(el => el.classList.add('ed-field-active'));
+
+            return hits.find(el => el.getBoundingClientRect().height > 0) ?? section;
+        },
+
+        /** Que lo tocado no quede debajo de la hoja de edición (celular) ni fuera del marco. */
+        keepPreviewTargetVisible(el) {
+            setTimeout(() => {
+                const frame = this.$refs.previewFrame;
+                const view = frame?.contentWindow;
+                if (!view || !el.isConnected) return;
+
+                const frameBox = frame.getBoundingClientRect();
+                const panelBox = document.querySelector('.ed-panel')?.getBoundingClientRect();
+                const covered = this.isCompactEditor() && panelBox ? Math.max(0, frameBox.bottom - panelBox.top) : 0;
+                const visible = frameBox.height - covered;
+                const box = el.getBoundingClientRect();
+
+                if (box.top >= 8 && box.bottom <= visible - 8) return;
+                const target = box.top - Math.max(16, (visible - Math.min(box.height, visible)) / 2);
+                view.scrollBy({ top: target, behavior: 'smooth' });
+            }, 320);
+        },
+
+        /** Tras cada recarga la invitación vuelve a donde estaba (la primera vez, a la parte abierta). */
+        restorePreviewScroll() {
+            const view = this.$refs.previewFrame?.contentWindow;
+            if (!view) return;
+            if (this.previewScrollY === null) {
+                this.focusPreviewSection(false);
+                return;
+            }
+            view.scrollTo({ top: this.previewScrollY, behavior: 'auto' });
+            const marked = this.markPreviewActive();
+            if (this.isBubble) {
+                this.bubbleAnchor = this.panelMode === 'section' ? this.previewSectionElement(this.activeTab) : marked;
+                this.placeBubble();
+            }
         },
 
         ensurePositioned(el) {
@@ -1083,30 +2004,27 @@ function invitationForm(config) {
             if (view.getComputedStyle(el).position === 'static') el.style.position = 'relative';
         },
 
-        /** Lleva la vista previa a la sección que se está editando y la deja marcada mientras se edita. */
+        /**
+         * Lleva la vista previa a la parte que se abrió y la deja marcada mientras se cambia. Las partes
+         * sin lugar propio (datos del evento, colores) llevan al principio.
+         */
         focusPreviewSection(smooth = true) {
             const doc = this.$refs.previewFrame?.contentDocument;
             if (!doc || !doc.body) return;
 
-            const section = doc.getElementById(this.previewSectionId());
-            if (!section) return;
+            const marked = this.markPreviewActive();
+            if (!this.isEditingPart) return;
 
             // Solo se desplaza la invitación dentro del marco: scrollIntoView movería también el editor
             // y el campo donde se está escribiendo se iría de la pantalla
             const view = doc.defaultView;
             if (this.skipPreviewScroll) {
                 this.skipPreviewScroll = false;
-            } else {
-                view.scrollTo({ top: section.getBoundingClientRect().top + view.scrollY, behavior: smooth ? 'smooth' : 'auto' });
+                return;
             }
-
-            // La sección abierta queda marcada hasta que se abra otra (y se conserva en cada recarga)
-            doc.querySelectorAll('.ed-active').forEach(el => el.classList.remove('ed-active'));
-            if (section.dataset.edLabel && this.currentTab?.moduleCode) {
-                this.ensurePositioned(section);
-                section.classList.remove('ed-hover');
-                section.classList.add('ed-active');
-            }
+            const target = marked ?? (this.currentTab?.moduleCode ? null : doc.getElementById('inicio'));
+            if (!target) return;
+            view.scrollTo({ top: Math.max(0, target.getBoundingClientRect().top + view.scrollY - 12), behavior: smooth ? 'smooth' : 'auto' });
         },
 
         schedulePreview() {
@@ -1124,6 +2042,13 @@ function invitationForm(config) {
             if (!frame) return;
 
             const url = this.previewFrameUrl();
+            // Al recargar se vuelve a la misma altura: tipear no debe mover la invitación
+            try {
+                if (frame.contentWindow?.document?.body?.dataset.edReady) this.previewScrollY = frame.contentWindow.scrollY;
+            } catch (error) {
+                this.previewScrollY = null;
+            }
+
             if (frame.getAttribute('data-preview-url') === url) {
                 frame.src = 'about:blank';
             }
@@ -1193,6 +2118,7 @@ function invitationForm(config) {
 
                 this.previewRevision = data.revision ?? Date.now();
                 this.previewTick = Date.now();
+                this.frameSeq = seq;
                 this.reloadPreviewFrame();
             } catch (error) {
                 if (error?.name !== 'AbortError') {

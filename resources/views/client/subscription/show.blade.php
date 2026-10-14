@@ -2,7 +2,7 @@
 
 @section('title', 'Mi plan')
 
-{{-- Elegir el plan de «Hazlo tú» y pagarlo en línea; con tarjeta, administrar la suscripción que se renueva sola --}}
+{{-- Elegir el plan de «Únete» y pagarlo en línea; con tarjeta, administrar la suscripción que se renueva sola --}}
 @section('content')
     @php($methodLabels = [
         'card' => ['Tarjeta de crédito o débito', 'Visa, Mastercard y más, desde cualquier país, en dólares. Se renueva sola cada mes y la cancelas cuando quieras.'],
@@ -71,7 +71,7 @@
             @if($methods === [])
                 <p class="site-enter admin-card text-site-muted" style="--enter-index: 2">
                     El pago en línea no está disponible en este momento.
-                    <a href="{{ route('diy') }}#comparar" class="font-medium text-site-ink underline underline-offset-4">Escríbenos</a> y lo activamos contigo.
+                    <a href="{{ route('diy') }}#planes" class="font-medium text-site-ink underline underline-offset-4">Escríbenos</a> y lo activamos contigo.
                 </p>
             @else
                 {{-- El total cambia con el plan, la forma de pago (su moneda) y los meses (solo sin renovación automática) --}}

@@ -15,7 +15,6 @@
         ]));
     }
     $eventLandings = collect($landings ?? [])->reject(fn (array $landing) => in_array(config("bida.landings.{$landing['slug']}.kind"), ['card', 'season'], true));
-    $seasonLandings = collect($landings ?? [])->filter(fn (array $landing) => in_array(config("bida.landings.{$landing['slug']}.kind"), ['card', 'season'], true));
 @endphp
 <footer class="site-foot">
     <div class="site-foot__inner">
@@ -58,11 +57,8 @@
             <nav class="site-foot__col" aria-label="Más de {{ $bida['brand'] }}">
                 <p class="site-foot__title">También</p>
                 <ul>
-                    <li><a href="{{ route('diy') }}">Hazlo tú</a></li>
+                    <li><a href="{{ route('diy') }}">Únete</a></li>
                     <li><a href="{{ route('guide') }}">Guía de invitaciones</a></li>
-                    @foreach($seasonLandings as $landing)
-                        <li><a href="{{ $landing['url'] }}">{{ $landing['label'] }}</a></li>
-                    @endforeach
                     <li><a href="{{ route('home') }}#precios">Precios</a></li>
                     <li><a href="{{ $accountUrl }}">{{ $accountLabel }}</a></li>
                 </ul>

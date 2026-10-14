@@ -16,6 +16,8 @@ use App\Support\InvitationDefaults;
 use App\Support\InvitationTemplates;
 use App\Support\Packages;
 use App\Support\ResellerSubscription;
+use App\Support\SampleContent;
+use App\Support\ShowcaseDemos;
 use App\Support\TemplateAvailability;
 use Illuminate\Support\Collection;
 
@@ -91,8 +93,9 @@ class InvitationEditorViewData
         ?User $owner = null,
     ): array {
         $urls = $this->urls($context);
+        $captures = $this->templateCaptures();
 
-        $defaultEventDate = $invitation?->event_date?->format('Y-m-d\TH:i') ?? now()->addMonths(3)->format('Y-m-d\TH:i');
+        $defaultEventDate = $invitation?->event_date?->format('Y-m-d\TH:i') ?? now()->addMonths(3)->setTime(19, 0)->format('Y-m-d\TH:i');
         $defaultExpires = $invitation?->expires_at?->format('Y-m-d') ?? now()->addMonths(9)->format('Y-m-d');
 
         return [
@@ -114,6 +117,8 @@ class InvitationEditorViewData
                 'value' => $value,
                 'label' => $label,
                 'description' => InvitationTemplates::get($value)['description'],
+                // Cómo empieza su muestra: el asistente de creación la enseña al elegir el diseño
+                'capture' => $captures[$value] ?? null,
                 'event' => InvitationTemplates::get($value)['event'],
                 // Colores y letras con los que nace una invitación nueva de esta plantilla
                 'palette' => InvitationTemplates::get($value)['palette'],
@@ -168,6 +173,15 @@ class InvitationEditorViewData
             'planRsvp' => $context === self::RESELLER ? array_values((array) ($owner?->planConfig()['rsvp'] ?? [])) : null,
             'planRsvpTiers' => $context === self::RESELLER ? self::rsvpTiers() : null,
             // Textos editables de cada plantilla, agrupados por módulo, con el valor que trae la plantilla
+            // Contenido de ejemplo de cada evento: al crear la invitación y al encender una parte, aparece
+            // con él para tocarlo y cambiarlo; antes de publicar se avisa lo que sigue sin cambiar
+            'samples' => SampleContent::forEditor(),
+            'samplePlaceholders' => SampleContent::placeholders(),
+            // Forma vacía de cada módulo: una parte «vacía» recibe el ejemplo al encenderla
+            'moduleDefaults' => InvitationDefaults::emptyModules(),
+            // Una invitación nueva empieza por el asistente (evento, diseño y datos); si volvió con
+            // errores del guardado, directo al editor para corregirlos
+            'wizard' => $isCreate && ! session()->hasOldInput(),
             'editableTexts' => $templates->keys()->mapWithKeys(fn ($value) => [$value => EditableTexts::forTemplate($value)]),
             'cloudinaryConfigured' => $this->mediaUpload->isCloudinaryConfigured(),
             'moduleCodes' => InvitationDefaults::moduleCodes(),
@@ -175,6 +189,23 @@ class InvitationEditorViewData
             'previewKey' => InvitationPreviewSession::keyFor($invitation),
             'previewRevision' => $invitation?->updated_at?->timestamp ?? 0,
         ];
+    }
+
+    /** Captura de la muestra de cada plantilla (la primera muestra que la usa), si la hay. */
+    private function templateCaptures(): array
+    {
+        $showcase = rescue(
+            fn () => Invitation::whereIn('slug', ShowcaseDemos::slugs())->pluck('template', 'slug')->all(),
+            [],
+            report: false,
+        );
+
+        $captures = [];
+        foreach ($showcase as $slug => $template) {
+            $captures[$template] ??= ShowcaseDemos::capture($slug);
+        }
+
+        return array_filter($captures);
     }
 
     /** Primer plan de revendedor que trae cada confirmación, para el aviso «Viene en el plan…». */

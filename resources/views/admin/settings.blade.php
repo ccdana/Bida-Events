@@ -4,7 +4,7 @@
 
 {{--
     Ajustes del sitio, en cuatro pestañas: lo que se cobra por invitación (paquetes y promoción), las
-    temporadas (cada una por separado), «Hazlo tú» (planes mensuales) y el contacto con las redes. Un solo formulario: las
+    temporadas (cada una por separado), «Únete» (planes mensuales) y el contacto con las redes. Un solo formulario: las
     pestañas solo ordenan la pantalla, se guarda todo junto desde la barra fija de abajo. Si al
     guardar algo no pasa la validación, se abre la pestaña donde está el error.
 --}}
@@ -18,7 +18,7 @@
         $errorKeys->contains(fn ($key) => str_starts_with($key, 'contact')) => 'contacto',
         default => 'paquetes',
     };
-    $tabs = ['paquetes' => 'Paquetes y promoción', 'temporadas' => 'Temporadas', 'hazlo' => 'Hazlo tú', 'contacto' => 'Contacto y redes'];
+    $tabs = ['paquetes' => 'Paquetes y promoción', 'temporadas' => 'Temporadas', 'hazlo' => 'Únete', 'contacto' => 'Contacto y redes'];
     $enabledTemplates = collect(old('templates', collect($seasonalTemplates)->filter(fn ($t) => $t['enabled'])->keys()->all()));
     $statusLabels = [
         'selling' => ['En el sitio', 'is-success'],
@@ -35,7 +35,7 @@
             <h1 class="text-3xl font-semibold tracking-tight md:text-4xl">Ajustes</h1>
             <p class="mt-2 max-w-[62ch] text-site-muted">
                 Los precios que ve la gente, hasta cuándo dura cada promoción, qué temporadas se ofrecen y los planes de
-                Hazlo tú, y el WhatsApp y las redes del sitio. Los precios van en dólares ({{ $currency }}) y todo se aplica al instante, sin tocar el código.
+                Únete, y el WhatsApp y las redes del sitio. Los precios van en dólares ({{ $currency }}) y todo se aplica al instante, sin tocar el código.
             </p>
         </header>
 
@@ -217,15 +217,15 @@
                 @endforeach
             </div>
 
-            {{-- ══ Hazlo tú: planes mensuales ══ --}}
+            {{-- ══ Únete: planes mensuales ══ --}}
             <div id="panel-hazlo" role="tabpanel" aria-labelledby="ajustes-hazlo" x-show="tab === 'hazlo'" @if($startTab !== 'hazlo') x-cloak @endif>
                 <section class="set-block">
                     <div class="set-block__head">
                         <div>
-                            <h2 class="set-block__title">Planes de Hazlo tú</h2>
+                            <h2 class="set-block__title">Planes de Únete</h2>
                             <p class="set-block__text">
                                 La suscripción mensual para quien arma sus propias invitaciones. El precio y el descuento se ven en
-                                la página Hazlo tú; el cupo es cuántas invitaciones (y accesos de cliente) puede crear por mes.
+                                la página Únete; el cupo es cuántas invitaciones (y accesos de cliente) puede crear por mes.
                             </p>
                         </div>
                         <a href="{{ route('diy') }}" target="_blank" rel="noopener" class="admin-link-button">

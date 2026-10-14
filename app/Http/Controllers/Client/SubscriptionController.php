@@ -16,7 +16,7 @@ use Illuminate\View\View;
 use Throwable;
 
 /**
- * Pagar un plan de «Hazlo tú» en línea: elegir plan y forma de pago, ir a la pasarela y esperar su
+ * Pagar un plan de «Únete» en línea: elegir plan y forma de pago, ir a la pasarela y esperar su
  * aviso. La suscripción se activa recién cuando la pasarela avisa que cobró (WebhookProcessor), no
  * al volver de su página: volver no prueba que se haya pagado.
  *

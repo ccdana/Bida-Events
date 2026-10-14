@@ -38,7 +38,7 @@ final class ShareMeta
         ];
     }
 
-    /** El logo de Bida: portada del sitio, páginas por evento, «Hazlo tú», guía y páginas legales. */
+    /** El logo de Bida: portada del sitio, páginas por evento, «Únete», guía y páginas legales. */
     public static function defaultImage(): string
     {
         return asset(self::DEFAULT_IMAGE);

@@ -61,7 +61,7 @@
         ['icon' => 'list-checks', 'title' => 'Sigues las confirmaciones', 'text' => 'Ves en tu panel quién confirmó, cuántas personas asistirán y, el día del evento, quién ya llegó.'],
     ];
     $faqs = [
-        ['¿Puedo armar mi propia invitación?', 'Sí, es la forma principal de usar '.$bida['brand'].'. Con Hazlo tú eliges un plan mensual, tienes tu propio panel con nuestras plantillas y armas tus invitaciones cuando quieras, sin comisión por invitación. Hay un plan para una sola invitación y otros para quien organiza varios eventos o las vende a sus clientes.'],
+        ['¿Puedo armar mi propia invitación?', 'Sí, es la forma principal de usar '.$bida['brand'].'. Con Únete eliges un plan mensual, tienes tu propio panel con nuestras plantillas y armas tus invitaciones cuando quieras, sin comisión por invitación. Hay un plan para una sola invitación y otros para quien organiza varios eventos o las vende a sus clientes.'],
         ['¿Qué es una invitación digital?', 'Es una página web con los datos de tu evento (fecha, lugar, itinerario, fotos y música) que tus invitados abren desde un enlace, por lo general enviado por WhatsApp. A diferencia de una imagen, permite confirmar asistencia, ver el mapa y recibir un pase de entrada con código QR.'],
         ['¿Para qué tipo de eventos sirve?', 'Bodas, XV años, bautizos, cumpleaños, graduaciones, fiestas de temporada como Halloween y cualquier celebración. Adaptamos los textos y las secciones a tu evento.'],
         ['¿Mis invitados necesitan instalar algo?', 'No. La invitación se abre en el navegador del celular desde el enlace que compartes.'],
@@ -69,7 +69,7 @@
         ['¿Puedo hacer cambios después de compartirla?', 'Sí. Horarios, ubicación y textos se actualizan en el mismo enlace, así tus invitados siempre ven la versión correcta.'],
         ['¿Cuánto tardan en entregarla?', 'Depende del paquete y de cuándo nos envíes las fotos y los datos. Te damos una fecha de entrega al confirmar tu pedido.'],
         ['¿Y si prefiero que me la hagan?', 'También lo hacemos: eliges un paquete, nos cuentas tu evento y armamos la invitación contigo. Es un pago único por invitación.'],
-        ['¿Cómo se realiza el pago?', 'El plan de Hazlo tú se paga cada mes, en línea o coordinado por WhatsApp. Los paquetes se coordinan por WhatsApp (transferencia o QR) antes de empezar el diseño. Los precios están en dólares.'],
+        ['¿Cómo se realiza el pago?', 'El plan de Únete se paga cada mes, en línea o coordinado por WhatsApp. Los paquetes se coordinan por WhatsApp (transferencia o QR) antes de empezar el diseño. Los precios están en dólares.'],
     ];
     $socials = array_values(array_filter([
         ! empty($bida['instagram']) ? ['label' => 'Instagram', 'url' => 'https://www.instagram.com/'.$bida['instagram'].'/', 'icon' => 'instagram-logo'] : null,

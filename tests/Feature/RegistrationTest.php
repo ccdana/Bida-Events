@@ -169,7 +169,7 @@ class RegistrationTest extends TestCase
             ->assertSee('Confirma tu correo')
             ->assertSee('luis@correo.com')
             // Una cuenta nueva sin eventos ve los planes
-            ->assertSee(route('diy').'#comparar', false);
+            ->assertSee(route('diy').'#planes', false);
 
         $this->actingAs(User::factory()->create())->withoutVite()->get(route('client.dashboard'))->assertDontSee('Confirma tu correo');
     }

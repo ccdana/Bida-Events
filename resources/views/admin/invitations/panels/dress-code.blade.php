@@ -1,6 +1,6 @@
 <div x-show="activeTab === 'dress'" x-cloak class="space-y-2">
     @include('admin.partials.panel-intro', [
-        'eyebrow' => 'Dress code',
+        'eyebrow' => 'Cómo vestir',
         'title' => 'Qué vestir',
         'description' => 'el título, el estilo y la descripción, y debajo pestañas «Qué usar», «Colores» y «Evitar». Solo aparecen las pestañas que tengan contenido.',
         'tip' => 'Una sugerencia por grupo (damas, caballeros, niños) es suficiente. Agrega una foto de referencia para que se entienda de un vistazo.',

@@ -3,7 +3,7 @@
 
     $maxPasses = max(1, (int) $guest->passes_allocated);
 @endphp
-<section class="inv-section reveal inv-rsvp" id="rsvp"
+<section class="inv-section reveal inv-rsvp" id="rsvp" data-ed="rsvp"
     x-data="rsvpForm(@js($slug), @js($guest->qr_code_token), {{ $maxPasses }}, @js($guest->status ?? ''), {{ (int) ($guest->passes_confirmed ?? 0) }})">
     @if(! empty($isDemo))
         {{-- Pase de la muestra: se muestra al confirmar sin llamar al servidor --}}

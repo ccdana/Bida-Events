@@ -125,14 +125,15 @@ class InvitationEditorTest extends TestCase
             ->withoutVite()
             ->get(route('admin.invitations.edit', $invitation))
             ->assertOk()
-            // Un módulo encendido y vacío se marca en su apartado y en el resumen
-            ->assertSee('tabIssues(tab).length > 0', false)
-            ->assertSee('pendingIssues.length > 0', false)
-            ->assertSee('datos para que la invitación se vea completa', false)
-            // Publicar deja de estar escondido en un selector del apartado General
+            // Lo que falta se ve en la parte (barra lateral) y en el aviso antes de publicar
+            ->assertSee('partStatus(tab)', false)
+            ->assertSee('item in pendingIssues', false)
+            ->assertSee('Antes de publicar')
+            // Publicar está a la vista en la barra del editor; antes avisa lo que falta o sigue de ejemplo
+            ->assertSee('@click="requestPublish()"', false)
             ->assertSee('@click="publish()"', false)
-            ->assertSee('@click="unpublish()"', false)
-            ->assertSee('Sin publicar: solo la ves tú', false);
+            ->assertSee(') unpublish()"', false)
+            ->assertSee('Publicar igual');
     }
 
     public function test_turning_off_a_module_with_content_hides_it_and_keeps_its_content(): void

@@ -54,7 +54,7 @@ return [
     // Las tarjetas de temporada no van aquí: tienen su sección propia (clave «season»).
     'demo_invitations' => ['xv-isabella', 'boda-camila-andres', 'bautizo-emilia', 'cumple-daniela-30', 'graduacion-mariana', 'babyshower-valentina'],
 
-    // Página «Hazlo tú» (/hazlo-tu, planes mensuales): las muestras que se prueban en su teléfono
+    // Página «Únete» (/unete, planes mensuales): las muestras que se prueban en su teléfono
     'professionals' => [
         'demos' => ['lienzo-casa-molina', 'graduacion-mariana', 'halloween-noche-diego'],
     ],
@@ -393,7 +393,7 @@ return [
 
     /*
     | Lo que ofrece la marca, en la sección «Servicios» de la portada. El primero es el modelo
-    | principal (que la persona arme su invitación, «Hazlo tú»); los otros dos son secundarios.
+    | principal (que la persona arme su invitación, «Únete»); los otros dos son secundarios.
     | «price» toma el precio de hoy: «packages» (el paquete más barato), «season» (la temporada vigente) o
     | «reseller» (el plan mensual más barato para profesionales).
     | «href» acepta un ancla, «season» (la temporada o su página) o una URL.
@@ -401,7 +401,7 @@ return [
     'services' => [
         [
             'key' => 'hazlo',
-            'name' => 'Hazlo tú',
+            'name' => 'Únete',
             'text' => 'Armas tu invitación con nuestras plantillas, desde tu propio panel y cuando quieras: para tu evento, tu familia o tus clientes. Un plan al mes, sin comisión por invitación.',
             'occasions' => ['Tu evento', 'Si organizas varios', 'Fotógrafos y salones', 'Emprendedores de eventos'],
             'price' => 'reseller',

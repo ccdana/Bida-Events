@@ -9,7 +9,7 @@
 @endif
 
 @if($page->isPostEvent && $page->visible('post_evento') && !empty($page->welcome['mensaje_post_evento']))
-    <section class="inv-section reveal">
+    <section class="inv-section reveal" data-ed="post_evento">
         <div class="inv-wrap">
             <p class="inv-thanks__text">{{ $page->welcome['mensaje_post_evento'] }}</p>
         </div>

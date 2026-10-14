@@ -1,5 +1,5 @@
 /* ════════════════════════════════════════════════════════════════════════════
-   SITIO PÚBLICO — Portada, «Hazlo tú», pie y botón de temporadas
+   SITIO PÚBLICO — Portada, «Únete», pie y botón de temporadas
 
    Lenguaje editorial: titulares en serif (Instrument Serif) sobre la sans de la
    marca, filetes finos en lugar de tarjetas, fotos con radio suave y el dorado
@@ -574,7 +574,7 @@ a:hover > .site-link-arrow svg,
     margin-top: 0.25rem;
 }
 
-/* Aviso bajo un teléfono con una muestra (lo usa «Hazlo tú») */
+/* Aviso bajo un teléfono con una muestra (lo usa «Únete») */
 .site-tester__hint {
     display: flex;
     align-items: center;
@@ -645,7 +645,7 @@ a:hover > .site-link-arrow svg,
     color: var(--site-muted);
 }
 
-/* ── «Hazlo tú» ─────────────────────────────────────────────────────────── */
+/* ── «Únete» ─────────────────────────────────────────────────────────── */
 
 .site-diy-hero {
     display: grid;
@@ -791,7 +791,7 @@ a:hover > .site-link-arrow svg,
     color: var(--site-muted);
 }
 
-/* ── «Hazlo tú»: vender (portada, calculadora, planes, te la hacemos) ───── */
+/* ── «Únete»: vender (portada, calculadora, planes, te la hacemos) ───── */
 
 .site-diy-hero .site-display {
     font-size: clamp(2.7rem, 10vw, 5.4rem);
@@ -1407,7 +1407,7 @@ a:hover > .site-link-arrow svg,
     color: var(--site-muted);
 }
 
-/* ── Recorrido de «Hazlo tú»: plan, cuenta, pago e invitación ───────────── */
+/* ── Recorrido de «Únete»: plan, cuenta, pago e invitación ───────────── */
 
 .site-journey {
     display: grid;
@@ -1463,64 +1463,24 @@ a:hover > .site-link-arrow svg,
     height: 1.35rem;
 }
 
-/* ── Comparación completa de planes (página «Hazlo tú», #comparar) ──────── */
+/* ── Planes mensuales: tres columnas por fila, como los paquetes ─────────── */
 
-.site-compare--full {
-    margin-top: 2.5rem;
+@media (min-width: 1024px) {
+    .site-plans--grid .site-plan:nth-child(n + 4) {
+        border-top: 1px solid var(--site-line);
+    }
+
+    .site-plans--grid .site-plan:nth-child(3n + 1) {
+        padding-left: 0;
+        border-left: 0;
+    }
+
+    .site-plans--grid .site-plan:nth-child(3n) {
+        padding-right: 0;
+    }
 }
 
-.site-compare--full table {
-    min-width: 52rem;
-}
-
-.site-compare--full thead th {
-    padding-block: 1.1rem;
-    vertical-align: bottom;
-}
-
-.site-compare__price {
-    display: block;
-    margin-top: 0.3rem;
-    font-size: 1.15rem;
-    font-weight: 600;
-}
-
-.site-compare__price del {
-    margin-right: 0.35rem;
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: var(--site-muted);
-    text-decoration-color: var(--site-accent);
-}
-
-.site-compare__price small {
-    font-size: 0.8rem;
-    font-weight: 400;
-    color: var(--site-muted);
-}
-
-.site-compare--full tbody th {
-    width: 30%;
-    min-width: 13rem;
-}
-
-.site-compare__note {
-    display: block;
-    margin-top: 0.2rem;
-    font-size: 0.82rem;
-    font-weight: 400;
-    line-height: 1.4;
-    color: var(--site-muted);
-}
-
-.site-compare--full tfoot th,
-.site-compare--full tfoot td {
-    padding-block: 1.1rem;
-    border-bottom: 0;
-}
-
-.site-compare--full tfoot .site-btn {
-    width: 100%;
-    min-height: 2.5rem;
-    padding-inline: 0.75rem;
+/* La celda que completa la fila: sin precio ni botón, solo la invitación a escribir */
+.site-plan--note {
+    justify-content: center;
 }
