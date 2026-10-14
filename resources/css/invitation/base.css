@@ -461,6 +461,50 @@ textarea.inv-input {
     margin-inline: auto;
 }
 
+/* Invitación gratuita de «Hazlo tú»: la marca a la vista, con los colores de la invitación */
+.inv-free-mark {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem 0.9rem;
+    max-width: 56rem;
+    margin: -1rem auto 2.75rem;
+    padding: 0.85rem 1.25rem;
+    border: 1px solid var(--inv-line);
+    border-radius: 16px;
+    background: color-mix(in srgb, var(--primary-color) 8%, transparent);
+    color: var(--text-color);
+    font-size: 0.85rem;
+    line-height: 1.4;
+    text-decoration: none;
+    transition: background-color 0.25s ease;
+}
+
+.inv-free-mark__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-weight: 600;
+    color: var(--inv-accent-ink);
+}
+
+.inv-free-mark__cta svg {
+    width: 0.9rem;
+    height: 0.9rem;
+    transition: translate 0.25s var(--inv-ease);
+}
+
+@media (hover: hover) {
+    .inv-free-mark:hover {
+        background: color-mix(in srgb, var(--primary-color) 14%, transparent);
+    }
+
+    .inv-free-mark:hover .inv-free-mark__cta svg {
+        translate: 3px 0;
+    }
+}
+
 .inv-footer__ornament {
     display: block;
     margin: 0 auto 1rem;

@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Services\InvitationPreviewSession;
 use App\Services\MediaUploadService;
 use App\Support\ColorPalettes;
+use App\Support\DiyInvitations;
 use App\Support\EditableTexts;
 use App\Support\ImageFrames;
 use App\Support\InvitationDefaults;
@@ -33,16 +34,22 @@ class InvitationEditorViewData
 
     public const RESELLER = 'reseller';
 
+    /** «Hazlo tú»: el dueño arma la suya; todo desbloqueado y el nivel se ve parte por parte. */
+    public const DIY = 'diy';
+
     public function __construct(
         protected MediaUploadService $mediaUpload
     ) {}
 
     public function make(?Invitation $invitation, array $modulos, bool $isCreate, string $context = self::ADMIN, ?User $owner = null): array
     {
-        $isReseller = $context === self::RESELLER;
-        $templates = $isReseller && $owner
-            ? collect(ResellerSubscription::allowedTemplates($owner))->map(fn (array $template) => $template['label'])
-            : collect(InvitationDefaults::templates());
+        // El revendedor y «Hazlo tú» no eligen cliente: la invitación es de quien la arma
+        $isReseller = $context !== self::ADMIN;
+        $templates = match (true) {
+            $context === self::RESELLER && $owner !== null => collect(ResellerSubscription::allowedTemplates($owner))->map(fn (array $template) => $template['label']),
+            $context === self::DIY => collect(DiyInvitations::allowedTemplates())->map(fn (array $template) => $template['label']),
+            default => collect(InvitationDefaults::templates()),
+        };
         $itineraryIcons = InvitationDefaults::itineraryIcons();
         $eventTypes = EventType::orderBy('name')->get();
         $clients = $isReseller ? new Collection : User::where('is_admin', false)->with('createdByReseller:id,name,business_name')->orderBy('name')->get();
@@ -153,8 +160,14 @@ class InvitationEditorViewData
                 'event_date' => $defaultEventDate,
                 'expires_at' => $defaultExpires,
                 'status' => $invitation?->status === 'active' ? 'active' : 'inactive',
-                // Paquete vendido; una nueva del equipo arranca en Estándar, la del revendedor no lleva
-                'package' => $invitation ? (string) $invitation->package : ($context === 'admin' ? Packages::STANDARD : ''),
+                // Paquete vendido; una nueva del equipo arranca en Estándar, la del revendedor no lleva y
+                // la de «Hazlo tú» se arma con todo desbloqueado (su nivel va aparte, en diyTiers)
+                'package' => match (true) {
+                    $context === self::DIY => '',
+                    $invitation !== null => (string) $invitation->package,
+                    $context === self::ADMIN => Packages::STANDARD,
+                    default => '',
+                },
             ],
             'isCreate' => $isCreate,
             'slugManual' => ! $isCreate,
@@ -166,12 +179,19 @@ class InvitationEditorViewData
             // Medida y forma real de cada espacio de foto: el recortador encuadra con ellas
             'imageFrames' => ImageFrames::forEditor(),
             // Qué incluye cada paquete: el editor apaga y marca lo que el paquete elegido no trae
-            'packageOptions' => collect(config('bida.packages', []))->map(fn (array $package) => ['value' => $package['key'], 'label' => $package['name'], 'hint' => $package['summary'] ?? ''])->values(),
-            'packageOrder' => Packages::ORDER,
-            'packageModules' => Packages::MODULES,
+            'packageOptions' => collect(config('bida.packages', []))
+                ->map(fn (array $package) => ['value' => $package['key'], 'label' => $package['name'], 'hint' => $package['summary'] ?? ''])
+                // Una de «Hazlo tú» publicada gratis: el administrador la ve (y la puede subir de nivel)
+                ->when($invitation?->is_diy && $invitation->package === Packages::FREE, fn ($options) => $options->prepend(['value' => Packages::FREE, 'label' => 'Gratis', 'hint' => 'Hazlo tú: portada, cuenta regresiva y ubicación.']))
+                ->values(),
+            // Escalera completa (Gratis incluido) y el nivel de cada módulo, para marcar lo que el paquete no trae
+            'packageOrder' => Packages::TIERS,
+            'packageModules' => $this->moduleTiers(),
             // Revendedor: la confirmación que trae su plan (whatsapp, pass) y desde qué plan viene cada una
             'planRsvp' => $context === self::RESELLER ? array_values((array) ($owner?->planConfig()['rsvp'] ?? [])) : null,
             'planRsvpTiers' => $context === self::RESELLER ? self::rsvpTiers() : null,
+            // «Hazlo tú»: el nivel de cada parte, el que ya pagó (null = nunca publicada) y dónde se publica
+            'diyTiers' => $context === self::DIY ? $this->diyTiers($invitation) : null,
             // Textos editables de cada plantilla, agrupados por módulo, con el valor que trae la plantilla
             // Contenido de ejemplo de cada evento: al crear la invitación y al encender una parte, aparece
             // con él para tocarlo y cambiarlo; antes de publicar se avisa lo que sigue sin cambiar
@@ -189,6 +209,27 @@ class InvitationEditorViewData
             'previewKey' => InvitationPreviewSession::keyFor($invitation),
             'previewRevision' => $invitation?->updated_at?->timestamp ?? 0,
         ];
+    }
+
+    /** Niveles de «Hazlo tú» para el editor: cada parte dice desde qué nivel viene y la barra, el nivel de hoy. */
+    private function diyTiers(?Invitation $invitation): array
+    {
+        return [
+            'order' => Packages::TIERS,
+            'names' => Packages::tierNames(),
+            'modules' => $this->moduleTiers(),
+            'paid' => Packages::isTier($invitation?->package) ? $invitation->package : null,
+            'publishUrl' => $invitation ? route('client.diy.publish', $invitation) : null,
+        ];
+    }
+
+    /** Desde qué nivel viene cada módulo (Gratis, Básico, Estándar o Premium). */
+    private function moduleTiers(): array
+    {
+        return collect(InvitationDefaults::moduleCodes())
+            ->reject(fn (string $code) => $code === 'config')
+            ->mapWithKeys(fn (string $code) => [$code => Packages::moduleTier($code)])
+            ->all();
     }
 
     /** Captura de la muestra de cada plantilla (la primera muestra que la usa), si la hay. */
@@ -226,7 +267,7 @@ class InvitationEditorViewData
      */
     protected function urls(string $context): array
     {
-        if ($context === self::RESELLER) {
+        if ($context !== self::ADMIN) {
             return [
                 'previewUrl' => route('client.editor.preview.frame'),
                 'previewStoreUrl' => route('client.editor.preview.store'),

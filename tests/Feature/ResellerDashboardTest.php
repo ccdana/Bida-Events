@@ -72,9 +72,12 @@ class ResellerDashboardTest extends TestCase
         $client = User::factory()->create();
         $invitation = $this->createInvitation(['user_id' => $client->id]);
 
+        // Sin plan ni cupo: puede armar la suya con «Hazlo tú», no con el editor del revendedor
         $this->actingAs($client)->withoutVite()->get(route('client.dashboard'))
             ->assertOk()
-            ->assertDontSee('Nueva invitación')
-            ->assertDontSee(route('client.invitations.edit', $invitation), false);
+            ->assertDontSee('invitaciones creadas este mes')
+            ->assertDontSee(route('client.invitations.create'), false)
+            ->assertDontSee(route('client.invitations.edit', $invitation), false)
+            ->assertSee(route('client.diy.create'), false);
     }
 }

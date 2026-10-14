@@ -95,6 +95,10 @@
     @if(($editorMode ?? 'admin') === 'admin')
         <input type="hidden" name="package" :value="meta.package">
     @endif
+    {{-- «Hazlo tú»: después de guardar, a la página de publicar (Client\DiyInvitationController) --}}
+    @if(($editorMode ?? 'admin') === 'diy')
+        <input type="hidden" name="next" :value="diyNext">
+    @endif
 
     <div class="flex-1 space-y-4 p-4">
         @include('admin.invitations.panels.general')

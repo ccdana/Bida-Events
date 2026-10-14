@@ -77,8 +77,11 @@ class DashboardViewData
             'typeSlug' => $invitation->eventType?->slug ?? '',
             'typeName' => $invitation->eventType?->name ?? 'Sin tipo',
             'templateLabel' => $template['label'],
-            // Paquete vendido; sin paquete, todo incluido (tarjetas, revendedores y anteriores)
-            'packageLabel' => Packages::names()[$invitation->package ?? ''] ?? null,
+            // Paquete vendido; sin paquete, todo incluido (tarjetas, revendedores y anteriores). Las de
+            // «Hazlo tú» dicen que las armó el cliente y con qué nivel se publicaron (o que son borrador)
+            'packageLabel' => $invitation->is_diy
+                ? 'Hazlo tú · '.(Packages::tierNames()[$invitation->package ?? ''] ?? 'borrador')
+                : (Packages::names()[$invitation->package ?? ''] ?? null),
             'guestCount' => $guests,
             'confirmedCount' => $confirmed,
             'pendingCount' => (int) ($invitation->pending_guests_count ?? 0),

@@ -7,7 +7,9 @@ use App\Models\Invitation;
 use App\Models\User;
 use App\Modules\Module;
 use App\Payments\PaymentGateways;
+use App\Support\DiyInvitations;
 use App\Support\InvitationTemplates;
+use App\Support\Packages;
 use App\Support\ResellerSubscription;
 use Illuminate\Support\Collection;
 
@@ -48,6 +50,8 @@ class DashboardViewData
             'search' => $search,
             'total' => $rows->count(),
             'reseller' => $user?->isReseller() ? $this->reseller($user) : null,
+            // «Hazlo tú»: crear su propia invitación (sin plan), con cuántos borradores le quedan
+            'diy' => $user && DiyInvitations::canBuild($user) ? $this->diy($user) : null,
             // Dónde elegir el plan: pagarlo aquí si hay pago en línea; si no, ver los planes y escribirnos
             'startUrl' => app(PaymentGateways::class)->availableMethods() ? route('client.subscription') : route('diy').'#planes',
         ];
@@ -108,6 +112,21 @@ class DashboardViewData
         ];
     }
 
+    /** «Hazlo tú»: si puede crear otra (tope de borradores) y si todavía le queda la gratuita. */
+    private function diy(User $user): array
+    {
+        $drafts = DiyInvitations::draftsCount($user);
+        $limit = DiyInvitations::draftsLimit();
+
+        return [
+            'canCreate' => $drafts < $limit,
+            'drafts' => $drafts,
+            'limit' => $limit,
+            'freeAvailable' => DiyInvitations::freeAvailable($user),
+            'blockedReason' => $drafts < $limit ? null : "Ya tienes {$limit} borradores: publica uno o borra el que no uses.",
+        ];
+    }
+
     private function row(Invitation $invitation, bool $forReseller = false, ?User $user = null): array
     {
         $profile = $this->profiles->forTemplate($invitation->template);
@@ -130,6 +149,10 @@ class DashboardViewData
                 ? null
                 : match (true) {
                     $invitation->status === 'active' => 'El enlace venció: escríbenos para renovarlo.',
+                    // «Hazlo tú»: la arma y la publica el propio dueño
+                    $invitation->is_diy => $invitation->package === null
+                        ? 'Borrador: publícala desde el editor cuando esté lista.'
+                        : 'Oculta: publícala otra vez desde el editor.',
                     // El revendedor la arma él mismo: la publica desde su editor
                     $forReseller => 'Todavía sin publicar: publícala desde el editor.',
                     default => 'Todavía sin publicar: la estamos preparando.',
@@ -137,6 +160,8 @@ class DashboardViewData
             'metrics' => $isCard ? $this->cardMetrics($invitation) : $this->guestMetrics($guests),
             'guestsCount' => $guests->count(),
             'ownerLabel' => $forReseller && $user ? $this->ownerLabel($invitation, $user) : null,
+            // «Hazlo tú»: el nivel con el que se publicó (Gratis, Básico…); null mientras es borrador
+            'tierLabel' => $invitation->is_diy && Packages::isTier($invitation->package) ? (Packages::tierNames()[$invitation->package] ?? null) : null,
         ];
     }
 

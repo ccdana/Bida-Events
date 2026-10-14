@@ -176,6 +176,9 @@ function invitationForm(config) {
         frameSeq: 0,
         partNotice: '',
         publishDialog: false,
+        // «Hazlo tú»: el aviso de qué nivel tiene la invitación y «next» del formulario (publish = ir a publicar)
+        tierDialog: false,
+        diyNext: '',
         // Asistente de creación (editor/wizard)
         wizardOpen: !!config.wizard,
         wizardStep: 1,
@@ -609,6 +612,8 @@ function invitationForm(config) {
         publish() {
             this.publishDialog = false;
             this.meta.status = 'active';
+            // «Hazlo tú»: se guarda y la página de publicar decide (gratis, con un nivel o subir de nivel)
+            if (this.isDiy) this.diyNext = 'publish';
             this.$nextTick(() => document.getElementById('invitation-form')?.requestSubmit());
         },
 
@@ -978,6 +983,61 @@ function invitationForm(config) {
             return 'Viene en ' + (this.packageName(this.config.packageModules?.[tab.moduleCode]) || 'otro paquete');
         },
 
+        // ── «Hazlo tú» (config.diyTiers, App\Support\Packages): todo desbloqueado; cada parte dice desde
+        // qué nivel viene y la barra muestra el nivel que piden las partes encendidas ──
+        get isDiy() {
+            return !!this.config.diyTiers;
+        },
+
+        diyTierOf(moduleCode) {
+            return this.config.diyTiers?.modules?.[moduleCode] ?? 'basico';
+        },
+
+        diyTierName(tier) {
+            return this.config.diyTiers?.names?.[tier] ?? tier;
+        },
+
+        diyTierIndex(tier) {
+            return (this.config.diyTiers?.order ?? []).indexOf(tier);
+        },
+
+        /** El nivel que piden las partes encendidas de esta plantilla. */
+        get diyRequiredTier() {
+            const order = this.config.diyTiers?.order ?? [];
+            let index = 0;
+            for (const tab of this.flatTabs) {
+                if (tab.moduleCode && this.isTabEnabled(tab)) index = Math.max(index, order.indexOf(this.diyTierOf(tab.moduleCode)));
+            }
+            return order[index] ?? 'gratis';
+        },
+
+        /** Partes encendidas que no son gratuitas, con su nivel: el detalle del aviso «Nivel». */
+        get diyPaidParts() {
+            return this.flatTabs
+                .filter(tab => tab.moduleCode && this.isTabEnabled(tab) && this.diyTierOf(tab.moduleCode) !== 'gratis')
+                .map(tab => ({ id: tab.id, label: tab.label, tier: this.diyTierName(this.diyTierOf(tab.moduleCode)) }));
+        },
+
+        /** Publicada con un nivel menor que el que piden sus partes: lo de más no se ve hasta subir. */
+        get diyNeedsUpgrade() {
+            const paid = this.config.diyTiers?.paid;
+            return this.isDiy && !!paid && this.diyTierIndex(this.diyRequiredTier) > this.diyTierIndex(paid);
+        },
+
+        /** La parte pide más que el nivel pagado: no se ve en la invitación publicada. */
+        diyAbovePaid(tab) {
+            const paid = this.config.diyTiers?.paid;
+            return this.isDiy && !!paid && !!tab.moduleCode && this.isTabEnabled(tab)
+                && this.diyTierIndex(this.diyTierOf(tab.moduleCode)) > this.diyTierIndex(paid);
+        },
+
+        /** Rótulo del nivel de una parte en la barra lateral («Estándar»); vacío si es gratuita. */
+        diyPartTier(tab) {
+            if (!this.isDiy || !tab.moduleCode) return '';
+            const tier = this.diyTierOf(tab.moduleCode);
+            return tier === 'gratis' ? '' : this.diyTierName(tier);
+        },
+
         /** Cómo confirma el invitado: 'whatsapp', 'pass' o null, según el módulo encendido y lo que incluye el paquete. */
         get rsvpMode() {
             const flags = this.modules.config?.modulos ?? {};
@@ -1138,6 +1198,7 @@ function invitationForm(config) {
             const status = this.tabStatus(tab);
             if (status === 'locked') return this.packageLockLabel(tab);
             if (status === 'off') return 'Apagada';
+            if (this.diyAbovePaid(tab)) return 'No se ve hasta subir a ' + this.diyTierName(this.diyTierOf(tab.moduleCode));
             const examples = this.examplesOf(tab);
             if (examples) return examples === 1 ? '1 cosa de ejemplo por cambiar' : examples + ' cosas de ejemplo por cambiar';
             if (status === 'issue') return this.tabIssues(tab)[0];

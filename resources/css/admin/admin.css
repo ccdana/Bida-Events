@@ -1641,6 +1641,22 @@ html[data-theme='dark'] .adm-device {
     color: var(--site-muted);
 }
 
+/* «Hazlo tú»: desde qué nivel viene la parte, en versalitas junto al nombre */
+.ed-part__tier {
+    margin-left: 0.4rem;
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--site-muted);
+}
+
+/* Encendida pero por encima del nivel pagado: no se ve en la invitación publicada */
+.ed-part__tier.is-above,
+.ed-part:has(.ed-part__tier.is-above) .ed-part__status {
+    color: var(--site-danger);
+}
+
 .ed-part.is-pending .ed-part__status {
     color: var(--site-accent);
 }
@@ -1768,6 +1784,12 @@ html[data-theme='dark'] .adm-device {
 
 .ed-tool--published {
     color: var(--site-accent);
+}
+
+/* «Hazlo tú»: «Nivel Estándar» en la barra; la palabra «Nivel» va apagada */
+.ed-tool__muted {
+    font-weight: 500;
+    color: var(--site-muted);
 }
 
 .ed-tool:disabled {
@@ -2876,8 +2898,10 @@ html[data-theme='dark'] .adm-device {
         order: -2;
     }
 
+    /* «Hazlo tú»: el nivel va junto a «Publicar», no escondido al final de la barra */
     .ed-tool--primary,
-    .ed-tool--published {
+    .ed-tool--published,
+    .ed-tool--tier {
         order: -1;
     }
 }

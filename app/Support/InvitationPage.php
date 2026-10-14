@@ -316,6 +316,12 @@ final class InvitationPage
         ];
     }
 
+    /** Invitación gratuita de «Hazlo tú»: lleva la marca de Bida Events a la vista (shell/footer). */
+    public function isFreeTier(): bool
+    {
+        return $this->invitation->is_diy && $this->invitation->package === Packages::FREE;
+    }
+
     /** Iniciales para monogramas y sellos, p. ej. "A & L". */
     public function initials(): string
     {

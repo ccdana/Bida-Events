@@ -41,7 +41,7 @@ class DashboardController extends Controller
 
         // Solo la página que se ve, y los invitados los cuenta la base
         $invitations = InvitationFilters::apply($scope(), $filters)
-            ->select('id', 'user_id', 'reseller_id', 'event_type_id', 'slug', 'template', 'package', 'title', 'event_date', 'status', 'expires_at', 'created_at')
+            ->select('id', 'user_id', 'reseller_id', 'is_diy', 'event_type_id', 'slug', 'template', 'package', 'title', 'event_date', 'status', 'expires_at', 'created_at')
             ->with(['eventType:id,name,slug,kind', 'user:id,name,username'])
             ->withCount([
                 'guests',

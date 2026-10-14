@@ -134,12 +134,13 @@ class ResellerEditorTest extends TestCase
         $this->actingAs($this->reseller)->post(route('client.editor.preview.store'), [])->assertRedirect()->assertSessionHas('access_notice');
     }
 
-    public function test_a_normal_client_does_not_reach_the_editor(): void
+    public function test_a_normal_client_does_not_reach_the_reseller_editor(): void
     {
         $client = User::factory()->create();
 
+        // Arma la suya con «Hazlo tú» (DiyInvitationTest), no con el editor del revendedor
         $this->actingAs($client)->get(route('client.invitations.create'))->assertRedirect()->assertSessionHas('access_notice');
-        $this->actingAs($client)->post(route('client.editor.media.upload'), [])->assertRedirect()->assertSessionHas('access_notice');
+        $this->actingAs($client)->post(route('client.invitations.store'), $this->payload())->assertRedirect()->assertSessionHas('access_notice');
     }
 
     private function payload(array $overrides = []): array

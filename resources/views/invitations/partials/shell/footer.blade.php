@@ -4,6 +4,17 @@
     En celular todo va apilado y centrado; en pantallas anchas la barra inferior se reparte a los lados.
 --}}
 <footer class="inv-footer {{ $footerClass ?? '' }}">
+    {{-- Invitación gratuita de «Hazlo tú» (InvitationPage::isFreeTier): la marca de Bida Events, a la vista --}}
+    @if($page->isFreeTier())
+        <a href="{{ route('home') }}" class="inv-free-mark" target="_blank" rel="noopener">
+            <span class="inv-free-mark__text">Invitación gratuita hecha con <strong>{{ config('bida.brand') }}</strong></span>
+            <span class="inv-free-mark__cta">
+                Crea la tuya
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+        </a>
+    @endif
+
     <div class="inv-footer__inner">
         @if(($footerOrnament ?? null) === 'balloons')
             <span class="inv-footer__ornament inv-cumple-trio" aria-hidden="true">

@@ -14,6 +14,8 @@ use Illuminate\Support\Carbon;
  * @property int $id
  * @property int|null $user_id
  * @property int|null $reseller_id
+ * @property bool $is_diy
+ * @property string|null $package
  * @property int $event_type_id
  * @property string $slug
  * @property string $template
@@ -30,6 +32,8 @@ class Invitation extends Model
     protected $fillable = [
         'user_id',
         'reseller_id',
+        // «Hazlo tú»: la arma su dueño (user_id) desde el sitio (App\Support\DiyInvitations)
+        'is_diy',
         'event_type_id',
         'slug',
         'template',
@@ -43,6 +47,7 @@ class Invitation extends Model
     protected $casts = [
         'event_date' => 'datetime',
         'expires_at' => 'date',
+        'is_diy' => 'boolean',
     ];
 
     protected $appends = ['is_post_event'];

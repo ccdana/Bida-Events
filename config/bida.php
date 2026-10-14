@@ -480,6 +480,24 @@ return [
     ],
 
     /*
+    | «Hazlo tú»: cualquier cuenta del sitio arma su propia invitación sin pagar nada antes
+    | (App\Support\DiyInvitations). Mientras es borrador tiene todo desbloqueado; al publicarla, el
+    | nivel sale de las partes que encendió: Gratis (portada, cuenta regresiva y ubicación, con la
+    | marca de Bida Events a la vista), o Básico, Estándar y Premium, los mismos módulos que los
+    | paquetes del equipo («packages»). Lo que no se paga se apaga para publicarla gratis.
+    |  - drafts_limit: borradores sin publicar que puede tener a la vez.
+    |  - free_per_account: invitaciones gratuitas por cuenta (una vez gratuita, sigue siéndolo).
+    |  - days_after_event: cuánto sigue en línea después del evento, la gratuita y la pagada.
+    |  - collections: familias de plantillas que se ofrecen (las de temporada se venden aparte).
+    */
+    'diy' => [
+        'drafts_limit' => (int) env('BIDA_DIY_DRAFTS_LIMIT', 3),
+        'free_per_account' => 1,
+        'days_after_event' => ['gratis' => 7, 'paid' => 30],
+        'collections' => ['lienzo', 'clasica', 'nueva', 'tendencias'],
+    ],
+
+    /*
     | Paquetes de las invitaciones que arma el equipo. Lo que dice «features» es lo que el sistema
     | habilita con cada paquete (App\Support\Packages): si se cambia una cosa, se cambian las dos.
     */

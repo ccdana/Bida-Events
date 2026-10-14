@@ -18,6 +18,7 @@ use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Client\AccountController;
 use App\Http\Controllers\Client\ContributionController as ClientContributionController;
 use App\Http\Controllers\Client\DashboardController as ClientDashboardController;
+use App\Http\Controllers\Client\DiyInvitationController;
 use App\Http\Controllers\Client\DoorAccessController;
 use App\Http\Controllers\Client\ExportController;
 use App\Http\Controllers\Client\GuestController as ClientGuestController;
@@ -225,15 +226,28 @@ Route::prefix('client')->name('client.')->middleware(['auth', 'client'])->group(
         // O el evento es del propio revendedor: él mismo es el cliente y no gasta un acceso
         Route::post('/invitations/{invitation}/cliente/yo', [ResellerClientController::class, 'assignSelf'])->can('update', 'invitation')->name('invitations.client.self');
         Route::delete('/invitations/{invitation}/cliente', [ResellerClientController::class, 'destroy'])->can('update', 'invitation')->name('invitations.client.destroy');
+    });
 
-        // Herramientas del editor: los mismos controladores que usa el administrador, con límite por minuto
-        Route::prefix('editor')->name('editor.')->middleware('can:create,'.Invitation::class)->group(function () {
-            Route::post('/preview', [PreviewController::class, 'store'])->middleware('throttle:reseller-editor')->name('preview.store');
-            Route::get('/preview/frame', [PreviewController::class, 'frame'])->middleware('throttle:reseller-editor')->name('preview.frame');
-            Route::post('/media/upload', [MediaUploadController::class, 'store'])->middleware('throttle:reseller-uploads')->name('media.upload');
-            Route::get('/maps/search', [MapsController::class, 'search'])->middleware('throttle:reseller-editor')->name('maps.search');
-            Route::post('/maps/resolve', [MapsController::class, 'resolve'])->middleware('throttle:reseller-editor')->name('maps.resolve');
-        });
+    // «Hazlo tú»: cualquier cuenta arma su propia invitación sin pagar antes; al publicar elige
+    // gratis (con lo básico) o el nivel que piden sus partes (App\Support\DiyInvitations)
+    Route::prefix('mi-invitacion')->name('diy.')->group(function () {
+        Route::get('/nueva', [DiyInvitationController::class, 'create'])->can('createOwn', Invitation::class)->name('create');
+        Route::post('/', [DiyInvitationController::class, 'store'])->can('createOwn', Invitation::class)->name('store');
+        Route::get('/{invitation}/editar', [DiyInvitationController::class, 'edit'])->can('editOwn', 'invitation')->name('edit');
+        Route::put('/{invitation}', [DiyInvitationController::class, 'update'])->can('editOwn', 'invitation')->name('update');
+        Route::delete('/{invitation}', [DiyInvitationController::class, 'destroy'])->can('deleteOwn', 'invitation')->name('destroy');
+        Route::get('/{invitation}/publicar', [DiyInvitationController::class, 'publish'])->can('editOwn', 'invitation')->name('publish');
+        Route::post('/{invitation}/publicar', [DiyInvitationController::class, 'storePublish'])->middleware('throttle:10,1')->can('editOwn', 'invitation')->name('publish.store');
+    });
+
+    // Herramientas del editor (revendedor al día o «Hazlo tú»): los mismos controladores que usa el
+    // administrador, con límite por minuto
+    Route::prefix('editor')->name('editor.')->middleware('can:useEditor,'.Invitation::class)->group(function () {
+        Route::post('/preview', [PreviewController::class, 'store'])->middleware('throttle:reseller-editor')->name('preview.store');
+        Route::get('/preview/frame', [PreviewController::class, 'frame'])->middleware('throttle:reseller-editor')->name('preview.frame');
+        Route::post('/media/upload', [MediaUploadController::class, 'store'])->middleware('throttle:reseller-uploads')->name('media.upload');
+        Route::get('/maps/search', [MapsController::class, 'search'])->middleware('throttle:reseller-editor')->name('maps.search');
+        Route::post('/maps/resolve', [MapsController::class, 'resolve'])->middleware('throttle:reseller-editor')->name('maps.resolve');
     });
 
     // El cliente arma su lista de invitados; el invitado debe pertenecer a su invitación (scopeBindings)

@@ -75,6 +75,35 @@
         </section>
     @endif
 
+    {{-- «Hazlo tú»: cualquiera arma su invitación sin pagar antes; al publicar elige gratis o con más --}}
+    @if($diy && $total > 0)
+        <section class="site-enter admin-card mt-8 flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between lg:p-8" style="--enter-index: 1">
+            <div>
+                <h2 class="text-lg font-semibold tracking-tight">Arma otra invitación</h2>
+                <p class="mt-1 max-w-[52ch] text-sm text-site-muted">
+                    Pruébala con todas las partes que quieras: pagas solo si al publicarla usas más de lo gratuito.
+                    @if($diy['drafts'] > 0)
+                        Tienes {{ $diy['drafts'] }} de {{ $diy['limit'] }} borradores.
+                    @endif
+                </p>
+            </div>
+            <div class="sm:text-right">
+                @if($diy['canCreate'])
+                    <a href="{{ route('client.diy.create') }}" class="admin-primary-button">
+                        <x-phosphor-plus-bold aria-hidden="true" />
+                        Nueva invitación
+                    </a>
+                @else
+                    <span class="admin-primary-button pointer-events-none opacity-50" aria-disabled="true">
+                        <x-phosphor-plus-bold aria-hidden="true" />
+                        Nueva invitación
+                    </span>
+                    <p class="mt-2 text-sm text-site-muted">{{ $diy['blockedReason'] }}</p>
+                @endif
+            </div>
+        </section>
+    @endif
+
     {{-- Buscador: viaja en la URL, así el cliente puede volver al mismo resultado --}}
     @if(empty($filterGroups) && ($total > 0 || $search !== ''))
         <form method="GET" class="site-enter mt-8 flex flex-wrap items-center gap-2" style="--enter-index: 1">
@@ -113,10 +142,16 @@
                                     </p>
                                 @endif
                             </div>
-                            <span class="admin-status-badge self-start {{ $row['isPast'] ? 'is-primary' : ($row['publicUrl'] ? 'is-success' : 'is-pending') }}">
-                                <span class="admin-status-dot"></span>
-                                {{ $row['isPast'] ? 'Ya celebrado' : ($row['publicUrl'] ? 'En línea' : 'Sin publicar') }}
-                            </span>
+                            <div class="flex flex-col gap-1.5 self-start sm:items-end">
+                                <span class="admin-status-badge {{ $row['isPast'] ? 'is-primary' : ($row['publicUrl'] ? 'is-success' : 'is-pending') }}">
+                                    <span class="admin-status-dot"></span>
+                                    {{ $row['isPast'] ? 'Ya celebrado' : ($row['publicUrl'] ? 'En línea' : ($invitation->is_diy && ! $row['tierLabel'] ? 'Borrador' : 'Sin publicar')) }}
+                                </span>
+                                {{-- «Hazlo tú»: el nivel con el que se publicó --}}
+                                @if($row['tierLabel'])
+                                    <span class="text-xs text-site-muted">Nivel {{ $row['tierLabel'] }}</span>
+                                @endif
+                            </div>
                         </div>
 
                         <dl @class([
@@ -153,6 +188,14 @@
                                 </a>
                             @endcan
 
+                            {{-- «Hazlo tú»: su dueño la edita siempre; un borrador que nunca se publicó, también lo borra --}}
+                            @can('editOwn', $invitation)
+                                <a href="{{ route('client.diy.edit', $invitation) }}" class="admin-link-button">
+                                    <x-phosphor-pencil-simple aria-hidden="true" />
+                                    Editar
+                                </a>
+                            @endcan
+
                             @if($row['publicUrl'])
                                 <a href="{{ $row['publicUrl'] }}" target="_blank" rel="noopener" class="admin-link-button">
                                     <x-phosphor-arrow-square-out aria-hidden="true" />
@@ -165,6 +208,18 @@
                                     {{ $row['unavailableReason'] }}
                                 </span>
                             @endif
+
+                            @can('deleteOwn', $invitation)
+                                <form method="POST" action="{{ route('client.diy.destroy', $invitation) }}" class="sm:ml-auto"
+                                    onsubmit="return confirm(@js('¿Borrar el borrador «'.$invitation->title.'»? No se puede recuperar.'))">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="admin-link-button text-site-danger">
+                                        <x-phosphor-trash aria-hidden="true" />
+                                        Borrar borrador
+                                    </button>
+                                </form>
+                            @endcan
                         </div>
                     </article>
                 @endforeach
@@ -189,16 +244,24 @@
                             Nueva invitación
                         </a>
                     @endif
-                @else
-                    {{-- Cuenta recién abierta (o cliente del equipo que espera su invitación): el paso que sigue es elegir el plan --}}
-                    <x-site.journey :current="3" class="mb-8 w-full max-w-md text-left" />
-                    <h2 class="text-lg font-medium">Elige tu plan y crea tu primera invitación</h2>
-                    <p class="mt-1 max-w-[44ch] text-site-muted">Con un plan armas tus invitaciones tú mismo, desde una sola. Si prefieres que las hagamos nosotros, escríbenos.</p>
+                @elseif($diy)
+                    {{-- Cuenta recién abierta: arma tu invitación sin pagar antes («Hazlo tú»); al publicar eliges gratis o con más --}}
+                    <h2 class="text-lg font-medium">Arma tu invitación, gratis</h2>
+                    <p class="mt-1 max-w-[46ch] text-site-muted">
+                        Elige un diseño y prueba todas las partes que quieras. Al publicarla decides: gratis con la portada,
+                        la cuenta regresiva y la ubicación, o con todo lo que armaste.
+                    </p>
                     <div class="mt-6 flex flex-wrap justify-center gap-2">
-                        <a href="{{ $startUrl }}" class="admin-primary-button">Elegir mi plan</a>
-                        <a href="{{ route('home') }}#precios" class="admin-link-button">Que me la hagan</a>
+                        <a href="{{ route('client.diy.create') }}" class="admin-primary-button">
+                            <x-phosphor-plus-bold aria-hidden="true" />
+                            Crear mi invitación
+                        </a>
+                        <a href="{{ route('home') }}#precios" class="admin-link-button">Prefiero que me la hagan</a>
                     </div>
-                    <p class="mt-6 max-w-[44ch] text-sm text-site-muted">Si el equipo ya está armando tu invitación, aparecerá aquí cuando esté lista.</p>
+                    <p class="mt-6 max-w-[46ch] text-sm text-site-muted">
+                        ¿Armas invitaciones para tus clientes? <a href="{{ $startUrl }}" class="font-medium text-site-ink underline underline-offset-4">Mira los planes mensuales</a>.
+                        Si el equipo ya está armando tu invitación, aparecerá aquí cuando esté lista.
+                    </p>
                 @endif
             @endif
         </div>

@@ -9,6 +9,7 @@
         <div class="min-w-0">
             <h2 class="ed-modules__title">Partes de tu invitación</h2>
             <p class="ed-modules__intro">Enciende lo que quieras mostrar. Después tócalo en la invitación para cambiarlo.</p>
+            <p class="ed-modules__intro" x-show="isDiy" x-cloak>Prueba todas: pagas solo si al publicar dejas encendidas las que dicen su nivel.</p>
         </div>
         <button type="button" class="ed-modules__close" @click="modulesOpen = false">Listo</button>
     </div>
@@ -21,7 +22,12 @@
                     <div class="ed-part__row">
                         <button type="button" class="ed-part__name" @click="goToPart(tab)"
                             :title="isTabEnabled(tab) ? 'Ver ' + tab.label + ' en la invitación' : 'Encender ' + tab.label">
-                            <span class="ed-part__label" x-text="tab.label"></span>
+                            <span class="ed-part__label">
+                                <span x-text="tab.label"></span>
+                                {{-- «Hazlo tú»: desde qué nivel viene la parte (las gratuitas no dicen nada) --}}
+                                <span class="ed-part__tier" x-show="diyPartTier(tab)" x-cloak x-text="diyPartTier(tab)"
+                                    :class="{ 'is-above': diyAbovePaid(tab) }"></span>
+                            </span>
                             <span class="ed-part__status" x-text="partStatus(tab)"></span>
                         </button>
                         <button type="button" class="ed-help-btn" @click="helpOpen = helpOpen === 'part:' + tab.id ? null : 'part:' + tab.id"

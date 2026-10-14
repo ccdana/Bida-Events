@@ -130,7 +130,10 @@
                     x-text="error || 'En 24 horas, por ejemplo 18:30'">En 24 horas, por ejemplo 18:30</p>
             </div>
         </div>
-        @include('admin.partials.date-field', ['id' => 'expires-at', 'label' => 'El enlace deja de funcionar el', 'model' => 'meta.expires_at'])
+        {{-- En «Hazlo tú» el vencimiento va solo con la fecha del evento (App\Support\DiyInvitations::expiresAt) --}}
+        @if(($editorMode ?? 'admin') !== 'diy')
+            @include('admin.partials.date-field', ['id' => 'expires-at', 'label' => 'El enlace deja de funcionar el', 'model' => 'meta.expires_at'])
+        @endif
     </section>
 
     {{-- Cliente: solo en el editor del administrador; el revendedor es siempre el dueño de lo que crea --}}

@@ -33,6 +33,13 @@
         Ver como invitado
     </button>
 
+    {{-- «Hazlo tú»: el nivel que piden las partes encendidas; al tocarlo, qué lo sube y cómo bajarlo --}}
+    <button type="button" class="ed-tool ed-tool--tier" x-show="isDiy" x-cloak @click="tierDialog = true"
+        :title="'Tu invitación hoy es nivel ' + diyTierName(diyRequiredTier) + '. Toca para ver por qué.'">
+        <span class="ed-tool__muted">Nivel</span>
+        <span x-text="diyTierName(diyRequiredTier)"></span>
+    </button>
+
     <template x-if="config.isCreate">
         <button type="button" class="ed-tool ed-tool--primary" @click="document.getElementById('invitation-form').requestSubmit()" :disabled="mediaUploading">
             <x-phosphor-plus aria-hidden="true" />
@@ -44,6 +51,11 @@
             <button type="button" class="ed-tool ed-tool--primary" x-show="!isPublished" @click="requestPublish()" :disabled="mediaUploading">
                 <x-phosphor-paper-plane-tilt aria-hidden="true" />
                 Publicar
+            </button>
+            {{-- «Hazlo tú» publicada con un nivel menor que el que piden sus partes: lo de más no se ve todavía --}}
+            <button type="button" class="ed-tool ed-tool--primary" x-show="isPublished && diyNeedsUpgrade" x-cloak @click="publish()" :disabled="mediaUploading">
+                <x-phosphor-arrow-circle-up aria-hidden="true" />
+                <span x-text="'Subir a ' + diyTierName(diyRequiredTier)"></span>
             </button>
             <button type="button" class="ed-tool ed-tool--published" x-show="isPublished" :disabled="mediaUploading"
                 @click="if (confirm('¿Ocultar la invitación? Tus invitados dejarán de verla hasta que la publiques otra vez.')) unpublish()"

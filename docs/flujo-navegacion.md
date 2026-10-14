@@ -25,6 +25,29 @@ flowchart TD
   E -->|"publicar y compartir"| L["/p/slug (enlace público)"]
 ```
 
+## Hazlo tú: armarla sin pagar antes
+
+Cualquier cuenta del sitio (que no sea revendedor) arma su propia invitación con todo desbloqueado. Al
+publicarla, el nivel sale de las partes encendidas (`App\Support\DiyInvitations`): **Gratis** (portada,
+cuenta regresiva y ubicación, con la marca de Bida Events a la vista, una por cuenta) o **Básico,
+Estándar y Premium** (los mismos módulos que los paquetes del equipo). Mientras no hay pago en línea por
+nivel, el nivel pagado se pide por WhatsApp y lo activa el equipo desde el editor del administrador.
+
+```mermaid
+flowchart TD
+  D["/client (panel)"] -->|"Crear mi invitación · Nueva invitación"| N["/client/mi-invitacion/nueva<br/>asistente de 3 pasos"]
+  N -->|"Crear invitación (borrador)"| E["/client/mi-invitacion/ID/editar<br/>todo desbloqueado, «Nivel …» en la barra"]
+  E -->|"Publicar"| P["/client/mi-invitacion/ID/publicar"]
+  P -->|"Publicar gratis (apaga lo que no trae)"| L["/p/slug con la franja de Bida Events"]
+  P -->|"Pedir {nivel} por WhatsApp"| W["wa.me (Ref. HAZLO)"]
+  W -->|"el equipo pone el nivel en el editor"| L2["/p/slug con todo lo que armó"]
+  E -->|"Subir a {nivel} (publicada con menos)"| P
+```
+
+- Hasta 3 borradores sin publicar a la vez (`bida.diy.drafts_limit`); un borrador se puede borrar desde el panel.
+- Publicar exige el correo confirmado. La gratuita queda en línea hasta 7 días después del evento; la pagada, 30.
+- Ya publicada, lo que se encienda por encima de su nivel no se ve hasta subirla de nivel.
+
 ## Qué hace «Elegir {plan}»
 
 El mismo botón lleva a tres lugares distintos según haya pago en línea, sesión iniciada y registro abierto.
@@ -154,12 +177,14 @@ flowchart LR
 
 | Botón o enlace | Lleva a | Notas |
 | --- | --- | --- |
-| Nueva invitación | /client/invitaciones/nueva | Solo con plan activo y cupo; si no, queda desactivado con el motivo |
-| Elegir mi plan (panel vacío) | /client/suscripcion o /unete#planes | La primera si hay pago en línea |
-| Que me la hagan | /#precios |  |
+| Nueva invitación (revendedor) | /client/invitaciones/nueva | Solo con plan activo y cupo; si no, queda desactivado con el motivo |
+| Crear mi invitación · Nueva invitación (Hazlo tú) | /client/mi-invitacion/nueva | Cualquier cuenta que no sea revendedor; hasta 3 borradores |
+| Mira los planes mensuales (panel vacío) | /client/suscripcion o /unete#planes | La primera si hay pago en línea |
+| Prefiero que me la hagan | /#precios |  |
+| Borrar borrador | /client/mi-invitacion/{id} (DELETE) | Solo un borrador de Hazlo tú que nunca se publicó |
 | Pagar ahora / Renovar | /client/suscripcion | Aviso de vencimiento |
 | Ver invitados / Ver respuestas | /client/invitations/{id} |  |
-| Editar | /client/invitations/{id}/editar | Solo revendedor al día |
+| Editar | /client/invitations/{id}/editar · /client/mi-invitacion/{id}/editar | Revendedor al día · dueño de una de Hazlo tú |
 | Abrir mi invitación · Copiar enlace | /p/{slug} | Solo si está publicada |
 | Mi plan · Mi cuenta · Ver el sitio (menú) | /client/suscripcion o /unete#planes · /client/cuenta · / |  |
 

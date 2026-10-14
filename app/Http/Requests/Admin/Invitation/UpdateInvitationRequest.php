@@ -37,8 +37,9 @@ class UpdateInvitationRequest extends FormRequest
             'user_id' => ['nullable', 'exists:users,id'],
             'event_date' => ['required', 'date'],
             'status' => ['required', 'in:active,inactive'],
-            // Paquete vendido (App\Support\Packages); vacío = todo incluido (tarjetas y anteriores)
-            'package' => ['nullable', Rule::in(Packages::ORDER)],
+            // Paquete vendido (App\Support\Packages); vacío = todo incluido (tarjetas y anteriores). Gratis
+            // solo lo tienen las de «Hazlo tú»: el administrador las guarda (o sube de nivel) desde aquí
+            'package' => ['nullable', Rule::in(Packages::TIERS)],
             'expires_at' => ['required', 'date'],
             ...$this->moduleRules(),
         ];

@@ -56,7 +56,7 @@ Al iniciar checkout se crea una orden con el precio y moneda de ese momento. Las
 
 ## 3. Recorrido de los datos
 
-1. **Creación:** el panel de administración o el editor de revendedor crea una invitación y la asocia con su cliente, tipo de evento y plantilla.
+1. **Creación:** el panel de administración, el editor de revendedor o «Hazlo tú» (cualquier cuenta arma la suya, `Client\DiyInvitationController`) crea una invitación y la asocia con su cliente, tipo de evento y plantilla. Las de «Hazlo tú» nacen borrador con todo desbloqueado y toman su nivel al publicarse (`App\Support\DiyInvitations`, `Packages::TIERS`).
 2. **Validación:** las operaciones principales del editor usan Form Requests; otras acciones validan en el controlador y los módulos registrados aportan sus reglas de contenido.
 3. **Guardado:** `InvitationModuleService` y `ModuleRegistry` coordinan el guardado de los módulos en una transacción. Cada módulo maneja sus datos y relaciones.
 4. **Autorización:** middleware distingue administrador, cliente y revendedor; `InvitationPolicy` decide qué invitaciones, invitados, edición y exportaciones puede usar cada usuario.
@@ -72,7 +72,7 @@ El almacenamiento de módulos se normalizó: las tablas actuales guardan los cam
 | Grupo de datos | Entidades principales |
 | --- | --- |
 | Cuentas y roles | `users`, clientes, administradores, revendedores, correo verificado, identidad Google y estado de suscripción |
-| Invitaciones | `invitations`, tipo, estado, paquete, propietario y revendedor |
+| Invitaciones | `invitations`, tipo, estado, paquete o nivel (`gratis` solo en «Hazlo tú»), propietario, revendedor e `is_diy` |
 | Contenido de invitación | Tema, portada, textos, secciones, ubicaciones, itinerario, galería, vestimenta, regalos, medios, encuestas y opciones |
 | Invitados e interacción | `guests`, confirmaciones, contribuciones, votos y marcas de entrada |
 | Tarjetas | Dedicatorias, hitos, recuerdos, relatos, momentos, collage, marcos y aventuras |

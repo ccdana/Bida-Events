@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\DB;
  *
  * - tipo: «invitation» o «card» (el producto entero) o el slug de un tipo de evento.
  * - estado: publicadas, sin publicar, próximas (el evento todavía no pasó) o ya pasaron.
- * - origen (solo administrador): del equipo o armadas por revendedores.
+ * - origen (solo administrador): del equipo, armadas por revendedores o por el propio cliente («Hazlo tú»).
  * - orden: creadas recientemente o por fecha del evento.
  */
 final class InvitationFilters
@@ -30,6 +30,7 @@ final class InvitationFilters
     public const ORIGINS = [
         'equipo' => 'Del equipo',
         'revendedores' => 'De revendedores',
+        'clientes' => 'Hechas por el cliente',
     ];
 
     public const SORTS = [
@@ -82,8 +83,9 @@ final class InvitationFilters
                     ->where('name', 'like', "%{$search}%")
                     ->orWhere('username', 'like', "%{$search}%")))))
             ->when(($filters['estado'] ?? '') !== '', fn (Builder $q) => self::applyState($q, $filters['estado']))
-            ->when(($filters['origen'] ?? '') === 'equipo', fn (Builder $q) => $q->whereNull('reseller_id'))
+            ->when(($filters['origen'] ?? '') === 'equipo', fn (Builder $q) => $q->whereNull('reseller_id')->where('is_diy', false))
             ->when(($filters['origen'] ?? '') === 'revendedores', fn (Builder $q) => $q->whereNotNull('reseller_id'))
+            ->when(($filters['origen'] ?? '') === 'clientes', fn (Builder $q) => $q->where('is_diy', true))
             ->when(($filters['orden'] ?? '') === 'fecha', fn (Builder $q) => $q->orderBy('event_date'), fn (Builder $q) => $q->latest());
     }
 
@@ -110,7 +112,8 @@ final class InvitationFilters
             ->selectRaw("COALESCE(SUM(CASE WHEN status <> 'active' THEN 1 ELSE 0 END), 0) AS inactivas")
             ->selectRaw('COALESCE(SUM(CASE WHEN event_date >= ? THEN 1 ELSE 0 END), 0) AS proximas', [$now])
             ->selectRaw('COALESCE(SUM(CASE WHEN event_date < ? THEN 1 ELSE 0 END), 0) AS pasadas', [$now])
-            ->selectRaw('COALESCE(SUM(CASE WHEN reseller_id IS NULL THEN 1 ELSE 0 END), 0) AS equipo')
+            ->selectRaw('COALESCE(SUM(CASE WHEN reseller_id IS NULL AND is_diy = false THEN 1 ELSE 0 END), 0) AS equipo')
+            ->selectRaw('COALESCE(SUM(CASE WHEN is_diy = true THEN 1 ELSE 0 END), 0) AS clientes')
             ->selectRaw('COALESCE(SUM(CASE WHEN reseller_id IS NOT NULL THEN 1 ELSE 0 END), 0) AS revendedores')
             ->first();
         $stateCount = fn (string $state) => (int) ($counts->{$state} ?? 0);
@@ -152,6 +155,7 @@ final class InvitationFilters
                     $option('origen', '', 'Todos', null),
                     $option('origen', 'equipo', self::ORIGINS['equipo'], (int) $counts->equipo),
                     $option('origen', 'revendedores', self::ORIGINS['revendedores'], (int) $counts->revendedores),
+                    $option('origen', 'clientes', self::ORIGINS['clientes'], (int) $counts->clientes),
                 ],
             ];
         }

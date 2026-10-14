@@ -51,6 +51,32 @@
         </div>
     </div>
 
+    {{-- «Hazlo tú»: de qué depende el nivel de la invitación, con atajo para apagar cada parte que lo sube --}}
+    <div class="ed-dialog-backdrop" x-show="tierDialog" x-cloak x-transition.opacity
+        @click.self="tierDialog = false" @keydown.escape.window="tierDialog = false">
+        <div class="ed-dialog" role="dialog" aria-modal="true" aria-labelledby="tier-title">
+            <h2 id="tier-title" class="ed-dialog__title">Tu invitación hoy: <span x-text="diyTierName(diyRequiredTier)"></span></h2>
+            <p class="ed-dialog__text">
+                Mientras la armas, todo está abierto para que la pruebes. El nivel sale de las partes que dejes
+                encendidas: la gratuita trae la portada, la cuenta regresiva y la ubicación.
+            </p>
+            <p class="ed-dialog__text" x-show="config.diyTiers?.paid" x-cloak>
+                Ya está publicada con el nivel <strong x-text="diyTierName(config.diyTiers?.paid)"></strong>.
+            </p>
+            <ul class="ed-dialog__list" x-show="diyPaidParts.length">
+                <template x-for="part in diyPaidParts" :key="'nivel-' + part.id">
+                    <li>
+                        <span><strong x-text="part.label"></strong> <small x-text="'Desde ' + part.tier"></small></span>
+                        <button type="button" class="ed-dialog__fix" @click="togglePart(flatTabs.find(tab => tab.id === part.id))">Apagar</button>
+                    </li>
+                </template>
+            </ul>
+            <div class="ed-dialog__actions">
+                <button type="button" class="ed-wiz-btn ed-wiz-btn--primary" @click="tierDialog = false">Listo</button>
+            </div>
+        </div>
+    </div>
+
     {{--
         Recortador: la foto se encuadra en el marco real del espacio donde va (proporción y forma de la
         plantilla, App\Support\ImageFrames). Lo que queda fuera se ve atenuado alrededor, para saber qué
