@@ -2,8 +2,8 @@
 
 namespace App\Support;
 
-use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 
 /**
  * En los paneles (admin y cliente) un 403 no muestra la página de error del framework: se vuelve a donde

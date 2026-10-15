@@ -79,7 +79,6 @@ class HomePageTest extends TestCase
             ->assertSeeInOrder(['id="hazlo-tu"', 'id="planes"', 'Inicial', 'Emprendedor', 'Agencia', 'id="te-la-hacemos"', 'Básico', 'Estándar', 'Premium'], false)
             // Sin pago en línea, elegir un plan abre WhatsApp con ese plan (con el pago, pasa por crear la cuenta)
             ->assertSee('Elegir Inicial')
-            ->assertDontSee('Elegir Aliado')
             ->assertSee(rawurlencode('quiero el plan Inicial de Únete'), false)
             ->getContent();
 

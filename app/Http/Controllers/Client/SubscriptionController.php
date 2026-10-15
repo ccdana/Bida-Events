@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Client;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Client\StartCheckoutRequest;
 use App\Models\PaymentOrder;
-use App\Models\User;
 use App\Payments\Contracts\ManagesSubscriptions;
 use App\Payments\Contracts\PaymentGateway;
 use App\Payments\PaymentGateways;
@@ -27,8 +26,6 @@ use Throwable;
  * 12 meses con su descuento; para cambiar de plan, de tarjeta o cancelar, el cliente va al portal de
  * la pasarela (así nunca quedan dos suscripciones cobrándose a la vez). Con el QR de Bolivia cada
  * pago cubre los meses que elige (1, 3 o 12), en bolivianos, con el mismo descuento.
- *
- * Se ofrecen los planes que se venden; uno que ya no se vende, solo a quien lo tiene (para renovarlo).
  */
 class SubscriptionController extends Controller
 {
@@ -39,7 +36,7 @@ class SubscriptionController extends Controller
         abort_unless(config('payments.enabled'), 404);
 
         $user = $request->user();
-        $plans = self::plansFor($user);
+        $plans = Offers::resellerPlans();
         $selected = array_key_exists((string) $request->query('plan'), $plans)
             ? (string) $request->query('plan')
             : ($user->reseller_plan && array_key_exists($user->reseller_plan, $plans) ? $user->reseller_plan : array_key_first($plans));
@@ -80,11 +77,6 @@ class SubscriptionController extends Controller
         $user = $request->user();
         $plan = $request->validated('plan');
         $method = $request->validated('method');
-
-        // Un plan que ya no se vende solo lo renueva quien lo tiene
-        if (! array_key_exists($plan, self::plansFor($user))) {
-            return back()->withInput()->withErrors(['plan' => 'Ese plan ya no se ofrece. Elige otro.']);
-        }
 
         // La pasarela necesita un correo real para el recibo y los avisos de la renovación
         if (blank($user->email) || ! $user->hasVerifiedEmail()) {
@@ -162,18 +154,6 @@ class SubscriptionController extends Controller
             'user' => $request->user(),
             'planName' => config("bida.reseller_plans.{$order->plan}.name", $order->plan),
         ]);
-    }
-
-    /** Los planes que puede pagar: los que se venden y, si tiene uno que ya no se vende, el suyo. */
-    private static function plansFor(User $user): array
-    {
-        $current = $user->reseller_plan;
-
-        return array_filter(
-            Offers::resellerPlans(withLegacy: true),
-            fn (array $plan, string $key) => ! ($plan['legacy'] ?? false) || $key === $current,
-            ARRAY_FILTER_USE_BOTH,
-        );
     }
 
     /**

@@ -26,15 +26,15 @@ class LibelulaFlowTest extends TestCase
         parent::setUp();
 
         $this->travelTo(Carbon::parse('2026-10-15 12:00:00', 'America/La_Paz'));
-        // El flujo del QR con el Aliado a la venta y sin descuento por adelantado (PlansAndCyclesTest
+        // El flujo del QR con el plan Inicial y sin descuento por adelantado (PlansAndCyclesTest
         // prueba el catálogo y los descuentos)
-        config(['bida.reseller_plans.aliado.legacy' => false, 'payments.prepay' => [1 => 0, 3 => 0, 12 => 0]]);
+        config(['payments.prepay' => [1 => 0, 3 => 0, 12 => 0]]);
         $this->configureLibelula();
         $this->fakeLibelula();
         $this->buyer = User::factory()->create(['email' => 'comprador@correo.com']);
     }
 
-    private function buy(string $plan = 'aliado', int $months = 3): PaymentOrder
+    private function buy(string $plan = 'inicial', int $months = 3): PaymentOrder
     {
         $this->actingAs($this->buyer)
             ->post(route('client.subscription.store'), ['plan' => $plan, 'method' => 'qr', 'months' => $months])
@@ -50,35 +50,35 @@ class LibelulaFlowTest extends TestCase
             ->assertSee('Pago en Bolivia: QR, Tigo Money o tarjeta boliviana')
             ->assertSee('Cuántos meses pagas')
             ->assertSee('12 meses')
-            // Precio de hoy del Aliado (US$ 14) al cambio oficial: Bs 97 al mes, Bs 292 por 3 meses
-            ->assertSee('97.00', false)
-            ->assertSee('292.00', false);
+            // Precio de hoy del Inicial (US$ 9) al cambio oficial: Bs 63 al mes, Bs 188 por 3 meses
+            ->assertSee('63.00', false)
+            ->assertSee('188.00', false);
     }
 
     public function test_paying_by_qr_shows_the_qr_in_bolivianos_for_the_chosen_months(): void
     {
-        $order = $this->buy('aliado', 3);
+        $order = $this->buy('inicial', 3);
 
         $this->assertSame('libelula', $order->provider);
         $this->assertSame('BOB', $order->currency);
         $this->assertSame(3, $order->months);
-        $this->assertSame('292.00', $order->amount);
+        $this->assertSame('188.00', $order->amount);
         $this->assertSame(self::LIBELULA_TRANSACTION, $order->provider_ref);
         $this->assertStringStartsWith('data:image/png;base64,', $order->meta['qr_image']);
 
         $this->actingAs($this->buyer)->withoutVite()->get(route('client.subscription.order', $order->public_id))
             ->assertOk()
             ->assertSee('Escanea el QR para pagar')
-            ->assertSee('Bs 292')
-            ->assertSee('Plan Aliado · 3 meses')
+            ->assertSee('Bs 188')
+            ->assertSee('Plan Inicial · 3 meses')
             ->assertSee('Pagar con Tigo Money o tarjeta')
             ->assertSee($order->meta['qr_image'], false);
     }
 
     public function test_the_notice_from_libelula_activates_the_months_paid(): void
     {
-        $order = $this->buy('aliado', 3);
-        $this->libelulaReceives($order->public_id, '292');
+        $order = $this->buy('inicial', 3);
+        $this->libelulaReceives($order->public_id, '188');
 
         // Libélula avisa con un GET a la callback_url, agregando ?transaction_id=…
         $this->get(route('webhooks.payments', ['provider' => 'libelula', 'orden' => $order->public_id, 'transaction_id' => self::LIBELULA_TRANSACTION]))->assertOk();
@@ -94,7 +94,7 @@ class LibelulaFlowTest extends TestCase
 
         $payment = SubscriptionPayment::sole();
         $this->assertSame('libelula', $payment->provider);
-        $this->assertSame('292.00', $payment->amount);
+        $this->assertSame('188.00', $payment->amount);
         $this->assertSame('BOB', $payment->currency);
         $this->assertSame('QR', $payment->providerLabel());
         $this->assertTrue($order->fresh()->isPaid());
@@ -113,8 +113,8 @@ class LibelulaFlowTest extends TestCase
 
     public function test_a_payment_for_a_different_amount_is_left_to_review(): void
     {
-        $order = $this->buy('aliado', 3);
-        $this->libelulaReceives($order->public_id, '97');
+        $order = $this->buy('inicial', 3);
+        $this->libelulaReceives($order->public_id, '63');
 
         $this->get(route('webhooks.payments', ['provider' => 'libelula', 'orden' => $order->public_id, 'transaction_id' => self::LIBELULA_TRANSACTION]))->assertOk();
 
@@ -152,7 +152,7 @@ class LibelulaFlowTest extends TestCase
             ->assertSee('Este cobro venció sin pagarse');
 
         // Se pagó justo al vencer: el aviso llega después y se activa igual
-        $this->libelulaReceives($order->public_id, '292');
+        $this->libelulaReceives($order->public_id, '188');
         $this->get(route('webhooks.payments', ['provider' => 'libelula', 'orden' => $order->public_id, 'transaction_id' => self::LIBELULA_TRANSACTION]))->assertOk();
         $this->assertTrue($order->fresh()->isPaid());
         $this->assertTrue($this->buyer->fresh()->hasActiveSubscription());
@@ -160,11 +160,11 @@ class LibelulaFlowTest extends TestCase
 
     public function test_paying_again_by_qr_extends_from_the_current_due_date(): void
     {
-        $reseller = User::factory()->reseller('aliado', '2026-10-20')->create(['email' => 'revendedor@correo.com']);
+        $reseller = User::factory()->reseller('inicial', '2026-10-20')->create(['email' => 'revendedor@correo.com']);
         $this->buyer = $reseller;
 
-        $order = $this->buy('aliado', 1);
-        $this->libelulaReceives($order->public_id, '97');
+        $order = $this->buy('inicial', 1);
+        $this->libelulaReceives($order->public_id, '63');
         $this->artisan('bida:verificar-pagos')->assertSuccessful();
 
         // Pagar antes de vencer no hace perder días
@@ -175,13 +175,13 @@ class LibelulaFlowTest extends TestCase
     {
         config(['payments.prepay' => [1 => 0, 3 => 0, 12 => 10]]);
 
-        $order = $this->buy('aliado', 12);
+        $order = $this->buy('inicial', 12);
 
-        // 14 × 12 = 168 US$, con 10 % menos = 151,20 US$ → Bs 1.052
-        $this->assertSame('1052.00', $order->amount);
+        // 9 × 12 = 108 US$, con 10 % menos = 97,20 US$ → Bs 677
+        $this->assertSame('677.00', $order->amount);
         $this->assertSame(12, $order->months);
 
-        $this->actingAs($this->buyer)->post(route('client.subscription.store'), ['plan' => 'aliado', 'method' => 'qr', 'months' => 7])
+        $this->actingAs($this->buyer)->post(route('client.subscription.store'), ['plan' => 'inicial', 'method' => 'qr', 'months' => 7])
             ->assertSessionHasErrors('months');
     }
 }

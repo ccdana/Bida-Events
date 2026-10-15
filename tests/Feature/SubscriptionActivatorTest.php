@@ -33,12 +33,12 @@ class SubscriptionActivatorTest extends TestCase
         // Una cuenta abierta desde el sitio, todavía sin plan
         $user = User::factory()->create();
 
-        $payment = $this->activator->recordPayment($user, 'aliado', ['amount' => 14, 'currency' => 'USD', 'provider' => 'fake', 'external_id' => 'cobro-1']);
+        $payment = $this->activator->recordPayment($user, 'inicial', ['amount' => 9, 'currency' => 'USD', 'provider' => 'fake', 'external_id' => 'cobro-1']);
 
         $user->refresh();
         $this->assertTrue($user->isReseller());
         $this->assertTrue($user->hasActiveSubscription());
-        $this->assertSame('aliado', $user->reseller_plan);
+        $this->assertSame('inicial', $user->reseller_plan);
         $this->assertSame('2026-11-15', $user->subscription_renews_at->toDateString());
         $this->assertSame('fake', $payment->provider);
         $this->assertFalse($payment->isManual());
@@ -47,9 +47,9 @@ class SubscriptionActivatorTest extends TestCase
 
     public function test_months_paid_in_advance_extend_that_many_months(): void
     {
-        $user = User::factory()->reseller('aliado', '2026-11-01')->create();
+        $user = User::factory()->reseller('inicial', '2026-11-01')->create();
 
-        $this->activator->recordPayment($user, 'aliado', ['amount' => 40, 'currency' => 'USD'], months: 3);
+        $this->activator->recordPayment($user, 'inicial', ['amount' => 40, 'currency' => 'USD'], months: 3);
         $this->assertSame('2027-02-01', $user->fresh()->subscription_renews_at->toDateString());
 
         $this->activator->recordPayment($user, 'emprendedor', ['amount' => 300, 'currency' => 'USD'], months: 12);
@@ -60,17 +60,17 @@ class SubscriptionActivatorTest extends TestCase
     public function test_the_same_payment_is_recorded_once(): void
     {
         $user = User::factory()->create();
-        $order = PaymentOrder::forSubscription($user, 'aliado', 1, '14.00', 'USD', 'fake');
+        $order = PaymentOrder::forSubscription($user, 'inicial', 1, '9.00', 'USD', 'fake');
         $token = (string) Str::uuid();
 
-        $this->assertNotNull($this->activator->recordPayment($user, 'aliado', ['amount' => 14, 'currency' => 'USD', 'request_token' => $token]));
-        $this->assertNull($this->activator->recordPayment($user, 'aliado', ['amount' => 14, 'currency' => 'USD', 'request_token' => $token]));
+        $this->assertNotNull($this->activator->recordPayment($user, 'inicial', ['amount' => 9, 'currency' => 'USD', 'request_token' => $token]));
+        $this->assertNull($this->activator->recordPayment($user, 'inicial', ['amount' => 9, 'currency' => 'USD', 'request_token' => $token]));
 
-        $this->assertNotNull($this->activator->recordPayment($user, 'aliado', ['amount' => 14, 'currency' => 'USD', 'provider' => 'fake', 'external_id' => 'cobro-9']));
-        $this->assertNull($this->activator->recordPayment($user, 'aliado', ['amount' => 14, 'currency' => 'USD', 'provider' => 'fake', 'external_id' => 'cobro-9']));
+        $this->assertNotNull($this->activator->recordPayment($user, 'inicial', ['amount' => 9, 'currency' => 'USD', 'provider' => 'fake', 'external_id' => 'cobro-9']));
+        $this->assertNull($this->activator->recordPayment($user, 'inicial', ['amount' => 9, 'currency' => 'USD', 'provider' => 'fake', 'external_id' => 'cobro-9']));
 
-        $this->assertNotNull($this->activator->recordPayment($user, 'aliado', ['amount' => 14, 'currency' => 'USD', 'provider' => 'fake', 'payment_order_id' => $order->id]));
-        $this->assertNull($this->activator->recordPayment($user, 'aliado', ['amount' => 14, 'currency' => 'USD', 'provider' => 'fake', 'payment_order_id' => $order->id]));
+        $this->assertNotNull($this->activator->recordPayment($user, 'inicial', ['amount' => 9, 'currency' => 'USD', 'provider' => 'fake', 'payment_order_id' => $order->id]));
+        $this->assertNull($this->activator->recordPayment($user, 'inicial', ['amount' => 9, 'currency' => 'USD', 'provider' => 'fake', 'payment_order_id' => $order->id]));
 
         $this->assertSame(3, SubscriptionPayment::count());
         $this->assertSame('2027-01-15', $user->fresh()->subscription_renews_at->toDateString());
@@ -104,7 +104,7 @@ class SubscriptionActivatorTest extends TestCase
     public function test_an_order_given_up_as_expired_still_activates_if_it_gets_paid(): void
     {
         $user = User::factory()->create();
-        $order = PaymentOrder::forSubscription($user, 'aliado', 1, '14.00', 'USD', 'fake');
+        $order = PaymentOrder::forSubscription($user, 'inicial', 1, '9.00', 'USD', 'fake');
         $order->close(PaymentOrder::EXPIRED, 'QR vencido');
 
         $this->assertNotNull($this->activator->completeOrder($order->fresh()));
@@ -112,14 +112,14 @@ class SubscriptionActivatorTest extends TestCase
         $this->assertTrue($user->fresh()->hasActiveSubscription());
 
         // Una devuelta no se vuelve a aplicar
-        $refunded = PaymentOrder::forSubscription($user, 'aliado', 1, '14.00', 'USD', 'fake');
+        $refunded = PaymentOrder::forSubscription($user, 'inicial', 1, '9.00', 'USD', 'fake');
         $refunded->forceFill(['status' => PaymentOrder::REFUNDED])->save();
         $this->assertNull($this->activator->completeOrder($refunded));
     }
 
     public function test_a_paid_order_cannot_be_closed(): void
     {
-        $order = PaymentOrder::forSubscription(User::factory()->create(), 'aliado', 1, '14.00', 'USD', 'fake');
+        $order = PaymentOrder::forSubscription(User::factory()->create(), 'inicial', 1, '9.00', 'USD', 'fake');
         $this->activator->completeOrder($order);
 
         $this->assertFalse($order->fresh()->close(PaymentOrder::FAILED));
@@ -129,7 +129,7 @@ class SubscriptionActivatorTest extends TestCase
     public function test_only_the_latest_payment_is_annulled_and_the_date_goes_back(): void
     {
         $user = User::factory()->create();
-        $first = $this->activator->recordPayment($user, 'aliado', ['amount' => 14, 'currency' => 'USD']);
+        $first = $this->activator->recordPayment($user, 'inicial', ['amount' => 9, 'currency' => 'USD']);
         $second = $this->activator->recordPayment($user, 'agencia', ['amount' => 59, 'currency' => 'USD']);
 
         $this->assertFalse($this->activator->annulLatest($first));
@@ -137,7 +137,7 @@ class SubscriptionActivatorTest extends TestCase
 
         $user->refresh();
         $this->assertSame('2026-11-15', $user->subscription_renews_at->toDateString());
-        $this->assertSame('aliado', $user->reseller_plan);
+        $this->assertSame('inicial', $user->reseller_plan);
         $this->assertModelMissing($second);
     }
 }

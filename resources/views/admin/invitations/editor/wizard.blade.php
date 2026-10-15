@@ -2,7 +2,7 @@
     Asistente de creación: antes de ver la invitación se elige el evento, el diseño y se escriben los
     datos que la arman (los nombres, la fecha y la hora; en una tarjeta, para quién es). Al terminar se
     crea con las partes del evento ya llenas de ejemplo y se abre la vista previa para elegir las partes
-    y cambiar lo que haga falta tocándolo. Lógica en editor/script (wizardChooseEvent, finishWizard).
+    y cambiar lo que haga falta tocándolo. Lógica en resources/js/admin/editor.js (wizardChooseEvent, finishWizard).
 --}}
 <div class="ed-wizard" x-show="wizardOpen" x-cloak role="dialog" aria-modal="true" aria-labelledby="wizard-title">
     <div class="ed-wizard__inner">

@@ -3,10 +3,10 @@
 namespace Tests\Feature;
 
 use App\EventProfiles\EventProfiles;
+use App\Models\EventType;
 use App\Models\User;
 use App\Services\InvitationModuleService;
 use App\Support\InvitationTemplates;
-use Database\Seeders\CumpleFiestaDemoSeeder;
 use Database\Seeders\XvSofiaModuleData;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
@@ -17,7 +17,7 @@ use Tests\TestCase;
 /**
  * Editor «tocar y cambiar»: en la vista previa cada parte de la invitación se toca para abrir su panel.
  * El editor la encuentra por data-ed="código" o por el id de su sección (el código con guiones; la
- * portada es #inicio): admin/invitations/editor/script, previewTargets(). Si una plantilla pierde ese
+ * portada es #inicio): resources/js/admin/editor.js, previewTargets(). Si una plantilla pierde ese
  * id o una parte nueva no lo trae, la parte deja de poder tocarse y esta prueba lo dice.
  */
 class TapToEditTest extends TestCase
@@ -120,7 +120,7 @@ class TapToEditTest extends TestCase
     public function test_the_wizard_never_fails_because_the_address_is_taken(): void
     {
         $admin = User::factory()->create(['is_admin' => true]);
-        $eventType = \App\Models\EventType::firstOrCreate(['slug' => 'xv-anos'], ['name' => 'XV Años', 'code' => 'xv', 'kind' => 'invitation']);
+        $eventType = EventType::firstOrCreate(['slug' => 'xv-anos'], ['name' => 'XV Años', 'code' => 'xv', 'kind' => 'invitation']);
         $this->createInvitation(['slug' => 'xv-anos-de-sofia']);
 
         $this->actingAs($admin)->post(route('admin.invitations.store'), [

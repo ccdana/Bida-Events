@@ -2,7 +2,7 @@
     Barra lateral: las partes de la invitación, solo para encenderlas o apagarlas. Al encender una nace
     con su contenido de ejemplo (App\Support\SampleContent) y la vista previa baja hasta ella; desde ahí
     se cambia tocando cada texto o foto. El «?» de cada fila explica para qué se sugiere usarla.
-    En el celular se abre como cajón desde «Partes». Lógica en editor/script (togglePart, goToPart).
+    En el celular se abre como cajón desde «Partes». Lógica en resources/js/admin/editor.js (togglePart, goToPart).
 --}}
 <aside class="ed-modules admin-editor-scroll" :class="{ 'is-open': modulesOpen }" aria-label="Partes de la invitación">
     <div class="ed-modules__head">

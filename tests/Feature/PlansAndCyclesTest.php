@@ -41,13 +41,10 @@ class PlansAndCyclesTest extends TestCase
     public function test_three_plans_are_for_sale_and_the_page_offers_paying_by_the_year(): void
     {
         $this->assertSame(['inicial', 'emprendedor', 'agencia'], array_keys(Offers::resellerPlans()));
-        $this->assertSame(['inicial', 'emprendedor', 'agencia', 'unica', 'aliado'], array_keys(Offers::resellerPlans(withLegacy: true)));
 
         $response = $this->withoutVite()->get(route('diy'))
             ->assertOk()
             ->assertSee('Emprendedor')
-            ->assertDontSee('Elegir Aliado')
-            ->assertDontSee('Elegir Única')
             // El selector de ciclo, con el descuento de cada uno
             ->assertSee('Cada 3 meses')
             ->assertSee('20 % menos')
@@ -62,25 +59,13 @@ class PlansAndCyclesTest extends TestCase
         $this->assertNull($inicial['cycles'][1]['saving']);
     }
 
-    public function test_a_plan_no_longer_sold_is_kept_by_whoever_has_it(): void
+    public function test_a_plan_that_is_not_for_sale_cannot_be_bought(): void
     {
         $this->configureLemonSqueezy();
-        Http::fake(['api.lemonsqueezy.com/v1/checkouts' => Http::response(['data' => ['id' => 'chk-1', 'attributes' => ['url' => 'https://pago.test']]], 201)]);
 
-        // Quien tiene Aliado lo ve y lo puede renovar
-        $aliado = User::factory()->reseller('aliado')->create();
-        $this->actingAs($aliado)->withoutVite()->get(route('client.subscription'))
-            ->assertOk()
-            ->assertSee('value="aliado"', false);
-
-        // Una cuenta nueva no lo puede comprar
-        $newcomer = User::factory()->create();
-        $this->actingAs($newcomer)->withoutVite()->get(route('client.subscription'))
-            ->assertOk()
-            ->assertDontSee('value="aliado"', false);
-        $this->actingAs($newcomer)
+        $this->actingAs(User::factory()->create())
             ->post(route('client.subscription.store'), ['plan' => 'aliado', 'method' => 'card'])
-            ->assertSessionHasErrors(['plan' => 'Ese plan ya no se ofrece. Elige otro.']);
+            ->assertSessionHasErrors(['plan' => 'Ese plan no existe.']);
         $this->assertSame(0, PaymentOrder::count());
     }
 
@@ -204,8 +189,7 @@ class PlansAndCyclesTest extends TestCase
         $this->actingAs($admin)->withoutVite()->get(route('admin.settings'))
             ->assertOk()
             ->assertSee('Pagar por 3 o 12 meses')
-            ->assertSee('name="prepay[12]" value="15"', false)
-            ->assertSee('ya no se vende');
+            ->assertSee('name="prepay[12]" value="15"', false);
     }
 
     private function payload(EventType $eventType, string $slug, string $status, string $title = 'XV de prueba'): array

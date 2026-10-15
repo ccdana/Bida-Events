@@ -36,11 +36,6 @@ class RegistrationTest extends TestCase
         $this->withoutVite()->get('/registro?plan=emprendedor&meses=12')->assertOk();
         $this->assertSame(route('client.subscription', ['plan' => 'emprendedor', 'meses' => 12]), session('url.intended'));
 
-        // Un plan que ya no se vende no se guarda
-        $this->flushSession();
-        $this->withoutVite()->get('/registro?plan=aliado')->assertOk()->assertDontSee('Tu plan:');
-        $this->assertNull(session('url.intended'));
-
         // Un plan que no existe no se guarda
         $this->flushSession();
         $this->withoutVite()->get('/registro?plan=inventado')->assertOk()->assertDontSee('Tu plan:');

@@ -11,26 +11,30 @@ Guía para dejar funcionando, en el servidor de producción:
 Se hace en este orden: sin correo, nadie puede confirmar su cuenta ni recuperar la contraseña, y
 para pagar en línea el sitio exige un correo confirmado.
 
-> Todo lo que va en `.env` son secretos: nunca los subas a GitHub ni los mandes por chat. Después
-> de cada cambio en `.env`, en el servidor:
+> Todo lo que va en `.env` son secretos: nunca los subas a GitHub ni los mandes por chat.
+>
+> Los comandos son los del servidor, en la carpeta del proyecto, con el atajo de
+> `docs/despliegue.md` (`alias dc='docker compose -f compose.prod.yaml'`). Después de cada cambio en
+> `.env` hay que recrear los contenedores (leen el `.env` al crearse y arman la caché de
+> configuración al arrancar):
 >
 > ```bash
-> php artisan config:cache
-> sudo supervisorctl restart bida-worker
+> dc up -d
 > ```
 
 ---
 
 ## 0. Antes de empezar (una sola vez)
 
-Revisa que el servidor tenga lo que necesitan los pagos (detalle en `docs/despliegue.md`, paso 5.7):
+Revisa que el servidor tenga lo que necesitan los pagos:
 
 | Qué | Para qué | Cómo comprobarlo |
 | --- | --- | --- |
-| `APP_URL=https://bida-events.com` | Los enlaces de los correos y las direcciones que se mandan a las pasarelas | `php artisan about` muestra la URL |
-| Cron con `schedule:run` cada minuto | `bida:verificar-pagos` cada 5 minutos (confirma pagos de Libélula y vence los QR no pagados) | `php artisan schedule:list` lo lista |
-| Worker de la cola (`queue:work`) | Aplica los avisos de las pasarelas (activa los planes) | `sudo supervisorctl status bida-worker` dice `RUNNING` |
+| `APP_URL=https://bida-events.com` | Los enlaces de los correos y las direcciones que se mandan a las pasarelas | `dc exec app php artisan about` muestra la URL |
+| Servicio `scheduler` | `bida:verificar-pagos` cada 5 minutos (confirma pagos de Libélula y vence los QR no pagados) | `dc ps` lo muestra `Up`; `dc exec app php artisan schedule:list` lo lista |
+| Servicio `queue` | Aplica los avisos de las pasarelas (activa los planes) | `dc ps` lo muestra `Up` |
 | HTTPS | Las pasarelas solo avisan a direcciones `https://` | El sitio abre con candado |
+| `/webhooks/*` sin desafíos de Cloudflare | Los avisos llegan desde servidores, no desde un navegador: un desafío o *Bot Fight Mode* los bloquea | Cloudflare › *Security › WAF*: regla «Skip» para la ruta `/webhooks/` |
 
 ---
 
@@ -106,8 +110,8 @@ En Cloudflare, los registros de correo van **sin proxy** (nube gris).
 ### 1.6 Probar
 
 ```bash
-php artisan config:cache
-php artisan tinker --execute="Mail::raw('Prueba de correo de Bida Events', fn (\$m) => \$m->to('tu-correo-personal@gmail.com')->subject('Prueba SMTP'));"
+dc up -d
+dc exec app php artisan tinker --execute="Mail::raw('Prueba de correo de Bida Events', fn (\$m) => \$m->to('tu-correo-personal@gmail.com')->subject('Prueba SMTP'));"
 ```
 
 Debe llegar en segundos a tu bandeja de entrada, no a spam. Después prueba el flujo real: en
@@ -152,9 +156,6 @@ La API key, el webhook y los ids de prueba son **distintos** de los reales.
    | Inicial | US$ 9 | `LEMONSQUEEZY_VARIANT_INICIAL` |
    | Emprendedor | US$ 29 | `LEMONSQUEEZY_VARIANT_EMPRENDEDOR` |
    | Agencia | US$ 59 | `LEMONSQUEEZY_VARIANT_AGENCIA` |
-
-   Única y Aliado ya no se venden: sus variantes (`LEMONSQUEEZY_VARIANT_UNICA`,
-   `LEMONSQUEEZY_VARIANT_ALIADO`) solo hacen falta si alguien sigue pagándolos con tarjeta.
 
 3. **Opcional, cada 3 meses y anual:** para que con tarjeta se pueda pagar (y renovar solo) cada 3 o
    12 meses, crea en el mismo producto una variante por plan y ciclo, con intervalo de 3 meses o de
@@ -290,10 +291,10 @@ LIBELULA_APPKEY=588e5e10-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 # Pruebas: la dirección que te den (en su guía: http://www.todotix.com:10888)
 LIBELULA_BASE_URL=https://api.todotix.com
 LIBELULA_EMITE_FACTURA=false
-# Descuento en % por pagar varios meses de una vez (0 = sin descuento)
-PAYMENTS_PREPAY_3_DISCOUNT=0
-PAYMENTS_PREPAY_12_DISCOUNT=0
 ```
+
+El descuento por pagar 3 o 12 meses de una vez se maneja en Admin › Ajustes (los valores de
+arranque son `PAYMENTS_PREPAY_3_DISCOUNT` y `PAYMENTS_PREPAY_12_DISCOUNT`).
 
 No hay que registrar ninguna URL en Libélula: el sitio manda con cada cobro la dirección de aviso
 (`https://bida-events.com/webhooks/libelula?orden=…`) y la de regreso del comprador.
@@ -303,7 +304,7 @@ No hay que registrar ninguna URL en Libélula: el sitio manda con cada cobro la 
 El aviso de Libélula **no viene firmado**, así que el sitio no le cree por sí solo: al llegar,
 pregunta a Libélula con el appkey si ese pago existe y por cuánto. Un aviso falso no activa nada y
 un monto distinto queda en «Pagos para revisar». Además, `bida:verificar-pagos` (cada 5 minutos)
-confirma los pagos cuyo aviso se perdió. Por eso **el cron del paso 0 es obligatorio**.
+confirma los pagos cuyo aviso se perdió. Por eso **el servicio `scheduler` del paso 0 es obligatorio**.
 
 ### 3.4 Probar
 
@@ -316,18 +317,18 @@ confirma los pagos cuyo aviso se perdió. Por eso **el cron del paso 0 es obliga
 4. Si no se activa sola, corre a mano y mira el resultado:
 
    ```bash
-   php artisan bida:verificar-pagos
+   dc exec app php artisan bida:verificar-pagos
    ```
 
    «Cobros confirmados: 1» significa que Libélula lo confirmó (el aviso no había llegado). Si dice
    0, Libélula todavía no lo registra como pagado, o no responde: revisa
-   `storage/logs/operations-*.log` («Libélula no respondió la consulta de pagos»).
+   `dc exec app tail -n 50 storage/logs/operations-$(date +%F).log` («Libélula no respondió la consulta de pagos»).
 5. Prueba el vencimiento: genera un QR y no lo pagues; al día siguiente pasada la medianoche,
    `bida:verificar-pagos` lo marca vencido y la página dice «Este cobro venció sin pagarse».
 
 ### 3.5 Pasar a cobros reales
 
-Cambia `LIBELULA_APPKEY` y `LIBELULA_BASE_URL` por los de producción, `php artisan config:cache`, y
+Cambia `LIBELULA_APPKEY` y `LIBELULA_BASE_URL` por los de producción, `dc up -d`, y
 haz un pago real de 1 mes del plan más barato.
 
 ---
@@ -338,14 +339,13 @@ Con el correo y al menos una pasarela probados:
 
 ```dotenv
 PAYMENTS_ENABLED=true
-# Abre el registro de cuentas nuevas (con Google, si configuraste GOOGLE_CLIENT_ID; ver despliegue.md 6.4)
+# Abre el registro de cuentas nuevas (con Google, si configuraste GOOGLE_CLIENT_ID)
 AUTH_REGISTRATION=true
 ```
 
 ```bash
-php artisan config:cache
-sudo supervisorctl restart bida-worker
-php artisan bida:salud --sin-correo
+dc up -d
+dc exec app php artisan bida:salud --sin-correo
 ```
 
 Desde ese momento, en «Únete» el botón «Elegir» de cada plan lleva a pagar en línea (antes iba
@@ -359,7 +359,7 @@ solo aparece la tarjeta, y al revés.
 3. «Únete» → «Elegir» un plan → paga con tarjeta o QR.
 4. El plan queda activo, aparece «Nueva invitación» y en Admin › Revendedores la cuenta figura
    «Al día» con su pago.
-5. `php artisan bida:salud --sin-correo`: «Avisos de pago sin aplicar» y «Pagos para revisar» en OK.
+5. `dc exec app php artisan bida:salud --sin-correo`: «Avisos de pago sin aplicar» y «Pagos para revisar» en OK.
 
 ---
 
@@ -367,12 +367,12 @@ solo aparece la tarjeta, y al revés.
 
 | Síntoma | Qué revisar |
 | --- | --- |
-| No aparece «Continuar al pago» | Falta `PAYMENTS_ENABLED=true` o las credenciales de la pasarela; corrió `config:cache` |
+| No aparece «Continuar al pago» | Falta `PAYMENTS_ENABLED=true` o las credenciales de la pasarela, o no se corrió `dc up -d` después de editar el `.env` |
 | «Para pagar en línea, agrega tu correo y confírmalo» | La cuenta no tiene correo confirmado: «Mi cuenta» → agregar correo → abrir el enlace |
-| Pagó con tarjeta y sigue «Estamos confirmando» | Lemon Squeezy › Webhooks: ¿el aviso tiene respuesta 200? Un 401 es el `LEMONSQUEEZY_SIGNING_SECRET` vacío o distinto del webhook; un 404, la URL del webhook mal escrita. ¿Está corriendo el worker? |
-| Pagó con QR y no se activa | `php artisan bida:verificar-pagos`; luego `operations-*.log` |
+| Pagó con tarjeta y sigue «Estamos confirmando» | Lemon Squeezy › Webhooks: ¿el aviso tiene respuesta 200? Un 401 es el `LEMONSQUEEZY_SIGNING_SECRET` vacío o distinto del webhook; un 404, la URL del webhook mal escrita; un 403, un desafío de Cloudflare (paso 0). ¿Está `Up` el servicio `queue`? |
+| Pagó con QR y no se activa | `dc exec app php artisan bida:verificar-pagos`; luego `operations-*.log` |
 | «Pagos para revisar» en `bida:salud` | El cobro llegó pero no coincide (plan o monto). Mira el `error` en la tabla `webhook_events` y, si corresponde, registra el pago a mano en Revendedores |
-| «Avisos de pago sin aplicar» | El worker estaba caído: `sudo supervisorctl restart bida-worker` y `php artisan bida:reprocesar-avisos` |
+| «Avisos de pago sin aplicar» | La cola estaba caída: `dc up -d queue` y `dc exec app php artisan bida:reprocesar-avisos` |
 | No llegan los correos | Paso 1.6 y su tabla de errores |
 
 Más detalle de la operación diaria en `docs/operacion.md` › «Pagos en línea».

@@ -18,7 +18,7 @@ class PanelSidebarFiltersTest extends TestCase
     public function test_the_admin_filters_by_state_and_origin(): void
     {
         $admin = User::factory()->create(['is_admin' => true]);
-        $reseller = User::factory()->reseller('aliado')->create();
+        $reseller = User::factory()->reseller()->create();
 
         $this->createInvitation(['title' => 'Fiesta publicada del equipo']);
         $this->createInvitation(['title' => 'Borrador del equipo', 'status' => 'inactive']);
@@ -58,8 +58,8 @@ class PanelSidebarFiltersTest extends TestCase
 
     public function test_the_reseller_filters_only_its_own_invitations_without_the_origin_group(): void
     {
-        $reseller = User::factory()->reseller('aliado')->create();
-        $other = User::factory()->reseller('aliado')->create();
+        $reseller = User::factory()->reseller()->create();
+        $other = User::factory()->reseller()->create();
 
         $this->createInvitation(['title' => 'Mía publicada', 'reseller_id' => $reseller->id]);
         $this->createInvitation(['title' => 'Mía sin publicar', 'reseller_id' => $reseller->id, 'status' => 'inactive']);

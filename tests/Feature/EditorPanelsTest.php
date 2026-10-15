@@ -24,7 +24,7 @@ class EditorPanelsTest extends TestCase
     /** Pestañas declaradas en el editor: código de módulo => id de la pestaña. */
     private function editorTabs(): array
     {
-        $script = file_get_contents(resource_path('views/admin/invitations/editor/script.blade.php'));
+        $script = file_get_contents(resource_path('js/admin/editor.js'));
         preg_match_all("/\{ id: '([a-z_]+)'[^}]*?moduleCode: '([a-z_]+)'/", $script, $matches, PREG_SET_ORDER);
 
         return collect($matches)->mapWithKeys(fn (array $m) => [$m[2] => $m[1]])->all();

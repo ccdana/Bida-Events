@@ -58,8 +58,8 @@ flowchart TD
 
 ## Qué hace «Elegir {plan}»
 
-Se venden tres planes (Inicial, Emprendedor y Agencia); Única y Aliado solo los renueva quien ya los
-tiene. Sobre los planes, el selector Mensual / Cada 3 meses / Anual cambia el precio por mes y agrega
+Se venden tres planes: Inicial, Emprendedor y Agencia. Sobre los planes, el selector Mensual / Cada
+3 meses / Anual cambia el precio por mes y agrega
 `meses=3` o `meses=12` a «Elegir», que llega hasta «Mi plan» con ese ciclo elegido.
 
 El mismo botón lleva a tres lugares distintos según haya pago en línea, sesión iniciada y registro abierto.

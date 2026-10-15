@@ -37,7 +37,7 @@ class LibelulaGatewayTest extends TestCase
         $this->gateway = app(LibelulaGateway::class);
 
         $user = User::factory()->create(['name' => 'Carla Mendoza Rojas', 'email' => 'carla@correo.com']);
-        $this->order = PaymentOrder::forSubscription($user, 'aliado', 3, '292.00', 'BOB', 'libelula');
+        $this->order = PaymentOrder::forSubscription($user, 'inicial', 3, '188.00', 'BOB', 'libelula');
     }
 
     public function test_it_charges_in_bolivianos_without_renewing_by_itself(): void
@@ -76,7 +76,7 @@ class LibelulaGatewayTest extends TestCase
                 && $data['nombre_cliente'] === 'Carla'
                 && $data['apellido_cliente'] === 'Mendoza Rojas'
                 && $data['fecha_vencimiento'] === '2026-10-16'
-                && $data['lineas_detalle_deuda'][0]['costo_unitario'] === 292.0
+                && $data['lineas_detalle_deuda'][0]['costo_unitario'] === 188.0
                 && str_contains($data['lineas_detalle_deuda'][0]['concepto'], '3 meses');
         });
     }
@@ -113,13 +113,13 @@ class LibelulaGatewayTest extends TestCase
         // Alguien llama a la URL sin que se haya pagado: no pasa nada
         $this->assertNull($this->notice($query));
 
-        $this->libelulaReceives($this->order->public_id, '292');
+        $this->libelulaReceives($this->order->public_id, '188');
         $event = $this->notice($query);
 
         $this->assertSame(GatewayEvent::ORDER_PAID, $event->type);
         $this->assertSame($this->order->public_id, $event->orderId);
         $this->assertSame(self::LIBELULA_TRANSACTION, $event->externalId);
-        $this->assertSame('292.00', $event->amount);
+        $this->assertSame('188.00', $event->amount);
         $this->assertSame('BOB', $event->currency);
         $this->assertSame('pago:'.self::LIBELULA_TRANSACTION, $event->id);
 
@@ -131,7 +131,7 @@ class LibelulaGatewayTest extends TestCase
     public function test_a_notice_for_another_order_or_transaction_is_ignored(): void
     {
         $this->order->forceFill(['provider_ref' => self::LIBELULA_TRANSACTION])->save();
-        $this->libelulaReceives($this->order->public_id, '292');
+        $this->libelulaReceives($this->order->public_id, '188');
 
         $this->assertNull($this->notice(['orden' => $this->order->public_id, 'transaction_id' => 'otra-transaccion']));
         $this->assertNull($this->notice(['orden' => 'no-es-uuid', 'transaction_id' => self::LIBELULA_TRANSACTION]));

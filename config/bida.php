@@ -460,8 +460,7 @@ return [
             'text' => 'Tarjetas digitales para decirle lo que sientes a tu pareja, a tu mejor amiga o a tu familia. Llevan tu foto y tu mensaje, se abren con un gesto y llegan por WhatsApp.',
             'more_note' => 'Durante la temporada vamos sumando diseños.',
             'active' => true,
-            // BIDA_SEASON_ENDS_AT era la fecha de la única temporada que había (esta)
-            'ends_at' => env('BIDA_SEASON_AMOR_ENDS_AT', env('BIDA_SEASON_ENDS_AT', '2026-09-21 23:59:59')),
+            'ends_at' => env('BIDA_SEASON_AMOR_ENDS_AT', '2026-09-21 23:59:59'),
             'price' => 14,
             'promo_price' => 11,
             'promo_label' => 'Promoción de temporada',
@@ -603,7 +602,6 @@ return [
     | su cupo (ResellerSubscription::canCreateClients).
     |  - «white_label»: el pie de sus invitaciones lleva su nombre comercial en vez de Bida Events.
     |  - «featured»: el recomendado de la página de planes.
-    |  - «legacy»: ya no se vende. Quien lo tiene lo conserva (y lo renueva) hasta que cambie de plan.
     | «cycle_months» es cuánto extiende la suscripción un pago mensual; «templates» (opcional) recorta
     | todavía más el catálogo con una lista de plantillas. «promo_price» es el precio con descuento
     | (null = sin descuento): se muestra el normal tachado. Precio, descuento y cupo se cambian en Ajustes.
@@ -651,37 +649,6 @@ return [
             'templates' => null,
             'summary' => 'Sin tope de invitaciones: para estudios y salones que entregan todas las semanas.',
             'features' => ['Invitaciones sin tope', 'Todo lo del plan Emprendedor'],
-        ],
-
-        // ── Ya no se venden: quien los tiene los conserva (y los renueva) hasta que cambie de plan.
-        // Una sola invitación ahora es «Hazlo tú» (pago único); Aliado quedó dentro de Inicial.
-        'unica' => [
-            'name' => 'Única',
-            'price' => 5,
-            'promo_price' => null,
-            'quota_per_month' => 1,
-            'collections' => ['lienzo', 'clasica'],
-            'rsvp' => ['whatsapp'],
-            'white_label' => false,
-            'legacy' => true,
-            'cycle_months' => 1,
-            'templates' => null,
-            'summary' => 'Para un solo evento: una invitación con la plantilla que elijas.',
-            'features' => ['1 invitación al mes', 'Plantilla en blanco y plantillas clásicas', 'Acceso para tu cliente en el evento'],
-        ],
-        'aliado' => [
-            'name' => 'Aliado',
-            'price' => 17,
-            'promo_price' => 14,
-            'quota_per_month' => 8,
-            'collections' => ['lienzo', 'clasica', 'temporada'],
-            'rsvp' => ['whatsapp'],
-            'white_label' => false,
-            'legacy' => true,
-            'cycle_months' => 1,
-            'templates' => null,
-            'summary' => 'Las clásicas y las de temporada: Halloween y las tarjetas del Día del Amor.',
-            'features' => ['8 invitaciones al mes', 'Plantilla en blanco, clásicas y de temporada', 'Acceso para tu cliente en cada evento'],
         ],
     ],
 ];

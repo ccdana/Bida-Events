@@ -32,13 +32,13 @@ class LemonSqueezyLifecycleTest extends TestCase
         config(['payments.grace_days' => 3]);
 
         $this->buyer = User::factory()->create(['email' => 'comprador@correo.com']);
-        $this->order = PaymentOrder::forSubscription($this->buyer, 'aliado', 1, '14.00', 'USD', 'lemonsqueezy');
+        $this->order = PaymentOrder::forSubscription($this->buyer, 'inicial', 1, '9.00', 'USD', 'lemonsqueezy');
     }
 
     /** La compra como la avisa Lemon Squeezy: order_created, subscription_created y el cobro inicial. */
     private function purchase(): void
     {
-        $this->lsSend($this->lsOrderCreated($this->order->public_id, '9001', 'aliado', 1400))->assertOk();
+        $this->lsSend($this->lsOrderCreated($this->order->public_id, '9001', 'inicial', 900))->assertOk();
         $this->lsSend($this->lsSubscription('subscription_created', '3001', 'active', $this->order->public_id))->assertOk();
         $this->lsSend($this->lsInvoice('subscription_payment_success', '7000', '3001', 'initial'))->assertOk();
     }
@@ -50,7 +50,7 @@ class LemonSqueezyLifecycleTest extends TestCase
         $this->buyer->refresh();
         $this->assertTrue($this->buyer->isReseller());
         $this->assertTrue($this->buyer->hasActiveSubscription());
-        $this->assertSame('aliado', $this->buyer->reseller_plan);
+        $this->assertSame('inicial', $this->buyer->reseller_plan);
         $this->assertSame('2026-11-15', $this->buyer->subscription_renews_at->toDateString());
         $this->assertSame('lemonsqueezy', $this->buyer->payment_provider);
         $this->assertSame('3001', $this->buyer->provider_subscription_id);
@@ -60,7 +60,7 @@ class LemonSqueezyLifecycleTest extends TestCase
         // Un solo pago por la compra (el cobro inicial no se suma otra vez)
         $payment = SubscriptionPayment::sole();
         $this->assertSame('order:9001', $payment->external_id);
-        $this->assertSame('14.00', $payment->amount);
+        $this->assertSame('9.00', $payment->amount);
         $this->assertTrue($this->order->fresh()->isPaid());
         $this->assertSame(0, WebhookEvent::whereNotNull('error')->count());
     }
@@ -173,7 +173,7 @@ class LemonSqueezyLifecycleTest extends TestCase
         $this->travelTo(Carbon::parse('2026-11-15 09:00:00', 'America/La_Paz'));
         $this->lsSend($this->lsInvoice('subscription_payment_success', '7001', '3001'))->assertOk();
 
-        $this->lsSend($this->lsEvent('subscription_payment_refunded', 'subscription-invoices', '7001', ['subscription_id' => 3001, 'refunded' => false, 'refunded_amount' => 500, 'total' => 1400]))->assertOk();
+        $this->lsSend($this->lsEvent('subscription_payment_refunded', 'subscription-invoices', '7001', ['subscription_id' => 3001, 'refunded' => false, 'refunded_amount' => 500, 'total' => 900]))->assertOk();
         $this->assertSame(2, SubscriptionPayment::count());
 
         $this->lsSend($this->lsInvoice('subscription_payment_refunded', '7001', '3001', status: 'refunded', refunded: true))->assertOk();
@@ -187,7 +187,7 @@ class LemonSqueezyLifecycleTest extends TestCase
     {
         $this->purchase();
 
-        $this->lsSend($this->lsEvent('order_refunded', 'orders', '9001', ['refunded' => true, 'refunded_amount' => 1400, 'status' => 'refunded']))->assertOk();
+        $this->lsSend($this->lsEvent('order_refunded', 'orders', '9001', ['refunded' => true, 'refunded_amount' => 900, 'status' => 'refunded']))->assertOk();
 
         $this->assertSame(PaymentOrder::REFUNDED, $this->order->fresh()->status);
         $this->assertNull($this->buyer->fresh()->subscription_renews_at);

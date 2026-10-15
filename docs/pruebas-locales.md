@@ -23,7 +23,7 @@ que vas sacando en los pasos 2 a 6.
 | `MAIL_*` | Mailpit (ya viene en Laragon) o tu casilla de Zoho | 3 | 5 min |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google Cloud Console | 4 | 10 min |
 | `LEMONSQUEEZY_STORE_ID` | Lemon Squeezy › *Settings › Stores* | 5.2 | 15 min en total |
-| `LEMONSQUEEZY_VARIANT_*` | Las 4 variantes del producto | 5.3 y 5.5 | |
+| `LEMONSQUEEZY_VARIANT_*` | Las 3 variantes del producto | 5.3 y 5.5 | |
 | `LEMONSQUEEZY_API_KEY` | Lemon Squeezy › *Settings › API* | 5.4 | |
 | `LEMONSQUEEZY_SIGNING_SECRET` | Lo generas tú y lo pegas también en el webhook | 5.6 | |
 | `LIBELULA_APPKEY` / `LIBELULA_BASE_URL` | Te los manda Libélula por correo | 6 | días |
@@ -252,7 +252,7 @@ En modo de prueba no hace falta activar la tienda, verificar identidad ni poner 
    LEMONSQUEEZY_STORE_ID=12345
    ```
 
-### 5.3 Crear el producto con los 4 planes
+### 5.3 Crear el producto con los 3 planes
 
 1. Menú de la izquierda → **Store** → **Products** → **+ New product**.
 2. **Name:** `Únete`. Descripción: la que quieras (la ve el comprador al pagar).
@@ -263,7 +263,6 @@ En modo de prueba no hace falta activar la tienda, verificar identidad ni poner 
    | Variante | Precio | Repite |
    | --- | --- | --- |
    | Inicial | 9 | cada 1 mes |
-   | Aliado | 14 | cada 1 mes |
    | Emprendedor | 29 | cada 1 mes |
    | Agencia | 59 | cada 1 mes |
 
@@ -297,8 +296,8 @@ En modo de prueba no hace falta activar la tienda, verificar identidad ni poner 
    ```text
    "id":"111111"
    "name":"Inicial"
-   "id":"222222"
-   "name":"Aliado"
+   "id":"333333"
+   "name":"Emprendedor"
    ...
    ```
 
@@ -307,7 +306,6 @@ En modo de prueba no hace falta activar la tienda, verificar identidad ni poner 
 
    ```dotenv
    LEMONSQUEEZY_VARIANT_INICIAL=111111
-   LEMONSQUEEZY_VARIANT_ALIADO=222222
    LEMONSQUEEZY_VARIANT_EMPRENDEDOR=333333
    LEMONSQUEEZY_VARIANT_AGENCIA=444444
    ```
@@ -356,7 +354,6 @@ LEMONSQUEEZY_API_KEY=eyJ0eXAiOiJKV1Qi...
 LEMONSQUEEZY_STORE_ID=12345
 LEMONSQUEEZY_SIGNING_SECRET=...
 LEMONSQUEEZY_VARIANT_INICIAL=111111
-LEMONSQUEEZY_VARIANT_ALIADO=222222
 LEMONSQUEEZY_VARIANT_EMPRENDEDOR=333333
 LEMONSQUEEZY_VARIANT_AGENCIA=444444
 ```

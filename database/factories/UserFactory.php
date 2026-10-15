@@ -37,7 +37,7 @@ class UserFactory extends Factory
     /**
      * Revendedor con la suscripción al día (vence en un mes, salvo que se indique otra fecha).
      */
-    public function reseller(string $plan = 'aliado', mixed $renewsAt = null, string $status = 'active'): static
+    public function reseller(string $plan = 'inicial', mixed $renewsAt = null, string $status = 'active'): static
     {
         return $this->state(fn (array $attributes) => [
             'is_admin' => false,

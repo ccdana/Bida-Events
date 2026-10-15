@@ -2176,7 +2176,7 @@ html[data-theme='dark'] .adm-device {
     display: none;
 }
 
-/* Un campo a la vista: el bloque tocado y nada más (editor/script, focusContainer) */
+/* Un campo a la vista: el bloque tocado y nada más (js/admin/editor.js, focusContainer) */
 .ed-panel.is-field .ed-focus-path > :not(.ed-focus-path):not(.ed-focus-field) {
     display: none !important;
 }

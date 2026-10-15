@@ -147,7 +147,7 @@ class DiyCheckoutTest extends TestCase
         $order = PaymentOrder::sole();
 
         // Cobró la variante de un plan mensual y no la de la invitación: no se publica
-        $this->lsSend($this->lsOrderCreated($order->public_id, '9101', 'aliado', 3500))->assertOk();
+        $this->lsSend($this->lsOrderCreated($order->public_id, '9101', 'inicial', 3500))->assertOk();
 
         $this->assertSame('inactive', $draft->fresh()->status);
         $this->assertSame(0, InvitationPayment::count());

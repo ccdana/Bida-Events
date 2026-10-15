@@ -322,13 +322,8 @@
                         @foreach($settings['reseller_plans'] as $plan)
                             <div class="set-list__row">
                                 <div class="min-w-0">
-                                    <p class="font-medium">
-                                        {{ $plan['name'] }}
-                                        @if($plan['legacy'])
-                                            <span class="ml-1 text-xs font-normal text-site-muted">· ya no se vende</span>
-                                        @endif
-                                    </p>
-                                    <p class="text-sm text-site-muted">{{ $plan['legacy'] ? 'Lo conserva quien ya lo tiene, al precio de aquí, hasta que cambie de plan.' : $plan['summary'] }}</p>
+                                    <p class="font-medium">{{ $plan['name'] }}</p>
+                                    <p class="text-sm text-site-muted">{{ $plan['summary'] }}</p>
                                 </div>
                                 <div>
                                     <label for="plan-precio-{{ $plan['key'] }}" class="admin-label set-list__label">Al mes ({{ $currency }})</label>

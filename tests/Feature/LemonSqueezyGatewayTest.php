@@ -45,7 +45,7 @@ class LemonSqueezyGatewayTest extends TestCase
     public function test_it_needs_its_credentials_and_a_variant_per_plan(): void
     {
         $this->assertTrue($this->gateway->isConfigured());
-        $this->assertTrue($this->gateway->supportsPlan('aliado'));
+        $this->assertTrue($this->gateway->supportsPlan('inicial'));
 
         config(['payments.lemonsqueezy.variants.agencia' => null]);
         $this->assertFalse($this->gateway->supportsPlan('agencia'));
@@ -91,7 +91,7 @@ class LemonSqueezyGatewayTest extends TestCase
         config(['payments.lemonsqueezy.test_mode' => true]);
         Http::fake(['api.lemonsqueezy.com/*' => Http::response(['data' => ['id' => '1', 'attributes' => ['url' => 'https://x.lemonsqueezy.com/c']]], 201)]);
 
-        $this->gateway->createCheckout(PaymentOrder::forSubscription(User::factory()->create(), 'aliado', 1, '14.00', 'USD', 'lemonsqueezy'));
+        $this->gateway->createCheckout(PaymentOrder::forSubscription(User::factory()->create(), 'inicial', 1, '9.00', 'USD', 'lemonsqueezy'));
 
         Http::assertSent(fn (HttpRequest $request) => $request->data()['data']['attributes']['test_mode'] === true);
     }
@@ -130,7 +130,7 @@ class LemonSqueezyGatewayTest extends TestCase
         $this->assertSame(GatewayEvent::SUBSCRIPTION_RENEWED, $renewal->type);
         $this->assertSame('invoice:7001', $renewal->externalId);
         $this->assertSame('3001', $renewal->extra['subscription_id']);
-        $this->assertSame('14.00', $renewal->extra['charged_amount']);
+        $this->assertSame('9.00', $renewal->extra['charged_amount']);
 
         // La del primer pago ya la cubre order_created; la de un cambio de plan no suma un mes
         $this->assertNull($this->parse($this->lsInvoice('subscription_payment_success', '7002', '3001', 'initial')));

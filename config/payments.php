@@ -84,9 +84,6 @@ return [
             'agencia' => env('LEMONSQUEEZY_VARIANT_AGENCIA'),
             'agencia:3' => env('LEMONSQUEEZY_VARIANT_AGENCIA_TRIMESTRAL'),
             'agencia:12' => env('LEMONSQUEEZY_VARIANT_AGENCIA_ANUAL'),
-            // Planes que ya no se venden: solo mensual, para renovar a quien los tiene
-            'unica' => env('LEMONSQUEEZY_VARIANT_UNICA'),
-            'aliado' => env('LEMONSQUEEZY_VARIANT_ALIADO'),
             // «Hazlo tú»: pago único, el precio va en cada checkout
             'invitacion' => env('LEMONSQUEEZY_VARIANT_INVITACION'),
         ],

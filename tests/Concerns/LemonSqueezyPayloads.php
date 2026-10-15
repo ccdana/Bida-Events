@@ -16,7 +16,7 @@ trait LemonSqueezyPayloads
      * Variantes de prueba de cada plan (y la anual de Inicial, «plan:meses») y la del pago único de
      * «Hazlo tú». Inicial no tiene la de cada 3 meses: ese ciclo solo se paga con QR.
      */
-    protected const LS_VARIANTS = ['inicial' => '101', 'inicial:12' => '112', 'aliado' => '102', 'emprendedor' => '103', 'agencia' => '104', 'invitacion' => '199'];
+    protected const LS_VARIANTS = ['inicial' => '101', 'inicial:12' => '112', 'emprendedor' => '103', 'agencia' => '104', 'invitacion' => '199'];
 
     protected function configureLemonSqueezy(): void
     {
@@ -55,7 +55,7 @@ trait LemonSqueezyPayloads
         ];
     }
 
-    protected function lsOrderCreated(string $orderId, string $lsOrderId = '9001', string $plan = 'aliado', int $totalUsd = 1400, string $status = 'paid'): array
+    protected function lsOrderCreated(string $orderId, string $lsOrderId = '9001', string $plan = 'inicial', int $totalUsd = 900, string $status = 'paid'): array
     {
         return $this->lsEvent('order_created', 'orders', $lsOrderId, [
             'store_id' => 7,
@@ -75,7 +75,7 @@ trait LemonSqueezyPayloads
         ], ['order_id' => $orderId, 'user_id' => '1']);
     }
 
-    protected function lsSubscription(string $event, string $subscriptionId, string $status, ?string $orderId = null, string $plan = 'aliado', bool $cancelled = false, ?string $renewsAt = null): array
+    protected function lsSubscription(string $event, string $subscriptionId, string $status, ?string $orderId = null, string $plan = 'inicial', bool $cancelled = false, ?string $renewsAt = null): array
     {
         return $this->lsEvent($event, 'subscriptions', $subscriptionId, [
             'store_id' => 7,
@@ -91,7 +91,7 @@ trait LemonSqueezyPayloads
         ], $orderId ? ['order_id' => $orderId] : []);
     }
 
-    protected function lsInvoice(string $event, string $invoiceId, string $subscriptionId, string $billingReason = 'renewal', string $status = 'paid', int $total = 1400, bool $refunded = false): array
+    protected function lsInvoice(string $event, string $invoiceId, string $subscriptionId, string $billingReason = 'renewal', string $status = 'paid', int $total = 900, bool $refunded = false): array
     {
         return $this->lsEvent($event, 'subscription-invoices', $invoiceId, [
             'store_id' => 7,

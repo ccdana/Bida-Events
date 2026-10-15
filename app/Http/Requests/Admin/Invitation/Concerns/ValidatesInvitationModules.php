@@ -59,7 +59,6 @@ trait ValidatesInvitationModules
             }
 
             $template = (string) $this->input('template');
-            $template = str_starts_with($template, 'pages.') ? substr($template, strlen('pages.')) : $template;
             $event = InvitationTemplates::all()[$template]['event'] ?? null;
             $code = EventType::whereKey($this->input('event_type_id'))->value('code');
 

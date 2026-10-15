@@ -3,6 +3,9 @@
 Qué vigila la aplicación sola, dónde mirar cuando algo falla y cómo recuperar la información.
 La configuración está en `config/operations.php`; el despliegue, en `docs/despliegue.md`.
 
+En el servidor todo corre en Docker: los comandos van con el atajo de `docs/despliegue.md`
+(`dc exec app php artisan …`) y los archivos de `storage/` viven en el volumen `storage`.
+
 ## Registros
 
 | Archivo | Qué guarda | Se conserva |
@@ -105,7 +108,7 @@ suscripción. Pase lo que pase, ningún pago suma meses dos veces.
 
 | Archivo | Contenido |
 | --- | --- |
-| `base-AAAA-MM-DD_HHMMSS.sql.gz` | Volcado completo de la base (`pg_dump`, `mysqldump` o copia de SQLite) |
+| `base-AAAA-MM-DD_HHMMSS.sql.gz` | Volcado completo de la base (`pg_dump`) |
 | `medios-AAAA-MM-DD_HHMMSS.zip` | Fotos y archivos guardados en el servidor (`storage/app/public`), si los hay |
 | `medios-AAAA-MM-DD_HHMMSS.json` | Lista de cada foto, video y audio que vive en Cloudinary |
 | `ultima-prueba.json` | Resultado de la última prueba de restauración |
@@ -115,10 +118,11 @@ Se conservan `BACKUP_KEEP_DAYS` días (14).
 ### Copia fuera del servidor
 
 Un respaldo que vive en el mismo disco se pierde con el disco. Copiar la carpeta a otro lugar
-cada noche, después de las 02:30, por ejemplo con `rclone` a un almacenamiento externo:
+cada noche, después de las 02:30. Desde el volumen se saca con `docker compose cp` y de ahí, por
+ejemplo con `rclone`, a un almacenamiento externo (crontab del usuario que maneja Docker):
 
 ```cron
-15 3 * * * rclone sync /ruta/a/bida-events/storage/app/backups remoto:bida-respaldos
+15 3 * * * cd /ruta/a/bida-events && docker compose -f compose.prod.yaml cp app:/var/www/html/storage/app/backups/. respaldos/ && rclone sync respaldos remoto:bida-respaldos
 ```
 
 ### Medios en Cloudinary
@@ -137,45 +141,39 @@ manifiesto dice cuáles son. Para protegerlas:
 No toca la base de la aplicación. Que haya tablas con más filas en la base real es normal: hubo
 actividad después del respaldo.
 
-Para probar un archivo concreto: `php artisan bida:probar-respaldo storage/app/backups/base-….sql.gz`.
+Para probar un archivo concreto: `dc exec app php artisan bida:probar-respaldo storage/app/backups/base-….sql.gz`.
 
-El usuario de la base necesita permiso para crear y borrar bases (`CREATEDB` en PostgreSQL).
+El usuario de la base necesita permiso para crear y borrar bases (`CREATEDB`). El que crea el
+contenedor `pgsql` con `DB_USERNAME` ya lo tiene.
 
 ## Restaurar un respaldo
 
-Solo ante una pérdida real de datos. Reemplaza toda la base.
+Solo ante una pérdida real de datos: reemplaza toda la base. En el servidor, con el atajo
+`dc` de `docs/despliegue.md`. El volcado se lee dentro del contenedor `app`, que tiene el
+cliente de PostgreSQL 17 y las credenciales en su entorno.
 
 ```bash
-php artisan down
-php artisan bida:respaldo --sin-medios        # por si hay que volver atrás
+dc exec app php artisan down
+dc exec app php artisan bida:respaldo --sin-medios     # por si hay que volver atrás
+dc stop queue scheduler
 
-gunzip -k storage/app/backups/base-AAAA-MM-DD_HHMMSS.sql.gz
+ARCHIVO=storage/app/backups/base-AAAA-MM-DD_HHMMSS.sql.gz
+dc exec app sh -c 'export PGPASSWORD="$DB_PASSWORD"
+  dropdb --force -h "$DB_HOST" -U "$DB_USERNAME" "$DB_DATABASE"
+  createdb -h "$DB_HOST" -U "$DB_USERNAME" "$DB_DATABASE"
+  gunzip -c '"$ARCHIVO"' | psql --set=ON_ERROR_STOP=1 -h "$DB_HOST" -U "$DB_USERNAME" -d "$DB_DATABASE"'
 ```
 
-**PostgreSQL**
+**Medios locales**, si el respaldo trae `.zip` (sin Cloudinary):
 
 ```bash
-dropdb bida_events && createdb bida_events
-psql --set=ON_ERROR_STOP=1 --dbname=bida_events --file=storage/app/backups/base-AAAA-MM-DD_HHMMSS.sql
-```
-
-**MySQL**
-
-```bash
-mysql -e "DROP DATABASE bida_events; CREATE DATABASE bida_events"
-mysql bida_events < storage/app/backups/base-AAAA-MM-DD_HHMMSS.sql
-```
-
-**Medios locales**, si el respaldo trae `.zip`:
-
-```bash
-unzip -o storage/app/backups/medios-AAAA-MM-DD_HHMMSS.zip -d storage/app/public
+dc exec app unzip -o storage/app/backups/medios-AAAA-MM-DD_HHMMSS.zip -d storage/app/public
 ```
 
 Después:
 
 ```bash
-php artisan optimize:clear
-php artisan bida:salud
-php artisan up
+dc up -d
+dc exec app php artisan bida:salud --sin-correo
+dc exec app php artisan up
 ```

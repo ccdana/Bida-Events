@@ -105,8 +105,6 @@ final class SiteSettings
                     'price' => (int) $plan['price'],
                     'promo_price' => isset($plan['promo_price']) ? (int) $plan['promo_price'] : null,
                     'quota_per_month' => isset($plan['quota_per_month']) ? (int) $plan['quota_per_month'] : null,
-                    // Ya no se vende: se muestra para cambiar el precio de quien lo renueva, marcado
-                    'legacy' => (bool) ($plan['legacy'] ?? false),
                 ])
                 ->values()
                 ->all(),

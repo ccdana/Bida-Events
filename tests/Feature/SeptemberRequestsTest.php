@@ -82,7 +82,7 @@ class SeptemberRequestsTest extends TestCase
     public function test_the_admin_sees_the_team_clients_and_the_clients_of_every_reseller(): void
     {
         $admin = User::factory()->create(['is_admin' => true]);
-        $reseller = User::factory()->reseller('aliado')->create(['business_name' => 'Estudio Luz']);
+        $reseller = User::factory()->reseller()->create(['business_name' => 'Estudio Luz']);
         $teamClient = User::factory()->create(['name' => 'Familia del Equipo']);
         $resellerClient = User::factory()->create(['name' => 'Familia del Revendedor', 'created_by_reseller_id' => $reseller->id]);
         $this->createInvitation(['user_id' => $teamClient->id, 'title' => 'Boda del equipo']);
@@ -110,7 +110,7 @@ class SeptemberRequestsTest extends TestCase
 
     public function test_a_reseller_event_can_be_their_own_without_spending_a_client_access(): void
     {
-        $reseller = User::factory()->reseller('aliado')->create();
+        $reseller = User::factory()->reseller()->create();
         $invitation = $this->createInvitation(['reseller_id' => $reseller->id]);
 
         $this->actingAs($reseller)

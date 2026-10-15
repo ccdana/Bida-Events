@@ -1,4 +1,9 @@
-<script>
+/**
+ * Editor de invitaciones (admin, revendedor y «Hazlo tú»): los componentes de Alpine que usa
+ * admin/invitations/editor/layout y sus paneles. app.js lo carga solo cuando la página tiene el
+ * editor, antes de iniciar Alpine.
+ */
+
 /**
  * Campo de fecha en formato DD-MM-AAAA. Se enlaza con x-model a un valor ISO (AAAA-MM-DD):
  * se puede escribir con máscara o elegir en el calendario nativo.
@@ -752,11 +757,6 @@ function invitationForm(config) {
             m.itinerario ??= { titulo: 'Itinerario', eventos: [] };
             m.dress_code ??= { sugerencias: [], colores_permitidos: [], evitar: [] };
             m.dress_code.evitar ??= [];
-            // Migrar datos legacy: colores_prohibidos → evitar
-            if (m.dress_code.colores_prohibidos && !m.dress_code.evitar.length) {
-                m.dress_code.evitar = m.dress_code.colores_prohibidos.map(c => typeof c === 'string' ? c : (c.motivo || c.nombre || ''));
-                delete m.dress_code.colores_prohibidos;
-            }
             m.destacados ??= { chambelanes: [], damitas: [], padrinos: [] };
             m.destacados.chambelanes ??= [];
             m.destacados.damitas ??= [];
@@ -3503,4 +3503,3 @@ function invitationForm(config) {
 }
 
 window.invitationForm = invitationForm;
-</script>

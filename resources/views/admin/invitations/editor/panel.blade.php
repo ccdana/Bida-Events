@@ -6,7 +6,7 @@
       formulario entero de esa parte.
     En el celular la burbuja y el panel son hojas que suben desde abajo. El formulario siempre está en la
     página (aunque no se vea): el botón Guardar de la cabecera y Publicar lo envían.
-    Lógica en editor/script (focusContainer, placeBubble); estilos en admin.css («Editor: estilo Canva»).
+    Lógica en resources/js/admin/editor.js (focusContainer, placeBubble); estilos en admin.css («Editor: estilo Canva»).
 --}}
 <div class="ed-panel" x-ref="panel" x-show="isEditingPart" x-cloak
     :class="{ 'is-tall': sheetTall, 'is-field': panelMode === 'field', 'is-section': panelMode === 'section', 'is-full': panelMode === 'full', 'is-bubble': isBubble, 'is-placed': bubble.ready, ['side-' + bubble.side]: isBubble }"

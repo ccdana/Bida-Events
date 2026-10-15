@@ -13,11 +13,11 @@ use ZipArchive;
 /**
  * Respaldo y prueba de restauración de la base de datos y los medios.
  *
- * - Base: pg_dump / mysqldump (o copia del archivo en SQLite), comprimido en .sql.gz.
+ * - Base: pg_dump (o copia del archivo en SQLite, en las pruebas), comprimido en .sql.gz.
  * - Medios locales: storage/app/public en un .zip (solo existe si Cloudinary no está configurado).
  * - Medios en Cloudinary: un manifiesto .json con cada URL, para poder verificarlos o descargarlos.
  *
- * Las contraseñas viajan a los ejecutables por variables de entorno (PGPASSWORD, MYSQL_PWD),
+ * La contraseña viaja a los ejecutables por variable de entorno (PGPASSWORD),
  * nunca en la línea de comandos ni en el log.
  */
 class BackupService
@@ -97,7 +97,6 @@ class BackupService
         try {
             return match ($config['driver']) {
                 'pgsql' => $this->testRestorePostgres($config, $sql),
-                'mysql', 'mariadb' => $this->testRestoreMysql($config, $sql),
                 'sqlite' => $this->testRestoreSqlite($sql),
                 default => throw new RuntimeException("No hay prueba de restauración para {$config['driver']}."),
             };
@@ -120,12 +119,6 @@ class BackupService
                 '--host='.$config['host'], '--port='.$config['port'], '--username='.$config['username'],
                 '--file='.$plain, $config['database'],
             ], ['PGPASSWORD' => (string) $config['password']]),
-
-            'mysql', 'mariadb' => $this->runProcess([
-                $binaries['mysqldump'], '--single-transaction', '--routines', '--no-tablespaces',
-                '--host='.$config['host'], '--port='.$config['port'], '--user='.$config['username'],
-                '--result-file='.$plain, $config['database'],
-            ], ['MYSQL_PWD' => (string) $config['password']]),
 
             'sqlite' => $this->dumpSqlite($config['database'], $plain),
 
@@ -240,30 +233,6 @@ class BackupService
         } finally {
             DB::purge('restauracion_prueba');
             $admin->statement("DROP DATABASE IF EXISTS \"{$temporary}\"");
-        }
-    }
-
-    private function testRestoreMysql(array $config, string $sql): array
-    {
-        $temporary = $config['database'].'_restauracion_prueba';
-        $admin = DB::connection();
-
-        $admin->statement("DROP DATABASE IF EXISTS `{$temporary}`");
-        $admin->statement("CREATE DATABASE `{$temporary}`");
-
-        try {
-            $this->runProcess([
-                config('operations.backups.binaries.mysql'),
-                '--host='.$config['host'], '--port='.$config['port'], '--user='.$config['username'],
-                $temporary, '--execute=source '.str_replace('\\', '/', $sql),
-            ], ['MYSQL_PWD' => (string) $config['password']]);
-
-            config(['database.connections.restauracion_prueba' => array_merge($config, ['database' => $temporary])]);
-
-            return $this->compareTables('restauracion_prueba', 'SELECT table_name AS name FROM information_schema.tables WHERE table_schema = DATABASE()');
-        } finally {
-            DB::purge('restauracion_prueba');
-            $admin->statement("DROP DATABASE IF EXISTS `{$temporary}`");
         }
     }
 

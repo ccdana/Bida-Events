@@ -226,7 +226,6 @@ class AdventureBookTest extends TestCase
             ->withoutVite()
             ->get(route('admin.invitations.edit', $book))
             ->assertOk()
-            ->assertSee("id: 'libro'", false)
             ->assertSee("activeTab === 'historia'", false)
             ->assertSee("activeTab === 'recuerdos'", false)
             ->assertSee("activeTab === 'collage'", false)
@@ -236,6 +235,9 @@ class AdventureBookTest extends TestCase
             ->assertSee("addBookEntry('aventuras', 'lista', 15)", false)
             ->assertSee("uploadBookPhotos('memoria', \$event, 8)", false)
             ->assertSee("uploadBookEntryPhoto('historia', 'capitulos', i, \$event)", false);
+
+        // La pestaña «libro» la declara el editor (resources/js/admin/editor.js)
+        $this->assertStringContainsString("id: 'libro'", file_get_contents(resource_path('js/admin/editor.js')));
     }
 
     private static function sample(): array

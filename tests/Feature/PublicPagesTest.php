@@ -38,7 +38,6 @@ class PublicPagesTest extends TestCase
             ->assertSee('site-plans site-plans--grid', false)
             ->assertDontSee('id="comparar"', false)
             ->assertSeeInOrder(['Elige tu plan', 'Inicial', 'US$ 20', '16', 'USD al mes', 'Ahorras US$ 4 al mes', '9 invitaciones al mes', 'plantillas para elegir', 'Emprendedor', 'Agencia', 'Invitaciones sin tope', 'Elegir Agencia'])
-            ->assertDontSee('Elegir Aliado')
             // La pregunta de cuánto se gana usa el cupo y el precio de hoy (9 × 25 − 16)
             ->assertSee('suman US$ 225 y te quedan US$ 209 después del plan')
             // Lo secundario: que lo haga el equipo, con los paquetes de hoy
@@ -87,7 +86,7 @@ class PublicPagesTest extends TestCase
 
     public function test_a_logged_in_reseller_sees_the_page_with_its_panel_link(): void
     {
-        $reseller = User::factory()->reseller('aliado')->create();
+        $reseller = User::factory()->reseller()->create();
 
         $this->actingAs($reseller)->withoutVite()->get(route('diy'))
             ->assertOk()

@@ -33,7 +33,7 @@ class PaymentWebhookTest extends TestCase
         config(['payments.drivers.fake' => FakePaymentGateway::class]);
 
         $this->buyer = User::factory()->create();
-        $this->order = PaymentOrder::forSubscription($this->buyer, 'aliado', 1, '14.00', 'USD', 'fake');
+        $this->order = PaymentOrder::forSubscription($this->buyer, 'inicial', 1, '9.00', 'USD', 'fake');
     }
 
     private function notify(array $payload, ?string $signature = null, string $provider = 'fake'): TestResponse
@@ -50,7 +50,7 @@ class PaymentWebhookTest extends TestCase
             'type' => 'order.paid',
             'order' => $this->order->public_id,
             'charge' => 'cobro_1',
-            'amount' => '14.00',
+            'amount' => '9.00',
             'currency' => 'USD',
         ], $overrides);
     }
@@ -135,7 +135,7 @@ class PaymentWebhookTest extends TestCase
         $this->notify(['id' => 'evt_9', 'type' => 'order.failed', 'order' => $this->order->public_id])->assertOk();
         $this->assertSame(PaymentOrder::FAILED, $this->order->fresh()->status);
 
-        $other = PaymentOrder::forSubscription($this->buyer, 'aliado', 1, '14.00', 'USD', 'fake');
+        $other = PaymentOrder::forSubscription($this->buyer, 'inicial', 1, '9.00', 'USD', 'fake');
         $this->notify(['id' => 'evt_10', 'type' => 'order.expired', 'order' => $other->public_id])->assertOk();
         $this->assertSame(PaymentOrder::EXPIRED, $other->fresh()->status);
 

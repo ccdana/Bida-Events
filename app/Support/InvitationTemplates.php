@@ -46,19 +46,6 @@ final class InvitationTemplates
     public const DEFAULT = self::XV_PREMIUM;
 
     /**
-     * Plantillas que se reemplazaron por otra (la invitación sigue igual, con el diseño nuevo). Las
-     * migraciones 2026_09_29_000001 y 2026_09_30_000001 ya pasaron las guardadas; esto cubre las que
-     * lleguen por otro lado (una sesión abierta, un enlace del editor) y lo usa
-     * InvitationDefaults::resolveTemplate. Siempre apunta a la plantilla vigente: «Galería Quince» se
-     * volvió «Caleidoscopio» y «Caleidoscopio», «El cambio de zapatos».
-     */
-    public const RENAMED = [
-        'invitations.templates.xv-carta-de-baile' => 'invitations.templates.xv-cuento',
-        'invitations.templates.xv-galeria' => 'invitations.templates.xv-zapatos',
-        'invitations.templates.xv-caleidoscopio' => 'invitations.templates.xv-zapatos',
-    ];
-
-    /**
      * Paleta por defecto de una plantilla. La usan el editor y las pruebas de contraste
      * para medir que cada tema se lea.
      *
@@ -959,14 +946,7 @@ final class InvitationTemplates
 
     public static function get(?string $template): array
     {
-        $template = (string) $template;
-
-        // Nombres antiguos con prefijo "pages." (ver InvitationDefaults::resolveTemplate)
-        if (str_starts_with($template, 'pages.')) {
-            $template = substr($template, strlen('pages.'));
-        }
-
-        return self::all()[$template] ?? self::all()[self::DEFAULT];
+        return self::all()[(string) $template] ?? self::all()[self::DEFAULT];
     }
 
     /**

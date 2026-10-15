@@ -28,7 +28,7 @@ class ResellerEditorTest extends TestCase
     {
         parent::setUp();
 
-        $this->reseller = User::factory()->reseller('aliado')->create();
+        $this->reseller = User::factory()->reseller()->create();
         $this->eventType = EventType::firstOrCreate(['slug' => 'xv-anos'], ['name' => 'XV Años']);
     }
 
@@ -53,7 +53,7 @@ class ResellerEditorTest extends TestCase
 
     public function test_without_quota_a_new_invitation_is_saved_as_a_draft_with_a_clear_message(): void
     {
-        foreach (range(1, 8) as $ignored) {
+        foreach (range(1, 5) as $ignored) {
             $this->createInvitation(['reseller_id' => $this->reseller->id]);
         }
 
@@ -64,7 +64,7 @@ class ResellerEditorTest extends TestCase
         $this->actingAs($this->reseller)
             ->post(route('client.invitations.store'), $this->payload())
             ->assertRedirect()
-            ->assertSessionHas('warning', 'Guardamos tus cambios, pero no la publicamos: ya publicaste las 8 invitaciones de tu plan este mes. Podrás publicarla desde el 1 de '.now()->addMonthNoOverflow()->locale('es')->translatedFormat('F').', o ahora mismo con un plan mayor.');
+            ->assertSessionHas('warning', 'Guardamos tus cambios, pero no la publicamos: ya publicaste las 5 invitaciones de tu plan este mes. Podrás publicarla desde el 1 de '.now()->addMonthNoOverflow()->locale('es')->translatedFormat('F').', o ahora mismo con un plan mayor.');
 
         $invitation = Invitation::where('slug', 'xv-revendedor')->firstOrFail();
         $this->assertSame('inactive', $invitation->status);
@@ -73,7 +73,7 @@ class ResellerEditorTest extends TestCase
 
     public function test_a_template_outside_the_plan_is_rejected(): void
     {
-        config(['bida.reseller_plans.aliado.templates' => [InvitationTemplates::BODA_JARDIN]]);
+        config(['bida.reseller_plans.inicial.templates' => [InvitationTemplates::BODA_JARDIN]]);
 
         $this->actingAs($this->reseller)
             ->post(route('client.invitations.store'), $this->payload())

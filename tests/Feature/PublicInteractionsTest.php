@@ -16,9 +16,9 @@ class PublicInteractionsTest extends TestCase
 {
     use CreatesInvitations, RefreshDatabase;
 
-    public function test_public_page_renders_responsive_cloudinary_images_with_a_legacy_template_name(): void
+    public function test_public_page_renders_responsive_cloudinary_images(): void
     {
-        $invitation = $this->createInvitation(['template' => 'pages.invitations.templates.xv-premium']);
+        $invitation = $this->createInvitation(['template' => 'invitations.templates.xv-premium']);
         app(InvitationModuleService::class)->syncAllModules($invitation, XvSofiaModuleData::all());
 
         $this->withoutVite()

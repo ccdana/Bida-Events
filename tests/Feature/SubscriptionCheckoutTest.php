@@ -27,9 +27,9 @@ class SubscriptionCheckoutTest extends TestCase
         parent::setUp();
 
         $this->travelTo(Carbon::parse('2026-10-15 12:00:00', 'America/La_Paz'));
-        // El flujo de la tarjeta con el Aliado a la venta y sin descuento por adelantado
+        // El flujo de la tarjeta con el plan Inicial y sin descuento por adelantado
         // (PlansAndCyclesTest prueba el catálogo y los ciclos)
-        config(['bida.reseller_plans.aliado.legacy' => false, 'payments.prepay' => [1 => 0, 3 => 0, 12 => 0]]);
+        config(['payments.prepay' => [1 => 0, 3 => 0, 12 => 0]]);
         $this->configureLemonSqueezy();
         Http::fake([
             'api.lemonsqueezy.com/v1/checkouts' => Http::response(['data' => ['id' => 'chk-1', 'attributes' => ['url' => self::CHECKOUT_URL]]], 201),
@@ -43,16 +43,16 @@ class SubscriptionCheckoutTest extends TestCase
         $user = User::factory()->create();
 
         $this->actingAs($user)->get(route('client.subscription'))->assertNotFound();
-        $this->actingAs($user)->post(route('client.subscription.store'), ['plan' => 'aliado', 'method' => 'card'])->assertNotFound();
+        $this->actingAs($user)->post(route('client.subscription.store'), ['plan' => 'inicial', 'method' => 'card'])->assertNotFound();
 
         // «Únete» sigue llevando a WhatsApp
-        $this->withoutVite()->get(route('diy'))->assertOk()->assertDontSee(route('client.subscription', ['plan' => 'aliado']), false);
+        $this->withoutVite()->get(route('diy'))->assertOk()->assertDontSee(route('client.subscription', ['plan' => 'inicial']), false);
     }
 
     public function test_the_plans_page_offers_the_card_and_hazlo_tu_links_to_it(): void
     {
         // Quien no tiene cuenta pasa primero por crearla, con su plan, y de ahí sigue al pago
-        $this->withoutVite()->get(route('diy'))->assertOk()->assertSee(route('register', ['plan' => 'aliado']), false);
+        $this->withoutVite()->get(route('diy'))->assertOk()->assertSee(route('register', ['plan' => 'inicial']), false);
 
         $this->actingAs(User::factory()->create())->withoutVite()->get(route('client.subscription', ['plan' => 'emprendedor']))
             ->assertOk()
@@ -70,7 +70,7 @@ class SubscriptionCheckoutTest extends TestCase
             ->assertDontSee('Cuántos meses pagas');
 
         // Quien ya entró va directo a pagar
-        $this->withoutVite()->get(route('diy'))->assertOk()->assertSee(route('client.subscription', ['plan' => 'aliado']), false);
+        $this->withoutVite()->get(route('diy'))->assertOk()->assertSee(route('client.subscription', ['plan' => 'inicial']), false);
 
         // Sin credenciales de Lemon Squeezy no se ofrece la tarjeta
         config(['payments.lemonsqueezy.api_key' => null]);
@@ -81,7 +81,7 @@ class SubscriptionCheckoutTest extends TestCase
 
     public function test_guests_are_sent_to_sign_in_first(): void
     {
-        $this->get(route('client.subscription', ['plan' => 'aliado']))->assertRedirect(route('login'));
+        $this->get(route('client.subscription', ['plan' => 'inicial']))->assertRedirect(route('login'));
     }
 
     public function test_paying_opens_an_order_and_goes_to_the_checkout(): void
@@ -118,7 +118,7 @@ class SubscriptionCheckoutTest extends TestCase
 
         foreach ([$unverified, $withoutEmail] as $user) {
             $this->actingAs($user)
-                ->post(route('client.subscription.store'), ['plan' => 'aliado', 'method' => 'card'])
+                ->post(route('client.subscription.store'), ['plan' => 'inicial', 'method' => 'card'])
                 ->assertRedirect(route('client.account'))
                 ->assertSessionHasErrors('email');
         }
@@ -129,7 +129,7 @@ class SubscriptionCheckoutTest extends TestCase
 
     public function test_someone_already_paying_by_card_changes_plan_in_the_portal(): void
     {
-        $user = User::factory()->reseller('aliado')->create([
+        $user = User::factory()->reseller()->create([
             'payment_provider' => 'lemonsqueezy', 'provider_subscription_id' => '3001',
         ]);
 
@@ -157,7 +157,7 @@ class SubscriptionCheckoutTest extends TestCase
         $user = User::factory()->create();
 
         $this->actingAs($user)->from(route('client.subscription'))
-            ->post(route('client.subscription.store'), ['plan' => 'aliado', 'method' => 'card'])
+            ->post(route('client.subscription.store'), ['plan' => 'inicial', 'method' => 'card'])
             ->assertRedirect(route('client.subscription'))
             ->assertSessionHasErrors('method');
 
@@ -178,7 +178,7 @@ class SubscriptionCheckoutTest extends TestCase
     public function test_the_return_page_waits_for_the_notice_and_shows_the_active_plan(): void
     {
         $user = User::factory()->create();
-        $order = PaymentOrder::forSubscription($user, 'aliado', 1, '14.00', 'USD', 'lemonsqueezy');
+        $order = PaymentOrder::forSubscription($user, 'inicial', 1, '9.00', 'USD', 'lemonsqueezy');
 
         $this->actingAs($user)->withoutVite()->get(route('client.subscription.order', $order->public_id))
             ->assertOk()
@@ -193,7 +193,7 @@ class SubscriptionCheckoutTest extends TestCase
         $this->actingAs($user)->getJson(route('client.subscription.order', $order->public_id))->assertExactJson(['status' => 'paid']);
         $this->actingAs($user->fresh())->withoutVite()->get(route('client.subscription.order', $order->public_id))
             ->assertOk()
-            ->assertSee('Listo: tu plan Aliado está activo')
+            ->assertSee('Listo: tu plan Inicial está activo')
             ->assertSee(route('client.invitations.create'), false);
 
         // La orden de otra persona no se ve
@@ -205,13 +205,13 @@ class SubscriptionCheckoutTest extends TestCase
     {
         config(['payments.grace_days' => 3]);
 
-        $new = User::factory()->create(['is_reseller' => true, 'reseller_plan' => 'aliado']);
+        $new = User::factory()->create(['is_reseller' => true, 'reseller_plan' => 'inicial']);
         $this->actingAs($new)->withoutVite()->get(route('client.dashboard'))
             ->assertOk()
             ->assertSee('Elige tu plan y paga en línea para empezar.')
             ->assertSee(route('client.subscription'), false);
 
-        $late = User::factory()->reseller('aliado', '2026-10-14')->create();
+        $late = User::factory()->reseller('inicial', '2026-10-14')->create();
         $this->actingAs($late)->withoutVite()->get(route('client.dashboard'))
             ->assertOk()
             ->assertSee('venció el 14 de octubre')
@@ -221,7 +221,7 @@ class SubscriptionCheckoutTest extends TestCase
             ->assertSee('href="'.route('client.subscription').'"', false);
 
         // Con tarjeta que se renueva sola, no hace falta avisar del vencimiento
-        $card = User::factory()->reseller('aliado', '2026-10-18')->create(['payment_provider' => 'lemonsqueezy', 'provider_subscription_id' => '3001']);
+        $card = User::factory()->reseller('inicial', '2026-10-18')->create(['payment_provider' => 'lemonsqueezy', 'provider_subscription_id' => '3001']);
         $this->actingAs($card)->withoutVite()->get(route('client.dashboard'))
             ->assertOk()
             ->assertSee('se renueva solo el')
@@ -231,12 +231,12 @@ class SubscriptionCheckoutTest extends TestCase
     public function test_the_account_shows_the_plan_and_its_payments(): void
     {
         $user = User::factory()->create();
-        $this->lsSend($this->lsOrderCreated(PaymentOrder::forSubscription($user, 'aliado', 1, '14.00', 'USD', 'lemonsqueezy')->public_id))->assertOk();
+        $this->lsSend($this->lsOrderCreated(PaymentOrder::forSubscription($user, 'inicial', 1, '9.00', 'USD', 'lemonsqueezy')->public_id))->assertOk();
 
         $this->actingAs($user->fresh())->withoutVite()->get(route('client.account'))
             ->assertOk()
             ->assertSee('Plan y pagos')
-            ->assertSee('Aliado')
+            ->assertSee('Inicial')
             ->assertSee('· tarjeta')
             ->assertSee(route('client.subscription'), false);
     }

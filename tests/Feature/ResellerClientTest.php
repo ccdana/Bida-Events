@@ -18,7 +18,7 @@ class ResellerClientTest extends TestCase
 
     public function test_the_reseller_creates_one_client_per_event(): void
     {
-        $reseller = User::factory()->reseller('aliado')->create();
+        $reseller = User::factory()->reseller()->create();
         $invitation = $this->createInvitation(['reseller_id' => $reseller->id]);
 
         $this->actingAs($reseller)
@@ -44,7 +44,7 @@ class ResellerClientTest extends TestCase
 
     public function test_a_wrong_client_is_deleted_and_another_one_is_created(): void
     {
-        $reseller = User::factory()->reseller('aliado')->create();
+        $reseller = User::factory()->reseller()->create();
         $invitation = $this->createInvitation(['reseller_id' => $reseller->id]);
 
         $this->actingAs($reseller)->post(route('client.invitations.client.store', $invitation), ['name' => 'Nombre mal escrito']);
@@ -65,7 +65,7 @@ class ResellerClientTest extends TestCase
 
     public function test_the_reseller_cannot_touch_clients_of_other_events(): void
     {
-        $reseller = User::factory()->reseller('aliado')->create();
+        $reseller = User::factory()->reseller()->create();
         $foreign = $this->createInvitation(['reseller_id' => User::factory()->reseller()->create()->id]);
 
         $this->actingAs($reseller)

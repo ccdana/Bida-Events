@@ -250,7 +250,7 @@ class DiyInvitationTest extends TestCase
         $this->actingAs($stranger)->delete(route('client.diy.destroy', $invitation))->assertRedirect()->assertSessionHas('access_notice');
 
         // El editor del revendedor no la abre (ahí «status» publicaría sin pasar por el nivel)
-        $this->owner->update(['is_reseller' => true, 'reseller_plan' => 'aliado', 'subscription_status' => 'active', 'subscription_renews_at' => now()->addMonth()]);
+        $this->owner->update(['is_reseller' => true, 'reseller_plan' => 'inicial', 'subscription_status' => 'active', 'subscription_renews_at' => now()->addMonth()]);
         $this->actingAs($this->owner->fresh())->get(route('client.invitations.edit', $invitation))->assertRedirect()->assertSessionHas('access_notice');
 
         $published = $this->draft(['slug' => 'ya-publicada', 'package' => Packages::FREE, 'status' => 'active']);
@@ -275,7 +275,7 @@ class DiyInvitationTest extends TestCase
             ->assertSee('Borrar borrador');
 
         // Un revendedor sigue con su propio editor
-        $reseller = User::factory()->reseller('aliado')->create();
+        $reseller = User::factory()->reseller()->create();
         $this->actingAs($reseller)->withoutVite()->get(route('client.dashboard'))
             ->assertOk()
             ->assertDontSee(route('client.diy.create'), false);

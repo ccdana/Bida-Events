@@ -12,9 +12,9 @@ use Tests\Concerns\CreatesInvitations;
 use Tests\TestCase;
 
 /**
- * Planes de revendedor y las dos formas de confirmar: el catálogo crece con cada plan (Inicial:
- * lienzo y clásicas; Aliado: más las de temporada; Emprendedor y Agencia: más las nuevas), la
- * confirmación por WhatsApp llega desde Emprendedor y el pase QR con la puerta en Agencia. Una
+ * Planes de revendedor y las dos formas de confirmar: el catálogo crece con cada plan (Inicial: en
+ * blanco, clásicas y de temporada; Emprendedor y Agencia: más las nuevas y de tendencia), la
+ * confirmación por WhatsApp llega con Inicial y el pase QR con la puerta desde Emprendedor. Una
  * invitación confirma de una sola forma. El revendedor cambia su contraseña.
  */
 class ResellerPlansAndRsvpTest extends TestCase
@@ -43,9 +43,6 @@ class ResellerPlansAndRsvpTest extends TestCase
         $this->assertSame(['clasica', 'lienzo', 'temporada'], $collections('inicial'));
         $this->assertSame(['clasica', 'lienzo', 'nueva', 'temporada', 'tendencias'], $collections('emprendedor'));
         $this->assertContains('nueva', config('bida.reseller_plans.agencia.collections'));
-        // Los que ya no se venden siguen con lo suyo
-        $this->assertSame(['clasica', 'lienzo'], $collections('unica'));
-        $this->assertSame(['clasica', 'lienzo', 'temporada'], $collections('aliado'));
     }
 
     public function test_the_whatsapp_confirmation_comes_with_inicial_and_the_qr_pass_from_emprendedor(): void
@@ -91,7 +88,7 @@ class ResellerPlansAndRsvpTest extends TestCase
 
     public function test_the_reseller_changes_the_password(): void
     {
-        $reseller = User::factory()->reseller('aliado')->create(['password' => Hash::make('clave-que-le-dimos')]);
+        $reseller = User::factory()->reseller()->create(['password' => Hash::make('clave-que-le-dimos')]);
 
         $this->actingAs($reseller)->withoutVite()->get(route('client.account'))->assertOk()->assertSee('Cambiar contraseña');
 

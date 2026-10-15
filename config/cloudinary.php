@@ -4,20 +4,17 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Cloudinary Configuration
+    | Cloudinary (fotos, música y video de las invitaciones)
     |--------------------------------------------------------------------------
     |
-    | Configura CLOUDINARY_URL en .env con el formato:
-    | cloudinary://API_KEY:API_SECRET@CLOUD_NAME
+    | CLOUDINARY_URL con el formato cloudinary://API_KEY:API_SECRET@CLOUD_NAME. Sin ella, los
+    | archivos se guardan en el disco local (storage/app/public). Ver App\Services\MediaUploadService.
     |
     */
 
-    'notification_url' => env('CLOUDINARY_NOTIFICATION_URL'),
-
     'cloud_url' => env('CLOUDINARY_URL'),
 
-    'upload_preset' => env('CLOUDINARY_UPLOAD_PRESET'),
-
+    // Carpeta raíz dentro de la cuenta de Cloudinary
     'folder' => env('CLOUDINARY_FOLDER', 'bida-events'),
 
 ];
