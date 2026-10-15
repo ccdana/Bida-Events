@@ -76,12 +76,17 @@ final class SampleContent
     public static function placeholders(): array
     {
         $values = [];
-        $samples = self::forEditor();
-        array_walk_recursive($samples, function (mixed $value) use (&$values) {
-            if (is_string($value) && self::mustBeReplaced($value)) {
-                $values[$value] = true;
-            }
-        });
+
+        foreach (Localization::locales() as $locale) {
+            Localization::using($locale, function () use (&$values) {
+                $samples = self::forEditor();
+                array_walk_recursive($samples, function (mixed $value) use (&$values) {
+                    if (is_string($value) && self::mustBeReplaced($value)) {
+                        $values[$value] = true;
+                    }
+                });
+            });
+        }
 
         return array_keys($values);
     }
@@ -89,8 +94,8 @@ final class SampleContent
     public static function mustBeReplaced(string $value): bool
     {
         return str_starts_with($value, '/images/ejemplo/')
-            || str_starts_with($value, 'Escribe aquí')
-            || str_starts_with($value, 'Escribe algo')
+            || str_starts_with($value, __('Escribe aquí'))
+            || str_starts_with($value, __('Escribe algo'))
             || in_array($value, self::TO_REPLACE, true)
             // Los invitados de honor numerados («Chambelán 1», «Dama 2»)
             || (bool) preg_match('/^\p{L}[\p{L} ]* [0-9]$/u', $value);
@@ -120,162 +125,162 @@ final class SampleContent
         return match ($code) {
             'bienvenida' => [
                 // Los nombres los pide el asistente al crear; aquí solo lo que acompaña
-                'subtitulo' => (string) ($profile->sample()['subtitle'] ?? 'Te invito a celebrar'),
-                'mensaje' => 'Escribe aquí unas palabras para tus invitados: por qué es un día especial y cuánto te alegra compartirlo.',
+                'subtitulo' => (string) ($profile->sample()['subtitle'] ?? __('Te invito a celebrar')),
+                'mensaje' => __('Escribe aquí unas palabras para tus invitados: por qué es un día especial y cuánto te alegra compartirlo.'),
                 'imagen_hero' => self::PHOTO_VERTICAL,
             ],
             'ubicacion' => [
-                'nombre_lugar' => 'Nombre del lugar',
-                'direccion' => 'Calle, número y zona',
-                'nota' => 'Escribe aquí cómo llegar o dónde estacionar.',
+                'nombre_lugar' => __('Nombre del lugar'),
+                'direccion' => __('Calle, número y zona'),
+                'nota' => __('Escribe aquí cómo llegar o dónde estacionar.'),
                 'lat' => -16.5,
                 'lng' => -68.15,
             ],
             'itinerario' => [
-                'titulo' => 'Itinerario',
+                'titulo' => __('Itinerario'),
                 'eventos' => [
-                    ['hora' => '19:00', 'titulo' => 'Recepción', 'icono' => 'recepcion', 'descripcion' => 'Escribe aquí qué pasa en este momento.'],
-                    ['hora' => '20:00', 'titulo' => 'Brindis', 'icono' => 'brindis', 'descripcion' => ''],
-                    ['hora' => '21:00', 'titulo' => 'Cena', 'icono' => 'cena', 'descripcion' => ''],
-                    ['hora' => '22:00', 'titulo' => 'Fiesta', 'icono' => 'fiesta', 'descripcion' => ''],
+                    ['hora' => '19:00', 'titulo' => __('Recepción'), 'icono' => 'recepcion', 'descripcion' => __('Escribe aquí qué pasa en este momento.')],
+                    ['hora' => '20:00', 'titulo' => __('Brindis'), 'icono' => 'brindis', 'descripcion' => ''],
+                    ['hora' => '21:00', 'titulo' => __('Cena'), 'icono' => 'cena', 'descripcion' => ''],
+                    ['hora' => '22:00', 'titulo' => __('Fiesta'), 'icono' => 'fiesta', 'descripcion' => ''],
                 ],
             ],
             'dress_code' => [
-                'titulo' => 'Código de vestimenta',
-                'estilo' => 'Formal',
-                'descripcion' => 'Escribe aquí cómo te gustaría que vengan vestidos tus invitados.',
+                'titulo' => __('Código de vestimenta'),
+                'estilo' => __('Formal'),
+                'descripcion' => __('Escribe aquí cómo te gustaría que vengan vestidos tus invitados.'),
                 'sugerencias' => [
-                    ['para' => 'Damas', 'titulo' => 'Vestido largo o de cóctel', 'descripcion' => '', 'ejemplos' => []],
-                    ['para' => 'Caballeros', 'titulo' => 'Traje y corbata', 'descripcion' => '', 'ejemplos' => []],
+                    ['para' => __('Damas'), 'titulo' => __('Vestido largo o de cóctel'), 'descripcion' => '', 'ejemplos' => []],
+                    ['para' => __('Caballeros'), 'titulo' => __('Traje y corbata'), 'descripcion' => '', 'ejemplos' => []],
                 ],
                 'colores_permitidos' => [],
                 'evitar' => [],
             ],
             'destacados' => [
                 'padrinos' => [
-                    ['rol' => $groups['padrinos'][0] ?? 'Padrinos', 'nombres' => 'Nombre y nombre', 'mensaje' => 'Escribe aquí unas palabras para ellos.'],
+                    ['rol' => $groups['padrinos'][0] ?? __('Padrinos'), 'nombres' => __('Nombre y nombre'), 'mensaje' => __('Escribe aquí unas palabras para ellos.')],
                 ],
                 'chambelanes' => [
-                    ['nombre' => $singular('chambelanes', 'Invitado').' 1', 'iniciales' => '1', 'detalle' => 'Escribe algo sobre esta persona.'],
-                    ['nombre' => $singular('chambelanes', 'Invitado').' 2', 'iniciales' => '2', 'detalle' => ''],
+                    ['nombre' => $singular('chambelanes', __('Invitado')).' 1', 'iniciales' => '1', 'detalle' => __('Escribe algo sobre esta persona.')],
+                    ['nombre' => $singular('chambelanes', __('Invitado')).' 2', 'iniciales' => '2', 'detalle' => ''],
                 ],
                 'damitas' => [
-                    ['nombre' => $singular('damitas', 'Invitada').' 1', 'iniciales' => '1', 'detalle' => 'Escribe algo sobre esta persona.'],
-                    ['nombre' => $singular('damitas', 'Invitada').' 2', 'iniciales' => '2', 'detalle' => ''],
+                    ['nombre' => $singular('damitas', __('Invitada')).' 1', 'iniciales' => '1', 'detalle' => __('Escribe algo sobre esta persona.')],
+                    ['nombre' => $singular('damitas', __('Invitada')).' 2', 'iniciales' => '2', 'detalle' => ''],
                 ],
             ],
             'galeria' => [
-                'titulo' => 'Nuestros momentos',
+                'titulo' => __('Nuestros momentos'),
                 'fotos' => array_slice(self::PHOTOS_SQUARE, 0, 4),
             ],
             'musica' => [
-                'titulo' => 'Nuestra canción',
-                'artista' => 'Elige la canción de fondo',
+                'titulo' => __('Nuestra canción'),
+                'artista' => __('Elige la canción de fondo'),
                 'autoplay' => false,
             ],
             'video' => [
-                'titulo' => 'Un video para ti',
+                'titulo' => __('Un video para ti'),
                 'poster' => self::PHOTO_HORIZONTAL,
             ],
             'playlist' => [
-                'titulo' => 'Sugiere una canción',
-                'descripcion' => '¿Qué canción no puede faltar en la fiesta? Escríbela aquí.',
-                'placeholder' => 'Nombre de la canción o del artista',
+                'titulo' => __('Sugiere una canción'),
+                'descripcion' => __('¿Qué canción no puede faltar en la fiesta? Escríbela aquí.'),
+                'placeholder' => __('Nombre de la canción o del artista'),
             ],
             'hashtag' => [
                 'hashtag' => '#NuestraFiesta',
                 'plataforma' => 'instagram',
-                'texto_boton' => 'Comparte tus fotos',
+                'texto_boton' => __('Comparte tus fotos'),
             ],
             'encuestas' => [
-                'titulo' => 'Queremos saber',
+                'titulo' => __('Queremos saber'),
                 'preguntas' => [
-                    ['id' => 'ejemplo-fiesta', 'tipo' => 'single', 'pregunta' => '¿Qué no puede faltar en la fiesta?', 'opciones' => ['Baile', 'Karaoke', 'Hora loca']],
+                    ['id' => 'ejemplo-fiesta', 'tipo' => 'single', 'pregunta' => __('¿Qué no puede faltar en la fiesta?'), 'opciones' => [__('Baile'), __('Karaoke'), __('Hora loca')]],
                 ],
             ],
             'regalos' => [
-                'titulo' => 'Regalos',
+                'titulo' => __('Regalos'),
                 'tienda_url' => '',
                 'tienda_texto' => '',
                 'opciones' => [
-                    ['titulo' => 'Tu presencia es nuestro mejor regalo', 'descripcion' => 'Escribe aquí cómo pueden hacerte un regalo si lo desean.', 'enlace' => ''],
+                    ['titulo' => __('Tu presencia es nuestro mejor regalo'), 'descripcion' => __('Escribe aquí cómo pueden hacerte un regalo si lo desean.'), 'enlace' => ''],
                 ],
                 'sobres' => ['titulo' => '', 'direccion' => ''],
                 'banco' => ['banco' => '', 'titular' => '', 'ci' => '', 'cuenta' => '', 'qr_url' => ''],
             ],
             'post_evento' => [
-                'titulo' => 'Fotos de la fiesta',
-                'descripcion' => 'Después del evento subiremos aquí las fotos oficiales.',
+                'titulo' => __('Fotos de la fiesta'),
+                'descripcion' => __('Después del evento subiremos aquí las fotos oficiales.'),
                 'fotos' => [],
                 'enlace_externo' => '',
             ],
             'rsvp' => [
-                'titulo_confirmacion' => 'Confirma tu asistencia',
-                'mensaje_personalizado' => 'Escribe aquí hasta cuándo pueden confirmar.',
-                'texto_confirmado' => '¡Gracias por confirmar! Te esperamos.',
-                'texto_declinado' => 'Gracias por avisarnos. Te vamos a extrañar.',
+                'titulo_confirmacion' => __('Confirma tu asistencia'),
+                'mensaje_personalizado' => __('Escribe aquí hasta cuándo pueden confirmar.'),
+                'texto_confirmado' => __('¡Gracias por confirmar! Te esperamos.'),
+                'texto_declinado' => __('Gracias por avisarnos. Te vamos a extrañar.'),
             ],
             // Sin un número de WhatsApp no hay a quién mandar la respuesta: el editor lo pide al encenderla
             'rsvp_whatsapp' => [],
             'dedicatoria' => [
-                'de' => 'Tu nombre',
-                'para' => 'Su nombre',
-                'mensaje' => 'Escribe aquí lo que quieres decirle: un recuerdo, un deseo o lo que sientes.',
-                'firma' => 'Con cariño',
+                'de' => __('Tu nombre'),
+                'para' => __('Su nombre'),
+                'mensaje' => __('Escribe aquí lo que quieres decirle: un recuerdo, un deseo o lo que sientes.'),
+                'firma' => __('Con cariño'),
             ],
             'juntos_desde' => [
-                'titulo' => 'Llevamos juntos',
+                'titulo' => __('Llevamos juntos'),
                 'fecha' => now()->subYear()->toDateString(),
             ],
             'respuesta' => [
-                'titulo' => 'Respóndeme',
-                'descripcion' => 'Escríbeme unas palabras: me llegan a mí.',
+                'titulo' => __('Respóndeme'),
+                'descripcion' => __('Escríbeme unas palabras: me llegan a mí.'),
             ],
             'historia' => [
-                'titulo' => 'Nuestra historia',
+                'titulo' => __('Nuestra historia'),
                 'capitulos' => [
-                    ['titulo' => 'Cómo nos conocimos', 'fecha' => now()->subYears(2)->toDateString(), 'texto' => 'Escribe aquí cómo empezó todo.', 'foto' => self::PHOTOS_SQUARE[0], 'alt' => ''],
-                    ['titulo' => 'Nuestro primer viaje', 'fecha' => now()->subYear()->toDateString(), 'texto' => 'Escribe aquí un recuerdo que no olvidan.', 'foto' => self::PHOTOS_SQUARE[1], 'alt' => ''],
+                    ['titulo' => __('Cómo nos conocimos'), 'fecha' => now()->subYears(2)->toDateString(), 'texto' => __('Escribe aquí cómo empezó todo.'), 'foto' => self::PHOTOS_SQUARE[0], 'alt' => ''],
+                    ['titulo' => __('Nuestro primer viaje'), 'fecha' => now()->subYear()->toDateString(), 'texto' => __('Escribe aquí un recuerdo que no olvidan.'), 'foto' => self::PHOTOS_SQUARE[1], 'alt' => ''],
                 ],
             ],
             'recuerdos' => [
-                'titulo' => 'Recuerdos especiales',
+                'titulo' => __('Recuerdos especiales'),
                 'recuerdos' => [
-                    ['titulo' => 'Un recuerdo', 'fecha' => '', 'texto' => 'Escribe aquí por qué es especial.', 'foto' => self::PHOTOS_SQUARE[2], 'alt' => ''],
-                    ['titulo' => 'Otro recuerdo', 'fecha' => '', 'texto' => 'Escribe aquí por qué es especial.', 'foto' => self::PHOTOS_SQUARE[3], 'alt' => ''],
+                    ['titulo' => __('Un recuerdo'), 'fecha' => '', 'texto' => __('Escribe aquí por qué es especial.'), 'foto' => self::PHOTOS_SQUARE[2], 'alt' => ''],
+                    ['titulo' => __('Otro recuerdo'), 'fecha' => '', 'texto' => __('Escribe aquí por qué es especial.'), 'foto' => self::PHOTOS_SQUARE[3], 'alt' => ''],
                 ],
             ],
             'collage' => [
-                'titulo' => 'Nuestro collage',
+                'titulo' => __('Nuestro collage'),
                 'fotos' => self::PHOTOS_SQUARE,
             ],
             'marcos' => [
-                'titulo' => 'Enmarcados para siempre',
+                'titulo' => __('Enmarcados para siempre'),
                 'fotos' => array_map(fn (string $url) => ['url' => $url, 'alt' => ''], array_slice(self::PHOTOS_SQUARE, 0, 3)),
             ],
             'memoria' => [
-                'titulo' => 'Encuentra los pares',
-                'mensaje_final' => '¡Los encontraste todos!',
+                'titulo' => __('Encuentra los pares'),
+                'mensaje_final' => __('¡Los encontraste todos!'),
                 'fotos' => self::PHOTOS_SQUARE,
             ],
             'aventuras' => [
-                'titulo' => 'Aventuras por vivir',
+                'titulo' => __('Aventuras por vivir'),
                 'lista' => [
-                    ['titulo' => 'Escribe aquí algo que quieren hacer juntos'],
-                    ['titulo' => 'Un viaje pendiente'],
-                    ['titulo' => 'Un lugar por conocer'],
+                    ['titulo' => __('Escribe aquí algo que quieren hacer juntos')],
+                    ['titulo' => __('Un viaje pendiente')],
+                    ['titulo' => __('Un lugar por conocer')],
                 ],
             ],
             'relato' => [
-                'primeras_impresiones' => 'Escribe aquí qué pensaron el uno del otro la primera vez.',
+                'primeras_impresiones' => __('Escribe aquí qué pensaron el uno del otro la primera vez.'),
                 'momentos' => [
-                    ['cuando' => 'El primer día', 'titulo' => 'Cómo empezó', 'descripcion' => 'Escribe aquí ese momento.', 'foto' => self::PHOTOS_SQUARE[0]],
-                    ['cuando' => 'Después', 'titulo' => 'Un momento clave', 'descripcion' => 'Escribe aquí ese momento.', 'foto' => self::PHOTOS_SQUARE[1]],
+                    ['cuando' => __('El primer día'), 'titulo' => __('Cómo empezó'), 'descripcion' => __('Escribe aquí ese momento.'), 'foto' => self::PHOTOS_SQUARE[0]],
+                    ['cuando' => __('Después'), 'titulo' => __('Un momento clave'), 'descripcion' => __('Escribe aquí ese momento.'), 'foto' => self::PHOTOS_SQUARE[1]],
                 ],
-                'anecdota_titulo' => 'Una anécdota',
-                'anecdota' => 'Escribe aquí una historia que siempre cuentan.',
-                'reflexion' => 'Escribe aquí lo que aprendieron juntos.',
-                'promesa' => 'Escribe aquí una promesa.',
+                'anecdota_titulo' => __('Una anécdota'),
+                'anecdota' => __('Escribe aquí una historia que siempre cuentan.'),
+                'reflexion' => __('Escribe aquí lo que aprendieron juntos.'),
+                'promesa' => __('Escribe aquí una promesa.'),
             ],
             default => null,
         };

@@ -6,11 +6,11 @@
         @include('invitations.partials.section-header', [
             'compact' => true,
             'lottie' => 'camera',
-            'eyebrow' => $invCopy['mural_eyebrow'] ?? 'Recuerdos en vivo',
-            'title' => $invCopy['mural_title'] ?? 'Fotomural',
+            'eyebrow' => $invCopy['mural_eyebrow'] ?? __('Recuerdos en vivo'),
+            'title' => $invCopy['mural_title'] ?? __('Fotomural'),
             'intro' => $readOnly
-                ? 'Las fotos que compartieron los invitados durante la fiesta.'
-                : ($invCopy['mural_intro'] ?? 'Toma o sube una foto durante la fiesta y aparecerá aquí para todos.'),
+                ? __('Las fotos que compartieron los invitados durante la fiesta.')
+                : ($invCopy['mural_intro'] ?? __('Toma o sube una foto durante la fiesta y aparecerá aquí para todos.')),
         ])
 
         @unless($readOnly)
@@ -18,18 +18,18 @@
                 {{-- El botón principal abre la cámara trasera del celular (capture); en computador cae al selector de archivos --}}
                 <button type="button" class="inv-btn inv-btn--block" @click="$refs.cameraInput.click()" :disabled="uploading">
                     @include('invitations.partials.icon', ['name' => 'camera', 'class' => 'inv-btn__icon', 'animated' => false])
-                    <span x-text="uploading ? 'Subiendo foto…' : @js($invCopy['mural_button'] ?? 'Compartir una foto')">{{ $invCopy['mural_button'] ?? 'Compartir una foto' }}</span>
+                    <span x-text="uploading ? 'Subiendo foto…' : @js($invCopy['mural_button'] ?? __('Compartir una foto'))">{{ $invCopy['mural_button'] ?? __('Compartir una foto') }}</span>
                 </button>
                 <button type="button" class="inv-btn inv-btn--ghost inv-btn--block" @click="$refs.galleryInput.click()" :disabled="uploading">
-                    Elegir de la galería
+                    {{ __('Elegir de la galería') }}
                 </button>
                 <input type="file" x-ref="cameraInput" accept="image/*" capture="environment" class="sr-only" tabindex="-1" aria-hidden="true" @change="upload">
                 <input type="file" x-ref="galleryInput" accept="image/*" class="sr-only" tabindex="-1" aria-hidden="true" @change="upload">
-                <p class="inv-help">{{ $invCopy['mural_help'] ?? 'Puedes usar la cámara o elegir una foto de tu galería.' }}</p>
+                <p class="inv-help">{{ $invCopy['mural_help'] ?? __('Puedes usar la cámara o elegir una foto de tu galería.') }}</p>
             </div>
 
             <noscript>
-                <p class="inv-noscript">Para compartir fotos necesitas activar JavaScript en tu navegador.</p>
+                <p class="inv-noscript">{{ __('Para compartir fotos necesitas activar JavaScript en tu navegador.') }}</p>
             </noscript>
         @endunless
 
@@ -41,7 +41,7 @@
                 <template x-for="photo in photos" :key="photo.id">
                     <figure class="inv-mural__item">
                         <img :src="photo.url" :srcset="photo.srcset" sizes="(min-width: 768px) 15rem, 45vw"
-                            :alt="photo.guest ? 'Foto de ' + photo.guest : 'Foto del evento'" loading="lazy" decoding="async">
+                            :alt="photo.guest ? @js(__('Foto de ')) + photo.guest : @js(__('Foto del evento'))" loading="lazy" decoding="async">
                         <figcaption x-show="photo.guest" x-text="photo.guest"></figcaption>
                     </figure>
                 </template>
@@ -49,7 +49,7 @@
         </div>
 
         <p class="inv-empty" x-show="!photos.length && !loading" x-cloak>
-            {{ $readOnly ? 'No se compartieron fotos en el fotomural.' : 'Aún no hay fotos. ¡Comparte la primera!' }}
+            {{ $readOnly ? __('No se compartieron fotos en el fotomural.') : __('Aún no hay fotos. ¡Comparte la primera!') }}
         </p>
     </div>
 </section>
@@ -82,7 +82,7 @@ function fotomural(slug, guestToken, initialPhotos, isPreview, readOnly) {
                 if (data.photos) this.photos = data.photos;
                 if (!res.ok && data.message) this.notify(data.message, true);
             } catch (e) {
-                this.notify('No se pudo cargar el fotomural.', true);
+                this.notify(@js(__('No se pudo cargar el fotomural.')), true);
             } finally {
                 this.loading = false;
             }
@@ -92,7 +92,7 @@ function fotomural(slug, guestToken, initialPhotos, isPreview, readOnly) {
             if (!file) return;
 
             if (isPreview || this.readOnly) {
-                this.notify(isPreview ? 'El fotomural no está disponible en la vista previa.' : 'El fotomural ya no recibe fotos.', true);
+                this.notify(isPreview ? @js(__('El fotomural no está disponible en la vista previa.')) : @js(__('El fotomural ya no recibe fotos.')), true);
                 e.target.value = '';
                 return;
             }
@@ -100,7 +100,7 @@ function fotomural(slug, guestToken, initialPhotos, isPreview, readOnly) {
             // Muestra de la home: la foto aparece en el mural solo en este navegador, no se sube
             if (window.invDemo) {
                 this.photos = [{ id: `muestra-${Date.now()}`, url: URL.createObjectURL(file), guest: 'Tú' }, ...this.photos];
-                this.notify('¡Listo! Así se verá tu foto en el mural. Es una muestra: no se guarda.');
+                this.notify(@js(__('¡Listo! Así se verá tu foto en el mural. Es una muestra: no se guarda.')));
                 e.target.value = '';
                 return;
             }
@@ -121,13 +121,13 @@ function fotomural(slug, guestToken, initialPhotos, isPreview, readOnly) {
                 });
                 const data = await res.json().catch(() => ({}));
                 if (data.success) {
-                    this.notify(data.message || '¡Gracias! Tu foto ya está en el mural.');
+                    this.notify(data.message || @js(__('¡Gracias! Tu foto ya está en el mural.')));
                     await this.refresh();
                 } else {
-                    this.notify(data.message || 'No se pudo subir la foto. Prueba con una imagen más liviana.', true);
+                    this.notify(data.message || @js(__('No se pudo subir la foto. Prueba con una imagen más liviana.')), true);
                 }
             } catch (err) {
-                this.notify('Revisa tu conexión e intenta de nuevo.', true);
+                this.notify(@js(__('Revisa tu conexión e intenta de nuevo.')), true);
             } finally {
                 this.uploading = false;
                 e.target.value = '';

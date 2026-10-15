@@ -141,7 +141,7 @@
                                 @if($invitation->event_date)
                                     <p class="mt-2 inline-flex items-center gap-2 text-site-muted">
                                         <x-phosphor-calendar-blank class="size-5 shrink-0" aria-hidden="true" />
-                                        {{ $invitation->event_date->locale('es')->translatedFormat('j \d\e F \d\e Y') }}, {{ $invitation->event_date->format('H:i') }}
+                                        {{ $invitation->event_date->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('j \d\e F \d\e Y')) }}, {{ $invitation->event_date->format('H:i') }}
                                     </p>
                                 @endif
                             </div>
@@ -259,7 +259,7 @@
                             <x-phosphor-plus-bold aria-hidden="true" />
                             Crear mi invitación
                         </a>
-                        <a href="{{ route('pricing') }}#te-la-hacemos" class="admin-link-button">Prefiero que me la hagan</a>
+                        <a href="{{ lroute('pricing') }}#te-la-hacemos" class="admin-link-button">Prefiero que me la hagan</a>
                     </div>
                     <p class="mt-6 max-w-[46ch] text-sm text-site-muted">
                         ¿Armas invitaciones para tus clientes? <a href="{{ $startUrl }}" class="font-medium text-site-ink underline underline-offset-4">Mira los planes mensuales</a>.

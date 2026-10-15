@@ -12,15 +12,15 @@
     :class="{ 'is-hung': stage >= 1, 'is-open': stage >= 2 }"
     role="dialog"
     aria-modal="true"
-    aria-label="Invitación al baby shower de {{ $page->displayName }}">
+    aria-label="{{ __('Invitación al baby shower de :displayName', ['displayName' => $page->displayName]) }}">
     <span class="td-intro__sun" aria-hidden="true"></span>
     <span class="td-intro__ground" aria-hidden="true"></span>
 
     <p class="td-intro__eyebrow">
         @if($guest)
-            Para {{ $guest->name }}
+            {{ __('Para :name', ['name' => $guest->name]) }}
         @else
-            {{ $invCopy['intro_eyebrow'] ?? 'Viene alguien muy especial' }}
+            {{ $invCopy['intro_eyebrow'] ?? __('Viene alguien muy especial') }}
         @endif
     </p>
 
@@ -39,7 +39,7 @@
         </span>
     </div>
 
-    <button type="button" class="td-basket" data-cover-trigger @click="open()" aria-label="Colgar la ropita y abrir la invitación">
+    <button type="button" class="td-basket" data-cover-trigger @click="open()" aria-label="{{ __('Colgar la ropita y abrir la invitación') }}">
         {{-- La ropa que asoma del canasto --}}
         <span class="td-basket__peek td-basket__peek--hat" aria-hidden="true"></span>
         <span class="td-basket__peek td-basket__peek--onesie" aria-hidden="true"></span>
@@ -52,5 +52,5 @@
         @endfor
     </button>
 
-    <p class="td-intro__hint">{{ $invCopy['intro_hint'] ?? 'Toca el canasto para colgar la ropita' }}</p>
+    <p class="td-intro__hint">{{ $invCopy['intro_hint'] ?? __('Toca el canasto para colgar la ropita') }}</p>
 </div>

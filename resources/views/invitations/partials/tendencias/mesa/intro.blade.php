@@ -8,7 +8,7 @@
     opacity. Lógica en shell/cover-component; estilos en css/invitation/tendencias/mesa.css.
 --}}
 @php
-    $introDate = \Illuminate\Support\Str::ucfirst($page->eventDate->locale('es')->translatedFormat('j \d\e F · H:i'));
+    $introDate = \Illuminate\Support\Str::ucfirst($page->eventDate->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('j \d\e F · H:i')));
     $names = $page->names();
     $monogram = collect($names)->map(fn (string $name) => mb_strtoupper(mb_substr($name, 0, 1)))->take(2)->implode(' & ');
 @endphp
@@ -19,11 +19,11 @@
     :class="{ 'is-unfolded': stage >= 1, 'is-open': stage >= 2 }"
     role="dialog"
     aria-modal="true"
-    aria-label="Invitación a la boda de {{ $page->displayName }}">
+    aria-label="{{ __('Invitación a la boda de :displayName', ['displayName' => $page->displayName]) }}">
     <span class="ms-intro__candle ms-intro__candle--left" aria-hidden="true"></span>
     <span class="ms-intro__candle ms-intro__candle--right" aria-hidden="true"></span>
 
-    <p class="ms-intro__eyebrow">{{ $invCopy['intro_eyebrow'] ?? 'Tienes un lugar en nuestra mesa' }}</p>
+    <p class="ms-intro__eyebrow">{{ $invCopy['intro_eyebrow'] ?? __('Tienes un lugar en nuestra mesa') }}</p>
 
     <div class="ms-setting">
         {{-- La tarjeta del lugar, doblada en carpa --}}
@@ -31,9 +31,9 @@
             <span class="ms-placecard__names">{{ $page->displayName }}</span>
             <span class="ms-placecard__guest">
                 @if($guest)
-                    {{ $invCopy['guest_banner_eyebrow'] ?? 'Mesa reservada para' }} {{ $guest->name }}
+                    {{ $invCopy['guest_banner_eyebrow'] ?? __('Mesa reservada para') }} {{ $guest->name }}
                 @else
-                    {{ $invCopy['table_seat'] ?? 'Su lugar en nuestra mesa' }}
+                    {{ $invCopy['table_seat'] ?? __('Su lugar en nuestra mesa') }}
                 @endif
             </span>
         </div>
@@ -51,7 +51,7 @@
                 </span>
 
                 {{-- La servilleta doblada sobre el plato, con su servilletero: se toca para abrir --}}
-                <button type="button" class="ms-napkin" data-cover-trigger @click="open()" aria-label="Quitar el servilletero y abrir la servilleta">
+                <button type="button" class="ms-napkin" data-cover-trigger @click="open()" aria-label="{{ __('Quitar el servilletero y abrir la servilleta') }}">
                     <span class="ms-napkin__cloth" aria-hidden="true"></span>
                     <span class="ms-napkin__ring" aria-hidden="true"></span>
                 </button>
@@ -65,5 +65,5 @@
     </div>
 
     <p class="ms-intro__date">{{ $introDate }}</p>
-    <p class="ms-intro__hint">{{ $invCopy['intro_hint'] ?? 'Toca el servilletero para abrir' }}</p>
+    <p class="ms-intro__hint">{{ $invCopy['intro_hint'] ?? __('Toca el servilletero para abrir') }}</p>
 </div>

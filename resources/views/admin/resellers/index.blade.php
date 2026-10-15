@@ -41,7 +41,7 @@
                 </dl>
                 <div class="mt-4">
                     <x-ui.copy-button
-                        :text="'Hola '.$credentials['name'].', ya tienes tu cuenta de '.config('bida.brand').'. Entra en '.route('login').' con el usuario '.$credentials['username'].' y la contraseña '.$credentials['password'].'.'"
+                        :text="'Hola '.$credentials['name'].', ya tienes tu cuenta de '.config('bida.brand').'. Entra en '.lroute('login').' con el usuario '.$credentials['username'].' y la contraseña '.$credentials['password'].'.'"
                         label="Copiar mensaje para enviar" done="Mensaje copiado" icon="whatsapp-logo" />
                 </div>
             </section>

@@ -34,47 +34,91 @@ use App\Http\Controllers\Public\RsvpController;
 use App\Http\Controllers\PublicPagesController;
 use App\Http\Controllers\SeoController;
 use App\Http\Controllers\Webhooks\PaymentWebhookController;
+use App\Http\Middleware\SetLocale;
 use App\Models\Invitation;
-use App\Support\LegalPages;
+use App\Support\Localization;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Http\Request;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Route;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
-// Sitio público: la portada y las páginas por tipo de evento recuerdan el origen de campaña (utm_*, ?ref=)
-Route::middleware('lead.source')->group(function () {
-    Route::get('/', HomeController::class)->name('home');
+/*
+| Sitio público e ingreso, una vez por idioma (config/localization.php): el español en la raíz con las
+| rutas de siempre (home, pricing…) y el inglés bajo /en con el prefijo «en.» en su nombre (en.home,
+| en.pricing…). Las vistas llegan a la versión del idioma de la página con lroute(). Las invitaciones
+| (/p/…), los paneles y los avisos de pago no se repiten: no dependen de la dirección.
+*/
+$siteRoutes = function (string $locale): void {
+    $path = fn (string $key): string => Localization::path($key, $locale);
 
-    // «Únete»: planes mensuales para armar invitaciones propias (revendedores con suscripción)
-    Route::get('/unete', [PublicPagesController::class, 'diy'])->name('diy');
+    // La portada y las páginas por tipo de evento recuerdan el origen de campaña (utm_*, ?ref=)
+    Route::middleware('lead.source')->group(function () use ($path, $locale) {
+        Route::get('/', HomeController::class)->name('home');
 
-    // Precios: Hazlo tú (gratis o pago único), Planes y Te la hacemos, lado a lado (App\Support\PricingPage)
-    Route::get('/precios', [PublicPagesController::class, 'pricing'])->name('pricing');
+        // «Únete»: planes mensuales para armar invitaciones propias (revendedores con suscripción)
+        Route::get('/'.$path('unete'), [PublicPagesController::class, 'diy'])->name('diy');
 
-    // Guía pública sobre invitaciones digitales (contenido pensado para buscadores y respuestas de IA)
-    Route::get('/guia-invitaciones-digitales', [PublicPagesController::class, 'guide'])->name('guide');
-    // Las direcciones anteriores de la página siguen funcionando (enlaces compartidos, buscadores)
-    Route::permanentRedirect('/para-profesionales', '/unete');
-    Route::permanentRedirect('/hazlo-tu', '/unete');
+        // Precios: Hazlo tú (gratis o pago único), Planes y Te la hacemos, lado a lado (App\Support\PricingPage)
+        Route::get('/'.$path('precios'), [PublicPagesController::class, 'pricing'])->name('pricing');
 
-    // Privacidad, cookies y términos (App\Support\LegalPages)
-    Route::get('/legal/{page}', [PublicPagesController::class, 'legal'])
-        ->whereIn('page', LegalPages::PAGES)
-        ->name('legal');
+        // Guía pública sobre invitaciones digitales (contenido pensado para buscadores y respuestas de IA)
+        Route::get('/'.$path('guia-invitaciones-digitales'), [PublicPagesController::class, 'guide'])->name('guide');
 
-    // /invitaciones-de-boda, /invitaciones-xv-anos… (contenido en config/bida.php, clave landings)
-    Route::get('/{landing}', EventLandingController::class)
-        ->whereIn('landing', array_keys(config('bida.landings', [])))
-        ->name('landing');
-});
+        // Privacidad, cookies y términos (App\Support\LegalPages)
+        Route::get('/legal/{page}', [PublicPagesController::class, 'legal'])
+            ->whereIn('page', Localization::legalSlugs($locale))
+            ->name('legal');
+
+        // /invitaciones-de-boda, /en/wedding-invitations… (contenido en config/bida.php, clave landings)
+        Route::get('/{landing}', EventLandingController::class)
+            ->whereIn('landing', Localization::landingSlugs($locale))
+            ->name('landing');
+    });
+
+    // Resumen para motores de respuesta (sin sesión ni cookies, como el sitemap)
+    Route::withoutMiddleware([StartSession::class, ShareErrorsFromSession::class, ValidateCsrfToken::class])
+        ->get('/llms.txt', [SeoController::class, 'llms'])->name('llms');
+
+    Route::middleware('guest')->group(function () use ($path) {
+        Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+        Route::post('/login', [LoginController::class, 'login'])->middleware('throttle:login')->name('login.attempt');
+
+        // Cuenta nueva desde el sitio (se apaga con AUTH_REGISTRATION=false)
+        Route::get('/'.$path('registro'), [RegisterController::class, 'create'])->name('register');
+        Route::post('/'.$path('registro'), [RegisterController::class, 'store'])->middleware('throttle:register')->name('register.store');
+
+        // «¿Olvidaste tu contraseña?»: enlace por correo para crear una nueva
+        Route::get('/'.$path('contrasena/olvide'), [ForgotPasswordController::class, 'create'])->name('password.request');
+        Route::post('/'.$path('contrasena/olvide'), [ForgotPasswordController::class, 'store'])->middleware('throttle:password-email')->name('password.email');
+
+        // Entrar con Google (solo si hay credenciales en .env). El regreso va fuera: es una sola
+        // dirección, la que se registra en Google Cloud
+        Route::get('/auth/google', [GoogleController::class, 'redirect'])->middleware('throttle:google')->name('auth.google');
+    });
+
+    // La contraseña nueva desde el enlace del correo. Fuera de «guest»: también lo abre quien lo pidió
+    // desde «Mi cuenta» con la sesión iniciada (al guardar, se cierran todas sus sesiones)
+    Route::get('/'.$path('contrasena/nueva').'/{token}', [ResetPasswordController::class, 'create'])->name('password.reset');
+    Route::post('/'.$path('contrasena/nueva'), [ResetPasswordController::class, 'store'])->middleware('throttle:6,1')->name('password.store');
+};
+
+foreach (Localization::locales() as $locale) {
+    Route::prefix(Localization::prefix($locale))
+        ->name(Localization::namePrefix($locale))
+        ->middleware(SetLocale::class.':'.$locale)
+        ->group(fn () => $siteRoutes($locale));
+}
+
+// Las direcciones anteriores de «Únete» siguen funcionando (enlaces compartidos, buscadores)
+Route::permanentRedirect('/para-profesionales', '/unete');
+Route::permanentRedirect('/hazlo-tu', '/unete');
 
 // Para buscadores y motores de respuesta: se arman con la configuración de hoy (SeoController). Sin
 // sesión ni cookies: los pide un rastreador y así cualquier caché intermedia puede guardarlos.
 // robots.txt es estático (public/robots.txt)
 Route::withoutMiddleware([StartSession::class, ShareErrorsFromSession::class, ValidateCsrfToken::class])->group(function () {
     Route::get('/sitemap.xml', [SeoController::class, 'sitemap'])->name('sitemap');
-    Route::get('/llms.txt', [SeoController::class, 'llms'])->name('llms');
 
     // Avisos de las pasarelas de pago (los manda su servidor, no un navegador: sin sesión ni CSRF).
     // Los valida cada pasarela: por su firma (Lemon Squeezy, POST) o consultándole el pago (Libélula, GET)
@@ -86,7 +130,7 @@ Route::withoutMiddleware([StartSession::class, ShareErrorsFromSession::class, Va
 
 // Control de entrada el día del evento (teléfono del personal de la puerta). Fuera de /p para que
 // ninguna caché de invitaciones guarde una respuesta que depende del teléfono que la pide
-Route::middleware('throttle:door')->name('door.')->group(function () {
+Route::middleware(['invitation.locale', 'throttle:door'])->name('door.')->group(function () {
     Route::get('/puerta/{doorToken}', [DoorController::class, 'open'])->name('open');
     Route::post('/puerta/{doorToken}/codigo', [DoorController::class, 'lookup'])->name('lookup');
     Route::get('/entrada/{slug}/{token}', [DoorController::class, 'entry'])->name('entry');
@@ -95,7 +139,7 @@ Route::middleware('throttle:door')->name('door.')->group(function () {
 });
 
 // Invitaciones de muestra de la home: se pueden recorrer y probar, pero nada se guarda
-Route::get('/muestra/{slug}', [PublicInvitationController::class, 'demo'])->name('invitation.demo');
+Route::get('/muestra/{slug}', [PublicInvitationController::class, 'demo'])->middleware('invitation.locale')->name('invitation.demo');
 
 Route::get('/dashboard', function (Request $request) {
     $user = $request->user();
@@ -109,30 +153,13 @@ Route::get('/dashboard', function (Request $request) {
         : redirect()->route('client.dashboard');
 })->middleware('auth')->name('dashboard');
 
-Route::middleware('guest')->group(function () {
-    Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
-    Route::post('/login', [LoginController::class, 'login'])->middleware('throttle:login');
-    Route::get('/client/login', fn () => redirect()->route('login'))->name('client.login');
+// Regreso de Google: una sola dirección para todos los idiomas (el idioma viaja en la sesión)
+Route::get('/auth/google/callback', [GoogleController::class, 'callback'])
+    ->middleware(['guest', 'throttle:google'])
+    ->name('auth.google.callback');
 
-    // Cuenta nueva desde el sitio (se apaga con AUTH_REGISTRATION=false)
-    Route::get('/registro', [RegisterController::class, 'create'])->name('register');
-    Route::post('/registro', [RegisterController::class, 'store'])->middleware('throttle:register');
-
-    // «¿Olvidaste tu contraseña?»: enlace por correo para crear una nueva
-    Route::get('/contrasena/olvide', [ForgotPasswordController::class, 'create'])->name('password.request');
-    Route::post('/contrasena/olvide', [ForgotPasswordController::class, 'store'])->middleware('throttle:password-email')->name('password.email');
-
-    // Entrar con Google (solo si hay credenciales en .env)
-    Route::middleware('throttle:google')->group(function () {
-        Route::get('/auth/google', [GoogleController::class, 'redirect'])->name('auth.google');
-        Route::get('/auth/google/callback', [GoogleController::class, 'callback'])->name('auth.google.callback');
-    });
-});
-
-// La contraseña nueva desde el enlace del correo. Fuera de «guest»: también lo abre quien lo pidió
-// desde «Mi cuenta» con la sesión iniciada (al guardar, se cierran todas sus sesiones)
-Route::get('/contrasena/nueva/{token}', [ResetPasswordController::class, 'create'])->name('password.reset');
-Route::post('/contrasena/nueva', [ResetPasswordController::class, 'store'])->middleware('throttle:6,1')->name('password.store');
+// Quien entra por «/client/login» (enlaces de antes) llega al ingreso de siempre
+Route::get('/client/login', fn () => redirect()->route('login'))->middleware('guest')->name('client.login');
 
 // Confirmar el correo de una cuenta abierta desde el sitio
 Route::middleware('auth')->group(function () {
@@ -144,7 +171,7 @@ Route::middleware('auth')->group(function () {
 Route::post('/logout', [LoginController::class, 'logout'])->middleware('auth')->name('logout');
 
 // Invitación pública
-Route::prefix('p')->name('invitation.')->middleware('cache.public.invitations')->group(function () {
+Route::prefix('p')->name('invitation.')->middleware(['invitation.locale', 'cache.public.invitations'])->group(function () {
     Route::get('/{slug}', [PublicInvitationController::class, 'show'])->name('show');
     Route::get('/{slug}/i/{token}', [PublicInvitationController::class, 'show'])->name('guest');
     Route::post('/{slug}/i/{token}/confirm', [RsvpController::class, 'confirm'])->middleware('throttle:invitation-rsvp')->name('rsvp');

@@ -25,7 +25,8 @@ class ItineraryModule extends Module
 
     public function defaults(): array
     {
-        return ['titulo' => 'Itinerario', 'eventos' => []];
+        // El título de una invitación sin contenido sale en su idioma (el locale ya está activo al mostrarla)
+        return ['titulo' => __('Itinerario'), 'eventos' => []];
     }
 
     public function relations(): array

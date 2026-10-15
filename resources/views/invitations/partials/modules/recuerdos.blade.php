@@ -9,7 +9,7 @@
 @if($memoryItems !== [])
     <section class="inv-section reveal" id="recuerdos">
         <div class="inv-wrap">
-            @include('invitations.partials.section-header', ['compact' => true, 'title' => ($data['titulo'] ?? null) ?: 'Recuerdos especiales'])
+            @include('invitations.partials.section-header', ['compact' => true, 'title' => ($data['titulo'] ?? null) ?: __('Recuerdos especiales')])
             @foreach($memoryItems as $memory)
                 <figure class="inv-card-entry">
                     @if(! empty($memory['foto']))

@@ -8,14 +8,14 @@
     pieza llega a su lugar. Estilos en css/invitation/tendencias/casona.css.
 --}}
 @php
-    $heroEyebrow = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? 'Fiesta de Halloween');
+    $heroEyebrow = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? __('Fiesta de Halloween'));
     $heroMessage = $page->welcome['mensaje'] ?? '';
-    $date = $page->eventDate->locale('es');
+    $date = $page->eventDate->locale(app()->getLocale());
     // Las agujas del reloj de pie marcan la hora de la fiesta
     $clockHour = (($date->hour % 12) + $date->minute / 60) * 30;
     $clockMinute = $date->minute * 6;
     // Los cuartos de la portada: la palabra de la placa de cada sección (CSS counter)
-    $roomLabel = trim(str_replace(['<', '>', '"', '\\'], '', (string) ($invCopy['house_room'] ?? 'Cuarto')));
+    $roomLabel = trim(str_replace(['<', '>', '"', '\\'], '', (string) ($invCopy['house_room'] ?? __('Cuarto'))));
 @endphp
 
 <style>
@@ -55,7 +55,7 @@
                 <div class="cs-room cs-room--side" style="--n: 0">
                     <span class="cs-room__light" aria-hidden="true"></span>
                     <p class="cs-calendar">
-                        <span class="cs-calendar__label">{{ $invCopy['house_date'] ?? 'Fecha' }}</span>
+                        <span class="cs-calendar__label">{{ $invCopy['house_date'] ?? __('Fecha') }}</span>
                         <span class="cs-calendar__weekday">{{ \Illuminate\Support\Str::ucfirst($date->translatedFormat('l')) }}</span>
                         <strong class="cs-calendar__day">{{ $date->format('j') }}</strong>
                         <span class="cs-calendar__month">{{ $date->translatedFormat('F') }}</span>
@@ -78,7 +78,7 @@
                         <span class="cs-clock__case"><i class="cs-clock__pendulum"></i></span>
                     </div>
                     <p class="cs-clock__time">
-                        <span>{{ $invCopy['house_time'] ?? 'Hora' }}</span>
+                        <span>{{ $invCopy['house_time'] ?? __('Hora') }}</span>
                         <strong>{{ $date->format('H:i') }}</strong>
                     </p>
                 </div>
@@ -92,7 +92,7 @@
     @if($page->placeName)
         <p class="cs-signpost">
             <span class="cs-signpost__board">
-                <small>{{ $invCopy['house_place'] ?? 'La casa queda en' }}</small>
+                <small>{{ $invCopy['house_place'] ?? __('La casa queda en') }}</small>
                 {{ $page->placeName }}
             </span>
         </p>
@@ -103,7 +103,7 @@
     @endif
 
     <a href="#contenido" class="inv-hero__scroll cs-hero__scroll">
-        {{ $invCopy['scroll_hint'] ?? 'Desliza' }}
+        {{ $invCopy['scroll_hint'] ?? __('Desliza') }}
         <span class="inv-hero__scroll-line" aria-hidden="true"></span>
     </a>
 </header>

@@ -9,6 +9,7 @@ use App\Modules\Module;
 use App\Payments\PaymentGateways;
 use App\Support\DiyInvitations;
 use App\Support\InvitationTemplates;
+use App\Support\Localization;
 use App\Support\Packages;
 use App\Support\ResellerSubscription;
 use Illuminate\Support\Collection;
@@ -53,7 +54,7 @@ class DashboardViewData
             // «Hazlo tú»: crear su propia invitación (sin plan), con cuántos borradores le quedan
             'diy' => $user && DiyInvitations::canBuild($user) ? $this->diy($user) : null,
             // Dónde elegir el plan: pagarlo aquí si hay pago en línea; si no, ver los planes y escribirnos
-            'startUrl' => app(PaymentGateways::class)->availableMethods() ? route('client.subscription') : route('diy').'#planes',
+            'startUrl' => app(PaymentGateways::class)->availableMethods() ? route('client.subscription') : lroute('diy').'#planes',
         ];
     }
 
@@ -73,7 +74,7 @@ class DashboardViewData
         // Con tarjeta se renueva sola: el aviso de vencimiento solo hace falta si canceló o falló el cobro
         $autoRenews = $user->renewsAutomatically() && $user->subscription_status === 'active';
         $payOnline = (bool) app(PaymentGateways::class)->availableMethods();
-        $graceEnds = ResellerSubscription::graceEndsAt($user)?->locale('es')->translatedFormat('j \d\e F');
+        $graceEnds = ResellerSubscription::graceEndsAt($user)?->locale(app()->getLocale())->translatedFormat(Localization::dateFormat('j \d\e F'));
 
         $warning = match (true) {
             $daysLeft === null => $payOnline
@@ -94,7 +95,7 @@ class DashboardViewData
             'quotaUsed' => $used,
             'quotaLimit' => $limit,
             'quotaLabel' => $limit === null ? "{$used} este mes (sin tope)" : "{$used} de {$limit}",
-            'renewsLabel' => $user->subscription_renews_at?->locale('es')->translatedFormat('j \d\e F \d\e Y'),
+            'renewsLabel' => $user->subscription_renews_at?->locale(app()->getLocale())->translatedFormat(Localization::dateFormat('j \d\e F \d\e Y')),
             'isActive' => $active,
             // Ya pasó la fecha (aunque siga en los días de gracia): «venció el», no «renueva el»
             'isPastDue' => $daysLeft !== null && $daysLeft < 0,

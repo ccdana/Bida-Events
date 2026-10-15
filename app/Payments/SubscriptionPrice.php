@@ -2,6 +2,7 @@
 
 namespace App\Payments;
 
+use App\Support\Localization;
 use App\Support\Offers;
 
 /**
@@ -26,6 +27,23 @@ final class SubscriptionPrice
         ksort($options);
 
         return $options ?: [1 => 0];
+    }
+
+    /**
+     * Los descuentos por pagar varios meses de una vez, en una frase: «3 meses: 10 % menos y el año:
+     * 20 % menos». Vacía si no hay ninguno.
+     */
+    public static function prepaySummary(): string
+    {
+        $discounts = array_filter(self::prepayOptions(), fn (int $discount, int $months) => $months > 1 && $discount > 0, ARRAY_FILTER_USE_BOTH);
+
+        return Localization::join(array_map(
+            fn (int $discount, int $months) => $months === 12
+                ? __('el año: :discount % menos', ['discount' => $discount])
+                : __(':months meses: :discount % menos', ['months' => $months, 'discount' => $discount]),
+            $discounts,
+            array_keys($discounts),
+        ));
     }
 
     /** Monto con dos decimales («97.00») para la orden. */

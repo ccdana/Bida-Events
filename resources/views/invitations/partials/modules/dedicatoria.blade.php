@@ -25,9 +25,9 @@
                 :data-gate-done="opened"
                 :class="{ 'is-holding': holding, 'is-nudged': nudged }"
                 :style="`--hold: ${progress.toFixed(3)}`">
-                <article class="inv-letter" data-gate-content aria-label="{{ $to !== '' ? 'Carta para '.$to : 'Carta' }}">
+                <article class="inv-letter" data-gate-content aria-label="{{ $to !== '' ? __('Carta para :to', ['to' => $to]) : __('Carta') }}">
                     @if($to !== '')
-                        <p class="inv-letter__to" data-gate-step style="--step: 0">Para {{ $to }},</p>
+                        <p class="inv-letter__to" data-gate-step style="--step: 0">{{ __('Para :to,', ['to' => $to]) }}</p>
                     @endif
 
                     @if($paragraphs)
@@ -40,7 +40,7 @@
 
                     @if($signature !== '')
                         <footer class="inv-letter__footer" data-gate-step style="--step: {{ count($paragraphs) + 1 }}">
-                            <p class="inv-letter__closing">{{ $page->copy['letter_closing'] ?? 'Con todo mi amor,' }}</p>
+                            <p class="inv-letter__closing">{{ $page->copy['letter_closing'] ?? __('Con todo mi amor,') }}</p>
                             <p class="inv-letter__signature">{{ $signature }}</p>
                         </footer>
                     @endif
@@ -48,7 +48,7 @@
 
                 {{-- El sobre cerrado con el sello: solo con JavaScript --}}
                 <div class="inv-letter-gate__cover" data-needs-js>
-                    <p class="inv-letter-gate__label">{{ $from !== '' ? 'Una carta de '.$from : 'Una carta para ti' }}</p>
+                    <p class="inv-letter-gate__label">{{ $from !== '' ? __('Una carta de :from', ['from' => $from]) : __('Una carta para ti') }}</p>
 
                     <div class="inv-envelope">
                         <span class="inv-envelope__back" aria-hidden="true"></span>
@@ -57,7 +57,7 @@
                         </span>
                         <span class="inv-envelope__front" aria-hidden="true">
                             @if($to !== '')
-                                <span class="inv-envelope__to">Para {{ $to }}</span>
+                                <span class="inv-envelope__to">{{ __('Para :to', ['to' => $to]) }}</span>
                             @endif
                         </span>
                         <span class="inv-envelope__flap" aria-hidden="true"></span>
@@ -84,7 +84,7 @@
                             @keyup.enter="stop()"
                             @click="activate($event)"
                             @contextmenu.prevent
-                            aria-label="Mantén presionado el sello para abrir la carta">
+                            aria-label="{{ __('Mantén presionado el sello para abrir la carta') }}">
                             <svg class="inv-seal__ring" viewBox="0 0 100 100" aria-hidden="true">
                                 <circle cx="50" cy="50" r="47" pathLength="1" />
                                 <circle class="inv-seal__ring-fill" cx="50" cy="50" r="47" pathLength="1" />
@@ -124,8 +124,8 @@
                     </div>
 
                     <p class="inv-letter-gate__hint" aria-hidden="true">
-                        <span x-show="!nudged">Mantén presionado el sello para abrirla</span>
-                        <span x-show="nudged" x-cloak>Déjalo apoyado un momento más</span>
+                        <span x-show="!nudged">{{ __('Mantén presionado el sello para abrirla') }}</span>
+                        <span x-show="nudged" x-cloak>{{ __('Déjalo apoyado un momento más') }}</span>
                     </p>
                 </div>
             </div>

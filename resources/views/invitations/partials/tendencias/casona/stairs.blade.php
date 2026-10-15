@@ -11,8 +11,8 @@
 <section class="inv-section reveal cs-stairs-section" id="itinerario">
     <div class="inv-wrap">
         @include('invitations.partials.section-header', [
-            'eyebrow' => $invCopy['itinerary_eyebrow'] ?? 'La escalera de la noche',
-            'title' => $data['titulo'] ?? 'Itinerario',
+            'eyebrow' => $invCopy['itinerary_eyebrow'] ?? __('La escalera de la noche'),
+            'title' => $data['titulo'] ?? __('Itinerario'),
         ])
 
         @if(count($eventos) > 0)
@@ -23,7 +23,7 @@
                         <li class="cs-stair" data-step style="--step: {{ $index }}; --rise: {{ min($index, 4) }}">
                             <div class="cs-stair__plank">
                                 <span class="cs-stair__plate">
-                                    <small>{{ $invCopy['house_stair'] ?? 'Escalón' }} {{ $index + 1 }}</small>
+                                    <small>{{ $invCopy['house_stair'] ?? __('Escalón') }} {{ $index + 1 }}</small>
                                     <time>{{ $evento['hora'] ?? '' }}</time>
                                 </span>
                                 <div class="cs-stair__body">
@@ -38,7 +38,7 @@
                 </ol>
             </div>
         @else
-            <p class="inv-empty">{{ $invCopy['itinerary_empty'] ?? 'Muy pronto publicaremos lo que pasará en cada piso.' }}</p>
+            <p class="inv-empty">{{ $invCopy['itinerary_empty'] ?? __('Muy pronto publicaremos lo que pasará en cada piso.') }}</p>
         @endif
     </div>
 </section>

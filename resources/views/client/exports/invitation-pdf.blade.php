@@ -11,7 +11,7 @@
     $hasDetails = $location || $itinerary || $dressCode || $honor || $gifts || $hashtag;
 @endphp
 <!DOCTYPE html>
-<html lang="es">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="utf-8">
     <title>{{ $hero['name'] }}</title>

@@ -7,7 +7,7 @@
     Lógica en shell/cover-component; estilos en css/invitation/tendencias/bordado.css.
 --}}
 @php
-    $introDate = \Illuminate\Support\Str::ucfirst($page->eventDate->locale('es')->translatedFormat('j \d\e F \d\e Y'));
+    $introDate = \Illuminate\Support\Str::ucfirst($page->eventDate->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('j \d\e F \d\e Y')));
     // Florcitas del dibujo: x, y, tamaño, giro, con hojas (en el orden en que se bordan)
     $introFlowers = [
         [84, 76, 0.95, -18, true], [150, 50, 1.1, 0, true], [216, 76, 0.95, 18, true],
@@ -25,16 +25,16 @@
     @click="open()"
     role="dialog"
     aria-modal="true"
-    aria-label="Invitación al bautizo de {{ $page->displayName }}">
+    aria-label="{{ __('Invitación al bautizo de :displayName', ['displayName' => $page->displayName]) }}">
     <p class="bd-intro__eyebrow">
         @if($guest)
-            {{ $invCopy['intro_eyebrow'] ?? 'Bordado con amor' }} para {{ $guest->name }}
+            {{ __(':value para :name', ['value' => $invCopy['intro_eyebrow'] ?? __('Bordado con amor'), 'name' => $guest->name]) }}
         @else
-            {{ $invCopy['intro_eyebrow'] ?? 'Bordado con amor' }}
+            {{ $invCopy['intro_eyebrow'] ?? __('Bordado con amor') }}
         @endif
     </p>
 
-    <button type="button" class="bd-hoop bd-intro__hoop" data-cover-trigger aria-label="Bordar su nombre y abrir la invitación">
+    <button type="button" class="bd-hoop bd-intro__hoop" data-cover-trigger aria-label="{{ __('Bordar su nombre y abrir la invitación') }}">
         <span class="bd-hoop__clasp" aria-hidden="true"><i></i></span>
         <span class="bd-hoop__cloth">
             {{-- El dibujo calcado en lápiz y, encima, el hilo que lo va cubriendo --}}
@@ -67,7 +67,7 @@
         </span>
     </button>
 
-    <p class="bd-intro__hint">{{ $invCopy['intro_hint'] ?? 'Toca la aguja para bordar su nombre' }}</p>
+    <p class="bd-intro__hint">{{ $invCopy['intro_hint'] ?? __('Toca la aguja para bordar su nombre') }}</p>
 
     {{-- Sobre el mantel: el carretel del hilo del nombre y unos botones sueltos --}}
     <span class="bd-spool" aria-hidden="true"><i></i></span>

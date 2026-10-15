@@ -38,6 +38,8 @@ class Invitation extends Model
         'event_type_id',
         'slug',
         'template',
+        // Idioma de la invitación (config/localization.php): textos por defecto y botones
+        'locale',
         'package',
         'title',
         'event_date',

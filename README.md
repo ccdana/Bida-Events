@@ -60,4 +60,5 @@ Cloudflare. El paso a paso está en [`docs/despliegue.md`](docs/despliegue.md).
 | [`docs/conexiones.md`](docs/conexiones.md) | Conectar el correo (Zoho), Lemon Squeezy y Libélula en producción |
 | [`docs/operacion.md`](docs/operacion.md) | Registros, alertas, pagos en línea, respaldos y restauración |
 | [`docs/flujo-navegacion.md`](docs/flujo-navegacion.md) | A dónde lleva cada botón del sitio |
+| [`docs/idiomas.md`](docs/idiomas.md) | Español e inglés: cómo agregar textos y páginas, y la comprobación de traducciones |
 | [`docs/pruebas-locales.md`](docs/pruebas-locales.md) | Probar registro, correo y pagos en Laragon |

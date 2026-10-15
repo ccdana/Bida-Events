@@ -60,6 +60,7 @@ class InvitationPreviewSession
             'title' => $invitation->title,
             'slug' => $invitation->slug,
             'template' => $invitation->template,
+            'locale' => $invitation->locale,
             'event_date' => $invitation->event_date?->format('Y-m-d\TH:i'),
             'expires_at' => $invitation->expires_at?->format('Y-m-d'),
             'modulos' => $modulos,

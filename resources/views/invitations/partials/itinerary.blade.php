@@ -6,8 +6,8 @@
     <div class="inv-wrap inv-wrap--wide">
         @include('invitations.partials.section-header', [
             'lottie' => 'itinerary',
-            'eyebrow' => $invCopy['itinerary_eyebrow'] ?? 'El recorrido de la noche',
-            'title' => $itinerario['titulo'] ?? 'Itinerario',
+            'eyebrow' => $invCopy['itinerary_eyebrow'] ?? __('El recorrido de la noche'),
+            'title' => $itinerario['titulo'] ?? __('Itinerario'),
         ])
 
         @if(count($eventos) > 0)
@@ -45,7 +45,7 @@
                 </ol>
             </div>
         @else
-            <p class="inv-empty">{{ $invCopy['itinerary_empty'] ?? 'Muy pronto compartiremos el orden de la noche.' }}</p>
+            <p class="inv-empty">{{ $invCopy['itinerary_empty'] ?? __('Muy pronto compartiremos el orden de la noche.') }}</p>
         @endif
     </div>
 </section>

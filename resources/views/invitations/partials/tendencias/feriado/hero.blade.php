@@ -6,9 +6,9 @@
     marcado (los días que ya pasaron quedan tachados). Estilos en css/invitation/tendencias/feriado.css.
 --}}
 @php
-    $date = $page->eventDate->locale('es');
+    $date = $page->eventDate->locale(app()->getLocale());
     $age = $page->age();
-    $heroEyebrow = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? '¡Celebremos juntos!');
+    $heroEyebrow = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? __('¡Celebremos juntos!'));
     $heroMessage = trim((string) ($page->welcome['mensaje'] ?? ''));
     $monthName = \Illuminate\Support\Str::ucfirst($date->translatedFormat('F'));
 
@@ -23,12 +23,12 @@
     $moonAge = fmod(($date->copy()->utc()->timestamp - 947182440) / 86400, $synodic);
     $moonAge = $moonAge < 0 ? $moonAge + $synodic : $moonAge;
     $moonName = match (true) {
-        $moonAge < 1.85, $moonAge >= 27.68 => 'Luna nueva',
-        $moonAge < 5.54, $moonAge >= 9.23 && $moonAge < 12.92 => 'Luna creciente',
-        $moonAge < 9.23 => 'Cuarto creciente',
-        $moonAge < 16.61 => 'Luna llena',
-        $moonAge >= 20.3 && $moonAge < 23.99 => 'Cuarto menguante',
-        default => 'Luna menguante',
+        $moonAge < 1.85, $moonAge >= 27.68 => __('Luna nueva'),
+        $moonAge < 5.54, $moonAge >= 9.23 && $moonAge < 12.92 => __('Luna creciente'),
+        $moonAge < 9.23 => __('Cuarto creciente'),
+        $moonAge < 16.61 => __('Luna llena'),
+        $moonAge >= 20.3 && $moonAge < 23.99 => __('Cuarto menguante'),
+        default => __('Luna menguante'),
     };
     // La parte iluminada: el borde de un lado y la línea de sombra, que es media elipse
     $moonAngle = $moonAge / $synodic * 2 * M_PI;
@@ -65,34 +65,34 @@
                     </svg>
                 </span>
                 <span class="fd-sheet__note" aria-hidden="true">
-                    {{ $invCopy['cal_note'] ?? '¡Mi cumple!' }}
+                    {{ $invCopy['cal_note'] ?? __('¡Mi cumple!') }}
                     <svg class="fd-arrow" viewBox="0 0 60 44" focusable="false"><path d="M50 4C34 4 18 14 10 34M10 34l-2-11M10 34l10-5"/></svg>
                 </span>
             </div>
             <p class="fd-sheet__weekday">{{ \Illuminate\Support\Str::ucfirst($date->translatedFormat('l')) }}</p>
 
             <p class="fd-sheet__line">
-                <span class="fd-sheet__holiday">{{ $invCopy['cal_holiday'] ?? 'Feriado' }}</span>
-                {{ $invCopy['cal_line'] ?? 'Cumpleaños de' }}
+                <span class="fd-sheet__holiday">{{ $invCopy['cal_holiday'] ?? __('Feriado') }}</span>
+                {{ $invCopy['cal_line'] ?? __('Cumpleaños de') }}
             </p>
             <h1 class="fd-sheet__name">{{ $page->displayName }}</h1>
             @if($age !== null)
-                <p class="fd-sheet__age">{{ $age }} {{ $invCopy['cal_age'] ?? 'años' }}</p>
+                <p class="fd-sheet__age">{{ $age }} {{ $invCopy['cal_age'] ?? __('años') }}</p>
             @endif
 
             <dl class="fd-sheet__facts">
                 <div>
-                    <dt>Hora</dt>
+                    <dt>{{ __('Hora') }}</dt>
                     <dd>{{ $date->format('H:i') }}</dd>
                 </div>
                 @if($page->placeName)
                     <div>
-                        <dt>Lugar</dt>
+                        <dt>{{ __('Lugar') }}</dt>
                         <dd><a href="#ubicacion">{{ $page->placeName }}</a></dd>
                     </div>
                 @endif
                 <div>
-                    <dt>Luna</dt>
+                    <dt>{{ __('Luna') }}</dt>
                     <dd class="fd-moon">
                         <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                             <circle cx="12" cy="12" r="9"/>
@@ -105,7 +105,7 @@
 
             @if($heroMessage !== '')
                 <div class="fd-sheet__thought">
-                    <p class="fd-sheet__thought-label">{{ $invCopy['cal_thought'] ?? 'Pensamiento del día' }}</p>
+                    <p class="fd-sheet__thought-label">{{ $invCopy['cal_thought'] ?? __('Pensamiento del día') }}</p>
                     <p class="fd-sheet__thought-text">{{ $heroMessage }}</p>
                 </div>
             @endif
@@ -115,7 +115,7 @@
         {{-- El mes entero, con el día marcado --}}
         <div class="fd-month">
             <p class="fd-month__title">{{ $monthName }} {{ $date->format('Y') }}</p>
-            <ol class="fd-month__grid" aria-label="{{ $monthName }} de {{ $date->format('Y') }}">
+            <ol class="fd-month__grid" aria-label="{{ __(':monthName de :date', ['monthName' => $monthName, 'date' => $date->format('Y')]) }}">
                 @foreach(['L', 'M', 'M', 'J', 'V', 'S', 'D'] as $index => $initial)
                     <li @class(['fd-month__head', 'is-sunday' => $index === 6]) aria-hidden="true">{{ $initial }}</li>
                 @endforeach
@@ -136,7 +136,7 @@
     </div>
 
     <a href="#contenido" class="inv-hero__scroll fd-hero__scroll">
-        {{ $invCopy['scroll_hint'] ?? 'Desliza' }}
+        {{ $invCopy['scroll_hint'] ?? __('Desliza') }}
         <span class="inv-hero__scroll-line" aria-hidden="true"></span>
     </a>
 </header>

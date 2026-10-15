@@ -83,14 +83,14 @@ final class Offers
         $revisions = array_key_exists('revisions', $service) ? $service['revisions'] : false;
 
         return array_values(array_filter([
-            $delivery !== '' ? "Lista en {$delivery} desde que nos envías tus datos" : null,
+            $delivery !== '' ? __('Lista en :delivery desde que nos envías tus datos', ['delivery' => $delivery]) : null,
             match (true) {
                 $revisions === false => null,
-                $revisions === null => 'Cambios sin límite hasta el evento',
-                (int) $revisions === 1 => '1 ronda de cambios',
-                default => ((int) $revisions).' rondas de cambios',
+                $revisions === null => __('Cambios sin límite hasta el evento'),
+                (int) $revisions === 1 => __('1 ronda de cambios'),
+                default => __(':value rondas de cambios', ['value' => ((int) $revisions)]),
             },
-            $service !== [] ? 'Atención por WhatsApp' : null,
+            $service !== [] ? __('Atención por WhatsApp') : null,
         ]));
     }
 

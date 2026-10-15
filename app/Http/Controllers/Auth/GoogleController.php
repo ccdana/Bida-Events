@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Support\AuthOptions;
 use App\Support\ClientCredentials;
+use App\Support\Localization;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -28,9 +29,13 @@ class GoogleController extends Controller
 {
     use RedirectsAfterLogin;
 
-    public function redirect(): SymfonyRedirect
+    public function redirect(Request $request): SymfonyRedirect
     {
         abort_unless(AuthOptions::googleEnabled(), 404);
+
+        // Google vuelve siempre a la dirección registrada (/auth/google/callback): el idioma de la
+        // página donde se pulsó el botón viaja en la sesión
+        $request->session()->put('locale', app()->getLocale());
 
         return Socialite::driver('google')->redirect();
     }
@@ -39,27 +44,29 @@ class GoogleController extends Controller
     {
         abort_unless(AuthOptions::googleEnabled(), 404);
 
+        Localization::apply(Localization::resolve($request->session()->pull('locale')));
+
         // Canceló en la pantalla de Google
         if ($request->has('error')) {
-            return $this->failed('No se completó el ingreso con Google.');
+            return $this->failed(__('No se completó el ingreso con Google.'));
         }
 
         try {
             $google = Socialite::driver('google')->user();
         } catch (InvalidStateException) {
             // Volvió con el botón «atrás» o la sesión venció mientras estaba en Google
-            return $this->failed('El ingreso con Google se interrumpió. Inténtalo de nuevo.');
+            return $this->failed(__('El ingreso con Google se interrumpió. Inténtalo de nuevo.'));
         } catch (Throwable $e) {
             report($e);
 
-            return $this->failed('No pudimos entrar con Google. Inténtalo de nuevo en un momento.');
+            return $this->failed(__('No pudimos entrar con Google. Inténtalo de nuevo en un momento.'));
         }
 
         $googleId = (string) $google->getId();
         $email = Str::lower(trim((string) $google->getEmail()));
 
         if ($googleId === '' || $email === '' || ! ($google->user['email_verified'] ?? false)) {
-            return $this->failed('Tu cuenta de Google no tiene un correo confirmado. Entra con tu correo y contraseña.');
+            return $this->failed(__('Tu cuenta de Google no tiene un correo confirmado. Entra con tu correo y contraseña.'));
         }
 
         $user = User::where('google_id', $googleId)->first();
@@ -68,7 +75,7 @@ class GoogleController extends Controller
             $user = User::where('email', $email)->first();
 
             if ($user?->google_id) {
-                return $this->failed('Esa cuenta ya está vinculada con otra cuenta de Google.');
+                return $this->failed(__('Esa cuenta ya está vinculada con otra cuenta de Google.'));
             }
 
             if ($user) {
@@ -76,7 +83,7 @@ class GoogleController extends Controller
             } elseif (AuthOptions::registrationOpen()) {
                 $user = $this->register($google, $email, $credentials);
             } else {
-                return $this->failed('No hay ninguna cuenta con ese correo.');
+                return $this->failed(__('No hay ninguna cuenta con ese correo.'));
             }
         } elseif ($google->getAvatar() !== $user->avatar_url) {
             $user->forceFill(['avatar_url' => $google->getAvatar()])->save();
@@ -122,6 +129,7 @@ class GoogleController extends Controller
             'email_verified_at' => now(),
             // Sin contraseña propia: si algún día la quiere, la crea con «¿Olvidaste tu contraseña?»
             'password' => Hash::make(Str::random(40)),
+            'locale' => app()->getLocale(),
             'google_id' => (string) $google->getId(),
             'avatar_url' => $google->getAvatar(),
         ]);
@@ -134,6 +142,6 @@ class GoogleController extends Controller
 
     private function failed(string $message): RedirectResponse
     {
-        return redirect()->route('login')->withErrors(['username' => $message]);
+        return redirect()->to(lroute('login'))->withErrors(['username' => $message]);
     }
 }

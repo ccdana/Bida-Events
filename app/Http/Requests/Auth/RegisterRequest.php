@@ -36,12 +36,12 @@ class RegisterRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'name.required' => 'Escribe tu nombre.',
-            'email.required' => 'Escribe tu correo.',
-            'email.email' => 'Revisa el correo: parece que le falta algo.',
-            'email.unique' => 'Ya hay una cuenta con este correo. Entra con él o recupera tu contraseña.',
-            'password.required' => 'Elige una contraseña.',
-            'password.min' => 'La contraseña necesita al menos 8 caracteres.',
+            'name.required' => __('Escribe tu nombre.'),
+            'email.required' => __('Escribe tu correo.'),
+            'email.email' => __('Revisa el correo: parece que le falta algo.'),
+            'email.unique' => __('Ya hay una cuenta con este correo. Entra con él o recupera tu contraseña.'),
+            'password.required' => __('Elige una contraseña.'),
+            'password.min' => __('La contraseña necesita al menos 8 caracteres.'),
         ];
     }
 }

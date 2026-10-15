@@ -10,8 +10,8 @@
 <section class="inv-section reveal td-tags-section" id="itinerario">
     <div class="inv-wrap">
         @include('invitations.partials.section-header', [
-            'eyebrow' => $invCopy['itinerary_eyebrow'] ?? 'Así será la celebración',
-            'title' => $data['titulo'] ?? 'Itinerario',
+            'eyebrow' => $invCopy['itinerary_eyebrow'] ?? __('Así será la celebración'),
+            'title' => $data['titulo'] ?? __('Itinerario'),
         ])
     </div>
 
@@ -35,7 +35,7 @@
         </div>
     @else
         <div class="inv-wrap">
-            <p class="inv-empty">{{ $invCopy['itinerary_empty'] ?? 'Muy pronto compartiremos el programa.' }}</p>
+            <p class="inv-empty">{{ $invCopy['itinerary_empty'] ?? __('Muy pronto compartiremos el programa.') }}</p>
         </div>
     @endif
 </section>

@@ -39,10 +39,10 @@ class ResetPasswordController extends Controller
             'email' => ['required', 'string', 'email', 'max:255'],
             'password' => ['required', 'string', PasswordRule::min(8)],
         ], [
-            'email.required' => 'Escribe el correo de tu cuenta.',
-            'email.email' => 'Revisa el correo: parece que le falta algo.',
-            'password.required' => 'Elige una contraseña nueva.',
-            'password.min' => 'La contraseña necesita al menos 8 caracteres.',
+            'email.required' => __('Escribe el correo de tu cuenta.'),
+            'email.email' => __('Revisa el correo: parece que le falta algo.'),
+            'password.required' => __('Elige una contraseña nueva.'),
+            'password.min' => __('La contraseña necesita al menos 8 caracteres.'),
         ]);
 
         $status = Password::reset(
@@ -66,7 +66,7 @@ class ResetPasswordController extends Controller
         if ($status !== Password::PASSWORD_RESET) {
             return back()
                 ->withInput($request->only('email'))
-                ->withErrors(['email' => 'El enlace venció o ya se usó. Pide uno nuevo desde «¿Olvidaste tu contraseña?».']);
+                ->withErrors(['email' => __('El enlace venció o ya se usó. Pide uno nuevo desde «¿Olvidaste tu contraseña?».')]);
         }
 
         // Si lo pidió desde «Mi cuenta», también sale de esta sesión y entra con la contraseña nueva
@@ -76,8 +76,8 @@ class ResetPasswordController extends Controller
             $request->session()->regenerateToken();
         }
 
-        return redirect()->route('login')
+        return redirect()->to(lroute('login'))
             ->withInput(['username' => $request->input('email')])
-            ->with('status', 'Tu contraseña cambió. Entra con tu correo y la contraseña nueva.');
+            ->with('status', __('Tu contraseña cambió. Entra con tu correo y la contraseña nueva.'));
     }
 }

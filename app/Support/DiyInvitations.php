@@ -37,7 +37,7 @@ final class DiyInvitations
     public static function startUrl(?User $user): string
     {
         return match (true) {
-            $user === null => AuthOptions::registrationOpen() ? route('register', ['crear' => 1]) : route('login'),
+            $user === null => AuthOptions::registrationOpen() ? lroute('register', ['crear' => 1]) : lroute('login'),
             $user->isAdmin() => route('admin.dashboard'),
             self::canBuild($user) => route('client.diy.create'),
             default => route('client.dashboard'),

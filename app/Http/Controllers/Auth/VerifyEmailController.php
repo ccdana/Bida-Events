@@ -34,7 +34,7 @@ class VerifyEmailController extends Controller
         // panel: pasar por /dashboard (otra redirección) gastaría el aviso antes de mostrarlo
         $panel = $request->user()->isAdmin() ? route('admin.dashboard') : route('client.dashboard');
 
-        return redirect()->intended($panel)->with('success', 'Listo: tu correo quedó confirmado.');
+        return redirect()->intended($panel)->with('success', __('Listo: tu correo quedó confirmado.'));
     }
 
     public function send(Request $request): RedirectResponse
@@ -47,6 +47,6 @@ class VerifyEmailController extends Controller
 
         $user->sendEmailVerificationNotification();
 
-        return back()->with('status', 'Te enviamos otro enlace a '.$user->email.'.');
+        return back()->with('status', __('Te enviamos otro enlace a :email.', ['email' => $user->email]));
     }
 }

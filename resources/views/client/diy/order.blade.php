@@ -64,7 +64,7 @@
                     <p class="text-site-muted">
                         {{ $order->concept() }}
                         @if($order->expires_at)
-                            · vale hasta el {{ $order->expires_at->timezone(config('app.timezone'))->locale('es')->translatedFormat('j \d\e F') }}
+                            · vale hasta el {{ $order->expires_at->timezone(config('app.timezone'))->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('j \d\e F')) }}
                         @endif
                     </p>
                     <p class="text-sm text-site-muted">Código de tu compra: <span class="font-mono font-medium text-site-ink">{{ $order->reference_code }}</span></p>

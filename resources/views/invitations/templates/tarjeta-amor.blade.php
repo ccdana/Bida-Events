@@ -19,7 +19,7 @@
 @endphp
 <!DOCTYPE html>
 {{-- La clase no-js la quita el primer script de la cabecera (ver shell/head) --}}
-<html lang="es" class="no-js">
+<html lang="{{ app()->getLocale() }}" class="no-js">
 <head>
     @include('invitations.partials.shell.head')
     @vite(['resources/css/invitation/story.css', 'resources/css/cards/amor.css'])
@@ -28,7 +28,7 @@
     @endif
 </head>
 <body class="inv-page inv-amor overflow-x-hidden {{ $page->hasPlayer ? 'has-player' : '' }}" data-card="amor" x-data="invitationApp()" x-init="init()">
-    <a class="inv-skip" href="#contenido">{{ $invCopy['skip_link'] ?? 'Saltar al contenido' }}</a>
+    <a class="inv-skip" href="#contenido">{{ $invCopy['skip_link'] ?? __('Saltar al contenido') }}</a>
 
     @if($showIntro)
         @include('invitations.partials.amor.intro')
@@ -37,7 +37,7 @@
     @include('invitations.partials.shell.nav')
 
     {{-- Se recorre por escenas (toque o deslizar); «Ver todo» vuelve a la página con scroll --}}
-    @include('invitations.partials.story.chrome', ['storyHint' => 'Toca para seguir leyendo'])
+    @include('invitations.partials.story.chrome', ['storyHint' => __('Toca para seguir leyendo')])
 
     {{-- Jardín vivo: pasto que florece al avanzar, ráfaga de pétalos y mariposas escondidas --}}
     @include('invitations.partials.amor.garden')
@@ -55,8 +55,8 @@
 
     @include('invitations.partials.shell.footer', [
         'footerClass' => 'inv-amor-footer',
-        'footerName' => $cardTo !== '' ? 'Para '.$cardTo : $page->displayName,
-        'footerDate' => \Illuminate\Support\Str::ucfirst($page->eventDate->locale('es')->translatedFormat('j \d\e F \d\e Y')),
+        'footerName' => $cardTo !== '' ? __('Para :cardTo', ['cardTo' => $cardTo]) : $page->displayName,
+        'footerDate' => \Illuminate\Support\Str::ucfirst($page->eventDate->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('j \d\e F \d\e Y'))),
         'footerOrnament' => null,
     ])
 

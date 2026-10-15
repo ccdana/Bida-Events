@@ -4,7 +4,7 @@
 --}}
 <meta property="og:type" content="{{ $share['type'] }}">
 <meta property="og:site_name" content="{{ $share['site'] }}">
-<meta property="og:locale" content="es_BO">
+<meta property="og:locale" content="{{ \App\Support\Localization::openGraph() }}">
 <meta property="og:title" content="{{ $share['title'] }}">
 <meta property="og:description" content="{{ $share['description'] }}">
 <meta property="og:url" content="{{ $share['url'] }}">

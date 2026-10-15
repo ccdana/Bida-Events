@@ -4,7 +4,7 @@
     el día, la hora y el lugar.
 --}}
 @php
-    $boothDate = $invitation->event_date?->copy()->locale('es');
+    $boothDate = $invitation->event_date?->copy()->locale(app()->getLocale());
     $boothStamp = $boothDate ? $boothDate->format('d m')." '".$boothDate->format('y') : '';
     // Sin la fuente de títulos (el PDF solo usa fuentes estáticas), una sans gruesa, como el letrero de la cabina
     $boothFont = $fonts['titles'] ? $titleFont : "'DejaVu Sans', sans-serif";

@@ -6,6 +6,7 @@
  * El contenido siempre está en el HTML debajo de la puerta: sin JavaScript se lee directo, y un
  * lector de pantalla lo recorre igual. Dentro del editor las puertas nacen abiertas.
  */
+import { t } from '../i18n.js';
 import { celebrate, prefersReducedMotion, vibrate } from './effects.js';
 
 const insideEditor = () => window.self !== window.top && !window.invDemo;
@@ -254,7 +255,7 @@ export function scratchReveal({ threshold = 0.45 } = {}) {
                 context.fill();
             }
 
-            const label = this.$el.dataset.scratchLabel || 'Raspa aquí';
+            const label = this.$el.dataset.scratchLabel || t('scratch_here', 'Raspa aquí');
             const family = getComputedStyle(this.$el).getPropertyValue('--font-titles').trim() || 'serif';
             context.fillStyle = ink;
             context.textAlign = 'center';

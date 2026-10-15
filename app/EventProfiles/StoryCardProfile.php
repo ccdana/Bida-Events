@@ -19,7 +19,7 @@ class StoryCardProfile extends EventProfile
 
     public function label(): string
     {
-        return 'Nuestra historia';
+        return __('Nuestra historia');
     }
 
     public function kind(): string
@@ -45,8 +45,8 @@ class StoryCardProfile extends EventProfile
     public function heroFields(): array
     {
         return [
-            'nombre' => ['label' => 'Nombre', 'placeholder' => 'Ej. Ana'],
-            'nombre_pareja' => ['label' => 'Nombre de su pareja', 'placeholder' => 'Ej. Luis'],
+            'nombre' => ['label' => __('Nombre'), 'placeholder' => __('Ej. Ana')],
+            'nombre_pareja' => ['label' => __('Nombre de su pareja'), 'placeholder' => __('Ej. Luis')],
         ];
     }
 
@@ -55,16 +55,16 @@ class StoryCardProfile extends EventProfile
     {
         return [
             'bienvenida' => [
-                'nombre' => 'Faltan los nombres de la pareja',
-                'imagen_hero' => 'Falta la primera foto juntos (la que se ve en el agua)',
+                'nombre' => __('Faltan los nombres de la pareja'),
+                'imagen_hero' => __('Falta la primera foto juntos (la que se ve en el agua)'),
             ],
-            'relato' => ['anecdota' => 'Falta la anécdota: es el corazón del tercer acto'],
-            'juntos_desde' => ['fecha' => 'Falta el día en que se conocieron'],
+            'relato' => ['anecdota' => __('Falta la anécdota: es el corazón del tercer acto')],
+            'juntos_desde' => ['fecha' => __('Falta el día en que se conocieron')],
         ];
     }
 
     public function sample(): array
     {
-        return ['name' => 'Ana & Luis', 'subtitle' => 'La historia que escribimos juntos'];
+        return ['name' => __('Ana & Luis'), 'subtitle' => __('La historia que escribimos juntos')];
     }
 }

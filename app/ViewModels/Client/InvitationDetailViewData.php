@@ -10,6 +10,7 @@ use App\Modules\Card\ReplyModule;
 use App\Modules\Module;
 use App\Support\CloudinaryImage;
 use App\Support\InvitationTemplates;
+use App\Support\Localization;
 use App\Support\YouTubeHelper;
 use Illuminate\Support\Collection;
 
@@ -71,7 +72,7 @@ class InvitationDetailViewData
             'url' => $contribution->type === 'live_photo' ? CloudinaryImage::url($contribution->file_path, 480) : null,
             'text' => $contribution->type === 'live_photo' ? 'Foto del fotomural' : (string) $contribution->content_text,
             'author' => $contribution->guest?->name,
-            'date' => $contribution->created_at?->locale('es')->translatedFormat('j \d\e F, H:i'),
+            'date' => $contribution->created_at?->locale(app()->getLocale())->translatedFormat(Localization::dateFormat('j \d\e F, H:i')),
             'meta' => collect([$contribution->guest?->name, $contribution->created_at?->diffForHumans()])->filter()->implode(' · '),
             'isHidden' => $contribution->moderation_status === GuestContribution::HIDDEN,
             'reaction' => $contribution->reaction ? ($reactions[$contribution->reaction] ?? null) : null,

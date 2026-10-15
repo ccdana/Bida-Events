@@ -7,7 +7,7 @@
 --}}
 @php
     $headCompact = !empty($compact);
-    // Si el título ya dice lo mismo que el eyebrow ("Save the date"), el eyebrow sobra
+    // Si el título ya dice lo mismo que el eyebrow (__('Save the date')), el eyebrow sobra
     $headEyebrow = trim((string) ($eyebrow ?? ''));
     $showHeadEyebrow = $headEyebrow !== '' && mb_strtolower($headEyebrow) !== mb_strtolower(trim((string) $title));
 @endphp

@@ -10,8 +10,8 @@
 <section class="inv-section reveal bd-sampler-section" id="itinerario">
     <div class="inv-wrap">
         @include('invitations.partials.section-header', [
-            'eyebrow' => $invCopy['itinerary_eyebrow'] ?? 'Así será mi día',
-            'title' => $data['titulo'] ?? 'Itinerario',
+            'eyebrow' => $invCopy['itinerary_eyebrow'] ?? __('Así será mi día'),
+            'title' => $data['titulo'] ?? __('Itinerario'),
         ])
 
         @if(count($eventos) > 0)
@@ -32,7 +32,7 @@
                 @endforeach
             </ol>
         @else
-            <p class="inv-empty">{{ $invCopy['itinerary_empty'] ?? 'Muy pronto compartiremos el orden de la celebración.' }}</p>
+            <p class="inv-empty">{{ $invCopy['itinerary_empty'] ?? __('Muy pronto compartiremos el orden de la celebración.') }}</p>
         @endif
     </div>
 </section>

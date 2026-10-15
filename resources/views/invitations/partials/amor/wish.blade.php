@@ -25,8 +25,8 @@
     <div class="inv-wrap">
         @include('invitations.partials.section-header', [
             'compact' => true,
-            'eyebrow' => $invCopy['wish_eyebrow'] ?? 'Antes de irte',
-            'title' => $invCopy['wish_title'] ?? 'Pide un deseo',
+            'eyebrow' => $invCopy['wish_eyebrow'] ?? __('Antes de irte'),
+            'title' => $invCopy['wish_title'] ?? __('Pide un deseo'),
         ])
 
         <div class="inv-wish__flower" x-ref="flower" data-story-ignore
@@ -50,22 +50,22 @@
         <div class="inv-wish__controls" data-needs-js x-show="!blown">
             <p class="inv-wish__hint">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                {{ $invCopy['wish_hint'] ?? 'Desliza hacia arriba para soplar' }}
+                {{ $invCopy['wish_hint'] ?? __('Desliza hacia arriba para soplar') }}
             </p>
             <button type="button" class="inv-wish__mic" @click="listening ? stopListening() : listen()" x-show="micAvailable" :style="`--level: ${level.toFixed(2)}`" :aria-pressed="listening.toString()">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3" stroke-linecap="round"/></svg>
-                <span x-text="listening ? 'Sopla hacia el teléfono…' : 'Soplar de verdad'">Soplar de verdad</span>
+                <span x-text="listening ? @js(__('Sopla hacia el teléfono…')) : @js(__('Soplar de verdad'))">{{ __('Soplar de verdad') }}</span>
             </button>
-            <button type="button" class="inv-wish__blow" @click="blowAll()">Soplar</button>
+            <button type="button" class="inv-wish__blow" @click="blowAll()">{{ __('Soplar') }}</button>
             <p class="inv-wish__note" x-show="micError" x-cloak x-text="micError" role="status"></p>
         </div>
 
         <div class="inv-wish__message">
-            <p class="inv-wish__text">{{ $invCopy['wish_message'] ?? 'Que esta primavera nos encuentre juntos, y todas las que vengan.' }}</p>
-            <p class="inv-wish__to">{{ $wishTo ? 'Feliz primavera, '.$wishTo : 'Feliz primavera' }}</p>
+            <p class="inv-wish__text">{{ $invCopy['wish_message'] ?? __('Que esta primavera nos encuentre juntos, y todas las que vengan.') }}</p>
+            <p class="inv-wish__to">{{ $wishTo ? __('Feliz primavera, :wishTo', ['wishTo' => $wishTo]) : __('Feliz primavera') }}</p>
             <a href="#inicio" class="inv-wish__again" data-needs-js>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4h4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                Volver a empezar
+                {{ __('Volver a empezar') }}
             </a>
         </div>
     </div>

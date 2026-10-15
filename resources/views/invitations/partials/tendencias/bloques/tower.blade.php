@@ -12,8 +12,8 @@
 <section class="inv-section reveal bl-tower-section" id="itinerario">
     <div class="inv-wrap">
         @include('invitations.partials.section-header', [
-            'eyebrow' => $invCopy['itinerary_eyebrow'] ?? 'Bloque por bloque',
-            'title' => $data['titulo'] ?? 'Itinerario',
+            'eyebrow' => $invCopy['itinerary_eyebrow'] ?? __('Bloque por bloque'),
+            'title' => $data['titulo'] ?? __('Itinerario'),
         ])
 
         @if(count($eventos) > 0)
@@ -34,7 +34,7 @@
                 @endforeach
             </ol>
         @else
-            <p class="inv-empty">{{ $invCopy['itinerary_empty'] ?? 'Muy pronto compartiremos el programa.' }}</p>
+            <p class="inv-empty">{{ $invCopy['itinerary_empty'] ?? __('Muy pronto compartiremos el programa.') }}</p>
         @endif
     </div>
 </section>

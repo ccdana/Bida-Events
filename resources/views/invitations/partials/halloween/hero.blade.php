@@ -4,10 +4,10 @@
     entrada con la noche y la hora, y al pie el paisaje en silueta con calabazas encendidas.
 --}}
 @php
-    $heroEyebrow = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? 'Fiesta de Halloween');
+    $heroEyebrow = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? __('Fiesta de Halloween'));
     $heroMessage = $page->welcome['mensaje'] ?? '';
     $heroDay = ($page->welcome['fecha_texto'] ?? null)
-        ?: \Illuminate\Support\Str::ucfirst($page->eventDate->locale('es')->translatedFormat('l j \d\e F'));
+        ?: \Illuminate\Support\Str::ucfirst($page->eventDate->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('l j \d\e F')));
 @endphp
 
 <header id="inicio" class="inv-hero inv-hw-hero">
@@ -46,7 +46,7 @@
         @endif
 
         <div class="inv-hw-ticket inv-fade-up inv-fade-up--3">
-            <span class="inv-hw-ticket__label">{{ $invCopy['hero_ticket_label'] ?? 'La noche del' }}</span>
+            <span class="inv-hw-ticket__label">{{ $invCopy['hero_ticket_label'] ?? __('La noche del') }}</span>
             <span class="inv-hw-ticket__day">{{ $heroDay }}</span>
             <span class="inv-hw-ticket__time">{{ $page->eventDate->format('H:i') }}</span>
         </div>
@@ -60,7 +60,7 @@
     </div>
 
     <a href="#contenido" class="inv-hero__scroll inv-hw-hero__scroll">
-        {{ $invCopy['scroll_hint'] ?? 'Desliza' }}
+        {{ $invCopy['scroll_hint'] ?? __('Desliza') }}
         <span class="inv-hero__scroll-line" aria-hidden="true"></span>
     </a>
 </header>

@@ -10,7 +10,7 @@
     shell/cover-component; estilos en css/invitation/tendencias/esencia.css.
 --}}
 @php
-    $introDate = \Illuminate\Support\Str::ucfirst($page->eventDate->locale('es')->translatedFormat('j \d\e F · H:i'));
+    $introDate = \Illuminate\Support\Str::ucfirst($page->eventDate->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('j \d\e F · H:i')));
     $initial = mb_strtoupper(mb_substr(trim($page->displayName), 0, 1));
 @endphp
 
@@ -20,9 +20,9 @@
     :class="{ 'is-untied': stage >= 1, 'is-open': stage >= 2 }"
     role="dialog"
     aria-modal="true"
-    aria-label="Invitación al lanzamiento de {{ $page->displayName }}">
+    aria-label="{{ __('Invitación al lanzamiento de :displayName', ['displayName' => $page->displayName]) }}">
     <span class="ez-intro__spot" aria-hidden="true"></span>
-    <p class="ez-intro__eyebrow">{{ $invCopy['intro_eyebrow'] ?? 'Lanzamiento exclusivo' }}</p>
+    <p class="ez-intro__eyebrow">{{ $invCopy['intro_eyebrow'] ?? __('Lanzamiento exclusivo') }}</p>
 
     <div class="ez-stage">
         {{-- El pedestal de porcelana y la sombra de la caja --}}
@@ -49,7 +49,7 @@
                         <span class="ez-face__frame"></span>
                         <span class="ez-face__monogram">{{ $initial }}</span>
                         <span class="ez-face__brand">{{ $page->displayName }}</span>
-                        <span class="ez-face__line">{{ $invCopy['scent_line'] ?? 'Eau de Quince' }}</span>
+                        <span class="ez-face__line">{{ $invCopy['scent_line'] ?? __('Eau de Quince') }}</span>
                     </span>
                     <span class="ez-face ez-face--side"><i class="ez-band ez-band--down"></i></span>
                     <span class="ez-face ez-face--top"><i class="ez-tissue"></i><i class="ez-glow"></i></span>
@@ -63,7 +63,7 @@
             </div>
 
             {{-- El moño de satén, sobre la tapa: se toca para desatarlo --}}
-            <button type="button" class="ez-bow" data-cover-trigger @click="open()" aria-label="Desatar la cinta y abrir la caja">
+            <button type="button" class="ez-bow" data-cover-trigger @click="open()" aria-label="{{ __('Desatar la cinta y abrir la caja') }}">
                 <svg class="ez-bow__svg" viewBox="0 0 120 84" aria-hidden="true" focusable="false">
                     <defs>
                         <linearGradient id="ez-satin-loop" x1="0" y1="0" x2="0" y2="1">
@@ -97,16 +97,16 @@
 
     {{-- Su nombre, que aparece en la bruma --}}
     <p class="ez-intro__reveal" aria-hidden="true">
-        <small>{{ $invCopy['scent_line'] ?? 'Eau de Quince' }}</small>
+        <small>{{ $invCopy['scent_line'] ?? __('Eau de Quince') }}</small>
         {{ $page->displayName }}
     </p>
 
     <div class="ez-intro__meta">
         <p class="ez-intro__date">{{ $introDate }}</p>
         @if($guest)
-            <p class="ez-intro__guest">{{ $invCopy['guest_banner_eyebrow'] ?? 'Invitación para' }} {{ $guest->name }}</p>
+            <p class="ez-intro__guest">{{ $invCopy['guest_banner_eyebrow'] ?? __('Invitación para') }} {{ $guest->name }}</p>
         @endif
     </div>
 
-    <p class="ez-intro__hint">{{ $invCopy['intro_hint'] ?? 'Toca la cinta para abrir la caja' }}</p>
+    <p class="ez-intro__hint">{{ $invCopy['intro_hint'] ?? __('Toca la cinta para abrir la caja') }}</p>
 </div>

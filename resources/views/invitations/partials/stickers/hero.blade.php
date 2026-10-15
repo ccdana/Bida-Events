@@ -8,9 +8,9 @@
 @php
     $age = $page->age();
     $grown = $age !== null && $age >= 18;
-    $heroEyebrow = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? '¡Celebremos juntos!');
+    $heroEyebrow = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? __('¡Celebremos juntos!'));
     $heroMessage = $page->welcome['mensaje'] ?? '';
-    $date = $page->eventDate->locale('es');
+    $date = $page->eventDate->locale(app()->getLocale());
 @endphp
 
 <header id="inicio" @class(['inv-hero', 'st-hero', 'is-grown' => $grown])>
@@ -44,7 +44,7 @@
                 <p class="st-fig__band">
                     {{ $page->displayName }}
                     @if($age !== null)
-                        <small>{{ $age }} {{ $invCopy['sticker_age'] ?? 'años' }}</small>
+                        <small>{{ $age }} {{ $invCopy['sticker_age'] ?? __('años') }}</small>
                     @endif
                 </p>
                 <span class="st-fig__shine" aria-hidden="true"></span>
@@ -66,7 +66,7 @@
                     <div class="st-fig__face">
                         <b class="st-fig__big st-fig__big--time">{{ $page->eventDate->format('H:i') }}</b>
                     </div>
-                    <p class="st-fig__band">{{ $invCopy['sticker_time'] ?? 'La hora' }}</p>
+                    <p class="st-fig__band">{{ $invCopy['sticker_time'] ?? __('La hora') }}</p>
                 </div>
             </li>
             <li class="st-slot st-slot--empty">
@@ -74,8 +74,8 @@
                 @if($page->showsRsvp())
                     <a href="#rsvp" class="st-missing">
                         <b aria-hidden="true">?</b>
-                        <span>{{ $invCopy['sticker_missing'] ?? 'Falta la tuya' }}</span>
-                        <strong>{{ $invCopy['sticker_going'] ?? '¡Voy!' }}</strong>
+                        <span>{{ $invCopy['sticker_missing'] ?? __('Falta la tuya') }}</span>
+                        <strong>{{ $invCopy['sticker_going'] ?? __('¡Voy!') }}</strong>
                     </a>
                 @else
                     <span class="st-missing" aria-hidden="true"><b>?</b></span>
@@ -89,7 +89,7 @@
                     <div class="st-fig__face">
                         <p class="st-fig__place">{{ $page->placeName }}</p>
                     </div>
-                    <p class="st-fig__band">{{ $invCopy['sticker_place'] ?? 'El lugar' }}</p>
+                    <p class="st-fig__band">{{ $invCopy['sticker_place'] ?? __('El lugar') }}</p>
                 </div>
             </div>
         @endif
@@ -100,7 +100,7 @@
     @endif
 
     <a href="#contenido" class="inv-hero__scroll st-hero__scroll">
-        {{ $invCopy['scroll_hint'] ?? 'Desliza' }}
+        {{ $invCopy['scroll_hint'] ?? __('Desliza') }}
         <span class="inv-hero__scroll-line" aria-hidden="true"></span>
     </a>
 </header>

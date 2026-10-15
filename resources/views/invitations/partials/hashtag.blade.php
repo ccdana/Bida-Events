@@ -13,9 +13,9 @@
         @include('invitations.partials.section-header', [
             'compact' => true,
             'lottie' => 'hashtag',
-            'eyebrow' => $invCopy['hashtag_eyebrow'] ?? 'Redes sociales',
-            'title' => $hashtag['texto_boton'] ?? 'Usa nuestro hashtag',
-            'intro' => str_replace(':red', $platformLabel, $invCopy['hashtag_intro'] ?? 'Publica tus fotos y videos en :red con esta etiqueta para verlos todos juntos.'),
+            'eyebrow' => $invCopy['hashtag_eyebrow'] ?? __('Redes sociales'),
+            'title' => $hashtag['texto_boton'] ?? __('Usa nuestro hashtag'),
+            'intro' => str_replace(':red', $platformLabel, $invCopy['hashtag_intro'] ?? __('Publica tus fotos y videos en :red con esta etiqueta para verlos todos juntos.')),
         ])
 
         {{-- Un salto posible antes de cada mayúscula (#IsabellaXV → #Isabella·XV): si el hashtag es largo, se parte por palabras y no a la mitad de una --}}
@@ -25,9 +25,9 @@
 
         <div class="inv-actions inv-actions--split">
             <button type="button" class="inv-btn" @click="copy(@js($tag))">
-                <span x-text="copied ? '¡Copiado!' : @js($invCopy['hashtag_copy'] ?? 'Copiar hashtag')">{{ $invCopy['hashtag_copy'] ?? 'Copiar hashtag' }}</span>
+                <span x-text="copied ? '¡Copiado!' : @js($invCopy['hashtag_copy'] ?? __('Copiar hashtag'))">{{ $invCopy['hashtag_copy'] ?? __('Copiar hashtag') }}</span>
             </button>
-            <a href="{{ $searchUrl }}" target="_blank" rel="noopener" class="inv-btn inv-btn--ghost">Ver en {{ $platformLabel }}</a>
+            <a href="{{ $searchUrl }}" target="_blank" rel="noopener" class="inv-btn inv-btn--ghost">{{ __('Ver en :platformLabel', ['platformLabel' => $platformLabel]) }}</a>
         </div>
     </div>
 </section>

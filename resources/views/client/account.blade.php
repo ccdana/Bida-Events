@@ -72,7 +72,7 @@
                         Plan {{ $user->planConfig()['name'] ?? 'sin elegir' }}
                         @if($user->subscription_renews_at)
                             · {{ $user->renewsAutomatically() ? 'se renueva solo con tarjeta el' : ($user->hasActiveSubscription() ? 'pagado hasta el' : 'venció el') }}
-                            {{ $user->subscription_renews_at->locale('es')->translatedFormat('j \d\e F \d\e Y') }}
+                            {{ $user->subscription_renews_at->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('j \d\e F \d\e Y')) }}
                         @endif
                     </p>
                 @else

@@ -11,6 +11,7 @@ use App\Models\Invitation;
 use App\Services\InvitationModuleService;
 use App\Services\InvitationPreviewSession;
 use App\Support\InvitationDefaults;
+use App\Support\Localization;
 use App\Support\ResellerSubscription;
 use App\ViewModels\Admin\InvitationEditorViewData;
 use Illuminate\Http\RedirectResponse;
@@ -142,7 +143,7 @@ class InvitationController extends Controller
     private function heldMessage(): string
     {
         $limit = ResellerSubscription::quotaLimit(auth()->user());
-        $nextMonth = now()->timezone(config('app.timezone'))->startOfMonth()->addMonthNoOverflow()->locale('es')->translatedFormat('j \d\e F');
+        $nextMonth = now()->timezone(config('app.timezone'))->startOfMonth()->addMonthNoOverflow()->locale(app()->getLocale())->translatedFormat(Localization::dateFormat('j \d\e F'));
 
         return "Guardamos tus cambios, pero no la publicamos: ya publicaste las {$limit} invitaciones de tu plan este mes. "
             ."Podrás publicarla desde el {$nextMonth}, o ahora mismo con un plan mayor.";

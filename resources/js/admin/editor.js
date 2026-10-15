@@ -1291,7 +1291,8 @@ function invitationForm(config) {
          * pisa nada escrito. Sin «force», una parte que ya tiene algo propio se deja como está.
          */
         fillWithSample(code, force = false) {
-            const sample = this.config.samples?.[this.profile.code]?.[code];
+            const samples = this.config.samples?.[this.meta.locale] ?? this.config.samples?.es;
+            const sample = samples?.[this.profile.code]?.[code];
             if (!sample || typeof sample !== 'object' || Array.isArray(sample)) return;
             if (!force && this.moduleHasContent(code)) return;
 
@@ -2129,6 +2130,7 @@ function invitationForm(config) {
                 title: this.meta.title ?? '',
                 slug: this.meta.slug ?? '',
                 template: this.meta.template ?? '',
+                locale: this.meta.locale ?? 'es',
                 event_date: this.meta.event_date ?? '',
                 expires_at: this.meta.expires_at ?? '',
                 package: this.meta.package ?? '',

@@ -10,8 +10,8 @@
 <section class="inv-section reveal cu-pages-section" id="itinerario">
     <div class="inv-wrap">
         @include('invitations.partials.section-header', [
-            'eyebrow' => $invCopy['itinerary_eyebrow'] ?? 'Las páginas de la noche',
-            'title' => $data['titulo'] ?? 'Itinerario',
+            'eyebrow' => $invCopy['itinerary_eyebrow'] ?? __('Las páginas de la noche'),
+            'title' => $data['titulo'] ?? __('Itinerario'),
         ])
 
         @if(count($eventos) > 0)
@@ -32,7 +32,7 @@
                 @endforeach
             </ol>
         @else
-            <p class="inv-empty">{{ $invCopy['itinerary_empty'] ?? 'Muy pronto escribiremos las páginas de la noche.' }}</p>
+            <p class="inv-empty">{{ $invCopy['itinerary_empty'] ?? __('Muy pronto escribiremos las páginas de la noche.') }}</p>
         @endif
     </div>
 </section>

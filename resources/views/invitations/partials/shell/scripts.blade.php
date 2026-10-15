@@ -1,4 +1,21 @@
 <script>
+// Textos de los módulos de JavaScript (resources/js/i18n.js) en el idioma de la invitación
+window.bidaStrings = @js([
+    'mic_blocked' => __('El micrófono está bloqueado para esta página. Actívalo en los permisos del navegador (el candado junto a la dirección) o desliza hacia arriba para soplar.'),
+    'mic_dismissed' => __('No se dio permiso para usar el micrófono. Tócalo otra vez y elige «Permitir», o desliza hacia arriba para soplar.'),
+    'mic_missing' => __('No encontramos un micrófono en este dispositivo. Desliza hacia arriba para soplar.'),
+    'mic_busy' => __('Otra aplicación está usando el micrófono. Ciérrala e inténtalo de nuevo, o desliza hacia arriba.'),
+    'mic_unsupported' => __('Este navegador no deja usar el micrófono aquí. Desliza hacia arriba para soplar.'),
+    'reply_preview' => __('Las respuestas no se envían desde la vista previa.'),
+    'reply_failed' => __('No se pudo enviar. Intenta de nuevo.'),
+    'reply_offline' => __('No se pudo enviar. Revisa tu conexión e intenta de nuevo.'),
+    'reply_on_the_way' => __('Tu respuesta va en camino'),
+    'reply_on_the_way_to' => __('Tu respuesta va en camino a :to'),
+    'flower_on_the_way' => __(':flower va en camino'),
+    'flower_on_the_way_to' => __(':flower va en camino a :to'),
+    'scratch_here' => __('Raspa aquí'),
+]);
+
 /**
  * Abre Google Calendar priorizando la app nativa en Android;
  * en iOS y escritorio el enlace universal resuelve solo.

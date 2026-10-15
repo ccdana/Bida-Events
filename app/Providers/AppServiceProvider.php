@@ -51,31 +51,34 @@ class AppServiceProvider extends ServiceProvider
     }
 
     /**
-     * Los correos de la cuenta (confirmar el correo y crear una contraseña nueva) en español y con la
-     * firma de la marca. El resto del diseño es el de las notificaciones de Laravel (lang/es.json).
+     * Los correos de la cuenta (confirmar el correo y crear una contraseña nueva) con la firma de la
+     * marca, en el idioma en que se abrió la cuenta (User::preferredLocale). El resto del diseño es el
+     * de las notificaciones de Laravel (lang/es.json en español; el inglés ya viene en el framework).
+     * Los textos se arman al enviar, no al arrancar: el idioma todavía no está decidido.
      */
     protected function configureAccountEmails(): void
     {
-        $signature = 'El equipo de '.config('bida.brand');
+        $signature = fn (): string => __('El equipo de :brand', ['brand' => config('bida.brand')]);
+        $greeting = fn (object $notifiable): string => __('Hola, :name:', ['name' => Str::before((string) $notifiable->name, ' ')]);
 
         VerifyEmail::toMailUsing(fn (object $notifiable, string $url) => (new MailMessage)
-            ->subject('Confirma tu correo')
-            ->greeting('Hola, '.Str::before((string) $notifiable->name, ' ').':')
-            ->line('Toca el botón para confirmar que este correo es tuyo. Con eso queda lista tu cuenta.')
-            ->action('Confirmar mi correo', $url)
-            ->line('El enlace vale 60 minutos. Si no abriste una cuenta en '.config('bida.brand').', ignora este mensaje.')
-            ->salutation($signature));
+            ->subject(__('Confirma tu correo'))
+            ->greeting($greeting($notifiable))
+            ->line(__('Toca el botón para confirmar que este correo es tuyo. Con eso queda lista tu cuenta.'))
+            ->action(__('Confirmar mi correo'), $url)
+            ->line(__('El enlace vale 60 minutos. Si no abriste una cuenta en :brand, ignora este mensaje.', ['brand' => config('bida.brand')]))
+            ->salutation($signature()));
 
         ResetPassword::toMailUsing(fn (object $notifiable, string $token) => (new MailMessage)
-            ->subject('Crea una contraseña nueva')
-            ->greeting('Hola, '.Str::before((string) $notifiable->name, ' ').':')
-            ->line('Recibimos un pedido para cambiar la contraseña de tu cuenta.')
-            ->action('Crear una contraseña nueva', route('password.reset', [
+            ->subject(__('Crea una contraseña nueva'))
+            ->greeting($greeting($notifiable))
+            ->line(__('Recibimos un pedido para cambiar la contraseña de tu cuenta.'))
+            ->action(__('Crear una contraseña nueva'), lroute('password.reset', [
                 'token' => $token,
                 'email' => $notifiable->getEmailForPasswordReset(),
             ]))
-            ->line('El enlace vale '.config('auth.passwords.users.expire').' minutos y sirve una sola vez. Si no lo pediste, ignora este mensaje: tu contraseña sigue igual.')
-            ->salutation($signature));
+            ->line(__('El enlace vale :minutes minutos y sirve una sola vez. Si no lo pediste, ignora este mensaje: tu contraseña sigue igual.', ['minutes' => config('auth.passwords.users.expire')]))
+            ->salutation($signature()));
     }
 
     /**
@@ -109,7 +112,7 @@ class AppServiceProvider extends ServiceProvider
 
     protected function configureRateLimiting(): void
     {
-        $message = 'Demasiados intentos. Espera un momento e inténtalo de nuevo.';
+        $message = __('Demasiados intentos. Espera un momento e inténtalo de nuevo.');
 
         $tooManyAttempts = fn (Request $request, array $headers) => $request->expectsJson()
             ? response()->json(['success' => false, 'message' => $message], 429, $headers)
@@ -157,7 +160,7 @@ class AppServiceProvider extends ServiceProvider
 
         RateLimiter::for('verification-email', fn (Request $request) => Limit::perMinute(2)
             ->by('verification-email|'.$request->user()?->id)
-            ->response(fn () => back()->with('status', 'Ya te enviamos el enlace. Espera un minuto antes de pedir otro.')));
+            ->response(fn () => back()->with('status', __('Ya te enviamos el enlace. Espera un minuto antes de pedir otro.'))));
 
         // Avisos de las pasarelas: generoso (reintentan en ráfagas), pero con techo por si alguien inunda la ruta
         RateLimiter::for('payment-webhooks', fn (Request $request) => Limit::perMinute(300)
@@ -166,6 +169,6 @@ class AppServiceProvider extends ServiceProvider
         // Ida y vuelta a Google: un ingreso son dos peticiones
         RateLimiter::for('google', fn (Request $request) => Limit::perMinute(20)
             ->by('google|'.$request->ip())
-            ->response(fn () => redirect()->route('login')->withErrors(['username' => $message])));
+            ->response(fn () => redirect()->to(lroute('login'))->withErrors(['username' => $message])));
     }
 }

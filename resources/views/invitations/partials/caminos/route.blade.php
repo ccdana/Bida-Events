@@ -10,8 +10,8 @@
 <section class="inv-section reveal dc-route-section" id="itinerario">
     <div class="inv-wrap">
         @include('invitations.partials.section-header', [
-            'eyebrow' => $invCopy['itinerary_eyebrow'] ?? 'Las paradas del día',
-            'title' => $data['titulo'] ?? 'Itinerario',
+            'eyebrow' => $invCopy['itinerary_eyebrow'] ?? __('Las paradas del día'),
+            'title' => $data['titulo'] ?? __('Itinerario'),
         ])
 
         @if(count($eventos) > 0)
@@ -27,13 +27,13 @@
                             <p class="dc-stop__text">{{ $evento['descripcion'] }}</p>
                         @endif
                         @if($index === $last && $last > 0)
-                            <p class="dc-stop__end">{{ $invCopy['route_end'] ?? 'Llegada' }}</p>
+                            <p class="dc-stop__end">{{ $invCopy['route_end'] ?? __('Llegada') }}</p>
                         @endif
                     </li>
                 @endforeach
             </ol>
         @else
-            <p class="inv-empty">{{ $invCopy['itinerary_empty'] ?? 'Muy pronto marcaremos las paradas del día.' }}</p>
+            <p class="inv-empty">{{ $invCopy['itinerary_empty'] ?? __('Muy pronto marcaremos las paradas del día.') }}</p>
         @endif
     </div>
 </section>

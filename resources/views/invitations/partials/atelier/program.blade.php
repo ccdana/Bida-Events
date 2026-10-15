@@ -10,8 +10,8 @@
 <section class="inv-section reveal at-show-section" id="itinerario">
     <div class="inv-wrap">
         @include('invitations.partials.section-header', [
-            'eyebrow' => $invCopy['itinerary_eyebrow'] ?? 'El orden del desfile',
-            'title' => $data['titulo'] ?? 'Itinerario',
+            'eyebrow' => $invCopy['itinerary_eyebrow'] ?? __('El orden del desfile'),
+            'title' => $data['titulo'] ?? __('Itinerario'),
         ])
 
         @if(count($eventos) > 0)
@@ -21,7 +21,7 @@
                         <time class="at-look__time">{{ $evento['hora'] ?? '' }}</time>
                         <span class="at-look__pin" aria-hidden="true"></span>
                         <div class="at-look__body">
-                            <span class="at-look__number">{{ $invCopy['atelier_look'] ?? 'Look' }} {{ str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) }}</span>
+                            <span class="at-look__number">{{ $invCopy['atelier_look'] ?? __('Look') }} {{ str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) }}</span>
                             <h3 class="at-look__title">{{ $evento['titulo'] ?? '' }}</h3>
                             @if(!empty($evento['descripcion']))
                                 <p class="at-look__text">{{ $evento['descripcion'] }}</p>
@@ -31,7 +31,7 @@
                 @endforeach
             </ol>
         @else
-            <p class="inv-empty">{{ $invCopy['itinerary_empty'] ?? 'Muy pronto publicaremos el orden del desfile.' }}</p>
+            <p class="inv-empty">{{ $invCopy['itinerary_empty'] ?? __('Muy pronto publicaremos el orden del desfile.') }}</p>
         @endif
     </div>
 </section>

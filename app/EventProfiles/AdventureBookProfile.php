@@ -18,7 +18,7 @@ class AdventureBookProfile extends EventProfile
 
     public function label(): string
     {
-        return 'Libro de aventuras';
+        return __('Libro de aventuras');
     }
 
     public function kind(): string
@@ -50,18 +50,18 @@ class AdventureBookProfile extends EventProfile
     public function required(): array
     {
         return [
-            'bienvenida' => ['imagen_hero' => 'Falta la foto de la tapa'],
-            'juntos_desde' => ['fecha' => 'Falta la fecha del aniversario'],
+            'bienvenida' => ['imagen_hero' => __('Falta la foto de la tapa')],
+            'juntos_desde' => ['fecha' => __('Falta la fecha del aniversario')],
             'dedicatoria' => [
-                'para' => 'Falta para quién es el libro',
-                'de' => 'Falta quién lo manda',
-                'mensaje' => 'Falta la carta',
+                'para' => __('Falta para quién es el libro'),
+                'de' => __('Falta quién lo manda'),
+                'mensaje' => __('Falta la carta'),
             ],
         ];
     }
 
     public function sample(): array
     {
-        return ['name' => 'Para Ana', 'subtitle' => 'Nuestro libro de aventuras'];
+        return ['name' => __('Para Ana'), 'subtitle' => __('Nuestro libro de aventuras')];
     }
 }

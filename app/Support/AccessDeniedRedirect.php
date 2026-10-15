@@ -25,7 +25,7 @@ class AccessDeniedRedirect
         $user = $request->user();
 
         if (! $user) {
-            return redirect()->route('login');
+            return redirect()->to(lroute('login'));
         }
 
         $notice = self::notice($message);
@@ -38,7 +38,7 @@ class AccessDeniedRedirect
         $target = $sameHost && ! $samePage($previous) ? $previous : $panel;
 
         if ($samePage($target)) {
-            $target = route('home');
+            $target = lroute('home');
         }
 
         return redirect()->to($target, 303)->with('access_notice', $notice);

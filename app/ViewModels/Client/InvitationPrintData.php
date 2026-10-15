@@ -4,6 +4,7 @@ namespace App\ViewModels\Client;
 
 use App\Models\Invitation;
 use App\Support\InvitationTemplates;
+use App\Support\Localization;
 use App\Support\MapsLinkParser;
 use App\Support\Pdf\PdfAssets;
 use App\Support\Pdf\PdfMotifs;
@@ -75,7 +76,7 @@ class InvitationPrintData
                 'subtitle' => $this->text($welcome['subtitulo'] ?? null) ?? $style['kicker'],
                 'message' => Str::limit((string) $this->text($welcome['mensaje'] ?? null), self::LIMITS['mensaje']) ?: null,
                 'date' => $this->text($welcome['fecha_texto'] ?? null)
-                    ?? ($invitation->event_date ? Str::ucfirst($invitation->event_date->locale('es')->translatedFormat('l j \d\e F \d\e Y')) : null),
+                    ?? ($invitation->event_date ? Str::ucfirst($invitation->event_date->locale(app()->getLocale())->translatedFormat(Localization::dateFormat('l j \d\e F \d\e Y'))) : null),
                 'time' => $invitation->event_date?->format('H:i'),
                 // Un nombre largo baja de cuerpo en vez de partirse en tres renglones
                 'nameSize' => match (true) {

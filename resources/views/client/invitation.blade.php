@@ -15,7 +15,7 @@
                 @if($invitation->event_date)
                     <p class="mt-2 inline-flex items-center gap-2 text-site-muted">
                         <x-phosphor-calendar-blank class="size-5 shrink-0" aria-hidden="true" />
-                        {{ $invitation->event_date->locale('es')->translatedFormat('j \d\e F \d\e Y') }}, {{ $invitation->event_date->format('H:i') }}
+                        {{ $invitation->event_date->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('j \d\e F \d\e Y')) }}, {{ $invitation->event_date->format('H:i') }}
                     </p>
                 @endif
             </div>

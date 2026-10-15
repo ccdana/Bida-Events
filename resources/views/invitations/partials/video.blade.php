@@ -2,8 +2,8 @@
     <div class="inv-wrap inv-wrap--wide">
         @include('invitations.partials.section-header', [
             'lottie' => 'video',
-            'eyebrow' => $invCopy['video_eyebrow'] ?? 'Save the date',
-            'title' => $video['titulo'] ?? 'Nuestro video',
+            'eyebrow' => $invCopy['video_eyebrow'] ?? __('Save the date'),
+            'title' => $video['titulo'] ?? __('Nuestro video'),
         ])
 
         @if(!empty($video['video_url'] ?? null))
@@ -34,15 +34,15 @@
                     type="button"
                     class="inv-video__toggle is-paused is-pinned is-visible"
                     data-video-toggle="true"
-                    aria-label="Reproducir video"
-                    title="Reproducir video"
+                    aria-label="{{ __('Reproducir video') }}"
+                    title="{{ __('Reproducir video') }}"
                 >
                     <span class="inv-video__toggle-icon" aria-hidden="true"></span>
                 </button>
             </figure>
-            <p class="inv-help inv-video__help">{{ $invCopy['video_help'] ?? 'Toca el video para reproducirlo y sube el volumen de tu teléfono.' }}</p>
+            <p class="inv-help inv-video__help">{{ $invCopy['video_help'] ?? __('Toca el video para reproducirlo y sube el volumen de tu teléfono.') }}</p>
         @else
-            <p class="inv-empty">{{ $invCopy['video_empty'] ?? 'Muy pronto compartiremos el video.' }}</p>
+            <p class="inv-empty">{{ $invCopy['video_empty'] ?? __('Muy pronto compartiremos el video.') }}</p>
         @endif
     </div>
 </section>

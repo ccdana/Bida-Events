@@ -12,5 +12,5 @@
     'styles' => ['resources/css/invitation/themes/atelier.css'],
     'headExtra' => 'invitations.partials.tendencias.head',
     'bodyClass' => 'inv-trend',
-    'footerDate' => 'l j \d F \d Y',
+    'footerDate' => 'l j \d\e F \d\e Y',
 ])

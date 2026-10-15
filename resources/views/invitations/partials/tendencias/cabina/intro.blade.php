@@ -13,17 +13,17 @@
     :class="{ 'is-shooting': stage >= 1, 'is-open': stage >= 2 }"
     role="dialog"
     aria-modal="true"
-    aria-label="Invitación al cumpleaños de {{ $page->displayName }}">
+    aria-label="{{ __('Invitación al cumpleaños de :displayName', ['displayName' => $page->displayName]) }}">
     <span class="cb-intro__spill" aria-hidden="true"></span>
 
-    <p class="cb-intro__eyebrow">{{ $invCopy['intro_eyebrow'] ?? 'Pasa, que la foto te espera' }}</p>
+    <p class="cb-intro__eyebrow">{{ $invCopy['intro_eyebrow'] ?? __('Pasa, que la foto te espera') }}</p>
     @if($guest)
-        <p class="cb-intro__guest">{{ $invCopy['guest_banner_eyebrow'] ?? 'Esta tira es para' }} <strong>{{ $guest->name }}</strong></p>
+        <p class="cb-intro__guest">{{ $invCopy['guest_banner_eyebrow'] ?? __('Esta tira es para') }} <strong>{{ $guest->name }}</strong></p>
     @endif
 
     <div class="cb-scene">
         <div class="cb-booth">
-            <p class="cb-booth__sign" aria-hidden="true">{{ $invCopy['booth_sign'] ?? 'Fotos' }}</p>
+            <p class="cb-booth__sign" aria-hidden="true">{{ $invCopy['booth_sign'] ?? __('Fotos') }}</p>
 
             <div class="cb-booth__body">
                 {{-- La cortina corrida: los flashes se ven por la abertura del medio --}}
@@ -36,18 +36,18 @@
                 </span>
 
                 <span class="cb-booth__screen" aria-hidden="true">
-                    <span class="cb-booth__ready">{{ $invCopy['booth_ready'] ?? 'Mira a la cámara' }}</span>
+                    <span class="cb-booth__ready">{{ $invCopy['booth_ready'] ?? __('Mira a la cámara') }}</span>
                     <i style="--n: 0">3</i>
                     <i style="--n: 1">2</i>
                     <i style="--n: 2">1</i>
                 </span>
 
-                <button type="button" class="cb-booth__button" data-cover-trigger @click="open()" aria-label="Apretar el botón para tomar las fotos">
-                    <span>{{ $invCopy['booth_button'] ?? '¡Foto!' }}</span>
+                <button type="button" class="cb-booth__button" data-cover-trigger @click="open()" aria-label="{{ __('Apretar el botón para tomar las fotos') }}">
+                    <span>{{ $invCopy['booth_button'] ?? __('¡Foto!') }}</span>
                 </button>
 
                 <span class="cb-booth__slot" aria-hidden="true">
-                    <small>{{ $invCopy['booth_slot'] ?? 'Tus fotos salen aquí' }}</small>
+                    <small>{{ $invCopy['booth_slot'] ?? __('Tus fotos salen aquí') }}</small>
                 </span>
             </div>
         </div>
@@ -58,5 +58,5 @@
         </div>
     </div>
 
-    <p class="cb-intro__hint">{{ $invCopy['intro_hint'] ?? 'Toca el botón para la foto' }}</p>
+    <p class="cb-intro__hint">{{ $invCopy['intro_hint'] ?? __('Toca el botón para la foto') }}</p>
 </div>

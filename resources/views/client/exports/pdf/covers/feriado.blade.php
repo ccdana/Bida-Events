@@ -4,7 +4,7 @@
     pensamiento del día. Debajo, el día, la hora y el lugar.
 --}}
 @php
-    $calDate = $invitation->event_date?->copy()->locale('es');
+    $calDate = $invitation->event_date?->copy()->locale(app()->getLocale());
     $calMonth = $calDate ? \Illuminate\Support\Str::upper($calDate->translatedFormat('F')) : null;
     $calCells = [];
     if ($calDate) {

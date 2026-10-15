@@ -4,6 +4,7 @@ namespace App\Http\Requests\Admin\Invitation;
 
 use App\Http\Requests\Admin\Invitation\Concerns\ValidatesInvitationModules;
 use App\Models\Invitation;
+use App\Support\Localization;
 use App\Support\Packages;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -33,6 +34,8 @@ class UpdateInvitationRequest extends FormRequest
                 Rule::unique('invitations', 'slug')->ignore($invitation instanceof Invitation ? $invitation->id : null),
             ],
             'template' => ['required', 'string'],
+            // Idioma de los textos y botones de la invitación (config/localization.php)
+            'locale' => ['sometimes', Rule::in(Localization::locales())],
             'event_type_id' => ['required', 'exists:event_types,id'],
             'user_id' => ['nullable', 'exists:users,id'],
             'event_date' => ['required', 'date'],

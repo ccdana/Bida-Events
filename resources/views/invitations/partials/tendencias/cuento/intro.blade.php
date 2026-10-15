@@ -8,7 +8,7 @@
     css/invitation/tendencias/cuento.css.
 --}}
 @php
-    $introDate = \Illuminate\Support\Str::ucfirst($page->eventDate->locale('es')->translatedFormat('j \d\e F · H:i'));
+    $introDate = \Illuminate\Support\Str::ucfirst($page->eventDate->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('j \d\e F · H:i')));
     $firstName = \Illuminate\Support\Str::of($page->displayName)->explode(' ')->first();
     $letters = mb_str_split($firstName);
 @endphp
@@ -19,8 +19,8 @@
     :class="{ 'is-opening': stage >= 1, 'is-open': stage >= 2 }"
     role="dialog"
     aria-modal="true"
-    aria-label="Invitación al cuento de {{ $page->displayName }}">
-    <p class="cu-intro__eyebrow">{{ $invCopy['intro_eyebrow'] ?? 'Érase una vez' }}</p>
+    aria-label="{{ __('Invitación al cuento de :displayName', ['displayName' => $page->displayName]) }}">
+    <p class="cu-intro__eyebrow">{{ $invCopy['intro_eyebrow'] ?? __('Érase una vez') }}</p>
 
     <div class="cu-book">
         {{-- La página de adentro con el desplegable --}}
@@ -60,10 +60,10 @@
         </div>
 
         {{-- La tapa: se toca para abrir el libro --}}
-        <button type="button" class="cu-book__cover" data-cover-trigger @click="open()" aria-label="Abrir el libro">
+        <button type="button" class="cu-book__cover" data-cover-trigger @click="open()" aria-label="{{ __('Abrir el libro') }}">
             <span class="cu-cover__front">
                 <span class="cu-cover__frame" aria-hidden="true"></span>
-                <span class="cu-cover__kicker">{{ $invCopy['book_title'] ?? 'El cuento de' }}</span>
+                <span class="cu-cover__kicker">{{ $invCopy['book_title'] ?? __('El cuento de') }}</span>
                 <span class="cu-cover__name">{{ $page->displayName }}</span>
                 <span class="cu-cover__star" aria-hidden="true"></span>
                 <span class="cu-cover__xv">XV</span>
@@ -76,9 +76,9 @@
     <div class="cu-intro__meta">
         <p class="cu-intro__date">{{ $introDate }}</p>
         @if($guest)
-            <p class="cu-intro__guest">{{ $invCopy['guest_banner_eyebrow'] ?? 'Este cuento es para' }} {{ $guest->name }}</p>
+            <p class="cu-intro__guest">{{ $invCopy['guest_banner_eyebrow'] ?? __('Este cuento es para') }} {{ $guest->name }}</p>
         @endif
     </div>
 
-    <p class="cu-intro__hint">{{ $invCopy['intro_hint'] ?? 'Toca el libro para abrirlo' }}</p>
+    <p class="cu-intro__hint">{{ $invCopy['intro_hint'] ?? __('Toca el libro para abrirlo') }}</p>
 </div>

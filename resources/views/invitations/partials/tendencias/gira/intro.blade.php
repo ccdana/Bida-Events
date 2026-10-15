@@ -7,7 +7,7 @@
     Lógica en shell/cover-component; estilos en tendencias/gira.css.
 --}}
 @php
-    $introDate = \Illuminate\Support\Str::upper($page->eventDate->locale('es')->translatedFormat('j M'));
+    $introDate = \Illuminate\Support\Str::upper($page->eventDate->locale(app()->getLocale())->translatedFormat('j M'));
     $age = $page->age();
     // El público: cabezas y hombros, y algunos con los brazos listos para subir
     $crowd = [];
@@ -22,34 +22,34 @@
     :class="{ 'is-scanned': stage >= 1, 'is-open': stage >= 2 }"
     role="dialog"
     aria-modal="true"
-    aria-label="Invitación al cumpleaños de {{ $page->displayName }}">
+    aria-label="{{ __('Invitación al cumpleaños de :displayName', ['displayName' => $page->displayName]) }}">
     <div class="gr-rig" aria-hidden="true">
         <span class="gr-rig__truss"></span>
         @foreach([12, 36, 64, 88] as $index => $spot)
             <span class="gr-rig__light" style="--x: {{ $spot }}%; --i: {{ $index }}"><i></i></span>
         @endforeach
         <span class="gr-rig__screen">
-            <span>{{ $invCopy['tour_name'] ?? 'Gira' }} {{ $age ?? $page->eventDate->format('Y') }}</span>
+            <span>{{ $invCopy['tour_name'] ?? __('Gira') }} {{ $age ?? $page->eventDate->format('Y') }}</span>
         </span>
     </div>
 
-    <p class="gr-intro__eyebrow">{{ $invCopy['intro_eyebrow'] ?? 'Tu acceso está listo' }}</p>
+    <p class="gr-intro__eyebrow">{{ $invCopy['intro_eyebrow'] ?? __('Tu acceso está listo') }}</p>
 
-    <button type="button" class="gr-band" data-cover-trigger @click="open()" aria-label="Escanear la pulsera y entrar al show">
+    <button type="button" class="gr-band" data-cover-trigger @click="open()" aria-label="{{ __('Escanear la pulsera y entrar al show') }}">
         <span class="gr-band__fabric">
             <span class="gr-band__lines">
-                <span class="gr-band__print">{{ $invCopy['tour_wristband'] ?? 'Acceso general' }} · {{ $invCopy['tour_name'] ?? 'Gira' }} {{ $age ?? $page->eventDate->format('Y') }} · {{ $introDate }}</span>
+                <span class="gr-band__print">{{ $invCopy['tour_wristband'] ?? __('Acceso general') }} · {{ $invCopy['tour_name'] ?? __('Gira') }} {{ $age ?? $page->eventDate->format('Y') }} · {{ $introDate }}</span>
                 <span class="gr-band__name">{{ $guest?->name ?? $page->displayName }}</span>
             </span>
             <span class="gr-band__code" aria-hidden="true"></span>
         </span>
         <span class="gr-band__clip" aria-hidden="true"></span>
         <span class="gr-band__scan" aria-hidden="true"></span>
-        <span class="gr-band__stamp" aria-hidden="true">{{ $invCopy['tour_only'] ?? 'Fecha única' }}</span>
+        <span class="gr-band__stamp" aria-hidden="true">{{ $invCopy['tour_only'] ?? __('Fecha única') }}</span>
     </button>
 
-    <p class="gr-intro__doors">{{ $invCopy['tour_doors'] ?? 'Puertas' }} · {{ $page->eventDate->format('H:i') }}</p>
-    <p class="gr-intro__hint">{{ $invCopy['intro_hint'] ?? 'Toca para escanear tu pulsera' }}</p>
+    <p class="gr-intro__doors">{{ $invCopy['tour_doors'] ?? __('Puertas') }} · {{ $page->eventDate->format('H:i') }}</p>
+    <p class="gr-intro__hint">{{ $invCopy['intro_hint'] ?? __('Toca para escanear tu pulsera') }}</p>
 
     {{-- Papelitos que disparan los cañones de los costados --}}
     @for($i = 0; $i < 18; $i++)

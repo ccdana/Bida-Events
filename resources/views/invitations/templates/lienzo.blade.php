@@ -9,12 +9,12 @@
 @endphp
 <!DOCTYPE html>
 {{-- La clase no-js la quita el primer script de la cabecera (ver shell/head) --}}
-<html lang="es" class="no-js">
+<html lang="{{ app()->getLocale() }}" class="no-js">
 <head>
     @include('invitations.partials.shell.head')
 </head>
 <body class="inv-page inv-lienzo overflow-x-hidden {{ $page->hasPlayer ? 'has-player' : '' }}" x-data="invitationApp()" x-init="init()">
-    <a class="inv-skip" href="#contenido">{{ $invCopy['skip_link'] ?? 'Saltar al contenido' }}</a>
+    <a class="inv-skip" href="#contenido">{{ $invCopy['skip_link'] ?? __('Saltar al contenido') }}</a>
 
     {{-- Lienzo es sobrio: luces difusas y destellos muy suaves en el color principal --}}
     @include('invitations.partials.drift', ['kind' => 'bokeh', 'count' => 8, 'mobile' => 5, 'seed' => 2, 'class' => 'inv-drift--suave'])
@@ -35,7 +35,7 @@
     @include('invitations.partials.shell.footer', [
         'footerClass' => 'inv-lienzo-footer',
         'footerName' => $page->displayName,
-        'footerDate' => \Illuminate\Support\Str::ucfirst($page->eventDate->locale('es')->translatedFormat('l j \d\e F \d\e Y')),
+        'footerDate' => \Illuminate\Support\Str::ucfirst($page->eventDate->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('l j \d\e F \d\e Y'))),
         'footerOrnament' => 'line',
     ])
 

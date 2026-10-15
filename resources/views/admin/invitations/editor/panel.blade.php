@@ -85,6 +85,7 @@
     <input type="hidden" name="title" :value="meta.title">
     <input type="hidden" name="slug" :value="meta.slug">
     <input type="hidden" name="template" :value="meta.template">
+    <input type="hidden" name="locale" :value="meta.locale">
     <input type="hidden" name="event_type_id" :value="meta.event_type_id">
     <input type="hidden" name="user_id" :value="meta.user_id">
     <input type="hidden" name="event_date" :value="meta.event_date">

@@ -6,29 +6,29 @@
 @php($autocomplete ??= 'current-password')
 <div class="site-enter grid gap-2" style="--enter-index: {{ $index }}">
     <div class="flex items-baseline justify-between gap-4">
-        <label for="password" class="text-[0.95rem] font-medium">{{ $label ?? 'Contraseña' }}</label>
+        <label for="password" class="text-[0.95rem] font-medium">{{ $label ?? __('Contraseña') }}</label>
         @if($forgot ?? false)
-            <a href="{{ route('password.request') }}" class="text-sm text-site-muted underline underline-offset-4 transition-colors hover:text-site-ink">¿La olvidaste?</a>
+            <a href="{{ lroute('password.request') }}" class="text-sm text-site-muted underline underline-offset-4 transition-colors hover:text-site-ink">{{ __('¿La olvidaste?') }}</a>
         @endif
     </div>
     <div class="site-field">
         <x-phosphor-lock-key class="site-field__icon" aria-hidden="true" />
         <input id="password" type="password" :type="showPassword ? 'text' : 'password'" name="password" required
             autocomplete="{{ $autocomplete }}" @if($autocomplete === 'new-password') minlength="8" @endif
-            @keydown="capsLock = $event.getModifierState('CapsLock')" @keyup="capsLock = $event.getModifierState('CapsLock')"
+            @keydown="capsLock = $event.getModifierState(@js('CapsLock'))" @keyup="capsLock = $event.getModifierState(@js('CapsLock'))"
             @class(['site-input pr-12', 'is-invalid' => $errors->has('password')])
             @if($errors->has('password')) aria-invalid="true" aria-describedby="password-error"
             @elseif(! empty($hint)) aria-describedby="password-hint" @endif>
         <button type="button" class="absolute inset-y-0 right-0 grid w-12 place-items-center rounded-r-[12px] text-site-muted transition-colors hover:text-site-ink"
             @click="showPassword = !showPassword" aria-controls="password"
-            :aria-label="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'" aria-label="Mostrar contraseña">
+            :aria-label="showPassword ? @js(__('Ocultar contraseña')) : @js(__('Mostrar contraseña'))" aria-label="{{ __('Mostrar contraseña') }}">
             <x-phosphor-eye class="site-swap is-on" x-bind:class="{ 'is-on': !showPassword }" aria-hidden="true" />
             <x-phosphor-eye-slash class="site-swap" x-bind:class="{ 'is-on': showPassword }" aria-hidden="true" />
         </button>
     </div>
     <p class="flex items-center gap-2 text-sm text-site-muted" x-show="capsLock" x-cloak x-transition.opacity aria-live="polite">
         <x-phosphor-arrow-fat-line-up class="size-4 shrink-0" aria-hidden="true" />
-        Bloq Mayús está activado
+        {{ __('Bloq Mayús está activado') }}
     </p>
     @error('password')
         <p id="password-error" class="site-enter text-sm text-site-danger">{{ $message }}</p>

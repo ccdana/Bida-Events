@@ -576,7 +576,7 @@ final class InvitationTemplates
                     'act2_label' => 'La marea',
                     'act3_label' => 'De frente',
                     'act4_label' => 'La constelación',
-                    'act1_title' => 'The story we write together',
+                    'act1_title' => 'La historia que escribimos juntos',
                     'act1_intro_fallback' => 'Toda historia empieza lejos, como la luna en el agua: se la ve antes de entenderla.',
                     'act1_met_prefix' => 'Nos conocimos el',
                     'act1_met_fallback' => 'No recordamos el día exacto. Recordamos que después de ese día, todo fue distinto.',

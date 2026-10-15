@@ -5,15 +5,15 @@
 --}}
 @php
     $eventos = $data['eventos'] ?? [];
-    $ordinals = ['Primer', 'Segundo', 'Tercer', 'Cuarto', 'Quinto', 'Sexto', 'Séptimo', 'Octavo', 'Noveno', 'Décimo'];
+    $ordinals = [__('Primer'), __('Segundo'), __('Tercer'), __('Cuarto'), __('Quinto'), __('Sexto'), __('Séptimo'), __('Octavo'), __('Noveno'), __('Décimo')];
     $course = $invCopy['table_course'] ?? 'tiempo';
 @endphp
 
 <section class="inv-section reveal ms-menu-section" id="itinerario">
     <div class="inv-wrap">
         @include('invitations.partials.section-header', [
-            'eyebrow' => $invCopy['itinerary_eyebrow'] ?? 'El menú del día',
-            'title' => $data['titulo'] ?? 'Itinerario',
+            'eyebrow' => $invCopy['itinerary_eyebrow'] ?? __('El menú del día'),
+            'title' => $data['titulo'] ?? __('Itinerario'),
         ])
 
         @if(count($eventos) > 0)
@@ -30,7 +30,7 @@
                 @endforeach
             </ol>
         @else
-            <p class="inv-empty">{{ $invCopy['itinerary_empty'] ?? 'Muy pronto compartiremos el menú del día.' }}</p>
+            <p class="inv-empty">{{ $invCopy['itinerary_empty'] ?? __('Muy pronto compartiremos el menú del día.') }}</p>
         @endif
     </div>
 </section>

@@ -5,10 +5,10 @@
     se sirve, el lugar y el mensaje. Estilos en css/invitation/tendencias/caldero.css.
 --}}
 @php
-    $heroKicker = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['intro_eyebrow'] ?? 'Se está preparando una fiesta');
+    $heroKicker = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['intro_eyebrow'] ?? __('Se está preparando una fiesta'));
     $heroMessage = $page->welcome['mensaje'] ?? '';
     $heroDay = ($page->welcome['fecha_texto'] ?? null)
-        ?: \Illuminate\Support\Str::ucfirst($page->eventDate->locale('es')->translatedFormat('l j \d\e F'));
+        ?: \Illuminate\Support\Str::ucfirst($page->eventDate->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('l j \d\e F')));
 @endphp
 
 <header id="inicio" class="inv-hero cl-hero">
@@ -30,8 +30,8 @@
         </div>
         {{-- La etiqueta de la receta, atada al cuello con un hilo --}}
         <span class="cl-jar__tag">
-            <span class="cl-jar__tag-label">{{ $invCopy['potion_label'] ?? 'Receta secreta' }}</span>
-            <span class="cl-jar__tag-number">N.º {{ $page->eventDate->format('d') }}</span>
+            <span class="cl-jar__tag-label">{{ $invCopy['potion_label'] ?? __('Receta secreta') }}</span>
+            <span class="cl-jar__tag-number">{{ __('N.º :date', ['date' => $page->eventDate->format('d')]) }}</span>
         </span>
     </div>
 
@@ -55,7 +55,7 @@
     @endif
 
     <a href="#contenido" class="inv-hero__scroll cl-hero__scroll">
-        {{ $invCopy['scroll_hint'] ?? 'Desliza' }}
+        {{ $invCopy['scroll_hint'] ?? __('Desliza') }}
         <span class="inv-hero__scroll-line" aria-hidden="true"></span>
     </a>
 </header>

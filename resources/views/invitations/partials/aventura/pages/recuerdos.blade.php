@@ -10,7 +10,7 @@
     <article class="nb-page nb-page--dots nb-memories" data-nb-page @if($memoryPage === 0) id="recuerdos" @endif>
         <div class="nb-page__inner">
             @if($memoryPage === 0)
-                <h2 class="nb-title">{{ ($data['titulo'] ?? null) ?: 'Recuerdos especiales' }}</h2>
+                <h2 class="nb-title">{{ ($data['titulo'] ?? null) ?: __('Recuerdos especiales') }}</h2>
             @endif
 
             @foreach($memoryPair as $memoryIndex => $memory)
@@ -36,7 +36,7 @@
                     @endif
                     <figcaption class="nb-memory__note">
                         @if($memoryDate)
-                            <span class="nb-memory__date">{{ $memoryDate->locale('es')->translatedFormat('j \d\e F \d\e Y') }}</span>
+                            <span class="nb-memory__date">{{ $memoryDate->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('j \d\e F \d\e Y')) }}</span>
                         @endif
                         @if(! empty($memory['titulo']))
                             <strong class="nb-memory__title">{{ $memory['titulo'] }}</strong>

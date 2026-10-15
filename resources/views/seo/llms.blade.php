@@ -36,10 +36,10 @@
 
 ## Páginas
 
-- [Inicio]({!! route('home') !!}): qué es, cómo funciona, muestras que se pueden probar y precios.
-- [Precios]({!! route('pricing') !!}): Hazlo tú, los planes y Te la hacemos, lado a lado, con lo que trae cada nivel.
-- [Guía de invitaciones digitales]({!! route('guide') !!}): qué son, cuánto cuestan, cómo elegir una y cómo funciona el control de entrada con QR.
-- [Únete]({!! route('diy') !!}): planes mensuales para crear invitaciones propias.
+- [Inicio]({!! lroute('home') !!}): qué es, cómo funciona, muestras que se pueden probar y precios.
+- [Precios]({!! lroute('pricing') !!}): Hazlo tú, los planes y Te la hacemos, lado a lado, con lo que trae cada nivel.
+- [Guía de invitaciones digitales]({!! lroute('guide') !!}): qué son, cuánto cuestan, cómo elegir una y cómo funciona el control de entrada con QR.
+- [Únete]({!! lroute('diy') !!}): planes mensuales para crear invitaciones propias.
 @foreach($landings as $landing)
 - [{!! $landing['label'] !!}]({!! $landing['url'] !!})
 @endforeach
@@ -48,4 +48,4 @@
 
 - WhatsApp: +{!! ltrim((string) $bida['whatsapp'], '+') !!}
 - Correo: {!! $bida['email'] !!}
-- [Privacidad]({!! route('legal', 'privacidad') !!}) · [Términos]({!! route('legal', 'terminos') !!})
+- [Privacidad]({!! lroute('legal', 'privacidad') !!}) · [Términos]({!! lroute('legal', 'terminos') !!})

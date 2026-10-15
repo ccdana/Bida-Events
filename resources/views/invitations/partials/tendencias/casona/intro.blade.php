@@ -8,7 +8,7 @@
     shell/cover-component; estilos en css/invitation/tendencias/casona.css.
 --}}
 @php
-    $introDate = \Illuminate\Support\Str::ucfirst($page->eventDate->locale('es')->translatedFormat('l j \d\e F · H:i'));
+    $introDate = \Illuminate\Support\Str::ucfirst($page->eventDate->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('l j \d\e F · H:i')));
 @endphp
 
 <div class="inv-themed-intro cs-intro"
@@ -18,8 +18,8 @@
     @click="open()"
     role="dialog"
     aria-modal="true"
-    aria-label="Invitación a {{ $page->displayName }}">
-    <p class="cs-intro__eyebrow">{{ $invCopy['intro_eyebrow'] ?? 'Esta noche hay fiesta en la casa' }}</p>
+    aria-label="{{ __('Invitación a :displayName', ['displayName' => $page->displayName]) }}">
+    <p class="cs-intro__eyebrow">{{ $invCopy['intro_eyebrow'] ?? __('Esta noche hay fiesta en la casa') }}</p>
 
     <div class="cs-doll">
         <div class="cs-doll__roof">
@@ -34,7 +34,7 @@
                 <span class="cs-doll__room cs-doll__room--left"><i class="cs-doll__lamp"></i></span>
                 <span class="cs-doll__room cs-doll__room--right"><i class="cs-doll__lamp"></i></span>
                 <p class="cs-doll__welcome">
-                    <small>{{ $invCopy['house_welcome'] ?? 'Bienvenidos a la casa de' }}</small>
+                    <small>{{ $invCopy['house_welcome'] ?? __('Bienvenidos a la casa de') }}</small>
                     <span>{{ $page->displayName }}</span>
                 </p>
             </div>
@@ -52,7 +52,7 @@
             @endforeach
 
             {{-- La aldaba, en la puerta: se toca para entrar --}}
-            <button type="button" class="cs-knocker" data-cover-trigger @click.stop="open()" aria-label="Tocar la aldaba y entrar a la casa">
+            <button type="button" class="cs-knocker" data-cover-trigger @click.stop="open()" aria-label="{{ __('Tocar la aldaba y entrar a la casa') }}">
                 <span class="cs-knocker__ring" aria-hidden="true"></span>
             </button>
         </div>
@@ -63,9 +63,9 @@
     <div class="cs-intro__meta">
         <p class="cs-intro__date">{{ $introDate }}</p>
         @if($guest)
-            <p class="cs-intro__guest">{{ $invCopy['guest_banner_eyebrow'] ?? 'Esta llave es para' }} {{ $guest->name }}</p>
+            <p class="cs-intro__guest">{{ $invCopy['guest_banner_eyebrow'] ?? __('Esta llave es para') }} {{ $guest->name }}</p>
         @endif
     </div>
 
-    <p class="cs-intro__hint">{{ $invCopy['intro_hint'] ?? 'Toca la aldaba para entrar' }}</p>
+    <p class="cs-intro__hint">{{ $invCopy['intro_hint'] ?? __('Toca la aldaba para entrar') }}</p>
 </div>

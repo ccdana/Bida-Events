@@ -11,9 +11,9 @@
         @include('invitations.partials.section-header', [
             'compact' => true,
             'lottie' => 'poll',
-            'eyebrow' => $invCopy['polls_eyebrow'] ?? 'Tu opinión cuenta',
-            'title' => $encuestas['titulo'] ?? 'Encuestas',
-            'intro' => $invCopy['polls_intro'] ?? 'Toca una opción para votar. Verás los resultados al instante.',
+            'eyebrow' => $invCopy['polls_eyebrow'] ?? __('Tu opinión cuenta'),
+            'title' => $encuestas['titulo'] ?? __('Encuestas'),
+            'intro' => $invCopy['polls_intro'] ?? __('Toca una opción para votar. Verás los resultados al instante.'),
         ])
 
         @forelse($preguntas as $number => $poll)
@@ -49,25 +49,25 @@
                 <p class="inv-status" :class="{ 'is-error': error }" x-text="message" aria-live="polite"></p>
             </div>
         @empty
-            <p class="inv-empty">{{ $invCopy['polls_empty'] ?? 'Pronto habrá preguntas para votar.' }}</p>
+            <p class="inv-empty">{{ $invCopy['polls_empty'] ?? __('Pronto habrá preguntas para votar.') }}</p>
         @endforelse
 
         @if($totalPreguntas > 1)
-            <nav class="inv-polls__nav" aria-label="Preguntas">
-                <button type="button" class="inv-gallery__arrow" @click="step = Math.max(0, step - 1)" :disabled="step === 0" aria-label="Pregunta anterior">
+            <nav class="inv-polls__nav" aria-label="{{ __('Preguntas') }}">
+                <button type="button" class="inv-gallery__arrow" @click="step = Math.max(0, step - 1)" :disabled="step === 0" aria-label="{{ __('Pregunta anterior') }}">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </button>
                 <p class="inv-polls__count" aria-live="polite">
-                    <span x-text="step + 1">1</span> de {{ $totalPreguntas }}
+                    <span x-text="step + 1">1</span> {{ __('de :totalPreguntas', ['totalPreguntas' => $totalPreguntas]) }}
                 </p>
-                <button type="button" class="inv-gallery__arrow" @click="step = Math.min(total - 1, step + 1)" :disabled="step === total - 1" aria-label="Pregunta siguiente">
+                <button type="button" class="inv-gallery__arrow" @click="step = Math.min(total - 1, step + 1)" :disabled="step === total - 1" aria-label="{{ __('Pregunta siguiente') }}">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </button>
             </nav>
         @endif
 
         <noscript>
-            <p class="inv-noscript">Para votar en las encuestas necesitas activar JavaScript en tu navegador.</p>
+            <p class="inv-noscript">{{ __('Para votar en las encuestas necesitas activar JavaScript en tu navegador.') }}</p>
         </noscript>
     </div>
 </section>
@@ -101,7 +101,7 @@ function pollVoter(pollId, initialPct, options, slug, guestToken, pollType) {
                     const total = tally.reduce((sum, count) => sum + count, 0);
                     this.percentages = tally.map((count) => Math.round((count / total) * 100));
                     this.voted = true;
-                    this.message = 'Así se ve tu voto. Es una muestra: no se guarda.';
+                    this.message = @js(__('Así se ve tu voto. Es una muestra: no se guarda.'));
                     this.$dispatch('poll-voted');
                     return;
                 }
@@ -114,18 +114,18 @@ function pollVoter(pollId, initialPct, options, slug, guestToken, pollType) {
                 const data = await res.json().catch(() => ({}));
 
                 if (!res.ok || !data.success) {
-                    throw new Error(data.message || 'No pudimos registrar tu voto. Intenta de nuevo.');
+                    throw new Error(data.message || @js(__('No pudimos registrar tu voto. Intenta de nuevo.')));
                 }
 
                 this.percentages = data.percentages;
                 this.voted = true;
-                this.message = 'Gracias, tu voto quedó registrado.';
+                this.message = @js(__('Gracias, tu voto quedó registrado.'));
                 // La sección pasa sola a la siguiente pregunta después de mostrar los resultados
                 this.$dispatch('poll-voted');
             } catch (e) {
                 this.selected = null;
                 this.error = true;
-                this.message = e instanceof TypeError ? 'Revisa tu conexión e intenta de nuevo.' : e.message;
+                this.message = e instanceof TypeError ? @js(__('Revisa tu conexión e intenta de nuevo.')) : e.message;
             } finally {
                 this.loading = false;
             }

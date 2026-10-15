@@ -25,12 +25,12 @@
     :class="{ 'is-peeling': stage >= 1, 'is-open': stage >= 2 }"
     role="dialog"
     aria-modal="true"
-    aria-label="Invitación al cumpleaños de {{ $page->displayName }}">
+    aria-label="{{ __('Invitación al cumpleaños de :displayName', ['displayName' => $page->displayName]) }}">
     <p class="st-intro__eyebrow">
         @if($guest)
-            {{ $guest->name }}, {{ mb_strtolower($invCopy['intro_eyebrow'] ?? '¡Estás invitado!') }}
+            {{ $guest->name }}, {{ mb_strtolower($invCopy['intro_eyebrow'] ?? __('¡Estás invitado!')) }}
         @else
-            {{ $invCopy['intro_eyebrow'] ?? '¡Estás invitado!' }}
+            {{ $invCopy['intro_eyebrow'] ?? __('¡Estás invitado!') }}
         @endif
     </p>
 
@@ -54,13 +54,13 @@
             @pointercancel.window="release()"
             :class="{ 'is-dragging': dragging, 'is-springing': springing }"
             :style="`--peel: ${peel.toFixed(3)}`"
-            aria-label="Abrir el sobre y entrar a la invitación">
+            aria-label="{{ __('Abrir el sobre y entrar a la invitación') }}">
             <span class="st-pack__body" aria-hidden="true">
                 <span class="st-pack__label">
-                    <small>{{ $invCopy['intro_pack'] ?? 'Stickers de' }}</small>
+                    <small>{{ $invCopy['intro_pack'] ?? __('Stickers de') }}</small>
                     <strong>{{ $page->displayName }}</strong>
                     @if($introAge !== null)
-                        <em>{{ $introAge }} {{ $invCopy['sticker_age'] ?? 'años' }}</em>
+                        <em>{{ $introAge }} {{ $invCopy['sticker_age'] ?? __('años') }}</em>
                     @endif
                 </span>
             </span>
@@ -80,15 +80,15 @@
                         @break
                     @case('date')
                         <b>{{ $page->eventDate->format('j') }}</b>
-                        <small>{{ \Illuminate\Support\Str::ucfirst($page->eventDate->locale('es')->translatedFormat('M')) }}</small>
+                        <small>{{ \Illuminate\Support\Str::ucfirst($page->eventDate->locale(app()->getLocale())->translatedFormat('M')) }}</small>
                         @break
                     @case('time')
                         <b class="is-small">{{ $page->eventDate->format('H:i') }}</b>
-                        <small>{{ $invCopy['sticker_time'] ?? 'La hora' }}</small>
+                        <small>{{ $invCopy['sticker_time'] ?? __('La hora') }}</small>
                         @break
                     @case('place')
                         <svg viewBox="0 0 24 24" focusable="false"><path d="M12 22 C12 22 4 14.5 4 9.5 A8 8 0 0 1 20 9.5 C20 14.5 12 22 12 22 Z M12 12.5 A3 3 0 1 0 12 6.5 A3 3 0 0 0 12 12.5 Z" fill-rule="evenodd"/></svg>
-                        <small>{{ $invCopy['sticker_place'] ?? 'El lugar' }}</small>
+                        <small>{{ $invCopy['sticker_place'] ?? __('El lugar') }}</small>
                         @break
                     @default
                         <svg viewBox="0 0 24 24" focusable="false"><path d="M12 2 L14.9 8.6 L22 9.3 L16.6 14 L18.2 21 L12 17.3 L5.8 21 L7.4 14 L2 9.3 L9.1 8.6 Z"/></svg>
@@ -97,7 +97,7 @@
         @endforeach
     </div>
 
-    <p class="st-intro__hint">{{ $invCopy['intro_hint'] ?? 'Arranca la tira para abrir el sobre' }}</p>
+    <p class="st-intro__hint">{{ $invCopy['intro_hint'] ?? __('Arranca la tira para abrir el sobre') }}</p>
 </div>
 
 <script>

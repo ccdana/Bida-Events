@@ -10,7 +10,7 @@
 @use('App\Support\Money')
 
 @php
-    $quotaLabel = fn (array $plan): string => $plan['quota_per_month'] === null ? 'Invitaciones sin tope' : ($plan['quota_per_month'] === 1 ? '1 invitación al mes' : $plan['quota_per_month'].' invitaciones al mes');
+    $quotaLabel = fn (array $plan): string => $plan['quota_per_month'] === null ? __('Invitaciones sin tope') : ($plan['quota_per_month'] === 1 ? __('1 invitación al mes') : __(':quota_per_month invitaciones al mes', ['quota_per_month' => $plan['quota_per_month']]));
     $detailed = (bool) ($diyDetail ?? false);
 
     // Lo que dice cada plan: el cupo de hoy (se quita el de la lista para que no quede un número viejo)
@@ -26,16 +26,16 @@
         if ($detailed) {
             $mentions = fn (string $word): bool => collect($list)->contains(fn (string $line) => mb_stripos($line, $word) !== false);
 
-            $list[] = $plan['templates_count'].' plantillas para elegir';
+            $list[] = __(':templates_count plantillas para elegir', ['templates_count' => $plan['templates_count']]);
 
             if (in_array('whatsapp', $plan['rsvp'] ?? [], true) && ! $mentions('WhatsApp')) {
-                $list[] = 'Confirmación de asistencia por WhatsApp';
+                $list[] = __('Confirmación de asistencia por WhatsApp');
             }
             if (in_array('pass', $plan['rsvp'] ?? [], true) && ! $mentions('QR')) {
-                $list[] = 'Pase QR y control de entrada';
+                $list[] = __('Pase QR y control de entrada');
             }
             if (($plan['white_label'] ?? false) && ! $mentions('marca')) {
-                $list[] = 'Tu marca al pie de cada invitación';
+                $list[] = __('Tu marca al pie de cada invitación');
             }
         }
 
@@ -45,28 +45,28 @@
 
 @php
     $cycles = $planCycles ?? [1 => 0];
-    $cycleLabels = [1 => 'Mensual', 3 => 'Cada 3 meses', 12 => 'Anual'];
+    $cycleLabels = [1 => __('Mensual'), 3 => __('Cada 3 meses'), 12 => __('Anual')];
 @endphp
 
 <section id="planes" class="scroll-mt-20 border-t border-site-line bg-site-surface" aria-labelledby="planes-titulo" x-data="{ cycle: 1 }">
     <div class="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-28">
         <div class="max-w-3xl">
-            <h2 id="planes-titulo" class="site-display site-display--md" data-reveal>{{ $diyTitle ?? 'Elige tu plan' }}</h2>
+            <h2 id="planes-titulo" class="site-display site-display--md" data-reveal>{{ $diyTitle ?? __('Elige tu plan') }}</h2>
             <p class="site-muted-lead" data-reveal>
-                {{ $diyLead ?? 'Precios por mes, en dólares ('.Money::code().'). Cada plan suma al anterior.' }}
+                {{ $diyLead ?? __('Precios por mes, en dólares (:currency). Cada plan suma al anterior.', ['currency' => Money::code()]) }}
             </p>
         </div>
 
         {{-- Cada cuánto se paga: el precio de cada plan pasa a ser el de un mes de ese ciclo --}}
         @if(count($cycles) > 1)
-            <div class="site-cycle mt-10" role="radiogroup" aria-label="Cada cuánto pagas" data-reveal>
+            <div class="site-cycle mt-10" role="radiogroup" aria-label="{{ __('Cada cuánto pagas') }}" data-reveal>
                 @foreach($cycles as $months => $discount)
                     <button type="button" role="radio" @click="cycle = {{ $months }}"
                         :aria-checked="(cycle === {{ $months }}).toString()" aria-checked="{{ $months === 1 ? 'true' : 'false' }}"
                         @class(['site-cycle__option', 'is-active' => $months === 1]) :class="{ 'is-active': cycle === {{ $months }} }">
-                        <span class="site-cycle__name">{{ $cycleLabels[$months] ?? $months.' meses' }}</span>
+                        <span class="site-cycle__name">{{ $cycleLabels[$months] ?? __(':months meses', ['months' => $months]) }}</span>
                         @if($discount > 0)
-                            <span class="site-cycle__off">{{ $discount }} % menos</span>
+                            <span class="site-cycle__off">{{ __(':discount % menos', ['discount' => $discount]) }}</span>
                         @endif
                     </button>
                 @endforeach
@@ -82,16 +82,16 @@
                     :name="$plan['name']"
                     :price="$plan['final_price']"
                     :old="$plan['old_price'] ? Money::format($plan['old_price']) : null"
-                    :suffix="Money::code().' al mes'"
-                    :saving="$plan['old_price'] ? 'Ahorras '.Money::format($plan['old_price'] - $plan['final_price']).' al mes' : null"
+                    :suffix="__(':currency al mes', ['currency' => Money::code()])"
+                    :saving="$plan['old_price'] ? __('Ahorras :price al mes', ['price' => Money::format($plan['old_price'] - $plan['final_price'])]) : null"
                     :summary="$plan['summary'] ?? ''"
                     :features="$featuresFor($plan)"
                     :featured="$featured"
                     :premium="$premium"
-                    :tag="$featured ? 'Recomendado' : ($premium ? 'Sin tope' : null)"
+                    :tag="$featured ? __('Recomendado') : ($premium ? __('Sin tope') : null)"
                     :url="$plan['checkout'] ?? $plan['whatsapp']"
                     :external="! $plan['checkout']"
-                    :cta="'Elegir '.$plan['name']"
+                    :cta="__('Elegir :name', ['name' => $plan['name']])"
                     :index="$index"
                     :reserve="true"
                     :cycles="$plan['cycles'] ?? null" />
@@ -100,10 +100,10 @@
             {{-- Con un número de planes que no llena la fila, la celda que sobra es para quien necesita algo distinto --}}
             @if(count($plans) % 3 !== 0)
                 <div class="site-plan site-plan--note" data-reveal style="--reveal-index: {{ count($plans) }}">
-                    <p class="site-plan__name">¿Necesitas algo distinto?</p>
-                    <p class="mt-4 max-w-[36ch] leading-relaxed text-site-muted">Cuéntanos qué organizas y vemos el plan que te conviene.</p>
+                    <p class="site-plan__name">{{ __('¿Necesitas algo distinto?') }}</p>
+                    <p class="mt-4 max-w-[36ch] leading-relaxed text-site-muted">{{ __('Cuéntanos qué organizas y vemos el plan que te conviene.') }}</p>
                     <a href="{{ $contactUrl }}" target="_blank" rel="noopener" class="site-link-arrow mt-6">
-                        Escríbenos
+                        {{ __('Escríbenos') }}
                         <x-phosphor-arrow-right aria-hidden="true" />
                     </a>
                 </div>
@@ -113,11 +113,11 @@
         {{-- Lo que da tranquilidad para suscribirse: lo publicado no se cae, y el cupo es por publicadas --}}
         <div class="mt-10 flex flex-col gap-x-10 gap-y-3 text-site-muted md:flex-row md:items-baseline md:justify-between" data-reveal>
             <p class="max-w-[62ch] leading-relaxed">
-                El cupo cuenta las invitaciones que publicas: los borradores no lo gastan. Y si dejas el plan, lo que ya publicaste sigue en línea.
+                {{ __('El cupo cuenta las invitaciones que publicas: los borradores no lo gastan. Y si dejas el plan, lo que ya publicaste sigue en línea.') }}
             </p>
             @if(count($plans) % 3 === 0)
                 <a href="{{ $contactUrl }}" target="_blank" rel="noopener" class="site-link-arrow shrink-0">
-                    ¿Necesitas algo distinto? Escríbenos
+                    {{ __('¿Necesitas algo distinto? Escríbenos') }}
                     <x-phosphor-arrow-right aria-hidden="true" />
                 </a>
             @endif
@@ -126,8 +126,8 @@
         {{-- La portada no repite el detalle: manda a la página «Únete», donde cada plan trae más --}}
         @if($diyMoreLink ?? false)
             <p class="mt-10" data-reveal>
-                <a href="{{ route('diy') }}#planes" class="site-link-arrow">
-                    Ver el detalle de cada plan
+                <a href="{{ lroute('diy') }}#planes" class="site-link-arrow">
+                    {{ __('Ver el detalle de cada plan') }}
                     <x-phosphor-arrow-right aria-hidden="true" />
                 </a>
             </p>

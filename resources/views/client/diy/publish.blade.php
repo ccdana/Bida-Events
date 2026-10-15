@@ -54,7 +54,7 @@
         @if($covered)
             {{-- Ya tiene el nivel que piden sus partes: solo hace falta volver a encenderla --}}
             <section class="site-enter admin-card p-6 lg:p-8" style="--enter-index: 1">
-                <p class="text-sm text-site-muted">Queda en línea hasta el {{ $paidUntil->locale('es')->translatedFormat('j \d\e F \d\e Y') }}.</p>
+                <p class="text-sm text-site-muted">Queda en línea hasta el {{ $paidUntil->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('j \d\e F \d\e Y')) }}.</p>
                 <form method="POST" action="{{ route('client.diy.publish.store', $invitation) }}" class="mt-5">
                     @csrf
                     <input type="hidden" name="mode" value="covered">
@@ -96,7 +96,7 @@
                                 @endforeach
                             </ul>
                         @endif
-                        <p class="mt-4 text-sm text-site-muted">En línea hasta el {{ $paidUntil->locale('es')->translatedFormat('j \d\e F \d\e Y') }}, sin la franja de invitación gratuita.</p>
+                        <p class="mt-4 text-sm text-site-muted">En línea hasta el {{ $paidUntil->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('j \d\e F \d\e Y')) }}, sin la franja de invitación gratuita.</p>
 
                         {{-- Pago único: el precio del nivel, la diferencia si ya tenía otro o el precio de su temporada --}}
                         <p class="mt-5 flex flex-wrap items-baseline gap-x-2">
@@ -175,7 +175,7 @@
                                 <span class="text-site-muted">Lo que armaste queda guardado por si después la subes de nivel.</span>
                             </p>
                         @endif
-                        <p class="mt-4 text-sm text-site-muted">Lleva la marca de Bida Events a la vista y queda en línea hasta el {{ $freeUntil->locale('es')->translatedFormat('j \d\e F \d\e Y') }}.</p>
+                        <p class="mt-4 text-sm text-site-muted">Lleva la marca de Bida Events a la vista y queda en línea hasta el {{ $freeUntil->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('j \d\e F \d\e Y')) }}.</p>
 
                         <form method="POST" action="{{ route('client.diy.publish.store', $invitation) }}" class="mt-auto pt-6">
                             @csrf
@@ -212,7 +212,7 @@
                     <p>
                         ¿Armas varias? Desde la {{ $planBridge['from'] }}.ª invitación del mes, el plan {{ $planBridge['plan'] }}
                         ({{ \App\Support\Money::format($planBridge['price']) }} al mes) te sale más barato que pagar cada una.
-                        <a href="{{ route('pricing') }}#planes" class="font-medium text-site-ink underline underline-offset-4">Ver los planes</a>
+                        <a href="{{ lroute('pricing') }}#planes" class="font-medium text-site-ink underline underline-offset-4">Ver los planes</a>
                     </p>
                 @endif
             </div>

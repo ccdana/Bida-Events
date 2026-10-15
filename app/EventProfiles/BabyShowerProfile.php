@@ -16,7 +16,7 @@ class BabyShowerProfile extends EventProfile
 
     public function label(): string
     {
-        return 'Baby shower';
+        return __('Baby shower');
     }
 
     public function modules(): array
@@ -37,9 +37,9 @@ class BabyShowerProfile extends EventProfile
     {
         return [
             'nombre' => [
-                'label' => 'Nombre del bebé',
-                'placeholder' => 'Ej. Valentina',
-                'help' => 'Si todavía no tiene nombre, escribe «Bebé en camino» o el nombre de la mamá.',
+                'label' => __('Nombre del bebé'),
+                'placeholder' => __('Ej. Valentina'),
+                'help' => __('Si todavía no tiene nombre, escribe «Bebé en camino» o el nombre de la mamá.'),
             ],
         ];
     }
@@ -48,9 +48,9 @@ class BabyShowerProfile extends EventProfile
     public function featuredGroups(): array
     {
         return [
-            'padrinos' => ['Anfitrionas', 'Anfitriona'],
-            'chambelanes' => ['Abuelos', 'Abuelo'],
-            'damitas' => ['Tías y amigas', 'Tía'],
+            'padrinos' => [__('Anfitrionas'), __('Anfitriona')],
+            'chambelanes' => [__('Abuelos'), __('Abuelo')],
+            'damitas' => [__('Tías y amigas'), __('Tía')],
         ];
     }
 
@@ -58,13 +58,13 @@ class BabyShowerProfile extends EventProfile
     public function required(): array
     {
         return [
-            'bienvenida' => ['nombre' => 'Falta el nombre del bebé'],
-            'ubicacion' => ['nombre_lugar' => 'Falta el lugar de la celebración'],
+            'bienvenida' => ['nombre' => __('Falta el nombre del bebé')],
+            'ubicacion' => ['nombre_lugar' => __('Falta el lugar de la celebración')],
         ];
     }
 
     public function sample(): array
     {
-        return ['name' => 'Valentina', 'subtitle' => 'Baby shower'];
+        return ['name' => __('Valentina'), 'subtitle' => __('Baby shower')];
     }
 }

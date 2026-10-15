@@ -31,7 +31,7 @@
                 <h1 class="text-3xl font-semibold tracking-tight md:text-4xl">Listo: tu plan {{ $planName }} está activo</h1>
                 <p class="mt-2 text-site-muted">
                     @if($user->subscription_renews_at)
-                        Puedes crear invitaciones hasta el {{ $user->subscription_renews_at->locale('es')->translatedFormat('j \d\e F \d\e Y') }}{{ $user->renewsAutomatically() ? ', y se renueva solo' : '' }}.
+                        Puedes crear invitaciones hasta el {{ $user->subscription_renews_at->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('j \d\e F \d\e Y')) }}{{ $user->renewsAutomatically() ? ', y se renueva solo' : '' }}.
                     @endif
                     @if($order->provider === 'lemonsqueezy')
                         Te enviamos el recibo a {{ $user->email }}.
@@ -62,7 +62,7 @@
                     <p class="text-site-muted">
                         Plan {{ $planName }} · {{ $order->months === 1 ? '1 mes' : "{$order->months} meses" }}
                         @if($order->expires_at)
-                            · vale hasta el {{ $order->expires_at->timezone(config('app.timezone'))->locale('es')->translatedFormat('j \d\e F') }}
+                            · vale hasta el {{ $order->expires_at->timezone(config('app.timezone'))->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('j \d\e F')) }}
                         @endif
                     </p>
                     <p class="text-sm text-site-muted">Código de tu compra: <span class="font-mono font-medium text-site-ink">{{ $order->reference_code }}</span></p>

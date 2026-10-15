@@ -13,8 +13,8 @@
 <section class="inv-section reveal zp-steps-section" id="itinerario">
     <div class="inv-wrap">
         @include('invitations.partials.section-header', [
-            'eyebrow' => $invCopy['itinerary_eyebrow'] ?? 'Los pasos de la noche',
-            'title' => $data['titulo'] ?? 'Itinerario',
+            'eyebrow' => $invCopy['itinerary_eyebrow'] ?? __('Los pasos de la noche'),
+            'title' => $data['titulo'] ?? __('Itinerario'),
         ])
 
         @if(count($eventos) > 0)
@@ -31,7 +31,7 @@
                         </span>
                         <div class="zp-step__body">
                             @if($highlight)
-                                <span class="zp-step__seal">{{ $invCopy['shoe_moment'] ?? 'El cambio de zapatos' }}</span>
+                                <span class="zp-step__seal">{{ $invCopy['shoe_moment'] ?? __('El cambio de zapatos') }}</span>
                             @endif
                             <time class="zp-step__time">{{ $evento['hora'] ?? '' }}</time>
                             <h3 class="zp-step__title">{{ $evento['titulo'] ?? '' }}</h3>
@@ -43,7 +43,7 @@
                 @endforeach
             </ol>
         @else
-            <p class="inv-empty">{{ $invCopy['itinerary_empty'] ?? 'Muy pronto compartiré los pasos de la noche.' }}</p>
+            <p class="inv-empty">{{ $invCopy['itinerary_empty'] ?? __('Muy pronto compartiré los pasos de la noche.') }}</p>
         @endif
     </div>
 </section>

@@ -38,12 +38,12 @@ final class DiyPlans
                 'checkout' => $checkout(1),
                 'key' => $key,
                 'templates_count' => $templates->filter(fn (array $template) => in_array($template['collection'] ?? 'clasica', $plan['collections'] ?? [], true))->count(),
-                'whatsapp' => LeadSource::whatsappUrl($request, "Hola {brand}, quiero el plan {$plan['name']} de Únete (".Money::format($plan['final_price']).' al mes).', $leadCode),
+                'whatsapp' => LeadSource::whatsappUrl($request, __('Hola {brand}, quiero el plan :name de Únete (:price al mes).', ['name' => $plan['name'], 'price' => Money::format($plan['final_price'])]), $leadCode),
                 // Por ciclo: lo que queda por mes, el precio que se tacha, lo que se paga y se ahorra, y a dónde lleva
                 'cycles' => collect($prepay)->map(function (int $discount, int $months) use ($plan, $key, $checkout, $request, $leadCode) {
                     $total = (float) SubscriptionPrice::amount($key, $months, 'USD');
                     $full = $plan['final_price'] * $months;
-                    $period = $months === 12 ? 'al año' : "cada {$months} meses";
+                    $period = $months === 12 ? __('al año') : __('cada :months meses', ['months' => $months]);
 
                     return [
                         'price' => Money::number(round($total / $months, 2)),
@@ -51,11 +51,13 @@ final class DiyPlans
                             ? Money::format($plan['final_price'])
                             : ($plan['old_price'] ? Money::format($plan['old_price']) : null),
                         'saving' => $months === 1
-                            ? ($plan['old_price'] ? 'Ahorras '.Money::format($plan['old_price'] - $plan['final_price']).' al mes' : null)
-                            : Money::format($total).' '.$period.($full > $total ? ' · ahorras '.Money::format($full - $total) : ''),
+                            ? ($plan['old_price'] ? __('Ahorras :price al mes', ['price' => Money::format($plan['old_price'] - $plan['final_price'])]) : null)
+                            : Money::format($total).' '.$period.($full > $total ? ' · '.__('ahorras :price', ['price' => Money::format($full - $total)]) : ''),
                         'url' => $checkout($months) ?? LeadSource::whatsappUrl(
                             $request,
-                            "Hola {brand}, quiero el plan {$plan['name']} de Únete".($months === 1 ? '' : ", pagando {$months} meses").'.',
+                            $months === 1
+                                ? __('Hola {brand}, quiero el plan :name de Únete.', ['name' => $plan['name']])
+                                : __('Hola {brand}, quiero el plan :name de Únete, pagando :months meses.', ['name' => $plan['name'], 'months' => $months]),
                             $leadCode,
                         ),
                     ];
@@ -70,11 +72,11 @@ final class DiyPlans
             // El selector de la página: meses => descuento en % (solo si hay más de un ciclo)
             'cycles' => $prepay,
             'collections' => [
-                'lienzo' => ['label' => 'Plantilla en blanco', 'templates' => $templates->where('collection', 'lienzo')->pluck('label')->all()],
-                'clasica' => ['label' => 'Plantillas clásicas', 'templates' => $templates->where('collection', 'clasica')->pluck('label')->all()],
-                'temporada' => ['label' => 'Plantillas de temporada', 'templates' => $templates->where('collection', 'temporada')->pluck('label')->all()],
+                'lienzo' => ['label' => __('Plantilla en blanco'), 'templates' => $templates->where('collection', 'lienzo')->pluck('label')->all()],
+                'clasica' => ['label' => __('Plantillas clásicas'), 'templates' => $templates->where('collection', 'clasica')->pluck('label')->all()],
+                'temporada' => ['label' => __('Plantillas de temporada'), 'templates' => $templates->where('collection', 'temporada')->pluck('label')->all()],
                 // Las que se suman durante el año; mientras no haya, la página dice que llegan
-                'nueva' => ['label' => 'Plantillas nuevas de cada evento', 'templates' => $templates->where('collection', 'nueva')->pluck('label')->all()],
+                'nueva' => ['label' => __('Plantillas nuevas de cada evento'), 'templates' => $templates->where('collection', 'nueva')->pluck('label')->all()],
             ],
         ];
     }

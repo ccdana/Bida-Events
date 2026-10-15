@@ -7,10 +7,10 @@
     tocarlo, se mece de nuevo: data-poke). Estilos en css/invitation/tendencias/joyero.css.
 --}}
 @php
-    $heroEyebrow = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? 'Mis XV años');
+    $heroEyebrow = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? __('Mis XV años'));
     $heroMessage = $page->welcome['mensaje'] ?? '';
     $heroDay = ($page->welcome['fecha_texto'] ?? null)
-        ?: \Illuminate\Support\Str::ucfirst($page->eventDate->locale('es')->translatedFormat('l j \d\e F'));
+        ?: \Illuminate\Support\Str::ucfirst($page->eventDate->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('l j \d\e F')));
 @endphp
 
 <header id="inicio" class="inv-hero jo-hero">
@@ -53,19 +53,19 @@
 
     {{-- La tarjeta de la joyería --}}
     <div class="jo-card">
-        <p class="jo-card__title">{{ $invCopy['jewel_card'] ?? 'Mis XV años' }}</p>
+        <p class="jo-card__title">{{ $invCopy['jewel_card'] ?? __('Mis XV años') }}</p>
         <dl class="jo-card__fields">
             <div>
-                <dt>Día</dt>
+                <dt>{{ __('Día') }}</dt>
                 <dd>{{ $heroDay }}</dd>
             </div>
             <div>
-                <dt>Hora</dt>
+                <dt>{{ __('Hora') }}</dt>
                 <dd>{{ $page->eventDate->format('H:i') }}</dd>
             </div>
             @if($page->placeName)
                 <div class="jo-card__wide">
-                    <dt>Lugar</dt>
+                    <dt>{{ __('Lugar') }}</dt>
                     <dd>{{ $page->placeName }}</dd>
                 </div>
             @endif
@@ -77,7 +77,7 @@
     @endif
 
     <a href="#contenido" class="inv-hero__scroll jo-hero__scroll">
-        {{ $invCopy['scroll_hint'] ?? 'Desliza' }}
+        {{ $invCopy['scroll_hint'] ?? __('Desliza') }}
         <span class="inv-hero__scroll-line" aria-hidden="true"></span>
     </a>
 </header>

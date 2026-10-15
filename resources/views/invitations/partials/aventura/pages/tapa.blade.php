@@ -1,7 +1,7 @@
 {{-- Tapa de cuero gastado: título pintado a mano, la foto de los dos sujeta con cinta y un girasol. --}}
 @php
-    $coverTitle = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? 'Nuestro libro de aventuras');
-    $coverAlt = ($page->welcome['imagen_hero_alt'] ?? null) ?: ($cardTo !== '' ? 'Foto para '.$cardTo : '');
+    $coverTitle = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? __('Nuestro libro de aventuras'));
+    $coverAlt = ($page->welcome['imagen_hero_alt'] ?? null) ?: ($cardTo !== '' ? __('Foto para :cardTo', ['cardTo' => $cardTo]) : '');
 @endphp
 <article class="nb-page nb-cover" data-nb-page data-density="hard" id="inicio">
     <div class="nb-cover__inner">
@@ -19,9 +19,9 @@
         @endif
 
         <p class="nb-cover__plate">
-            <span class="nb-cover__to">{{ $cardTo !== '' ? 'Para '.$cardTo : $page->displayName }}</span>
+            <span class="nb-cover__to">{{ $cardTo !== '' ? __('Para :cardTo', ['cardTo' => $cardTo]) : $page->displayName }}</span>
             @if($cardFrom !== '')
-                <span class="nb-cover__from">de {{ $cardFrom }}</span>
+                <span class="nb-cover__from">{{ __('de :cardFrom', ['cardFrom' => $cardFrom]) }}</span>
             @endif
         </p>
 
@@ -30,7 +30,7 @@
 
         {{-- La tapa se abre arrastrándola hacia la izquierda, como un cuaderno de verdad --}}
         <p class="nb-cover__open" data-needs-js>
-            <span>{{ $invCopy['intro_hint'] ?? 'Desliza la tapa para abrir el libro' }}</span>
+            <span>{{ $invCopy['intro_hint'] ?? __('Desliza la tapa para abrir el libro') }}</span>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M19 12H5m6-6-6 6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </p>
     </div>

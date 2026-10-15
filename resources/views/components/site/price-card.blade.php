@@ -46,11 +46,11 @@
     <p class="site-plan__amount">
         @if($cycles)
             <del @class(['site-plan__old', 'invisible' => ! $old]) :class="{ invisible: ! cycles[cycle].old }" :aria-hidden="(! cycles[cycle].old).toString()">
-                <span class="sr-only">Antes </span><span x-text="cycles[cycle].old || String.fromCharCode(160)">{!! $old ? e($old) : '&nbsp;' !!}</span>
+                <span class="sr-only">{{ __('Antes') }} </span><span x-text="cycles[cycle].old || String.fromCharCode(160)">{!! $old ? e($old) : '&nbsp;' !!}</span>
             </del>
         @elseif($old)
-            <del class="site-plan__old"><span class="sr-only">Antes </span>{{ $old }}</del>
-            <span class="sr-only">, ahora</span>
+            <del class="site-plan__old"><span class="sr-only">{{ __('Antes') }} </span>{{ $old }}</del>
+            <span class="sr-only">{{ __(', ahora') }}</span>
         @elseif($reserve)
             <span class="site-plan__old invisible" aria-hidden="true">&nbsp;</span>
         @endif

@@ -16,6 +16,7 @@ use App\Support\EditableTexts;
 use App\Support\ImageFrames;
 use App\Support\InvitationDefaults;
 use App\Support\InvitationTemplates;
+use App\Support\Localization;
 use App\Support\Money;
 use App\Support\Packages;
 use App\Support\ResellerSubscription;
@@ -158,6 +159,8 @@ class InvitationEditorViewData
                     ?? $templates->keys()->first(fn (string $key) => TemplateAvailability::templateReason($key) === null)
                     ?? array_key_first($templates->all()),
                 'event_type_id' => $invitation?->event_type_id ? (string) $invitation->event_type_id : (string) ($eventTypes->first()?->id ?? ''),
+                // Idioma de los textos y botones que trae la invitación (config/localization.php)
+                'locale' => Localization::resolve($invitation?->locale),
                 'user_id' => $invitation?->user_id ? (string) $invitation->user_id : '',
                 'event_date' => $defaultEventDate,
                 'expires_at' => $defaultExpires,
@@ -197,14 +200,21 @@ class InvitationEditorViewData
             // Textos editables de cada plantilla, agrupados por módulo, con el valor que trae la plantilla
             // Contenido de ejemplo de cada evento: al crear la invitación y al encender una parte, aparece
             // con él para tocarlo y cambiarlo; antes de publicar se avisa lo que sigue sin cambiar
-            'samples' => SampleContent::forEditor(),
+            'localeOptions' => collect(Localization::names())
+                ->map(fn (string $name, string $code) => ['value' => $code, 'label' => $name])
+                ->values(),
+            // Los mismos ejemplos en cada idioma: al encender una parte entra con el de la invitación
+            'samples' => collect(Localization::locales())
+                ->mapWithKeys(fn (string $code) => [$code => Localization::using($code, fn () => SampleContent::forEditor())])
+                ->all(),
             'samplePlaceholders' => SampleContent::placeholders(),
             // Forma vacía de cada módulo: una parte «vacía» recibe el ejemplo al encenderla
             'moduleDefaults' => InvitationDefaults::emptyModules(),
             // Una invitación nueva empieza por el asistente (evento, diseño y datos); si volvió con
             // errores del guardado, directo al editor para corregirlos
             'wizard' => $isCreate && ! session()->hasOldInput(),
-            'editableTexts' => $templates->keys()->mapWithKeys(fn ($value) => [$value => EditableTexts::forTemplate($value)]),
+            // Con el valor por defecto en el idioma de la invitación (el que se ve si el campo queda vacío)
+            'editableTexts' => Localization::using(Localization::resolve($invitation?->locale), fn () => $templates->keys()->mapWithKeys(fn ($value) => [$value => EditableTexts::forTemplate($value)])),
             'cloudinaryConfigured' => $this->mediaUpload->isCloudinaryConfigured(),
             'moduleCodes' => InvitationDefaults::moduleCodes(),
             'moduleTabMap' => InvitationDefaults::moduleTabMap(),

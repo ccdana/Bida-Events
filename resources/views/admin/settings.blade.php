@@ -309,7 +309,7 @@
                                 la página Únete; el cupo es cuántas invitaciones (y accesos de cliente) puede crear por mes.
                             </p>
                         </div>
-                        <a href="{{ route('diy') }}" target="_blank" rel="noopener" class="admin-link-button">
+                        <a href="{{ lroute('diy') }}" target="_blank" rel="noopener" class="admin-link-button">
                             Ver la página
                             <x-phosphor-arrow-square-out aria-hidden="true" />
                         </a>

@@ -23,8 +23,8 @@ class LoginController extends Controller
             'username' => ['required', 'string', 'max:255'],
             'password' => ['required', 'string'],
         ], [
-            'username.required' => 'Escribe tu usuario o tu correo.',
-            'password.required' => 'Escribe tu contraseña.',
+            'username.required' => __('Escribe tu usuario o tu correo.'),
+            'password.required' => __('Escribe tu contraseña.'),
         ]);
 
         // Un mismo campo para el usuario que da el equipo y para el correo de las cuentas del sitio.
@@ -42,7 +42,7 @@ class LoginController extends Controller
         }
 
         return back()->withErrors([
-            'username' => 'El usuario, el correo o la contraseña no son correctos.',
+            'username' => __('El usuario, el correo o la contraseña no son correctos.'),
         ])->onlyInput('username');
     }
 
@@ -52,6 +52,6 @@ class LoginController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('login');
+        return redirect()->to(lroute('login'));
     }
 }

@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Support\Localization;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -17,7 +19,7 @@ use Illuminate\Support\Str;
  * desde el sitio entran con el correo (verificado) o con Google. Solo la compra exige el correo
  * verificado (middleware «verified»); el resto del panel no lo pide.
  */
-class User extends Authenticatable implements MustVerifyEmail
+class User extends Authenticatable implements HasLocalePreference, MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
@@ -31,6 +33,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'name',
         'username',
         'email',
+        // Idioma en que abrió la cuenta: el de sus correos (HasLocalePreference)
+        'locale',
         'password',
         'google_id',
         'avatar_url',
@@ -116,6 +120,12 @@ class User extends Authenticatable implements MustVerifyEmail
     public function paymentOrders(): HasMany
     {
         return $this->hasMany(PaymentOrder::class);
+    }
+
+    /** Idioma de los correos y avisos de la cuenta: el de la página donde la abrió. */
+    public function preferredLocale(): string
+    {
+        return Localization::resolve($this->locale);
     }
 
     public function isAdmin(): bool

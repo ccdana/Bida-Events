@@ -9,8 +9,8 @@
         : ['nombre' => trim((string) $persona), 'detalle' => null];
     $padrinos = array_values(array_filter($data['padrinos'] ?? [], fn ($padrino) => !empty($padrino['nombres'] ?? null)));
     $court = array_filter([
-        ($invCopy['court_women'] ?? 'Damas de honor') => array_values(array_filter(array_map($normalizePerson, $data['damitas'] ?? []), fn ($person) => $person['nombre'] !== '')),
-        ($invCopy['court_men'] ?? 'Caballeros de honor') => array_values(array_filter(array_map($normalizePerson, $data['chambelanes'] ?? []), fn ($person) => $person['nombre'] !== '')),
+        ($invCopy['court_women'] ?? __('Damas de honor')) => array_values(array_filter(array_map($normalizePerson, $data['damitas'] ?? []), fn ($person) => $person['nombre'] !== '')),
+        ($invCopy['court_men'] ?? __('Caballeros de honor')) => array_values(array_filter(array_map($normalizePerson, $data['chambelanes'] ?? []), fn ($person) => $person['nombre'] !== '')),
     ]);
     $initialOf = function (string $names): string {
         $words = array_values(array_filter(preg_split('/\s+/u', trim($names)) ?: [], fn ($word) => ! preg_match('/^(sr|sra|srta|dr|dra|don|doña|lic|ing)\.?$/iu', $word)));
@@ -22,8 +22,8 @@
 <section class="inv-section reveal rl-gears-section" id="destacados">
     <div class="inv-wrap">
         @include('invitations.partials.section-header', [
-            'eyebrow' => $invCopy['court_eyebrow'] ?? 'El mecanismo',
-            'title' => $invCopy['court_title'] ?? 'Quienes hacen que todo marche',
+            'eyebrow' => $invCopy['court_eyebrow'] ?? __('El mecanismo'),
+            'title' => $invCopy['court_title'] ?? __('Quienes hacen que todo marche'),
             'intro' => $invCopy['court_intro'] ?? null,
         ])
 
@@ -68,7 +68,7 @@
                 </div>
             @endif
         @else
-            <p class="inv-empty">{{ $invCopy['court_empty'] ?? 'Pronto presentaremos a quienes nos acompañan.' }}</p>
+            <p class="inv-empty">{{ $invCopy['court_empty'] ?? __('Pronto presentaremos a quienes nos acompañan.') }}</p>
         @endif
     </div>
 </section>

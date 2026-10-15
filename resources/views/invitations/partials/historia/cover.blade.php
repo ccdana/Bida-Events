@@ -9,26 +9,26 @@
     :class="{ 'is-touched': stage >= 1, 'is-gone': stage >= 2 }"
     role="dialog"
     aria-modal="true"
-    aria-label="{{ $cardTo !== '' ? 'Una historia para '.$cardTo : 'Una historia para ti' }}">
+    aria-label="{{ $cardTo !== '' ? __('Una historia para :cardTo', ['cardTo' => $cardTo]) : __('Una historia para ti') }}">
     <div class="story-cover__inner">
         <p class="story-cover__to">
             @if($cardTo !== '')
-                Una historia para {{ $cardTo }}
+                {{ __('Una historia para :cardTo', ['cardTo' => $cardTo]) }}
             @else
-                Una historia para ti
+                {{ __('Una historia para ti') }}
             @endif
         </p>
         <p class="story-cover__names">{{ $coupleLabel }}</p>
 
         <button type="button" class="story-cover__pond" data-cover-trigger @click="touch($event)"
-            aria-label="{{ $invCopy['cover_hint'] ?? 'Toca el agua para empezar' }}">
+            aria-label="{{ $invCopy['cover_hint'] ?? __('Toca el agua para empezar') }}">
             <span class="story-cover__moon" aria-hidden="true"></span>
             <span class="story-cover__ring" aria-hidden="true"></span>
             <span class="story-cover__ring" aria-hidden="true"></span>
             <span class="story-cover__ring" aria-hidden="true"></span>
         </button>
 
-        <p class="story-cover__hint">{{ $invCopy['cover_hint'] ?? 'Toca el agua para empezar' }}</p>
-        <button type="button" class="story-cover__skip" @click.stop="open()">{{ $invCopy['cover_skip'] ?? 'Entrar sin esperar' }}</button>
+        <p class="story-cover__hint">{{ $invCopy['cover_hint'] ?? __('Toca el agua para empezar') }}</p>
+        <button type="button" class="story-cover__skip" @click.stop="open()">{{ $invCopy['cover_skip'] ?? __('Entrar sin esperar') }}</button>
     </div>
 </div>

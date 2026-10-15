@@ -10,16 +10,16 @@
         : ['nombre' => trim((string) $persona), 'detalle' => null];
     $padrinos = array_values(array_filter($data['padrinos'] ?? [], fn ($padrino) => !empty($padrino['nombres'] ?? null)));
     $groups = array_filter([
-        ($invCopy['court_men'] ?? 'Familia') => array_values(array_filter(array_map($normalizePerson, $data['chambelanes'] ?? []), fn ($person) => $person['nombre'] !== '')),
-        ($invCopy['court_women'] ?? 'Compañeros') => array_values(array_filter(array_map($normalizePerson, $data['damitas'] ?? []), fn ($person) => $person['nombre'] !== '')),
+        ($invCopy['court_men'] ?? __('Familia')) => array_values(array_filter(array_map($normalizePerson, $data['chambelanes'] ?? []), fn ($person) => $person['nombre'] !== '')),
+        ($invCopy['court_women'] ?? __('Compañeros')) => array_values(array_filter(array_map($normalizePerson, $data['damitas'] ?? []), fn ($person) => $person['nombre'] !== '')),
     ]);
 @endphp
 
 <section class="inv-section reveal rv-credits-section" id="destacados">
     <div class="inv-wrap">
         @include('invitations.partials.section-header', [
-            'eyebrow' => $invCopy['court_eyebrow'] ?? 'Créditos de esta edición',
-            'title' => $invCopy['court_title'] ?? 'Gracias a ustedes',
+            'eyebrow' => $invCopy['court_eyebrow'] ?? __('Créditos de esta edición'),
+            'title' => $invCopy['court_title'] ?? __('Gracias a ustedes'),
             'intro' => $invCopy['court_intro'] ?? null,
         ])
 
@@ -29,7 +29,7 @@
                     <dl class="rv-credits__list">
                         @foreach($padrinos as $padrino)
                             <div class="rv-credit">
-                                <dt>{{ ($padrino['rol'] ?? null) ?: ($invCopy['court_sponsors_tab'] ?? 'Padrinos') }}</dt>
+                                <dt>{{ ($padrino['rol'] ?? null) ?: ($invCopy['court_sponsors_tab'] ?? __('Padrinos')) }}</dt>
                                 <dd>
                                     {{ $padrino['nombres'] }}
                                     @if(!empty($padrino['mensaje']))
@@ -53,7 +53,7 @@
                 @endforeach
             </div>
         @else
-            <p class="inv-empty">{{ $invCopy['court_empty'] ?? 'Pronto presentaré a quienes me acompañaron.' }}</p>
+            <p class="inv-empty">{{ $invCopy['court_empty'] ?? __('Pronto presentaré a quienes me acompañaron.') }}</p>
         @endif
     </div>
 </section>

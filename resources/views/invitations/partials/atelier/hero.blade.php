@@ -8,15 +8,15 @@
     (data-parallax). Estilos en themes/atelier.css.
 --}}
 @php
-    $heroEyebrow = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? 'Mis XV años');
+    $heroEyebrow = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? __('Mis XV años'));
     $heroMessage = $page->welcome['mensaje'] ?? '';
     $heroDay = ($page->welcome['fecha_texto'] ?? null)
-        ?: \Illuminate\Support\Str::ucfirst($page->eventDate->locale('es')->translatedFormat('l j \d\e F'));
+        ?: \Illuminate\Support\Str::ucfirst($page->eventDate->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('l j \d\e F')));
     $firstName = \Illuminate\Support\Str::of($page->displayName)->explode(' ')->first();
     // El número de la ficha sale de la fecha: siempre el mismo para esta invitación
     $sheetCode = $page->eventDate->format('y').'·'.$page->eventDate->format('md');
     // La palabra antes del número de cada pieza (CSS counter)
-    $pieceLabel = trim(str_replace(['<', '>', '"', '\\'], '', (string) ($invCopy['atelier_piece'] ?? 'Pieza')));
+    $pieceLabel = trim(str_replace(['<', '>', '"', '\\'], '', (string) ($invCopy['atelier_piece'] ?? __('Pieza'))));
 @endphp
 
 <style>
@@ -41,30 +41,30 @@
 
         {{-- La etiqueta tejida: su nombre es la casa --}}
         <div class="at-label" data-parallax="0.04">
-            <span class="at-label__house">{{ $invCopy['atelier_house'] ?? 'Maison' }}</span>
+            <span class="at-label__house">{{ $invCopy['atelier_house'] ?? __('Maison') }}</span>
             <h1 class="at-label__name">{{ $page->displayName }}</h1>
-            <span class="at-label__line">{{ $invCopy['atelier_collection'] ?? 'Colección XV' }} · {{ $page->eventDate->format('Y') }}</span>
+            <span class="at-label__line">{{ $invCopy['atelier_collection'] ?? __('Colección XV') }} · {{ $page->eventDate->format('Y') }}</span>
         </div>
     </div>
 
     {{-- La ficha del desfile --}}
     <div class="at-sheet">
         <p class="at-sheet__title">
-            <span>{{ $invCopy['atelier_sheet'] ?? 'Ficha del desfile' }}</span>
-            <span class="at-sheet__code">N.º {{ $sheetCode }}</span>
+            <span>{{ $invCopy['atelier_sheet'] ?? __('Ficha del desfile') }}</span>
+            <span class="at-sheet__code">{{ __('N.º :sheetCode', ['sheetCode' => $sheetCode]) }}</span>
         </p>
         <dl class="at-sheet__fields">
             <div class="at-sheet__field">
-                <dt>{{ $invCopy['atelier_date'] ?? 'Fecha' }}</dt>
+                <dt>{{ $invCopy['atelier_date'] ?? __('Fecha') }}</dt>
                 <dd>{{ $heroDay }}</dd>
             </div>
             <div class="at-sheet__field">
-                <dt>{{ $invCopy['atelier_time'] ?? 'Hora' }}</dt>
+                <dt>{{ $invCopy['atelier_time'] ?? __('Hora') }}</dt>
                 <dd>{{ $page->eventDate->format('H:i') }}</dd>
             </div>
             @if($page->placeName)
                 <div class="at-sheet__field at-sheet__field--wide">
-                    <dt>{{ $invCopy['atelier_place'] ?? 'Pasarela' }}</dt>
+                    <dt>{{ $invCopy['atelier_place'] ?? __('Pasarela') }}</dt>
                     <dd>{{ $page->placeName }}</dd>
                 </div>
             @endif
@@ -79,7 +79,7 @@
     <span class="at-tape at-tape--hero" aria-hidden="true"></span>
 
     <a href="#contenido" class="inv-hero__scroll at-hero__scroll">
-        {{ $invCopy['scroll_hint'] ?? 'Desliza' }}
+        {{ $invCopy['scroll_hint'] ?? __('Desliza') }}
         <span class="inv-hero__scroll-line" aria-hidden="true"></span>
     </a>
 </header>

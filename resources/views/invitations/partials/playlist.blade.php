@@ -3,32 +3,32 @@
         @include('invitations.partials.section-header', [
             'compact' => true,
             'lottie' => 'music',
-            'eyebrow' => $invCopy['playlist_eyebrow'] ?? 'Colabora con la fiesta',
-            'title' => $playlist['titulo'] ?? 'Playlist colaborativa',
-            'intro' => $playlist['descripcion'] ?? 'Sugiere la canción que no puede faltar en la pista.',
+            'eyebrow' => $invCopy['playlist_eyebrow'] ?? __('Colabora con la fiesta'),
+            'title' => $playlist['titulo'] ?? __('Playlist colaborativa'),
+            'intro' => $playlist['descripcion'] ?? __('Sugiere la canción que no puede faltar en la pista.'),
         ])
 
         <form class="inv-playlist__form" data-needs-js @submit.prevent="submit">
-            <label class="inv-label" for="playlist-song">{{ $invCopy['playlist_label'] ?? 'Tu canción' }}</label>
+            <label class="inv-label" for="playlist-song">{{ $invCopy['playlist_label'] ?? __('Tu canción') }}</label>
             <div class="inv-playlist__row">
                 <input id="playlist-song" type="text" class="inv-input" x-model="song" maxlength="200" autocomplete="off"
-                    placeholder="{{ $playlist['placeholder'] ?? 'Ej. Vivir mi vida – Marc Anthony' }}">
+                    placeholder="{{ $playlist['placeholder'] ?? __('Ej. Vivir mi vida – Marc Anthony') }}">
                 <button type="submit" class="inv-btn" :disabled="submitting || !song.trim()">
-                    <span x-text="submitting ? 'Enviando…' : @js($invCopy['playlist_button'] ?? 'Sugerir')">{{ $invCopy['playlist_button'] ?? 'Sugerir' }}</span>
+                    <span x-text="submitting ? 'Enviando…' : @js($invCopy['playlist_button'] ?? __('Sugerir'))">{{ $invCopy['playlist_button'] ?? __('Sugerir') }}</span>
                 </button>
             </div>
-            <p class="inv-help inv-playlist__help">{{ $invCopy['playlist_help'] ?? 'Escribe el nombre y el artista, o pega un enlace de YouTube.' }}</p>
+            <p class="inv-help inv-playlist__help">{{ $invCopy['playlist_help'] ?? __('Escribe el nombre y el artista, o pega un enlace de YouTube.') }}</p>
         </form>
 
         <noscript>
-            <p class="inv-noscript">Para sugerir una canción necesitas activar JavaScript en tu navegador.</p>
+            <p class="inv-noscript">{{ __('Para sugerir una canción necesitas activar JavaScript en tu navegador.') }}</p>
         </noscript>
 
         <p class="inv-status" :class="{ 'is-error': error }" x-text="message" aria-live="polite"></p>
 
         <div class="inv-playlist__head">
-            <span class="inv-label" x-text="songs.length === 1 ? '1 canción sugerida' : songs.length + ' canciones sugeridas'">{{ $invCopy['playlist_list_title'] ?? 'Canciones sugeridas' }}</span>
-            <button type="button" class="inv-link" @click="refresh()">Actualizar</button>
+            <span class="inv-label" x-text="songs.length === 1 ? @js(__('1 canción sugerida')) : songs.length + ' canciones sugeridas'">{{ $invCopy['playlist_list_title'] ?? __('Canciones sugeridas') }}</span>
+            <button type="button" class="inv-link" @click="refresh()">{{ __('Actualizar') }}</button>
         </div>
 
         <ol class="inv-list" x-show="songs.length" x-cloak>
@@ -42,7 +42,7 @@
                         </div>
                         <template x-if="item.is_youtube">
                             <button type="button" class="inv-playlist__play" @click="togglePlay(item)"
-                                :aria-label="playingId === item.id ? 'Cerrar reproductor' : 'Escuchar en YouTube'">
+                                :aria-label="playingId === item.id ? @js(__('Cerrar reproductor')) : @js(__('Escuchar en YouTube'))">
                                 <span x-show="playingId !== item.id">@include('invitations.partials.icon', ['name' => 'play', 'animated' => false])</span>
                                 <span x-show="playingId === item.id">@include('invitations.partials.icon', ['name' => 'close', 'animated' => false])</span>
                             </button>
@@ -52,26 +52,26 @@
                         <div class="inv-playlist__embed">
                             <iframe :src="'https://www.youtube.com/embed/' + item.youtube_id + '?autoplay=1&rel=0'"
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                allowfullscreen title="Reproductor de YouTube"></iframe>
+                                allowfullscreen title="{{ __('Reproductor de YouTube') }}"></iframe>
                         </div>
                     </template>
                 </li>
             </template>
         </ol>
 
-        <nav class="inv-pager" x-show="pageCount > 1" x-cloak aria-label="Páginas de canciones">
-            <button type="button" class="inv-gallery__arrow" @click="goTo(page - 1)" :disabled="page === 0" aria-label="Canciones anteriores">
+        <nav class="inv-pager" x-show="pageCount > 1" x-cloak aria-label="{{ __('Páginas de canciones') }}">
+            <button type="button" class="inv-gallery__arrow" @click="goTo(page - 1)" :disabled="page === 0" aria-label="{{ __('Canciones anteriores') }}">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </button>
             <p class="inv-pager__count" aria-live="polite">
-                <span x-text="page + 1">1</span> de <span x-text="pageCount">1</span>
+                <span x-text="page + 1">1</span> {{ __('de') }} <span x-text="pageCount">1</span>
             </p>
-            <button type="button" class="inv-gallery__arrow" @click="goTo(page + 1)" :disabled="page >= pageCount - 1" aria-label="Más canciones">
+            <button type="button" class="inv-gallery__arrow" @click="goTo(page + 1)" :disabled="page >= pageCount - 1" aria-label="{{ __('Más canciones') }}">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </button>
         </nav>
 
-        <p class="inv-empty" x-show="!songs.length" x-cloak>{{ $invCopy['playlist_empty'] ?? 'Sé la primera persona en sugerir una canción.' }}</p>
+        <p class="inv-empty" x-show="!songs.length" x-cloak>{{ $invCopy['playlist_empty'] ?? __('Sé la primera persona en sugerir una canción.') }}</p>
     </div>
 </section>
 <script>
@@ -117,7 +117,7 @@ function playlistApp(slug, guestToken, initialSongs, isPreview) {
                 }
                 if (!res.ok && data.message) this.notify(data.message, true);
             } catch (e) {
-                this.notify('No se pudo cargar la playlist.', true);
+                this.notify(@js(__('No se pudo cargar la playlist.')), true);
             }
         },
         goTo(page) {
@@ -129,7 +129,7 @@ function playlistApp(slug, guestToken, initialSongs, isPreview) {
         },
         async submit() {
             if (isPreview) {
-                this.notify('La playlist no está disponible en la vista previa.', true);
+                this.notify(@js(__('La playlist no está disponible en la vista previa.')), true);
                 return;
             }
             if (!this.song.trim() || this.submitting) return;
@@ -146,7 +146,7 @@ function playlistApp(slug, guestToken, initialSongs, isPreview) {
                     this.songs = [item, ...this.songs];
                     this.song = '';
                     this.page = 0;
-                    this.notify('¡Listo! Tu canción ya está en la lista. Es una muestra: no se guarda.');
+                    this.notify(@js(__('¡Listo! Tu canción ya está en la lista. Es una muestra: no se guarda.')));
                     return;
                 }
 
@@ -163,13 +163,13 @@ function playlistApp(slug, guestToken, initialSongs, isPreview) {
                 if (data.success) {
                     this.song = '';
                     this.page = 0;
-                    this.notify(data.message || '¡Gracias! Tu canción ya está en la lista.');
+                    this.notify(data.message || @js(__('¡Gracias! Tu canción ya está en la lista.')));
                     await this.refresh();
                 } else {
-                    this.notify(data.message || 'No se pudo enviar la canción.', true);
+                    this.notify(data.message || @js(__('No se pudo enviar la canción.')), true);
                 }
             } catch (e) {
-                this.notify('Revisa tu conexión e intenta de nuevo.', true);
+                this.notify(@js(__('Revisa tu conexión e intenta de nuevo.')), true);
             } finally {
                 this.submitting = false;
             }

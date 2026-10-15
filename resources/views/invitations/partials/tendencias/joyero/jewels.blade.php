@@ -10,8 +10,8 @@
         : ['nombre' => trim((string) $persona), 'detalle' => null];
     $padrinos = array_values(array_filter($data['padrinos'] ?? [], fn ($padrino) => !empty($padrino['nombres'] ?? null)));
     $court = array_filter([
-        ($invCopy['court_women'] ?? 'Damas') => array_values(array_filter(array_map($normalizePerson, $data['damitas'] ?? []), fn ($person) => $person['nombre'] !== '')),
-        ($invCopy['court_men'] ?? 'Chambelanes') => array_values(array_filter(array_map($normalizePerson, $data['chambelanes'] ?? []), fn ($person) => $person['nombre'] !== '')),
+        ($invCopy['court_women'] ?? __('Damas')) => array_values(array_filter(array_map($normalizePerson, $data['damitas'] ?? []), fn ($person) => $person['nombre'] !== '')),
+        ($invCopy['court_men'] ?? __('Chambelanes')) => array_values(array_filter(array_map($normalizePerson, $data['chambelanes'] ?? []), fn ($person) => $person['nombre'] !== '')),
     ]);
     // La joya de cada padrino, por su papel en la ceremonia
     $jewelFor = function (?string $role): string {
@@ -32,8 +32,8 @@
 <section class="inv-section reveal jo-jewels-section" id="destacados">
     <div class="inv-wrap">
         @include('invitations.partials.section-header', [
-            'eyebrow' => $invCopy['court_eyebrow'] ?? 'Las joyas de la ceremonia',
-            'title' => $invCopy['court_title'] ?? 'Mis padrinos y mi corte',
+            'eyebrow' => $invCopy['court_eyebrow'] ?? __('Las joyas de la ceremonia'),
+            'title' => $invCopy['court_title'] ?? __('Mis padrinos y mi corte'),
             'intro' => $invCopy['court_intro'] ?? null,
         ])
 
@@ -109,7 +109,7 @@
                 </div>
             @endif
         @else
-            <p class="inv-empty">{{ $invCopy['court_empty'] ?? 'Pronto presentaré a mi corte de honor.' }}</p>
+            <p class="inv-empty">{{ $invCopy['court_empty'] ?? __('Pronto presentaré a mi corte de honor.') }}</p>
         @endif
     </div>
 </section>

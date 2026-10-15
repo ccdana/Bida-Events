@@ -9,8 +9,8 @@
         : ['nombre' => trim((string) $persona), 'detalle' => null];
     $padrinos = array_values(array_filter($data['padrinos'] ?? [], fn ($padrino) => !empty($padrino['nombres'] ?? null)));
     $family = array_filter([
-        ($invCopy['court_men'] ?? 'Abuelos') => array_values(array_filter(array_map($normalizePerson, $data['chambelanes'] ?? []), fn ($person) => $person['nombre'] !== '')),
-        ($invCopy['court_women'] ?? 'Tíos') => array_values(array_filter(array_map($normalizePerson, $data['damitas'] ?? []), fn ($person) => $person['nombre'] !== '')),
+        ($invCopy['court_men'] ?? __('Abuelos')) => array_values(array_filter(array_map($normalizePerson, $data['chambelanes'] ?? []), fn ($person) => $person['nombre'] !== '')),
+        ($invCopy['court_women'] ?? __('Tíos')) => array_values(array_filter(array_map($normalizePerson, $data['damitas'] ?? []), fn ($person) => $person['nombre'] !== '')),
     ]);
     // Monograma: la inicial de cada nombre («Natalia Peña y Javier Soliz» → N & J; «Sr. Ernesto…» → E)
     $monogram = function (string $names): string {
@@ -30,8 +30,8 @@
 <section class="inv-section reveal bd-monograms-section" id="destacados">
     <div class="inv-wrap">
         @include('invitations.partials.section-header', [
-            'eyebrow' => $invCopy['court_eyebrow'] ?? 'Quienes me guiarán',
-            'title' => $invCopy['court_title'] ?? 'Mis padrinos',
+            'eyebrow' => $invCopy['court_eyebrow'] ?? __('Quienes me guiarán'),
+            'title' => $invCopy['court_title'] ?? __('Mis padrinos'),
             'intro' => $invCopy['court_intro'] ?? null,
         ])
 
@@ -85,7 +85,7 @@
                 </div>
             @endif
         @else
-            <p class="inv-empty">{{ $invCopy['court_empty'] ?? 'Pronto presentaremos a mis padrinos.' }}</p>
+            <p class="inv-empty">{{ $invCopy['court_empty'] ?? __('Pronto presentaremos a mis padrinos.') }}</p>
         @endif
     </div>
 </section>

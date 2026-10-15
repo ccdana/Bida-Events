@@ -8,10 +8,10 @@
 --}}
 @php
     $introWord = \Illuminate\Support\Str::of($page->displayName)->explode(' ')->first() ?: '';
-    $introWord = mb_strlen($introWord) >= 2 && mb_strlen($introWord) <= 10 ? $introWord : 'Bebé';
+    $introWord = mb_strlen($introWord) >= 2 && mb_strlen($introWord) <= 10 ? $introWord : __('Bebé');
     $introLetters = mb_str_split(mb_strtoupper($introWord));
     $introCount = count($introLetters);
-    $introDate = \Illuminate\Support\Str::ucfirst($page->eventDate->locale('es')->translatedFormat('j \d\e F'));
+    $introDate = \Illuminate\Support\Str::ucfirst($page->eventDate->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('j \d\e F')));
 @endphp
 
 <div class="inv-themed-intro bl-intro"
@@ -21,14 +21,14 @@
     @click="open()"
     role="dialog"
     aria-modal="true"
-    aria-label="Invitación al baby shower de {{ $page->displayName }}">
+    aria-label="{{ __('Invitación al baby shower de :displayName', ['displayName' => $page->displayName]) }}">
     <span class="bl-intro__rug" aria-hidden="true"></span>
 
     <p class="bl-intro__eyebrow">
         @if($guest)
-            {{ $guest->name }}: {{ \Illuminate\Support\Str::lcfirst($invCopy['intro_eyebrow'] ?? 'Viene alguien muy especial') }}
+            {{ $guest->name }}: {{ \Illuminate\Support\Str::lcfirst($invCopy['intro_eyebrow'] ?? __('Viene alguien muy especial')) }}
         @else
-            {{ $invCopy['intro_eyebrow'] ?? 'Viene alguien muy especial' }}
+            {{ $invCopy['intro_eyebrow'] ?? __('Viene alguien muy especial') }}
         @endif
     </p>
 
@@ -45,10 +45,10 @@
             @endforeach
         </span>
 
-        <p class="bl-intro__date">{{ $invCopy['hero_eyebrow'] ?? 'Baby shower' }} · {{ $introDate }}</p>
+        <p class="bl-intro__date">{{ $invCopy['hero_eyebrow'] ?? __('Baby shower') }} · {{ $introDate }}</p>
 
         {{-- El baúl de juguetes: la tapa con bisagra atrás y el frente de tablitas --}}
-        <button type="button" class="bl-chest" data-cover-trigger aria-label="Abrir el baúl y armar su nombre">
+        <button type="button" class="bl-chest" data-cover-trigger aria-label="{{ __('Abrir el baúl y armar su nombre') }}">
             <span class="bl-chest__mouth" aria-hidden="true"></span>
             <span class="bl-chest__lid" aria-hidden="true"></span>
             <span class="bl-chest__body" aria-hidden="true">
@@ -58,5 +58,5 @@
         </button>
     </div>
 
-    <p class="bl-intro__hint">{{ $invCopy['intro_hint'] ?? 'Toca el baúl para sacar los bloques' }}</p>
+    <p class="bl-intro__hint">{{ $invCopy['intro_hint'] ?? __('Toca el baúl para sacar los bloques') }}</p>
 </div>

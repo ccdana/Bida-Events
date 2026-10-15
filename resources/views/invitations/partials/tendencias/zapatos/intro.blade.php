@@ -10,7 +10,7 @@
     transform y opacity. Lógica en shell/cover-component; estilos en css/invitation/tendencias/zapatos.css.
 --}}
 @php
-    $introDate = \Illuminate\Support\Str::ucfirst($page->eventDate->locale('es')->translatedFormat('j \d\e F · H:i'));
+    $introDate = \Illuminate\Support\Str::ucfirst($page->eventDate->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('j \d\e F · H:i')));
     $firstName = \Illuminate\Support\Str::of($page->displayName)->explode(' ')->first();
     $initial = mb_strtoupper(mb_substr(trim($page->displayName), 0, 1));
 @endphp
@@ -22,9 +22,9 @@
     @click="open()"
     role="dialog"
     aria-modal="true"
-    aria-label="Invitación a los quince años de {{ $page->displayName }}">
+    aria-label="{{ __('Invitación a los quince años de :displayName', ['displayName' => $page->displayName]) }}">
     <span class="zp-intro__light" aria-hidden="true"></span>
-    <p class="zp-intro__eyebrow">{{ $invCopy['intro_eyebrow'] ?? 'Una caja muy especial' }}</p>
+    <p class="zp-intro__eyebrow">{{ $invCopy['intro_eyebrow'] ?? __('Una caja muy especial') }}</p>
 
     <div class="zp-box">
         {{-- El cajón: el borde de la caja, el fondo y los tacones; encima, el papel de seda con su sello --}}
@@ -47,33 +47,33 @@
         {{-- La funda de laca, con su nombre como marca --}}
         <div class="zp-sleeve" aria-hidden="true">
             <span class="zp-sleeve__frame"></span>
-            <span class="zp-sleeve__made">{{ $invCopy['shoe_made'] ?? 'Hecho a mano para' }}</span>
+            <span class="zp-sleeve__made">{{ $invCopy['shoe_made'] ?? __('Hecho a mano para') }}</span>
             <span class="zp-sleeve__name">{{ $page->displayName }}</span>
-            <span class="zp-sleeve__line">{{ $invCopy['shoe_line'] ?? 'Colección XV' }}</span>
+            <span class="zp-sleeve__line">{{ $invCopy['shoe_line'] ?? __('Colección XV') }}</span>
             <span class="zp-sleeve__label">
-                <span><small>{{ $invCopy['shoe_model'] ?? 'Modelo' }}</small>{{ $invCopy['shoe_model_name'] ?? 'Mis primeros tacones' }}</span>
-                <span><small>{{ $invCopy['shoe_size'] ?? 'Talla' }}</small>XV</span>
+                <span><small>{{ $invCopy['shoe_model'] ?? __('Modelo') }}</small>{{ $invCopy['shoe_model_name'] ?? __('Mis primeros tacones') }}</span>
+                <span><small>{{ $invCopy['shoe_size'] ?? __('Talla') }}</small>XV</span>
             </span>
         </div>
 
         {{-- La cinta para tirar del cajón --}}
-        <button type="button" class="zp-pull" data-cover-trigger @click="open()" aria-label="Tirar de la cinta y abrir la caja">
+        <button type="button" class="zp-pull" data-cover-trigger @click="open()" aria-label="{{ __('Tirar de la cinta y abrir la caja') }}">
             <span class="zp-pull__ribbon" aria-hidden="true"></span>
         </button>
     </div>
 
     {{-- Su nombre, cuando aparecen los tacones --}}
     <p class="zp-intro__reveal" aria-hidden="true">
-        <small>{{ $invCopy['shoe_made'] ?? 'Hecho a mano para' }}</small>
+        <small>{{ $invCopy['shoe_made'] ?? __('Hecho a mano para') }}</small>
         {{ $page->displayName }}
     </p>
 
     <div class="zp-intro__meta">
         <p class="zp-intro__date">{{ $introDate }}</p>
         @if($guest)
-            <p class="zp-intro__guest">{{ $invCopy['guest_banner_eyebrow'] ?? 'Hecho a medida para' }} {{ $guest->name }}</p>
+            <p class="zp-intro__guest">{{ $invCopy['guest_banner_eyebrow'] ?? __('Hecho a medida para') }} {{ $guest->name }}</p>
         @endif
     </div>
 
-    <p class="zp-intro__hint">{{ $invCopy['intro_hint'] ?? 'Toca la caja para abrirla' }}</p>
+    <p class="zp-intro__hint">{{ $invCopy['intro_hint'] ?? __('Toca la caja para abrirla') }}</p>
 </div>

@@ -22,6 +22,23 @@
         </div>
     </section>
 
+    {{-- Idioma de la invitación: sus textos y botones salen en él; lo que escribe el cliente no se traduce --}}
+    <section class="admin-card space-y-3 p-4">
+        <div>
+            <h3 class="text-sm font-semibold">Idioma de la invitación</h3>
+            <p class="mt-0.5 text-xs text-site-muted">Los textos y botones que trae la invitación salen en este idioma, y los ejemplos de cada parte también. Lo que escribas tú queda como lo escribas; tus invitados pueden traducirla con su navegador a cualquier otro idioma.</p>
+        </div>
+        <div class="grid grid-cols-2 gap-2" role="radiogroup" aria-label="Idioma de la invitación">
+            <template x-for="option in (config.localeOptions ?? [])" :key="option.value">
+                <button type="button" role="radio" @click="meta.locale = option.value"
+                    :aria-checked="(meta.locale === option.value).toString()"
+                    class="rounded-[12px] border p-3 text-left text-sm font-semibold transition-colors"
+                    :class="meta.locale === option.value ? 'border-site-ink bg-site-bg' : 'border-site-line hover:bg-site-bg'"
+                    x-text="option.label"></button>
+            </template>
+        </div>
+    </section>
+
     {{-- Paquete vendido: decide qué secciones se pueden encender y cómo confirma el invitado (App\Support\Packages) --}}
     @if(($editorMode ?? 'admin') === 'admin')
     <section class="admin-card space-y-3 p-4" x-show="(profile.kind ?? 'invitation') === 'invitation'">

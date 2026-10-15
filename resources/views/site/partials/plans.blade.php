@@ -12,9 +12,9 @@
 <section id="{{ $sectionId }}" class="scroll-mt-20 border-t border-site-line bg-site-surface" aria-labelledby="{{ $sectionId }}-titulo">
     <div class="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-28">
         <div class="max-w-3xl">
-            <h2 id="{{ $sectionId }}-titulo" class="site-display site-display--md" data-reveal>{{ $plansTitle ?? 'Elige tu paquete' }}</h2>
+            <h2 id="{{ $sectionId }}-titulo" class="site-display site-display--md" data-reveal>{{ $plansTitle ?? __('Elige tu paquete') }}</h2>
             <p class="site-muted-lead" data-reveal>
-                {{ $plansLead ?? 'Pago único por invitación, en dólares ('.Money::code().'). Cada paquete incluye todo lo del anterior.' }}
+                {{ $plansLead ?? __('Pago único por invitación, en dólares (:currency). Cada paquete incluye todo lo del anterior.', ['currency' => Money::code()]) }}
             </p>
         </div>
 
@@ -27,23 +27,23 @@
                     :price="$package['final_price'] ?? $package['price']"
                     :old="! empty($package['old_price']) ? Money::format($package['old_price']) : null"
                     :suffix="Money::code()"
-                    :saving="! empty($package['old_price']) ? 'Ahorras '.Money::format($package['old_price'] - $package['final_price']) : null"
+                    :saving="! empty($package['old_price']) ? __('Ahorras :price', ['price' => Money::format($package['old_price'] - $package['final_price'])]) : null"
                     :summary="$package['summary']"
                     :features="[...($package['service_lines'] ?? []), ...$package['features']]"
                     :featured="$featured"
                     :premium="$premium"
-                    :tag="$featured ? 'Recomendado' : ($premium ? 'Experiencia completa' : null)"
+                    :tag="$featured ? __('Recomendado') : ($premium ? __('Experiencia completa') : null)"
                     :url="$package['whatsapp']"
                     :external="true"
-                    :cta="'Elegir '.$package['name']"
+                    :cta="__('Elegir :name', ['name' => $package['name']])"
                     :index="$index" />
             @endforeach
         </div>
 
         <p class="mt-10 text-site-muted" data-reveal>
-            ¿Buscas algo distinto?
-            <a href="{{ $contactUrl }}" target="_blank" rel="noopener" class="font-medium text-site-ink underline underline-offset-4">Escríbenos</a>
-            y armamos un paquete para tu evento.
+            {{ __('¿Buscas algo distinto?') }}
+            <a href="{{ $contactUrl }}" target="_blank" rel="noopener" class="font-medium text-site-ink underline underline-offset-4">{{ __('Escríbenos') }}</a>
+            {{ __('y armamos un paquete para tu evento.') }}
         </p>
     </div>
 </section>

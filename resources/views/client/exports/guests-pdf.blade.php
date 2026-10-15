@@ -9,7 +9,7 @@
     $statusTag = ['confirmed' => 'is-yes', 'declined' => 'is-no', 'pending' => 'is-wait'];
 @endphp
 <!DOCTYPE html>
-<html lang="es">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="utf-8">
     <title>Reporte de invitados | {{ $invitation->title }}</title>

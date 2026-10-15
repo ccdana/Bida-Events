@@ -34,13 +34,13 @@
             <div class="inv-wrap">
                 @include('invitations.partials.section-header', [
                     'lottie' => 'calendar',
-                    'eyebrow' => 'Guarda la fecha',
-                    'title' => 'Agéndalo',
+                    'eyebrow' => __('Guarda la fecha'),
+                    'title' => __('Agéndalo'),
                     'intro' => $page->eventLabel,
                 ])
                 <div class="inv-actions">
                     <button type="button" class="inv-btn inv-btn--block" data-url="{{ $calendarUrl }}" onclick="openCalendar(this.dataset.url)">
-                        {{ $invCopy['calendar_add'] ?? 'Agregar a Google Calendar' }}
+                        {{ $invCopy['calendar_add'] ?? __('Agregar a Google Calendar') }}
                     </button>
                 </div>
             </div>

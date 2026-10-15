@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="{{ app()->getLocale() }}">
 <head>
     @include('layouts.partials.panel-head')
     <title>@yield('title', 'Editor') | {{ config('bida.brand') }}</title>

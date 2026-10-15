@@ -220,6 +220,7 @@ html[data-theme='dark'] .site {
 
 .site-nav-link {
     position: relative;
+    white-space: nowrap;
     transition: color 0.2s ease;
 }
 

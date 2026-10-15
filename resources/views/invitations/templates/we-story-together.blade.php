@@ -37,7 +37,7 @@
     $metOn = null;
     if ($filled($milestone['fecha'] ?? null)) {
         try {
-            $metOn = \Illuminate\Support\Carbon::parse($milestone['fecha'])->locale('es');
+            $metOn = \Illuminate\Support\Carbon::parse($milestone['fecha'])->locale(app()->getLocale());
         } catch (\Throwable) {
             $metOn = null;
         }
@@ -49,9 +49,9 @@
         $span = $metOn->diff(now());
         $plural = fn (int $n, string $one, string $many) => $n.' '.($n === 1 ? $one : $many);
         $together = match (true) {
-            $span->y > 0 => $plural($span->y, 'año', 'años').($span->m > 0 ? ' y '.$plural($span->m, 'mes', 'meses') : ''),
-            $span->m > 0 => $plural($span->m, 'mes', 'meses'),
-            default => $plural(max(1, $span->d), 'día', 'días'),
+            $span->y > 0 => $plural($span->y, __('año'), __('años')).($span->m > 0 ? ' '.__('y').' '.$plural($span->m, __('mes'), __('meses')) : ''),
+            $span->m > 0 => $plural($span->m, __('mes'), __('meses')),
+            default => $plural(max(1, $span->d), __('día'), __('días')),
         };
     }
 
@@ -65,7 +65,7 @@
     $showIntro = empty($isPreview);
 @endphp
 <!DOCTYPE html>
-<html lang="es" class="no-js">
+<html lang="{{ app()->getLocale() }}" class="no-js">
 <head>
     @include('invitations.partials.shell.head')
     {{-- La voz poética del tema (cursivas de nombres, actos y citas) va fija en Cormorant: el cliente elige títulos y cuerpo --}}
@@ -76,7 +76,7 @@
     @endif
 </head>
 <body class="inv-page inv-historia overflow-x-hidden {{ $page->hasPlayer ? 'has-player' : '' }}" data-card="historia" x-data="invitationApp()" x-init="init()">
-    <a class="inv-skip" href="#contenido">{{ $invCopy['skip_link'] ?? 'Saltar al contenido' }}</a>
+    <a class="inv-skip" href="#contenido">{{ $invCopy['skip_link'] ?? __('Saltar al contenido') }}</a>
 
     @if($showIntro)
         @include('invitations.partials.historia.cover')
@@ -99,7 +99,7 @@
     @include('invitations.partials.shell.footer', [
         'footerClass' => 'story-footer',
         'footerName' => $coupleLabel,
-        'footerDate' => \Illuminate\Support\Str::ucfirst($page->eventDate->locale('es')->translatedFormat('j \d\e F \d\e Y')),
+        'footerDate' => \Illuminate\Support\Str::ucfirst($page->eventDate->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('j \d\e F \d\e Y'))),
         'footerOrnament' => null,
     ])
 

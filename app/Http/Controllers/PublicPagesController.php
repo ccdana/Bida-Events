@@ -53,13 +53,13 @@ class PublicPagesController extends Controller
             // Lo secundario: que el equipo haga la invitación (pago único por invitación)
             'packages' => HomeController::packages($bida['packages'], $whatsapp),
             'examplePrice' => self::EXAMPLE_RESALE_PRICE,
-            'contactUrl' => $whatsapp('Hola {brand}, quiero saber cómo funciona Únete para armar mis propias invitaciones.'),
+            'contactUrl' => $whatsapp(__('Hola {brand}, quiero saber cómo funciona Únete para armar mis propias invitaciones.')),
             'landings' => HomeController::landingLinks(),
             'share' => ShareMeta::make(
-                "Únete: haz tus propias invitaciones digitales y véndelas con tu marca | {$bida['brand']}",
-                'Arma tus propias invitaciones digitales con plantillas profesionales, para tu evento o para vender con tu marca. Desde '.Money::format(collect($plans)->min('final_price')).' al mes, sin comisión por invitación.',
+                __('Únete: haz tus propias invitaciones digitales y véndelas con tu marca | :brand', ['brand' => $bida['brand']]),
+                __('Arma tus propias invitaciones digitales con plantillas profesionales, para tu evento o para vender con tu marca. Desde :price al mes, sin comisión por invitación.', ['price' => Money::format(collect($plans)->min('final_price'))]),
                 ShareMeta::defaultImage(),
-                route('diy'),
+                lroute('diy'),
             ),
         ]);
     }
@@ -89,13 +89,13 @@ class PublicPagesController extends Controller
             'packages' => $packages,
             'plans' => Offers::resellerPlans(),
             'landings' => HomeController::landingLinks(),
-            'contactUrl' => LeadSource::whatsappUrl($request, 'Hola {brand}, leí la guía y quiero mi invitación digital.', self::GUIDE_CODE),
+            'contactUrl' => LeadSource::whatsappUrl($request, __('Hola {brand}, leí la guía y quiero mi invitación digital.'), self::GUIDE_CODE),
             'updatedAt' => self::GUIDE_UPDATED_AT,
             'share' => ShareMeta::make(
-                "Invitaciones digitales: qué son, cuánto cuestan y cómo elegir | {$bida['brand']}",
-                'Guía clara para elegir tu invitación digital: qué debe incluir, precios de referencia desde '.Money::format(collect($packages)->min('final_price')).', confirmación de asistencia y control de entrada con código QR.',
+                __('Invitaciones digitales: qué son, cuánto cuestan y cómo elegir | :brand', ['brand' => $bida['brand']]),
+                __('Guía clara para elegir tu invitación digital: qué debe incluir, precios de referencia desde :price, confirmación de asistencia y control de entrada con código QR.', ['price' => Money::format(collect($packages)->min('final_price'))]),
                 ShareMeta::defaultImage(),
-                route('guide'),
+                lroute('guide'),
             ),
         ]);
     }
@@ -113,13 +113,13 @@ class PublicPagesController extends Controller
             'slug' => $page,
             'content' => $content,
             'updatedAt' => $bida['legal']['updated_at'] ?? null,
-            'contactUrl' => LeadSource::whatsappUrl($request, 'Hola {brand}, tengo una consulta sobre mis datos.', LeadSource::HOME),
+            'contactUrl' => LeadSource::whatsappUrl($request, __('Hola {brand}, tengo una consulta sobre mis datos.'), LeadSource::HOME),
             'landings' => HomeController::landingLinks(),
             'share' => ShareMeta::make(
                 "{$content['title']} | {$bida['brand']}",
                 $content['description'],
                 ShareMeta::defaultImage(),
-                route('legal', $page),
+                lroute('legal', $page),
             ),
         ]);
     }

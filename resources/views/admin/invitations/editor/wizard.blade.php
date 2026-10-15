@@ -105,6 +105,22 @@
                     </div>
                 </template>
 
+                {{-- Idioma de los textos y botones de la invitación --}}
+                <div class="ed-wizard__fields">
+                    <div class="ed-wiz-field" role="radiogroup" aria-label="Idioma de la invitación">
+                        <span class="ed-wiz-field__label">Idioma de la invitación</span>
+                        <div class="ed-wizard__packages">
+                            <template x-for="option in (config.localeOptions ?? [])" :key="option.value">
+                                <button type="button" role="radio" class="ed-wiz-tile ed-wiz-tile--small" @click="meta.locale = option.value"
+                                    :class="{ 'is-on': meta.locale === option.value }" :aria-checked="(meta.locale === option.value).toString()">
+                                    <span class="ed-wiz-tile__name" x-text="option.label"></span>
+                                </button>
+                            </template>
+                        </div>
+                        <span class="ed-wiz-field__hint">Tus invitados también pueden traducirla con su navegador.</span>
+                    </div>
+                </div>
+
                 @if(($editorMode ?? 'admin') === 'admin')
                     <div class="ed-wizard__fields ed-wizard__fields--admin">
                         <label class="ed-wiz-field">

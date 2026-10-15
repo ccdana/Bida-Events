@@ -9,6 +9,7 @@ use App\Models\SubscriptionPayment;
 use App\Models\User;
 use App\Services\SubscriptionActivator;
 use App\Support\ClientCredentials;
+use App\Support\Localization;
 use App\Support\Money;
 use App\Support\Offers;
 use App\Support\ResellerSubscription;
@@ -91,7 +92,7 @@ class ResellerController extends Controller
 
         return back()->with(
             'success',
-            "Pago registrado: {$reseller->name} queda al día hasta el ".$payment->renews_until->locale('es')->translatedFormat('j \d\e F \d\e Y').'.'
+            "Pago registrado: {$reseller->name} queda al día hasta el ".$payment->renews_until->locale(app()->getLocale())->translatedFormat(Localization::dateFormat('j \d\e F \d\e Y')).'.'
         );
     }
 
@@ -140,7 +141,7 @@ class ResellerController extends Controller
             // A quién escribirle: vence pronto y no se cobra solo (o el cobro con tarjeta falló)
             'dueSoon' => $reseller->subscription_renews_at !== null && ResellerSubscription::expiresSoon($reseller)
                 && ! ($reseller->renewsAutomatically() && $reseller->subscription_status === 'active'),
-            'renewsLabel' => $reseller->subscription_renews_at?->locale('es')->translatedFormat('j \d\e F \d\e Y') ?? '—',
+            'renewsLabel' => $reseller->subscription_renews_at?->locale(app()->getLocale())->translatedFormat(Localization::dateFormat('j \d\e F \d\e Y')) ?? '—',
             // Con tarjeta se cobra solo: no hace falta escribirle para renovar
             'renewal' => match (true) {
                 $reseller->renewsAutomatically() => 'Con tarjeta: se renueva sola',

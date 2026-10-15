@@ -9,9 +9,9 @@
 
 @section('content')
     <section class="door-scan" x-data="doorScanner(@js(url('/entrada/')))">
-        <h1 class="door-title">Escanea el pase</h1>
+        <h1 class="door-title">{{ __('Escanea el pase') }}</h1>
         <p class="door-lead">
-            Pide al invitado su pase con código QR. Cuando lo leas, verás si puede pasar y cuántas personas entran con él.
+            {{ __('Pide al invitado su pase con código QR. Cuando lo leas, verás si puede pasar y cuántas personas entran con él.') }}
         </p>
 
         @if(session('door_error'))
@@ -23,36 +23,36 @@
             <span class="door-camera__frame" x-show="scanning" aria-hidden="true"></span>
             <button type="button" class="site-btn site-btn--lg door-camera__start" x-show="!scanning" @click="start()">
                 <x-phosphor-qr-code aria-hidden="true" />
-                Abrir la cámara
+                {{ __('Abrir la cámara') }}
             </button>
             <p class="door-hint" x-show="error" x-text="error"></p>
         </div>
 
         <p class="door-hint" x-show="!supported" x-cloak>
-            Abre la cámara de tu teléfono y apunta al QR del pase: el enlace se abre aquí mismo.
+            {{ __('Abre la cámara de tu teléfono y apunta al QR del pase: el enlace se abre aquí mismo.') }}
         </p>
 
         <form method="POST" action="{{ route('door.lookup', $doorToken) }}" class="door-code">
             @csrf
-            <label for="door-code" class="door-code__label">¿No se puede leer? Escribe el código del pase</label>
+            <label for="door-code" class="door-code__label">{{ __('¿No se puede leer? Escribe el código del pase') }}</label>
             <div class="door-code__row">
                 <input id="door-code" name="code" type="text" inputmode="text" autocomplete="off" autocapitalize="characters"
-                    maxlength="64" required placeholder="Ej. A1B2C3D4" class="door-code__input">
-                <button type="submit" class="site-btn site-btn--lg">Buscar</button>
+                    maxlength="64" required placeholder="{{ __('Ej. A1B2C3D4') }}" class="door-code__input">
+                <button type="submit" class="site-btn site-btn--lg">{{ __('Buscar') }}</button>
             </div>
         </form>
 
         <dl class="door-stats">
             <div>
-                <dt>Ingresaron</dt>
+                <dt>{{ __('Ingresaron') }}</dt>
                 <dd>{{ $stats['arrived'] }}</dd>
             </div>
             <div>
-                <dt>Esperados</dt>
+                <dt>{{ __('Esperados') }}</dt>
                 <dd>{{ $stats['expected'] }}</dd>
             </div>
             <div>
-                <dt>Pases usados</dt>
+                <dt>{{ __('Pases usados') }}</dt>
                 <dd>{{ $stats['passesUsed'] }}</dd>
             </div>
         </dl>
@@ -94,7 +94,7 @@
 
                         requestAnimationFrame(tick);
                     } catch (error) {
-                        this.error = 'No se pudo abrir la cámara. Revisa el permiso o escribe el código del pase.';
+                        this.error = @js(__('No se pudo abrir la cámara. Revisa el permiso o escribe el código del pase.'));
                         this.stop();
                     }
                 },

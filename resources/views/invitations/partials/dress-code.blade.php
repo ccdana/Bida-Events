@@ -6,9 +6,9 @@
         ->filter()
         ->values();
     $tabs = array_filter([
-        'sugerencias' => count($sugerencias) ? 'Qué usar' : null,
-        'colores' => count($colores) ? 'Colores' : null,
-        'evitar' => $evitar->isNotEmpty() ? 'Evitar' : null,
+        'sugerencias' => count($sugerencias) ? __('Qué usar') : null,
+        'colores' => count($colores) ? __('Colores') : null,
+        'evitar' => $evitar->isNotEmpty() ? __('Evitar') : null,
     ]);
 @endphp
 
@@ -16,8 +16,8 @@
     <div class="inv-wrap">
         @include('invitations.partials.section-header', [
             'lottie' => 'dress',
-            'eyebrow' => $invCopy['dress_eyebrow'] ?? 'Vestimenta',
-            'title' => $dressCode['titulo'] ?? 'Dress code',
+            'eyebrow' => $invCopy['dress_eyebrow'] ?? __('Vestimenta'),
+            'title' => $dressCode['titulo'] ?? __('Dress code'),
             'intro' => $dressCode['descripcion'] ?? null,
         ])
 
@@ -26,7 +26,7 @@
         @endif
 
         @if(count($tabs) > 1)
-            <div class="inv-tabs" role="tablist" aria-label="Detalles de vestimenta">
+            <div class="inv-tabs" role="tablist" aria-label="{{ __('Detalles de vestimenta') }}">
                 @foreach($tabs as $key => $label)
                     <button type="button" role="tab" class="inv-tab"
                         :class="{ 'is-active': tab === '{{ $key }}' }"
@@ -39,7 +39,7 @@
         @if(isset($tabs['sugerencias']))
             {{-- Cada sugerencia es desplegable: cerrada solo muestra miniatura y título --}}
             <div class="inv-folds" x-show="tab === 'sugerencias'" role="tabpanel">
-                <p class="inv-help inv-folds__hint">{{ $invCopy['dress_folds_hint'] ?? 'Toca cada opción para ver el detalle' }}</p>
+                <p class="inv-help inv-folds__hint">{{ $invCopy['dress_folds_hint'] ?? __('Toca cada opción para ver el detalle') }}</p>
                 @foreach($sugerencias as $sug)
                     <details class="inv-fold inv-dress__fold" name="dress-code-sugerencias">
                         <summary class="inv-fold__summary">
@@ -70,7 +70,7 @@
                                         <p class="inv-dress__text">{{ $sug['descripcion'] }}</p>
                                     @endif
                                     @if(!empty($sug['ejemplos']))
-                                        <p class="inv-dress__examples">Ideas: {{ implode(' · ', $sug['ejemplos']) }}</p>
+                                        <p class="inv-dress__examples">{{ __('Ideas: :value', ['value' => implode(' · ', $sug['ejemplos'])]) }}</p>
                                     @endif
                                 </div>
                             @endif
@@ -82,7 +82,7 @@
 
         @if(isset($tabs['colores']))
             <div x-show="tab === 'colores'" x-cloak role="tabpanel">
-                <p class="inv-help inv-dress__hint">{{ $invCopy['dress_hint'] ?? 'Tonos sugeridos para la noche' }}</p>
+                <p class="inv-help inv-dress__hint">{{ $invCopy['dress_hint'] ?? __('Tonos sugeridos para la noche') }}</p>
                 <ul class="inv-dress__palette">
                     @foreach($colores as $color)
                         <li>
@@ -106,7 +106,7 @@
         @endif
 
         @if(empty($tabs))
-            <p class="inv-empty">{{ $invCopy['dress_empty'] ?? 'Viste elegante y cómodo para disfrutar toda la noche.' }}</p>
+            <p class="inv-empty">{{ $invCopy['dress_empty'] ?? __('Viste elegante y cómodo para disfrutar toda la noche.') }}</p>
         @endif
     </div>
 </section>

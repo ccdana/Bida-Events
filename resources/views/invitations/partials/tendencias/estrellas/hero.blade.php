@@ -6,10 +6,10 @@
     coordenadas. Estilos en css/invitation/tendencias/estrellas.css.
 --}}
 @php
-    $heroSky = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['sky_label'] ?? 'El cielo del día de mi bautizo');
+    $heroSky = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['sky_label'] ?? __('El cielo del día de mi bautizo'));
     $heroMessage = $page->welcome['mensaje'] ?? '';
     $heroDay = ($page->welcome['fecha_texto'] ?? null)
-        ?: \Illuminate\Support\Str::ucfirst($page->eventDate->locale('es')->translatedFormat('l j \d\e F \d\e Y'));
+        ?: \Illuminate\Support\Str::ucfirst($page->eventDate->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('l j \d\e F \d\e Y')));
 
     // Las coordenadas del lugar, como en las cartas del cielo
     $lat = $modulos['ubicacion']['lat'] ?? null;
@@ -89,7 +89,7 @@
     @endif
 
     <a href="#contenido" class="inv-hero__scroll es-hero__scroll">
-        {{ $invCopy['scroll_hint'] ?? 'Desliza' }}
+        {{ $invCopy['scroll_hint'] ?? __('Desliza') }}
         <span class="inv-hero__scroll-line" aria-hidden="true"></span>
     </a>
 </header>

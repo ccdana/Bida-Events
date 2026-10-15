@@ -10,12 +10,12 @@
     :class="{ 'is-rolling': stage >= 1, 'is-open': stage >= 2 }"
     role="dialog"
     aria-modal="true"
-    aria-label="Invitación a {{ $page->displayName }}">
+    aria-label="{{ __('Invitación a :displayName', ['displayName' => $page->displayName]) }}">
     <span class="fn-intro__beam" aria-hidden="true"></span>
 
-    <p class="fn-intro__eyebrow">{{ $invCopy['intro_eyebrow'] ?? 'Función de estreno' }}</p>
+    <p class="fn-intro__eyebrow">{{ $invCopy['intro_eyebrow'] ?? __('Función de estreno') }}</p>
 
-    <button type="button" class="fn-leader" data-cover-trigger @click="open()" aria-label="Encender el proyector y empezar la función">
+    <button type="button" class="fn-leader" data-cover-trigger @click="open()" aria-label="{{ __('Encender el proyector y empezar la función') }}">
         <span class="fn-leader__sweep" aria-hidden="true"></span>
         <span class="fn-leader__cross" aria-hidden="true"></span>
         <span class="fn-leader__rings" aria-hidden="true"></span>
@@ -26,7 +26,7 @@
 
     <p class="fn-intro__title">{{ $page->displayName }}</p>
     @if($guest)
-        <p class="fn-intro__guest">{{ $invCopy['guest_banner_eyebrow'] ?? 'Boleto a nombre de' }} {{ $guest->name }}</p>
+        <p class="fn-intro__guest">{{ $invCopy['guest_banner_eyebrow'] ?? __('Boleto a nombre de') }} {{ $guest->name }}</p>
     @endif
-    <p class="fn-intro__hint">{{ $invCopy['intro_hint'] ?? 'Toca para encender el proyector' }}</p>
+    <p class="fn-intro__hint">{{ $invCopy['intro_hint'] ?? __('Toca para encender el proyector') }}</p>
 </div>

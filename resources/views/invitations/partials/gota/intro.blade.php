@@ -6,8 +6,8 @@
     Neutral: la pila lleva grabada una gota, sin símbolos de un credo.
 --}}
 @php
-    $introEyebrow = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? 'Mi bautizo');
-    $introDate = $page->eventDate->locale('es')->translatedFormat('j \d\e F \d\e Y');
+    $introEyebrow = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? __('Mi bautizo'));
+    $introDate = $page->eventDate->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('j \d\e F \d\e Y'));
     $fontId = 'gt-'.\Illuminate\Support\Str::lower(\Illuminate\Support\Str::random(6));
 @endphp
 
@@ -18,7 +18,7 @@
     @click="open()"
     role="dialog"
     aria-modal="true"
-    aria-label="Invitación al bautizo de {{ $page->displayName }}">
+    aria-label="{{ __('Invitación al bautizo de :displayName', ['displayName' => $page->displayName]) }}">
     <div class="gt-intro__scene">
         <span class="gt-intro__light" aria-hidden="true"></span>
 
@@ -30,7 +30,7 @@
         <div class="gt-intro__content">
             <p class="gt-intro__eyebrow">
                 @if($guest)
-                    Para {{ $guest->name }}
+                    {{ __('Para :name', ['name' => $guest->name]) }}
                 @else
                     {{ $introEyebrow }}
                 @endif
@@ -38,7 +38,7 @@
             <p class="gt-intro__name">{{ $page->displayName }}</p>
             <p class="gt-intro__date">{{ $introDate }}</p>
 
-            <button type="button" class="gt-font" data-cover-trigger aria-label="Verter el agua y abrir la invitación">
+            <button type="button" class="gt-font" data-cover-trigger aria-label="{{ __('Verter el agua y abrir la invitación') }}">
                 <span class="gt-font__halo" aria-hidden="true"></span>
 
                 <svg class="gt-font__art" viewBox="0 0 240 300" aria-hidden="true" focusable="false">
@@ -128,7 +128,7 @@
 
             <p class="gt-intro__hint">
                 <span class="gt-intro__hint-dot" aria-hidden="true"></span>
-                {{ $invCopy['intro_hint'] ?? 'Toca la jarra para verter el agua' }}
+                {{ $invCopy['intro_hint'] ?? __('Toca la jarra para verter el agua') }}
             </p>
         </div>
     </div>

@@ -10,14 +10,15 @@
 @php
     $seasonLeft = now()->diff($season['endsAt']);
     $seasonUnits = [
-        'days' => ['value' => (int) $seasonLeft->days, 'label' => 'días'],
-        'hours' => ['value' => $seasonLeft->h, 'label' => 'horas'],
-        'minutes' => ['value' => $seasonLeft->i, 'label' => 'min'],
-        'seconds' => ['value' => $seasonLeft->s, 'label' => 'seg'],
+        'days' => ['value' => (int) $seasonLeft->days, 'label' => __('días')],
+        'hours' => ['value' => $seasonLeft->h, 'label' => __('horas')],
+        'minutes' => ['value' => $seasonLeft->i, 'label' => __('min')],
+        'seconds' => ['value' => $seasonLeft->s, 'label' => __('seg')],
     ];
-    $seasonUntil = $season['endsAt']->locale('es')->translatedFormat('l j \d\e F');
+    $seasonUntil = $season['endsAt']->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('l j \d\e F'));
     $seasonDemos = $season['demos'];
     $seasonProduct = $season['product'] ?? 'tarjeta';
+    $seasonNoun = __($seasonProduct);
     $seasonId = 'temporada-'.$season['key'];
     $seasonSwitch = count($seasons ?? []) > 1;
 @endphp
@@ -34,12 +35,12 @@
             @endfor
         </span>
 
-        <button type="button" class="site-season__close" @click="close()" aria-label="Cerrar">
+        <button type="button" class="site-season__close" @click="close()" aria-label="{{ __('Cerrar') }}">
             <x-phosphor-x aria-hidden="true" />
         </button>
 
         @if($seasonSwitch)
-            <div class="site-season__switch" role="tablist" aria-label="Temporadas"
+            <div class="site-season__switch" role="tablist" aria-label="{{ __('Temporadas') }}"
                 @keydown.arrow-right.prevent="step(1)" @keydown.arrow-left.prevent="step(-1)">
                 @foreach($seasons as $other)
                     @php($isCurrent = $other['key'] === $season['key'])
@@ -47,7 +48,7 @@
                         aria-controls="temporada-{{ $other['key'] }}" aria-selected="{{ $isCurrent ? 'true' : 'false' }}"
                         tabindex="{{ $isCurrent ? 0 : -1 }}" @class(['site-season__tab', 'is-active' => $isCurrent])>
                         <span class="site-season__tab-name">{{ $other['name'] }}</span>
-                        <span class="site-season__tab-until">Hasta el {{ $other['endsAt']->locale('es')->translatedFormat('j M') }}</span>
+                        <span class="site-season__tab-until">{{ __('Hasta el :value', ['value' => $other['endsAt']->locale(app()->getLocale())->translatedFormat('j M')]) }}</span>
                     </button>
                 @endforeach
             </div>
@@ -55,26 +56,26 @@
 
         <div class="site-season__head">
             <div class="site-season__copy">
-                <p class="site-season__eyebrow">{{ $seasonProduct === 'tarjeta' ? 'Tarjetas' : 'Invitaciones' }} de temporada · {{ $season['date'] ?? $seasonUntil }}</p>
+                <p class="site-season__eyebrow">{{ __(':value de temporada · :value2', ['value' => $seasonProduct === 'tarjeta' ? __('Tarjetas') : __('Invitaciones'), 'value2' => $season['date'] ?? $seasonUntil]) }}</p>
                 <h2 id="{{ $seasonId }}-titulo" class="site-season__title">{{ $season['title'] }}</h2>
                 <p class="site-season__text">{{ $season['text'] }}</p>
             </div>
 
             <div class="site-season__deal">
                 <p class="site-season__price">
-                    <span class="site-season__label">Cada {{ $seasonProduct }}</span>
+                    <span class="site-season__label">{{ __('Cada :seasonProduct', ['seasonProduct' => $seasonNoun]) }}</span>
                     <span class="site-season__amount">
                         @if($season['old_price'])
-                            <del><span class="sr-only">Antes </span>{{ \App\Support\Money::format($season['old_price']) }}</del>
-                            <span class="sr-only">, ahora</span>
+                            <del><span class="sr-only">{{ __('Antes') }} </span>{{ \App\Support\Money::format($season['old_price']) }}</del>
+                            <span class="sr-only">{{ __(', ahora') }}</span>
                         @endif
                         <strong>{{ $season['final_price'] }}</strong>
                         <span class="site-season__currency">{{ \App\Support\Money::code() }}</span>
                     </span>
                 </p>
 
-                <div class="site-season__countdown" role="timer" aria-label="Tiempo que queda para pedirla">
-                    <span class="site-season__label">Quedan</span>
+                <div class="site-season__countdown" role="timer" aria-label="{{ __('Tiempo que queda para pedirla') }}">
+                    <span class="site-season__label">{{ __('Quedan') }}</span>
                     <span class="site-season__units">
                         @foreach($seasonUnits as $key => $unit)
                             <span class="site-season__unit">
@@ -83,16 +84,16 @@
                             </span>
                         @endforeach
                     </span>
-                    <span class="site-season__until">Hasta el {{ $seasonUntil }}</span>
+                    <span class="site-season__until">{{ __('Hasta el :seasonUntil', ['seasonUntil' => $seasonUntil]) }}</span>
                 </div>
 
                 <div class="site-season__actions">
                     <a href="{{ $season['whatsappUrl'] }}" target="_blank" rel="noopener" class="site-btn site-btn--lg site-season__cta">
                         <x-phosphor-whatsapp-logo aria-hidden="true" />
-                        La quiero por {{ \App\Support\Money::format($season['final_price']) }}
+                        {{ __('La quiero por :value', ['value' => \App\Support\Money::format($season['final_price'])]) }}
                     </a>
                     @if($season['landingUrl'])
-                        <a href="{{ $season['landingUrl'] }}" class="site-season__link">Ver todo sobre {{ $season['name'] }} <x-phosphor-arrow-right aria-hidden="true" /></a>
+                        <a href="{{ $season['landingUrl'] }}" class="site-season__link">{{ __('Ver todo sobre :name', ['name' => $season['name']]) }} <x-phosphor-arrow-right aria-hidden="true" /></a>
                     @endif
                 </div>
             </div>
@@ -101,10 +102,10 @@
         {{-- Los diseños de la temporada, como en «Pruébala como invitado» --}}
         <div class="site-season__designs">
             <p class="site-season__label">
-                Diseños de la temporada
+                {{ __('Diseños de la temporada') }}
                 <span class="site-season__count">{{ count($seasonDemos) }}</span>
             </p>
-            @include('site.partials.shots', ['demos' => $seasonDemos, 'noun' => $seasonProduct, 'layout' => 'row', 'label' => 'Diseños de '.$season['name']])
+            @include('site.partials.shots', ['demos' => $seasonDemos, 'noun' => $seasonNoun, 'layout' => 'row', 'label' => __('Diseños de :name', ['name' => $season['name']])])
             @if(! empty($season['more_note']))
                 <p class="site-season__more-note">{{ $season['more_note'] }}</p>
             @endif

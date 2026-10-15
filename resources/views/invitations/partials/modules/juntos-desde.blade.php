@@ -16,9 +16,9 @@
 
     $elapsed = $since && $since->isPast() ? $since->diff(now()) : null;
     $units = $elapsed ? array_filter([
-        ['value' => $elapsed->y, 'label' => $elapsed->y === 1 ? 'año' : 'años'],
-        ['value' => $elapsed->m, 'label' => $elapsed->m === 1 ? 'mes' : 'meses'],
-        ['value' => $elapsed->d, 'label' => $elapsed->d === 1 ? 'día' : 'días'],
+        ['value' => $elapsed->y, 'label' => $elapsed->y === 1 ? __('año') : __('años')],
+        ['value' => $elapsed->m, 'label' => $elapsed->m === 1 ? __('mes') : __('meses')],
+        ['value' => $elapsed->d, 'label' => $elapsed->d === 1 ? __('día') : __('días')],
     ], fn (array $unit, int $index) => $unit['value'] > 0 || $index === 2, ARRAY_FILTER_USE_BOTH) : [];
     $totalDays = $since ? (int) $since->diffInDays(now()) : 0;
 @endphp
@@ -28,14 +28,14 @@
         <div class="inv-wrap inv-wrap--wide">
             @include('invitations.partials.section-header', [
                 'compact' => true,
-                'eyebrow' => 'Desde el '.$since->locale('es')->translatedFormat('j \d\e F \d\e Y'),
-                'title' => ($data['titulo'] ?? null) ?: 'Llevamos juntos',
+                'eyebrow' => __('Desde el :date', ['date' => $since->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('j \d\e F \d\e Y'))]),
+                'title' => ($data['titulo'] ?? null) ?: __('Llevamos juntos'),
             ])
 
             <div class="inv-scratch"
                 x-data="scratchReveal({ threshold: 0.45 })"
                 data-story-gate
-                data-scratch-label="Raspa para descubrirlo"
+                data-scratch-label="{{ __('Raspa para descubrirlo') }}"
                 :data-gate-done="revealed"
                 :class="{ 'is-scratching': scratching }">
                 <div class="inv-scratch__surface">
@@ -49,7 +49,7 @@
                     </div>
 
                     <p class="inv-milestone__total">
-                        <span data-count-to="{{ $totalDays }}" data-count-format="thousands">{{ number_format($totalDays, 0, ',', '.') }}</span> días compartidos
+                        <span data-count-to="{{ $totalDays }}" data-count-format="thousands">{{ number_format($totalDays, 0, ',', '.') }}</span> {{ __('días compartidos') }}
                     </p>
 
                     <canvas class="inv-scratch__canvas" x-ref="canvas" data-needs-js aria-hidden="true"
@@ -57,7 +57,7 @@
                 </div>
 
                 <button type="button" class="inv-scratch__skip" data-needs-js x-show="!revealed" @click="reveal()">
-                    Mostrar sin raspar
+                    {{ __('Mostrar sin raspar') }}
                 </button>
             </div>
         </div>

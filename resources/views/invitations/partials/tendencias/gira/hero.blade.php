@@ -6,11 +6,11 @@
     de «Fecha única». Estilos en tendencias/gira.css.
 --}}
 @php
-    $date = $page->eventDate->locale('es');
+    $date = $page->eventDate->locale(app()->getLocale());
     $age = $page->age();
-    $heroEyebrow = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? '¡Celebremos juntos!');
+    $heroEyebrow = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? __('¡Celebremos juntos!'));
     $heroMessage = trim((string) ($page->welcome['mensaje'] ?? ''));
-    $cities = array_values(array_filter(array_map('trim', explode('·', (string) ($invCopy['tour_cities'] ?? 'Tokio · París · Nueva York · Londres')))));
+    $cities = array_values(array_filter(array_map('trim', explode('·', (string) ($invCopy['tour_cities'] ?? __('Tokio · París · Nueva York · Londres'))))));
     $shortDate = fn ($day) => \Illuminate\Support\Str::upper($day->translatedFormat('j M'));
     // Las ciudades canceladas son los días previos de la gira
     $cityCount = count($cities);
@@ -21,14 +21,14 @@
         <span class="gr-tape gr-tape--left" aria-hidden="true"></span>
         <span class="gr-tape gr-tape--right" aria-hidden="true"></span>
 
-        <p class="gr-poster__presents inv-fade-up">{{ $invCopy['tour_presents'] ?? 'En concierto' }}</p>
+        <p class="gr-poster__presents inv-fade-up">{{ $invCopy['tour_presents'] ?? __('En concierto') }}</p>
 
         <div class="gr-poster__headline inv-fade-up inv-fade-up--1">
             @if($age !== null)
                 <span class="gr-poster__age" aria-hidden="true">{{ $age }}</span>
             @endif
             <h1 class="gr-poster__name" data-text="{{ $page->displayName }}">{{ $page->displayName }}</h1>
-            <p class="gr-poster__tour">{{ $invCopy['tour_name'] ?? 'Gira' }} {{ $age ?? $date->format('Y') }}</p>
+            <p class="gr-poster__tour">{{ $invCopy['tour_name'] ?? __('Gira') }} {{ $age ?? $date->format('Y') }}</p>
         </div>
 
         <figure class="gr-poster__photo inv-fade-up inv-fade-up--2">
@@ -44,7 +44,7 @@
                 <li class="gr-date is-cancelled">
                     <span class="gr-date__day">{{ $shortDate($date->copy()->subDays($cityCount - $index)) }}</span>
                     <span class="gr-date__city"><s>{{ $city }}</s></span>
-                    <span class="gr-date__status">{{ $invCopy['tour_cancelled'] ?? 'Cancelado' }}</span>
+                    <span class="gr-date__status">{{ $invCopy['tour_cancelled'] ?? __('Cancelado') }}</span>
                 </li>
             @endforeach
             <li class="gr-date is-on">
@@ -57,7 +57,7 @@
                     @endif
                 </span>
                 <span class="gr-date__status">{{ $date->format('H:i') }}</span>
-                <span class="gr-date__stamp" aria-hidden="true">{{ $invCopy['tour_only'] ?? 'Fecha única' }}</span>
+                <span class="gr-date__stamp" aria-hidden="true">{{ $invCopy['tour_only'] ?? __('Fecha única') }}</span>
             </li>
         </ol>
 
@@ -65,11 +65,11 @@
             <p class="gr-poster__message inv-fade-up inv-fade-up--3">{{ $heroMessage }}</p>
         @endif
 
-        <p class="gr-poster__doors">{{ $invCopy['tour_doors'] ?? 'Puertas' }} {{ $date->format('H:i') }} · {{ \Illuminate\Support\Str::ucfirst($date->translatedFormat('l j \d\e F')) }}</p>
+        <p class="gr-poster__doors">{{ $invCopy['tour_doors'] ?? __('Puertas') }} {{ $date->format('H:i') }} · {{ \Illuminate\Support\Str::ucfirst($date->translatedFormat(\App\Support\Localization::dateFormat('l j \d\e F'))) }}</p>
     </div>
 
     <a href="#contenido" class="inv-hero__scroll gr-hero__scroll">
-        {{ $invCopy['scroll_hint'] ?? 'Desliza' }}
+        {{ $invCopy['scroll_hint'] ?? __('Desliza') }}
         <span class="inv-hero__scroll-line" aria-hidden="true"></span>
     </a>
 </header>

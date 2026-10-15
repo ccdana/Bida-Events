@@ -7,6 +7,7 @@ use App\Models\Guest;
 use App\Models\Invitation;
 use App\Modules\Module;
 use App\Support\InvitationTemplates;
+use App\Support\Localization;
 use App\Support\Packages;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
@@ -88,9 +89,9 @@ class DashboardViewData
             'confirmedPasses' => (int) ($invitation->confirmed_passes_sum ?? 0),
             'contributionCount' => (int) ($invitation->contributions_count ?? 0),
             'client' => $invitation->user ? ['name' => $invitation->user->name, 'username' => $invitation->user->username] : null,
-            'eventDateLabel' => $invitation->event_date?->locale('es')->translatedFormat('j \d\e F \d\e Y, H:i') ?? 'Sin fecha',
-            'createdLabel' => $invitation->created_at?->locale('es')->translatedFormat('j \d\e F \d\e Y') ?? '',
-            'expiresLabel' => $invitation->expires_at?->locale('es')->translatedFormat('j \d\e F \d\e Y') ?? 'Sin vencimiento',
+            'eventDateLabel' => $invitation->event_date?->locale(app()->getLocale())->translatedFormat(Localization::dateFormat('j \d\e F \d\e Y, H:i')) ?? 'Sin fecha',
+            'createdLabel' => $invitation->created_at?->locale(app()->getLocale())->translatedFormat(Localization::dateFormat('j \d\e F \d\e Y')) ?? '',
+            'expiresLabel' => $invitation->expires_at?->locale(app()->getLocale())->translatedFormat(Localization::dateFormat('j \d\e F \d\e Y')) ?? 'Sin vencimiento',
             'isExpired' => (bool) $invitation->expires_at?->isBefore(now()->startOfDay()),
             'isPast' => (bool) $invitation->is_post_event,
             'publicUrl' => route('invitation.show', $invitation->slug),

@@ -28,6 +28,16 @@ final class ShowcaseDemos
     ];
 
     /**
+     * Los nombres de evento de las muestras, para comprobar que lang/en.json los tiene.
+     *
+     * @return list<string>
+     */
+    public static function strings(): array
+    {
+        return array_values(array_unique(array_column(self::EVENTS, 0)));
+    }
+
+    /**
      * Todas las invitaciones de muestra: las que se abren en /muestra y la vista previa de la portada.
      * El panel del administrador las lista aparte (sección «Muestras») para no mezclarlas con las de clientes.
      *
@@ -84,7 +94,7 @@ final class ShowcaseDemos
                     return null;
                 }
 
-                [$event, $icon] = self::EVENTS[$template['event']] ?? ['Evento', 'sparkle'];
+                [$event, $icon] = self::EVENTS[$template['event']] ?? [__('Evento'), 'sparkle'];
 
                 return [
                     // Muestra interactiva (nada se guarda) y la misma con la apertura que se abre sola
@@ -93,11 +103,11 @@ final class ShowcaseDemos
                     // Captura de cómo empieza la apertura (showcase:capture); sin ella, las páginas usan la muestra en vivo
                     'capture' => self::capture($slug),
                     'title' => $invitation->title,
-                    'label' => $template['label'],
-                    'description' => $template['description'],
+                    'label' => __($template['label']),
+                    'description' => __($template['description']),
                     // Una línea para las listas de diseños (la temporada de la portada)
-                    'tagline' => $template['tagline'] ?? null,
-                    'event' => $event,
+                    'tagline' => isset($template['tagline']) ? __($template['tagline']) : null,
+                    'event' => __($event),
                     'eventKey' => $template['event'],
                     'icon' => $icon,
                     // La tarjeta del diseño en la página por evento muestra sus colores y si es de las nuevas

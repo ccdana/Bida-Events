@@ -5,10 +5,10 @@
     día, la hora y el año), el lugar y el mensaje. Estilos en css/invitation/tendencias/reloj.css.
 --}}
 @php
-    $heroEyebrow = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? 'Nos casamos');
+    $heroEyebrow = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? __('Nos casamos'));
     $heroMessage = $page->welcome['mensaje'] ?? '';
-    $date = $page->eventDate->locale('es');
-    $heroDay = ($page->welcome['fecha_texto'] ?? null) ?: \Illuminate\Support\Str::ucfirst($date->translatedFormat('l j \d\e F'));
+    $date = $page->eventDate->locale(app()->getLocale());
+    $heroDay = ($page->welcome['fecha_texto'] ?? null) ?: \Illuminate\Support\Str::ucfirst($date->translatedFormat(\App\Support\Localization::dateFormat('l j \d\e F')));
     $hour = (int) $page->eventDate->format('G') % 12;
     $minute = (int) $page->eventDate->format('i');
     $names = $page->names();
@@ -22,9 +22,9 @@
             @include('invitations.partials.tendencias.photo', ['widths' => [480, 768, 1200], 'width' => 768, 'sizes' => '(min-width: 640px) 15rem, 56vw'])
         </span>
         <span class="rl-face__ring" aria-hidden="true">
-            <span class="rl-face__numeral rl-face__numeral--12">XII</span>
-            <span class="rl-face__numeral rl-face__numeral--6">VI</span>
-            <span class="rl-face__numeral rl-face__numeral--9">IX</span>
+            <span class="rl-face__numeral rl-face__numeral--12">{{ __('XII') }}</span>
+            <span class="rl-face__numeral rl-face__numeral--6">{{ __('VI') }}</span>
+            <span class="rl-face__numeral rl-face__numeral--9">{{ __('IX') }}</span>
         </span>
         <span class="rl-face__date" aria-hidden="true">{{ mb_strtoupper(rtrim($date->translatedFormat('D'), '.')) }} {{ $date->format('j') }}</span>
         <span class="rl-hand rl-hand--hour" aria-hidden="true"></span>
@@ -43,15 +43,15 @@
     {{-- Las subesferas: el día, la hora y el año --}}
     <dl class="rl-subdials inv-fade-up inv-fade-up--2">
         <div class="rl-subdial">
-            <dt>{{ $invCopy['watch_date'] ?? 'Día' }}</dt>
+            <dt>{{ $invCopy['watch_date'] ?? __('Día') }}</dt>
             <dd>{{ $date->format('j') }} <small>{{ rtrim($date->translatedFormat('M'), '.') }}</small></dd>
         </div>
         <div class="rl-subdial">
-            <dt>{{ $invCopy['watch_time'] ?? 'Hora' }}</dt>
+            <dt>{{ $invCopy['watch_time'] ?? __('Hora') }}</dt>
             <dd>{{ $page->eventDate->format('H:i') }}</dd>
         </div>
         <div class="rl-subdial">
-            <dt>Año</dt>
+            <dt>{{ __('Año') }}</dt>
             <dd>{{ $date->format('Y') }}</dd>
         </div>
     </dl>
@@ -59,7 +59,7 @@
     <p class="rl-when inv-fade-up inv-fade-up--3">{{ $heroDay }}</p>
     @if($page->placeName)
         <p class="rl-place inv-fade-up inv-fade-up--3">
-            <span>{{ $invCopy['watch_place'] ?? 'Lugar' }}</span>
+            <span>{{ $invCopy['watch_place'] ?? __('Lugar') }}</span>
             {{ $page->placeName }}
         </p>
     @endif
@@ -69,7 +69,7 @@
     @endif
 
     <a href="#contenido" class="inv-hero__scroll rl-hero__scroll">
-        {{ $invCopy['scroll_hint'] ?? 'Desliza' }}
+        {{ $invCopy['scroll_hint'] ?? __('Desliza') }}
         <span class="inv-hero__scroll-line" aria-hidden="true"></span>
     </a>
 </header>

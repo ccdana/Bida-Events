@@ -15,7 +15,7 @@ class HalloweenProfile extends EventProfile
 
     public function label(): string
     {
-        return 'Halloween';
+        return __('Halloween');
     }
 
     public function season(): string
@@ -41,16 +41,16 @@ class HalloweenProfile extends EventProfile
     public function heroFields(): array
     {
         return [
-            'nombre' => ['label' => 'Nombre de la fiesta o de quien invita', 'placeholder' => 'Ej. La noche de Diego', 'help' => 'Va en grande en la portada, bajo la luna.'],
+            'nombre' => ['label' => __('Nombre de la fiesta o de quien invita'), 'placeholder' => __('Ej. La noche de Diego'), 'help' => __('Va en grande en la portada, bajo la luna.')],
         ];
     }
 
     public function featuredGroups(): array
     {
         return [
-            'padrinos' => ['Anfitriones', 'Anfitrión'],
-            'chambelanes' => ['DJ y show', 'Artista'],
-            'damitas' => ['Jurado de disfraces', 'Jurado'],
+            'padrinos' => [__('Anfitriones'), __('Anfitrión')],
+            'chambelanes' => [__('DJ y show'), __('Artista')],
+            'damitas' => [__('Jurado de disfraces'), __('Jurado')],
         ];
     }
 
@@ -58,14 +58,14 @@ class HalloweenProfile extends EventProfile
     public function required(): array
     {
         return [
-            'bienvenida' => ['nombre' => 'Falta el nombre de la fiesta'],
-            'ubicacion' => ['nombre_lugar' => 'Falta el lugar de la fiesta'],
-            'dress_code' => ['sugerencias' => 'Cuenta qué disfraces esperan'],
+            'bienvenida' => ['nombre' => __('Falta el nombre de la fiesta')],
+            'ubicacion' => ['nombre_lugar' => __('Falta el lugar de la fiesta')],
+            'dress_code' => ['sugerencias' => __('Cuenta qué disfraces esperan')],
         ];
     }
 
     public function sample(): array
     {
-        return ['name' => 'La noche de Diego', 'subtitle' => 'Fiesta de disfraces'];
+        return ['name' => __('La noche de Diego'), 'subtitle' => __('Fiesta de disfraces')];
     }
 }

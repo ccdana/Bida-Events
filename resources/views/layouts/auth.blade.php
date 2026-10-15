@@ -12,10 +12,13 @@
     <main data-rotator data-rotator-interval="3600" class="grid min-h-[100dvh] lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
         <div class="flex flex-col px-5 py-6 sm:px-10 lg:px-16">
             <div class="flex items-center justify-between gap-4">
-                <a href="{{ route('home') }}" class="text-lg">
+                <a href="{{ lroute('home') }}" class="text-lg">
                     <x-brand.logo animated />
                 </a>
-                @include('layouts.partials.theme-toggle')
+                <div class="flex items-center gap-4">
+                    <x-site.language-switch />
+                    @include('layouts.partials.theme-toggle')
+                </div>
             </div>
 
             <div class="mx-auto my-auto w-full max-w-sm py-14 lg:mx-0">

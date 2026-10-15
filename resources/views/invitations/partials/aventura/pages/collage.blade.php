@@ -8,11 +8,11 @@
     // Diseño => cuántas fotos lleva la hoja
     $collageLayouts = ['corazon' => 3, 'girasol' => 5, 'libre' => 4, 'polaroids' => 3, 'circulos' => 4];
     $collageCaptions = [
-        'corazon' => 'Todo lo que quiero está aquí',
-        'girasol' => 'Contigo todo florece',
-        'libre' => 'Así nos vemos juntos',
-        'polaroids' => 'Momentos que guardo',
-        'circulos' => 'Mis fotos favoritas',
+        'corazon' => __('Todo lo que quiero está aquí'),
+        'girasol' => __('Contigo todo florece'),
+        'libre' => __('Así nos vemos juntos'),
+        'polaroids' => __('Momentos que guardo'),
+        'circulos' => __('Mis fotos favoritas'),
     ];
     $collageSheets = [];
     $collageNames = array_keys($collageLayouts);
@@ -27,7 +27,7 @@
 @foreach($collageSheets as $sheetIndex => $sheet)
     <article class="nb-page nb-page--{{ $sheetIndex % 2 === 0 ? 'paper' : 'kraft' }} nb-collage-page" data-nb-page @if($sheetIndex === 0) id="collage" @endif>
         <div class="nb-page__inner">
-            <p class="nb-eyebrow">{{ $sheetIndex === 0 ? (($data['titulo'] ?? null) ?: 'Nuestro collage') : 'Collage' }}</p>
+            <p class="nb-eyebrow">{{ $sheetIndex === 0 ? (($data['titulo'] ?? null) ?: __('Nuestro collage')) : __('Collage') }}</p>
 
             {{-- El collage libre lo acomoda resources/js/aventura/collage.js según la forma de cada foto --}}
             <div class="nb-collage nb-collage--{{ $sheet['layout'] }} nb-collage--n{{ count($sheet['photos']) }}" @if($sheet['layout'] === 'libre') data-nb-free-collage @endif>
@@ -40,7 +40,7 @@
                         @if((in_array($sheet['layout'], ['polaroids', 'corazon'], true) && $photoIndex > 0) || ($sheet['layout'] === 'libre' && $photoIndex % 3 === 0))
                             <span class="nb-tape nb-tape--{{ $photoIndex % 2 === 0 ? 'a' : 'b' }}" aria-hidden="true"></span>
                         @endif
-                        @include('invitations.partials.aventura.photo', ['photo' => $photo, 'width' => 600, 'alt' => 'Foto del collage'])
+                        @include('invitations.partials.aventura.photo', ['photo' => $photo, 'width' => 600, 'alt' => __('Foto del collage')])
                     </figure>
                 @endforeach
 

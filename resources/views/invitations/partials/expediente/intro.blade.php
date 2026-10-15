@@ -9,25 +9,25 @@
     :class="{ 'is-pulling': stage >= 1, 'is-open': stage >= 2 }"
     role="dialog"
     aria-modal="true"
-    aria-label="Invitación a la fiesta de Halloween de {{ $page->displayName }}">
+    aria-label="{{ __('Invitación a la fiesta de Halloween de :displayName', ['displayName' => $page->displayName]) }}">
     <p class="ex-intro__eyebrow">
         @if($guest)
-            {{ $guest->name }}, {{ mb_strtolower($invCopy['intro_eyebrow'] ?? 'Tienes un caso asignado') }}
+            {{ $guest->name }}, {{ mb_strtolower($invCopy['intro_eyebrow'] ?? __('Tienes un caso asignado')) }}
         @else
-            {{ $invCopy['intro_eyebrow'] ?? 'Tienes un caso asignado' }}
+            {{ $invCopy['intro_eyebrow'] ?? __('Tienes un caso asignado') }}
         @endif
     </p>
 
-    <button type="button" class="ex-closed" data-cover-trigger @click="open()" aria-label="Abrir la carpeta del caso">
+    <button type="button" class="ex-closed" data-cover-trigger @click="open()" aria-label="{{ __('Abrir la carpeta del caso') }}">
         <span class="ex-closed__sheet" aria-hidden="true">
             <i></i><i></i><i></i><i></i>
         </span>
         <span class="ex-closed__folder">
-            <span class="ex-closed__tab">{{ $invCopy['case_label'] ?? 'Expediente' }}</span>
+            <span class="ex-closed__tab">{{ $invCopy['case_label'] ?? __('Expediente') }}</span>
             <span class="ex-closed__label">{{ $page->displayName }}</span>
-            <span class="ex-closed__stamp">{{ $invCopy['case_open'] ?? 'Caso abierto' }}</span>
+            <span class="ex-closed__stamp">{{ $invCopy['case_open'] ?? __('Caso abierto') }}</span>
         </span>
     </button>
 
-    <p class="ex-intro__hint">{{ $invCopy['intro_hint'] ?? 'Toca la carpeta para abrirla' }}</p>
+    <p class="ex-intro__hint">{{ $invCopy['intro_hint'] ?? __('Toca la carpeta para abrirla') }}</p>
 </div>

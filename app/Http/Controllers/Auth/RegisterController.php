@@ -50,6 +50,7 @@ class RegisterController extends Controller
             // El usuario de siempre sigue existiendo (maria.valenzuela), aunque entre con el correo
             'username' => $credentials->username($request->validated('name')),
             'email' => $request->validated('email'),
+            'locale' => app()->getLocale(),
             'password' => Hash::make($request->validated('password')),
         ]);
 
@@ -81,7 +82,7 @@ class RegisterController extends Controller
         return [
             'name' => $plan['name'],
             'price' => Money::format($plan['final_price']),
-            'quota' => $plan['quota_per_month'] === null ? 'Invitaciones sin tope' : ($plan['quota_per_month'] === 1 ? '1 invitación al mes' : $plan['quota_per_month'].' invitaciones al mes'),
+            'quota' => $plan['quota_per_month'] === null ? __('Invitaciones sin tope') : ($plan['quota_per_month'] === 1 ? __('1 invitación al mes') : __(':quota_per_month invitaciones al mes', ['quota_per_month' => $plan['quota_per_month']])),
         ];
     }
 }

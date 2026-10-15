@@ -14,7 +14,7 @@
     :class="{ 'is-opening': stage >= 1, 'is-leaving': stage >= 4 }"
     role="dialog"
     aria-modal="true"
-    aria-label="Invitación de {{ implode(' y ', $coupleNames) }}">
+    aria-label="{{ __('Invitación de :value', ['value' => implode(' y ', $coupleNames)]) }}">
     <div class="inv-boda-cover__glow" aria-hidden="true"></div>
 
     @include('invitations.partials.boda.branch', ['class' => 'inv-boda-cover__branch inv-boda-cover__branch--top'])
@@ -29,9 +29,9 @@
     <div class="inv-boda-cover__content">
         <p class="inv-boda-cover__eyebrow">
             @if($guest)
-                Para {{ $guest->name }}
+                {{ __('Para :name', ['name' => $guest->name]) }}
             @else
-                {{ $invCopy['cover_eyebrow'] ?? 'Tienes una invitación' }}
+                {{ $invCopy['cover_eyebrow'] ?? __('Tienes una invitación') }}
             @endif
         </p>
         <p class="inv-boda-cover__names">{{ $coverNames }}</p>
@@ -39,11 +39,11 @@
         <button type="button" class="inv-boda-envelope" data-cover-trigger
             :class="{ 'is-open': stage >= 2, 'is-reveal': stage >= 3 }"
             @click="open()"
-            aria-label="Abrir la invitación">
+            aria-label="{{ __('Abrir la invitación') }}">
             <span class="inv-boda-envelope__back"></span>
 
             <span class="inv-boda-envelope__letter">
-                <span class="inv-boda-envelope__letter-eyebrow">{{ $invCopy['hero_eyebrow'] ?? 'Nos casamos' }}</span>
+                <span class="inv-boda-envelope__letter-eyebrow">{{ $invCopy['hero_eyebrow'] ?? __('Nos casamos') }}</span>
                 <span class="inv-boda-envelope__letter-names">{{ $coverNames }}</span>
                 <span class="inv-boda-envelope__letter-rule"></span>
                 <span class="inv-boda-envelope__letter-date">{{ $page->eventDate->format('d · m · Y') }}</span>
@@ -56,7 +56,7 @@
 
         <p class="inv-boda-cover__hint">
             <span class="inv-boda-cover__hint-dot" aria-hidden="true"></span>
-            {{ $invCopy['intro_hint'] ?? 'Toca el sello para abrir' }}
+            {{ $invCopy['intro_hint'] ?? __('Toca el sello para abrir') }}
         </p>
     </div>
 </div>

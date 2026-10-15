@@ -7,22 +7,22 @@
     tendencias/funcion.css.
 --}}
 @php
-    $date = $page->eventDate->locale('es');
-    $heroEyebrow = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? 'Fiesta de Halloween');
+    $date = $page->eventDate->locale(app()->getLocale());
+    $heroEyebrow = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? __('Fiesta de Halloween'));
     $heroMessage = trim((string) ($page->welcome['mensaje'] ?? ''));
-    $heroDay = ($page->welcome['fecha_texto'] ?? null) ?: \Illuminate\Support\Str::ucfirst($date->translatedFormat('l j \d\e F'));
+    $heroDay = ($page->welcome['fecha_texto'] ?? null) ?: \Illuminate\Support\Str::ucfirst($date->translatedFormat(\App\Support\Localization::dateFormat('l j \d\e F')));
     $cssText = fn (string $text) => trim(str_replace(['<', '>', '"', '\\'], '', $text));
 @endphp
 
 <style>
-    .inv-funcion { --fn-intermission: "{{ $cssText($invCopy['film_intermission'] ?? 'Intermedio') }}"; }
+    .inv-funcion { --fn-intermission: "{{ $cssText($invCopy['film_intermission'] ?? __('Intermedio')) }}"; }
 </style>
 
 <header id="inicio" class="inv-hero fn-hero">
     <div class="fn-poster">
         <span class="fn-bulbs" aria-hidden="true"></span>
 
-        <p class="fn-poster__presents inv-fade-up">{{ $invCopy['intro_eyebrow'] ?? 'Función de estreno' }}</p>
+        <p class="fn-poster__presents inv-fade-up">{{ $invCopy['intro_eyebrow'] ?? __('Función de estreno') }}</p>
         <h1 class="fn-poster__title inv-fade-up inv-fade-up--1">{{ $page->displayName }}</h1>
 
         <figure class="fn-poster__art inv-fade-up inv-fade-up--2">
@@ -50,8 +50,8 @@
         <p class="fn-poster__tagline inv-fade-up inv-fade-up--2">{{ $heroEyebrow }}</p>
 
         <div class="fn-rating inv-fade-up inv-fade-up--3">
-            <span class="fn-rating__badge">{{ $invCopy['film_rating'] ?? 'Clasificación A' }}</span>
-            <span class="fn-rating__text">{{ $invCopy['film_rating_text'] ?? 'Apta para valientes de todas las edades' }}</span>
+            <span class="fn-rating__badge">{{ $invCopy['film_rating'] ?? __('Clasificación A') }}</span>
+            <span class="fn-rating__text">{{ $invCopy['film_rating_text'] ?? __('Apta para valientes de todas las edades') }}</span>
         </div>
 
         @if($heroMessage !== '')
@@ -60,16 +60,16 @@
 
         {{-- El bloque de créditos del afiche, con los datos de la fiesta --}}
         <dl class="fn-billing inv-fade-up inv-fade-up--3">
-            <div><dt>{{ $invCopy['film_premiere'] ?? 'Estreno' }}</dt><dd>{{ $heroDay }}</dd></div>
-            <div><dt>{{ $invCopy['film_show'] ?? 'Función' }}</dt><dd>{{ $date->format('H:i') }}</dd></div>
+            <div><dt>{{ $invCopy['film_premiere'] ?? __('Estreno') }}</dt><dd>{{ $heroDay }}</dd></div>
+            <div><dt>{{ $invCopy['film_show'] ?? __('Función') }}</dt><dd>{{ $date->format('H:i') }}</dd></div>
             @if($page->placeName)
-                <div><dt>{{ $invCopy['film_theater'] ?? 'Sala' }}</dt><dd><a href="#ubicacion">{{ $page->placeName }}</a></dd></div>
+                <div><dt>{{ $invCopy['film_theater'] ?? __('Sala') }}</dt><dd><a href="#ubicacion">{{ $page->placeName }}</a></dd></div>
             @endif
         </dl>
     </div>
 
     <a href="#contenido" class="inv-hero__scroll fn-hero__scroll">
-        {{ $invCopy['scroll_hint'] ?? 'Desliza' }}
+        {{ $invCopy['scroll_hint'] ?? __('Desliza') }}
         <span class="inv-hero__scroll-line" aria-hidden="true"></span>
     </a>
 </header>

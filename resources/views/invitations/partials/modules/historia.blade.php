@@ -9,7 +9,7 @@
 @if($storyChapters !== [])
     <section class="inv-section reveal" id="historia">
         <div class="inv-wrap">
-            @include('invitations.partials.section-header', ['compact' => true, 'title' => ($data['titulo'] ?? null) ?: 'Nuestra historia'])
+            @include('invitations.partials.section-header', ['compact' => true, 'title' => ($data['titulo'] ?? null) ?: __('Nuestra historia')])
             @foreach($storyChapters as $chapter)
                 <article class="inv-card-entry">
                     @if(! empty($chapter['titulo']))

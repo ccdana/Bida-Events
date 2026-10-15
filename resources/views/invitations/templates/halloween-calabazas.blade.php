@@ -11,7 +11,7 @@
 @endphp
 <!DOCTYPE html>
 {{-- La clase no-js la quita el primer script de la cabecera (ver shell/head) --}}
-<html lang="es" class="no-js">
+<html lang="{{ app()->getLocale() }}" class="no-js">
 <head>
     @include('invitations.partials.shell.head')
     @if($showIntro)
@@ -21,7 +21,7 @@
 <body class="inv-page inv-halloween overflow-x-hidden {{ $page->hasPlayer ? 'has-player' : '' }}" x-data="invitationApp()" x-init="init()">
     @include('invitations.partials.halloween.defs')
 
-    <a class="inv-skip" href="#contenido">{{ $invCopy['skip_link'] ?? 'Saltar al contenido' }}</a>
+    <a class="inv-skip" href="#contenido">{{ $invCopy['skip_link'] ?? __('Saltar al contenido') }}</a>
 
     @if($showIntro)
         @include('invitations.partials.halloween.intro')
@@ -47,7 +47,7 @@
     @include('invitations.partials.shell.footer', [
         'footerClass' => 'inv-hw-footer',
         'footerName' => $page->displayName,
-        'footerDate' => \Illuminate\Support\Str::ucfirst($page->eventDate->locale('es')->translatedFormat('l j \d\e F \d\e Y')),
+        'footerDate' => \Illuminate\Support\Str::ucfirst($page->eventDate->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('l j \d\e F \d\e Y'))),
         'footerOrnament' => 'pumpkin',
     ])
 

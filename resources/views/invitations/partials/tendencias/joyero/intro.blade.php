@@ -8,7 +8,7 @@
     transform y opacity. Lógica en shell/cover-component; estilos en css/invitation/tendencias/joyero.css.
 --}}
 @php
-    $introDate = \Illuminate\Support\Str::ucfirst($page->eventDate->locale('es')->translatedFormat('j \d\e F · H:i'));
+    $introDate = \Illuminate\Support\Str::ucfirst($page->eventDate->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('j \d\e F · H:i')));
 @endphp
 
 <div class="inv-themed-intro jo-intro"
@@ -17,8 +17,8 @@
     :class="{ 'is-unlocked': stage >= 1, 'is-open': stage >= 2 }"
     role="dialog"
     aria-modal="true"
-    aria-label="Invitación a los XV de {{ $page->displayName }}">
-    <p class="jo-intro__eyebrow">{{ $invCopy['intro_eyebrow'] ?? 'Un recuerdo para siempre' }}</p>
+    aria-label="{{ __('Invitación a los XV de :displayName', ['displayName' => $page->displayName]) }}">
+    <p class="jo-intro__eyebrow">{{ $invCopy['intro_eyebrow'] ?? __('Un recuerdo para siempre') }}</p>
 
     <div class="jo-box">
         {{-- El forro de la tapa: se despliega hacia arriba al abrir --}}
@@ -61,7 +61,7 @@
         {{-- El cuerpo: la marquetería, la cerradura y la llave --}}
         <div class="jo-box__body">
             <span class="jo-box__inlay" aria-hidden="true"></span>
-            <button type="button" class="jo-key" data-cover-trigger @click="open()" aria-label="Girar la llave y abrir el joyero">
+            <button type="button" class="jo-key" data-cover-trigger @click="open()" aria-label="{{ __('Girar la llave y abrir el joyero') }}">
                 <span class="jo-key__plate" aria-hidden="true"></span>
                 <svg class="jo-key__svg" viewBox="0 0 40 80" aria-hidden="true" focusable="false">
                     <g fill="url(#jo-brass)">
@@ -79,9 +79,9 @@
     <div class="jo-intro__meta">
         <p class="jo-intro__date">{{ $introDate }}</p>
         @if($guest)
-            <p class="jo-intro__guest">{{ $invCopy['guest_banner_eyebrow'] ?? 'Invitación para' }} {{ $guest->name }}</p>
+            <p class="jo-intro__guest">{{ $invCopy['guest_banner_eyebrow'] ?? __('Invitación para') }} {{ $guest->name }}</p>
         @endif
     </div>
 
-    <p class="jo-intro__hint">{{ $invCopy['intro_hint'] ?? 'Toca la llave para abrir el joyero' }}</p>
+    <p class="jo-intro__hint">{{ $invCopy['intro_hint'] ?? __('Toca la llave para abrir el joyero') }}</p>
 </div>

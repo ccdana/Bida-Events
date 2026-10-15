@@ -11,14 +11,14 @@
 @php
     // Lo que dice el aviso del primer toque, en el tono de cada plantilla
     $storyHint = [
-        'boda' => 'Toca para pasar la página',
-        'xv' => 'Toca para seguir la noche',
-        'bautizo' => 'Toca para seguir',
-        'cumple' => 'Toca para seguir la fiesta',
-        'graduacion' => 'Toca para seguir leyendo',
-        'halloween' => 'Toca si te atreves',
-        'babyshower' => 'Toca para seguir',
-    ][$page->eventKey] ?? 'Toca para seguir';
+        'boda' => __('Toca para pasar la página'),
+        'xv' => __('Toca para seguir la noche'),
+        'bautizo' => __('Toca para seguir'),
+        'cumple' => __('Toca para seguir la fiesta'),
+        'graduacion' => __('Toca para seguir leyendo'),
+        'halloween' => __('Toca si te atreves'),
+        'babyshower' => __('Toca para seguir'),
+    ][$page->eventKey] ?? __('Toca para seguir');
 @endphp
 
 <div class="inv-tale" data-inv-story data-theme="{{ $page->theme }}"
@@ -31,7 +31,7 @@
         </template>
     </div>
 
-    <button type="button" class="inv-tale__close" x-show="on" x-cloak @click="leave()" aria-label="Cerrar la historia y ver la página completa">
+    <button type="button" class="inv-tale__close" x-show="on" x-cloak @click="leave()" aria-label="{{ __('Cerrar la historia y ver la página completa') }}">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
     </button>
 
@@ -42,12 +42,12 @@
 
     {{-- Anterior, cuántas van y siguiente: visibles en la computadora, en el celular se toca la escena --}}
     <div class="inv-tale__controls" x-show="on" x-cloak>
-        <button type="button" class="inv-story__btn" @click="prev(true)" :disabled="index === 0" aria-label="Parte anterior">
+        <button type="button" class="inv-story__btn" @click="prev(true)" :disabled="index === 0" aria-label="{{ __('Parte anterior') }}">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
         <span class="inv-story__count" aria-hidden="true"><span x-text="index + 1"></span>/<span x-text="count"></span></span>
         <button type="button" class="inv-story__btn inv-story__btn--next" @click="next(true)"
-            :aria-label="index === count - 1 ? 'Volver a empezar' : 'Parte siguiente'">
+            :aria-label="index === count - 1 ? @js(__('Volver a empezar')) : @js(__('Parte siguiente'))">
             <svg x-show="index < count - 1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
             <svg x-show="index === count - 1" x-cloak viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4h4" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
@@ -65,7 +65,7 @@
         <span class="inv-tale__launcher-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="12" height="18" rx="2.5"/><path d="M3 6v12M21 6v12"/><path d="M10.5 9.5v5l4-2.5z" fill="currentColor" stroke="none"/></svg>
         </span>
-        <span class="inv-tale__launcher-label">{{ $invCopy['stories_label'] ?? 'Ver como historia' }}</span>
+        <span class="inv-tale__launcher-label">{{ $invCopy['stories_label'] ?? __('Ver como historia') }}</span>
     </button>
 
     <p class="sr-only" aria-live="polite" x-text="announce"></p>

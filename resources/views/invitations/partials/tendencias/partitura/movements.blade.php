@@ -7,21 +7,21 @@
 @php
     $eventos = $data['eventos'] ?? [];
     $roman = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'];
-    $tempos = ['Andante', 'Allegro', 'Adagio', 'Vivace', 'Moderato', 'Cantabile', 'Presto', 'Allegretto', 'Largo', 'Scherzo', 'Grazioso'];
+    $tempos = [__('Andante'), __('Allegro'), __('Adagio'), __('Vivace'), __('Moderato'), __('Cantabile'), __('Presto'), __('Allegretto'), __('Largo'), __('Scherzo'), __('Grazioso')];
 @endphp
 
 <section class="inv-section reveal pt-movements" id="itinerario">
     <div class="inv-wrap">
         @include('invitations.partials.section-header', [
-            'eyebrow' => $invCopy['itinerary_eyebrow'] ?? 'Programa del concierto',
-            'title' => $data['titulo'] ?? 'Itinerario',
+            'eyebrow' => $invCopy['itinerary_eyebrow'] ?? __('Programa del concierto'),
+            'title' => $data['titulo'] ?? __('Itinerario'),
         ])
 
         @if(count($eventos) > 0)
             <ol class="pt-program">
                 @foreach($eventos as $index => $evento)
                     @php
-                        $tempo = $loop->last && count($eventos) > 1 ? 'Finale' : $tempos[$index % count($tempos)];
+                        $tempo = $loop->last && count($eventos) > 1 ? __('Finale') : $tempos[$index % count($tempos)];
                         // Un compás distinto para cada movimiento: la melodía sube o baja según su lugar
                         $bar = collect(range(0, 3))->map(fn ($note) => [40 + $note * 70, [40, 30, 25, 35, 20, 30][($index + $note) % 6]])->all();
                     @endphp
@@ -49,7 +49,7 @@
                 @endforeach
             </ol>
         @else
-            <p class="inv-empty">{{ $invCopy['itinerary_empty'] ?? 'Muy pronto publicaremos el programa del concierto.' }}</p>
+            <p class="inv-empty">{{ $invCopy['itinerary_empty'] ?? __('Muy pronto publicaremos el programa del concierto.') }}</p>
         @endif
     </div>
 </section>

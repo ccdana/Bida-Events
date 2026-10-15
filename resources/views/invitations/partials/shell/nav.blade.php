@@ -12,7 +12,7 @@
         @click="toggle()"
         :aria-expanded="open.toString()"
         aria-controls="inv-nav-panel">
-        <span x-text="open ? 'Cerrar' : 'Menú'">{{ $invCopy['menu_label'] ?? 'Menú' }}</span>
+        <span x-text="open ? @js(__('Cerrar')) : @js(__('Menú'))">{{ $invCopy['menu_label'] ?? __('Menú') }}</span>
         <span class="inv-nav__bars" aria-hidden="true"><span></span><span></span></span>
     </button>
 
@@ -29,8 +29,8 @@
         x-transition:leave="inv-nav-anim"
         x-transition:leave-start="inv-nav-shown"
         x-transition:leave-end="inv-nav-hidden"
-        aria-label="Secciones de la invitación">
-        <p class="inv-label">{{ $invCopy['menu_heading'] ?? 'Invitación de' }}</p>
+        aria-label="{{ __('Secciones de la invitación') }}">
+        <p class="inv-label">{{ $invCopy['menu_heading'] ?? __('Invitación de') }}</p>
         <p class="inv-nav__heading">{{ $page->displayName }}</p>
 
         <ol class="inv-nav__list">
@@ -50,13 +50,13 @@
         {{-- Invitaciones: recorrer la misma invitación como historia, escena por escena (partials/story/invitation) --}}
         <button type="button" class="inv-nav__stories" x-show="hasStories" x-cloak @click="close(false); window.dispatchEvent(new CustomEvent('inv-story-enter'))">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke-dasharray="4 2.2"/><path d="M10.5 9v6l4.5-3z" fill="currentColor" stroke="none"/></svg>
-            {{ $invCopy['stories_label'] ?? 'Ver como historia' }}
+            {{ $invCopy['stories_label'] ?? __('Ver como historia') }}
         </button>
 
         {{-- Solo en modo historia (story.css): pasa a la página completa con scroll --}}
         <button type="button" class="inv-nav__story" @click="close(false); window.dispatchEvent(new CustomEvent('inv-story-leave'))">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 6h14M5 12h14M5 18h9" stroke-linecap="round"/></svg>
-            Ver todo en una página
+            {{ __('Ver todo en una página') }}
         </button>
     </nav>
 </div>

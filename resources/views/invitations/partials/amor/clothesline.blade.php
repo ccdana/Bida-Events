@@ -21,15 +21,15 @@
     <div class="inv-wrap inv-wrap--wide">
         @include('invitations.partials.section-header', [
             'compact' => true,
-            'eyebrow' => $invCopy['gallery_eyebrow'] ?? 'Nuestros momentos',
-            'title' => ($data['titulo'] ?? null) ?: 'Galería',
+            'eyebrow' => $invCopy['gallery_eyebrow'] ?? __('Nuestros momentos'),
+            'title' => ($data['titulo'] ?? null) ?: __('Galería'),
         ])
 
         @if($lineCount > 0)
             <div class="inv-line" x-data="clothesline()" data-story-ignore>
-                <ul class="inv-line__track" x-ref="track" tabindex="0" aria-label="Fotos colgadas en un tendedero. Desliza para ver más; toca una foto para darle la vuelta.">
+                <ul class="inv-line__track" x-ref="track" tabindex="0" aria-label="{{ __('Fotos colgadas en un tendedero. Desliza para ver más; toca una foto para darle la vuelta.') }}">
                     @foreach($linePhotos as $index => $photo)
-                        @php($caption = $photo['alt'] !== '' ? $photo['alt'] : 'Recuerdo '.($index + 1).' de '.$lineCount)
+                        @php($caption = $photo['alt'] !== '' ? $photo['alt'] : __('Recuerdo :value de :lineCount', ['value' => ($index + 1), 'lineCount' => $lineCount]))
                         <li class="inv-line__item" style="--i: {{ $index }}; --lean: {{ [-4, 3, -2, 5, -3, 2][$index % 6] }}deg; --sway: {{ 3.2 + ($index % 3) * 0.6 }}s">
                             <button type="button" class="inv-line__card"
                                 :class="{ 'is-flipped': flipped === {{ $index }} }"
@@ -51,7 +51,7 @@
             </div>
 
             @if($lineCount > 1)
-                <p class="inv-line__hint">Desliza por el tendedero · toca una foto para darle la vuelta</p>
+                <p class="inv-line__hint">{{ __('Desliza por el tendedero · toca una foto para darle la vuelta') }}</p>
             @endif
         @endif
     </div>

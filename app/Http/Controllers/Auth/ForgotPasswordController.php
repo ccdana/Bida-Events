@@ -28,8 +28,8 @@ class ForgotPasswordController extends Controller
         $request->validate([
             'email' => ['required', 'string', 'email', 'max:255'],
         ], [
-            'email.required' => 'Escribe el correo de tu cuenta.',
-            'email.email' => 'Revisa el correo: parece que le falta algo.',
+            'email.required' => __('Escribe el correo de tu cuenta.'),
+            'email.email' => __('Revisa el correo: parece que le falta algo.'),
         ]);
 
         // INVALID_USER y RESET_THROTTLED se responden igual que RESET_LINK_SENT
@@ -37,6 +37,6 @@ class ForgotPasswordController extends Controller
 
         return back()
             ->withInput($request->only('email'))
-            ->with('status', 'Si hay una cuenta con ese correo, te llegará un enlace para crear una contraseña nueva. Revisa también la carpeta de spam.');
+            ->with('status', __('Si hay una cuenta con ese correo, te llegará un enlace para crear una contraseña nueva. Revisa también la carpeta de spam.'));
     }
 }

@@ -17,7 +17,7 @@
 @endphp
 <!DOCTYPE html>
 {{-- La clase no-js la quita el primer script de la cabecera (ver shell/head) --}}
-<html lang="es" class="no-js">
+<html lang="{{ app()->getLocale() }}" class="no-js">
 <head>
     @include('invitations.partials.shell.head')
     @if(!empty($styles))
@@ -31,7 +31,7 @@
     @endif
 </head>
 <body class="inv-page inv-{{ $page->theme }} inv-themed {{ $bodyClass ?? '' }} overflow-x-hidden {{ $page->hasPlayer ? 'has-player' : '' }}" x-data="invitationApp()" x-init="init()">
-    <a class="inv-skip" href="#contenido">{{ $invCopy['skip_link'] ?? 'Saltar al contenido' }}</a>
+    <a class="inv-skip" href="#contenido">{{ $invCopy['skip_link'] ?? __('Saltar al contenido') }}</a>
 
     @if($showIntro)
         @include("invitations.partials.{$parts}.intro")
@@ -54,7 +54,7 @@
     @include('invitations.partials.shell.footer', [
         'footerClass' => "inv-{$page->theme}-footer",
         'footerName' => $page->displayName,
-        'footerDate' => \Illuminate\Support\Str::ucfirst($page->eventDate->locale('es')->translatedFormat($footerDate ?? 'l j \d\e F \d\e Y')),
+        'footerDate' => \Illuminate\Support\Str::ucfirst($page->eventDate->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat($footerDate ?? 'l j \d\e F \d\e Y'))),
         'footerOrnament' => 'line',
     ])
 

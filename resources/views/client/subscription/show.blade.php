@@ -38,11 +38,11 @@
                     @if($user->subscription_renews_at)
                         ·
                         @if($user->subscription_status === 'past_due')
-                            no pudimos cobrar la renovación del {{ $user->subscription_renews_at->locale('es')->translatedFormat('j \d\e F') }}: revisa tu tarjeta.
+                            no pudimos cobrar la renovación del {{ $user->subscription_renews_at->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('j \d\e F')) }}: revisa tu tarjeta.
                         @elseif($user->cancel_at_period_end)
-                            cancelaste la renovación: sigue activo hasta el {{ $user->subscription_renews_at->locale('es')->translatedFormat('j \d\e F \d\e Y') }}.
+                            cancelaste la renovación: sigue activo hasta el {{ $user->subscription_renews_at->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('j \d\e F \d\e Y')) }}.
                         @else
-                            se renueva solo el {{ $user->subscription_renews_at->locale('es')->translatedFormat('j \d\e F \d\e Y') }}.
+                            se renueva solo el {{ $user->subscription_renews_at->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('j \d\e F \d\e Y')) }}.
                         @endif
                     @endif
                 </p>
@@ -71,7 +71,7 @@
             @if($methods === [])
                 <p class="site-enter admin-card text-site-muted" style="--enter-index: 2">
                     El pago en línea no está disponible en este momento.
-                    <a href="{{ route('diy') }}#planes" class="font-medium text-site-ink underline underline-offset-4">Escríbenos</a> y lo activamos contigo.
+                    <a href="{{ lroute('diy') }}#planes" class="font-medium text-site-ink underline underline-offset-4">Escríbenos</a> y lo activamos contigo.
                 </p>
             @else
                 {{-- El total cambia con el plan, la forma de pago (su moneda) y los meses (con tarjeta, los ciclos que tiene la pasarela) --}}
@@ -176,7 +176,7 @@
                         <p class="max-w-[60ch] text-sm leading-relaxed text-site-muted">
                             Con tarjeta internacional se cobra en dólares y se suman los impuestos de tu país; en Bolivia, en bolivianos al cambio oficial.
                             Tu plan se activa en cuanto se confirma el cobro.
-                            Al continuar aceptas los <a href="{{ route('legal', 'terminos') }}" class="underline underline-offset-4">términos</a>.
+                            Al continuar aceptas los <a href="{{ lroute('legal', 'terminos') }}" class="underline underline-offset-4">términos</a>.
                         </p>
                     </div>
                 </form>

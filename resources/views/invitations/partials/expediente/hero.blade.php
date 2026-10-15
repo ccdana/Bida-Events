@@ -6,9 +6,9 @@
 --}}
 @php
     $heroMessage = $page->welcome['mensaje'] ?? '';
-    $heroEyebrow = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? 'Fiesta de Halloween');
+    $heroEyebrow = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? __('Fiesta de Halloween'));
     $heroDay = ($page->welcome['fecha_texto'] ?? null)
-        ?: \Illuminate\Support\Str::ucfirst($page->eventDate->locale('es')->translatedFormat('l j \d\e F'));
+        ?: \Illuminate\Support\Str::ucfirst($page->eventDate->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('l j \d\e F')));
 @endphp
 
 <header id="inicio" class="inv-hero ex-hero"
@@ -17,12 +17,12 @@
     @pointermove="aim($event)"
     @pointerdown="aim($event)">
     <div class="ex-folder inv-fade-up">
-        <span class="ex-folder__tab" aria-hidden="true">{{ $invCopy['case_label'] ?? 'Expediente' }}</span>
+        <span class="ex-folder__tab" aria-hidden="true">{{ $invCopy['case_label'] ?? __('Expediente') }}</span>
 
         <article class="ex-doc">
             <p class="ex-doc__head">
-                <span>{{ $invCopy['case_label'] ?? 'Expediente' }} N.º {{ $page->eventDate->format('d-m') }}</span>
-                <span class="ex-stamp">{{ $invCopy['case_open'] ?? 'Caso abierto' }}</span>
+                <span>{{ __(':value N.º :date', ['value' => $invCopy['case_label'] ?? __('Expediente'), 'date' => $page->eventDate->format('d-m')]) }}</span>
+                <span class="ex-stamp">{{ $invCopy['case_open'] ?? __('Caso abierto') }}</span>
             </p>
 
             <p class="ex-doc__kicker">{{ $heroEyebrow }}</p>
@@ -45,24 +45,24 @@
             </figure>
 
             <p class="ex-field">
-                <span class="ex-field__label">{{ $invCopy['case_lead'] ?? 'Investigador a cargo' }}</span>
+                <span class="ex-field__label">{{ $invCopy['case_lead'] ?? __('Investigador a cargo') }}</span>
             </p>
             <h1 class="ex-name">{{ $page->displayName }}</h1>
 
             <dl class="ex-fields">
                 <div>
-                    <dt class="ex-field__label">{{ $invCopy['case_seen'] ?? 'Cita' }}</dt>
+                    <dt class="ex-field__label">{{ $invCopy['case_seen'] ?? __('Cita') }}</dt>
                     <dd>{{ $heroDay }}, {{ $page->eventDate->format('H:i') }}</dd>
                 </div>
                 @if($page->placeName)
                     <div>
-                        <dt class="ex-field__label">{{ $invCopy['case_place'] ?? 'Lugar' }}</dt>
+                        <dt class="ex-field__label">{{ $invCopy['case_place'] ?? __('Lugar') }}</dt>
                         <dd>{{ $page->placeName }}</dd>
                     </div>
                 @endif
                 @if(!empty($heroMessage))
                     <div>
-                        <dt class="ex-field__label">{{ $invCopy['case_notes'] ?? 'Notas del caso' }}</dt>
+                        <dt class="ex-field__label">{{ $invCopy['case_notes'] ?? __('Notas del caso') }}</dt>
                         <dd class="ex-notes">{{ $heroMessage }}</dd>
                     </div>
                 @endif
@@ -78,11 +78,11 @@
 
     <button type="button" class="ex-lights" @click="lit = !lit" :aria-pressed="lit.toString()" aria-pressed="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.4 1 1.1 1 1.8V16h5v-.3c0-.7.4-1.4 1-1.8A6 6 0 0 0 12 3z"/></svg>
-        <span x-text="lit ? @js($invCopy['lights_off'] ?? 'Usar la linterna') : @js($invCopy['lights_on'] ?? 'Encender las luces')">{{ $invCopy['lights_on'] ?? 'Encender las luces' }}</span>
+        <span x-text="lit ? @js($invCopy['lights_off'] ?? __('Usar la linterna')) : @js($invCopy['lights_on'] ?? __('Encender las luces'))">{{ $invCopy['lights_on'] ?? __('Encender las luces') }}</span>
     </button>
 
     <a href="#contenido" class="inv-hero__scroll ex-hero__scroll">
-        {{ $invCopy['scroll_hint'] ?? 'Desliza' }}
+        {{ $invCopy['scroll_hint'] ?? __('Desliza') }}
         <span class="inv-hero__scroll-line" aria-hidden="true"></span>
     </a>
 </header>

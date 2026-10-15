@@ -5,7 +5,7 @@
     $opciones = array_values(array_filter(is_array($regalos['opciones'] ?? null) ? $regalos['opciones'] : [], fn ($gift) => !empty($gift['titulo'] ?? null)));
 
     $bankFields = array_filter(
-        ['banco' => 'Banco', 'titular' => 'Titular', 'ci' => 'Documento de identidad', 'cuenta' => 'Número de cuenta'],
+        ['banco' => __('Banco'), 'titular' => __('Titular'), 'ci' => __('Documento de identidad'), 'cuenta' => __('Número de cuenta')],
         fn ($label, $key) => !empty($banco[$key] ?? null),
         ARRAY_FILTER_USE_BOTH
     );
@@ -22,9 +22,9 @@
         @include('invitations.partials.section-header', [
             'compact' => true,
             'lottie' => 'gift',
-            'eyebrow' => $invCopy['gifts_eyebrow'] ?? 'Detalles especiales',
-            'title' => $regalos['titulo'] ?? 'Regalos',
-            'intro' => $invCopy['gifts_intro'] ?? 'Tu presencia es mi mejor regalo. Si deseas tener un detalle, aquí tienes algunas opciones.',
+            'eyebrow' => $invCopy['gifts_eyebrow'] ?? __('Detalles especiales'),
+            'title' => $regalos['titulo'] ?? __('Regalos'),
+            'intro' => $invCopy['gifts_intro'] ?? __('Tu presencia es mi mejor regalo. Si deseas tener un detalle, aquí tienes algunas opciones.'),
         ])
 
         <ul class="inv-list">
@@ -35,8 +35,8 @@
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 10l9-6 9 6M5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 20h18" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </span>
                         <span class="inv-gift__body">
-                            <span class="inv-gift__title">{{ $invCopy['gifts_bank_title'] ?? 'Transferencia bancaria' }}</span>
-                            <span class="inv-gift__text">Ver datos de la cuenta{{ !empty($banco['qr_url']) ? ' y código QR' : '' }}</span>
+                            <span class="inv-gift__title">{{ $invCopy['gifts_bank_title'] ?? __('Transferencia bancaria') }}</span>
+                            <span class="inv-gift__text">{{ !empty($banco['qr_url']) ? __('Ver datos de la cuenta y código QR') : __('Ver datos de la cuenta') }}</span>
                         </span>
                         <span class="inv-gift__chevron" aria-hidden="true">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -52,8 +52,8 @@
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 8h12l-1 12H7L6 8zM9 8a3 3 0 016 0" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </span>
                         <span class="inv-gift__body">
-                            <span class="inv-gift__title">{{ $regalos['tienda_texto'] ?? 'Mesa de regalos' }}</span>
-                            <span class="inv-gift__text">Se abre en una pestaña nueva</span>
+                            <span class="inv-gift__title">{{ $regalos['tienda_texto'] ?? __('Mesa de regalos') }}</span>
+                            <span class="inv-gift__text">{{ __('Se abre en una pestaña nueva') }}</span>
                         </span>
                         <span class="inv-gift__chevron" aria-hidden="true">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 16L16 8M9 8h7v7" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -96,7 +96,7 @@
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 6h16v12H4zM4 7l8 6 8-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </span>
                         <span class="inv-gift__body">
-                            <span class="inv-gift__title">{{ $sobres['titulo'] ?? 'Lluvia de sobres' }}</span>
+                            <span class="inv-gift__title">{{ $sobres['titulo'] ?? __('Lluvia de sobres') }}</span>
                             @if(!empty($sobres['direccion']))
                                 <span class="inv-gift__text">{{ $sobres['direccion'] }}</span>
                             @endif
@@ -111,7 +111,7 @@
         {{-- Los datos de la cuenta viven en un <template>, que sin JavaScript nunca se pinta: aquí van planos --}}
         <noscript>
             <div class="inv-wrap">
-                <h3 class="inv-label">{{ $invCopy['gifts_bank_title'] ?? 'Transferencia bancaria' }}</h3>
+                <h3 class="inv-label">{{ $invCopy['gifts_bank_title'] ?? __('Transferencia bancaria') }}</h3>
                 <dl class="inv-bank">
                     @foreach($bankFields as $key => $label)
                         <div class="inv-bank__row">
@@ -124,8 +124,8 @@
                 </dl>
                 @if(!empty($banco['qr_url']))
                     <figure class="inv-bank__qr">
-                        <img src="{{ $banco['qr_url'] }}" alt="Código QR para transferir" loading="lazy">
-                        <figcaption class="inv-help">{{ $invCopy['gifts_qr_hint'] ?? 'Escanea el código desde la app de tu banco' }}</figcaption>
+                        <img src="{{ $banco['qr_url'] }}" alt="{{ __('Código QR para transferir') }}" loading="lazy">
+                        <figcaption class="inv-help">{{ $invCopy['gifts_qr_hint'] ?? __('Escanea el código desde la app de tu banco') }}</figcaption>
                     </figure>
                 @endif
             </div>
@@ -147,12 +147,12 @@
                 x-transition:leave-end="inv-sheet-hidden">
                 <div class="inv-sheet__grip" aria-hidden="true"></div>
                 <div class="inv-sheet__header">
-                    <h3 id="bank-sheet-title" class="inv-sheet__title">{{ $invCopy['gifts_bank_title'] ?? 'Transferencia bancaria' }}</h3>
-                    <button type="button" class="inv-sheet__close" @click="showBank = false" aria-label="Cerrar">
+                    <h3 id="bank-sheet-title" class="inv-sheet__title">{{ $invCopy['gifts_bank_title'] ?? __('Transferencia bancaria') }}</h3>
+                    <button type="button" class="inv-sheet__close" @click="showBank = false" aria-label="{{ __('Cerrar') }}">
                         @include('invitations.partials.icon', ['name' => 'close', 'animated' => false])
                     </button>
                 </div>
-                <p class="inv-sheet__intro">{{ $invCopy['gifts_bank_hint'] ?? 'Toca «Copiar» y pega el dato en la app de tu banco.' }}</p>
+                <p class="inv-sheet__intro">{{ $invCopy['gifts_bank_hint'] ?? __('Toca «Copiar» y pega el dato en la app de tu banco.') }}</p>
 
                 @if(count($bankFields))
                     <dl class="inv-bank">
@@ -163,7 +163,7 @@
                                     <dd class="inv-bank__value">{{ $banco[$key] }}</dd>
                                 </div>
                                 <button type="button" class="inv-link" @click="copy(@js((string) $banco[$key]), @js($key))">
-                                    <span x-text="copied === '{{ $key }}' ? 'Copiado' : 'Copiar'">Copiar</span>
+                                    <span x-text="copied === '{{ $key }}' ? 'Copiado' : 'Copiar'">{{ __('Copiar') }}</span>
                                 </button>
                             </div>
                         @endforeach
@@ -172,12 +172,12 @@
 
                 @if(!empty($banco['qr_url']))
                     <figure class="inv-bank__qr">
-                        <img src="{{ $banco['qr_url'] }}" alt="Código QR para transferir" loading="lazy">
-                        <figcaption class="inv-help">{{ $invCopy['gifts_qr_hint'] ?? 'Escanea el código desde la app de tu banco' }}</figcaption>
+                        <img src="{{ $banco['qr_url'] }}" alt="{{ __('Código QR para transferir') }}" loading="lazy">
+                        <figcaption class="inv-help">{{ $invCopy['gifts_qr_hint'] ?? __('Escanea el código desde la app de tu banco') }}</figcaption>
                     </figure>
                 @endif
 
-                <button type="button" class="inv-btn inv-btn--block inv-sheet__done" @click="showBank = false">Listo</button>
+                <button type="button" class="inv-btn inv-btn--block inv-sheet__done" @click="showBank = false">{{ __('Listo') }}</button>
             </div>
         </div>
     </template>

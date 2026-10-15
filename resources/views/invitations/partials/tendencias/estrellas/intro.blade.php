@@ -6,7 +6,7 @@
     Lógica en shell/cover-component; estilos en css/invitation/tendencias/estrellas.css.
 --}}
 @php
-    $introDate = \Illuminate\Support\Str::ucfirst($page->eventDate->locale('es')->translatedFormat('j \d\e F \d\e Y'));
+    $introDate = \Illuminate\Support\Str::ucfirst($page->eventDate->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('j \d\e F \d\e Y')));
     // La constelación: diez estrellas en forma de corazón, en el orden en que se unen
     $constellation = [[150, 74], [118, 40], [76, 46], [52, 90], [78, 146], [150, 214], [222, 146], [248, 90], [224, 46], [182, 40]];
     // El cielo de fondo: estrellas chicas en lugares fijos
@@ -29,7 +29,7 @@
     @click="open()"
     role="dialog"
     aria-modal="true"
-    aria-label="Invitación al bautizo de {{ $page->displayName }}">
+    aria-label="{{ __('Invitación al bautizo de :displayName', ['displayName' => $page->displayName]) }}">
     <div class="es-intro__sky" aria-hidden="true">
         @foreach($sky as [$x, $y, $size, $delay])
             <span style="--x: {{ $x }}%; --y: {{ $y }}%; --s: {{ $size }}px; --delay: -{{ $delay }}s"></span>
@@ -39,13 +39,13 @@
 
     <p class="es-intro__eyebrow">
         @if($guest)
-            {{ $invCopy['intro_eyebrow'] ?? 'Mira el cielo' }}, {{ $guest->name }}
+            {{ $invCopy['intro_eyebrow'] ?? __('Mira el cielo') }}, {{ $guest->name }}
         @else
-            {{ $invCopy['intro_eyebrow'] ?? 'Mira el cielo' }}
+            {{ $invCopy['intro_eyebrow'] ?? __('Mira el cielo') }}
         @endif
     </p>
 
-    <button type="button" class="es-constellation" data-cover-trigger aria-label="Unir las estrellas y abrir la invitación">
+    <button type="button" class="es-constellation" data-cover-trigger aria-label="{{ __('Unir las estrellas y abrir la invitación') }}">
         <svg viewBox="0 0 300 250" aria-hidden="true" focusable="false">
             @foreach($constellation as $index => [$x, $y])
                 @php([$toX, $toY] = $constellation[($index + 1) % count($constellation)])
@@ -61,10 +61,10 @@
     </button>
 
     <div class="es-intro__title">
-        <p class="es-intro__label">{{ $invCopy['constellation_label'] ?? 'La constelación de' }}</p>
+        <p class="es-intro__label">{{ $invCopy['constellation_label'] ?? __('La constelación de') }}</p>
         <p class="es-intro__name">{{ $page->displayName }}</p>
         <p class="es-intro__date">{{ $introDate }}</p>
     </div>
 
-    <p class="es-intro__hint">{{ $invCopy['intro_hint'] ?? 'Toca la estrella más brillante para unir la constelación' }}</p>
+    <p class="es-intro__hint">{{ $invCopy['intro_hint'] ?? __('Toca la estrella más brillante para unir la constelación') }}</p>
 </div>
