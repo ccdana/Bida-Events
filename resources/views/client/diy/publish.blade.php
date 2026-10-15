@@ -200,7 +200,25 @@
             @endif
         @endif
 
-        <p class="site-enter" style="--enter-index: 4">
+        {{-- Los puentes: que la termine el equipo y, si ya armó otras, lo que conviene con un plan --}}
+        @unless($covered)
+            <div class="site-enter grid gap-2 border-t border-site-line pt-6 text-sm leading-relaxed text-site-muted" style="--enter-index: 4">
+                <p>
+                    ¿Prefieres que la terminemos nosotros?
+                    <a href="{{ $doneForYouUrl }}" target="_blank" rel="noopener" class="font-medium text-site-ink underline underline-offset-4">Escríbenos</a>
+                    y nuestro equipo la deja lista{{ $fromPackage ? ', desde '.\App\Support\Money::format($fromPackage) : '' }}.
+                </p>
+                @if($planBridge)
+                    <p>
+                        ¿Armas varias? Desde la {{ $planBridge['from'] }}.ª invitación del mes, el plan {{ $planBridge['plan'] }}
+                        ({{ \App\Support\Money::format($planBridge['price']) }} al mes) te sale más barato que pagar cada una.
+                        <a href="{{ route('pricing') }}#planes" class="font-medium text-site-ink underline underline-offset-4">Ver los planes</a>
+                    </p>
+                @endif
+            </div>
+        @endunless
+
+        <p class="site-enter" style="--enter-index: 5">
             <a href="{{ route('client.diy.edit', $invitation) }}" class="admin-link-button">
                 <x-phosphor-arrow-left aria-hidden="true" />
                 Seguir editando

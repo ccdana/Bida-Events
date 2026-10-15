@@ -348,11 +348,11 @@ a:hover > .site-link-arrow svg,
     }
 }
 
-/* Las otras dos maneras, debajo y en dos columnas en pantallas anchas */
+/* Las otras maneras, debajo y en una columna cada una en pantallas anchas (--offer-cols, de la portada) */
 @media (min-width: 900px) {
     .site-offer__side {
-        grid-template-columns: 1fr 1fr;
-        column-gap: 4rem;
+        grid-template-columns: repeat(var(--offer-cols, 2), minmax(0, 1fr));
+        column-gap: clamp(2rem, 4vw, 4rem);
     }
 }
 
@@ -1557,4 +1557,87 @@ a:hover > .site-link-arrow svg,
 /* La celda que completa la fila: sin precio ni botón, solo la invitación a escribir */
 .site-plan--note {
     justify-content: center;
+}
+
+/* ── Precios (/precios): las tres formas, de un vistazo ─────────────────
+   Tres columnas separadas por filetes que llevan a su bloque; el nombre en la serif de los
+   titulares y el «desde» en versalitas doradas. Los bloques de abajo reutilizan los de siempre. */
+
+.site-pricing-intro {
+    max-width: 80rem;
+    margin-inline: auto;
+    padding: 4.5rem 1.25rem 4rem;
+}
+
+@media (min-width: 1024px) {
+    .site-pricing-intro {
+        padding: 6.5rem 2rem 5rem;
+    }
+}
+
+.site-pricing-ways {
+    display: grid;
+    margin-top: 3rem;
+    border-top: 1px solid var(--site-line);
+}
+
+.site-pricing-ways li {
+    border-bottom: 1px solid var(--site-line);
+}
+
+.site-pricing-ways__link {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    height: 100%;
+    padding: 1.75rem 0;
+    color: inherit;
+    text-decoration: none;
+}
+
+.site-pricing-ways__name {
+    font-family: var(--font-serif);
+    font-size: clamp(1.6rem, 3vw, 2.1rem);
+    line-height: 1.05;
+    transition: color 0.3s ease;
+}
+
+.site-pricing-ways__text {
+    max-width: 34ch;
+    line-height: 1.55;
+    color: var(--site-muted);
+}
+
+.site-pricing-ways__from {
+    margin-top: auto;
+    padding-top: 0.75rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--site-accent);
+}
+
+@media (min-width: 900px) {
+    .site-pricing-ways {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .site-pricing-ways li + li {
+        border-left: 1px solid var(--site-line);
+    }
+
+    .site-pricing-ways__link {
+        padding: 2rem 2rem 2.25rem;
+    }
+
+    .site-pricing-ways li:first-child .site-pricing-ways__link {
+        padding-left: 0;
+    }
+}
+
+@media (hover: hover) {
+    .site-pricing-ways__link:hover .site-pricing-ways__name {
+        color: var(--site-accent);
+    }
 }

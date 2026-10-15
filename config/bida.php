@@ -31,7 +31,7 @@ return [
     'legal' => [
         'name' => env('BIDA_LEGAL_NAME'),
         'nit' => env('BIDA_LEGAL_NIT'),
-        'updated_at' => '2026-09-23',
+        'updated_at' => '2026-10-14',
     ],
 
     // Solo dígitos, con código de país (591 para Bolivia)
@@ -393,29 +393,39 @@ return [
 
     /*
     | Lo que ofrece la marca, en la sección «Servicios» de la portada. El primero es el modelo
-    | principal (que la persona arme su invitación, «Únete»); los otros dos son secundarios.
-    | «price» toma el precio de hoy: «packages» (el paquete más barato), «season» (la temporada vigente) o
-    | «reseller» (el plan mensual más barato para profesionales).
-    | «href» acepta un ancla, «season» (la temporada o su página) o una URL.
+    | principal (que la persona arme su invitación gratis, «Hazlo tú»); los otros son secundarios.
+    | «price» toma el precio de hoy: «free» (gratis, y un pago único si quiere más), «packages» (el
+    | paquete más barato), «season» (la temporada vigente) o «reseller» (el plan más barato, al mes).
+    | «href» acepta un ancla, «create» (crear la invitación: la cuenta o el editor), «pricing#ancla»
+    | (la página de precios), «diy» (la página «Únete»), «season» (la temporada o su página) o una URL.
     */
     'services' => [
         [
             'key' => 'hazlo',
-            'name' => 'Únete',
-            'text' => 'Armas tu invitación con nuestras plantillas, desde tu propio panel y cuando quieras: para tu evento, tu familia o tus clientes. Un plan al mes, sin comisión por invitación.',
-            'occasions' => ['Tu evento', 'Si organizas varios', 'Fotógrafos y salones', 'Emprendedores de eventos'],
-            'price' => 'reseller',
-            'href' => '#planes',
-            'cta' => 'Elegir mi plan',
+            'name' => 'Hazlo tú',
+            'text' => 'Armas tu invitación con nuestras plantillas y la pruebas completa, gratis. Al publicarla decides: gratis con lo básico, o un pago único si quieres galería, confirmaciones o pase QR.',
+            'occasions' => ['Tu evento', 'Tu familia', 'Cualquier celebración'],
+            'price' => 'free',
+            'href' => 'create',
+            'cta' => 'Crear mi invitación gratis',
         ],
         [
             'key' => 'invitaciones',
             'name' => 'Te la hacemos',
-            'text' => 'Nos cuentas tu evento y armamos la invitación contigo: se abre con una animación, tus invitados confirman asistencia desde su enlace y tú sigues la lista desde tu panel.',
+            'text' => 'Nos cuentas tu evento y armamos la invitación contigo, con un plazo de entrega y rondas de cambios. Tú sigues la lista de invitados desde tu panel.',
             'occasions' => ['Bodas', 'XV años', 'Bautizos', 'Cumpleaños', 'Y cualquier celebración'],
             'price' => 'packages',
-            'href' => '#precios',
+            'href' => 'pricing#te-la-hacemos',
             'cta' => 'Ver los paquetes',
+        ],
+        [
+            'key' => 'planes',
+            'name' => 'Planes para profesionales',
+            'text' => 'Para fotógrafos, salones y organizadores que arman invitaciones cada mes, con su marca y sin comisión por invitación.',
+            'occasions' => ['Fotógrafos y salones', 'Organizadores de eventos', 'Emprendedores'],
+            'price' => 'reseller',
+            'href' => 'diy',
+            'cta' => 'Ver los planes',
         ],
         [
             'key' => 'temporada',
@@ -513,8 +523,13 @@ return [
     ],
 
     /*
-    | Paquetes de las invitaciones que arma el equipo. Lo que dice «features» es lo que el sistema
-    | habilita con cada paquete (App\Support\Packages): si se cambia una cosa, se cambian las dos.
+    | Paquetes de las invitaciones que arma el equipo («Te la hacemos»). Son los mismos niveles de
+    | «Hazlo tú» (Básico, Estándar, Premium): lo que dice «features» es lo que el sistema habilita con
+    | cada uno (App\Support\Packages); si se cambia una cosa, se cambian las dos. Lo que se paga de más
+    | es el servicio («service»): en cuánto la entregamos desde que llegan los datos y cuántas rondas
+    | de cambios incluye (null = sin límite hasta el evento); la atención es por WhatsApp. Se cambian en Ajustes.
+    |
+    | (Supuesto) Plazos y rondas de cambios, pendientes de confirmar con el dueño.
     */
     'packages' => [
         [
@@ -523,6 +538,7 @@ return [
             'price' => 29,
             'promo_price' => 22,
             'summary' => 'Lo esencial para invitar con estilo y que nadie se pierda.',
+            'service' => ['delivery' => '3 días hábiles', 'revisions' => 1],
             'features' => [
                 'Portada con foto, nombre y mensaje',
                 'Cuenta regresiva y botón para agendar la fecha',
@@ -538,6 +554,7 @@ return [
             'promo_price' => 43,
             'featured' => true,
             'summary' => 'La invitación completa: cada invitado con su enlace y su confirmación por WhatsApp.',
+            'service' => ['delivery' => '2 días hábiles', 'revisions' => 2],
             'features' => [
                 'Todo lo del paquete Básico',
                 'Galería de fotos y video',
@@ -555,6 +572,7 @@ return [
             'promo_price' => 72,
             'premium' => true,
             'summary' => 'Con pase QR y control de entrada, tu panel de invitados y todo para que participen.',
+            'service' => ['delivery' => '24 horas', 'revisions' => null],
             'features' => [
                 'Todo lo del paquete Estándar',
                 'Confirmación con pase QR',

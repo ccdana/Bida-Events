@@ -136,6 +136,40 @@
                     </div>
                 </section>
 
+                {{-- El servicio de «Te la hacemos»: lo que se paga de más sobre el mismo nivel de «Hazlo tú» --}}
+                <section class="set-block">
+                    <div class="set-block__head">
+                        <div>
+                            <h2 class="set-block__title">El servicio de cada paquete</h2>
+                            <p class="set-block__text">
+                                Lo que se promete en el sitio: en cuánto entregan la invitación desde que llegan los datos y
+                                cuántas rondas de cambios incluye. Sin rondas, dice «Cambios sin límite hasta el evento».
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="set-list">
+                        <div class="set-list__head" aria-hidden="true">
+                            <span>Paquete</span><span>Entrega en</span><span>Rondas de cambios</span>
+                        </div>
+                        @foreach($settings['packages'] as $package)
+                            <div class="set-list__row">
+                                <p class="min-w-0 font-medium">{{ $package['name'] }}</p>
+                                <div>
+                                    <label for="entrega-{{ $package['key'] }}" class="admin-label set-list__label">Entrega en</label>
+                                    <input id="entrega-{{ $package['key'] }}" type="text" maxlength="40" class="admin-input" placeholder="2 días hábiles"
+                                        name="packages[{{ $package['key'] }}][delivery]" value="{{ old('packages.'.$package['key'].'.delivery', $package['delivery']) }}">
+                                </div>
+                                <div>
+                                    <label for="rondas-{{ $package['key'] }}" class="admin-label set-list__label">Rondas de cambios</label>
+                                    <input id="rondas-{{ $package['key'] }}" type="number" min="0" max="20" class="admin-input" placeholder="Sin límite"
+                                        name="packages[{{ $package['key'] }}][revisions]" value="{{ old('packages.'.$package['key'].'.revisions', $package['revisions']) }}">
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </section>
+
                 {{-- «Hazlo tú»: lo que cuesta publicar con cada nivel la invitación que arma la persona (App\Payments\InvitationPrice) --}}
                 <section class="set-block">
                     <div class="set-block__head">

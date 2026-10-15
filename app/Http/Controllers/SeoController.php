@@ -30,6 +30,7 @@ class SeoController extends Controller
         $urls = collect([
             ['loc' => route('home'), 'lastmod' => $today, 'priority' => '1.0'],
             ['loc' => route('guide'), 'lastmod' => PublicPagesController::GUIDE_UPDATED_AT, 'priority' => '0.8'],
+            ['loc' => route('pricing'), 'lastmod' => $today, 'priority' => '0.9'],
             ['loc' => route('diy'), 'lastmod' => $today, 'priority' => '0.8'],
         ])
             ->merge(collect(config('bida.landings', []))->keys()->map(fn (string $slug) => ['loc' => route('landing', $slug), 'lastmod' => $today, 'priority' => '0.9']))

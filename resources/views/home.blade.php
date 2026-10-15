@@ -7,15 +7,14 @@
     Estilos: resources/css/site/site.css y resources/css/site/home.css.
 --}}
 @section('title', $bida['brand'].' | Crea tu invitación digital para bodas, XV años, bautizos y graduaciones')
-@section('description', 'Crea tu invitación digital con plantillas profesionales, confirmación de asistencia y pase QR, o pídenos que la hagamos. Planes desde '.\App\Support\Money::format($diyFromPrice).' al mes, paquetes desde '.\App\Support\Money::format($fromPrice).'.')
+@section('description', 'Arma tu invitación digital gratis con plantillas profesionales y paga solo si quieres más: confirmación de asistencia, galería y pase QR. O pídenos que la hagamos, desde '.\App\Support\Money::format($fromPrice).'.')
 
 @php
-    // Los planes mensuales (el modelo principal) abren el menú; «Te la hacemos» es lo adicional
+    // Lo principal es armarla (las plantillas abren el menú); los precios de las tres formas, en su bloque y en /precios
     $sections = array_filter([
-        'planes' => 'Planes',
         'plantillas' => count($designs) ? 'Plantillas' : null,
         'incluye' => 'Qué incluye',
-        'precios' => 'Te la hacemos',
+        'precios' => 'Precios',
         'preguntas' => 'Preguntas',
     ]);
     $navLinks = collect($sections)->mapWithKeys(fn (string $label, string $id) => ['#'.$id => $label])->all();
@@ -53,23 +52,30 @@
             ['icon' => 'file-text', 'title' => 'Tu lista, lista para imprimir', 'text' => 'En Premium: invitados, confirmaciones y alimentación en PDF o Excel para el salón y el catering, y la invitación para imprimir.'],
         ],
     ];
-    // El recorrido principal: la persona arma su propia invitación con un plan mensual
+    // El recorrido principal: la persona arma su propia invitación gratis y paga solo si quiere más
     $steps = [
-        ['icon' => 'credit-card', 'title' => 'Eliges tu plan', 'text' => 'Desde una sola invitación hasta las que necesites cada mes. Creas tu cuenta y empiezas el mismo día.'],
-        ['icon' => 'pencil-simple-line', 'title' => 'Armas tu invitación', 'text' => 'Eliges la plantilla, subes tus fotos y cambias colores, letras y textos mientras la ves en vivo.'],
-        ['icon' => 'paper-plane-tilt', 'title' => 'La compartes', 'text' => 'Publicas y envías tu enlace por WhatsApp; tus invitados la abren sin instalar nada.'],
+        ['icon' => 'user-plus', 'title' => 'Creas tu cuenta', 'text' => 'Gratis, con tu correo o con Google. Eliges qué celebras y el diseño que más te guste.'],
+        ['icon' => 'pencil-simple-line', 'title' => 'Armas tu invitación', 'text' => 'Subes tus fotos y cambias colores, letras y textos mientras la ves en vivo. Prueba todas las partes que quieras.'],
+        ['icon' => 'paper-plane-tilt', 'title' => 'La publicas y la compartes', 'text' => 'Gratis con lo básico, o con un pago único si usaste más. Envías tu enlace por WhatsApp; tus invitados la abren sin instalar nada.'],
         ['icon' => 'list-checks', 'title' => 'Sigues las confirmaciones', 'text' => 'Ves en tu panel quién confirmó, cuántas personas asistirán y, el día del evento, quién ya llegó.'],
     ];
+    // Plazos de «Te la hacemos», paquete por paquete, para la pregunta de cuánto tardan
+    $deliveries = collect($packages)
+        ->filter(fn (array $package) => filled($package['service']['delivery'] ?? null))
+        ->map(fn (array $package) => $package['name'].' en '.$package['service']['delivery'])
+        ->join(', ', ' y ');
     $faqs = [
-        ['¿Puedo armar mi propia invitación?', 'Sí, es la forma principal de usar '.$bida['brand'].'. Con Únete eliges un plan mensual, tienes tu propio panel con nuestras plantillas y armas tus invitaciones cuando quieras, sin comisión por invitación. Hay un plan para una sola invitación y otros para quien organiza varios eventos o las vende a sus clientes.'],
+        ['¿Puedo armar mi propia invitación?', 'Sí, es la forma principal de usar '.$bida['brand'].'. Creas tu cuenta gratis, eliges una plantilla y la armas con todas las partes que quieras. Al publicarla decides: gratis con la portada, la cuenta regresiva y la ubicación, o con un pago único por todo lo que usaste. Si armas invitaciones cada mes (las tuyas o las de tus clientes), hay planes para eso.'],
         ['¿Qué es una invitación digital?', 'Es una página web con los datos de tu evento (fecha, lugar, itinerario, fotos y música) que tus invitados abren desde un enlace, por lo general enviado por WhatsApp. A diferencia de una imagen, permite confirmar asistencia, ver el mapa y recibir un pase de entrada con código QR.'],
         ['¿Para qué tipo de eventos sirve?', 'Bodas, XV años, bautizos, cumpleaños, graduaciones, fiestas de temporada como Halloween y cualquier celebración. Adaptamos los textos y las secciones a tu evento.'],
         ['¿Mis invitados necesitan instalar algo?', 'No. La invitación se abre en el navegador del celular desde el enlace que compartes.'],
         ['¿Cómo confirman asistencia y cómo se controla la entrada?', 'En el paquete Estándar, cada invitado recibe su enlace personal y confirma por WhatsApp: se abre el mensaje con su nombre y cuántas personas van. En Premium la respuesta queda guardada en tu panel y el invitado recibe un pase con código QR; el día del evento, quien recibe a los invitados lo escanea con su teléfono y ve si puede pasar.'],
         ['¿Puedo hacer cambios después de compartirla?', 'Sí. Horarios, ubicación y textos se actualizan en el mismo enlace, así tus invitados siempre ven la versión correcta.'],
-        ['¿Cuánto tardan en entregarla?', 'Depende del paquete y de cuándo nos envíes las fotos y los datos. Te damos una fecha de entrega al confirmar tu pedido.'],
+        ['¿Cuánto tardan en entregarla?', $deliveries !== ''
+            ? 'Si la armas tú, la publicas cuando quieras. Si te la hacemos, desde que nos envías las fotos y los datos: '.$deliveries.'.'
+            : 'Si la armas tú, la publicas cuando quieras. Si te la hacemos, te damos una fecha de entrega al confirmar tu pedido.'],
         ['¿Y si prefiero que me la hagan?', 'También lo hacemos: eliges un paquete, nos cuentas tu evento y armamos la invitación contigo. Es un pago único por invitación.'],
-        ['¿Cómo se realiza el pago?', 'El plan de Únete se paga cada mes, en línea o coordinado por WhatsApp. Los paquetes se coordinan por WhatsApp (transferencia o QR) antes de empezar el diseño. Los precios están en dólares.'],
+        ['¿Cómo se realiza el pago?', 'La invitación que armas tú se paga una sola vez al publicarla (si no es la gratuita), con tarjeta o con el QR de cualquier banco de Bolivia. Los planes se pagan por mes o por varios meses de una vez. Los paquetes de «Te la hacemos» se coordinan por WhatsApp antes de empezar el diseño. Los precios están en dólares.'],
     ];
     $socials = array_values(array_filter([
         ! empty($bida['instagram']) ? ['label' => 'Instagram', 'url' => 'https://www.instagram.com/'.$bida['instagram'].'/', 'icon' => 'instagram-logo'] : null,
@@ -84,7 +90,7 @@
         return $position === false ? null : ['url' => $demo['coverUrl'], 'label' => $demo['label'], 'rotator' => $position];
     }, $demos)));
     [$mainService, $otherServices] = [$services[0] ?? null, array_slice($services, 1)];
-    $serviceOverlines = ['hazlo' => 'La armas tú', 'invitaciones' => 'Te la hacemos', 'temporada' => 'Por temporada'];
+    $serviceOverlines = ['hazlo' => 'La armas tú', 'invitaciones' => 'Te la hacemos', 'planes' => 'Si armas muchas', 'temporada' => 'Por temporada'];
 @endphp
 
 @push('head')
@@ -117,7 +123,7 @@
                     Elige una plantilla, pon tus fotos y compártela por WhatsApp. Tus invitados confirman en un toque y entran a la fiesta con su pase QR.
                 </p>
                 <ul class="site-enter site-hero__facts" style="--enter-index: 2">
-                    <li>La armas tú desde {{ \App\Support\Money::format($diyFromPrice) }} al mes</li>
+                    <li>La armas tú, gratis</li>
                     <li>Sin instalar nada</li>
                     <li>Pase QR en la puerta</li>
                 </ul>
@@ -194,7 +200,9 @@
                             <h3 class="site-offer__name">{{ $mainService['name'] }}</h3>
                             <p class="site-offer__text">{{ $mainService['text'] }}</p>
                             <p class="site-offer__meta">
-                                @if($mainService['fromPrice'])
+                                @if($mainService['priceLabel'] ?? null)
+                                    <span><b>{{ $mainService['priceLabel'] }}</b></span>
+                                @elseif($mainService['fromPrice'])
                                     <span>Desde <b>{{ \App\Support\Money::format($mainService['fromPrice']) }}</b>@if($mainService['priceSuffix'] ?? null) {{ $mainService['priceSuffix'] }}@endif</span>
                                 @endif
                                 <span class="site-link-arrow">{{ $mainService['cta'] }} <x-phosphor-arrow-right aria-hidden="true" /></span>
@@ -202,7 +210,7 @@
                         </div>
                     </a>
 
-                    <div class="site-offer__side">
+                    <div class="site-offer__side" style="--offer-cols: {{ min(3, max(1, count($otherServices))) }}">
                         @foreach($otherServices as $service)
                             <a href="{{ $service['url'] ?? $contactUrl }}" class="site-offer__row" data-reveal style="--reveal-index: {{ $loop->index + 1 }}"
                                 @unless($service['url']) target="_blank" rel="noopener" @endunless>
@@ -216,7 +224,9 @@
                                 <h3 class="site-offer__name site-offer__name--sm">{{ $service['name'] }}</h3>
                                 <p class="site-offer__text">{{ $service['text'] }}</p>
                                 <p class="site-offer__meta">
-                                    @if($service['fromPrice'])
+                                    @if($service['priceLabel'] ?? null)
+                                        <span><b>{{ $service['priceLabel'] }}</b></span>
+                                    @elseif($service['fromPrice'])
                                         <span>Desde <b>{{ \App\Support\Money::format($service['fromPrice']) }}</b>@if($service['priceSuffix'] ?? null) {{ $service['priceSuffix'] }}@endif</span>
                                     @endif
                                     <span class="site-link-arrow">{{ $service['cta'] }} <x-phosphor-arrow-right aria-hidden="true" /></span>
@@ -310,9 +320,9 @@
                 <div class="lg:col-span-5">
                     <div class="lg:sticky lg:top-32">
                         <h2 class="site-display site-display--md" data-reveal>Así funciona</h2>
-                        <p class="site-muted-lead" data-reveal>De elegir tu plan a las confirmaciones de tus invitados.</p>
-                        <a href="#planes" class="site-btn mt-8" data-reveal>
-                            Elegir mi plan
+                        <p class="site-muted-lead" data-reveal>De crear tu cuenta a las confirmaciones de tus invitados. Pagas solo si quieres más.</p>
+                        <a href="{{ $startUrl }}" class="site-btn mt-8" data-reveal>
+                            Crear mi invitación gratis
                             <x-phosphor-arrow-right class="site-btn__arrow" aria-hidden="true" />
                         </a>
                     </div>
@@ -334,18 +344,42 @@
             </div>
         </section>
 
-        {{-- Lo principal: los planes mensuales para armar tu propia invitación --}}
-        @include('site.partials.diy-plans', [
-            'diyTitle' => 'Elige tu plan y arma tu invitación',
-            'diyLead' => 'Para armar invitaciones cada mes, para tus eventos o los de tus clientes, sin comisión por invitación. Precios por mes, en dólares ('.\App\Support\Money::code().'); pagando 3 o 12 meses, con descuento.',
-            'diyMoreLink' => true,
-        ])
+        {{-- ═══ Precios: las tres formas en resumen (HomeController::pricingSummary); el detalle, en /precios ═══ --}}
+        <section id="precios" class="scroll-mt-20 border-t border-site-line bg-site-surface" aria-labelledby="precios-titulo">
+            <div class="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-28">
+                <div class="max-w-3xl">
+                    <h2 id="precios-titulo" class="site-display site-display--md" data-reveal>Empieza gratis. Paga solo por lo que usas.</h2>
+                    <p class="site-muted-lead" data-reveal>
+                        Ármala tú, pídenos que la hagamos o, si armas muchas, elige un plan. Precios en dólares ({{ \App\Support\Money::code() }}).
+                    </p>
+                </div>
 
-        {{-- Lo adicional: que el equipo la haga (paquetes, pago único) --}}
-        @include('site.partials.plans', [
-            'plansTitle' => 'Si prefieres que la hagamos nosotros',
-            'plansLead' => 'Nos cuentas tu evento y armamos la invitación contigo. Pago único por invitación, en dólares ('.\App\Support\Money::code().'); cada paquete incluye todo lo del anterior.',
-        ])
+                <div class="site-plans mt-14">
+                    @foreach($pricingSummary as $index => $way)
+                        <x-site.price-card
+                            :name="$way['name']"
+                            :price="$way['price']"
+                            :old="$way['old'] ?? null"
+                            :suffix="$way['suffix']"
+                            :summary="$way['summary']"
+                            :features="$way['features']"
+                            :featured="$way['featured'] ?? false"
+                            :tag="($way['featured'] ?? false) ? 'Para empezar' : null"
+                            :url="$way['url']"
+                            :cta="$way['cta']"
+                            :index="$index"
+                            :reserve="true" />
+                    @endforeach
+                </div>
+
+                <p class="mt-10" data-reveal>
+                    <a href="{{ route('pricing') }}" class="site-link-arrow">
+                        Ver todos los precios y qué trae cada nivel
+                        <x-phosphor-arrow-right aria-hidden="true" />
+                    </a>
+                </p>
+            </div>
+        </section>
 
         @include('site.partials.faqs', ['faqs' => $faqs])
     </main>

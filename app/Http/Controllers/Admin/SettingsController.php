@@ -45,7 +45,11 @@ class SettingsController extends Controller
             ->map(fn (array $package) => [
                 'price' => (int) $package['price'],
                 'promo_price' => ($package['promo_price'] ?? '') === '' ? null : (int) $package['promo_price'],
-            ])
+            ] + (array_key_exists('delivery', $package) ? [
+                // El servicio de «Te la hacemos» (sin rondas = cambios sin límite hasta el evento)
+                'delivery' => trim((string) $package['delivery']),
+                'revisions' => ($package['revisions'] ?? '') === '' ? null : (int) $package['revisions'],
+            ] : []))
             ->all());
 
         // Cada temporada por separado: se enciende, se apaga y cambia de precio sin tocar a las demás

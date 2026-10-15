@@ -23,6 +23,9 @@ class UpdateSettingsRequest extends FormRequest
             'packages' => ['array'],
             'packages.*.price' => ['required', 'integer', 'min:0', 'max:100000'],
             'packages.*.promo_price' => ['nullable', 'integer', 'min:0', 'max:100000'],
+            // El servicio de cada paquete: plazo («2 días hábiles») y rondas de cambios (vacío = sin límite)
+            'packages.*.delivery' => ['nullable', 'string', 'max:40'],
+            'packages.*.revisions' => ['nullable', 'integer', 'min:0', 'max:20'],
 
             // Cada temporada: encendida o no, precio y fecha de término
             'seasons' => ['array'],

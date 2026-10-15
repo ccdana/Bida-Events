@@ -1,11 +1,11 @@
 {{--
     Cabecera del sitio público. Recibe $navLinks (href => texto), $contactUrl, $accountUrl y $accountLabel.
-    La acción principal lleva a elegir el plan de «Únete» (el modelo principal: cada quien arma su
-    invitación); escribir por WhatsApp queda como acción secundaria.
+    La acción principal lleva a crear la invitación gratis («Hazlo tú», el modelo principal: cada quien
+    arma la suya): sin cuenta, a crearla; con cuenta, al editor. Escribir por WhatsApp queda como
+    acción secundaria.
 --}}
 @php
-    // En la portada baja a sus planes; en las demás páginas, a la comparación de «Únete» (donde se elige)
-    $ctaUrl = request()->routeIs('home') ? '#planes' : route('diy').'#planes';
+    $ctaUrl = \App\Support\DiyInvitations::startUrl(request()->user());
 @endphp
 <header data-site-header x-data="{ open: false }" @keydown.escape.window="open = false"
     class="site-header sticky top-0 z-40" :class="{ 'is-open': open }">

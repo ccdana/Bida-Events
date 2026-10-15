@@ -178,7 +178,7 @@
             </ul>
 
             <p class="site-table-note" data-reveal>
-                <a href="{{ route('home') }}#precios" class="font-medium text-site-ink underline underline-offset-4">Ver todo lo que incluye cada paquete</a>
+                <a href="{{ route('pricing') }}#te-la-hacemos" class="font-medium text-site-ink underline underline-offset-4">Ver todo lo que incluye cada paquete</a>
             </p>
         </section>
 

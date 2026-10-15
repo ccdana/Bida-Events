@@ -57,9 +57,9 @@
             <nav class="site-foot__col" aria-label="Más de {{ $bida['brand'] }}">
                 <p class="site-foot__title">También</p>
                 <ul>
-                    <li><a href="{{ route('diy') }}">Únete</a></li>
+                    <li><a href="{{ route('pricing') }}">Precios</a></li>
+                    <li><a href="{{ route('diy') }}">Planes para profesionales</a></li>
                     <li><a href="{{ route('guide') }}">Guía de invitaciones</a></li>
-                    <li><a href="{{ route('home') }}#precios">Precios</a></li>
                     <li><a href="{{ $accountUrl }}">{{ $accountLabel }}</a></li>
                 </ul>
             </nav>

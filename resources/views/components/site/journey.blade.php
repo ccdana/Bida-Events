@@ -1,13 +1,18 @@
 {{--
-    Los cuatro pasos de quien arma su propia invitación («Únete»): elegir el plan, crear la cuenta
-    (con su correo confirmado), pagar y crear la invitación. Se muestra en el registro, al confirmar
-    el correo, al pagar y en el panel vacío, para que siempre se sepa en qué paso se está y qué sigue.
-    «current» es el paso de hoy (1 a 4): los anteriores van marcados como hechos. Estilos: home.css.
+    Los pasos de quien arma su propia invitación, para que siempre sepa en qué paso está y qué sigue.
+    Dos recorridos («flow»):
+    - diy (Hazlo tú, el principal): crear la cuenta, armar la invitación y publicarla (gratis o con
+      el nivel que usó). Se muestra en el registro y al confirmar el correo.
+    - plan (Únete, para quien arma muchas): elegir el plan, crear la cuenta (con su correo confirmado),
+      pagar y crear la invitación. Se muestra en el registro con plan, al pagar y en el panel del plan.
+    «current» es el paso de hoy: los anteriores van marcados como hechos. Estilos: home.css.
 --}}
-@props(['current' => 1])
+@props(['current' => 1, 'flow' => 'plan'])
 
 @php
-    $journey = [1 => 'Plan', 2 => 'Cuenta', 3 => 'Pago', 4 => 'Tu invitación'];
+    $journey = $flow === 'diy'
+        ? [1 => 'Cuenta', 2 => 'Tu invitación', 3 => 'Publícala']
+        : [1 => 'Plan', 2 => 'Cuenta', 3 => 'Pago', 4 => 'Tu invitación'];
 @endphp
 
 <ol {{ $attributes->class('site-journey') }} aria-label="Pasos para crear tu invitación">

@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Invitation;
+use App\Payments\InvitationPrice;
+use App\Payments\SubscriptionPrice;
+use App\Support\DiyInvitations;
 use App\Support\DiyPlans;
 use App\Support\LeadSource;
 use App\Support\Money;
@@ -20,23 +23,25 @@ class HomeController extends Controller
         // Cada mensaje lleva el código de origen (LeadSource) para saber de qué campaña escribió
         $whatsapp = fn (string $message): string => LeadSource::whatsappUrl($request, $message, LeadSource::HOME);
         $fromPrice = Offers::lowestPackagePrice();
-        // El modelo principal: que cada persona arme su invitación con un plan mensual
+        // Lo principal: que cada persona arme su invitación gratis («Hazlo tú»); los planes son para quien arma muchas
         $diyFromPrice = (int) collect(Offers::resellerPlans())->min('final_price');
         $demos = ShowcaseDemos::find($bida['demo_invitations'] ?? []);
         $diy = DiyPlans::make($request, LeadSource::HOME);
+        $packages = $this->packages($bida['packages'], $whatsapp);
+        $startUrl = DiyInvitations::startUrl($request->user());
 
         return view('home', [
             'bida' => $bida,
             'user' => $request->user(),
             'contactUrl' => $whatsapp('Hola {brand}, quiero información sobre las invitaciones digitales.'),
-            // Lo principal: los planes mensuales (cada quien arma su invitación)
+            // «Crear mi invitación»: la cuenta o, con sesión, el editor de «Hazlo tú»
+            'startUrl' => $startUrl,
             'plans' => $diy['plans'],
-            'featuredPlan' => $diy['featuredPlan'],
-            // Pagar 3 o 12 meses de una vez, con su descuento (el selector de la página de planes)
-            'planCycles' => $diy['cycles'],
             'collections' => $diy['collections'],
             // Lo adicional: que el equipo la haga (paquetes, pago único)
-            'packages' => $this->packages($bida['packages'], $whatsapp),
+            'packages' => $packages,
+            // Las tres formas, en resumen; el detalle está en /precios
+            'pricingSummary' => self::pricingSummary($diy['plans'], $packages, $startUrl),
             'seasons' => $seasons = self::seasons($request),
             'services' => self::services($seasons, $fromPrice, count($demos) > 0),
             'fromPrice' => $fromPrice,
@@ -47,11 +52,68 @@ class HomeController extends Controller
             'landings' => self::landingLinks(),
             'share' => ShareMeta::make(
                 "{$bida['brand']} | Invitaciones digitales para bodas, XV años, bautizos y graduaciones",
-                'Crea tu invitación digital con plantillas profesionales, confirmación de asistencia y pase QR, o pídenos que la hagamos. Planes desde '.Money::format($diyFromPrice).' al mes.',
+                'Arma tu invitación digital gratis con plantillas profesionales y paga solo si quieres más: confirmación de asistencia, galería y pase QR. O pídenos que la hagamos.',
                 ShareMeta::defaultImage(),
                 route('home'),
             ),
         ]);
+    }
+
+    /**
+     * Las tres formas de tener la invitación, en resumen para la portada (Hazlo tú, Te la hacemos y
+     * Planes), con su precio de hoy y a dónde lleva cada una; el detalle está en /precios.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public static function pricingSummary(array $plans, array $packages, string $startUrl): array
+    {
+        $tierPrices = InvitationPrice::tierPrices();
+        $fromTier = collect($tierPrices)->min('final');
+        $cheapestPackage = collect($packages)->sortBy('final_price')->first();
+        $cheapestPlan = collect($plans)->sortBy('final_price')->first();
+        $prepay = array_filter(SubscriptionPrice::prepayOptions(), fn (int $discount, int $months) => $months > 1 && $discount > 0, ARRAY_FILTER_USE_BOTH);
+        $brandFrom = collect($plans)->firstWhere('white_label', true)['name'] ?? null;
+
+        return array_values(array_filter([
+            [
+                'name' => 'Hazlo tú',
+                'price' => 'Gratis',
+                'suffix' => '',
+                'summary' => 'La armas tú y la pruebas completa. Pagas solo si al publicarla quieres más que lo básico.',
+                'features' => array_values(array_filter([
+                    'Gratis con portada, cuenta regresiva y ubicación',
+                    $fromTier !== null ? 'Galería, confirmaciones y pase QR en un solo pago, desde '.Money::format($fromTier) : null,
+                    'Subir de nivel cobra solo la diferencia',
+                ])),
+                'url' => $startUrl,
+                'cta' => 'Crear mi invitación gratis',
+                'featured' => true,
+            ],
+            $cheapestPackage ? [
+                'name' => 'Te la hacemos',
+                'price' => (string) $cheapestPackage['final_price'],
+                'old' => $cheapestPackage['old_price'] ? Money::format($cheapestPackage['old_price']) : null,
+                'suffix' => Money::code().', pago único',
+                'summary' => 'Nos cuentas tu evento y nuestro equipo arma la invitación contigo.',
+                'features' => $cheapestPackage['service_lines'] ?: ['Atención por WhatsApp'],
+                'url' => route('pricing').'#te-la-hacemos',
+                'cta' => 'Ver los paquetes',
+            ] : null,
+            $cheapestPlan ? [
+                'name' => 'Planes',
+                'price' => (string) $cheapestPlan['final_price'],
+                'old' => $cheapestPlan['old_price'] ? Money::format($cheapestPlan['old_price']) : null,
+                'suffix' => Money::code().' al mes',
+                'summary' => 'Para quien arma muchas: las tuyas o las de tus clientes, sin comisión por invitación.',
+                'features' => array_values(array_filter([
+                    'Invitaciones cada mes, con su cupo',
+                    $prepay ? 'Menos pagando '.collect($prepay)->map(fn (int $discount, int $months) => ($months === 12 ? 'el año' : "{$months} meses")." ({$discount} %)")->join(', ', ' o ') : null,
+                    $brandFrom ? "Tu marca al pie, desde {$brandFrom}" : null,
+                ])),
+                'url' => route('pricing').'#planes',
+                'cta' => 'Ver los planes',
+            ] : null,
+        ]));
     }
 
     /** Paquetes con su precio de hoy y su botón de WhatsApp; también los usa cada página por evento. */
@@ -93,12 +155,20 @@ class HomeController extends Controller
 
             // Sin plantillas de muestra en la portada, las invitaciones llevan a los precios
             if ($href === '#plantillas' && ! $hasTemplates) {
-                $href = '#precios';
+                $href = route('pricing');
             }
 
             if ($href === 'season') {
                 $href = $seasons ? '#temporada' : ($cardLanding ? route('landing', $cardLanding) : null);
             }
+
+            // Crear la invitación (la cuenta o el editor), la página de precios (con su ancla) o «Únete»
+            $href = match (true) {
+                $href === 'create' => DiyInvitations::startUrl(request()->user()),
+                $href === 'diy' => route('diy'),
+                is_string($href) && str_starts_with($href, 'pricing') => route('pricing').(str_contains($href, '#') ? '#'.explode('#', $href, 2)[1] : ''),
+                default => $href,
+            };
 
             return $service + [
                 'fromPrice' => match ($service['price'] ?? null) {
@@ -107,6 +177,8 @@ class HomeController extends Controller
                     'reseller' => collect(Offers::resellerPlans())->min('final_price'),
                     default => null,
                 },
+                // «Hazlo tú» empieza gratis: no lleva «Desde», lleva «Gratis»
+                'priceLabel' => ($service['price'] ?? null) === 'free' ? 'Gratis' : null,
                 // Los planes de profesionales se pagan por mes
                 'priceSuffix' => ($service['price'] ?? null) === 'reseller' ? 'al mes' : null,
                 'url' => $href,

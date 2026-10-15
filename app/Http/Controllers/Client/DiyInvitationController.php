@@ -19,7 +19,9 @@ use App\Support\DiyInvitations;
 use App\Support\InvitationDefaults;
 use App\Support\LeadSource;
 use App\Support\Money;
+use App\Support\Offers;
 use App\Support\Packages;
+use App\Support\PricingPage;
 use App\ViewModels\Admin\InvitationEditorViewData;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -231,6 +233,16 @@ class DiyInvitationController extends Controller
             ),
             'needsEmail' => ! $user->hasVerifiedEmail(),
             'hasEmail' => filled($user->email),
+            // Los puentes: que la termine el equipo («Te la hacemos») o, si ya armó otras, un plan
+            'doneForYouUrl' => LeadSource::whatsappUrl(
+                $request,
+                "Hola {brand}, empecé mi invitación «{$invitation->title}» y prefiero que ustedes la terminen.",
+                'HAZLO',
+            ),
+            'fromPackage' => collect(Offers::packages())->min('final_price'),
+            'planBridge' => DiyInvitations::of($user)->whereKeyNot($invitation->id)->whereNotNull('package')->exists()
+                ? PricingPage::planBreakEven(Offers::resellerPlans())
+                : null,
         ]);
     }
 

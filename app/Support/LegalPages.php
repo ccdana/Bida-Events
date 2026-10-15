@@ -197,8 +197,10 @@ final class LegalPages
                 [
                     'title' => 'Pedidos y pagos',
                     'items' => [
-                        'Los precios se muestran en bolivianos en este sitio y se confirman por WhatsApp antes de empezar el diseño.',
-                        'El pago se coordina por WhatsApp (transferencia o QR). No cobramos automáticamente ni guardamos datos de tarjetas.',
+                        'Los precios se muestran en dólares estadounidenses en este sitio. Los pagos con QR de Bolivia se cobran en bolivianos, al tipo de cambio oficial.',
+                        'Una invitación que armas tú se puede publicar gratis con las partes básicas o con un pago único por el nivel de las partes que uses. Subir de nivel después cobra solo la diferencia.',
+                        'Los pagos en línea se hacen con tarjeta, a través de nuestro procesador de pagos, o con QR de Bolivia. No guardamos los datos de tu tarjeta.',
+                        'Los paquetes que arma nuestro equipo se confirman y se pagan por WhatsApp antes de empezar el diseño.',
                         'Las promociones valen hasta la fecha que se indica en cada una.',
                     ],
                 ],
@@ -213,8 +215,8 @@ final class LegalPages
                 [
                     'title' => 'Suscripción para profesionales',
                     'items' => [
-                        'Los profesionales (fotógrafos, organizadores, decoradores y otros revendedores) pagan un plan mensual que les permite armar un número de invitaciones por mes, con las plantillas y funciones de su plan.',
-                        'Cada pago extiende la suscripción un mes desde la fecha de vencimiento vigente, o desde el día del pago si ya había vencido.',
+                        'Los profesionales (fotógrafos, organizadores, decoradores y otros revendedores) pagan un plan que les permite publicar un número de invitaciones por mes, con las plantillas y funciones de su plan.',
+                        'El plan se paga por mes o por 3 o 12 meses. Cada pago extiende la suscripción por ese tiempo desde la fecha de vencimiento vigente, o desde el día del pago si ya había vencido. Con tarjeta, la suscripción se renueva sola en el mismo ciclo hasta que la canceles.',
                         'Si la suscripción vence, las invitaciones ya publicadas siguen en línea y el panel sigue disponible para ver invitados y descargar reportes, pero no se pueden crear ni editar invitaciones hasta renovar.',
                         'El profesional fija libremente lo que cobra a sus clientes y es responsable frente a ellos por el servicio que les ofrece.',
                     ],

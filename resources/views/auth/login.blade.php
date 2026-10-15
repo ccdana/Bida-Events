@@ -64,7 +64,7 @@
         @endif
         <p>
             ¿Todavía no tienes tu invitación?
-            <a href="{{ route('home') }}#precios" class="font-medium text-site-ink underline underline-offset-4 transition-colors hover:text-site-accent">Ver paquetes</a>
+            <a href="{{ route('pricing') }}" class="font-medium text-site-ink underline underline-offset-4 transition-colors hover:text-site-accent">Ver precios</a>
         </p>
     </div>
 

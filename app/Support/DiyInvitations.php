@@ -30,6 +30,20 @@ final class DiyInvitations
         return ! $user->isAdmin() && ! $user->isReseller();
     }
 
+    /**
+     * A dónde lleva «Crear mi invitación» en el sitio: quien no tiene cuenta, a crearla (y de ahí al
+     * editor); una cuenta del sitio, directo al editor; un revendedor, a su panel (arma con su plan).
+     */
+    public static function startUrl(?User $user): string
+    {
+        return match (true) {
+            $user === null => AuthOptions::registrationOpen() ? route('register', ['crear' => 1]) : route('login'),
+            $user->isAdmin() => route('admin.dashboard'),
+            self::canBuild($user) => route('client.diy.create'),
+            default => route('client.dashboard'),
+        };
+    }
+
     /** @return HasMany<Invitation, User> */
     public static function of(User $user): HasMany
     {

@@ -7,6 +7,7 @@ use App\Support\LeadSource;
 use App\Support\LegalPages;
 use App\Support\Money;
 use App\Support\Offers;
+use App\Support\PricingPage;
 use App\Support\ShareMeta;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -61,6 +62,15 @@ class PublicPagesController extends Controller
                 route('diy'),
             ),
         ]);
+    }
+
+    /**
+     * Precios: las tres formas de tener la invitación lado a lado (Hazlo tú, Planes y Te la hacemos),
+     * la comparación de los niveles y las preguntas. Los datos los arma App\Support\PricingPage.
+     */
+    public function pricing(Request $request): View
+    {
+        return view('precios', PricingPage::make($request));
     }
 
     /**

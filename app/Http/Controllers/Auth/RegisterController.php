@@ -33,6 +33,9 @@ class RegisterController extends Controller
 
         if (is_string($plan) && isset(Offers::resellerPlans()[$plan])) {
             $request->session()->put('url.intended', route('client.subscription', array_filter(['plan' => $plan, 'meses' => $months > 1 ? $months : null])));
+        } elseif ($request->boolean('crear')) {
+            // «Crear mi invitación» del sitio: al confirmar el correo, directo al editor de «Hazlo tú»
+            $request->session()->put('url.intended', route('client.diy.create'));
         }
 
         return view('auth.register', ['chosenPlan' => $this->chosenPlan($request)]);

@@ -65,6 +65,9 @@ final class SiteSettings
                     'summary' => $package['summary'] ?? '',
                     'price' => (int) $package['price'],
                     'promo_price' => isset($package['promo_price']) ? (int) $package['promo_price'] : null,
+                    // El servicio de «Te la hacemos»: plazo de entrega y rondas de cambios (null = sin límite)
+                    'delivery' => (string) ($package['service']['delivery'] ?? ''),
+                    'revisions' => isset($package['service']['revisions']) ? (int) $package['service']['revisions'] : null,
                 ])
                 ->values()
                 ->all(),
@@ -165,6 +168,15 @@ final class SiteSettings
                     unset($package['promo_price']);
                 } else {
                     $package['promo_price'] = (int) $promo;
+                }
+
+                // El servicio: plazo de entrega y rondas de cambios (vacío = sin límite hasta el evento)
+                if (array_key_exists('delivery', $stored)) {
+                    $package['service']['delivery'] = trim((string) $stored['delivery']);
+                }
+
+                if (array_key_exists('revisions', $stored)) {
+                    $package['service']['revisions'] = $stored['revisions'] === null || $stored['revisions'] === '' ? null : (int) $stored['revisions'];
                 }
 
                 return $package;

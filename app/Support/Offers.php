@@ -50,7 +50,10 @@ final class Offers
         return ['final' => $onSale ? $promoPrice : $regular, 'regular' => $onSale ? $regular : null];
     }
 
-    /** Paquetes con su precio de hoy (final_price) y el normal tachado (old_price) si hay promoción. */
+    /**
+     * Paquetes con su precio de hoy (final_price), el normal tachado (old_price) si hay promoción y
+     * lo que trae el servicio en palabras («service_lines»: plazo, cambios y atención).
+     */
     public static function packages(?array $packages = null): array
     {
         $promo = self::launchPromoActive();
@@ -62,8 +65,33 @@ final class Offers
                 'final_price' => $price['final'],
                 'old_price' => $price['regular'],
                 'promo_label' => $price['regular'] ? config('bida.launch_promo.label') : null,
+                'service_lines' => self::serviceLines($package['service'] ?? []),
             ];
         }, $packages ?? config('bida.packages', []));
+    }
+
+    /**
+     * El servicio de un paquete de «Te la hacemos» en palabras: «Lista en 2 días hábiles», «2 rondas
+     * de cambios» (o «Cambios sin límite hasta el evento») y «Atención por WhatsApp».
+     *
+     * @param  array{delivery?: string|null, revisions?: int|null}  $service
+     * @return list<string>
+     */
+    public static function serviceLines(array $service): array
+    {
+        $delivery = trim((string) ($service['delivery'] ?? ''));
+        $revisions = array_key_exists('revisions', $service) ? $service['revisions'] : false;
+
+        return array_values(array_filter([
+            $delivery !== '' ? "Lista en {$delivery} desde que nos envías tus datos" : null,
+            match (true) {
+                $revisions === false => null,
+                $revisions === null => 'Cambios sin límite hasta el evento',
+                (int) $revisions === 1 => '1 ronda de cambios',
+                default => ((int) $revisions).' rondas de cambios',
+            },
+            $service !== [] ? 'Atención por WhatsApp' : null,
+        ]));
     }
 
     /**

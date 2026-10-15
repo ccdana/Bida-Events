@@ -259,7 +259,7 @@
                             <x-phosphor-plus-bold aria-hidden="true" />
                             Crear mi invitación
                         </a>
-                        <a href="{{ route('home') }}#precios" class="admin-link-button">Prefiero que me la hagan</a>
+                        <a href="{{ route('pricing') }}#te-la-hacemos" class="admin-link-button">Prefiero que me la hagan</a>
                     </div>
                     <p class="mt-6 max-w-[46ch] text-sm text-site-muted">
                         ¿Armas invitaciones para tus clientes? <a href="{{ $startUrl }}" class="font-medium text-site-ink underline underline-offset-4">Mira los planes mensuales</a>.

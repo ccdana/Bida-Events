@@ -49,6 +49,9 @@ Route::middleware('lead.source')->group(function () {
     // «Únete»: planes mensuales para armar invitaciones propias (revendedores con suscripción)
     Route::get('/unete', [PublicPagesController::class, 'diy'])->name('diy');
 
+    // Precios: Hazlo tú (gratis o pago único), Planes y Te la hacemos, lado a lado (App\Support\PricingPage)
+    Route::get('/precios', [PublicPagesController::class, 'pricing'])->name('pricing');
+
     // Guía pública sobre invitaciones digitales (contenido pensado para buscadores y respuestas de IA)
     Route::get('/guia-invitaciones-digitales', [PublicPagesController::class, 'guide'])->name('guide');
     // Las direcciones anteriores de la página siguen funcionando (enlaces compartidos, buscadores)

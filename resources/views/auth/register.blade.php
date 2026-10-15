@@ -3,7 +3,12 @@
 @section('title', 'Crea tu cuenta | '.config('bida.brand'))
 
 @section('auth')
-    <x-site.journey :current="2" class="site-enter mb-8" style="--enter-index: 0" />
+    {{-- Con un plan elegido, el recorrido del plan; si no, el de «Hazlo tú» (cuenta, invitación, publicar) --}}
+    @if($chosenPlan)
+        <x-site.journey :current="2" class="site-enter mb-8" style="--enter-index: 0" />
+    @else
+        <x-site.journey flow="diy" :current="1" class="site-enter mb-8" style="--enter-index: 0" />
+    @endif
 
     <h1 class="site-enter text-3xl font-semibold tracking-tight sm:text-4xl" style="--enter-index: 1">Crea tu cuenta</h1>
     @if($chosenPlan)
@@ -17,7 +22,7 @@
         </p>
     @else
         <p class="site-enter mt-3 leading-relaxed text-site-muted" style="--enter-index: 2">
-            Con tu cuenta eliges tu plan y armas tus invitaciones con nuestras plantillas, para tu evento o para tus clientes.
+            Con tu cuenta armas tu invitación gratis con nuestras plantillas. Pagas solo si al publicarla quieres más que lo básico.
         </p>
     @endif
 

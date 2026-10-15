@@ -1,14 +1,18 @@
 {{--
-    Precios de los paquetes (pago único por invitación). Recibe $packages (con su enlace de WhatsApp)
-    y $contactUrl. Con la promoción encendida, el precio normal va tachado junto al de hoy. La columna
-    es la misma que la de los planes mensuales de «Únete» (components/site/price-card).
+    Precios de los paquetes de «Te la hacemos» (pago único por invitación). Recibe $packages (con su
+    enlace de WhatsApp) y $contactUrl; opcionales $plansId (el ancla, «precios» por defecto), $plansTitle
+    y $plansLead. Con la promoción encendida, el precio normal va tachado junto al de hoy. Cada paquete
+    dice primero su servicio (plazo, cambios y atención) y después lo que trae, que es lo mismo que el
+    nivel del mismo nombre de «Hazlo tú». La columna es la misma que la de los planes (components/site/price-card).
 --}}
 @use('App\Support\Money')
 
-<section id="precios" class="scroll-mt-20 border-t border-site-line bg-site-surface" aria-labelledby="precios-titulo">
+@php($sectionId = $plansId ?? 'precios')
+
+<section id="{{ $sectionId }}" class="scroll-mt-20 border-t border-site-line bg-site-surface" aria-labelledby="{{ $sectionId }}-titulo">
     <div class="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-28">
         <div class="max-w-3xl">
-            <h2 id="precios-titulo" class="site-display site-display--md" data-reveal>{{ $plansTitle ?? 'Elige tu paquete' }}</h2>
+            <h2 id="{{ $sectionId }}-titulo" class="site-display site-display--md" data-reveal>{{ $plansTitle ?? 'Elige tu paquete' }}</h2>
             <p class="site-muted-lead" data-reveal>
                 {{ $plansLead ?? 'Pago único por invitación, en dólares ('.Money::code().'). Cada paquete incluye todo lo del anterior.' }}
             </p>
@@ -25,7 +29,7 @@
                     :suffix="Money::code()"
                     :saving="! empty($package['old_price']) ? 'Ahorras '.Money::format($package['old_price'] - $package['final_price']) : null"
                     :summary="$package['summary']"
-                    :features="$package['features']"
+                    :features="[...($package['service_lines'] ?? []), ...$package['features']]"
                     :featured="$featured"
                     :premium="$premium"
                     :tag="$featured ? 'Recomendado' : ($premium ? 'Experiencia completa' : null)"
