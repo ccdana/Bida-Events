@@ -51,24 +51,24 @@ class ResellerEditorTest extends TestCase
         );
     }
 
-    public function test_the_monthly_quota_stops_new_invitations_with_a_clear_message(): void
+    public function test_without_quota_a_new_invitation_is_saved_as_a_draft_with_a_clear_message(): void
     {
         foreach (range(1, 8) as $ignored) {
             $this->createInvitation(['reseller_id' => $this->reseller->id]);
         }
 
+        // El editor se abre igual: crear no gasta cupo
+        $this->actingAs($this->reseller)->withoutVite()->get(route('client.invitations.create'))->assertOk();
+
+        // Pide publicarla: se guarda, pero sin publicar, y se le dice cuándo podrá
         $this->actingAs($this->reseller)
-            ->from(route('client.dashboard'))
             ->post(route('client.invitations.store'), $this->payload())
-            ->assertSessionHasErrors(['quota' => 'Ya usaste las 8 invitaciones que incluye tu plan este mes. El cupo vuelve a empezar el primer día del próximo mes; si necesitas más, pregúntanos por un plan mayor.']);
+            ->assertRedirect()
+            ->assertSessionHas('warning', 'Guardamos tus cambios, pero no la publicamos: ya publicaste las 8 invitaciones de tu plan este mes. Podrás publicarla desde el 1 de '.now()->addMonthNoOverflow()->locale('es')->translatedFormat('F').', o ahora mismo con un plan mayor.');
 
-        $this->assertDatabaseMissing('invitations', ['slug' => 'xv-revendedor']);
-
-        // Tampoco se abre el editor: vuelve al panel con el aviso
-        $this->actingAs($this->reseller)
-            ->get(route('client.invitations.create'))
-            ->assertRedirect(route('client.dashboard'))
-            ->assertSessionHasErrors('quota');
+        $invitation = Invitation::where('slug', 'xv-revendedor')->firstOrFail();
+        $this->assertSame('inactive', $invitation->status);
+        $this->assertNull($invitation->first_published_at);
     }
 
     public function test_a_template_outside_the_plan_is_rejected(): void

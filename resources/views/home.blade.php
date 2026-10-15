@@ -337,7 +337,7 @@
         {{-- Lo principal: los planes mensuales para armar tu propia invitación --}}
         @include('site.partials.diy-plans', [
             'diyTitle' => 'Elige tu plan y arma tu invitación',
-            'diyLead' => 'Desde una sola invitación hasta las que necesites cada mes, sin comisión. Precios por mes, en dólares ('.\App\Support\Money::code().'); cada plan suma al anterior.',
+            'diyLead' => 'Para armar invitaciones cada mes, para tus eventos o los de tus clientes, sin comisión por invitación. Precios por mes, en dólares ('.\App\Support\Money::code().'); pagando 3 o 12 meses, con descuento.',
             'diyMoreLink' => true,
         ])
 

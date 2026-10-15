@@ -24,7 +24,7 @@ class HomePageTest extends TestCase
         $response->assertOk()
             ->assertSee('Arma tu invitación digital para bodas, XV años, bautizos, cumpleaños y graduaciones')
             // El modelo principal va primero: el hero y la cabecera llevan a elegir el plan
-            ->assertSee('La armas tú desde US$ 5 al mes')
+            ->assertSee('La armas tú desde US$ 9 al mes')
             ->assertSee('Crear mi invitación')
             // Promoción de inauguración: el precio normal tachado y el de hoy
             ->assertSeeInOrder(['US$ 29', '22', 'USD', 'US$ 57', '43', 'USD', 'US$ 99', '72', 'USD'])
@@ -33,7 +33,7 @@ class HomePageTest extends TestCase
             ->assertSee('Ahorras US$ 7')
             // Servicios: primero «Únete» (el modelo principal), luego que la hagamos nosotros y lo de temporada, cada uno con su precio de hoy (en dólares)
             ->assertSee('id="servicios"', false)
-            ->assertSeeInOrder(['Únete', 'Desde', 'US$ 5', 'al mes', 'Te la hacemos', 'Desde', 'US$ 22', 'Diseños de temporada'])
+            ->assertSeeInOrder(['Únete', 'Desde', 'US$ 9', 'al mes', 'Te la hacemos', 'Desde', 'US$ 22', 'Diseños de temporada'])
             ->assertSee(route('diy'), false)
             // Los recuerdos en vivo van dentro de lo que incluye la invitación, y ya no hay sección de contacto
             ->assertSeeInOrder(['id="incluye"', 'Pase QR y control de entrada', 'Fotomural en vivo', 'id="precios"'], false)
@@ -65,15 +65,17 @@ class HomePageTest extends TestCase
         $html = $this->get(route('home'))
             ->assertOk()
             // Primero los planes mensuales con su precio, después lo que hacemos nosotros
-            ->assertSeeInOrder(['id="planes"', 'Elige tu plan y arma tu invitación', 'Única', 'Inicial', 'Aliado', 'Emprendedor', 'Agencia', 'id="precios"', 'Si prefieres que la hagamos nosotros', 'Básico', 'Estándar', 'Premium'], false)
+            ->assertSeeInOrder(['id="planes"', 'Elige tu plan y arma tu invitación', 'Inicial', 'Emprendedor', 'Agencia', 'id="precios"', 'Si prefieres que la hagamos nosotros', 'Básico', 'Estándar', 'Premium'], false)
             // Sin pago en línea, elegir un plan abre WhatsApp con ese plan (con el pago, pasa por crear la cuenta)
-            ->assertSee('Elegir Aliado')
-            ->assertSee(rawurlencode('quiero el plan Aliado de Únete'), false)
+            ->assertSee('Elegir Inicial')
+            ->assertDontSee('Elegir Aliado')
+            ->assertSee(rawurlencode('quiero el plan Inicial de Únete'), false)
             ->assertSee('Ver el detalle de cada plan')
             ->getContent();
 
         // Los dos módulos usan la misma columna de precios
-        $this->assertGreaterThanOrEqual(8, substr_count($html, 'class="site-plan__head"'));
+        // (3 planes y 3 paquetes)
+        $this->assertGreaterThanOrEqual(6, substr_count($html, 'class="site-plan__head"'));
     }
 
     public function test_the_footer_does_not_pin_the_temporary_season_pages(): void

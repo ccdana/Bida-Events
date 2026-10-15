@@ -7,6 +7,8 @@
     - featured: el recomendado (filete dorado arriba); premium: el de más arriba (corona y botón dorado).
     - tag: la etiqueta junto al nombre («Recomendado»).
     - reserve: guarda el lugar del precio tachado y del ahorro, para que columnas con y sin rebaja alineen.
+    - cycles (opcional, planes): por meses (1, 3, 12) el precio por mes, el tachado, el ahorro y el enlace;
+      siguen a «cycle» del selector de la página (site.partials.diy-plans). Sin JavaScript queda el mensual.
 --}}
 @props([
     'name',
@@ -24,9 +26,11 @@
     'cta' => 'Elegir',
     'index' => 0,
     'reserve' => false,
+    'cycles' => null,
 ])
 
-<article @class(['site-plan', 'site-plan--featured' => $featured, 'site-plan--premium' => $premium]) data-reveal style="--reveal-index: {{ $index }}">
+<article @class(['site-plan', 'site-plan--featured' => $featured, 'site-plan--premium' => $premium]) data-reveal style="--reveal-index: {{ $index }}"
+    @if($cycles) x-data="{ cycles: @js($cycles) }" @endif>
     <div class="site-plan__head">
         <h3 class="site-plan__name">
             {{ $name }}
@@ -40,18 +44,24 @@
     </div>
 
     <p class="site-plan__amount">
-        @if($old)
+        @if($cycles)
+            <del @class(['site-plan__old', 'invisible' => ! $old]) :class="{ invisible: ! cycles[cycle].old }" :aria-hidden="(! cycles[cycle].old).toString()">
+                <span class="sr-only">Antes </span><span x-text="cycles[cycle].old || String.fromCharCode(160)">{!! $old ? e($old) : '&nbsp;' !!}</span>
+            </del>
+        @elseif($old)
             <del class="site-plan__old"><span class="sr-only">Antes </span>{{ $old }}</del>
             <span class="sr-only">, ahora</span>
         @elseif($reserve)
             <span class="site-plan__old invisible" aria-hidden="true">&nbsp;</span>
         @endif
         <span class="flex items-baseline gap-2">
-            <span class="site-plan__price">{{ $price }}</span>
+            <span class="site-plan__price" @if($cycles) x-text="cycles[cycle].price" @endif>{{ $price }}</span>
             <span class="text-xl text-site-muted">{{ $suffix }}</span>
         </span>
     </p>
-    @if($saving)
+    @if($cycles)
+        <p @class(['site-plan__saving', 'invisible' => ! $saving]) :class="{ invisible: ! cycles[cycle].saving }" x-text="cycles[cycle].saving || String.fromCharCode(160)">{!! $saving ? e($saving) : '&nbsp;' !!}</p>
+    @elseif($saving)
         <p class="site-plan__saving">{{ $saving }}</p>
     @elseif($reserve)
         <p class="site-plan__saving invisible" aria-hidden="true">&nbsp;</p>
@@ -68,7 +78,7 @@
         @endforeach
     </ul>
 
-    <a href="{{ $url }}" @if($external) target="_blank" rel="noopener" @endif
+    <a href="{{ $url }}" @if($cycles) :href="cycles[cycle].url" @endif @if($external) target="_blank" rel="noopener" @endif
         @class([
             'site-btn site-btn--lg mt-10 justify-center',
             'site-btn--gold' => $premium,

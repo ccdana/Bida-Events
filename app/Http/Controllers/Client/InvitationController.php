@@ -16,13 +16,13 @@ use App\ViewModels\Admin\InvitationEditorViewData;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 /**
  * El editor del revendedor: el mismo flujo y los mismos paneles que el del administrador, con tres
  * diferencias. La invitación siempre queda a cargo del propio revendedor, solo ofrece las plantillas de su
- * plan y, al crear, respeta el cupo del mes.
+ * plan y, al publicarla por primera vez, respeta el cupo del mes (los borradores no lo gastan): sin
+ * cupo, se guarda igual pero queda sin publicar, con el aviso.
  *
  * Quién entra lo deciden las rutas: middleware «reseller» y la policy (create / update), que exige
  * la suscripción al día.
@@ -36,13 +36,8 @@ class InvitationController extends Controller
         protected InvitationEditorViewData $editorData,
     ) {}
 
-    public function create(): View|RedirectResponse
+    public function create(): View
     {
-        // Sin cupo no tiene sentido abrir el editor: se avisa en el panel
-        if (! ResellerSubscription::hasQuotaLeft(auth()->user())) {
-            return redirect()->route('client.dashboard')->withErrors(['quota' => $this->quotaMessage()]);
-        }
-
         InvitationPreviewSession::forgetDraft();
 
         return view('client.invitations.create', $this->editorData->make(
@@ -58,18 +53,20 @@ class InvitationController extends Controller
     {
         $user = $request->user();
 
-        $invitation = DB::transaction(function () use ($request, $user) {
+        $held = false;
+
+        $invitation = DB::transaction(function () use ($request, $user, &$held) {
             // Se vuelve a contar dentro de la transacción, con el usuario bloqueado: dos pestañas que
-            // guardan a la vez no pueden pasarse juntas del cupo
+            // publican a la vez no pueden pasarse juntas del cupo
             $user->newQuery()->whereKey($user->id)->lockForUpdate()->first();
 
-            if (! ResellerSubscription::hasQuotaLeft($user)) {
-                throw ValidationException::withMessages(['quota' => $this->quotaMessage()]);
-            }
+            // Crear siempre se puede; publicarla, solo con cupo (si no, queda como borrador)
+            $held = $request->validated('status') === 'active' && ! ResellerSubscription::hasQuotaLeft($user);
 
             $invitation = Invitation::create([
                 ...$request->safe()->except('modulos_data'),
                 'slug' => Str::slug($request->validated('slug')),
+                'status' => $held ? 'inactive' : $request->validated('status'),
                 // El revendedor no viene del formulario: siempre es quien la crea. El cliente del evento
                 // se le asigna después, si lo quiere crear (ResellerClientController)
                 'reseller_id' => $user->id,
@@ -88,7 +85,7 @@ class InvitationController extends Controller
 
         return redirect()
             ->route('client.invitations.edit', $invitation)
-            ->with('success', 'Invitación creada. Cuando esté lista, publícala y comparte su enlace.');
+            ->with($held ? 'warning' : 'success', $held ? $this->heldMessage() : 'Invitación creada. Cuando esté lista, publícala y comparte su enlace.');
     }
 
     public function edit(Invitation $invitation): View
@@ -110,11 +107,21 @@ class InvitationController extends Controller
     public function update(UpdateResellerInvitationRequest $request, Invitation $invitation): RedirectResponse
     {
         $previousSlug = $invitation->slug;
+        $held = false;
 
-        DB::transaction(function () use ($request, $invitation) {
+        DB::transaction(function () use ($request, $invitation, &$held) {
+            $user = $request->user();
+            $user->newQuery()->whereKey($user->id)->lockForUpdate()->first();
+
+            // Publicarla por primera vez gasta cupo: sin cupo, se guarda igual pero sin publicar
+            $held = $request->validated('status') === 'active'
+                && $invitation->status !== 'active'
+                && ! ResellerSubscription::canPublish($user, $invitation);
+
             $invitation->update([
                 ...$request->safe()->except('modulos_data'),
                 'slug' => Str::slug($request->validated('slug')),
+                'status' => $held ? 'inactive' : $request->validated('status'),
             ]);
 
             $this->syncModules($invitation, $request->modulesData());
@@ -128,14 +135,16 @@ class InvitationController extends Controller
 
         return redirect()
             ->route('client.invitations.edit', $invitation)
-            ->with('success', 'Invitación actualizada correctamente.');
+            ->with($held ? 'warning' : 'success', $held ? $this->heldMessage() : 'Invitación actualizada correctamente.');
     }
 
-    private function quotaMessage(): string
+    /** Se guardó, pero no se publicó: ya no le queda cupo este mes. */
+    private function heldMessage(): string
     {
         $limit = ResellerSubscription::quotaLimit(auth()->user());
+        $nextMonth = now()->timezone(config('app.timezone'))->startOfMonth()->addMonthNoOverflow()->locale('es')->translatedFormat('j \d\e F');
 
-        return "Ya usaste las {$limit} invitaciones que incluye tu plan este mes. "
-            .'El cupo vuelve a empezar el primer día del próximo mes; si necesitas más, pregúntanos por un plan mayor.';
+        return "Guardamos tus cambios, pero no la publicamos: ya publicaste las {$limit} invitaciones de tu plan este mes. "
+            ."Podrás publicarla desde el {$nextMonth}, o ahora mismo con un plan mayor.";
     }
 }

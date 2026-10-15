@@ -8,7 +8,6 @@ use App\Support\LegalPages;
 use App\Support\Money;
 use App\Support\Offers;
 use App\Support\ShareMeta;
-use App\Support\ShowcaseDemos;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -47,6 +46,8 @@ class PublicPagesController extends Controller
             'user' => $request->user(),
             'plans' => $plans,
             'featuredPlan' => $diy['featuredPlan'],
+            // Pagar 3 o 12 meses de una vez, con su descuento (el selector de la página de planes)
+            'planCycles' => $diy['cycles'],
             'collections' => $diy['collections'],
             // Lo secundario: que el equipo haga la invitación (pago único por invitación)
             'packages' => HomeController::packages($bida['packages'], $whatsapp),

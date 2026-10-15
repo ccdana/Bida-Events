@@ -32,6 +32,8 @@ class HomeController extends Controller
             // Lo principal: los planes mensuales (cada quien arma su invitación)
             'plans' => $diy['plans'],
             'featuredPlan' => $diy['featuredPlan'],
+            // Pagar 3 o 12 meses de una vez, con su descuento (el selector de la página de planes)
+            'planCycles' => $diy['cycles'],
             'collections' => $diy['collections'],
             // Lo adicional: que el equipo la haga (paquetes, pago único)
             'packages' => $this->packages($bida['packages'], $whatsapp),

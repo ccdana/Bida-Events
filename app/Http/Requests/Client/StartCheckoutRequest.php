@@ -20,7 +20,7 @@ class StartCheckoutRequest extends FormRequest
         return [
             'plan' => ['required', 'string', Rule::in(array_keys(config('bida.reseller_plans', [])))],
             'method' => ['required', 'string', Rule::in(PaymentGateways::METHODS)],
-            // Meses que paga de una vez (solo QR; la tarjeta es mensual)
+            // Meses que paga de una vez (QR) o cada cuánto se renueva (tarjeta, si la pasarela tiene ese ciclo)
             'months' => ['nullable', 'integer', Rule::in(array_keys(SubscriptionPrice::prepayOptions()))],
         ];
     }

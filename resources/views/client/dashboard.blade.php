@@ -34,7 +34,7 @@
                     <p class="text-sm text-site-muted">Plan {{ $reseller['planName'] }}</p>
                     <p class="mt-1 text-3xl font-semibold tracking-tight tabular-nums">{{ $reseller['quotaLabel'] }}</p>
                     <p class="mt-1 text-sm text-site-muted">
-                        invitaciones creadas este mes
+                        invitaciones publicadas este mes
                         @if($reseller['renewsLabel'])
                             · {{ match (true) { $reseller['isPastDue'] => 'venció el', $reseller['autoRenews'] => 'se renueva solo el', default => 'renueva el' } }} {{ $reseller['renewsLabel'] }}
                         @endif
@@ -53,6 +53,9 @@
                             Nueva invitación
                         </span>
                         <p class="mt-2 text-sm text-site-muted">{{ $reseller['blockedReason'] }}</p>
+                    @endif
+                    @if($reseller['quotaNote'])
+                        <p class="mt-2 max-w-[34ch] text-sm text-site-muted sm:ml-auto">{{ $reseller['quotaNote'] }}</p>
                     @endif
                 </div>
             </div>

@@ -12,4 +12,12 @@ interface ManagesSubscriptions
 {
     /** Enlace al portal del cliente para su suscripción; null si no tiene una en esta pasarela. */
     public function portalUrl(User $user): ?string;
+
+    /**
+     * Cada cuántos meses puede renovarse sola la suscripción de este plan (1, 3 o 12): los ciclos que
+     * la pasarela tiene configurados.
+     *
+     * @return list<int>
+     */
+    public function billingCycles(string $plan): array;
 }

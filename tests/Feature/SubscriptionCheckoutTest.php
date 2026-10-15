@@ -27,6 +27,9 @@ class SubscriptionCheckoutTest extends TestCase
         parent::setUp();
 
         $this->travelTo(Carbon::parse('2026-10-15 12:00:00', 'America/La_Paz'));
+        // El flujo de la tarjeta con el Aliado a la venta y sin descuento por adelantado
+        // (PlansAndCyclesTest prueba el catálogo y los ciclos)
+        config(['bida.reseller_plans.aliado.legacy' => false, 'payments.prepay' => [1 => 0, 3 => 0, 12 => 0]]);
         $this->configureLemonSqueezy();
         Http::fake([
             'api.lemonsqueezy.com/v1/checkouts' => Http::response(['data' => ['id' => 'chk-1', 'attributes' => ['url' => self::CHECKOUT_URL]]], 201),
@@ -56,8 +59,14 @@ class SubscriptionCheckoutTest extends TestCase
             ->assertSee('Elige tu plan')
             ->assertSee('Tarjeta de crédito o débito')
             ->assertSee('value="emprendedor" x-model="plan" class="mt-1 size-4 accent-[var(--site-accent)]" checked', false)
-            // Sin appkey de Libélula no se ofrece el pago en Bolivia, ni los meses por adelantado
-            ->assertDontSee('Pago en Bolivia')
+            // Sin appkey de Libélula no se ofrece el pago en Bolivia
+            ->assertDontSee('Pago en Bolivia');
+
+        // Con tarjeta y sin variantes de 3 o 12 meses, no hay ciclos que elegir (PlansAndCyclesTest
+        // prueba la tarjeta anual)
+        config(['payments.lemonsqueezy.variants.inicial:12' => null]);
+        $this->actingAs(User::factory()->create())->withoutVite()->get(route('client.subscription'))
+            ->assertOk()
             ->assertDontSee('Cuántos meses pagas');
 
         // Quien ya entró va directo a pagar

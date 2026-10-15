@@ -52,7 +52,7 @@ class ResellerDashboardTest extends TestCase
             ->assertDontSee(route('client.invitations.edit', $invitation), false);
     }
 
-    public function test_without_quota_the_button_explains_why(): void
+    public function test_without_quota_it_still_creates_drafts_and_says_when_it_can_publish(): void
     {
         $reseller = User::factory()->reseller('aliado')->create();
 
@@ -60,11 +60,13 @@ class ResellerDashboardTest extends TestCase
             $this->createInvitation(['reseller_id' => $reseller->id]);
         }
 
+        // El cupo cuenta las publicadas: sin cupo igual arma borradores, y se le dice cuándo publica
         $this->actingAs($reseller)->withoutVite()->get(route('client.dashboard'))
             ->assertOk()
             ->assertSee('8 de 8')
-            ->assertSee('Ya usaste el cupo de este mes.')
-            ->assertDontSee(route('client.invitations.create'), false);
+            ->assertSee('invitaciones publicadas este mes')
+            ->assertSee('Ya publicaste todas las de este mes')
+            ->assertSee(route('client.invitations.create'), false);
     }
 
     public function test_a_normal_client_does_not_see_the_reseller_block(): void

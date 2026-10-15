@@ -84,7 +84,8 @@ class ResellerClientTest extends TestCase
 
     public function test_every_plan_creates_clients_but_not_more_per_month_than_its_invitations(): void
     {
-        // Plan Inicial: 3 invitaciones al mes, así que 3 accesos de cliente
+        // Un plan de 3 invitaciones al mes: 3 accesos de cliente
+        config(['bida.reseller_plans.inicial.quota_per_month' => 3]);
         $reseller = User::factory()->reseller('inicial')->create();
         $invitations = collect(range(1, 4))->map(fn () => $this->createInvitation(['reseller_id' => $reseller->id]));
 

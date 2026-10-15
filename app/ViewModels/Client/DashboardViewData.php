@@ -58,8 +58,9 @@ class DashboardViewData
     }
 
     /**
-     * Lo que el revendedor necesita ver al entrar: su plan, cuánto cupo le queda este mes y si su
-     * suscripción está por vencer o ya venció (entonces no puede crear ni editar hasta renovar).
+     * Lo que el revendedor necesita ver al entrar: su plan, cuántas invitaciones publicó este mes (el
+     * cupo cuenta las publicadas; crear borradores no lo gasta) y si su suscripción está por vencer o
+     * ya venció (entonces no puede crear ni editar hasta renovar).
      */
     private function reseller(User $user): array
     {
@@ -102,13 +103,10 @@ class DashboardViewData
             // Junto al aviso: pagar o renovar en línea (o el portal de la tarjeta, si el cobro falló)
             'payUrl' => $warning && $payOnline ? route('client.subscription') : null,
             'isExpired' => $daysLeft !== null && ! $active,
-            'canCreate' => $active && $hasQuota,
-            // Por qué no puede crear, para decirlo junto al botón
-            'blockedReason' => match (true) {
-                ! $active => 'Renueva tu suscripción para crear invitaciones.',
-                ! $hasQuota => 'Ya usaste el cupo de este mes.',
-                default => null,
-            },
+            // Sin cupo igual crea y arma borradores: lo que no puede es publicar hasta el mes que viene
+            'canCreate' => $active,
+            'blockedReason' => $active ? null : 'Renueva tu suscripción para crear invitaciones.',
+            'quotaNote' => $active && ! $hasQuota ? 'Ya publicaste todas las de este mes: puedes seguir armando borradores y publicarlos el mes que viene.' : null,
         ];
     }
 

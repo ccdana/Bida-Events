@@ -32,6 +32,11 @@ class UpdateSettingsRequest extends FormRequest
             'seasons.*.ends_at' => ['nullable', 'date'],
             'seasons.*.diy_price' => ['nullable', 'integer', 'min:0', 'max:100000'],
 
+            // Descuento en % por pagar los planes 3 o 12 meses de una vez
+            'prepay' => ['array'],
+            'prepay.3' => ['nullable', 'integer', 'min:0', 'max:90'],
+            'prepay.12' => ['nullable', 'integer', 'min:0', 'max:90'],
+
             // «Hazlo tú»: lo que cuesta publicar con cada nivel
             'diy_prices' => ['array'],
             'diy_prices.*.price' => ['required', 'integer', 'min:0', 'max:100000'],
@@ -107,6 +112,8 @@ class UpdateSettingsRequest extends FormRequest
             'seasons.*.ends_at' => 'fecha de término de la temporada',
             'seasons.*.diy_price' => 'precio único de Hazlo tú de la temporada',
             'diy_prices.*.price' => 'precio del nivel',
+            'prepay.3' => 'descuento por 3 meses',
+            'prepay.12' => 'descuento por 12 meses',
             'contact.whatsapp' => 'número de WhatsApp',
             'contact.email' => 'correo',
         ];

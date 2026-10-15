@@ -569,9 +569,11 @@ return [
     ],
 
     /*
-    | Planes de suscripción mensual para revendedores (fotógrafos, wedding planners, decoradores):
-    | arman sus propias invitaciones dentro de «quota_per_month» por mes calendario (null = sin
-    | tope). Cada plan desbloquea más cosas, y eso es lo que justifica pagar más:
+    | Planes de suscripción para quien arma invitaciones para otros (fotógrafos, wedding planners,
+    | decoradores, salones). Se pagan por mes, o por 3 o 12 meses con descuento (config
+    | «payments.prepay», Ajustes). Tres a la venta, cada uno suma al anterior:
+    |  - «quota_per_month»: invitaciones que puede **publicar** por mes calendario (null = sin tope).
+    |    Los borradores no gastan cupo (ResellerSubscription::quotaUsed).
     |  - «collections»: qué familias de plantillas puede usar (ver «collection» en
     |    App\Support\InvitationTemplates): lienzo (la genérica en blanco), clasica (XV, boda,
     |    bautizo, cumpleaños, graduación, baby shower), temporada (Halloween, tarjetas del Día
@@ -580,56 +582,30 @@ return [
     |  - «rsvp»: la confirmación de asistencia que puede usar: whatsapp (el invitado le escribe) y
     |    pass (pase QR guardado, control de entrada y reportes). En una invitación va una sola.
     | Todos los planes crean accesos para sus clientes (uno por evento), pero no más por mes que
-    | las invitaciones que el plan permite crear (ResellerSubscription::canCreateClients).
+    | su cupo (ResellerSubscription::canCreateClients).
     |  - «white_label»: el pie de sus invitaciones lleva su nombre comercial en vez de Bida Events.
-    | «cycle_months» es cuánto extiende la suscripción cada pago; «templates» (opcional) recorta
+    |  - «featured»: el recomendado de la página de planes.
+    |  - «legacy»: ya no se vende. Quien lo tiene lo conserva (y lo renueva) hasta que cambie de plan.
+    | «cycle_months» es cuánto extiende la suscripción un pago mensual; «templates» (opcional) recorta
     | todavía más el catálogo con una lista de plantillas. «promo_price» es el precio con descuento
     | (null = sin descuento): se muestra el normal tachado. Precio, descuento y cupo se cambian en Ajustes.
-    | No se cobra automáticamente: el administrador registra cada pago desde Revendedores.
     |
-    | (Supuesto) Precios, cupos y qué incluye cada plan, pendientes de confirmar con el dueño.
+    | (Supuesto) Precios y cupos, pendientes de confirmar con el dueño.
     */
     'reseller_plans' => [
-        // Una sola invitación: para quien organiza un único evento y no necesita un cupo mayor
-        'unica' => [
-            'name' => 'Única',
-            'price' => 5,
-            'promo_price' => null,
-            'quota_per_month' => 1,
-            'collections' => ['lienzo', 'clasica'],
-            'rsvp' => ['whatsapp'],
-            'white_label' => false,
-            'cycle_months' => 1,
-            'templates' => null,
-            'summary' => 'Para un solo evento: una invitación con la plantilla que elijas.',
-            'features' => ['1 invitación al mes', 'Plantilla en blanco y plantillas clásicas', 'Acceso para tu cliente en el evento'],
-        ],
         'inicial' => [
             'name' => 'Inicial',
             'price' => 9,
             'promo_price' => null,
-            'quota_per_month' => 3,
-            'collections' => ['lienzo', 'clasica'],
+            'quota_per_month' => 5,
+            'collections' => ['lienzo', 'clasica', 'temporada'],
             // Confirmación de asistencia que puede usar: [] ninguna, 'whatsapp', 'pass' (pase QR, puerta y reportes)
             'rsvp' => ['whatsapp'],
             'white_label' => false,
             'cycle_months' => 1,
             'templates' => null,
-            'summary' => 'Para empezar: la plantilla en blanco y las clásicas de cada evento.',
-            'features' => ['3 invitaciones al mes', 'Plantilla en blanco y plantillas clásicas', 'Acceso para tu cliente en cada evento'],
-        ],
-        'aliado' => [
-            'name' => 'Aliado',
-            'price' => 17,
-            'promo_price' => 14,
-            'quota_per_month' => 8,
-            'collections' => ['lienzo', 'clasica', 'temporada'],
-            'rsvp' => ['whatsapp'],
-            'white_label' => false,
-            'cycle_months' => 1,
-            'templates' => null,
-            'summary' => 'Las clásicas y las de temporada: Halloween y las tarjetas del Día del Amor.',
-            'features' => ['8 invitaciones al mes', 'Todo lo del plan Inicial', 'Plantillas de temporada: Halloween y Día del Amor', 'Acceso para tu cliente en cada evento'],
+            'summary' => 'Para empezar a vender invitaciones: las clásicas y las de temporada, con confirmación por WhatsApp.',
+            'features' => ['5 invitaciones al mes', 'Plantilla en blanco, clásicas y de temporada', 'Confirmación de asistencia por WhatsApp', 'Acceso para tu cliente en cada evento'],
         ],
         'emprendedor' => [
             'name' => 'Emprendedor',
@@ -639,10 +615,11 @@ return [
             'collections' => ['lienzo', 'clasica', 'temporada', 'nueva', 'tendencias'],
             'rsvp' => ['whatsapp', 'pass'],
             'white_label' => true,
+            'featured' => true,
             'cycle_months' => 1,
             'templates' => null,
-            'summary' => 'Con tu marca, las plantillas nuevas de cada evento y confirmación por WhatsApp.',
-            'features' => ['20 invitaciones al mes', 'Todo lo del plan Aliado', 'Las plantillas nuevas de cada evento, a medida que salen', 'Confirmación de asistencia por WhatsApp', 'Tu marca al pie, sin la de Bida Events'],
+            'summary' => 'Con tu marca, todas las plantillas y el pase QR: para quien vende invitaciones cada mes.',
+            'features' => ['20 invitaciones al mes', 'Todo lo del plan Inicial', 'Las plantillas nuevas y de tendencia, a medida que salen', 'Confirmación con pase QR, control de entrada y reportes', 'Tu marca al pie, sin la de Bida Events'],
         ],
         'agencia' => [
             'name' => 'Agencia',
@@ -654,8 +631,39 @@ return [
             'white_label' => true,
             'cycle_months' => 1,
             'templates' => null,
-            'summary' => 'Sin tope, con pase QR y control de entrada: para estudios que entregan todas las semanas.',
-            'features' => ['Invitaciones sin tope', 'Todo lo del plan Emprendedor', 'Confirmación con pase QR y control de entrada', 'Reportes en PDF y Excel, e invitación para imprimir'],
+            'summary' => 'Sin tope de invitaciones: para estudios y salones que entregan todas las semanas.',
+            'features' => ['Invitaciones sin tope', 'Todo lo del plan Emprendedor'],
+        ],
+
+        // ── Ya no se venden: quien los tiene los conserva (y los renueva) hasta que cambie de plan.
+        // Una sola invitación ahora es «Hazlo tú» (pago único); Aliado quedó dentro de Inicial.
+        'unica' => [
+            'name' => 'Única',
+            'price' => 5,
+            'promo_price' => null,
+            'quota_per_month' => 1,
+            'collections' => ['lienzo', 'clasica'],
+            'rsvp' => ['whatsapp'],
+            'white_label' => false,
+            'legacy' => true,
+            'cycle_months' => 1,
+            'templates' => null,
+            'summary' => 'Para un solo evento: una invitación con la plantilla que elijas.',
+            'features' => ['1 invitación al mes', 'Plantilla en blanco y plantillas clásicas', 'Acceso para tu cliente en el evento'],
+        ],
+        'aliado' => [
+            'name' => 'Aliado',
+            'price' => 17,
+            'promo_price' => 14,
+            'quota_per_month' => 8,
+            'collections' => ['lienzo', 'clasica', 'temporada'],
+            'rsvp' => ['whatsapp'],
+            'white_label' => false,
+            'legacy' => true,
+            'cycle_months' => 1,
+            'templates' => null,
+            'summary' => 'Las clásicas y las de temporada: Halloween y las tarjetas del Día del Amor.',
+            'features' => ['8 invitaciones al mes', 'Plantilla en blanco, clásicas y de temporada', 'Acceso para tu cliente en cada evento'],
         ],
     ],
 ];

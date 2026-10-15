@@ -21,8 +21,8 @@ class PublicPagesTest extends TestCase
         config(['bida.whatsapp' => '+591 7123-4567']);
         $this->seed(ShowcaseInvitationsSeeder::class);
 
-        // El administrador subió el precio del plan Aliado desde Ajustes
-        SiteSettings::put('reseller_plans', ['aliado' => ['price' => 20, 'promo_price' => 16, 'quota_per_month' => 9]]);
+        // El administrador subió el precio del plan Inicial desde Ajustes
+        SiteSettings::put('reseller_plans', ['inicial' => ['price' => 20, 'promo_price' => 16, 'quota_per_month' => 9]]);
         SiteSettings::apply();
 
         $this->withoutVite()->get(route('diy'))
@@ -33,17 +33,18 @@ class PublicPagesTest extends TestCase
             ->assertSee('Lo que cobras es tuyo')
             ->assertSee('Tu marca al frente')
             ->assertSee('Entrada con QR el día del evento')
-            // Los planes, con la misma columna que los paquetes: precio de hoy, descuento (Aliado: 20 → 16) y lo que trae
+            // Los planes que se venden, con la misma columna que los paquetes: precio de hoy, descuento (Inicial: 20 → 16) y lo que trae
             ->assertSee('id="planes"', false)
             ->assertSee('site-plans site-plans--grid', false)
             ->assertDontSee('id="comparar"', false)
-            ->assertSeeInOrder(['Elige tu plan', 'Única', 'Inicial', 'Aliado', 'US$ 20', '16', 'USD al mes', 'Ahorras US$ 4 al mes', '9 invitaciones al mes', 'plantillas para elegir', 'Emprendedor', 'Agencia', 'Invitaciones sin tope', 'Elegir Agencia'])
+            ->assertSeeInOrder(['Elige tu plan', 'Inicial', 'US$ 20', '16', 'USD al mes', 'Ahorras US$ 4 al mes', '9 invitaciones al mes', 'plantillas para elegir', 'Emprendedor', 'Agencia', 'Invitaciones sin tope', 'Elegir Agencia'])
+            ->assertDontSee('Elegir Aliado')
             // La pregunta de cuánto se gana usa el cupo y el precio de hoy (9 × 25 − 16)
             ->assertSee('suman US$ 225 y te quedan US$ 209 después del plan')
             // Lo secundario: que lo haga el equipo, con los paquetes de hoy
             ->assertSeeInOrder(['Te la hacemos nosotros', 'Básico', 'US$ 22', 'Estándar', 'US$ 43', 'Premium', 'US$ 72'])
             // WhatsApp con el plan y el código de la página
-            ->assertSee(rawurlencode('quiero el plan Aliado de Únete (US$ 16 al mes)'), false)
+            ->assertSee(rawurlencode('quiero el plan Inicial de Únete (US$ 16 al mes)'), false)
             ->assertSee(rawurlencode('Ref. HAZLO'), false);
     }
 

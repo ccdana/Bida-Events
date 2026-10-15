@@ -26,11 +26,13 @@ class RegisterController extends Controller
     {
         abort_unless(AuthOptions::registrationOpen(), 404);
 
-        // Quien eligió un plan en «Únete» llega con él: al crear y confirmar la cuenta, sigue el pago
+        // Quien eligió un plan en «Únete» llega con él (y con su ciclo: ?meses=12): al crear y
+        // confirmar la cuenta, sigue el pago
         $plan = $request->query('plan');
+        $months = (int) $request->query('meses');
 
         if (is_string($plan) && isset(Offers::resellerPlans()[$plan])) {
-            $request->session()->put('url.intended', route('client.subscription', ['plan' => $plan]));
+            $request->session()->put('url.intended', route('client.subscription', array_filter(['plan' => $plan, 'meses' => $months > 1 ? $months : null])));
         }
 
         return view('auth.register', ['chosenPlan' => $this->chosenPlan($request)]);

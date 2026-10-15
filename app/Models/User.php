@@ -68,6 +68,8 @@ class User extends Authenticatable implements MustVerifyEmail
             // Copia legible de la contraseña generada, cifrada con APP_KEY; solo la ve el administrador
             'is_admin' => 'boolean',
             'is_reseller' => 'boolean',
+            // Cada cuántos meses se renueva sola con tarjeta (1, 3 o 12)
+            'subscription_cycle_months' => 'integer',
             'subscription_renews_at' => 'date',
             'cancel_at_period_end' => 'boolean',
         ];

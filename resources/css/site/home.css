@@ -1480,6 +1480,80 @@ a:hover > .site-link-arrow svg,
     }
 }
 
+/* Cada cuánto se paga (Mensual, cada 3 meses, anual): texto con un filete dorado bajo el elegido,
+   como el índice de eventos; el descuento va en versalitas junto al nombre */
+.site-cycle {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 2rem;
+    border-bottom: 1px solid var(--site-line);
+}
+
+.site-cycle__option {
+    position: relative;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin-bottom: -1px;
+    padding: 0.5rem 0 0.85rem;
+    border: 0;
+    background: none;
+    color: var(--site-muted);
+    font: inherit;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.site-cycle__name {
+    font-family: var(--font-serif);
+    font-size: clamp(1.25rem, 2vw, 1.6rem);
+    line-height: 1.1;
+    white-space: nowrap;
+}
+
+.site-cycle__off {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--site-accent);
+    white-space: nowrap;
+}
+
+.site-cycle__option::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    bottom: -1px;
+    left: 0;
+    height: 2px;
+    background: var(--site-accent);
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+    transition: transform 0.55s var(--site-ease);
+}
+
+.site-cycle__option:hover,
+.site-cycle__option.is-active {
+    color: var(--site-ink);
+}
+
+.site-cycle__option.is-active::after {
+    transform: scaleX(1);
+}
+
+.site-cycle__option:focus-visible {
+    outline: 2px solid var(--site-accent);
+    outline-offset: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .site-cycle__option::after {
+        transition: none;
+    }
+}
+
 /* La celda que completa la fila: sin precio ni botón, solo la invitación a escribir */
 .site-plan--note {
     justify-content: center;

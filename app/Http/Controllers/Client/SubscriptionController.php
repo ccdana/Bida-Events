@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Client;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Client\StartCheckoutRequest;
 use App\Models\PaymentOrder;
+use App\Models\User;
+use App\Payments\Contracts\ManagesSubscriptions;
+use App\Payments\Contracts\PaymentGateway;
 use App\Payments\PaymentGateways;
 use App\Payments\SubscriptionPrice;
 use App\Support\Money;
@@ -20,9 +23,12 @@ use Throwable;
  * aviso. La suscripción se activa recién cuando la pasarela avisa que cobró (WebhookProcessor), no
  * al volver de su página: volver no prueba que se haya pagado.
  *
- * Con la tarjeta la suscripción se renueva sola; para cambiar de plan, de tarjeta o cancelar, el
- * cliente va al portal de la pasarela (así nunca quedan dos suscripciones cobrándose a la vez). Con
- * el QR de Bolivia cada pago cubre los meses que elige (1, 3 o 12), en bolivianos.
+ * Con la tarjeta la suscripción se renueva sola, cada mes o (si la pasarela tiene ese ciclo) cada 3 o
+ * 12 meses con su descuento; para cambiar de plan, de tarjeta o cancelar, el cliente va al portal de
+ * la pasarela (así nunca quedan dos suscripciones cobrándose a la vez). Con el QR de Bolivia cada
+ * pago cubre los meses que elige (1, 3 o 12), en bolivianos, con el mismo descuento.
+ *
+ * Se ofrecen los planes que se venden; uno que ya no se vende, solo a quien lo tiene (para renovarlo).
  */
 class SubscriptionController extends Controller
 {
@@ -33,7 +39,7 @@ class SubscriptionController extends Controller
         abort_unless(config('payments.enabled'), 404);
 
         $user = $request->user();
-        $plans = Offers::resellerPlans();
+        $plans = self::plansFor($user);
         $selected = array_key_exists((string) $request->query('plan'), $plans)
             ? (string) $request->query('plan')
             : ($user->reseller_plan && array_key_exists($user->reseller_plan, $plans) ? $user->reseller_plan : array_key_first($plans));
@@ -44,9 +50,11 @@ class SubscriptionController extends Controller
             'user' => $user,
             'plans' => $plans,
             'selected' => old('plan', $selected),
+            // Desde la página de planes llega el ciclo elegido (?meses=12)
+            'selectedMonths' => in_array((int) $request->query('meses'), array_keys(SubscriptionPrice::prepayOptions()), true) ? (int) $request->query('meses') : 1,
             'methods' => $methods,
             // Por método: su moneda, si se renueva sola y lo que cuesta cada plan por cada cantidad de meses
-            'pricing' => collect($methods)->map(function (string $provider) {
+            'pricing' => collect($methods)->map(function (string $provider) use ($plans) {
                 $gateway = $this->gateways->get($provider);
 
                 return [
@@ -54,6 +62,8 @@ class SubscriptionController extends Controller
                     'symbol' => Money::symbol($gateway->currency()),
                     'recurring' => $gateway->isRecurring(),
                     'prices' => SubscriptionPrice::table($gateway->currency()),
+                    // Por plan, cuántos meses se pueden pagar (o cada cuántos se renueva) con esta forma de pago
+                    'cycles' => collect($plans)->keys()->mapWithKeys(fn (string $plan) => [$plan => $this->cycles($gateway, $plan)])->all(),
                 ];
             })->all(),
             'prepay' => SubscriptionPrice::prepayOptions(),
@@ -70,6 +80,11 @@ class SubscriptionController extends Controller
         $user = $request->user();
         $plan = $request->validated('plan');
         $method = $request->validated('method');
+
+        // Un plan que ya no se vende solo lo renueva quien lo tiene
+        if (! array_key_exists($plan, self::plansFor($user))) {
+            return back()->withInput()->withErrors(['plan' => 'Ese plan ya no se ofrece. Elige otro.']);
+        }
 
         // La pasarela necesita un correo real para el recibo y los avisos de la renovación
         if (blank($user->email) || ! $user->hasVerifiedEmail()) {
@@ -91,8 +106,12 @@ class SubscriptionController extends Controller
             return back()->withInput()->withErrors(['plan' => 'Ya pagas con tarjeta y se renueva sola. Para cambiar de plan, entra a «Administrar mi suscripción».']);
         }
 
-        // La tarjeta cobra mes a mes; con QR se pueden pagar varios meses de una vez
-        $months = $gateway->isRecurring() ? 1 : (int) ($request->validated('months') ?? 1);
+        // Con QR se pagan varios meses de una vez; con tarjeta, el ciclo con el que se renueva sola
+        $months = (int) ($request->validated('months') ?? 1);
+
+        if (! in_array($months, $this->cycles($gateway, $plan), true)) {
+            return back()->withInput()->withErrors(['months' => 'Con esa forma de pago este plan no se paga por '.($months === 1 ? '1 mes' : "{$months} meses").'. Elige otra cantidad de meses.']);
+        }
 
         // Una sola compra abierta por pasarela: la anterior sin pagar queda vencida
         $user->paymentOrders()->pending()->where('provider', $provider)->get()
@@ -143,6 +162,35 @@ class SubscriptionController extends Controller
             'user' => $request->user(),
             'planName' => config("bida.reseller_plans.{$order->plan}.name", $order->plan),
         ]);
+    }
+
+    /** Los planes que puede pagar: los que se venden y, si tiene uno que ya no se vende, el suyo. */
+    private static function plansFor(User $user): array
+    {
+        $current = $user->reseller_plan;
+
+        return array_filter(
+            Offers::resellerPlans(withLegacy: true),
+            fn (array $plan, string $key) => ! ($plan['legacy'] ?? false) || $key === $current,
+            ARRAY_FILTER_USE_BOTH,
+        );
+    }
+
+    /**
+     * Cuántos meses se pueden pagar de una vez (sin renovación automática: los de «payments.prepay») o
+     * cada cuántos se renueva sola (tarjeta: los ciclos que tiene la pasarela para ese plan).
+     *
+     * @return list<int>
+     */
+    private function cycles(PaymentGateway $gateway, string $plan): array
+    {
+        $prepay = array_keys(SubscriptionPrice::prepayOptions());
+
+        if ($gateway instanceof ManagesSubscriptions) {
+            return array_values(array_intersect($gateway->billingCycles($plan), $prepay));
+        }
+
+        return $gateway->isRecurring() ? [1] : $prepay;
     }
 
     /** El portal de la pasarela (cambiar de plan o de tarjeta, cancelar, facturas). Su enlace vence: se pide en el momento. */

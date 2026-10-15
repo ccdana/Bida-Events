@@ -32,6 +32,14 @@
         </p>
     @endif
 
+    {{-- Se guardó, pero algo quedó pendiente (por ejemplo, sin cupo para publicarla este mes) --}}
+    @if(session('warning'))
+        <p class="flex shrink-0 items-center justify-center gap-2 border-b border-site-line bg-site-surface px-4 py-2.5 text-center text-sm" role="status">
+            <x-phosphor-warning-circle class="size-5 shrink-0 text-site-accent" aria-hidden="true" />
+            {{ session('warning') }}
+        </p>
+    @endif
+
     @if($errors->any())
         <div class="shrink-0 border-b border-site-line bg-site-surface px-4 py-3 text-sm" role="alert">
             <p class="flex items-center justify-center gap-2 font-medium text-site-danger">

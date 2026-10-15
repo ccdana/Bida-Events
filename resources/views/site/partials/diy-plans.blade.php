@@ -1,10 +1,11 @@
 {{--
-    Los planes mensuales de «Únete» (el modelo principal), con la misma interfaz que los paquetes de
-    «Te la hacemos» (components/site/price-card): una columna por plan, de tres en tres, y la última
-    celda para quien necesita algo distinto. Lo usan la portada y la página «Únete».
-    Recibe $plans, $featuredPlan y $contactUrl y, opcionales, $diyTitle, $diyLead, $diyDetail (true:
-    suma a cada plan lo que trae: plantillas, confirmación y marca) y $diyMoreLink (true: enlace al
-    detalle, para la portada).
+    Los planes de «Únete» (el modelo principal), con la misma interfaz que los paquetes de «Te la
+    hacemos» (components/site/price-card): una columna por plan y, arriba, el selector Mensual /
+    3 meses / Anual: el precio se ve por mes con el descuento de pagar varios meses de una vez, y
+    «Elegir» lleva a pagar ese ciclo. Lo usan la portada y la página «Únete».
+    Recibe $plans, $featuredPlan, $planCycles (meses => % de descuento) y $contactUrl y, opcionales,
+    $diyTitle, $diyLead, $diyDetail (true: suma a cada plan lo que trae: plantillas, confirmación y
+    marca) y $diyMoreLink (true: enlace al detalle, para la portada).
 --}}
 @use('App\Support\Money')
 
@@ -42,7 +43,12 @@
     };
 @endphp
 
-<section id="planes" class="scroll-mt-20 border-t border-site-line bg-site-surface" aria-labelledby="planes-titulo">
+@php
+    $cycles = $planCycles ?? [1 => 0];
+    $cycleLabels = [1 => 'Mensual', 3 => 'Cada 3 meses', 12 => 'Anual'];
+@endphp
+
+<section id="planes" class="scroll-mt-20 border-t border-site-line bg-site-surface" aria-labelledby="planes-titulo" x-data="{ cycle: 1 }">
     <div class="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-28">
         <div class="max-w-3xl">
             <h2 id="planes-titulo" class="site-display site-display--md" data-reveal>{{ $diyTitle ?? 'Elige tu plan' }}</h2>
@@ -51,7 +57,23 @@
             </p>
         </div>
 
-        <div class="site-plans site-plans--grid mt-14">
+        {{-- Cada cuánto se paga: el precio de cada plan pasa a ser el de un mes de ese ciclo --}}
+        @if(count($cycles) > 1)
+            <div class="site-cycle mt-10" role="radiogroup" aria-label="Cada cuánto pagas" data-reveal>
+                @foreach($cycles as $months => $discount)
+                    <button type="button" role="radio" @click="cycle = {{ $months }}"
+                        :aria-checked="(cycle === {{ $months }}).toString()" aria-checked="{{ $months === 1 ? 'true' : 'false' }}"
+                        @class(['site-cycle__option', 'is-active' => $months === 1]) :class="{ 'is-active': cycle === {{ $months }} }">
+                        <span class="site-cycle__name">{{ $cycleLabels[$months] ?? $months.' meses' }}</span>
+                        @if($discount > 0)
+                            <span class="site-cycle__off">{{ $discount }} % menos</span>
+                        @endif
+                    </button>
+                @endforeach
+            </div>
+        @endif
+
+        <div @class(['site-plans site-plans--grid', 'mt-14' => count($cycles) <= 1, 'mt-8' => count($cycles) > 1])>
             @foreach($plans as $index => $plan)
                 @php($featured = $plan['key'] === $featuredPlan)
                 {{-- El de más arriba (sin tope de invitaciones) lleva el estilo premium, como el paquete Premium --}}
@@ -71,18 +93,34 @@
                     :external="! $plan['checkout']"
                     :cta="'Elegir '.$plan['name']"
                     :index="$index"
-                    :reserve="true" />
+                    :reserve="true"
+                    :cycles="$plan['cycles'] ?? null" />
             @endforeach
 
-            {{-- La celda que sobra para completar la fila: quien necesita algo distinto --}}
-            <div class="site-plan site-plan--note" data-reveal style="--reveal-index: {{ count($plans) }}">
-                <p class="site-plan__name">¿Necesitas algo distinto?</p>
-                <p class="mt-4 max-w-[36ch] leading-relaxed text-site-muted">Cuéntanos qué organizas y vemos el plan que te conviene.</p>
-                <a href="{{ $contactUrl }}" target="_blank" rel="noopener" class="site-link-arrow mt-6">
-                    Escríbenos
+            {{-- Con un número de planes que no llena la fila, la celda que sobra es para quien necesita algo distinto --}}
+            @if(count($plans) % 3 !== 0)
+                <div class="site-plan site-plan--note" data-reveal style="--reveal-index: {{ count($plans) }}">
+                    <p class="site-plan__name">¿Necesitas algo distinto?</p>
+                    <p class="mt-4 max-w-[36ch] leading-relaxed text-site-muted">Cuéntanos qué organizas y vemos el plan que te conviene.</p>
+                    <a href="{{ $contactUrl }}" target="_blank" rel="noopener" class="site-link-arrow mt-6">
+                        Escríbenos
+                        <x-phosphor-arrow-right aria-hidden="true" />
+                    </a>
+                </div>
+            @endif
+        </div>
+
+        {{-- Lo que da tranquilidad para suscribirse: lo publicado no se cae, y el cupo es por publicadas --}}
+        <div class="mt-10 flex flex-col gap-x-10 gap-y-3 text-site-muted md:flex-row md:items-baseline md:justify-between" data-reveal>
+            <p class="max-w-[62ch] leading-relaxed">
+                El cupo cuenta las invitaciones que publicas: los borradores no lo gastan. Y si dejas el plan, lo que ya publicaste sigue en línea.
+            </p>
+            @if(count($plans) % 3 === 0)
+                <a href="{{ $contactUrl }}" target="_blank" rel="noopener" class="site-link-arrow shrink-0">
+                    ¿Necesitas algo distinto? Escríbenos
                     <x-phosphor-arrow-right aria-hidden="true" />
                 </a>
-            </div>
+            @endif
         </div>
 
         {{-- La portada no repite el detalle: manda a la página «Únete», donde cada plan trae más --}}

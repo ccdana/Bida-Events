@@ -28,8 +28,9 @@
     $fromPrice = collect($plans)->min('final_price');
     $lowestPackage = collect($packages)->min('final_price');
 
-    // El plan de una sola invitación (su fila va en los planes; aquí, en las preguntas y en «Para quién»)
-    $single = collect($plans)->first(fn (array $plan) => $plan['quota_per_month'] === 1);
+    // Descuento por pagar 3 o 12 meses de una vez (Ajustes), para las preguntas
+    $prepay = array_filter(\App\Payments\SubscriptionPrice::prepayOptions(), fn (int $discount, int $months) => $months > 1 && $discount > 0, ARRAY_FILTER_USE_BOTH);
+    $prepayText = collect($prepay)->map(fn (int $discount, int $months) => ($months === 12 ? 'el año' : "{$months} meses").": {$discount} % menos")->join(', ', ' y ');
 
     // El primer plan que trae cada cosa, para decir «desde» sin escribirlo a mano
     $firstWith = fn (callable $has): ?string => collect($plans)->first($has)['name'] ?? null;
@@ -46,10 +47,10 @@
         ['icon' => 'qr-code', 'title' => 'Entrada con QR el día del evento', 'from' => $fromPass ? 'Desde '.$fromPass : null, 'text' => 'Quien recibe escanea el pase con la cámara. Un pase no se puede usar dos veces.'],
     ];
     $profiles = [
-        ['who' => 'Fotógrafos y videógrafos', 'how' => 'La invitación digital completa tu paquete.', 'plan' => 'Aliado'],
+        ['who' => 'Fotógrafos y videógrafos', 'how' => 'La invitación digital completa tu paquete.', 'plan' => 'Inicial'],
         ['who' => 'Salones y locales', 'how' => 'La regalas o la vendes con cada evento que reservan.', 'plan' => 'Emprendedor'],
         ['who' => 'Organizadores y agencias', 'how' => 'Entregas invitaciones todas las semanas, cada cliente con su acceso.', 'plan' => 'Agencia'],
-        ['who' => 'Quien organiza un solo evento', 'how' => 'Tu cumpleaños, tu boda o tu graduación, con tu propia invitación.', 'plan' => $single['name'] ?? 'Inicial'],
+        ['who' => 'Quien organiza un solo evento', 'how' => 'Tu cumpleaños, tu boda o tu graduación, con tu propia invitación.', 'plan' => 'Hazlo tú (pago único)'],
         ['who' => 'Familias con varios eventos', 'how' => 'El cumpleaños, el bautizo y la graduación de la casa, sin pagar cada una.', 'plan' => 'Inicial'],
     ];
     $steps = [
@@ -58,18 +59,19 @@
         ['icon' => 'paper-plane-tilt', 'title' => 'La compartes y cobras', 'text' => 'Envías el enlace por WhatsApp y sigues las confirmaciones.'],
     ];
 
-    $example = collect($plans)->firstWhere('key', 'aliado') ?? collect($plans)->first();
+    $example = collect($plans)->firstWhere('key', 'inicial') ?? collect($plans)->first();
     $exampleSales = ($example['quota_per_month'] ?? 0) * $examplePrice;
     $faqs = [
-        ['¿Qué es Únete?', 'Es un plan mensual que te da tu propio panel en '.$bida['brand'].' para armar invitaciones digitales con nuestras plantillas y venderlas con tu marca, o usarlas en tus propios eventos. Pagas el mes y armas las invitaciones que tu plan permite.'],
+        ['¿Qué es Únete?', 'Es un plan que te da tu propio panel en '.$bida['brand'].' para armar invitaciones digitales con nuestras plantillas y venderlas con tu marca, o usarlas en tus propios eventos. Armas todos los borradores que quieras y publicas las que tu plan permite cada mes.'],
         ['¿Cuánto puedo ganar?', 'Depende de a cuánto vendas y cuántas armes. Por ejemplo, con el plan '.$example['name'].' ('.Money::format($example['final_price']).' al mes), '.$example['quota_per_month'].' invitaciones vendidas a '.Money::format($examplePrice).' suman '.Money::format($exampleSales).' y te quedan '.Money::format($exampleSales - $example['final_price']).' después del plan. El precio de venta lo decides tú.'],
         ['¿Cobran comisión por invitación?', 'No. Pagas el plan del mes y lo que cobras por cada invitación es tuyo.'],
         ['¿Necesito saber diseñar?', 'No. Eliges una plantilla, cargas las fotos y los datos del evento y la invitación ya se ve bien. Si quieres ir más lejos, cambias colores, letras y cada texto.'],
-        ['¿Cuánto cuesta y cómo se paga?', 'Desde '.Money::format($fromPrice).' al mes. Se paga cada mes por QR o transferencia, coordinado por WhatsApp. No hay cobros automáticos: cada pago extiende tu plan un mes.'],
+        ['¿Cuánto cuesta y cómo se paga?', 'Desde '.Money::format($fromPrice).' al mes'.($prepayText !== '' ? ', y menos pagando varios meses de una vez ('.$prepayText.')' : '').'. Pagas con QR de cualquier banco de Bolivia o con tarjeta; con tarjeta se renueva solo y lo cancelas cuando quieras.'],
+        ['¿Cuentan las invitaciones que todavía no publico?', 'No. El cupo de tu plan cuenta las invitaciones que publicas en el mes: los borradores no lo gastan, y ocultar una y volver a publicarla no la cuenta dos veces.'],
         ['¿Qué pasa si no renuevo a tiempo?', 'Las invitaciones que ya publicaste siguen en línea y puedes ver invitados y descargar reportes. Lo que se pausa es crear y editar invitaciones hasta que renueves.'],
         ['¿Cuántos accesos para clientes puedo crear?', 'Uno por evento y, en total, tantos por mes como invitaciones incluye tu plan. Si creaste uno mal, lo eliminas y creas otro.'],
         ['¿Puedo cambiar de plan?', 'Sí. Nos escribes y el cambio se aplica con tu siguiente pago.'],
-        ['¿Y si solo necesito una invitación?', 'Elige el plan '.($single['name'] ?? 'Inicial').': '.Money::format($single['final_price'] ?? $fromPrice).' por un mes y una invitación, para tu propio evento o para un cliente.'],
+        ['¿Y si solo necesito una invitación?', 'Para una sola no hace falta un plan: crea tu cuenta y ármala con todo. La publicas gratis con lo básico, o pagas una sola vez el nivel que usaste.'],
         ['¿Y si prefiero que la hagan ustedes?', 'También lo hacemos: eliges un paquete, nos mandas los datos y te entregamos la invitación lista. Desde '.Money::format($lowestPackage).' por invitación, pago único.'],
     ];
 @endphp
@@ -143,7 +145,7 @@
         {{-- ═══ Planes: la misma interfaz que los paquetes, con el detalle de cada uno ═══ --}}
         @include('site.partials.diy-plans', [
             'diyTitle' => 'Elige tu plan',
-            'diyLead' => 'Precios por mes, en dólares ('.Money::code().'). Cada plan suma al anterior y trae lo que ves en la lista.',
+            'diyLead' => 'Precios por mes, en dólares ('.Money::code().'), y menos pagando 3 o 12 meses de una vez. Cada plan suma al anterior y trae lo que ves en la lista.',
             'diyDetail' => true,
         ])
 

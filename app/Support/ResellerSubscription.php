@@ -2,13 +2,14 @@
 
 namespace App\Support;
 
+use App\Models\Invitation;
 use App\Models\User;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Carbon;
 
 /**
- * Reglas de la suscripción de un revendedor: cuántas invitaciones le quedan este mes, qué
- * plantillas puede usar y hasta cuándo se extiende cuando paga.
+ * Reglas de la suscripción de un revendedor: cuántas invitaciones puede publicar todavía este mes
+ * (crear borradores no gasta cupo), qué plantillas puede usar y hasta cuándo se extiende cuando paga.
  *
  * Todo sale de config/bida.php («reseller_plans»): cambiar un precio, un cupo o el catálogo de un
  * plan no requiere tocar código.
@@ -18,12 +19,24 @@ final class ResellerSubscription
     /** Días antes del vencimiento en que se avisa (al revendedor y al administrador). */
     public const WARNING_DAYS = 5;
 
-    /** Invitaciones que el revendedor creó desde el primer día del mes, en la hora de Bolivia. */
+    /**
+     * Invitaciones que el revendedor publicó por primera vez desde el primer día del mes, en la hora
+     * de Bolivia. Los borradores no gastan cupo, y ocultar y volver a publicar no cuenta dos veces.
+     */
     public static function quotaUsed(User $user, ?CarbonInterface $now = null): int
     {
         $monthStart = Carbon::instance($now ?? now())->timezone(config('app.timezone'))->startOfMonth();
 
-        return $user->resellerInvitations()->where('created_at', '>=', $monthStart)->count();
+        return $user->resellerInvitations()->where('first_published_at', '>=', $monthStart)->count();
+    }
+
+    /**
+     * ¿Puede publicar esta invitación? Una que ya se publicó alguna vez no gasta cupo otra vez; una
+     * nueva necesita que le quede cupo este mes.
+     */
+    public static function canPublish(User $user, Invitation $invitation, ?CarbonInterface $now = null): bool
+    {
+        return $invitation->first_published_at !== null || self::hasQuotaLeft($user, $now);
     }
 
     /** Tope mensual del plan; null = sin tope. Sin plan (o con uno que ya no existe) no hay cupo. */

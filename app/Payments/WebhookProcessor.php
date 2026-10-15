@@ -83,6 +83,13 @@ class WebhookProcessor
             return $this->needsReview("Se cobró el plan «{$chargedPlan}» y la orden {$order->reference_code} es del plan «{$order->plan}»", $provider, $event);
         }
 
+        // Y el ciclo (mensual, cada 3 o 12 meses) tiene que ser el que se compró
+        $chargedMonths = $event->extra['months'] ?? null;
+
+        if ($chargedMonths !== null && (int) $chargedMonths !== (int) $order->months) {
+            return $this->needsReview("Se cobró un ciclo de {$chargedMonths} meses y la orden {$order->reference_code} es de {$order->months}", $provider, $event);
+        }
+
         if (! $order->user) {
             return $this->needsReview("La cuenta de la orden {$order->reference_code} ya no existe", $provider, $event);
         }
@@ -92,8 +99,9 @@ class WebhookProcessor
             'currency' => $event->extra['charged_currency'] ?? null,
         ]);
 
+        // Con tarjeta (se renueva sola): quién es en la pasarela y cada cuántos meses renueva
         if (! empty($event->extra['customer_id'])) {
-            $this->activator->linkGatewaySubscription($order->user, $provider, null, $event->extra['customer_id']);
+            $this->activator->linkGatewaySubscription($order->user, $provider, null, $event->extra['customer_id'], $order->months);
         }
 
         $this->warnIfPriceDiffers($order, $event);
@@ -153,6 +161,7 @@ class WebhookProcessor
             (bool) ($event->extra['cancelled'] ?? false),
             $event->extra['plan'] ?? null,
             $event->extra['renews_at'] ?? null,
+            $event->extra['months'] ?? null,
         );
 
         return null;
@@ -173,12 +182,13 @@ class WebhookProcessor
             return $this->needsReview("Renovación cobrada a {$user->username}, que no tiene plan", $provider, $event);
         }
 
+        // Cada renovación cubre su ciclo: 1, 3 o 12 meses
         $this->activator->recordPayment($user, $plan, [
             'amount' => $event->extra['charged_amount'] ?? $event->amount ?? 0,
             'currency' => $event->extra['charged_currency'] ?? $event->currency ?? 'USD',
             'provider' => $provider,
             'external_id' => $event->externalId,
-        ], months: 1);
+        ], months: max(1, (int) $user->subscription_cycle_months));
 
         return null;
     }

@@ -12,8 +12,11 @@ trait LemonSqueezyPayloads
 {
     protected const LS_SECRET = 'whsec-de-prueba';
 
-    /** Variantes de prueba de cada plan y la del pago único de «Hazlo tú». */
-    protected const LS_VARIANTS = ['inicial' => '101', 'aliado' => '102', 'emprendedor' => '103', 'agencia' => '104', 'invitacion' => '199'];
+    /**
+     * Variantes de prueba de cada plan (y la anual de Inicial, «plan:meses») y la del pago único de
+     * «Hazlo tú». Inicial no tiene la de cada 3 meses: ese ciclo solo se paga con QR.
+     */
+    protected const LS_VARIANTS = ['inicial' => '101', 'inicial:12' => '112', 'aliado' => '102', 'emprendedor' => '103', 'agencia' => '104', 'invitacion' => '199'];
 
     protected function configureLemonSqueezy(): void
     {

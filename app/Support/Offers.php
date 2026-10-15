@@ -67,18 +67,25 @@ final class Offers
     }
 
     /**
-     * Planes mensuales con su precio de hoy (final_price) y el normal tachado (old_price) si tienen
-     * descuento. El descuento de un plan vale mientras esté cargado en Ajustes.
+     * Planes que se venden, con su precio mensual de hoy (final_price) y el normal tachado (old_price)
+     * si tienen descuento. El descuento de un plan vale mientras esté cargado en Ajustes. Con
+     * $withLegacy, también los que ya no se venden.
      *
      * @return array<string, array<string, mixed>>
      */
-    public static function resellerPlans(?array $plans = null): array
+    public static function resellerPlans(?array $plans = null, bool $withLegacy = false): array
     {
+        // Los que ya no se venden («legacy») no se ofrecen; quien los tiene los sigue viendo en su plan
+        $plans = array_filter(
+            $plans ?? config('bida.reseller_plans', []),
+            fn (array $plan) => $withLegacy || ! ($plan['legacy'] ?? false),
+        );
+
         return array_map(function (array $plan): array {
             $price = self::price($plan, true);
 
             return $plan + ['final_price' => $price['final'], 'old_price' => $price['regular']];
-        }, $plans ?? config('bida.reseller_plans', []));
+        }, $plans);
     }
 
     /** Precio de hoy de un plan (con su descuento, si tiene). */

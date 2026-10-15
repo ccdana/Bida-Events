@@ -17,8 +17,9 @@ use Illuminate\Support\Facades\Http;
 
 /**
  * Tarjeta internacional con Lemon Squeezy (vendedor oficial: cobra los impuestos de cada país).
- * Cada plan es una variante de un producto de suscripción mensual; Lemon Squeezy cobra el primer
- * mes en su página de pago y después renueva solo, y avisa cada cosa a /webhooks/lemonsqueezy.
+ * Cada plan es una variante de un producto de suscripción (mensual, y si se configuran, también
+ * cada 3 y 12 meses: «plan:3», «plan:12»); Lemon Squeezy cobra el primer ciclo en su página de pago
+ * y después renueva solo, y avisa cada cosa a /webhooks/lemonsqueezy.
  * «Hazlo tú» es un producto de pago único con una sola variante («invitacion»): cada checkout lleva
  * su precio (custom_price) y su nombre, el nivel que se compra o la diferencia al subir de nivel.
  *
@@ -52,6 +53,15 @@ class LemonSqueezyGateway implements ManagesSubscriptions, PaymentGateway
         return filled($this->config("variants.{$plan}"));
     }
 
+    /** El mensual siempre (si el plan tiene variante); el de 3 y 12 meses, si tienen la suya. */
+    public function billingCycles(string $plan): array
+    {
+        return array_values(array_filter(
+            [1, 3, 12],
+            fn (int $months) => filled($this->config('variants.'.($months === 1 ? $plan : "{$plan}:{$months}"))),
+        ));
+    }
+
     public function currency(): string
     {
         return 'USD';
@@ -64,7 +74,12 @@ class LemonSqueezyGateway implements ManagesSubscriptions, PaymentGateway
 
     public function createCheckout(PaymentOrder $order): Checkout
     {
-        $product = $order->isForInvitation() ? 'invitacion' : $order->plan;
+        // La invitación de «Hazlo tú», o el plan en su ciclo (mensual, cada 3 o cada 12 meses)
+        $product = match (true) {
+            $order->isForInvitation() => 'invitacion',
+            $order->months > 1 => "{$order->plan}:{$order->months}",
+            default => $order->plan,
+        };
         $variant = $this->config("variants.{$product}") ?: throw new DomainException("«{$product}» no tiene variante en Lemon Squeezy.");
         $user = $order->user ?? throw new DomainException('La orden no tiene cuenta.');
         $expiresAt = now()->addDay();
@@ -152,6 +167,7 @@ class LemonSqueezyGateway implements ManagesSubscriptions, PaymentGateway
                     'status' => $this->status($attributes),
                     'cancelled' => (bool) ($attributes['cancelled'] ?? false),
                     'plan' => $this->planFor($attributes['variant_id'] ?? null),
+                    'months' => $this->monthsFor($attributes['variant_id'] ?? null),
                     'customer_id' => isset($attributes['customer_id']) ? (string) $attributes['customer_id'] : null,
                     'renews_at' => $attributes['renews_at'] ?? null,
                     'ends_at' => $attributes['ends_at'] ?? null,
@@ -214,6 +230,7 @@ class LemonSqueezyGateway implements ManagesSubscriptions, PaymentGateway
             // el de la orden; se comprueba el plan por la variante y se guarda lo que se cobró
             extra: [
                 'plan' => $this->planFor(Arr::get($attributes, 'first_order_item.variant_id')),
+                'months' => $this->monthsFor(Arr::get($attributes, 'first_order_item.variant_id')),
                 'customer_id' => isset($attributes['customer_id']) ? (string) $attributes['customer_id'] : null,
             ] + $this->charged($attributes),
         );
@@ -259,15 +276,31 @@ class LemonSqueezyGateway implements ManagesSubscriptions, PaymentGateway
         };
     }
 
+    /** El plan de una variante («inicial» para «inicial:12»), o «invitacion»; null si no es nuestra. */
     private function planFor(mixed $variantId): ?string
+    {
+        $key = $this->variantKey($variantId);
+
+        return $key === null ? null : explode(':', $key)[0];
+    }
+
+    /** Cada cuántos meses cobra la variante (1 la mensual); null si no es nuestra. */
+    private function monthsFor(mixed $variantId): ?int
+    {
+        $key = $this->variantKey($variantId);
+
+        return $key === null ? null : (int) (explode(':', $key)[1] ?? 1);
+    }
+
+    private function variantKey(mixed $variantId): ?string
     {
         if ($variantId === null || $variantId === '') {
             return null;
         }
 
-        foreach ((array) $this->config('variants') as $plan => $variant) {
-            if ((string) $variant === (string) $variantId) {
-                return $plan;
+        foreach ((array) $this->config('variants') as $key => $variant) {
+            if (filled($variant) && (string) $variant === (string) $variantId) {
+                return (string) $key;
             }
         }
 

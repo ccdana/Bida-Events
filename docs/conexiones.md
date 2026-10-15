@@ -144,18 +144,30 @@ La API key, el webhook y los ids de prueba son **distintos** de los reales.
 ### 2.2 Producto con un plan por variante
 
 1. *Products › + New product*: nombre «Únete», tipo **Subscription**.
-2. Crea **cinco variantes**, una por plan, cada una **mensual** y con el **mismo precio que el
-   plan tiene hoy en el sitio** (Admin › Ajustes, el precio con descuento si tiene):
+2. Crea **una variante mensual por plan**, con el **mismo precio que el plan tiene hoy en el sitio**
+   (Admin › Ajustes, el precio con descuento si tiene):
 
    | Variante | Precio (hoy) | Variable |
    | --- | --- | --- |
-   | Única | US$ 5 | `LEMONSQUEEZY_VARIANT_UNICA` |
    | Inicial | US$ 9 | `LEMONSQUEEZY_VARIANT_INICIAL` |
-   | Aliado | US$ 14 | `LEMONSQUEEZY_VARIANT_ALIADO` |
    | Emprendedor | US$ 29 | `LEMONSQUEEZY_VARIANT_EMPRENDEDOR` |
    | Agencia | US$ 59 | `LEMONSQUEEZY_VARIANT_AGENCIA` |
 
-3. El **id de cada variante** se ve en la API o al editar la variante (el número en la dirección).
+   Única y Aliado ya no se venden: sus variantes (`LEMONSQUEEZY_VARIANT_UNICA`,
+   `LEMONSQUEEZY_VARIANT_ALIADO`) solo hacen falta si alguien sigue pagándolos con tarjeta.
+
+3. **Opcional, cada 3 meses y anual:** para que con tarjeta se pueda pagar (y renovar solo) cada 3 o
+   12 meses, crea en el mismo producto una variante por plan y ciclo, con intervalo de 3 meses o de
+   1 año. Su precio tiene que ser el que cobra el sitio: precio del plan × meses, menos el descuento de
+   Ajustes › Únete › «Pagar por 3 o 12 meses» (con 10 % y 20 %: Inicial US$ 24,30 cada 3 meses y
+   US$ 86,40 al año). Sin la variante, ese ciclo solo se ofrece con QR.
+
+   | Ciclo | Variables |
+   | --- | --- |
+   | Cada 3 meses | `LEMONSQUEEZY_VARIANT_INICIAL_TRIMESTRAL`, `…_EMPRENDEDOR_TRIMESTRAL`, `…_AGENCIA_TRIMESTRAL` |
+   | Anual | `LEMONSQUEEZY_VARIANT_INICIAL_ANUAL`, `…_EMPRENDEDOR_ANUAL`, `…_AGENCIA_ANUAL` |
+
+4. El **id de cada variante** se ve en la API o al editar la variante (el número en la dirección).
    Para listarlos de una vez, con la API key del paso 2.3:
 
    ```bash
@@ -163,7 +175,7 @@ La API key, el webhook y los ids de prueba son **distintos** de los reales.
      -H "Accept: application/vnd.api+json" | grep -o '"id":"[0-9]*"\|"name":"[^"]*"'
    ```
 
-> La variante es lo que dice qué plan se compró: si un id queda cruzado, el cobro queda «para
+> La variante es lo que dice qué plan y qué ciclo se compró: si un id queda cruzado, el cobro queda «para
 > revisar» y no se activa. Si cambias un precio en Ajustes, cambia también la variante (los que ya
 > están suscritos siguen con su precio anterior).
 
@@ -211,11 +223,13 @@ LEMONSQUEEZY_API_KEY=eyJ0eXAiOiJKV1Qi...
 LEMONSQUEEZY_STORE_ID=12345
 LEMONSQUEEZY_SIGNING_SECRET=el-secreto-del-paso-2.4
 LEMONSQUEEZY_TEST_MODE=true
-LEMONSQUEEZY_VARIANT_UNICA=555555
 LEMONSQUEEZY_VARIANT_INICIAL=111111
-LEMONSQUEEZY_VARIANT_ALIADO=222222
 LEMONSQUEEZY_VARIANT_EMPRENDEDOR=333333
 LEMONSQUEEZY_VARIANT_AGENCIA=444444
+# Opcionales: cada 3 meses y anual (sin ellas, esos ciclos solo se pagan con QR)
+LEMONSQUEEZY_VARIANT_INICIAL_TRIMESTRAL=111113
+LEMONSQUEEZY_VARIANT_INICIAL_ANUAL=111112
+# …lo mismo para EMPRENDEDOR y AGENCIA
 LEMONSQUEEZY_VARIANT_INVITACION=666666
 ```
 

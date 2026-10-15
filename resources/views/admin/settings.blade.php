@@ -14,7 +14,7 @@
     $errorKeys = collect($errors->keys());
     $startTab = match (true) {
         $errorKeys->contains(fn ($key) => str_starts_with($key, 'seasons')) => 'temporadas',
-        $errorKeys->contains(fn ($key) => str_starts_with($key, 'reseller_plans')) => 'hazlo',
+        $errorKeys->contains(fn ($key) => str_starts_with($key, 'reseller_plans') || str_starts_with($key, 'prepay')) => 'hazlo',
         $errorKeys->contains(fn ($key) => str_starts_with($key, 'contact')) => 'contacto',
         default => 'paquetes',
     };
@@ -288,8 +288,13 @@
                         @foreach($settings['reseller_plans'] as $plan)
                             <div class="set-list__row">
                                 <div class="min-w-0">
-                                    <p class="font-medium">{{ $plan['name'] }}</p>
-                                    <p class="text-sm text-site-muted">{{ $plan['summary'] }}</p>
+                                    <p class="font-medium">
+                                        {{ $plan['name'] }}
+                                        @if($plan['legacy'])
+                                            <span class="ml-1 text-xs font-normal text-site-muted">· ya no se vende</span>
+                                        @endif
+                                    </p>
+                                    <p class="text-sm text-site-muted">{{ $plan['legacy'] ? 'Lo conserva quien ya lo tiene, al precio de aquí, hasta que cambie de plan.' : $plan['summary'] }}</p>
                                 </div>
                                 <div>
                                     <label for="plan-precio-{{ $plan['key'] }}" class="admin-label set-list__label">Al mes ({{ $currency }})</label>
@@ -309,6 +314,33 @@
                                     <input id="plan-cupo-{{ $plan['key'] }}" type="number" min="1" max="10000" class="admin-input" placeholder="Sin tope"
                                         name="reseller_plans[{{ $plan['key'] }}][quota_per_month]" value="{{ old('reseller_plans.'.$plan['key'].'.quota_per_month', $plan['quota_per_month']) }}">
                                 </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </section>
+
+                {{-- Pagar 3 o 12 meses de una vez: con QR por adelantado; con tarjeta, si Lemon Squeezy tiene la variante de ese ciclo --}}
+                <section class="set-block">
+                    <div class="set-block__head">
+                        <div>
+                            <h2 class="set-block__title">Pagar por 3 o 12 meses</h2>
+                            <p class="set-block__text">
+                                El descuento sobre el precio mensual por pagar varios meses de una vez. El anual es el que más conviene:
+                                con QR hay que pagar cada vez, así que pagar el año ahorra pasos. Con tarjeta, cada variante de Lemon
+                                Squeezy tiene que costar lo mismo que aquí (precio del plan × meses, menos el descuento). 0 = sin descuento.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="set-fields">
+                        @foreach($settings['prepay'] as $months => $discount)
+                            <div>
+                                <label for="prepay-{{ $months }}" class="admin-label">{{ $months === 12 ? 'Anual (12 meses)' : $months.' meses' }}, % de descuento</label>
+                                <input id="prepay-{{ $months }}" type="number" min="0" max="90" class="admin-input"
+                                    name="prepay[{{ $months }}]" value="{{ old('prepay.'.$months, $discount) }}">
+                                @error('prepay.'.$months)
+                                    <p class="mt-1.5 text-sm text-site-danger">{{ $message }}</p>
+                                @enderror
                             </div>
                         @endforeach
                     </div>

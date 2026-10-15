@@ -972,7 +972,7 @@ final class InvitationTemplates
     /**
      * Familia de la plantilla: lienzo (en blanco), clasica (una por evento), temporada (Halloween y
      * las tarjetas) y nueva (las que se suman durante el año para cada evento). La usan los planes de
-     * revendedor: Inicial lienzo y clásicas, Aliado suma temporada y desde Emprendedor las nuevas.
+     * revendedor: Inicial lienzo, clásicas y temporada; desde Emprendedor también las nuevas y de tendencia.
      */
     public static function collection(?string $template): string
     {

@@ -39,32 +39,34 @@ class ResellerPlansAndRsvpTest extends TestCase
         $collections = fn (string $plan) => collect(ResellerSubscription::allowedTemplates(User::factory()->reseller($plan)->make()))
             ->pluck('collection')->unique()->sort()->values()->all();
 
-        $this->assertSame(['clasica', 'lienzo'], $collections('inicial'));
-        $this->assertSame(['clasica', 'lienzo', 'temporada'], $collections('aliado'));
-        $this->assertContains('nueva', config('bida.reseller_plans.emprendedor.collections'));
+        // Inicial: en blanco, clásicas y de temporada; desde Emprendedor, también las nuevas y de tendencia
+        $this->assertSame(['clasica', 'lienzo', 'temporada'], $collections('inicial'));
+        $this->assertSame(['clasica', 'lienzo', 'nueva', 'temporada', 'tendencias'], $collections('emprendedor'));
         $this->assertContains('nueva', config('bida.reseller_plans.agencia.collections'));
+        // Los que ya no se venden siguen con lo suyo
+        $this->assertSame(['clasica', 'lienzo'], $collections('unica'));
+        $this->assertSame(['clasica', 'lienzo', 'temporada'], $collections('aliado'));
     }
 
-    public function test_the_whatsapp_confirmation_comes_with_emprendedor_and_the_qr_pass_with_agencia(): void
+    public function test_the_whatsapp_confirmation_comes_with_inicial_and_the_qr_pass_from_emprendedor(): void
     {
-        [, $aliado] = $this->resellerInvitation('aliado', ['rsvp_whatsapp' => true]);
-        $this->assertSame([], Packages::rsvpModesFor($aliado));
-        $this->withoutVite()->get(route('invitation.show', $aliado->slug))->assertOk()->assertDontSee('rsvpWhatsapp(', false);
+        [, $inicial] = $this->resellerInvitation('inicial', ['rsvp_whatsapp' => true]);
+        $this->assertSame([Packages::RSVP_WHATSAPP], Packages::rsvpModesFor($inicial));
+        $this->assertFalse(Packages::allowsFor($inicial, 'door'));
+        $this->withoutVite()->get(route('invitation.show', $inicial->slug))->assertOk()->assertSee('rsvpWhatsapp(', false);
 
-        [, $emprendedor] = $this->resellerInvitation('emprendedor', ['rsvp_whatsapp' => true]);
-        $this->assertSame([Packages::RSVP_WHATSAPP], Packages::rsvpModesFor($emprendedor));
-        $this->assertFalse(Packages::allowsFor($emprendedor, 'door'));
-        $this->withoutVite()->get(route('invitation.show', $emprendedor->slug))->assertOk()->assertSee('rsvpWhatsapp(', false);
+        [, $emprendedor] = $this->resellerInvitation('emprendedor', ['rsvp' => true]);
+        $this->assertTrue(Packages::allowsFor($emprendedor, 'rsvp_pass'));
+        $this->assertTrue(Packages::allowsFor($emprendedor, 'door'));
+        $guest = $emprendedor->guests()->create(['name' => 'Familia Rojas', 'passes_allocated' => 2]);
+        $this->postJson("/p/{$emprendedor->slug}/i/{$guest->qr_code_token}/confirm", ['status' => 'confirmed', 'passes_confirmed' => 2])->assertOk();
 
         [, $agencia] = $this->resellerInvitation('agencia', ['rsvp' => true]);
-        $this->assertTrue(Packages::allowsFor($agencia, 'rsvp_pass'));
         $this->assertTrue(Packages::allowsFor($agencia, 'door'));
-        $guest = $agencia->guests()->create(['name' => 'Familia Rojas', 'passes_allocated' => 2]);
-        $this->postJson("/p/{$agencia->slug}/i/{$guest->qr_code_token}/confirm", ['status' => 'confirmed', 'passes_confirmed' => 2])->assertOk();
 
-        // En Emprendedor no hay pase: la respuesta guardada no existe
-        $emprendedorGuest = $emprendedor->guests()->create(['name' => 'Otra familia', 'passes_allocated' => 2]);
-        $this->postJson("/p/{$emprendedor->slug}/i/{$emprendedorGuest->qr_code_token}/confirm", ['status' => 'confirmed', 'passes_confirmed' => 1])->assertNotFound();
+        // En Inicial no hay pase: la respuesta guardada no existe
+        $inicialGuest = $inicial->guests()->create(['name' => 'Otra familia', 'passes_allocated' => 2]);
+        $this->postJson("/p/{$inicial->slug}/i/{$inicialGuest->qr_code_token}/confirm", ['status' => 'confirmed', 'passes_confirmed' => 1])->assertNotFound();
     }
 
     public function test_an_invitation_confirms_in_only_one_way(): void

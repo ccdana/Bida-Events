@@ -21,7 +21,10 @@ final class SiteSettings
     private const CACHE_KEY = 'bida.site-settings';
 
     /** Grupos que se guardan; cualquier otro nombre se ignora. */
-    public const GROUPS = ['promo', 'packages', 'season', 'templates', 'reseller_plans', 'diy_prices', 'contact'];
+    public const GROUPS = ['promo', 'packages', 'season', 'templates', 'reseller_plans', 'prepay', 'diy_prices', 'contact'];
+
+    /** Los ciclos con descuento de los planes: pagar 3 o 12 meses de una vez (config «payments.prepay»). */
+    public const PREPAY_MONTHS = [3, 12];
 
     /** Datos de contacto que se cambian desde Ajustes (claves de config/bida.php). */
     public const CONTACT_FIELDS = ['whatsapp', 'email', 'instagram', 'facebook', 'tiktok'];
@@ -39,6 +42,7 @@ final class SiteSettings
         self::applyPromo($stored['promo'] ?? []);
         self::applySeasons($stored['season'] ?? []);
         self::applyResellerPlans($stored['reseller_plans'] ?? []);
+        self::applyPrepay($stored['prepay'] ?? []);
         self::applyDiyPrices($stored['diy_prices'] ?? []);
         self::applyContact($stored['contact'] ?? []);
 
@@ -98,9 +102,13 @@ final class SiteSettings
                     'price' => (int) $plan['price'],
                     'promo_price' => isset($plan['promo_price']) ? (int) $plan['promo_price'] : null,
                     'quota_per_month' => isset($plan['quota_per_month']) ? (int) $plan['quota_per_month'] : null,
+                    // Ya no se vende: se muestra para cambiar el precio de quien lo renueva, marcado
+                    'legacy' => (bool) ($plan['legacy'] ?? false),
                 ])
                 ->values()
                 ->all(),
+            // Descuento en % por pagar 3 o 12 meses de una vez
+            'prepay' => collect(self::PREPAY_MONTHS)->mapWithKeys(fn (int $months) => [$months => (int) config("payments.prepay.{$months}", 0)])->all(),
         ];
     }
 
@@ -210,6 +218,16 @@ final class SiteSettings
             if (array_key_exists('quota_per_month', $values)) {
                 $quota = $values['quota_per_month'];
                 config(["bida.reseller_plans.{$key}.quota_per_month" => $quota === null || $quota === '' ? null : (int) $quota]);
+            }
+        }
+    }
+
+    /** Descuento por pagar 3 o 12 meses de una vez (0 a 90 %). */
+    private static function applyPrepay(array $prepay): void
+    {
+        foreach (self::PREPAY_MONTHS as $months) {
+            if (array_key_exists($months, $prepay)) {
+                config(["payments.prepay.{$months}" => max(0, min(90, (int) $prepay[$months]))]);
             }
         }
     }

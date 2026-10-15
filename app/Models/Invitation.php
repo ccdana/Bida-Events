@@ -23,6 +23,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon $event_date
  * @property string $status
  * @property Carbon $expires_at
+ * @property Carbon|null $first_published_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property bool $is_post_event
@@ -48,7 +49,24 @@ class Invitation extends Model
         'event_date' => 'datetime',
         'expires_at' => 'date',
         'is_diy' => 'boolean',
+        'first_published_at' => 'datetime',
     ];
+
+    /**
+     * La primera vez que queda publicada se anota la fecha: con ella cuenta el cupo mensual de los
+     * planes (ResellerSubscription::quotaUsed). Ocultarla y volver a publicarla no la cambia.
+     */
+    protected static function booted(): void
+    {
+        static::saving(function (Invitation $invitation) {
+            // Una cargada sin esa columna (un select parcial) no se toca: no se sabe si ya tenía fecha
+            $known = ! $invitation->exists || array_key_exists('first_published_at', $invitation->getAttributes());
+
+            if ($known && $invitation->status === 'active' && $invitation->first_published_at === null) {
+                $invitation->first_published_at = now();
+            }
+        });
+    }
 
     protected $appends = ['is_post_event'];
 

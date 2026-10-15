@@ -56,6 +56,10 @@ flowchart TD
 
 ## Qué hace «Elegir {plan}»
 
+Se venden tres planes (Inicial, Emprendedor y Agencia); Única y Aliado solo los renueva quien ya los
+tiene. Sobre los planes, el selector Mensual / Cada 3 meses / Anual cambia el precio por mes y agrega
+`meses=3` o `meses=12` a «Elegir», que llega hasta «Mi plan» con ese ciclo elegido.
+
 El mismo botón lleva a tres lugares distintos según haya pago en línea, sesión iniciada y registro abierto.
 
 ```mermaid
@@ -173,8 +177,8 @@ flowchart LR
 | Botón o enlace | Lleva a | Notas |
 | --- | --- | --- |
 | Confirmar mi correo / Agregar mi correo | /client/cuenta | Hace falta para pagar en línea |
-| Pagar (tarjeta) | Página de pago de Lemon Squeezy → /client/suscripcion/orden/ID | Se renueva sola cada mes |
-| Pagar (QR Bolivia) | /client/suscripcion/orden/ID | Muestra el QR en bolivianos |
+| Pagar (tarjeta) | Página de pago de Lemon Squeezy → /client/suscripcion/orden/ID | Se renueva sola cada mes, o cada 3 o 12 meses si el plan tiene la variante de ese ciclo |
+| Pagar (QR Bolivia) | /client/suscripcion/orden/ID | Muestra el QR en bolivianos; se pagan 1, 3 o 12 meses de una vez |
 | Administrar mi suscripción | /client/suscripcion/portal → portal de la pasarela | Solo con tarjeta |
 | Crear mi primera invitación (plan activo) | /client/invitaciones/nueva | En la página de la orden |
 | Ir a mi panel | /client |  |
@@ -183,7 +187,7 @@ flowchart LR
 
 | Botón o enlace | Lleva a | Notas |
 | --- | --- | --- |
-| Nueva invitación (revendedor) | /client/invitaciones/nueva | Solo con plan activo y cupo; si no, queda desactivado con el motivo |
+| Nueva invitación (revendedor) | /client/invitaciones/nueva | Con plan activo; sin cupo igual arma borradores (el cupo cuenta las publicadas en el mes) |
 | Crear mi invitación · Nueva invitación (Hazlo tú) | /client/mi-invitacion/nueva | Cualquier cuenta que no sea revendedor; hasta 3 borradores |
 | Mira los planes mensuales (panel vacío) | /client/suscripcion o /unete#planes | La primera si hay pago en línea |
 | Prefiero que me la hagan | /#precios |  |

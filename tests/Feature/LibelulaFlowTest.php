@@ -26,6 +26,9 @@ class LibelulaFlowTest extends TestCase
         parent::setUp();
 
         $this->travelTo(Carbon::parse('2026-10-15 12:00:00', 'America/La_Paz'));
+        // El flujo del QR con el Aliado a la venta y sin descuento por adelantado (PlansAndCyclesTest
+        // prueba el catálogo y los descuentos)
+        config(['bida.reseller_plans.aliado.legacy' => false, 'payments.prepay' => [1 => 0, 3 => 0, 12 => 0]]);
         $this->configureLibelula();
         $this->fakeLibelula();
         $this->buyer = User::factory()->create(['email' => 'comprador@correo.com']);

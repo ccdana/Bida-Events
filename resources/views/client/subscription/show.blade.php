@@ -5,7 +5,7 @@
 {{-- Elegir el plan de «Únete» y pagarlo en línea; con tarjeta, administrar la suscripción que se renueva sola --}}
 @section('content')
     @php($methodLabels = [
-        'card' => ['Tarjeta de crédito o débito', 'Visa, Mastercard y más, desde cualquier país, en dólares. Se renueva sola cada mes y la cancelas cuando quieras.'],
+        'card' => ['Tarjeta de crédito o débito', 'Visa, Mastercard y más, desde cualquier país, en dólares. Se renueva sola (cada mes o en el ciclo que elijas) y la cancelas cuando quieras.'],
         'qr' => ['Pago en Bolivia: QR, Tigo Money o tarjeta boliviana', 'Escaneas el QR con la app de cualquier banco, en bolivianos. Pagas los meses que elijas y se activa al confirmarse; no se renueva sola.'],
     ])
 
@@ -74,22 +74,24 @@
                     <a href="{{ route('diy') }}#planes" class="font-medium text-site-ink underline underline-offset-4">Escríbenos</a> y lo activamos contigo.
                 </p>
             @else
-                {{-- El total cambia con el plan, la forma de pago (su moneda) y los meses (solo sin renovación automática) --}}
+                {{-- El total cambia con el plan, la forma de pago (su moneda) y los meses (con tarjeta, los ciclos que tiene la pasarela) --}}
                 <form method="POST" action="{{ route('client.subscription.store') }}" class="site-enter grid gap-8" style="--enter-index: 2"
                     x-data="{
                         sending: false,
                         plan: @js($selected),
                         method: @js(old('method', array_key_first($methods))),
-                        months: {{ (int) old('months', 1) }},
+                        months: {{ (int) old('months', $selectedMonths) }},
                         pricing: @js($pricing),
                         get current() { return this.pricing[this.method] ?? null },
-                        get total() { return this.current?.prices?.[this.plan]?.[this.current.recurring ? 1 : this.months] ?? null },
+                        // Los meses que se pueden pagar con esta forma de pago y este plan (con tarjeta: cada cuánto se renueva)
+                        get cycles() { return this.current?.cycles?.[this.plan] ?? [1] },
+                        get total() { return this.current?.prices?.[this.plan]?.[this.months] ?? null },
                         money(value) {
                             const number = Number(value)
                             const digits = Number.isInteger(number) ? 0 : 2
                             return number.toLocaleString('es-BO', { minimumFractionDigits: digits, maximumFractionDigits: digits })
                         },
-                    }" @submit="sending = true">
+                    }" x-effect="if (! cycles.includes(months)) months = 1" @submit="sending = true">
                     @csrf
 
                     <fieldset class="grid gap-3">
@@ -139,13 +141,14 @@
                     </fieldset>
 
                     {{-- Pagar varios meses de una vez: solo con las formas de pago que no se renuevan solas --}}
-                    @if(count($prepay) > 1 && collect($pricing)->contains(fn ($method) => ! $method['recurring']))
-                        <fieldset class="grid gap-3" x-show="current && ! current.recurring" x-cloak>
-                            <legend class="mb-3 text-lg font-semibold tracking-tight">Cuántos meses pagas</legend>
+                    {{-- Cada cuánto paga: 1, 3 o 12 meses, con su descuento (con tarjeta, solo los ciclos que tiene la pasarela) --}}
+                    @if(collect($pricing)->contains(fn ($method) => collect($method['cycles'])->contains(fn ($months) => count($months) > 1)))
+                        <fieldset class="grid gap-3" x-show="cycles.length > 1" x-cloak>
+                            <legend class="mb-3 text-lg font-semibold tracking-tight" x-text="current?.recurring ? 'Cada cuánto se renueva' : 'Cuántos meses pagas'">Cuántos meses pagas</legend>
                             <div class="flex flex-wrap gap-2">
                                 @foreach($prepay as $count => $discount)
-                                    <label class="cursor-pointer rounded-full border border-site-line bg-site-surface px-4 py-2 text-sm transition-colors hover:border-site-ink/30 has-[:checked]:border-site-accent has-[:checked]:bg-site-tint has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-site-accent">
-                                        <input type="radio" name="months" value="{{ $count }}" x-model.number="months" class="sr-only" @checked((int) old('months', 1) === $count)>
+                                    <label x-show="cycles.includes({{ $count }})" class="cursor-pointer rounded-full border border-site-line bg-site-surface px-4 py-2 text-sm transition-colors hover:border-site-ink/30 has-[:checked]:border-site-accent has-[:checked]:bg-site-tint has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-site-accent">
+                                        <input type="radio" name="months" value="{{ $count }}" x-model.number="months" class="sr-only" @checked((int) old('months', $selectedMonths) === $count)>
                                         <span class="font-medium">{{ $count === 1 ? '1 mes' : "{$count} meses" }}</span>
                                         @if($discount > 0)
                                             <span class="text-site-accent">· {{ $discount }} % menos</span>
@@ -163,7 +166,7 @@
                         <p class="text-lg" x-show="total" x-cloak aria-live="polite">
                             Total:
                             <span class="font-semibold tabular-nums" x-text="current.symbol + ' ' + money(total)"></span>
-                            <span class="text-site-muted" x-text="current.recurring ? 'al mes, se renueva solo' : (months === 1 ? 'por 1 mes' : 'por ' + months + ' meses')"></span>
+                            <span class="text-site-muted" x-text="current.recurring ? (months === 1 ? 'al mes, se renueva solo' : 'cada ' + months + ' meses, se renueva solo') : (months === 1 ? 'por 1 mes' : 'por ' + months + ' meses')"></span>
                         </p>
                         <div>
                             <button type="submit" class="admin-primary-button min-h-12 px-6" :disabled="sending" @disabled($needsEmail)>

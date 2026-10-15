@@ -109,12 +109,14 @@ class SubscriptionActivator
      * Anota qué suscripción de la pasarela es de esta persona (la que se renueva sola): con ese id
      * se la reconoce en cada renovación.
      */
-    public function linkGatewaySubscription(User $user, string $provider, ?string $subscriptionId, ?string $customerId = null): void
+    public function linkGatewaySubscription(User $user, string $provider, ?string $subscriptionId, ?string $customerId = null, ?int $cycleMonths = null): void
     {
         $changes = array_filter([
             'payment_provider' => $provider,
             'provider_subscription_id' => $subscriptionId,
             'provider_customer_id' => $customerId,
+            // Cada cuántos meses renueva (1, 3 o 12): lo que suma cada renovación cobrada
+            'subscription_cycle_months' => $cycleMonths !== null ? max(1, $cycleMonths) : null,
         ]);
 
         // Una suscripción nueva empieza renovándose sola (la cancelación era de la anterior)
@@ -134,11 +136,14 @@ class SubscriptionActivator
      * la pasarela es la que decide cuándo cobra, así la fecha del sitio no se corre después de un
      * cobro reintentado.
      *
+     * Con $months (el ciclo de la variante: 1, 3 o 12), cambiar de ciclo desde el portal se anota igual
+     * que el cambio de plan.
+     *
      * @param  string  $status  active | past_due | cancelled | expired
      */
-    public function applyGatewayStatus(User $user, string $status, bool $cancelled = false, ?string $plan = null, ?string $renewsAt = null): void
+    public function applyGatewayStatus(User $user, string $status, bool $cancelled = false, ?string $plan = null, ?string $renewsAt = null, ?int $months = null): void
     {
-        DB::transaction(function () use ($user, $status, $cancelled, $plan, $renewsAt) {
+        DB::transaction(function () use ($user, $status, $cancelled, $plan, $renewsAt, $months) {
             $user = User::whereKey($user->id)->lockForUpdate()->firstOrFail();
             $hasSubscription = $user->subscription_status !== null;
 
@@ -157,6 +162,10 @@ class SubscriptionActivator
             // Cambió de plan desde el portal: rige desde ya (la pasarela cobra la diferencia)
             if ($plan && $plan !== $user->reseller_plan && in_array($status, ['active', 'cancelled'], true) && $hasSubscription) {
                 $changes['reseller_plan'] = $plan;
+            }
+
+            if ($months && (int) $months !== (int) $user->subscription_cycle_months && in_array($status, ['active', 'cancelled'], true) && $hasSubscription) {
+                $changes['subscription_cycle_months'] = max(1, (int) $months);
             }
 
             // Solo si ya está al día (con su pago registrado) y la fecha es futura: el aviso del

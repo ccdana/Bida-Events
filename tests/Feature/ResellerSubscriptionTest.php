@@ -76,16 +76,19 @@ class ResellerSubscriptionTest extends TestCase
         $this->assertNull(User::factory()->reseller('plan-que-no-existe')->make()->planConfig());
     }
 
-    public function test_the_quota_counts_only_the_invitations_created_this_month(): void
+    public function test_the_quota_counts_only_the_invitations_published_this_month(): void
     {
         $reseller = User::factory()->reseller('aliado')->create();
 
-        // Dos del mes pasado no cuentan; tres de este mes sí
+        // Dos publicadas el mes pasado no cuentan; tres publicadas este mes sí; los borradores, nunca
         foreach (['2026-09-20', '2026-09-30 23:30'] as $date) {
-            $this->createInvitation(['reseller_id' => $reseller->id])->forceFill(['created_at' => Carbon::parse($date, 'America/La_Paz')])->save();
+            $this->createInvitation(['reseller_id' => $reseller->id])->forceFill(['first_published_at' => Carbon::parse($date, 'America/La_Paz')])->save();
         }
         foreach (range(1, 3) as $ignored) {
             $this->createInvitation(['reseller_id' => $reseller->id]);
+        }
+        foreach (range(1, 4) as $ignored) {
+            $this->createInvitation(['reseller_id' => $reseller->id, 'status' => 'inactive']);
         }
 
         $this->assertSame(3, ResellerSubscription::quotaUsed($reseller));

@@ -22,14 +22,24 @@ class RegistrationTest extends TestCase
 
     public function test_arriving_with_a_plan_shows_it_and_continues_to_its_payment_after_confirming(): void
     {
-        $this->withoutVite()->get('/registro?plan=aliado')
+        $this->withoutVite()->get('/registro?plan=emprendedor')
             ->assertOk()
             ->assertSee('Tu plan:')
-            ->assertSee('Aliado')
+            ->assertSee('Emprendedor')
             ->assertSee('Paso 2 de 4');
 
         // El plan viaja con la sesión: al confirmar el correo sigue el pago de ese plan
-        $this->assertSame(route('client.subscription', ['plan' => 'aliado']), session('url.intended'));
+        $this->assertSame(route('client.subscription', ['plan' => 'emprendedor']), session('url.intended'));
+
+        // Con el ciclo elegido en la página de planes (?meses=12), también
+        $this->flushSession();
+        $this->withoutVite()->get('/registro?plan=emprendedor&meses=12')->assertOk();
+        $this->assertSame(route('client.subscription', ['plan' => 'emprendedor', 'meses' => 12]), session('url.intended'));
+
+        // Un plan que ya no se vende no se guarda
+        $this->flushSession();
+        $this->withoutVite()->get('/registro?plan=aliado')->assertOk()->assertDontSee('Tu plan:');
+        $this->assertNull(session('url.intended'));
 
         // Un plan que no existe no se guarda
         $this->flushSession();

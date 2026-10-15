@@ -70,6 +70,13 @@ class SettingsController extends Controller
             ])
             ->all());
 
+        // Descuento por pagar 3 o 12 meses de una vez (QR por adelantado o tarjeta que se renueva así)
+        if ($request->has('prepay')) {
+            SiteSettings::put('prepay', collect(SiteSettings::PREPAY_MONTHS)
+                ->mapWithKeys(fn (int $months) => [$months => (int) $request->input("prepay.{$months}", 0)])
+                ->all());
+        }
+
         SiteSettings::put('diy_prices', collect($request->input('diy_prices', []))
             ->only(array_keys(config('bida.diy.prices', [])))
             ->map(fn (array $tier) => [
