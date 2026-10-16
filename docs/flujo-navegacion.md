@@ -2,8 +2,8 @@
 
 Mapa de navegación de Bida Events con el modelo principal primero: **cada persona arma su propia
 invitación gratis («Hazlo tú») y paga, una sola vez, solo si quiere más**. Lo adicional: los planes
-para quien arma muchas («Únete») y que el equipo se la haga («Te la hacemos», pago único por
-WhatsApp). Las tres formas están lado a lado en /precios.
+para quien arma muchas («Únete»). Lo que se pide a medida no tiene precios en el sitio: un aviso
+lleva a escribir por WhatsApp o correo. Las dos formas están lado a lado en /precios.
 
 Los diagramas se leen de arriba hacia abajo (o de izquierda a derecha en el último). Los nombres entre
 llaves son datos que cambian: `{plan}`, `{paquete}`, `{evento}`, `{slug}`, `X` es la clave del plan.
@@ -23,7 +23,7 @@ flowchart TD
   N -->|"Crear invitación (borrador)"| E["/client/mi-invitacion/ID/editar"]
   E -->|"Publicar"| P["/client/mi-invitacion/ID/publicar"]
   P -->|"gratis o pagando su nivel"| L["/p/slug (enlace público)"]
-  A -->|"Precios"| PR["/precios<br/>Hazlo tú · Planes · Te la hacemos"]
+  A -->|"Precios"| PR["/precios<br/>Hazlo tú · Planes · A medida"]
   PR -->|"Elegir {plan}"| RP["/registro?plan=X → pago del plan"]
 ```
 
@@ -112,17 +112,14 @@ flowchart TD
   P -->|"No"| W["Sigue esperando"]
 ```
 
-## Lo adicional: te la hacemos
+## Lo a medida
 
-Los paquetes no pasan por cuenta ni pago en línea: salen todos por WhatsApp y el equipo deja la invitación en el panel del cliente.
+No hay paquetes ni precios del servicio hecho por el equipo en el sitio. Cada página de precios muestra un aviso («¿Quieres algo a medida?») con WhatsApp y correo; lo que se acuerde se conversa y se cobra fuera de la tienda en línea.
 
 ```mermaid
 flowchart LR
-  H["Portada · Te la hacemos<br/>#precios"] -->|"Elegir {paquete}"| WA["WhatsApp con el paquete<br/>y Ref. de origen"]
-  HZ["/unete · Pedir {paquete}"] --> WA
-  LD["Páginas por evento<br/>Elegir {paquete}"] --> WA
-  WA --> EQ["El equipo arma la invitación<br/>con el cliente"]
-  EQ --> CP["/client · Ver invitados<br/>Abrir mi invitación"]
+  P["/precios · portada · /unete · publicar<br/>Aviso «¿Quieres algo a medida?»"] --> WA["WhatsApp o correo<br/>con Ref. de origen"]
+  WA --> EQ["Se conversa y se acuerda<br/>fuera del sitio"]
 ```
 
 ## Botón por botón
@@ -137,13 +134,12 @@ flowchart LR
 | Ícono de WhatsApp (cabecera) | wa.me con el mensaje y Ref. HOME | Acción secundaria |
 | Ingresar / Mi panel | /login · /dashboard | Según haya sesión |
 | Hazlo tú · Crear mi invitación gratis | /registro?crear=1 · /client/mi-invitacion/nueva | Primer bloque de servicios |
-| Te la hacemos · Ver los paquetes | /precios#te-la-hacemos | Paquetes, pago único |
 | Planes para profesionales · Ver los planes | /unete |  |
 | Diseños de temporada | #temporada o la página de la temporada | Solo mientras la temporada se vende |
 | Pestañas de evento (Pruébala como invitado) | /muestra/{slug} | Muestra interactiva, nada se guarda |
 | Ver todos los diseños de {evento} | /invitaciones-de-{evento} | Página por evento |
 | Así funciona · Crear mi invitación gratis | /registro?crear=1 · /client/mi-invitacion/nueva |  |
-| Precios (resumen): Crear mi invitación gratis · Ver los paquetes · Ver los planes | el editor · /precios#te-la-hacemos · /precios#planes | Las tres formas en una fila |
+| Precios (resumen): Crear mi invitación gratis · Ver los planes | el editor · /precios#planes | Las dos formas en una fila, con el aviso de lo a medida debajo |
 | Ver todos los precios y qué trae cada nivel | /precios |  |
 | Botón flotante de temporadas | Panel de la temporada → WhatsApp o su página |  |
 
@@ -151,23 +147,22 @@ flowchart LR
 
 | Botón o enlace | Lleva a | Notas |
 | --- | --- | --- |
-| Hazlo tú · Planes · Te la hacemos · Comparar · Preguntas (menú y entrada) | #hazlo-tu · #planes · #te-la-hacemos · #comparar · #preguntas |  |
+| Hazlo tú · Planes · Comparar · Preguntas · A medida (menú y entrada) | #hazlo-tu · #planes · #comparar · #preguntas · #a-medida |  |
 | Crear mi invitación (cada nivel de Hazlo tú y cierre) | /registro?crear=1 · /client/mi-invitacion/nueva | El nivel no se elige antes: sale de las partes al publicar |
 | Mensual · Cada 3 meses · Anual | Cambia el precio de los planes | `meses` viaja en «Elegir» |
 | Elegir {plan} | Ver «Qué hace Elegir {plan}» |  |
-| Elegir {paquete} | wa.me con el paquete y su precio (Ref. PRECIOS) | Primero el servicio: plazo, cambios y atención |
+| Escribir por WhatsApp · correo (aviso «¿Quieres algo a medida?») | wa.me (Ref. PRECIOS) · mailto | Sin precios |
 | Tengo una duda | wa.me (Ref. PRECIOS) |  |
 
 ### Únete (`/unete`)
 
 | Botón o enlace | Lleva a | Notas |
 | --- | --- | --- |
-| Planes (menú) | #planes | Mismas columnas que los paquetes, con el detalle de cada plan |
+| Planes (menú) | #planes | Con el detalle de cada plan |
 | Plan {nombre} (en «Para quién») | #planes |  |
 | Elegir {plan} | Ver «Qué hace Elegir {plan}» | Registro con el plan, pago o WhatsApp |
 | Escríbenos (¿Necesitas algo distinto?) | wa.me con el mensaje de Únete (Ref. HAZLO) | Última celda de la cuadrícula |
-| Pedir {paquete} | wa.me con el paquete | Lo adicional |
-| Ver todo lo que incluye cada paquete | /precios#te-la-hacemos |  |
+| Escribir por WhatsApp · correo (aviso «¿Quieres algo a medida?») | wa.me (Ref. HAZLO) · mailto | Sin precios |
 | Elegir mi plan (cierre) | #planes |  |
 | Tengo una duda | wa.me con el mensaje de Únete (Ref. HAZLO) |  |
 
@@ -203,7 +198,7 @@ flowchart LR
 | Nueva invitación (revendedor) | /client/invitaciones/nueva | Con plan activo; sin cupo igual arma borradores (el cupo cuenta las publicadas en el mes) |
 | Crear mi invitación · Nueva invitación (Hazlo tú) | /client/mi-invitacion/nueva | Cualquier cuenta que no sea revendedor; hasta 3 borradores |
 | Mira los planes mensuales (panel vacío) | /client/suscripcion o /unete#planes | La primera si hay pago en línea |
-| Prefiero que me la hagan | /#precios |  |
+| Quiero algo a medida | /precios#a-medida |  |
 | Borrar borrador | /client/mi-invitacion/{id} (DELETE) | Solo un borrador de Hazlo tú que nunca se publicó |
 | Pagar ahora / Renovar | /client/suscripcion | Aviso de vencimiento |
 | Ver invitados / Ver respuestas | /client/invitations/{id} |  |
@@ -215,10 +210,10 @@ flowchart LR
 
 | Botón o enlace | Lleva a | Notas |
 | --- | --- | --- |
-| Crear mi invitación (cabecera) | /unete#planes |  |
-| Ver los planes (aviso «¿Prefieres armarla tú?») | /unete#planes |  |
+| Crear mi invitación (cabecera y cierre «Empieza gratis») | /registro?crear=1 · /client/mi-invitacion/nueva |  |
+| Ver precios | /precios | Armarla es gratis; el aviso de lo a medida va sin precios |
 | Diseños (capturas) | /muestra/{slug} |  |
-| Escríbenos · Elegir {paquete} | wa.me con el mensaje del evento | Código propio de cada página |
+| Escríbenos (solo páginas de temporada) · aviso de lo a medida | wa.me con el mensaje del evento | Código propio de cada página |
 | La quiero por {precio} (temporada) | wa.me con el precio de temporada |  |
 
 ### Pie del sitio (`En todas las páginas`)

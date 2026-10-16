@@ -2905,3 +2905,23 @@ html[data-theme='dark'] .adm-device {
         order: -1;
     }
 }
+
+/* Celular: el dedo necesita unos 44 px. El dibujo no cambia; su zona táctil crece alrededor */
+@media (pointer: coarse), (max-width: 1023px) {
+    .adm-switch,
+    .ed-help-btn {
+        position: relative;
+    }
+
+    .adm-switch::before {
+        content: '';
+        position: absolute;
+        inset: -11px -4px;
+    }
+
+    .ed-help-btn::before {
+        content: '';
+        position: absolute;
+        inset: -3px;
+    }
+}

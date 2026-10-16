@@ -341,6 +341,73 @@ final class EditableTexts
     }
 
     /**
+     * Lo mismo que forTemplate() para todas las plantillas, sin repetir lo que comparten: el catálogo va
+     * una sola vez y cada plantilla solo trae lo que cambia (su versión de un texto del catálogo y sus textos
+     * propios). Mandar el catálogo completo por plantilla pesaba 436 KB en cada carga del editor.
+     * El editor lo vuelve a armar igual que expand().
+     *
+     * @param  iterable<string>  $templates
+     * @return array{catalog: array<string, list<array{0: string, 1: string, 2: string, 3: bool}>>, overrides: array<string, array<string, string>>, extras: array<string, list<array{0: string, 1: string, 2: string, 3: bool}>>}
+     */
+    public static function forEditor(iterable $templates): array
+    {
+        $catalog = [];
+        foreach (self::catalog() as $module => $texts) {
+            foreach ($texts as $key => $text) {
+                $catalog[$module][] = [$key, $text[0], __((string) $text[1]), (bool) ($text[2] ?? false)];
+            }
+        }
+
+        $known = array_merge(...array_values(array_map('array_keys', self::catalog())));
+        $overrides = [];
+        $extras = [];
+
+        foreach ($templates as $template) {
+            $copy = InvitationTemplates::copy($template);
+
+            foreach ($known as $key) {
+                if (isset($copy[$key])) {
+                    $overrides[$template][$key] = __((string) $copy[$key]);
+                }
+            }
+
+            foreach ($copy as $key => $value) {
+                if (in_array($key, $known, true) || in_array($key, self::NOT_TEXT, true) || ! is_string($value)) {
+                    continue;
+                }
+
+                $extras[$template][] = [$key, self::TEMPLATE_LABELS[$key] ?? 'Texto de la plantilla', __($value), mb_strlen($value) > 70];
+            }
+        }
+
+        return ['catalog' => $catalog, 'overrides' => $overrides, 'extras' => $extras];
+    }
+
+    /**
+     * Arma los textos de una plantilla a partir de forEditor(): el mismo resultado que forTemplate().
+     * El editor (resources/js/admin/editor.js, editableTextsOf) hace lo mismo; EditableTextsTest cuida que coincidan.
+     *
+     * @param  array<string, mixed>  $compact
+     * @return array<string, list<array{key: string, label: string, default: string, long: bool}>>
+     */
+    public static function expand(array $compact, string $template): array
+    {
+        $groups = [];
+
+        foreach ($compact['catalog'] as $module => $rows) {
+            foreach ($rows as [$key, $label, $default, $long]) {
+                $groups[$module][] = self::field($key, $label, $compact['overrides'][$template][$key] ?? $default, $long);
+            }
+        }
+
+        foreach ($compact['extras'][$template] ?? [] as [$key, $label, $default, $long]) {
+            $groups[self::GENERAL][] = self::field($key, $label, $default, $long);
+        }
+
+        return $groups;
+    }
+
+    /**
      * Deja solo los textos que existen y que de verdad dicen algo; un campo vacío vuelve al de la
      * plantilla.
      *

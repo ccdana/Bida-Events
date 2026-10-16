@@ -1,16 +1,16 @@
 @extends('layouts.site')
 
 {{--
-    Precios (/precios): las tres formas de tener la invitación, lado a lado, para que cada quien
+    Precios (/precios): las formas de tener la invitación, lado a lado, para que cada quien
     encuentre la suya sin leer letra chica. Ver App\Support\PricingPage.
     - Hazlo tú: gratis con lo básico, o un pago único por el nivel de las partes que usó.
     - Planes: para quien arma muchas (el bloque de siempre, con el selector Mensual / 3 meses / Anual).
-    - Te la hacemos: el equipo la arma, con plazo de entrega y rondas de cambios.
-    Después, qué trae cada nivel parte por parte, qué cambia entre las tres formas y las preguntas.
+    Después, qué trae cada nivel parte por parte, qué cambia entre las dos formas, las preguntas y un
+    aviso de lo a medida (sin precios: se conversa por WhatsApp o correo).
     Lenguaje del sitio: titulares en serif, filetes en lugar de tarjetas y el dorado como único acento.
 --}}
 @section('title', __('Precios de las invitaciones digitales').' | '.$bida['brand'])
-@section('description', __('Arma tu invitación gratis y paga solo si quieres más, elige un plan si armas muchas o pídenos que la hagamos. Precios en dólares, sin letra chica.'))
+@section('description', __('Arma tu invitación gratis y paga solo si quieres más, o elige un plan si armas muchas. Precios en dólares, sin letra chica.'))
 
 @use('App\Support\Money')
 
@@ -18,30 +18,27 @@
     $navLinks = [
         '#hazlo-tu' => __('Hazlo tú'),
         '#planes' => __('Planes'),
-        '#te-la-hacemos' => __('Te la hacemos'),
         '#comparar' => __('Comparar'),
         '#preguntas' => __('Preguntas'),
+        '#a-medida' => __('A medida'),
     ];
     $accountUrl = $user ? route('dashboard') : lroute('login');
     $accountLabel = $user ? __('Mi panel') : __('Ingresar');
     $fromPlan = collect($plans)->min('final_price');
-    $fromPackage = collect($packages)->min('final_price');
     $paidTiers = array_slice($diyTiers, 1);
     $ways = [
         ['id' => 'hazlo-tu', 'name' => __('Hazlo tú'), 'text' => __('La armas tú: gratis con lo básico, o un pago único por todo lo que usaste.'), 'from' => __('Gratis')],
         ['id' => 'planes', 'name' => __('Planes'), 'text' => __('Para quien arma muchas: las tuyas o las de tus clientes, cada mes.'), 'from' => $fromPlan !== null ? __('Desde :price al mes', ['price' => Money::format($fromPlan)]) : null],
-        ['id' => 'te-la-hacemos', 'name' => __('Te la hacemos'), 'text' => __('Nos cuentas tu evento y nuestro equipo la arma contigo.'), 'from' => $fromPackage !== null ? __('Desde :price', ['price' => Money::format($fromPackage)]) : null],
     ];
 @endphp
 
 @push('head')
     @include('site.partials.structured-data', [
         'faqs' => $faqs,
-        'serviceName' => __('Invitaciones digitales: hazla tú, con un plan o te la hacemos'),
+        'serviceName' => __('Invitaciones digitales: hazla tú o con un plan'),
         'offers' => [
             ...array_map(fn (array $tier) => ['name' => __('Hazlo tú :name (pago único)', ['name' => $tier['name']]), 'price' => (int) $tier['price'], 'description' => $tier['summary']], $paidTiers),
             ...array_map(fn (array $plan) => ['name' => __('Plan :name (mensual)', ['name' => $plan['name']]), 'price' => $plan['final_price'], 'description' => $plan['summary'] ?? ''], $plans),
-            ...array_map(fn (array $package) => ['name' => __('Te la hacemos :name', ['name' => $package['name']]), 'price' => $package['final_price'], 'description' => $package['summary']], $packages),
         ],
         'breadcrumbs' => [[$bida['brand'], lroute('home')], [__('Precios'), lroute('pricing')]],
     ])
@@ -53,7 +50,7 @@
     @include('site.partials.header', ['navLinks' => $navLinks])
 
     <main>
-        {{-- ═══ Las tres formas, de un vistazo ═══ --}}
+        {{-- ═══ Las formas de tenerla, de un vistazo ═══ --}}
         <section class="site-pricing-intro" aria-labelledby="precios-titulo">
             <div class="max-w-3xl">
                 <h1 id="precios-titulo" class="site-display site-display--md" data-reveal>{{ __('Precios claros para cada forma de tener tu invitación') }}</h1>
@@ -117,19 +114,12 @@
             'diyDetail' => true,
         ])
 
-        {{-- ═══ Te la hacemos: el mismo nivel, armado por el equipo, con plazo y cambios ═══ --}}
-        @include('site.partials.plans', [
-            'plansId' => 'te-la-hacemos',
-            'plansTitle' => __('Te la hacemos'),
-            'plansLead' => __('Nos cuentas tu evento y nuestro equipo arma la invitación contigo. Cada paquete trae las mismas partes que el nivel del mismo nombre, más el servicio: un plazo de entrega y rondas de cambios. Pago único, en dólares (:currency).', ['currency' => Money::code()]),
-        ])
-
         {{-- ═══ Comparar: qué trae cada nivel y qué cambia entre las tres formas ═══ --}}
         <section id="comparar" class="scroll-mt-20 border-t border-site-line" aria-labelledby="comparar-titulo">
             <div class="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-28">
                 <div class="max-w-3xl">
                     <h2 id="comparar-titulo" class="site-display site-display--md" data-reveal>{{ __('Qué trae cada nivel') }}</h2>
-                    <p class="site-muted-lead" data-reveal>{{ __('Los mismos en «Hazlo tú» y en «Te la hacemos». Con un plan, cada invitación trae todas las partes; la confirmación depende del plan.') }}</p>
+                    <p class="site-muted-lead" data-reveal>{{ __('Con «Hazlo tú», cada nivel trae estas partes. Con un plan, cada invitación trae todas las partes; la confirmación depende del plan.') }}</p>
                 </div>
 
                 <div class="site-compare mt-12" data-reveal>
@@ -164,10 +154,10 @@
                     </table>
                 </div>
 
-                <h2 class="site-display site-display--md mt-20" data-reveal>{{ __('Hazlo tú, un plan o te la hacemos') }}</h2>
+                <h2 class="site-display site-display--md mt-20" data-reveal>{{ __('Hazlo tú o un plan') }}</h2>
                 <div class="site-table" data-reveal>
                     <table>
-                        <caption class="sr-only">{{ __('Diferencias entre Hazlo tú, los planes y Te la hacemos') }}</caption>
+                        <caption class="sr-only">{{ __('Diferencias entre Hazlo tú y los planes') }}</caption>
                         <thead>
                             <tr>
                                 <th scope="col"><span class="sr-only">{{ __('Qué cambia') }}</span></th>
@@ -192,6 +182,13 @@
         </section>
 
         @include('site.partials.faqs', ['faqs' => $faqs])
+
+        {{-- ═══ A medida: sin precios; se conversa por WhatsApp o por correo ═══ --}}
+        <section id="a-medida" class="scroll-mt-20 border-t border-site-line" aria-label="{{ __('A medida') }}">
+            <div class="mx-auto max-w-7xl px-5 pb-16 lg:px-8">
+                @include('site.partials.custom-request')
+            </div>
+        </section>
 
         {{-- ═══ Cierre ═══ --}}
         <section class="site-diy-final" aria-labelledby="cierre-titulo">

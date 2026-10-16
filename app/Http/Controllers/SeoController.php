@@ -72,7 +72,6 @@ class SeoController extends Controller
 
         return $this->text(view($view, [
             'bida' => $bida,
-            'packages' => Offers::packages(),
             'plans' => Offers::resellerPlans(),
             'landings' => HomeController::landingLinks(),
             'currency' => Money::code(),

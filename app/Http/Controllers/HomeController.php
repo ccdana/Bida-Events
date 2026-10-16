@@ -28,7 +28,6 @@ class HomeController extends Controller
         $diyFromPrice = (int) collect(Offers::resellerPlans())->min('final_price');
         $demos = ShowcaseDemos::find($bida['demo_invitations'] ?? []);
         $diy = DiyPlans::make($request, LeadSource::HOME);
-        $packages = $this->packages($bida['packages'], $whatsapp);
         $startUrl = DiyInvitations::startUrl($request->user());
 
         return view('home', [
@@ -39,10 +38,8 @@ class HomeController extends Controller
             'startUrl' => $startUrl,
             'plans' => $diy['plans'],
             'collections' => $diy['collections'],
-            // Lo adicional: que el equipo la haga (paquetes, pago único)
-            'packages' => $packages,
-            // Las tres formas, en resumen; el detalle está en /precios
-            'pricingSummary' => self::pricingSummary($diy['plans'], $packages, $startUrl),
+            // Las formas de tenerla, en resumen; el detalle está en /precios
+            'pricingSummary' => self::pricingSummary($diy['plans'], $startUrl),
             'seasons' => $seasons = self::seasons($request),
             'services' => self::services($seasons, $fromPrice, count($demos) > 0),
             'fromPrice' => $fromPrice,
@@ -53,7 +50,7 @@ class HomeController extends Controller
             'landings' => self::landingLinks(),
             'share' => ShareMeta::make(
                 __(':brand | Invitaciones digitales para bodas, XV años, bautizos y graduaciones', ['brand' => $bida['brand']]),
-                __('Arma tu invitación digital gratis con plantillas profesionales y paga solo si quieres más: confirmación de asistencia, galería y pase QR. O pídenos que la hagamos.'),
+                __('Arma tu invitación digital gratis con plantillas profesionales y paga solo si quieres más: confirmación de asistencia, galería y pase QR.'),
                 ShareMeta::defaultImage(),
                 lroute('home'),
             ),
@@ -61,16 +58,15 @@ class HomeController extends Controller
     }
 
     /**
-     * Las tres formas de tener la invitación, en resumen para la portada (Hazlo tú, Te la hacemos y
-     * Planes), con su precio de hoy y a dónde lleva cada una; el detalle está en /precios.
+     * Las formas de tener la invitación, en resumen para la portada (Hazlo tú y Planes), con su precio
+     * de hoy y a dónde lleva cada una; el detalle está en /precios.
      *
      * @return list<array<string, mixed>>
      */
-    public static function pricingSummary(array $plans, array $packages, string $startUrl): array
+    public static function pricingSummary(array $plans, string $startUrl): array
     {
         $tierPrices = InvitationPrice::tierPrices();
         $fromTier = collect($tierPrices)->min('final');
-        $cheapestPackage = collect($packages)->sortBy('final_price')->first();
         $cheapestPlan = collect($plans)->sortBy('final_price')->first();
         $prepay = array_filter(SubscriptionPrice::prepayOptions(), fn (int $discount, int $months) => $months > 1 && $discount > 0, ARRAY_FILTER_USE_BOTH);
         $brandFrom = collect($plans)->firstWhere('white_label', true)['name'] ?? null;
@@ -90,16 +86,6 @@ class HomeController extends Controller
                 'cta' => __('Crear mi invitación gratis'),
                 'featured' => true,
             ],
-            $cheapestPackage ? [
-                'name' => __('Te la hacemos'),
-                'price' => (string) $cheapestPackage['final_price'],
-                'old' => $cheapestPackage['old_price'] ? Money::format($cheapestPackage['old_price']) : null,
-                'suffix' => __(':currency, pago único', ['currency' => Money::code()]),
-                'summary' => __('Nos cuentas tu evento y nuestro equipo arma la invitación contigo.'),
-                'features' => $cheapestPackage['service_lines'] ?: [__('Atención por WhatsApp')],
-                'url' => lroute('pricing').'#te-la-hacemos',
-                'cta' => __('Ver los paquetes'),
-            ] : null,
             $cheapestPlan ? [
                 'name' => __('Planes'),
                 'price' => (string) $cheapestPlan['final_price'],
@@ -121,14 +107,6 @@ class HomeController extends Controller
                 'cta' => __('Ver los planes'),
             ] : null,
         ]));
-    }
-
-    /** Paquetes con su precio de hoy y su botón de WhatsApp; también los usa cada página por evento. */
-    public static function packages(array $packages, \Closure $whatsapp): array
-    {
-        return collect(Offers::packages($packages))->map(fn (array $package): array => $package + [
-            'whatsapp' => $whatsapp(__('Hola {brand}, me interesa el paquete :name (:price) para mi invitación.', ['name' => $package['name'], 'price' => Money::format($package['final_price'])])),
-        ])->all();
     }
 
     /**

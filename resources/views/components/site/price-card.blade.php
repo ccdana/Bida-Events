@@ -1,6 +1,6 @@
 {{--
     Una columna de precios del sitio: nombre con su etiqueta, precio (con el normal tachado si hay
-    rebaja), lo que incluye y el botón. La usan los paquetes («Te la hacemos») y los planes mensuales
+    rebaja), lo que incluye y el botón. La usan los niveles de «Hazlo tú» y los planes mensuales
     de «Únete», así las dos formas de pago se ven igual. Estilos: site.css («Precios»).
 
     - price / old / suffix: el precio de hoy, el normal tachado (o null) y lo que va después («USD»).

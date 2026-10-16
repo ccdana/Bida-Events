@@ -2,8 +2,7 @@
 
 {{--
     «Únete»: el plan mensual para armar invitaciones propias y venderlas (revendedores). Es el
-    modelo principal del negocio; lo secundario es que el equipo se las haga («paquetes»). Ver
-    PublicPagesController::diy.
+    modelo principal del negocio. Ver PublicPagesController::diy.
 
     Lenguaje del sitio: titulares en serif, filetes en lugar de tarjetas, sin sombras ni brillos y el
     dorado como único acento. Habla de lo que el plan le da a quien vende (su marca, sus clientes,
@@ -20,13 +19,12 @@
     $navLinks = [
         '#que-obtienes' => __('Qué ganas'),
         '#planes' => __('Planes'),
-        '#te-la-hacemos' => __('Te la hacemos'),
         '#preguntas' => __('Preguntas'),
+        '#a-medida' => __('A medida'),
     ];
     $accountUrl = $user ? route('dashboard') : lroute('login');
     $accountLabel = $user ? __('Mi panel') : __('Ingresar');
     $fromPrice = collect($plans)->min('final_price');
-    $lowestPackage = collect($packages)->min('final_price');
 
     // Descuento por pagar 3 o 12 meses de una vez (Ajustes), para las preguntas
     $prepayText = \App\Payments\SubscriptionPrice::prepaySummary();
@@ -74,7 +72,7 @@
         [__('¿Cuántos accesos para clientes puedo crear?'), __('Uno por evento y, en total, tantos por mes como invitaciones incluye tu plan. Si creaste uno mal, lo eliminas y creas otro.')],
         [__('¿Puedo cambiar de plan?'), __('Sí. Nos escribes y el cambio se aplica con tu siguiente pago.')],
         [__('¿Y si solo necesito una invitación?'), __('Para una sola no hace falta un plan: crea tu cuenta y ármala con todo. La publicas gratis con lo básico, o pagas una sola vez el nivel que usaste.')],
-        [__('¿Y si prefiero que la hagan ustedes?'), __('También lo hacemos: eliges un paquete, nos mandas los datos y te entregamos la invitación lista. Desde :price por invitación, pago único.', ['price' => Money::format($lowestPackage)])],
+        [__('¿Hacen invitaciones a medida?'), __('Si quieres algo a medida, escríbenos por WhatsApp o al correo :email y lo conversamos.', ['email' => $bida['email']])],
     ];
 @endphp
 
@@ -144,44 +142,18 @@
             </ol>
         </section>
 
-        {{-- ═══ Planes: la misma interfaz que los paquetes, con el detalle de cada uno ═══ --}}
+        {{-- ═══ Planes: con el detalle de cada uno ═══ --}}
         @include('site.partials.diy-plans', [
             'diyTitle' => __('Elige tu plan'),
             'diyLead' => __('Precios por mes, en dólares (:currency), y menos pagando 3 o 12 meses de una vez. Cada plan suma al anterior y trae lo que ves en la lista.', ['currency' => Money::code()]),
             'diyDetail' => true,
         ])
 
-        {{-- ═══ Lo secundario: te la hacemos nosotros ═══ --}}
-        <section id="te-la-hacemos" class="site-diy-service scroll-mt-20" aria-labelledby="te-la-hacemos-titulo">
-            <div class="site-diy-service__head">
-                <h2 id="te-la-hacemos-titulo" class="site-display site-display--md" data-reveal>{{ __('¿Prefieres no armarla? Te la hacemos nosotros') }}</h2>
-                <p class="site-muted-lead" data-reveal>{{ __('Pago único por invitación. Nos mandas los datos y te la entregamos lista.') }}</p>
+        {{-- ═══ A medida: sin precios; se conversa por WhatsApp o por correo ═══ --}}
+        <section id="a-medida" class="scroll-mt-20 border-t border-site-line" aria-label="{{ __('A medida') }}">
+            <div class="mx-auto max-w-7xl px-5 pb-16 lg:px-8">
+                @include('site.partials.custom-request')
             </div>
-
-            <ul class="site-diy-service__list" data-reveal>
-                @foreach($packages as $package)
-                    <li>
-                        <div>
-                            <p class="site-diy-service__name">{{ $package['name'] }}</p>
-                            <p class="site-diy-service__text">{{ $package['summary'] }}</p>
-                        </div>
-                        <p class="site-diy-service__price">
-                            @if(! empty($package['old_price']))
-                                <del><span class="sr-only">{{ __('Antes') }} </span>{{ Money::format($package['old_price']) }}</del>
-                            @endif
-                            <span>{{ Money::format($package['final_price']) }}</span>
-                        </p>
-                        <a href="{{ $package['whatsapp'] }}" target="_blank" rel="noopener" class="site-link-arrow">
-                            {{ __('Pedir :name', ['name' => $package['name']]) }}
-                            <x-phosphor-arrow-right aria-hidden="true" />
-                        </a>
-                    </li>
-                @endforeach
-            </ul>
-
-            <p class="site-table-note" data-reveal>
-                <a href="{{ lroute('pricing') }}#te-la-hacemos" class="font-medium text-site-ink underline underline-offset-4">{{ __('Ver todo lo que incluye cada paquete') }}</a>
-            </p>
         </section>
 
         @include('site.partials.faqs', ['faqs' => $faqs])

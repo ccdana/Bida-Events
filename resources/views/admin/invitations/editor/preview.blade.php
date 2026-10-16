@@ -25,7 +25,7 @@
         </template>
     </div>
 
-    <span class="ed-toolbar__status" aria-live="polite" x-text="previewLoading ? 'Actualizando…' : ''"></span>
+    <span class="ed-toolbar__status" aria-live="polite" x-text="uploadStatus || (previewLoading ? 'Actualizando…' : '')"></span>
 
     <button type="button" role="switch" class="ed-tool" :class="{ 'is-on': guestView }"
         :aria-checked="guestView.toString()" @click="guestView = !guestView">

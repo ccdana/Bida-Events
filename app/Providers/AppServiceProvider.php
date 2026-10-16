@@ -126,12 +126,14 @@ class AppServiceProvider extends ServiceProvider
         }
 
         // Editor de los revendedores: usuarios externos, así que la vista previa, los mapas y sobre todo
-        // la subida de archivos tienen un tope por cuenta (el editor del administrador no lo necesita)
-        RateLimiter::for('reseller-editor', fn (Request $request) => Limit::perMinute(240)
+        // la subida de archivos tienen un tope por cuenta (el editor del administrador no lo necesita).
+        // El tope tiene que alcanzar para lo normal: al guardar, cada foto va en su propia petición (una galería
+        // de 100 fotos con 30 por minuto se cortaba a la mitad) y la vista previa se pide en cada cambio.
+        RateLimiter::for('reseller-editor', fn (Request $request) => Limit::perMinute(600)
             ->by('reseller-editor|'.$request->user()?->id)
             ->response($tooManyAttempts));
 
-        RateLimiter::for('reseller-uploads', fn (Request $request) => Limit::perMinute(30)
+        RateLimiter::for('reseller-uploads', fn (Request $request) => Limit::perMinute(240)
             ->by('reseller-uploads|'.$request->user()?->id)
             ->response($tooManyAttempts));
 

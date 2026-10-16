@@ -21,10 +21,10 @@
 
         <div>
             @include('admin.partials.cloudinary-upload', [
-                'label' => 'Archivo de audio (MP3)',
+                'label' => 'Archivo de audio (MP3, M4A, WAV…)',
                 'type' => 'audio',
                 'context' => 'musica',
-                'accept' => 'audio/mpeg,audio/mp3,audio/wav,audio/ogg,audio/aac,audio/mp4',
+                'accept' => 'audio/*,.mp3,.m4a,.wav,.ogg,.aac,.opus',
                 'previewExpr' => 'modules.musica.audio_url',
             ])
         </div>

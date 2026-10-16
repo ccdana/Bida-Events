@@ -17,8 +17,8 @@
         config('bida.facebook') ? 'https://www.facebook.com/'.config('bida.facebook') : null,
         config('bida.tiktok') ? 'https://www.tiktok.com/@'.config('bida.tiktok') : null,
     ]));
-    $offers ??= collect(\App\Support\Offers::packages())->map(fn (array $package) => [
-        'name' => __('Paquete :name', ['name' => $package['name']]),
+    $offers ??= collect(\App\Support\Offers::tierOffers())->map(fn (array $package) => [
+        'name' => __('Hazlo tú :name (pago único)', ['name' => $package['name']]),
         'price' => $package['final_price'],
         'description' => $package['summary'] ?? '',
     ])->all();

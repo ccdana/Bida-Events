@@ -30,7 +30,6 @@ class EventLandingController extends Controller
             'slug' => $landing,
             'page' => $page,
             'contactUrl' => $whatsapp($page['whatsapp']),
-            'packages' => HomeController::packages($bida['packages'], $whatsapp),
             'fromPrice' => Offers::lowestPackagePrice(),
             // Lo de temporada (tarjetas, Halloween) se vende a su precio mientras dure su temporada
             'season' => self::isSeasonal($page) ? self::seasonFor($landing, HomeController::seasons($request)) : null,

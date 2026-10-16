@@ -410,15 +410,6 @@ return [
             'cta' => 'Crear mi invitación gratis',
         ],
         [
-            'key' => 'invitaciones',
-            'name' => 'Te la hacemos',
-            'text' => 'Nos cuentas tu evento y armamos la invitación contigo, con un plazo de entrega y rondas de cambios. Tú sigues la lista de invitados desde tu panel.',
-            'occasions' => ['Bodas', 'XV años', 'Bautizos', 'Cumpleaños', 'Y cualquier celebración'],
-            'price' => 'packages',
-            'href' => 'pricing#te-la-hacemos',
-            'cta' => 'Ver los paquetes',
-        ],
-        [
             'key' => 'planes',
             'name' => 'Planes para profesionales',
             'text' => 'Para fotógrafos, salones y organizadores que arman invitaciones cada mes, con su marca y sin comisión por invitación.',

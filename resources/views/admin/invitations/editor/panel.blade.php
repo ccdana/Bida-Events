@@ -27,7 +27,7 @@
                 <x-phosphor-caret-left aria-hidden="true" />
             </button>
             <p class="ed-panel__title">
-                <small x-text="panelMode === 'field' ? (currentTab?.label ?? '') : (panelMode === 'section' ? '¿Qué quieres cambiar?' : (currentTab?.moduleCode ? 'Todas las opciones' : 'Tu invitación'))"></small>
+                <small x-text="panelMode === 'field' ? (fieldGroup || currentTab?.label || '') :(panelMode === 'section' ? '¿Qué quieres cambiar?' : (currentTab?.moduleCode ? 'Todas las opciones' : 'Tu invitación'))"></small>
                 <span x-text="panelMode === 'field' ? (fieldLabel || currentTab?.label) : (currentTab?.label ?? 'La invitación')"></span>
             </p>
             <button type="button" class="ed-help-btn" @click="helpOpen = helpOpen === 'panel' ? null : 'panel'"

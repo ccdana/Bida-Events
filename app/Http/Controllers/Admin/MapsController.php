@@ -93,22 +93,68 @@ class MapsController extends Controller
         ]);
     }
 
+    /**
+     * Sigue las redirecciones de un enlace corto de mapas (maps.app.goo.gl…) hasta el enlace largo que trae las
+     * coordenadas. Solo visita sitios de mapas conocidos y revisa cada salto a mano: antes visitaba cualquier
+     * dirección (también internas, como http://127.0.0.1 o la de metadatos de la nube) con la cuenta de quien la pidiera.
+     */
     protected function resolveRedirectUrl(string $url): string
     {
-        if (! filter_var($url, FILTER_VALIDATE_URL)) {
-            return $url;
+        $current = $url;
+
+        for ($hop = 0; $hop <= 5; $hop++) {
+            if (! self::isMapsUrl($current)) {
+                return $hop === 0 ? $url : $current;
+            }
+
+            try {
+                $response = Http::timeout(8)
+                    ->withoutRedirecting()
+                    ->withHeaders(['User-Agent' => 'BidaEvents/1.0 (maps resolver)'])
+                    ->get($current);
+            } catch (\Throwable) {
+                return $current;
+            }
+
+            $next = $response->header('Location');
+            if (! $response->redirect() || $next === '') {
+                return $current;
+            }
+
+            // Una redirección relativa se completa con el sitio de donde viene
+            $current = self::absoluteUrl($current, $next);
         }
 
-        try {
-            $response = Http::timeout(8)
-                ->withHeaders(['User-Agent' => 'BidaEvents/1.0 (maps resolver)'])
-                ->withOptions(['allow_redirects' => ['max' => 5]])
-                ->get($url);
+        return $current;
+    }
 
-            return (string) ($response->effectiveUri() ?? $url);
-        } catch (\Throwable) {
-            return $url;
+    /** Solo https y solo los dominios de mapas que usan los enlaces compartidos; nada de IP ni de «localhost». */
+    public static function isMapsUrl(string $url): bool
+    {
+        $parts = parse_url($url);
+        $host = strtolower((string) ($parts['host'] ?? ''));
+
+        if (($parts['scheme'] ?? '') !== 'https' || $host === '' || isset($parts['user'])) {
+            return false;
         }
+
+        if (isset($parts['port']) && (int) $parts['port'] !== 443) {
+            return false;
+        }
+
+        return in_array($host, ['maps.app.goo.gl', 'goo.gl', 'g.co', 'openstreetmap.org', 'www.openstreetmap.org', 'osm.org', 'maps.apple.com'], true)
+            || (bool) preg_match('/^(?:[a-z0-9-]+\.)?google\.(?:com|[a-z]{2}|com?\.[a-z]{2})$/', $host);
+    }
+
+    private static function absoluteUrl(string $base, string $location): string
+    {
+        if (preg_match('#^https?://#i', $location)) {
+            return $location;
+        }
+
+        $parts = parse_url($base);
+
+        return ($parts['scheme'] ?? 'https').'://'.($parts['host'] ?? '').(str_starts_with($location, '/') ? $location : '/'.$location);
     }
 
     protected static function shortLabel(array $item): string

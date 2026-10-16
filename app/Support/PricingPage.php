@@ -8,14 +8,14 @@ use App\Payments\SubscriptionPrice;
 use Illuminate\Http\Request;
 
 /**
- * La página de precios (/precios): las tres formas de tener la invitación, lado a lado.
+ * La página de precios (/precios): las formas de tener la invitación, lado a lado.
  *
  * - Hazlo tú: la armas tú, gratis con lo básico, o un pago único por el nivel que usaste
- *   (App\Payments\InvitationPrice). Los niveles son los mismos de «Te la hacemos».
+ *   (App\Payments\InvitationPrice).
  * - Planes: para quien arma muchas (sus eventos o los de sus clientes), por mes, 3 o 12 meses
  *   (App\Support\DiyPlans).
- * - Te la hacemos: el equipo la arma, con plazo de entrega y rondas de cambios (config «packages»).
  *
+ * Lo que se arma a pedido no lleva precio: la página solo avisa que se escribe por WhatsApp o correo.
  * Todo sale de la configuración de hoy y de Ajustes: ningún precio ni promesa se escribe a mano.
  */
 final class PricingPage
@@ -61,7 +61,6 @@ final class PricingPage
         $bida = config('bida');
         $whatsapp = fn (string $message): string => LeadSource::whatsappUrl($request, $message, self::CODE);
         $diy = DiyPlans::make($request, self::CODE);
-        $packages = HomeController::packages($bida['packages'], $whatsapp);
         $tiers = self::diyTiers($request);
         $plans = $diy['plans'];
 
@@ -74,15 +73,14 @@ final class PricingPage
             'plans' => $plans,
             'featuredPlan' => $diy['featuredPlan'],
             'planCycles' => $diy['cycles'],
-            'packages' => $packages,
             'tierNames' => Packages::tierNames(),
             'tierMatrix' => self::tierMatrix(),
-            'products' => self::products($plans, $packages),
+            'products' => self::products($plans),
             'faqs' => self::faqs($plans),
             'landings' => HomeController::landingLinks(),
             'share' => ShareMeta::make(
                 __('Precios de las invitaciones digitales | :brand', ['brand' => $bida['brand']]),
-                __('Arma tu invitación gratis y paga solo si quieres más, elige un plan si armas muchas o pídenos que la hagamos. Precios en dólares, sin letra chica.'),
+                __('Arma tu invitación gratis y paga solo si quieres más, o elige un plan si armas muchas. Precios en dólares, sin letra chica.'),
                 ShareMeta::defaultImage(),
                 lroute('pricing'),
             ),
@@ -91,7 +89,7 @@ final class PricingPage
 
     /**
      * Las columnas de «Hazlo tú»: Gratis y los niveles pagados, con lo que cuestan hoy (pago único)
-     * y lo que trae cada uno (lo mismo que el paquete del mismo nombre de «Te la hacemos»).
+     * y lo que trae cada uno.
      */
     private static function diyTiers(Request $request): array
     {
@@ -142,7 +140,7 @@ final class PricingPage
 
     /**
      * Qué trae cada nivel, fila por fila, para la tabla de comparación (Gratis, Básico, Estándar y
-     * Premium; los mismos en «Hazlo tú» y en «Te la hacemos»).
+     * Premium).
      *
      * @return list<array{label: string, tiers: array<string, bool>}>
      */
@@ -158,22 +156,21 @@ final class PricingPage
         ], self::TIER_ROWS);
     }
 
-    /** Las tres formas, comparadas en lo que cambia de verdad (quién arma, cuántas, cómo se paga…). */
-    private static function products(array $plans, array $packages): array
+    /** Las dos formas, comparadas en lo que cambia de verdad (quién arma, cuántas, cómo se paga…). */
+    private static function products(array $plans): array
     {
         $fromPlan = collect($plans)->min('final_price');
-        $fromPackage = collect($packages)->min('final_price');
         $brandFrom = collect($plans)->firstWhere('white_label', true)['name'] ?? null;
 
         return [
-            'columns' => [__('Hazlo tú'), __('Planes'), __('Te la hacemos')],
+            'columns' => [__('Hazlo tú'), __('Planes')],
             'rows' => [
-                [__('¿Quién la arma?'), __('Tú, desde tu panel'), __('Tú, para tus eventos o los de tus clientes'), __('Nuestro equipo, contigo')],
-                [__('¿Cuántas?'), __('Una por cada pago'), __('Las de tu plan, cada mes'), __('Una por paquete')],
-                [__('¿Cómo se paga?'), __('Gratis, o un pago único al publicarla'), __('Por mes, por 3 meses o por el año'), __('Un pago único')],
-                [__('Desde'), __('Gratis'), $fromPlan !== null ? __(':price al mes', ['price' => Money::format($fromPlan)]) : '—', $fromPackage !== null ? Money::format($fromPackage) : '—'],
-                [__('Tu marca al pie'), __('No'), $brandFrom ? __('Desde :brandFrom', ['brandFrom' => $brandFrom]) : __('No'), __('No')],
-                [__('Ideal para'), __('Tu propio evento'), __('Fotógrafos, salones y organizadores'), __('Quien no tiene tiempo de armarla')],
+                [__('¿Quién la arma?'), __('Tú, desde tu panel'), __('Tú, para tus eventos o los de tus clientes')],
+                [__('¿Cuántas?'), __('Una por cada pago'), __('Las de tu plan, cada mes')],
+                [__('¿Cómo se paga?'), __('Gratis, o un pago único al publicarla'), __('Por mes, por 3 meses o por el año')],
+                [__('Desde'), __('Gratis'), $fromPlan !== null ? __(':price al mes', ['price' => Money::format($fromPlan)]) : '—'],
+                [__('Tu marca al pie'), __('No'), $brandFrom ? __('Desde :brandFrom', ['brandFrom' => $brandFrom]) : __('No')],
+                [__('Ideal para'), __('Tu propio evento'), __('Fotógrafos, salones y organizadores')],
             ],
         ];
     }
@@ -214,9 +211,9 @@ final class PricingPage
                 : [__('¿Me conviene un plan o pagar por invitación?'), __('Si armas invitaciones para varios eventos cada mes (los tuyos o los de tus clientes), un plan te sale mejor; para tu propio evento, paga solo la tuya.')],
             [__('¿Cuánto tiempo queda en línea mi invitación?'), __('La gratuita, hasta :value días después del evento; la pagada, hasta :value2 días después, para que tus invitados vean las fotos. Con un plan, tus invitaciones publicadas siguen en línea aunque dejes el plan.', ['value' => ((int) ($days['gratis'] ?? 7)), 'value2' => ((int) ($days['paid'] ?? 30))])],
             [__('¿Cómo se paga?'), $prepayText !== ''
-                ? __('Con tarjeta de crédito o débito, en dólares, desde cualquier país, o con el QR de cualquier banco de Bolivia, en bolivianos al cambio oficial. Los planes se pagan por mes o varios meses de una vez, con descuento (:discounts). Los paquetes de «Te la hacemos» se coordinan por WhatsApp.', ['discounts' => $prepayText])
-                : __('Con tarjeta de crédito o débito, en dólares, desde cualquier país, o con el QR de cualquier banco de Bolivia, en bolivianos al cambio oficial. Los planes se pagan por mes. Los paquetes de «Te la hacemos» se coordinan por WhatsApp.')],
-            [__('¿Qué diferencia hay entre Hazlo tú y Te la hacemos?'), __('Los niveles traen las mismas partes. En «Hazlo tú» la armas tú; en «Te la hacemos» la arma nuestro equipo contigo, con un plazo de entrega y rondas de cambios.')],
+                ? __('Con tarjeta de crédito o débito, en dólares, desde cualquier país, o con el QR de cualquier banco de Bolivia, en bolivianos al cambio oficial. Los planes se pagan por mes o varios meses de una vez, con descuento (:discounts).', ['discounts' => $prepayText])
+                : __('Con tarjeta de crédito o débito, en dólares, desde cualquier país, o con el QR de cualquier banco de Bolivia, en bolivianos al cambio oficial. Los planes se pagan por mes.')],
+            [__('¿Hacen invitaciones a medida?'), __('Si quieres algo a medida, escríbenos por WhatsApp o al correo :email y lo conversamos.', ['email' => config('bida.email')])],
             [__('¿Puedo cambiar de plan o cancelarlo?'), __('Sí. Con tarjeta lo haces tú mismo desde «Mi plan»; con QR, eliges otro plan en tu próximo pago. Lo que ya publicaste sigue en línea.')],
         ]));
     }

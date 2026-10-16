@@ -200,7 +200,7 @@ final class LegalPages
                         __('Los precios se muestran en dólares estadounidenses en este sitio. Los pagos con QR de Bolivia se cobran en bolivianos, al tipo de cambio oficial.'),
                         __('Una invitación que armas tú se puede publicar gratis con las partes básicas o con un pago único por el nivel de las partes que uses. Subir de nivel después cobra solo la diferencia.'),
                         __('Los pagos en línea se hacen con tarjeta, a través de nuestro procesador de pagos, o con QR de Bolivia. No guardamos los datos de tu tarjeta.'),
-                        __('Los paquetes que arma nuestro equipo se confirman y se pagan por WhatsApp antes de empezar el diseño.'),
+                        __('Lo que se arma a pedido se conversa por WhatsApp o por correo y no se paga en este sitio.'),
                         __('Las promociones valen hasta la fecha que se indica en cada una.'),
                     ],
                 ],

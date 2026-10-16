@@ -20,10 +20,10 @@
     <section class="admin-card p-3 space-y-2">
         <p class="admin-eyebrow mb-1">Video principal</p>
         @include('admin.partials.cloudinary-upload', [
-            'label' => 'Archivo de video (MP4)',
+            'label' => 'Archivo de video (MP4, MOV, WEBM)',
             'type' => 'video',
             'context' => 'video',
-            'accept' => 'video/mp4,video/webm,video/quicktime',
+            'accept' => 'video/*,.mp4,.mov,.webm,.avi',
             'previewExpr' => 'modules.video.video_url',
         ])
     </section>

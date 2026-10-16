@@ -58,9 +58,12 @@ class SeoResourcesTest extends TestCase
         $this->assertStringContainsString(route('guide'), $content);
         $this->assertStringNotContainsString('&amp;', $content);
 
-        foreach (Offers::packages() as $package) {
-            $this->assertStringContainsString('Paquete '.$package['name'].': '.Money::format($package['final_price']), $content);
+        foreach (Offers::tierOffers() as $tier) {
+            $this->assertStringContainsString($tier['name'].': '.Money::format($tier['final_price']), $content);
         }
+
+        // Lo a medida no lleva precios
+        $this->assertStringNotContainsString('Te la hacemos', $content);
 
         foreach (Offers::resellerPlans() as $plan) {
             $this->assertStringContainsString('Plan '.$plan['name'].': '.Money::format($plan['final_price']).' al mes', $content);
@@ -74,7 +77,7 @@ class SeoResourcesTest extends TestCase
         $response->assertSee('En pocas palabras')
             ->assertSee('<h1', false)
             ->assertSee('Confirmación de asistencia y control de entrada con QR')
-            ->assertSee(Money::format(collect(Offers::packages())->min('final_price')))
+            ->assertSee(Money::format(collect(Offers::tierOffers())->min('final_price')))
             ->assertSee('"@type":"Article"', false)
             ->assertSee('"@type":"FAQPage"', false)
             ->assertSee('"@type":"BreadcrumbList"', false);

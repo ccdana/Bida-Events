@@ -6,6 +6,8 @@ use App\EventProfiles\EventProfiles;
 use App\Models\EventType;
 use App\Models\User;
 use App\Services\InvitationModuleService;
+use App\Support\EditableTexts;
+use App\Support\ImageFrames;
 use App\Support\InvitationTemplates;
 use Database\Seeders\XvSofiaModuleData;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -47,6 +49,22 @@ class TapToEditTest extends TestCase
         if (in_array('rsvp', $profile->modules(), true)) {
             $this->assertTrue($this->canBeTapped($html, 'rsvp'), "En {$template} no se puede tocar la confirmación con pase");
         }
+    }
+
+    #[DataProvider('templates')]
+    public function test_each_template_brings_its_own_editable_texts_and_photo_frame(string $template): void
+    {
+        $html = html_entity_decode($this->renderWithEverythingOn($template), ENT_QUOTES | ENT_HTML5);
+
+        // Los textos de esta plantilla que se ven en la invitación son los que se abren al tocarlos en el editor
+        $shown = collect(EditableTexts::forTemplate($template))->flatten(1)
+            ->filter(fn (array $field) => $field['default'] !== '' && str_contains($html, $field['default']));
+        $this->assertGreaterThanOrEqual(3, $shown->count(), "En {$template} casi ningún texto editable aparece en la invitación: el editor no los puede abrir al tocarlos");
+
+        // Y su foto de portada tiene nombre y forma propios (el editor los usa como título y ayuda de la burbuja)
+        $frame = ImageFrames::forEditor()['hero'][$template] ?? null;
+        $this->assertNotNull($frame, "{$template} no declara el marco de su foto de portada");
+        $this->assertNotSame('', trim($frame['label']));
     }
 
     public function test_the_whatsapp_confirmation_opens_its_own_panel_and_not_the_pass_one(): void

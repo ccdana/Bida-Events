@@ -28,7 +28,9 @@
                     preload="metadata"
                     data-video-player="true"
                 >
-                    <source src="{{ $video['video_url'] }}" type="video/mp4">
+                    {{-- El tipo solo cuando se conoce: un .mov o un .webm con type="video/mp4" el navegador lo descartaba y el video no cargaba --}}
+                    @php($videoType = ['mp4' => 'video/mp4', 'webm' => 'video/webm', 'ogg' => 'video/ogg'][strtolower(pathinfo((string) parse_url($video['video_url'], PHP_URL_PATH), PATHINFO_EXTENSION))] ?? null)
+                    <source src="{{ $video['video_url'] }}"@if($videoType) type="{{ $videoType }}"@endif>
                 </video>
                 <button
                     type="button"
@@ -40,6 +42,7 @@
                     <span class="inv-video__toggle-icon" aria-hidden="true"></span>
                 </button>
             </figure>
+            <p class="inv-help inv-video__error" data-video-error hidden role="status" tabindex="0">{{ __('No pudimos cargar el video. Revisa tu conexión y toca aquí para reintentar.') }}</p>
             <p class="inv-help inv-video__help">{{ $invCopy['video_help'] ?? __('Toca el video para reproducirlo y sube el volumen de tu teléfono.') }}</p>
         @else
             <p class="inv-empty">{{ $invCopy['video_empty'] ?? __('Muy pronto compartiremos el video.') }}</p>

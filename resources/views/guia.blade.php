@@ -33,7 +33,7 @@
 
     $faqs = [
         [__('¿Qué es una invitación digital?'), __('Es una página web del evento que se comparte con un enlace, normalmente por WhatsApp. Reúne la fecha, el lugar con mapa, el itinerario, la música, las fotos y un botón para confirmar asistencia, y se ve bien en cualquier celular sin instalar nada.')],
-        [__('¿Cuánto cuesta una invitación digital?'), __('En :brand los paquetes van de :price a :price2 por evento, pago único. El precio cambia según lo que incluye: en Estándar se confirma por WhatsApp; en Premium, con pase QR, control de entrada, panel de invitados y reportes.', ['brand' => $brand, 'price' => $money($fromPrice), 'price2' => $money($toPrice)])],
+        [__('¿Cuánto cuesta una invitación digital?'), __('En :brand armas tu invitación gratis, con lo básico, y los niveles de pago van de :price a :price2 por evento, en un solo pago. El precio cambia según lo que incluye: en Estándar se confirma por WhatsApp; en Premium, con pase QR, control de entrada, panel de invitados y reportes.', ['brand' => $brand, 'price' => $money($fromPrice), 'price2' => $money($toPrice)])],
         [__('¿Con cuánta anticipación se envía una invitación digital?'), __('Para bodas, entre seis y ocho semanas antes; para XV años, entre cuatro y seis; para bautizos, graduaciones y cumpleaños, entre dos y cuatro semanas. Conviene mandar un recordatorio una semana antes: con una invitación digital se reenvía el mismo enlace.')],
         [__('¿Cómo confirman asistencia los invitados?'), __('Cada invitado recibe su propio enlace, elige si va y cuántas personas de las que tiene asignadas lo acompañan. Quien organiza ve las respuestas al momento en su panel y puede descargarlas en PDF o Excel.')],
         [__('¿Cómo funciona el control de entrada con código QR?'), __('Al confirmar, cada invitado recibe un pase con código QR. El día del evento, quien recibe en la puerta abre un enlace en su teléfono y escanea el pase: ve el nombre, cuántas personas pueden entrar y si el pase ya se usó. Un pase no sirve dos veces.')],
@@ -189,20 +189,20 @@
                             </tbody>
                         </table>
                     </div>
-                    <p>{{ __('Muchas familias combinan las dos: la digital para todos y unas pocas impresas para los abuelos. Por eso el paquete Premium de :brand incluye una versión lista para imprimir.', ['brand' => $brand]) }}</p>
+                    <p>{{ __('Muchas familias combinan las dos: la digital para todos y unas pocas impresas para los abuelos. Por eso el nivel Premium de :brand incluye una versión lista para imprimir.', ['brand' => $brand]) }}</p>
                 </section>
 
                 <section id="precios" class="site-legal__section">
                     <h2>{{ __('Cuánto cuesta una invitación digital') }}</h2>
                     <p>
-                        {{ __('Una invitación digital armada por :brand cuesta entre :value y :value2 por evento, en un solo pago. Lo que cambia el precio no es el diseño: es lo que la invitación hace por ti.', ['brand' => $brand, 'value' => $money($fromPrice), 'value2' => $money($toPrice)]) }}
+                        {{ __('Una invitación digital que armas en :brand es gratis con lo básico y cuesta entre :value y :value2 por evento, en un solo pago, según lo que uses. Lo que cambia el precio no es el diseño: es lo que la invitación hace por ti.', ['brand' => $brand, 'value' => $money($fromPrice), 'value2' => $money($toPrice)]) }}
                     </p>
                     <div class="site-table">
                         <table>
-                            <caption class="sr-only">{{ __('Paquetes de invitación digital y su precio de hoy') }}</caption>
+                            <caption class="sr-only">{{ __('Niveles de invitación digital y su precio de hoy') }}</caption>
                             <thead>
                                 <tr>
-                                    <th scope="col">{{ __('Paquete') }}</th>
+                                    <th scope="col">{{ __('Nivel') }}</th>
                                     <th scope="col">{{ __('Precio de hoy') }}</th>
                                     <th scope="col">{{ __('Para quién') }}</th>
                                 </tr>
@@ -231,7 +231,7 @@
                 <section id="entrada" class="site-legal__section">
                     <h2>{{ __('Confirmación de asistencia y control de entrada con QR') }}</h2>
                     <p>
-                        {{ __('La confirmación por invitado y el pase QR convierten la invitación en la lista de invitados del evento. Así funciona en el paquete Premium de :brand (en Estándar, el invitado confirma por WhatsApp con un mensaje que ya lleva su nombre y cuántas personas van):', ['brand' => $brand]) }}
+                        {{ __('La confirmación por invitado y el pase QR convierten la invitación en la lista de invitados del evento. Así funciona en el nivel Premium de :brand (en Estándar, el invitado confirma por WhatsApp con un mensaje que ya lleva su nombre y cuántas personas van):', ['brand' => $brand]) }}
                     </p>
                     <h3>{{ __('Antes del evento') }}</h3>
                     <ul>

@@ -5,6 +5,19 @@
  */
 
 /**
+ * Qué archivos acepta cada tipo de medio y de qué peso (igual que App\Services\MediaUploadService::validateFile).
+ * Se revisa al elegir el archivo, para avisar en el momento y no al guardar, cuando ya no se sabe cuál falló.
+ */
+const MEDIA_RULES = {
+    image: { maxMb: 10, extensions: ['jpg', 'jpeg', 'png', 'gif', 'webp'], what: 'una foto (JPG, PNG, WebP o GIF)', tip: 'Si es una foto de iPhone en formato HEIC, guárdala como JPG y vuelve a elegirla.' },
+    audio: { maxMb: 20, extensions: ['mp3', 'm4a', 'wav', 'ogg', 'aac', 'opus'], what: 'una canción (MP3, M4A, WAV, OGG, AAC u OPUS)', tip: '' },
+    video: { maxMb: 100, extensions: ['mp4', 'mov', 'webm', 'avi'], what: 'un video (MP4, MOV, WEBM o AVI)', tip: 'Si pesa mucho, grábalo o expórtalo en menor calidad.' },
+};
+
+/** Textos editables ya armados por plantilla (se arman al pedirlos, una vez). */
+const TEXT_CACHE = new Map();
+
+/**
  * Campo de fecha en formato DD-MM-AAAA. Se enlaza con x-model a un valor ISO (AAAA-MM-DD):
  * se puede escribir con máscara o elegir en el calendario nativo.
  */
@@ -169,6 +182,9 @@ function invitationForm(config) {
         focusContainerEl: null,
         fieldLabel: '',
         fieldHelp: '',
+        // Texto propio de la plantilla que se está cambiando (su clave en EditableTexts) y de dónde es
+        copyFocusKey: '',
+        fieldGroup: '',
         // Ayuda «?» abierta: 'panel' (la burbuja) o 'part:<pestaña>' (una fila de la barra lateral)
         helpOpen: null,
         // Burbuja junto a lo tocado: dónde va y a qué elemento de la vista previa señala
@@ -211,6 +227,10 @@ function invitationForm(config) {
         previewAbort: null,
         previewDebounceMs: 280,
         mediaUploading: false,
+        // Lo que se está haciendo al guardar («Subiendo archivo 2 de 3…») y si ya se está saliendo de la página
+        uploadStatus: '',
+        leaving: false,
+        savedSnapshot: null,
         clientCreating: false,
         newClient: { name: '' },
         clientError: '',
@@ -500,7 +520,10 @@ function invitationForm(config) {
                         !filled(this.meta.title) && 'Falta el título',
                         !filled(this.meta.event_date) && 'Falta la fecha del evento',
                         !filled(this.meta.slug) && 'Falta la dirección de la invitación',
-                        !this.meta.user_id && 'Falta asignar el cliente',
+                        // «Hazlo tú»: la invitación ya es de quien la arma, no hay cliente que asignar
+                        this.config.editorMode !== 'diy' && !this.meta.user_id && 'Falta asignar el cliente',
+                        this.eventInPast && 'La fecha del evento ya pasó',
+                        this.linkExpiresBeforeEvent && 'El enlace deja de funcionar antes del evento',
                     ]);
 
                 case 'hero':
@@ -640,6 +663,8 @@ function invitationForm(config) {
             });
             // Al cambiar de paquete, la confirmación pasa a la que ese paquete incluye
             this.$watch('meta.package', () => this.normalizeRsvp());
+            // Al cambiar el idioma, el contenido de ejemplo que nadie tocó pasa al idioma nuevo
+            this.$watch('meta.locale', (next, previous) => this.retranslateSamples(previous, next));
             this.normalizeRsvp();
             this.$watch('modules', () => this.schedulePreview(), { deep: true });
             this.$watch('meta', () => this.schedulePreview(), { deep: true });
@@ -691,6 +716,51 @@ function invitationForm(config) {
                 }
             });
             this.runPreviewUpdate();
+
+            // Cambios sin guardar: al salir de la página (Cancelar, atrás, cerrar) el navegador pregunta antes
+            window.addEventListener('beforeunload', (event) => {
+                if (this.leaving || !this.hasUnsavedChanges()) return;
+                event.preventDefault();
+                event.returnValue = '';
+            });
+            // La foto del estado inicial se toma cuando el editor terminó de armarse
+            setTimeout(() => { this.savedSnapshot = this.editSnapshot(); }, 2500);
+        },
+
+        /** Cambia al idioma nuevo los textos de ejemplo que siguen tal como estaban: lo que la persona escribió no se toca. */
+        retranslateSamples(from, to) {
+            const samples = this.config.samples ?? {};
+            const old = samples[from]?.[this.profile.code];
+            const fresh = samples[to]?.[this.profile.code];
+            if (!old || !fresh) return;
+            Object.keys(old).forEach(code => {
+                const current = this.modules[code];
+                if (!current || typeof current !== 'object' || Array.isArray(current)) return;
+                const next = { ...current };
+                let changed = false;
+                Object.entries(old[code] ?? {}).forEach(([key, value]) => {
+                    if (fresh[code]?.[key] !== undefined && JSON.stringify(current[key]) === JSON.stringify(value)) {
+                        next[key] = JSON.parse(JSON.stringify(fresh[code][key]));
+                        changed = true;
+                    }
+                });
+                if (changed) this.modules[code] = next;
+            });
+        },
+
+        /** Lo que se puede perder: los datos del evento y de las partes, más lo que espera para subirse. */
+        editSnapshot() {
+            try {
+                return JSON.stringify([this.meta, this.modules]);
+            } catch (error) {
+                return null;
+            }
+        },
+
+        hasUnsavedChanges() {
+            if (this.pendingUploads.length > 0) return true;
+            if (this.savedSnapshot === null) return false;
+            return this.editSnapshot() !== this.savedSnapshot;
         },
 
         heroDefaults() {
@@ -833,9 +903,28 @@ function invitationForm(config) {
             return this.plainModuleValue(this.modules?.[code]);
         },
 
+        /**
+         * Los textos editables de una plantilla por módulo, armados desde el catálogo compartido y lo propio de la
+         * plantilla (igual que AppSupportEditableTexts::expand()).
+         */
+        editableTextsOf(template) {
+            const key = String(template ?? '');
+            if (TEXT_CACHE.has(key)) return TEXT_CACHE.get(key);
+            const compact = this.config.editableTexts ?? {};
+            const groups = {};
+            Object.entries(compact.catalog ?? {}).forEach(([module, rows]) => {
+                groups[module] = rows.map(([name, label, fallback, long]) => ({ key: name, label, default: compact.overrides?.[key]?.[name] ?? fallback, long }));
+            });
+            (compact.extras?.[key] ?? []).forEach(([name, label, fallback, long]) => {
+                (groups.general ??= []).push({ key: name, label, default: fallback, long });
+            });
+            TEXT_CACHE.set(key, groups);
+            return groups;
+        },
+
         /** Textos editables del apartado abierto: los del módulo o, en «General», los de toda la invitación. */
         activeTextFields() {
-            const byTemplate = this.config.editableTexts?.[String(this.meta.template ?? '')] ?? {};
+            const byTemplate = this.editableTextsOf(this.meta.template);
             if (this.activeTab === 'general') return byTemplate.general ?? [];
             const tab = this.tabGroups.flatMap(g => g.tabs).find(item => item.id === this.activeTab);
             return tab?.moduleCode ? (byTemplate[tab.moduleCode] ?? []) : [];
@@ -854,71 +943,14 @@ function invitationForm(config) {
             return JSON.stringify(this.plainModule(code));
         },
 
-        async blobUrlToDataUrl(url) {
-            if (!url || !String(url).startsWith('blob:')) return url;
-            try {
-                const response = await fetch(url);
-                const blob = await response.blob();
-                return await new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onload = () => resolve(reader.result);
-                    reader.onerror = reject;
-                    reader.readAsDataURL(blob);
-                });
-            } catch {
-                return url;
-            }
-        },
-
+        /**
+         * El módulo tal como viaja a la vista previa. Las fotos, videos y canciones recién elegidos
+         * (blob:) van tal cual: la vista previa es del mismo sitio y los lee del navegador. Antes se
+         * convertían a base64 en cada cambio: una canción de 8 MB pesaba 10 MB por tecla, un video
+         * de 50 MB reventaba la memoria del servidor y la vista previa tardaba segundos en recargar.
+         */
         async prepareModuleForTransport(code) {
-            const data = this.plainModule(code);
-            const mediaFields = {
-                bienvenida: ['imagen_hero'],
-                ubicacion: ['imagen_lugar'],
-                video: ['video_url', 'poster'],
-                musica: ['audio_url'],
-                regalos: [],
-            };
-
-            for (const field of mediaFields[code] ?? []) {
-                if (data[field]) {
-                    data[field] = await this.blobUrlToDataUrl(data[field]);
-                }
-            }
-
-            if (code === 'galeria' && Array.isArray(data.fotos)) {
-                data.fotos = await Promise.all(
-                    data.fotos.map((url) => this.blobUrlToDataUrl(url))
-                );
-            }
-
-            // Libro de aventuras: fotos sueltas (URL o {url, alt}) y fotos de capítulos y recuerdos
-            if (['collage', 'marcos', 'memoria'].includes(code) && Array.isArray(data.fotos)) {
-                data.fotos = await Promise.all(data.fotos.map(async (photo) => (
-                    typeof photo === 'string'
-                        ? this.blobUrlToDataUrl(photo)
-                        : { ...photo, url: await this.blobUrlToDataUrl(photo?.url) }
-                )));
-            }
-
-            const entryLists = { historia: 'capitulos', recuerdos: 'recuerdos' };
-            if (entryLists[code] && Array.isArray(data[entryLists[code]])) {
-                data[entryLists[code]] = await Promise.all(data[entryLists[code]].map(async (entry) => (
-                    entry?.foto ? { ...entry, foto: await this.blobUrlToDataUrl(entry.foto) } : entry
-                )));
-            }
-
-            if (code === 'post_evento' && Array.isArray(data.fotos)) {
-                data.fotos = await Promise.all(
-                    data.fotos.map((url) => this.blobUrlToDataUrl(url))
-                );
-            }
-
-            if (code === 'regalos' && data.banco?.qr_url) {
-                data.banco.qr_url = await this.blobUrlToDataUrl(data.banco.qr_url);
-            }
-
-            return data;
+            return this.plainModule(code);
         },
 
         syncActiveGroup() {
@@ -1214,6 +1246,8 @@ function invitationForm(config) {
                 if (this.activeTab === tab.id && this.isEditingPart) this.finishEditing();
                 return;
             }
+            // Si había otra parte abierta se cierra: su formulario y su aviso no son los de la que se enciende
+            if (this.isEditingPart && this.activeTab !== tab.id) this.finishEditing();
             this.fillWithSample(tab.moduleCode);
             // Se ve cuando la vista previa se recargue con ella; si no aparece, le falta un dato propio
             this.revealPart = { tabId: tab.id, after: this.previewSeq };
@@ -1631,6 +1665,138 @@ function invitationForm(config) {
             return el;
         },
 
+        // ── Lo editable de cada plantilla: sus textos propios y el marco de sus fotos ──
+
+        /** El marco de foto de una parte en la plantilla elegida (la portada cambia con cada plantilla). */
+        imageFrameOfTab(tabId) {
+            const contexts = {
+                hero: 'hero', galeria: 'gallery', ubicacion: 'ubicacion', dress: 'dress-code', post_evento: 'post-evento',
+                historia: 'historia', recuerdos: 'recuerdos', marcos: 'marcos', memoria: 'memoria', collage: 'collage',
+                regalos: 'qr-banco', video: 'video-poster',
+            };
+            const context = contexts[tabId];
+            if (!context) return null;
+            const frames = this.config.imageFrames ?? {};
+            return context === 'hero' ? (frames.hero?.[String(this.meta.template ?? '')] ?? null) : (frames.contexts?.[context] ?? null);
+        },
+
+        /** Cómo se ve la foto en esta plantilla, en palabras. */
+        imageHelp(frame) {
+            const where = {
+                rect: 'en un marco rectangular',
+                rounded: 'en un marco de esquinas redondeadas',
+                arch: 'dentro de un arco',
+                oval: 'dentro de un óvalo',
+                circle: 'dentro de un círculo',
+            }[frame.shape] ?? 'en su marco';
+            const hint = ['circle', 'oval', 'arch'].includes(frame.shape)
+                ? 'Elige una foto donde lo importante quede al centro: las orillas se recortan.'
+                : 'Elige una foto nítida; lo que quede fuera del marco no se verá.';
+            const template = this.config.templateOptions?.find(option => option.value === this.meta.template)?.label;
+            return `${template ? 'En «' + template + '»' : 'Aquí'} la foto se ve ${where} (${this.frameShapeLabel(frame)}). ${hint} Después puedes encuadrarla.`;
+        },
+
+        /**
+         * Los textos propios de la plantilla elegida (EditableTexts): lo que dice cada título, frase o botón.
+         * Cada uno con su parte, para abrirlo desde la invitación aunque su campo no esté a la vista.
+         */
+        templateTexts() {
+            const byModule = this.editableTextsOf(this.meta.template);
+            const tabs = this.flatTabs;
+            return Object.entries(byModule).flatMap(([module, fields]) => {
+                const tab = module === 'general' ? tabs.find(item => item.id === 'general') : tabs.find(item => item.moduleCode === module);
+                return tab ? fields.map(field => ({ ...field, tabId: tab.id, tabLabel: tab.label })) : [];
+            });
+        },
+
+        /** Lo que dice hoy un texto de la plantilla: el que escribiste o el que trae la plantilla. */
+        templateTextValue(field) {
+            return String(this.modules.config?.textos?.[field.key] ?? '').trim() || String(field.default ?? '');
+        },
+
+        /** Abre un texto de la plantilla en la burbuja: su parte, su campo y una ayuda que dice dónde sale y qué dice por defecto. */
+        openTemplateText(entry, tapped = null) {
+            this.skipPreviewScroll = entry.tabId !== this.activeTab;
+            this.clearFieldFocus();
+            this.activeTab = entry.tabId;
+            this.syncActiveGroup();
+            this.$nextTick(() => {
+                const section = document.querySelector('#invitation-form section[x-data*="textsOpen"]');
+                if (section) {
+                    try { Alpine.$data(section).textsOpen = true; } catch (error) { /* queda como está */ }
+                }
+                this.$nextTick(() => {
+                    const input = document.getElementById('texto-' + entry.key);
+                    if (!input) {
+                        this.openFull(entry.tabId);
+                        return;
+                    }
+                    const template = this.config.templateOptions?.find(option => option.value === this.meta.template)?.label;
+                    const where = entry.tabId === 'general' ? 'Se usa en toda la invitación.' : 'Sale en «' + entry.tabLabel + '».';
+                    const help = `Texto de la plantilla${template ? ' «' + template + '»' : ''}. ${where} Si lo dejas vacío dice: «${entry.default}».`;
+                    this.focusContainer(input.parentElement, input, entry.label, tapped, help);
+                    this.copyFocusKey = entry.key;
+                    this.fieldGroup = entry.tabId === 'general' ? 'Texto de la plantilla' : entry.tabLabel;
+                });
+            });
+        },
+
+        /** Qué archivo se cambia al tocar el reproductor (música) o el video: su rótulo en el panel y su ayuda; null si no es eso. */
+        mediaFieldAt(tabId, target) {
+            if (tabId === 'musica') {
+                return {
+                    pattern: /archivo de audio/i,
+                    help: 'La canción que suena al abrir la invitación. Sube un MP3, M4A o WAV de hasta 20 MB; si prefieres otra, elígela de nuevo. El título y el artista que se ven se cambian tocándolos.',
+                };
+            }
+            if (tabId === 'video' && target?.closest?.('video, iframe, button, [class*="play"], [class*="player"], [class*="screen"], [class*="reel"]')) {
+                return {
+                    pattern: /archivo de video/i,
+                    help: 'El video que se reproduce al tocarlo (MP4, MOV o WEBM, hasta 100 MB). Mejor corto y en vertical. La miniatura (lo que se ve antes de reproducirlo) se cambia tocándola.',
+                };
+            }
+            return null;
+        },
+
+        /** Abre solo el archivo de música o de video de su parte, en la burbuja. */
+        openMediaField(tabId, media, tapped = null) {
+            this.skipPreviewScroll = tabId !== this.activeTab;
+            this.clearFieldFocus();
+            this.activeTab = tabId;
+            this.syncActiveGroup();
+            this.$nextTick(() => {
+                const label = [...(this.tabPanelRoot(tabId)?.querySelectorAll('label.admin-label') ?? [])].find(item => media.pattern.test(item.textContent));
+                const container = label?.closest('.space-y-2');
+                if (!container) {
+                    this.openSection(tabId);
+                    return;
+                }
+                this.focusContainer(container, null, label.textContent.trim(), tapped, media.help);
+            });
+        },
+
+        /** Tocar una fecha u hora de la invitación: la burbuja con el día o la hora del evento, de donde salen todas. */
+        openEventField(kind, tapped = null) {
+            this.skipPreviewScroll = this.activeTab !== 'general';
+            this.clearFieldFocus();
+            this.activeTab = 'general';
+            this.syncActiveGroup();
+            this.$nextTick(() => {
+                const input = document.getElementById(kind === 'time' ? 'event-time' : 'event-date');
+                const container = input?.closest('.admin-date-field');
+                if (!container) {
+                    this.openFull('general');
+                    return;
+                }
+                const help = kind === 'time'
+                    ? 'La hora de inicio. Se muestra en la invitación y en el botón para agendar. Cambiarla aquí la cambia en todos los lugares donde aparece.'
+                    : 'El día del evento. De él salen todas las fechas de la invitación, la cuenta regresiva y el botón para agendar: se cambia una vez, aquí.';
+                this.focusContainer(container, input, kind === 'time' ? 'Hora del evento' : 'Día del evento', tapped, help);
+                this.copyFocusKey = 'event:' + kind;
+                this.fieldGroup = 'Datos del evento';
+            });
+        },
+
         /** Una fila por bloque de la parte abierta que tenga algo para escribir o elegir. */
         buildSectionChoices() {
             const root = this.tabPanelRoot(this.activeTab);
@@ -1648,7 +1814,7 @@ function invitationForm(config) {
             const labels = blocks.map(block => this.panelLabelOf(block));
             const repeated = (label) => labels.filter(item => item === label).length > 1;
 
-            return blocks.map((block, index) => {
+            const choices = blocks.map((block, index) => {
                 const values = [...block.querySelectorAll('input[type=text], input:not([type]), textarea')]
                     .filter(input => !this.hiddenInPanel(input, block))
                     .map(input => String(input.value ?? '').replace(/\s+/g, ' ').trim())
@@ -1661,9 +1827,24 @@ function invitationForm(config) {
 
                 return { id: index, el: block, label, summary: summary.length > 70 ? summary.slice(0, 68) + '…' : summary, image };
             });
+
+            // Los textos propios de esta plantilla en esta parte (la frase sobre el título, los botones…)
+            this.templateTexts().filter(entry => entry.tabId === this.activeTab).forEach(entry => {
+                const value = this.templateTextValue(entry);
+                choices.push({
+                    id: choices.length, el: null, copy: entry, label: entry.label, image: null,
+                    summary: value.length > 70 ? value.slice(0, 68) + '…' : value,
+                });
+            });
+
+            return choices;
         },
 
         openChoice(choice) {
+            if (choice.copy) {
+                this.openTemplateText(choice.copy);
+                return;
+            }
             const control = choice.el.querySelector('input[type=text], input:not([type]), textarea');
             this.focusContainer(choice.el, control, choice.label);
         },
@@ -1672,7 +1853,7 @@ function invitationForm(config) {
          * Deja a la vista solo un bloque del panel: se marcan el bloque y sus antepasados, y el CSS esconde
          * todo lo demás («.ed-focus-path», admin.css). Abre sus acordeones y pone el cursor en el campo.
          */
-        focusContainer(container, control = null, label = '', tapped = null) {
+        focusContainer(container, control = null, label = '', tapped = null, help = '') {
             this.clearFieldFocus();
             this.activeTab = this.tabOfControl(container);
             this.syncActiveGroup();
@@ -1683,7 +1864,16 @@ function invitationForm(config) {
             this.focusContainerEl = container;
             this.fieldLabel = label || this.panelLabelOf(container) || (container.querySelector('img') ? 'Foto' : (this.currentTab?.label ?? ''));
 
-            this.fieldHelp = this.helpForField(container, this.fieldLabel);
+            this.fieldHelp = help || this.helpForField(container, this.fieldLabel);
+
+            // Una foto: se llama como el espacio de esta plantilla («Foto dentro del arco») y explica su forma
+            const frame = !help && (tapped?.dataset?.edKind === 'image' || (!control && container.querySelector('img')))
+                ? this.imageFrameOfTab(this.tabOfControl(container))
+                : null;
+            if (frame) {
+                if (this.tabOfControl(container) === 'hero') this.fieldLabel = frame.label;
+                this.fieldHelp = this.imageHelp(frame);
+            }
 
             const stop = document.querySelector('#invitation-form > .flex-1');
             container.classList.add('ed-focus-field');
@@ -1727,6 +1917,8 @@ function invitationForm(config) {
             document.querySelectorAll('#invitation-form .ed-focus-field, #invitation-form .ed-focus-path, #invitation-form .ed-focus-title')
                 .forEach(el => el.classList.remove('ed-focus-field', 'ed-focus-path', 'ed-focus-title'));
             this.focusContainerEl = null;
+            this.copyFocusKey = '';
+            this.fieldGroup = '';
             this.fieldLabel = '';
             this.fieldHelp = '';
         },
@@ -1806,6 +1998,57 @@ function invitationForm(config) {
                 byImage.get(key).push(img);
             });
 
+            // Los textos propios de la plantilla (frase sobre el título, botones…): se reconocen por lo que dicen hoy
+            const byCopy = new Map();
+            this.templateTexts().forEach(entry => {
+                const value = norm(this.templateTextValue(entry));
+                if (value.length < 2) return;
+                if (!byCopy.has(value)) byCopy.set(value, []);
+                byCopy.get(value).push(entry);
+                longest = Math.max(longest, value.length);
+            });
+            // «Colección XV · 2027»: un texto de la plantilla con algo más pegado (un año, un nombre)
+            const copyWithin = (text) => {
+                if (text.length > 60) return null;
+                for (const [value, entries] of byCopy) {
+                    if (value.length >= 6 && text.length <= value.length + 16
+                        && (text.startsWith(value + ' ') || text.endsWith(' ' + value))) return entries;
+                }
+                return null;
+            };
+
+            // La fecha y la hora del evento, escritas como las arme la plantilla («Sábado 16 de enero», «16 · 01 · 2027», «2027»)
+            const when = /^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}:\d{2}))?/.exec(String(this.meta.event_date ?? ''));
+            const months = [['enero', 'january'], ['febrero', 'february'], ['marzo', 'march'], ['abril', 'april'], ['mayo', 'may'], ['junio', 'june'],
+                ['julio', 'july'], ['agosto', 'august'], ['septiembre', 'september'], ['octubre', 'october'], ['noviembre', 'november'], ['diciembre', 'december']];
+            longest = Math.max(longest, 44);
+            const dateKind = (text) => {
+                if (!when || text.length > 44) return null;
+                const [, year, month, day, time] = when;
+                if (time && text.includes(time)) return 'time';
+                if (text === year) return 'date';
+                const hasDay = new RegExp('(^|\\D)0?' + Number(day) + '(\\D|$)').test(text);
+                const names = months[Number(month) - 1];
+                const hasMonth = names.some(name => text.includes(name) || new RegExp('(^|[^a-z])' + name.slice(0, 3) + '([^a-z]|$)').test(text))
+                    || new RegExp('(^|\\D)0?' + Number(month) + '(\\D|$)').test(text.replace(new RegExp('0?' + Number(day)), ''));
+                return hasDay && hasMonth ? 'date' : null;
+            };
+            const registerEvent = (el, kind) => {
+                if (el.dataset.edField) return;
+                el.dataset.edField = String(fields.length);
+                el.dataset.edKind = 'text';
+                fields.push({ el, control: null, container: null, kind: 'text', copy: { key: 'event:' + kind, event: kind } });
+            };
+
+            const registerCopy = (el, entries) => {
+                if (el.dataset.edField) return;
+                const sectionTab = el.closest('[data-ed-tab]')?.dataset.edTab;
+                const entry = entries.find(item => item.tabId === sectionTab) ?? entries[0];
+                el.dataset.edField = String(fields.length);
+                el.dataset.edKind = 'text';
+                fields.push({ el, control: null, container: null, kind: 'text', copy: entry });
+            };
+
             const register = (el, candidates, kind) => {
                 if (el.dataset.edField) return;
                 const sectionTab = el.closest('[data-ed-tab]')?.dataset.edTab;
@@ -1828,6 +2071,16 @@ function invitationForm(config) {
                     const candidates = byValue.get(text);
                     if (candidates) {
                         register(el, candidates, 'text');
+                        break;
+                    }
+                    const copy = byCopy.get(text) ?? (depth === 0 ? copyWithin(text) : null);
+                    if (copy) {
+                        registerCopy(el, copy);
+                        break;
+                    }
+                    const event = depth === 0 ? dateKind(text) : null;
+                    if (event) {
+                        registerEvent(el, event);
                         break;
                     }
                 }
@@ -1988,11 +2241,39 @@ function invitationForm(config) {
                 event.stopImmediatePropagation();
                 unhover();
 
+                // El botón de reproducir (música o video) abre su archivo, aunque haya una miniatura debajo
+                const tab = section?.dataset.edTab;
+                const player = (tab === 'musica' || tab === 'video') && event.target.closest?.('button, [class*="toggle"], [class*="play"]')
+                    && !this.hitsSectionButton(section, event)
+                    ? this.mediaFieldAt(tab, event.target)
+                    : null;
+                if (player) {
+                    this.openMediaField(tab, player, event.target);
+                    return;
+                }
+
                 if (field && !(section && this.hitsSectionButton(section, event))) {
+                    if (field.copy?.event) {
+                        this.openEventField(field.copy.event, field.el);
+                        return;
+                    }
+                    if (field.copy) {
+                        this.openTemplateText(field.copy, field.el);
+                        return;
+                    }
                     // Se tocó dentro de la invitación: no hace falta desplazarla
                     this.skipPreviewScroll = this.tabOfControl(field.control) !== this.activeTab;
                     this.focusContainer(field.container, field.kind === 'text' ? field.control : null, '', field.el);
                     return;
+                }
+
+                // El reproductor de música y el video abren directo su archivo, no la lista de opciones
+                if (!this.hitsSectionButton(section, event)) {
+                    const media = this.mediaFieldAt(section.dataset.edTab, event.target);
+                    if (media) {
+                        this.openMediaField(section.dataset.edTab, media, event.target);
+                        return;
+                    }
                 }
 
                 this.skipPreviewScroll = section.dataset.edTab !== this.activeTab;
@@ -2019,7 +2300,9 @@ function invitationForm(config) {
 
             const container = this.focusContainerEl;
             const hits = (this.$refs.previewFrame._edFields ?? [])
-                .filter(field => field.el.isConnected && (field.container === container || container.contains(field.control)))
+                .filter(field => field.el.isConnected && (field.copy
+                    ? field.copy.key === this.copyFocusKey
+                    : (field.container === container || container.contains(field.control))))
                 .map(field => field.el);
             hits.forEach(el => el.classList.add('ed-field-active'));
 
@@ -2090,6 +2373,9 @@ function invitationForm(config) {
         },
 
         schedulePreview() {
+            // Mientras se suben los archivos al guardar la vista previa no se recarga: cada archivo
+            // subido cambia la invitación y recargaba la vista previa una y otra vez
+            if (this.mediaUploading) return;
             clearTimeout(this.previewTimer);
             this.previewLoading = true;
             this.previewTimer = setTimeout(() => this.runPreviewUpdate(), this.previewDebounceMs);
@@ -2319,6 +2605,29 @@ function invitationForm(config) {
                 return;
             }
             this.meta.event_date = `${this.eventDatePart}T${this.eventTimePart || '12:00'}`;
+            this.keepLinkAliveUntilEvent();
+        },
+
+        /** ¿La fecha del evento ya pasó? Se avisa (al crear y al publicar), no se impide: puede ser un evento de ayer. */
+        get eventInPast() {
+            const date = new Date(String(this.meta.event_date ?? ''));
+            return !Number.isNaN(date.getTime()) && date.getTime() < Date.now();
+        },
+
+        /** ¿El enlace deja de funcionar antes de que llegue el evento? Los invitados verían «vencida» su invitación. */
+        get linkExpiresBeforeEvent() {
+            const day = String(this.meta.event_date ?? '').slice(0, 10);
+            return day !== '' && String(this.meta.expires_at ?? '') !== '' && String(this.meta.expires_at) < day;
+        },
+
+        /** Con una fecha lejana (o cambiada) el enlace sigue vivo hasta tres meses después del evento. */
+        keepLinkAliveUntilEvent() {
+            if (!this.linkExpiresBeforeEvent && this.meta.expires_at) return;
+            const day = String(this.meta.event_date ?? '').slice(0, 10);
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) return;
+            const until = new Date(day + 'T12:00:00');
+            until.setMonth(until.getMonth() + 3);
+            this.meta.expires_at = [until.getFullYear(), String(until.getMonth() + 1).padStart(2, '0'), String(until.getDate()).padStart(2, '0')].join('-');
         },
 
         /**
@@ -2450,9 +2759,34 @@ function invitationForm(config) {
             this.pickLocalFile(event, type, context, setUrl);
         },
 
+        /**
+         * ¿Se puede usar este archivo? Revisa el tipo y el peso al elegirlo y, si no, explica por qué y qué
+         * hacer. Así nadie descubre al guardar que una canción de 30 MB no entraba.
+         */
+        acceptMediaFile(file, type) {
+            const rule = MEDIA_RULES[type];
+            if (!rule || !file) return true;
+
+            const extension = String(file.name ?? '').split('.').pop().toLowerCase();
+            const typeOk = file.type ? file.type.startsWith(type + '/') || file.type === 'application/ogg' || file.type === 'application/octet-stream' || (type === 'audio' && file.type === 'video/mp4') : true;
+            if (!rule.extensions.includes(extension) || !typeOk) {
+                alert(`«${file.name}» no se puede usar: elige ${rule.what}.${rule.tip ? ' ' + rule.tip : ''}`);
+                return false;
+            }
+
+            const mb = file.size / 1048576;
+            if (mb > rule.maxMb) {
+                alert(`«${file.name}» pesa ${mb.toFixed(1).replace('.0', '')} MB y el máximo es ${rule.maxMb} MB.${rule.tip ? ' ' + rule.tip : ''}`);
+                return false;
+            }
+
+            return true;
+        },
+
         pickLocalFile(event, type, context, setUrl) {
             const file = event.target.files?.[0];
-            if (!file) return;
+            event.target.value = '';
+            if (!file || !this.acceptMediaFile(file, type)) return;
             const blobUrl = URL.createObjectURL(file);
             this.pendingUploads.push({
                 file,
@@ -2463,7 +2797,6 @@ function invitationForm(config) {
             });
             setUrl(blobUrl);
             this.schedulePreview();
-            event.target.value = '';
 
             // Una foto para un espacio fijo se encuadra apenas se elige (el QR del banco se deja tal cual)
             if (type === 'image' && context !== 'qr-banco') {
@@ -2486,16 +2819,35 @@ function invitationForm(config) {
             fd.append('type', type);
             fd.append('context', context);
             fd.append('slug', this.meta.slug || 'draft');
-            const res = await fetch(this.mediaUploadUrl, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
-                    'Accept': 'application/json',
-                },
-                body: fd,
-            });
-            const data = await res.json();
-            if (!res.ok || !data.success) throw new Error(data.message || 'Error de subida');
+
+            let res;
+            try {
+                res = await fetch(this.mediaUploadUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
+                        'Accept': 'application/json',
+                    },
+                    body: fd,
+                });
+            } catch (error) {
+                throw new Error(`No se pudo enviar «${file.name}»: se cortó la conexión. Revisa tu internet y vuelve a intentar; lo que cambiaste sigue aquí.`);
+            }
+
+            // Un error del servidor puede venir como página (no como JSON): se explica igual
+            let data = null;
+            try {
+                data = await res.json();
+            } catch (error) {
+                data = null;
+            }
+
+            if (res.status === 413) throw new Error(`«${file.name}» pesa demasiado para subirlo. Elige uno más liviano.`);
+            if (res.status === 429) throw new Error('Se subieron muchos archivos de golpe. Espera un minuto y vuelve a guardar: lo que ya se subió no se repite.');
+            if (res.status === 419) throw new Error('Tu sesión se venció. Abre el editor de nuevo y vuelve a intentar.');
+            if (!res.ok || !data?.success) {
+                throw new Error(data?.errors?.file?.[0] || data?.message || `No se pudo subir «${file.name}» (error ${res.status}). Vuelve a intentar.`);
+            }
             return data.url;
         },
 
@@ -2613,10 +2965,17 @@ function invitationForm(config) {
             this.cropperOffsetY = 0;
         },
 
-        /** El marco ocupa lo que permite el escenario con su proporción exacta; alrededor se ve el resto de la foto. */
-        syncCropperFrameSize() {
+        /**
+         * Mide el espacio disponible y dibuja el marco del recorte. Si el recortador todavía no tiene
+         * tamaño (se acaba de abrir y su animación no terminó, o la foto cargó antes de mostrarse) espera
+         * al siguiente cuadro y vuelve a medir: con el marco en 0 × 0 la foto se veía enorme y sin forma.
+         */
+        syncCropperFrameSize(attempt = 0) {
             const stage = this.$refs.cropperStage;
-            if (!stage || !stage.clientWidth) return;
+            if (!stage || !stage.clientWidth || !stage.clientHeight) {
+                if (this.cropperOpen && attempt < 60) requestAnimationFrame(() => this.syncCropperFrameSize(attempt + 1));
+                return;
+            }
             const aspect = this.cropperAspect || 1;
             let width = stage.clientWidth * 0.8;
             let height = width / aspect;
@@ -2837,12 +3196,18 @@ function invitationForm(config) {
         },
 
         async uploadPendingMedia() {
-            for (const pending of this.pendingUploads) {
+            const queue = [...this.pendingUploads];
+            let done = 0;
+            for (const pending of queue) {
+                this.uploadStatus = queue.length > 1 ? `Subiendo archivo ${done + 1} de ${queue.length}…` : 'Subiendo el archivo…';
                 const url = await this._uploadFile(pending.file, pending.type, pending.context);
                 pending.apply(url);
                 URL.revokeObjectURL(pending.blobUrl);
+                // Lo ya subido sale de la cola: si otro falla, al reintentar no se sube dos veces
+                this.pendingUploads = this.pendingUploads.filter(item => item !== pending);
+                done++;
             }
-            this.pendingUploads = [];
+            this.uploadStatus = '';
         },
 
         syncHiddenInputs() {
@@ -2884,17 +3249,25 @@ function invitationForm(config) {
 
                 this.syncHiddenInputs();
                 await this.$nextTick();
+                this.uploadStatus = 'Guardando…';
+                // Ya no hay nada sin guardar: salir de la página no debe preguntar
+                this.leaving = true;
                 form.submit();
             } catch (err) {
                 console.error('Error al guardar la invitación:', err);
-                alert(err.message || 'Error al subir archivos. Intenta de nuevo.');
+                alert(err.message || 'No se pudo subir un archivo. Intenta de nuevo.');
                 this.mediaUploading = false;
+                this.uploadStatus = '';
+                // El asistente de creación no se queda en «Creando…»
+                this.wizardSaving = false;
+                this.schedulePreview();
             }
         },
 
         uploadGalleryFiles(event) {
             const files = [...(event.target.files || [])];
             for (const file of files) {
+                if (!this.acceptMediaFile(file, 'image')) continue;
                 const blobUrl = URL.createObjectURL(file);
                 this.modules.galeria.fotos.push(blobUrl);
                 this.pendingUploads.push({
@@ -2922,6 +3295,7 @@ function invitationForm(config) {
             const list = this.modules[code].fotos;
             for (const file of files) {
                 if (max && list.length >= max) break;
+                if (!this.acceptMediaFile(file, 'image')) continue;
                 const blobUrl = URL.createObjectURL(file);
                 list.push(blobUrl);
                 this.pendingUploads.push({
@@ -2966,11 +3340,14 @@ function invitationForm(config) {
         uploadBookEntryPhoto(code, key, index, event) {
             const file = event.target.files?.[0];
             event.target.value = '';
-            if (!file) return;
+            if (!file || !this.acceptMediaFile(file, 'image')) return;
             const entry = this.modules[code][key][index];
             if (entry.foto) this.clearMediaUrl(entry.foto);
             const blobUrl = URL.createObjectURL(file);
             entry.foto = blobUrl;
+            // La foto actual de la entrada: cambia al recortarla (otro blob) y al subirla (la URL definitiva).
+            // Sin seguirla, una foto recortada nunca se reemplazaba al guardar y el guardado fallaba.
+            let current = blobUrl;
             this.pendingUploads.push({
                 file,
                 type: 'image',
@@ -2978,8 +3355,9 @@ function invitationForm(config) {
                 blobUrl,
                 // Se busca la entrada por su foto: si se reordenan antes de guardar, el índice cambia
                 apply: (url) => {
-                    const target = this.modules[code][key].find(item => item.foto === blobUrl);
+                    const target = this.modules[code][key].find(item => item.foto === current);
                     if (target) target.foto = url;
+                    current = url;
                 },
             });
             this.schedulePreview();
@@ -2989,6 +3367,7 @@ function invitationForm(config) {
             const files = [...(event.target.files || [])];
             this.modules.post_evento.fotos ??= [];
             for (const file of files) {
+                if (!this.acceptMediaFile(file, 'image')) continue;
                 const blobUrl = URL.createObjectURL(file);
                 this.modules.post_evento.fotos.push(blobUrl);
                 this.pendingUploads.push({

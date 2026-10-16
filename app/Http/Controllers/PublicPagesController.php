@@ -31,7 +31,7 @@ class PublicPagesController extends Controller
 
     /**
      * «Únete»: el plan mensual para armar invitaciones propias y venderlas (revendedores) es lo
-     * principal; que el equipo se las haga («paquetes») es lo secundario. Los precios salen de la
+     * principal. Los precios salen de la
      * config «bida.reseller_plans» con lo que el administrador cambió en Ajustes (descuentos
      * incluidos); el precio de venta de ejemplo solo se usa en las preguntas.
      */
@@ -50,8 +50,6 @@ class PublicPagesController extends Controller
             // Pagar 3 o 12 meses de una vez, con su descuento (el selector de la página de planes)
             'planCycles' => $diy['cycles'],
             'collections' => $diy['collections'],
-            // Lo secundario: que el equipo haga la invitación (pago único por invitación)
-            'packages' => HomeController::packages($bida['packages'], $whatsapp),
             'examplePrice' => self::EXAMPLE_RESALE_PRICE,
             'contactUrl' => $whatsapp(__('Hola {brand}, quiero saber cómo funciona Únete para armar mis propias invitaciones.')),
             'landings' => HomeController::landingLinks(),
@@ -65,7 +63,7 @@ class PublicPagesController extends Controller
     }
 
     /**
-     * Precios: las tres formas de tener la invitación lado a lado (Hazlo tú, Planes y Te la hacemos),
+     * Precios: las formas de tener la invitación lado a lado (Hazlo tú y Planes),
      * la comparación de los niveles y las preguntas. Los datos los arma App\Support\PricingPage.
      */
     public function pricing(Request $request): View
@@ -81,7 +79,7 @@ class PublicPagesController extends Controller
     public function guide(Request $request): View
     {
         $bida = config('bida');
-        $packages = Offers::packages();
+        $packages = Offers::tierOffers();
 
         return view('guia', [
             'bida' => $bida,

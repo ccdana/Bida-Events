@@ -41,7 +41,7 @@
     $accountLabel = $user ? __('Mi panel') : __('Ingresar');
     $faqs = array_merge($page['faqs'], [
         [$isCard ? __('¿Quien la recibe necesita instalar algo?') : __('¿Mis invitados necesitan instalar algo?'), __('No. Se abre en el navegador del celular desde el enlace que compartes por WhatsApp.')],
-        [__('¿Cómo se realiza el pago?'), $isSeasonal ? ($isCard ? __('Coordinamos el pago por WhatsApp cuando nos pides la tarjeta, antes de armarla.') : __('Coordinamos el pago por WhatsApp cuando nos pides la invitación, antes de armarla.')) : __('Coordinamos el pago por WhatsApp cuando eliges tu paquete, antes de empezar el diseño.')],
+        [__('¿Cómo se realiza el pago?'), $isSeasonal ? ($isCard ? __('Coordinamos el pago por WhatsApp cuando nos pides la tarjeta, antes de armarla.') : __('Coordinamos el pago por WhatsApp cuando nos pides la invitación, antes de armarla.')) : __('La invitación que armas se publica gratis con lo básico, o con un pago único por el nivel que usaste, con tarjeta o con el QR de cualquier banco de Bolivia.')],
     ]);
     $socials = array_values(array_filter([
         ! empty($bida['instagram']) ? ['label' => 'Instagram', 'url' => 'https://www.instagram.com/'.$bida['instagram'].'/', 'icon' => 'instagram-logo'] : null,
@@ -90,10 +90,17 @@
                     </p>
 
                     <div class="site-enter mt-9 flex flex-col gap-3 sm:flex-row" style="--enter-index: 4">
-                        <a href="{{ $ctaUrl }}" target="_blank" rel="noopener" class="site-btn site-btn--lg justify-center" data-magnetic>
-                            <x-phosphor-whatsapp-logo aria-hidden="true" />
-                            {{ $ctaLabel }}
-                        </a>
+                        @if($isSeasonal)
+                            <a href="{{ $ctaUrl }}" target="_blank" rel="noopener" class="site-btn site-btn--lg justify-center" data-magnetic>
+                                <x-phosphor-whatsapp-logo aria-hidden="true" />
+                                {{ $ctaLabel }}
+                            </a>
+                        @else
+                            <a href="{{ \App\Support\DiyInvitations::startUrl($user) }}" class="site-btn site-btn--lg justify-center" data-magnetic>
+                                {{ __('Crear mi invitación gratis') }}
+                                <x-phosphor-arrow-right class="site-btn__arrow" aria-hidden="true" />
+                            </a>
+                        @endif
                         <a href="#precios" class="site-btn site-btn--ghost site-btn--lg justify-center">
                             {{ __('Ver precios') }}
                             <x-phosphor-arrow-down class="site-btn__arrow" aria-hidden="true" />
@@ -107,7 +114,7 @@
                                 {{ __(':value · Se manda por WhatsApp', ['value' => $isCard ? __('Lista el mismo día') : __('Con confirmación de asistencia')]) }}
                             @endif
                         @else
-                            {{ __('Paquetes desde :value · Pago único por invitación', ['value' => \App\Support\Money::format($fromPrice)]) }}
+                            {{ __('Gratis para empezar · Desde :value si quieres más, pago único', ['value' => \App\Support\Money::format($fromPrice)]) }}
                         @endif
                     </p>
                 </div>
@@ -213,21 +220,23 @@
                 </div>
             </section>
         @else
-            {{-- El modelo principal: también puede armarla la propia persona, con un plan mensual --}}
-            <section class="border-t border-site-line" aria-label="{{ __('Únete') }}">
-                <div class="mx-auto flex max-w-7xl flex-col gap-4 px-5 py-10 sm:flex-row sm:items-center sm:justify-between lg:px-8">
-                    <p class="max-w-[52ch] text-lg leading-snug">
-                        <span class="font-medium">{{ __('¿Prefieres armarla tú?') }}</span>
-                        <span class="text-site-muted">{{ __('Con «Únete» creas tu :noun con nuestras plantillas desde :value al mes.', ['noun' => $noun, 'value' => \App\Support\Money::format(collect(\App\Support\Offers::resellerPlans())->min('final_price'))]) }}</span>
+            {{-- Precios: armarla es gratis y se paga solo por lo que se usa; lo a medida se conversa, sin precio --}}
+            <section id="precios" class="scroll-mt-20 border-t border-site-line bg-site-surface" aria-labelledby="precios-titulo">
+                <div class="mx-auto max-w-7xl px-5 py-20 lg:px-8">
+                    <h2 id="precios-titulo" class="site-display site-display--md" data-reveal>{{ __('Empieza gratis. Paga solo por lo que usas.') }}</h2>
+                    <p class="site-muted-lead" data-reveal>
+                        {{ __('Arma tu :noun gratis, con la portada, la cuenta regresiva y la ubicación. Si quieres más, un pago único desde :value, en dólares (:currency).', ['noun' => $noun, 'value' => \App\Support\Money::format($fromPrice), 'currency' => \App\Support\Money::code()]) }}
                     </p>
-                    <a href="{{ lroute('diy') }}#planes" class="site-link-arrow shrink-0">
-                        {{ __('Ver los planes') }}
-                        <x-phosphor-arrow-right aria-hidden="true" />
-                    </a>
+                    <p class="mt-8 flex flex-wrap gap-3" data-reveal>
+                        <a href="{{ \App\Support\DiyInvitations::startUrl($user) }}" class="site-btn site-btn--lg">
+                            {{ __('Crear mi invitación gratis') }}
+                            <x-phosphor-arrow-right class="site-btn__arrow" aria-hidden="true" />
+                        </a>
+                        <a href="{{ lroute('pricing') }}" class="site-btn site-btn--ghost site-btn--lg">{{ __('Ver precios') }}</a>
+                    </p>
+                    @include('site.partials.custom-request')
                 </div>
             </section>
-
-            @include('site.partials.plans')
         @endif
 
         @include('site.partials.faqs', ['faqs' => $faqs])

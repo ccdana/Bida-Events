@@ -233,13 +233,12 @@ class DiyInvitationController extends Controller
             ),
             'needsEmail' => ! $user->hasVerifiedEmail(),
             'hasEmail' => filled($user->email),
-            // Los puentes: que la termine el equipo («Te la hacemos») o, si ya armó otras, un plan
+            // Los puentes: lo a medida (sin precio) o, si ya armó otras, un plan
             'doneForYouUrl' => LeadSource::whatsappUrl(
                 $request,
-                "Hola {brand}, empecé mi invitación «{$invitation->title}» y prefiero que ustedes la terminen.",
+                "Hola {brand}, empecé mi invitación «{$invitation->title}» y quiero algo a medida.",
                 'HAZLO',
             ),
-            'fromPackage' => collect(Offers::packages())->min('final_price'),
             'planBridge' => DiyInvitations::of($user)->whereKeyNot($invitation->id)->whereNotNull('package')->exists()
                 ? PricingPage::planBreakEven(Offers::resellerPlans())
                 : null,

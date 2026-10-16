@@ -214,7 +214,8 @@ class InvitationEditorViewData
             // errores del guardado, directo al editor para corregirlos
             'wizard' => $isCreate && ! session()->hasOldInput(),
             // Con el valor por defecto en el idioma de la invitación (el que se ve si el campo queda vacío)
-            'editableTexts' => Localization::using(Localization::resolve($invitation?->locale), fn () => $templates->keys()->mapWithKeys(fn ($value) => [$value => EditableTexts::forTemplate($value)])),
+            // El catálogo una sola vez y, por plantilla, solo lo que cambia (EditableTexts::forEditor)
+            'editableTexts' => Localization::using(Localization::resolve($invitation?->locale), fn () => EditableTexts::forEditor($templates->keys())),
             'cloudinaryConfigured' => $this->mediaUpload->isCloudinaryConfigured(),
             'moduleCodes' => InvitationDefaults::moduleCodes(),
             'moduleTabMap' => InvitationDefaults::moduleTabMap(),

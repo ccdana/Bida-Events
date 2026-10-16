@@ -40,8 +40,9 @@ class PublicPagesTest extends TestCase
             ->assertSeeInOrder(['Elige tu plan', 'Inicial', 'US$ 20', '16', 'USD al mes', 'Ahorras US$ 4 al mes', '9 invitaciones al mes', 'plantillas para elegir', 'Emprendedor', 'Agencia', 'Invitaciones sin tope', 'Elegir Agencia'])
             // La pregunta de cuánto se gana usa el cupo y el precio de hoy (9 × 25 − 16)
             ->assertSee('suman US$ 225 y te quedan US$ 209 después del plan')
-            // Lo secundario: que lo haga el equipo, con los paquetes de hoy
-            ->assertSeeInOrder(['Te la hacemos nosotros', 'Básico', 'US$ 22', 'Estándar', 'US$ 43', 'Premium', 'US$ 72'])
+            // Lo a medida: solo el aviso, sin paquetes ni precios
+            ->assertSee('id="a-medida"', false)
+            ->assertDontSee('Te la hacemos')
             // WhatsApp con el plan y el código de la página
             ->assertSee(rawurlencode('quiero el plan Inicial de Únete (US$ 16 al mes)'), false)
             ->assertSee(rawurlencode('Ref. HAZLO'), false);

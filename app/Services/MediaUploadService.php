@@ -7,6 +7,7 @@ use Cloudinary\Configuration\Configuration;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 
 class MediaUploadService
 {
@@ -40,6 +41,9 @@ class MediaUploadService
      */
     public function upload(UploadedFile $file, string $type, string $slug, string $context = 'general'): array
     {
+        // Carpeta segura: solo letras, números y guiones (el nombre y el contexto vienen del navegador)
+        $slug = preg_replace('/[^a-z0-9-]/', '', strtolower($slug)) ?: 'draft';
+        $context = preg_replace('/[^a-z0-9_-]/', '', strtolower($context)) ?: 'general';
         $folder = $this->buildFolder($slug, $context);
 
         if ($this->isCloudinaryConfigured()) {
@@ -238,15 +242,57 @@ class MediaUploadService
         return preg_replace('/\.[a-z0-9]+$/i', '', $publicId) ?: null;
     }
 
+    /**
+     * Qué se acepta de cada tipo (el editor revisa lo mismo al elegir el archivo: MEDIA_RULES en editor.js).
+     * Audio y video se reconocen por su extensión y por un tipo «razonable»: el detector de tipos del servidor
+     * confunde los .m4a de iPhone y WhatsApp (video/mp4) y algunos .mp3 sin etiquetas (application/octet-stream), y
+     * rechazar eso era justo lo que impedía subir una canción.
+     */
+    private const AUDIO_EXTENSIONS = ['mp3', 'm4a', 'wav', 'ogg', 'aac', 'opus'];
+
+    private const VIDEO_EXTENSIONS = ['mp4', 'mov', 'webm', 'avi'];
+
     public function validateFile(UploadedFile $file, string $type): void
     {
-        // Sin SVG: puede traer scripts dentro. Las dimensiones evitan imágenes que revientan la memoria al procesarlas.
-        $rules = match ($type) {
-            'video' => ['mimes:mp4,mov,webm,avi', 'max:102400'], // 100MB
-            'audio' => ['mimes:mp3,m4a,wav,ogg,aac', 'max:20480'], // 20MB
-            default => ['image', 'mimes:jpg,jpeg,png,gif,webp', 'dimensions:max_width=8000,max_height=8000', 'max:10240'], // 10MB
-        };
+        if ($type === 'audio') {
+            $this->validateAudioVideo($file, ['una canción', 'La canción'], self::AUDIO_EXTENSIONS, 'audio', 20, 'MP3, M4A, WAV, OGG, AAC u OPUS', ['video/mp4', 'video/mpeg', 'video/ogg', 'application/ogg', 'application/mp4']);
 
-        validator(['file' => $file], ['file' => $rules])->validate();
+            return;
+        }
+
+        if ($type === 'video') {
+            $this->validateAudioVideo($file, ['un video', 'El video'], self::VIDEO_EXTENSIONS, 'video', 100, 'MP4, MOV, WEBM o AVI', ['application/mp4', 'application/x-troff-msvideo']);
+
+            return;
+        }
+
+        // Sin SVG: puede traer scripts dentro. Las dimensiones evitan imágenes que revientan la memoria al procesarlas.
+        validator(['file' => $file], ['file' => ['image', 'mimes:jpg,jpeg,png,gif,webp', 'dimensions:max_width=8000,max_height=8000', 'max:10240']], [
+            'file.image' => 'El archivo no es una foto que se pueda usar. Elige un JPG, PNG, WebP o GIF.',
+            'file.mimes' => 'La foto tiene que ser JPG, PNG, WebP o GIF.',
+            'file.max' => 'La foto pesa más de 10 MB. Elige una más liviana.',
+            'file.dimensions' => 'La foto es demasiado grande (más de 8000 píxeles de lado). Elige una más chica.',
+        ])->validate();
+    }
+
+    /**
+     * @param  array{0: string, 1: string}  $name  cómo se dice («una canción», «La canción»)
+     * @param  list<string>  $extensions
+     * @param  list<string>  $otherTypes  tipos que no empiezan con «audio/» o «video/» pero son válidos
+     */
+    private function validateAudioVideo(UploadedFile $file, array $name, array $extensions, string $family, int $maxMb, string $formats, array $otherTypes): void
+    {
+        $extension = strtolower((string) $file->getClientOriginalExtension());
+        $mime = strtolower((string) $file->getMimeType());
+
+        $typeOk = str_starts_with($mime, $family.'/') || $mime === 'application/octet-stream' || in_array($mime, $otherTypes, true);
+
+        if (! in_array($extension, $extensions, true) || ! $typeOk) {
+            throw ValidationException::withMessages(['file' => "El archivo no es {$name[0]} que se pueda usar. Elige uno en formato {$formats}."]);
+        }
+
+        if ($file->getSize() > $maxMb * 1048576) {
+            throw ValidationException::withMessages(['file' => "{$name[1]} pesa más de {$maxMb} MB. Elige otro más liviano."]);
+        }
     }
 }

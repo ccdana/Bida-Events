@@ -14,8 +14,8 @@ use Tests\Concerns\CreatesInvitations;
 use Tests\TestCase;
 
 /**
- * Los precios, lado a lado: «Hazlo tú» (gratis o un pago único por nivel), los planes y «Te la
- * hacemos» (con plazo y cambios). La portada abre con armarla gratis y resume las tres formas.
+ * Los precios, lado a lado: «Hazlo tú» (gratis o un pago único por nivel) y los planes. Lo a medida
+ * no lleva precio: solo el aviso de escribir por WhatsApp o correo. La portada abre con armarla gratis.
  */
 class PricingPageTest extends TestCase
 {
@@ -36,7 +36,7 @@ class PricingPageTest extends TestCase
         ]);
     }
 
-    public function test_the_pricing_page_shows_the_three_ways_side_by_side(): void
+    public function test_the_pricing_page_shows_the_ways_side_by_side(): void
     {
         $this->withoutVite()->get(route('pricing'))
             ->assertOk()
@@ -49,16 +49,14 @@ class PricingPageTest extends TestCase
             ->assertSee('id="planes"', false)
             ->assertSee('Planes, para quien arma muchas')
             ->assertSee('20 % menos')
-            // Te la hacemos: el servicio primero (plazo, cambios y atención)
-            ->assertSee('id="te-la-hacemos"', false)
-            ->assertSee('Lista en 3 días hábiles desde que nos envías tus datos')
-            ->assertSee('2 rondas de cambios')
-            ->assertSee('Cambios sin límite hasta el evento')
-            ->assertSee('Atención por WhatsApp')
-            // La comparación de los niveles y de las tres formas, y las preguntas
+            // Lo a medida: solo el aviso, sin precios ni paquetes
+            ->assertSee('id="a-medida"', false)
+            ->assertDontSee('Te la hacemos')
+            ->assertDontSee('rondas de cambios')
+            // La comparación de los niveles y de las dos formas, y las preguntas
             ->assertSee('Qué trae cada nivel')
             ->assertSee('Control de entrada en la puerta')
-            ->assertSee('Hazlo tú, un plan o te la hacemos')
+            ->assertSee('Hazlo tú o un plan')
             ->assertSee('Fotógrafos, salones y organizadores')
             ->assertSee('¿Puedo empezar gratis?');
     }
@@ -96,13 +94,12 @@ class PricingPageTest extends TestCase
             ->assertOk()
             ->assertSee('La armas tú, gratis')
             // El servicio principal es «Hazlo tú», gratis
-            ->assertSeeInOrder(['id="servicios"', 'Hazlo tú', 'Gratis', 'Crear mi invitación gratis', 'Te la hacemos', 'Planes para profesionales'], false)
-            // Las tres formas en resumen, con el detalle en /precios
-            ->assertSeeInOrder(['id="precios"', 'Empieza gratis. Paga solo por lo que usas.', 'Hazlo tú', 'Te la hacemos', 'Planes', 'Ver todos los precios y qué trae cada nivel'], false)
+            ->assertSeeInOrder(['id="servicios"', 'Hazlo tú', 'Gratis', 'Crear mi invitación gratis', 'Planes para profesionales'], false)
+            // Las formas en resumen, con el detalle en /precios y el aviso de lo a medida
+            ->assertSeeInOrder(['id="precios"', 'Empieza gratis. Paga solo por lo que usas.', 'Hazlo tú', 'Planes', '¿Quieres algo a medida?', 'Ver todos los precios y qué trae cada nivel'], false)
             ->assertSee(route('pricing'), false)
             ->assertSee(route('register', ['crear' => 1]), false)
-            // Los plazos de «Te la hacemos» salen de la configuración
-            ->assertSee('Básico en 3 días hábiles, Estándar en 2 días hábiles y Premium en 24 horas');
+            ->assertDontSee('Te la hacemos');
     }
 
     public function test_the_service_of_each_package_is_set_in_settings(): void
@@ -120,16 +117,17 @@ class PricingPageTest extends TestCase
             ->assertSee('name="packages[estandar][delivery]" value="5 días hábiles"', false);
     }
 
-    public function test_publishing_offers_the_team_and_a_plan_when_it_pays_off(): void
+    public function test_publishing_offers_custom_work_and_a_plan_when_it_pays_off(): void
     {
         $owner = User::factory()->create();
         $draft = $this->createInvitation(['user_id' => $owner->id, 'is_diy' => true, 'status' => 'inactive']);
         app(InvitationModuleService::class)->syncAllModules($draft, XvSofiaModuleData::all());
 
-        // Que la termine el equipo, siempre; el plan, no con los precios de hoy (el plan Inicial cuesta menos que una Estándar)
+        // Lo a medida, siempre y sin precio; el plan, no con los precios de hoy (el plan Inicial cuesta menos que una Estándar)
         $this->actingAs($owner)->withoutVite()->get(route('client.diy.publish', $draft))
             ->assertOk()
-            ->assertSee('¿Prefieres que la terminemos nosotros?')
+            ->assertSee('¿Quieres algo a medida?')
+            ->assertDontSee('terminemos')
             ->assertDontSee('¿Armas varias?');
         $this->assertNull(PricingPage::planBreakEven(Offers::resellerPlans()));
 

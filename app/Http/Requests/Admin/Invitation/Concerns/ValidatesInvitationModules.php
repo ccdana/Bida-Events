@@ -7,6 +7,7 @@ use App\Models\Invitation;
 use App\Support\InvitationModuleRules;
 use App\Support\InvitationTemplates;
 use App\Support\TemplateAvailability;
+use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Validator;
 
@@ -22,11 +23,19 @@ trait ValidatesInvitationModules
             'modulos_data' => InvitationModuleRules::decode($this->input('modulos', [])),
         ]);
 
-        // El asistente de creación arma la dirección con el nombre: si ya existe, le suma un número
-        // en lugar de devolver un error que quien crea la invitación no sabría resolver
+        $slug = (string) $this->input('slug', '');
+
         if ($this->boolean('slug_auto') && $this->isMethod('post')) {
-            $this->merge(['slug' => $this->uniqueSlug((string) $this->input('slug'))]);
+            // El asistente de creación arma la dirección con el nombre: si ya existe, le suma un número
+            // en lugar de devolver un error que quien crea la invitación no sabría resolver
+            $slug = $this->uniqueSlug($slug);
+        } elseif ($slug !== '') {
+            // «Mi Boda» se guarda como «mi-boda»: la unicidad se revisa sobre lo que de verdad se guarda,
+            // no sobre lo escrito (antes «Mi Boda» pasaba la revisión y chocaba con «mi-boda» al guardar: error 500)
+            $slug = Str::slug($slug);
         }
+
+        $this->merge(['slug' => $slug]);
     }
 
     private function uniqueSlug(string $slug): string
@@ -59,6 +68,18 @@ trait ValidatesInvitationModules
             }
 
             $template = (string) $this->input('template');
+            $current = $this->route('invitation') instanceof Invitation ? $this->route('invitation')->template : null;
+
+            // Una plantilla que no existe dejaba una invitación que no se puede ver (la que ya tiene se conserva)
+            if (! isset(InvitationTemplates::all()[$template]) && $template !== $current) {
+                $validator->errors()->add('template', 'La plantilla elegida no existe.');
+
+                return;
+            }
+
+            // El enlace tiene que seguir activo hasta el día del evento: si no, los invitados ven «vencida» su invitación
+            $this->checkLinkOutlivesEvent($validator);
+
             $event = InvitationTemplates::all()[$template]['event'] ?? null;
             $code = EventType::whereKey($this->input('event_type_id'))->value('code');
 
@@ -76,13 +97,28 @@ trait ValidatesInvitationModules
                 return;
             }
 
-            $invitation = $this->route('invitation');
-            $current = $invitation instanceof Invitation ? $invitation->template : null;
-
             if ($template !== $current && ($reason = TemplateAvailability::templateReason($template))) {
                 $validator->errors()->add('template', "Esa plantilla no se puede usar ahora: {$reason}.");
             }
         }];
+    }
+
+    private function checkLinkOutlivesEvent(Validator $validator): void
+    {
+        // «Hazlo tú» no manda vencimiento (lo calcula el servidor con la fecha del evento): ahí no hay nada que revisar
+        if (! array_key_exists('expires_at', $this->rules()) || $validator->errors()->hasAny(['expires_at', 'event_date']) || ! $this->filled('expires_at') || ! $this->filled('event_date')) {
+            return;
+        }
+
+        try {
+            $outlives = Carbon::parse((string) $this->input('expires_at'))->endOfDay()->gte(Carbon::parse((string) $this->input('event_date'))->startOfDay());
+        } catch (Throwable) {
+            return;
+        }
+
+        if (! $outlives) {
+            $validator->errors()->add('expires_at', 'El enlace deja de funcionar antes del evento: elige una fecha igual o posterior al día del evento.');
+        }
     }
 
     public function attributes(): array

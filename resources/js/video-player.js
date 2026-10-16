@@ -159,6 +159,25 @@ const initVideoPlayers = () => {
                 togglePlayback();
             });
 
+            // Si el video no carga (se acaba de subir y su versión liviana todavía se prepara, o se cortó la
+            // conexión) se avisa y se reintenta solo unas veces: antes quedaba una caja muerta sin explicación
+            const errorNote = frame?.parentElement?.querySelector('[data-video-error]');
+            let retries = 0;
+            element.addEventListener('error', () => {
+                errorNote?.removeAttribute('hidden');
+                if (retries >= 6) {
+                    return;
+                }
+                retries += 1;
+                setTimeout(() => element.load(), retries * 4000);
+            }, true);
+            element.addEventListener('loadedmetadata', () => errorNote?.setAttribute('hidden', ''));
+            errorNote?.addEventListener('click', () => {
+                retries = 0;
+                errorNote.setAttribute('hidden', '');
+                element.load();
+            });
+
             if (!element.paused && !element.ended) {
                 hasPlayed = true;
                 setIdleState(false);

@@ -48,7 +48,7 @@
                     <button type="button" class="ed-design" @click="wizardChooseTemplate(option)"
                         :class="{ 'is-on': meta.template === option.value }" :disabled="!!option.disabledReason">
                         <span class="ed-design__shot">
-                            <img x-show="option.capture" :src="option.capture || ''" alt="" loading="lazy">
+                            <img x-show="option.capture" :src="option.capture || ''" alt="" loading="eager" decoding="async">
                             <span class="ed-design__swatches" x-show="!option.capture" aria-hidden="true">
                                 <i :style="'background:' + (option.palette?.background ?? '#fff')"></i>
                                 <i :style="'background:' + (option.palette?.accent ?? '#eee')"></i>
@@ -74,7 +74,7 @@
                         <template x-for="field in heroFields" :key="field.key">
                             <label class="ed-wiz-field">
                                 <span class="ed-wiz-field__label" x-text="field.label"></span>
-                                <input class="ed-wiz-input" :type="field.type || 'text'" :inputmode="field.type === 'number' ? 'numeric' : null"
+                                <input class="ed-wiz-input" maxlength="80" :type="field.type || 'text'" :inputmode="field.type === 'number' ? 'numeric' : null"
                                     :value="modules.bienvenida[field.key] ?? ''"
                                     @input="modules.bienvenida[field.key] = $event.target.value; syncHeroName()"
                                     :placeholder="field.placeholder">
@@ -90,17 +90,18 @@
                                 <input class="ed-wiz-input" type="time" x-model="eventTimePart">
                             </label>
                         </div>
+                        <p class="ed-wiz-field__hint" x-show="eventInPast" x-cloak>Esa fecha ya pasó. Si es la correcta, sigue; si no, elige otra.</p>
                     </div>
                 </template>
                 <template x-if="isCard">
                     <div class="ed-wizard__fields">
                         <label class="ed-wiz-field">
                             <span class="ed-wiz-field__label">¿Para quién es?</span>
-                            <input class="ed-wiz-input" type="text" x-model="wizardCard.para" placeholder="Ej. Ana">
+                            <input class="ed-wiz-input" maxlength="80" type="text" x-model="wizardCard.para" placeholder="Ej. Ana">
                         </label>
                         <label class="ed-wiz-field">
                             <span class="ed-wiz-field__label">¿De parte de quién?</span>
-                            <input class="ed-wiz-input" type="text" x-model="wizardCard.de" placeholder="Ej. Luis">
+                            <input class="ed-wiz-input" maxlength="80" type="text" x-model="wizardCard.de" placeholder="Ej. Luis">
                         </label>
                     </div>
                 </template>

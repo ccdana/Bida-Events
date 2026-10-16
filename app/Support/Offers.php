@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Payments\InvitationPrice;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Carbon;
 
@@ -115,10 +116,30 @@ final class Offers
         return $plan ? self::price($plan, true)['final'] : 0;
     }
 
-    /** El paquete más barato al precio de hoy («Paquetes desde US$ 22»). */
+    /**
+     * Los niveles de «Hazlo tú» con su precio de hoy, con la forma de un paquete (nombre, precio de hoy,
+     * precio normal y resumen): lo que se muestra para decir cuánto cuesta una invitación.
+     *
+     * @return list<array{key: string, name: string, final_price: int, old_price: ?int, summary: string}>
+     */
+    public static function tierOffers(): array
+    {
+        $summaries = collect(config('bida.packages', []))->pluck('summary', 'key');
+        $names = Packages::tierNames();
+
+        return collect(InvitationPrice::tierPrices())->map(fn (array $price, string $tier): array => [
+            'key' => $tier,
+            'name' => $names[$tier] ?? $tier,
+            'final_price' => $price['final'],
+            'old_price' => $price['regular'],
+            'summary' => (string) ($summaries[$tier] ?? ''),
+        ])->values()->all();
+    }
+
+    /** El nivel de pago más barato de «Hazlo tú» al precio de hoy («Desde US$ 2»). */
     public static function lowestPackagePrice(): int
     {
-        return (int) collect(self::packages())->min('final_price');
+        return (int) collect(self::tierOffers())->min('final_price');
     }
 
     /**

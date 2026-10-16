@@ -59,7 +59,7 @@ $siteRoutes = function (string $locale): void {
         // «Únete»: planes mensuales para armar invitaciones propias (revendedores con suscripción)
         Route::get('/'.$path('unete'), [PublicPagesController::class, 'diy'])->name('diy');
 
-        // Precios: Hazlo tú (gratis o pago único), Planes y Te la hacemos, lado a lado (App\Support\PricingPage)
+        // Precios: Hazlo tú (gratis o pago único), Planes, lado a lado (App\Support\PricingPage)
         Route::get('/'.$path('precios'), [PublicPagesController::class, 'pricing'])->name('pricing');
 
         // Guía pública sobre invitaciones digitales (contenido pensado para buscadores y respuestas de IA)

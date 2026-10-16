@@ -3,11 +3,11 @@
 {{--
     Portada. Mobile first: cada bloque se lee primero en el celular y se abre en columnas en pantallas
     anchas. Sin numeraciones ni grillas de tarjetas: jerarquía con tipografía (serif editorial para los
-    titulares), filetes finos y fotos. Datos: HomeController (paquetes, temporadas, servicios, muestras).
+    titulares), filetes finos y fotos. Datos: HomeController (temporadas, servicios, muestras).
     Estilos: resources/css/site/site.css y resources/css/site/home.css.
 --}}
 @section('title', $bida['brand'].' | '.__('Crea tu invitación digital para bodas, XV años, bautizos y graduaciones'))
-@section('description', __('Arma tu invitación digital gratis con plantillas profesionales y paga solo si quieres más: confirmación de asistencia, galería y pase QR. O pídenos que la hagamos, desde :price.', ['price' => \App\Support\Money::format($fromPrice)]))
+@section('description', __('Arma tu invitación digital gratis con plantillas profesionales y paga solo si quieres más: confirmación de asistencia, galería y pase QR.'))
 
 @php
     // Lo principal es armarla (las plantillas abren el menú); los precios de las tres formas, en su bloque y en /precios
@@ -59,23 +59,16 @@
         ['icon' => 'paper-plane-tilt', 'title' => __('La publicas y la compartes'), 'text' => __('Gratis con lo básico, o con un pago único si usaste más. Envías tu enlace por WhatsApp; tus invitados la abren sin instalar nada.')],
         ['icon' => 'list-checks', 'title' => __('Sigues las confirmaciones'), 'text' => __('Ves en tu panel quién confirmó, cuántas personas asistirán y, el día del evento, quién ya llegó.')],
     ];
-    // Plazos de «Te la hacemos», paquete por paquete, para la pregunta de cuánto tardan
-    $deliveries = collect($packages)
-        ->filter(fn (array $package) => filled($package['service']['delivery'] ?? null))
-        ->map(fn (array $package) => __(':name en :delivery', ['name' => $package['name'], 'delivery' => $package['service']['delivery']]))
-        ->join(', ', ' y ');
     $faqs = [
         [__('¿Puedo armar mi propia invitación?'), __('Sí, es la forma principal de usar :brand. Creas tu cuenta gratis, eliges una plantilla y la armas con todas las partes que quieras. Al publicarla decides: gratis con la portada, la cuenta regresiva y la ubicación, o con un pago único por todo lo que usaste. Si armas invitaciones cada mes (las tuyas o las de tus clientes), hay planes para eso.', ['brand' => $bida['brand']])],
         [__('¿Qué es una invitación digital?'), __('Es una página web con los datos de tu evento (fecha, lugar, itinerario, fotos y música) que tus invitados abren desde un enlace, por lo general enviado por WhatsApp. A diferencia de una imagen, permite confirmar asistencia, ver el mapa y recibir un pase de entrada con código QR.')],
         [__('¿Para qué tipo de eventos sirve?'), __('Bodas, XV años, bautizos, cumpleaños, graduaciones, fiestas de temporada como Halloween y cualquier celebración. Adaptamos los textos y las secciones a tu evento.')],
         [__('¿Mis invitados necesitan instalar algo?'), __('No. La invitación se abre en el navegador del celular desde el enlace que compartes.')],
-        [__('¿Cómo confirman asistencia y cómo se controla la entrada?'), __('En el paquete Estándar, cada invitado recibe su enlace personal y confirma por WhatsApp: se abre el mensaje con su nombre y cuántas personas van. En Premium la respuesta queda guardada en tu panel y el invitado recibe un pase con código QR; el día del evento, quien recibe a los invitados lo escanea con su teléfono y ve si puede pasar.')],
+        [__('¿Cómo confirman asistencia y cómo se controla la entrada?'), __('En el nivel Estándar, cada invitado recibe su enlace personal y confirma por WhatsApp: se abre el mensaje con su nombre y cuántas personas van. En Premium la respuesta queda guardada en tu panel y el invitado recibe un pase con código QR; el día del evento, quien recibe a los invitados lo escanea con su teléfono y ve si puede pasar.')],
         [__('¿Puedo hacer cambios después de compartirla?'), __('Sí. Horarios, ubicación y textos se actualizan en el mismo enlace, así tus invitados siempre ven la versión correcta.')],
-        [__('¿Cuánto tardan en entregarla?'), $deliveries !== ''
-            ? __('Si la armas tú, la publicas cuando quieras. Si te la hacemos, desde que nos envías las fotos y los datos').': '.$deliveries.'.'
-            : __('Si la armas tú, la publicas cuando quieras. Si te la hacemos, te damos una fecha de entrega al confirmar tu pedido.')],
-        [__('¿Y si prefiero que me la hagan?'), __('También lo hacemos: eliges un paquete, nos cuentas tu evento y armamos la invitación contigo. Es un pago único por invitación.')],
-        [__('¿Cómo se realiza el pago?'), __('La invitación que armas tú se paga una sola vez al publicarla (si no es la gratuita), con tarjeta o con el QR de cualquier banco de Bolivia. Los planes se pagan por mes o por varios meses de una vez. Los paquetes de «Te la hacemos» se coordinan por WhatsApp antes de empezar el diseño. Los precios están en dólares.')],
+        [__('¿Cuánto tardo en tenerla lista?'), __('La publicas cuando quieras, apenas esté lista.')],
+        [__('¿Hacen invitaciones a medida?'), __('Si quieres algo a medida, escríbenos por WhatsApp o al correo :email y lo conversamos.', ['email' => $bida['email']])],
+        [__('¿Cómo se realiza el pago?'), __('La invitación que armas tú se paga una sola vez al publicarla (si no es la gratuita), con tarjeta o con el QR de cualquier banco de Bolivia. Los planes se pagan por mes o por varios meses de una vez. Los precios están en dólares.')],
     ];
     $socials = array_values(array_filter([
         ! empty($bida['instagram']) ? ['label' => 'Instagram', 'url' => 'https://www.instagram.com/'.$bida['instagram'].'/', 'icon' => 'instagram-logo'] : null,
@@ -90,7 +83,7 @@
         return $position === false ? null : ['url' => $demo['coverUrl'], 'label' => $demo['label'], 'rotator' => $position];
     }, $demos)));
     [$mainService, $otherServices] = [$services[0] ?? null, array_slice($services, 1)];
-    $serviceOverlines = ['hazlo' => __('La armas tú'), 'invitaciones' => __('Te la hacemos'), 'planes' => __('Si armas muchas'), 'temporada' => __('Por temporada')];
+    $serviceOverlines = ['hazlo' => __('La armas tú'), 'planes' => __('Si armas muchas'), 'temporada' => __('Por temporada')];
 @endphp
 
 @push('head')
@@ -174,12 +167,12 @@
             </div>
         </section>
 
-        {{-- ═══ Lo que ofrecemos: la invitación hecha por el equipo, lo de temporada y el panel propio ═══ --}}
+        {{-- ═══ Lo que ofrecemos: armarla tú, los planes y lo de temporada ═══ --}}
         @if($mainService)
             <section id="servicios" class="site-offer scroll-mt-20" aria-labelledby="servicios-titulo">
                 <div class="site-offer__intro">
                     <h2 id="servicios-titulo" class="site-display site-display--md" data-reveal>{{ __('Elige cómo quieres tu invitación') }}</h2>
-                    <p class="site-muted-lead" data-reveal>{{ __('La armas tú con tu propio panel, nos la pides o la eliges de la temporada.') }}</p>
+                    <p class="site-muted-lead" data-reveal>{{ __('La armas tú con tu propio panel, con un plan o la eliges de la temporada.') }}</p>
                 </div>
 
                 <div class="site-offer__grid">
@@ -344,13 +337,13 @@
             </div>
         </section>
 
-        {{-- ═══ Precios: las tres formas en resumen (HomeController::pricingSummary); el detalle, en /precios ═══ --}}
+        {{-- ═══ Precios: las formas en resumen (HomeController::pricingSummary); el detalle, en /precios ═══ --}}
         <section id="precios" class="scroll-mt-20 border-t border-site-line bg-site-surface" aria-labelledby="precios-titulo">
             <div class="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-28">
                 <div class="max-w-3xl">
                     <h2 id="precios-titulo" class="site-display site-display--md" data-reveal>{{ __('Empieza gratis. Paga solo por lo que usas.') }}</h2>
                     <p class="site-muted-lead" data-reveal>
-                        {{ __('Ármala tú, pídenos que la hagamos o, si armas muchas, elige un plan. Precios en dólares (:value).', ['value' => \App\Support\Money::code()]) }}
+                        {{ __('Ármala tú o, si armas muchas, elige un plan. Precios en dólares (:value).', ['value' => \App\Support\Money::code()]) }}
                     </p>
                 </div>
 
@@ -372,7 +365,9 @@
                     @endforeach
                 </div>
 
-                <p class="mt-10" data-reveal>
+                @include('site.partials.custom-request')
+
+                <p class="mt-6" data-reveal>
                     <a href="{{ lroute('pricing') }}" class="site-link-arrow">
                         {{ __('Ver todos los precios y qué trae cada nivel') }}
                         <x-phosphor-arrow-right aria-hidden="true" />

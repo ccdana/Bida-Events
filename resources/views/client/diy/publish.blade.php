@@ -204,9 +204,9 @@
         @unless($covered)
             <div class="site-enter grid gap-2 border-t border-site-line pt-6 text-sm leading-relaxed text-site-muted" style="--enter-index: 4">
                 <p>
-                    ¿Prefieres que la terminemos nosotros?
+                    ¿Quieres algo a medida?
                     <a href="{{ $doneForYouUrl }}" target="_blank" rel="noopener" class="font-medium text-site-ink underline underline-offset-4">Escríbenos</a>
-                    y nuestro equipo la deja lista{{ $fromPackage ? ', desde '.\App\Support\Money::format($fromPackage) : '' }}.
+                    por WhatsApp o al correo {{ config('bida.email') }} y lo conversamos.
                 </p>
                 @if($planBridge)
                     <p>
