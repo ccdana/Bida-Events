@@ -218,4 +218,4 @@ COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=production /var/www/html/public /var/www/html/public
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-    CMD wget --quiet --spider http://127.0.0.1/robots.txt || exit 1
+    CMD wget --quiet --spider http://127.0.0.1/health || exit 1
