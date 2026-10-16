@@ -50,12 +50,12 @@ class PlansAndCyclesTest extends TestCase
             ->assertSee('20 % menos')
             ->assertSee('los borradores no lo gastan');
 
-        // Inicial anual: 9 × 12 − 20 % = 86,40 (7,20 por mes), y «Elegir» pasa a pagar ese ciclo
+        // Inicial anual: 10 × 12 − 20 % = 96 (8 por mes), y «Elegir» pasa a pagar ese ciclo
         $inicial = collect($response->viewData('plans'))->firstWhere('key', 'inicial');
-        $this->assertSame('7,20', $inicial['cycles'][12]['price']);
-        $this->assertSame('US$ 9', $inicial['cycles'][12]['old']);
-        $this->assertSame('US$ 86,40 al año · ahorras US$ 21,60', $inicial['cycles'][12]['saving']);
-        $this->assertSame('US$ 24,30 cada 3 meses · ahorras US$ 2,70', $inicial['cycles'][3]['saving']);
+        $this->assertSame('8', $inicial['cycles'][12]['price']);
+        $this->assertSame('US$ 10', $inicial['cycles'][12]['old']);
+        $this->assertSame('US$ 96 al año · ahorras US$ 24', $inicial['cycles'][12]['saving']);
+        $this->assertSame('US$ 27 cada 3 meses · ahorras US$ 3', $inicial['cycles'][3]['saving']);
         $this->assertNull($inicial['cycles'][1]['saving']);
     }
 
@@ -125,11 +125,11 @@ class PlansAndCyclesTest extends TestCase
 
         $this->actingAs($user)->post(route('client.subscription.store'), ['plan' => 'inicial', 'method' => 'qr', 'months' => 12])->assertRedirect();
 
-        // 9 × 12 − 20 % = US$ 86,40 → Bs 601 (× 6,96, redondeado)
+        // 10 × 12 − 20 % = US$ 96 → Bs 668 (× 6,96, redondeado)
         $order = PaymentOrder::sole();
         $this->assertSame(12, $order->months);
-        $this->assertSame('601.00', $order->amount);
-        $this->assertSame('86.40', SubscriptionPrice::amount('inicial', 12, 'USD'));
+        $this->assertSame('668.00', $order->amount);
+        $this->assertSame('96.00', SubscriptionPrice::amount('inicial', 12, 'USD'));
     }
 
     public function test_the_card_renews_yearly_when_the_plan_has_that_variant(): void
@@ -149,11 +149,11 @@ class PlansAndCyclesTest extends TestCase
 
         $order = PaymentOrder::sole();
         $this->assertSame(12, $order->months);
-        $this->assertSame('86.40', $order->amount);
+        $this->assertSame('96.00', $order->amount);
         Http::assertSent(fn (HttpRequest $request) => $request->data()['data']['relationships']['variant']['data']['id'] === '112');
 
         // El cobro de la variante anual activa 12 meses y deja anotado el ciclo
-        $this->lsSend($this->lsOrderCreated($order->public_id, '9500', 'inicial:12', 8640))->assertOk();
+        $this->lsSend($this->lsOrderCreated($order->public_id, '9500', 'inicial:12', 9600))->assertOk();
         $user->refresh();
         $this->assertSame('inicial', $user->reseller_plan);
         $this->assertSame(12, $user->subscription_cycle_months);
@@ -161,7 +161,7 @@ class PlansAndCyclesTest extends TestCase
 
         // Cada renovación anual suma 12 meses
         $user->forceFill(['payment_provider' => 'lemonsqueezy', 'provider_subscription_id' => '77'])->save();
-        $this->lsSend($this->lsInvoice('subscription_payment_success', '8800', '77', total: 8640))->assertOk();
+        $this->lsSend($this->lsInvoice('subscription_payment_success', '8800', '77', total: 9600))->assertOk();
         $this->assertSame('2028-10-15', $user->fresh()->subscription_renews_at->toDateString());
     }
 
@@ -173,7 +173,7 @@ class PlansAndCyclesTest extends TestCase
         $this->actingAs($user)->post(route('client.subscription.store'), ['plan' => 'inicial', 'method' => 'card']);
 
         // Se compró el mensual y se cobró la variante anual: no se activa
-        $this->lsSend($this->lsOrderCreated(PaymentOrder::sole()->public_id, '9600', 'inicial:12', 8640))->assertOk();
+        $this->lsSend($this->lsOrderCreated(PaymentOrder::sole()->public_id, '9600', 'inicial:12', 9600))->assertOk();
 
         $this->assertNull($user->fresh()->subscription_renews_at);
     }

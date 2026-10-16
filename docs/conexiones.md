@@ -153,15 +153,15 @@ La API key, el webhook y los ids de prueba son **distintos** de los reales.
 
    | Variante | Precio (hoy) | Variable |
    | --- | --- | --- |
-   | Inicial | US$ 9 | `LEMONSQUEEZY_VARIANT_INICIAL` |
-   | Emprendedor | US$ 29 | `LEMONSQUEEZY_VARIANT_EMPRENDEDOR` |
-   | Agencia | US$ 59 | `LEMONSQUEEZY_VARIANT_AGENCIA` |
+   | Inicial | US$ 10 | `LEMONSQUEEZY_VARIANT_INICIAL` |
+   | Emprendedor | US$ 20 | `LEMONSQUEEZY_VARIANT_EMPRENDEDOR` |
+   | Agencia | US$ 30 | `LEMONSQUEEZY_VARIANT_AGENCIA` |
 
 3. **Opcional, cada 3 meses y anual:** para que con tarjeta se pueda pagar (y renovar solo) cada 3 o
    12 meses, crea en el mismo producto una variante por plan y ciclo, con intervalo de 3 meses o de
    1 año. Su precio tiene que ser el que cobra el sitio: precio del plan × meses, menos el descuento de
-   Ajustes › Únete › «Pagar por 3 o 12 meses» (con 10 % y 20 %: Inicial US$ 24,30 cada 3 meses y
-   US$ 86,40 al año). Sin la variante, ese ciclo solo se ofrece con QR.
+   Ajustes › Únete › «Pagar por 3 o 12 meses» (con 10 % y 20 %: Inicial US$ 27 cada 3 meses y
+   US$ 96 al año; Emprendedor US$ 54 y US$ 192; Agencia US$ 81 y US$ 288). Sin la variante, ese ciclo solo se ofrece con QR.
 
    | Ciclo | Variables |
    | --- | --- |

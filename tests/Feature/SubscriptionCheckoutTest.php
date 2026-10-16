@@ -97,8 +97,8 @@ class SubscriptionCheckoutTest extends TestCase
         $this->assertTrue($order->isPending());
         $this->assertSame('lemonsqueezy', $order->provider);
         $this->assertSame('chk-1', $order->provider_ref);
-        // El precio de hoy del plan, con su descuento
-        $this->assertSame('29.00', $order->amount);
+        // El precio de hoy del plan
+        $this->assertSame('20.00', $order->amount);
         $this->assertNotNull($order->expires_at);
 
         // La compra anterior sin pagar quedó vencida

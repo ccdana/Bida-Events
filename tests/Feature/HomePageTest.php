@@ -30,7 +30,7 @@ class HomePageTest extends TestCase
             // Servicios: primero «Hazlo tú» (gratis), luego que la hagamos nosotros, los planes y lo de temporada,
             // cada uno con su precio de hoy (en dólares)
             ->assertSee('id="servicios"', false)
-            ->assertSeeInOrder(['Hazlo tú', 'Gratis', 'Te la hacemos', 'Desde', 'US$ 22', 'Planes para profesionales', 'Desde', 'US$ 9', 'al mes', 'Diseños de temporada'])
+            ->assertSeeInOrder(['Hazlo tú', 'Gratis', 'Te la hacemos', 'Desde', 'US$ 22', 'Planes para profesionales', 'Desde', 'US$ 10', 'al mes', 'Diseños de temporada'])
             ->assertSee(route('diy'), false)
             // Los recuerdos en vivo van dentro de lo que incluye la invitación, y ya no hay sección de contacto
             ->assertSeeInOrder(['id="incluye"', 'Pase QR y control de entrada', 'Fotomural en vivo', 'id="precios"'], false)

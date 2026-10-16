@@ -50,9 +50,9 @@ class LibelulaFlowTest extends TestCase
             ->assertSee('Pago en Bolivia: QR, Tigo Money o tarjeta boliviana')
             ->assertSee('Cuántos meses pagas')
             ->assertSee('12 meses')
-            // Precio de hoy del Inicial (US$ 9) al cambio oficial: Bs 63 al mes, Bs 188 por 3 meses
-            ->assertSee('63.00', false)
-            ->assertSee('188.00', false);
+            // Precio de hoy del Inicial (US$ 10) al cambio oficial: Bs 70 al mes, Bs 209 por 3 meses
+            ->assertSee('70.00', false)
+            ->assertSee('209.00', false);
     }
 
     public function test_paying_by_qr_shows_the_qr_in_bolivianos_for_the_chosen_months(): void
@@ -62,14 +62,14 @@ class LibelulaFlowTest extends TestCase
         $this->assertSame('libelula', $order->provider);
         $this->assertSame('BOB', $order->currency);
         $this->assertSame(3, $order->months);
-        $this->assertSame('188.00', $order->amount);
+        $this->assertSame('209.00', $order->amount);
         $this->assertSame(self::LIBELULA_TRANSACTION, $order->provider_ref);
         $this->assertStringStartsWith('data:image/png;base64,', $order->meta['qr_image']);
 
         $this->actingAs($this->buyer)->withoutVite()->get(route('client.subscription.order', $order->public_id))
             ->assertOk()
             ->assertSee('Escanea el QR para pagar')
-            ->assertSee('Bs 188')
+            ->assertSee('Bs 209')
             ->assertSee('Plan Inicial · 3 meses')
             ->assertSee('Pagar con Tigo Money o tarjeta')
             ->assertSee($order->meta['qr_image'], false);
@@ -78,7 +78,7 @@ class LibelulaFlowTest extends TestCase
     public function test_the_notice_from_libelula_activates_the_months_paid(): void
     {
         $order = $this->buy('inicial', 3);
-        $this->libelulaReceives($order->public_id, '188');
+        $this->libelulaReceives($order->public_id, '209');
 
         // Libélula avisa con un GET a la callback_url, agregando ?transaction_id=…
         $this->get(route('webhooks.payments', ['provider' => 'libelula', 'orden' => $order->public_id, 'transaction_id' => self::LIBELULA_TRANSACTION]))->assertOk();
@@ -94,7 +94,7 @@ class LibelulaFlowTest extends TestCase
 
         $payment = SubscriptionPayment::sole();
         $this->assertSame('libelula', $payment->provider);
-        $this->assertSame('188.00', $payment->amount);
+        $this->assertSame('209.00', $payment->amount);
         $this->assertSame('BOB', $payment->currency);
         $this->assertSame('QR', $payment->providerLabel());
         $this->assertTrue($order->fresh()->isPaid());
@@ -114,7 +114,7 @@ class LibelulaFlowTest extends TestCase
     public function test_a_payment_for_a_different_amount_is_left_to_review(): void
     {
         $order = $this->buy('inicial', 3);
-        $this->libelulaReceives($order->public_id, '63');
+        $this->libelulaReceives($order->public_id, '70');
 
         $this->get(route('webhooks.payments', ['provider' => 'libelula', 'orden' => $order->public_id, 'transaction_id' => self::LIBELULA_TRANSACTION]))->assertOk();
 
@@ -126,7 +126,7 @@ class LibelulaFlowTest extends TestCase
     public function test_a_lost_notice_is_caught_by_the_periodic_check(): void
     {
         $order = $this->buy('emprendedor', 1);
-        $this->libelulaReceives($order->public_id, '202');
+        $this->libelulaReceives($order->public_id, '139');
 
         // El aviso nunca llegó; la verificación cada 5 minutos encuentra el pago
         $this->artisan('bida:verificar-pagos')->expectsOutputToContain('Cobros confirmados: 1')->assertSuccessful();
@@ -152,7 +152,7 @@ class LibelulaFlowTest extends TestCase
             ->assertSee('Este cobro venció sin pagarse');
 
         // Se pagó justo al vencer: el aviso llega después y se activa igual
-        $this->libelulaReceives($order->public_id, '188');
+        $this->libelulaReceives($order->public_id, '209');
         $this->get(route('webhooks.payments', ['provider' => 'libelula', 'orden' => $order->public_id, 'transaction_id' => self::LIBELULA_TRANSACTION]))->assertOk();
         $this->assertTrue($order->fresh()->isPaid());
         $this->assertTrue($this->buyer->fresh()->hasActiveSubscription());
@@ -164,7 +164,7 @@ class LibelulaFlowTest extends TestCase
         $this->buyer = $reseller;
 
         $order = $this->buy('inicial', 1);
-        $this->libelulaReceives($order->public_id, '63');
+        $this->libelulaReceives($order->public_id, '70');
         $this->artisan('bida:verificar-pagos')->assertSuccessful();
 
         // Pagar antes de vencer no hace perder días
@@ -177,8 +177,8 @@ class LibelulaFlowTest extends TestCase
 
         $order = $this->buy('inicial', 12);
 
-        // 9 × 12 = 108 US$, con 10 % menos = 97,20 US$ → Bs 677
-        $this->assertSame('677.00', $order->amount);
+        // 10 × 12 = 120 US$, con 10 % menos = 108 US$ → Bs 752
+        $this->assertSame('752.00', $order->amount);
         $this->assertSame(12, $order->months);
 
         $this->actingAs($this->buyer)->post(route('client.subscription.store'), ['plan' => 'inicial', 'method' => 'qr', 'months' => 7])

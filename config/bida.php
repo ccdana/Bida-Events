@@ -31,7 +31,7 @@ return [
     'legal' => [
         'name' => env('BIDA_LEGAL_NAME'),
         'nit' => env('BIDA_LEGAL_NIT'),
-        'updated_at' => '2026-10-14',
+        'updated_at' => '2026-10-15',
     ],
 
     // Solo dígitos, con código de país (591 para Bolivia)
@@ -507,7 +507,7 @@ return [
     |    descuento). Se cambian en Ajustes. Una temporada puede tener su precio único («diy_price» en
     |    «seasons»): sus diseños se publican con todo por ese precio.
     |
-    | (Supuesto) Precios, pendientes de confirmar con el dueño: menos que «Te la hacemos» del mismo nivel.
+    | Precios definidos por el dueño (2026-10-15): US$ 2, 4 y 6, menos que «Te la hacemos» del mismo nivel.
     */
     'diy' => [
         'drafts_limit' => (int) env('BIDA_DIY_DRAFTS_LIMIT', 3),
@@ -515,9 +515,9 @@ return [
         'days_after_event' => ['gratis' => 7, 'paid' => 30],
         'collections' => ['lienzo', 'clasica', 'nueva', 'tendencias', 'temporada'],
         'prices' => [
-            'basico' => ['price' => 9, 'promo_price' => null],
-            'estandar' => ['price' => 19, 'promo_price' => null],
-            'premium' => ['price' => 35, 'promo_price' => null],
+            'basico' => ['price' => 2, 'promo_price' => null],
+            'estandar' => ['price' => 4, 'promo_price' => null],
+            'premium' => ['price' => 6, 'promo_price' => null],
         ],
     ],
 
@@ -606,12 +606,12 @@ return [
     | todavía más el catálogo con una lista de plantillas. «promo_price» es el precio con descuento
     | (null = sin descuento): se muestra el normal tachado. Precio, descuento y cupo se cambian en Ajustes.
     |
-    | (Supuesto) Precios y cupos, pendientes de confirmar con el dueño.
+    | Precios definidos por el dueño (2026-10-15): US$ 10, 20 y 30 al mes. Los cupos son un supuesto.
     */
     'reseller_plans' => [
         'inicial' => [
             'name' => 'Inicial',
-            'price' => 9,
+            'price' => 10,
             'promo_price' => null,
             'quota_per_month' => 5,
             'collections' => ['lienzo', 'clasica', 'temporada'],
@@ -625,8 +625,8 @@ return [
         ],
         'emprendedor' => [
             'name' => 'Emprendedor',
-            'price' => 36,
-            'promo_price' => 29,
+            'price' => 20,
+            'promo_price' => null,
             'quota_per_month' => 20,
             'collections' => ['lienzo', 'clasica', 'temporada', 'nueva', 'tendencias'],
             'rsvp' => ['whatsapp', 'pass'],
@@ -639,8 +639,8 @@ return [
         ],
         'agencia' => [
             'name' => 'Agencia',
-            'price' => 72,
-            'promo_price' => 59,
+            'price' => 30,
+            'promo_price' => null,
             'quota_per_month' => null,
             'collections' => ['lienzo', 'clasica', 'temporada', 'nueva', 'tendencias'],
             'rsvp' => ['whatsapp', 'pass'],
