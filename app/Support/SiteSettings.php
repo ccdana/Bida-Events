@@ -8,7 +8,8 @@ use Illuminate\Support\Facades\Cache;
 /**
  * Lo que el administrador maneja desde el panel sin tocar el código: los precios de los paquetes,
  * la promoción y hasta cuándo dura, cada temporada (encendida o no, precio y fecha, por separado),
- * qué plantillas de temporada se ofrecen hoy, el precio y el cupo de cada plan de revendedor y los
+ * qué plantillas de temporada se ofrecen hoy, el precio y el cupo de cada plan de revendedor, el
+ * precio de cada nivel de «Hazlo tú» y los
  * datos de contacto (WhatsApp, correo y redes sociales) que se ven en todo el sitio.
  *
  * Lo guardado se aplica sobre config/bida.php al arrancar (AppServiceProvider), así que el resto
@@ -20,7 +21,10 @@ final class SiteSettings
     private const CACHE_KEY = 'bida.site-settings';
 
     /** Grupos que se guardan; cualquier otro nombre se ignora. */
-    public const GROUPS = ['promo', 'packages', 'season', 'templates', 'reseller_plans', 'contact'];
+    public const GROUPS = ['promo', 'packages', 'season', 'templates', 'reseller_plans', 'prepay', 'diy_prices', 'contact'];
+
+    /** Los ciclos con descuento de los planes: pagar 3 o 12 meses de una vez (config «payments.prepay»). */
+    public const PREPAY_MONTHS = [3, 12];
 
     /** Datos de contacto que se cambian desde Ajustes (claves de config/bida.php). */
     public const CONTACT_FIELDS = ['whatsapp', 'email', 'instagram', 'facebook', 'tiktok'];
@@ -38,6 +42,8 @@ final class SiteSettings
         self::applyPromo($stored['promo'] ?? []);
         self::applySeasons($stored['season'] ?? []);
         self::applyResellerPlans($stored['reseller_plans'] ?? []);
+        self::applyPrepay($stored['prepay'] ?? []);
+        self::applyDiyPrices($stored['diy_prices'] ?? []);
         self::applyContact($stored['contact'] ?? []);
 
         config(['bida.templates_disabled' => $stored['templates']['disabled'] ?? []]);
@@ -59,6 +65,9 @@ final class SiteSettings
                     'summary' => $package['summary'] ?? '',
                     'price' => (int) $package['price'],
                     'promo_price' => isset($package['promo_price']) ? (int) $package['promo_price'] : null,
+                    // El servicio de «Te la hacemos»: plazo de entrega y rondas de cambios (null = sin límite)
+                    'delivery' => (string) ($package['service']['delivery'] ?? ''),
+                    'revisions' => isset($package['service']['revisions']) ? (int) $package['service']['revisions'] : null,
                 ])
                 ->values()
                 ->all(),
@@ -71,10 +80,22 @@ final class SiteSettings
                     'price' => (int) ($season['price'] ?? 0),
                     'promo_price' => isset($season['promo_price']) ? (int) $season['promo_price'] : null,
                     'ends_at' => $season['ends_at'] ?? null,
+                    'diy_price' => isset($season['diy_price']) ? (int) $season['diy_price'] : null,
                 ])
                 ->values()
                 ->all(),
             'templates' => ['disabled' => (array) config('bida.templates_disabled', [])],
+            // «Hazlo tú»: cada nivel pagado, con el resumen del paquete del mismo nombre
+            'diy_prices' => collect(config('bida.diy.prices', []))
+                ->map(fn (array $tier, string $key) => [
+                    'key' => $key,
+                    'name' => Packages::tierNames()[$key] ?? $key,
+                    'summary' => collect(config('bida.packages', []))->firstWhere('key', $key)['summary'] ?? '',
+                    'price' => (int) $tier['price'],
+                    'promo_price' => isset($tier['promo_price']) ? (int) $tier['promo_price'] : null,
+                ])
+                ->values()
+                ->all(),
             'contact' => collect(self::CONTACT_FIELDS)->mapWithKeys(fn (string $field) => [$field => (string) config("bida.{$field}", '')])->all(),
             'reseller_plans' => collect(config('bida.reseller_plans', []))
                 ->map(fn (array $plan, string $key) => [
@@ -87,6 +108,8 @@ final class SiteSettings
                 ])
                 ->values()
                 ->all(),
+            // Descuento en % por pagar 3 o 12 meses de una vez
+            'prepay' => collect(self::PREPAY_MONTHS)->mapWithKeys(fn (int $months) => [$months => (int) config("payments.prepay.{$months}", 0)])->all(),
         ];
     }
 
@@ -145,6 +168,15 @@ final class SiteSettings
                     $package['promo_price'] = (int) $promo;
                 }
 
+                // El servicio: plazo de entrega y rondas de cambios (vacío = sin límite hasta el evento)
+                if (array_key_exists('delivery', $stored)) {
+                    $package['service']['delivery'] = trim((string) $stored['delivery']);
+                }
+
+                if (array_key_exists('revisions', $stored)) {
+                    $package['service']['revisions'] = $stored['revisions'] === null || $stored['revisions'] === '' ? null : (int) $stored['revisions'];
+                }
+
                 return $package;
             })
             ->all();
@@ -200,6 +232,35 @@ final class SiteSettings
         }
     }
 
+    /** Descuento por pagar 3 o 12 meses de una vez (0 a 90 %). */
+    private static function applyPrepay(array $prepay): void
+    {
+        foreach (self::PREPAY_MONTHS as $months) {
+            if (array_key_exists($months, $prepay)) {
+                config(["payments.prepay.{$months}" => max(0, min(90, (int) $prepay[$months]))]);
+            }
+        }
+    }
+
+    /** Precio normal y con descuento de cada nivel de «Hazlo tú», por su clave. */
+    private static function applyDiyPrices(array $prices): void
+    {
+        foreach ($prices as $key => $values) {
+            if (! is_array($values) || ! is_array(config("bida.diy.prices.{$key}"))) {
+                continue;
+            }
+
+            if (array_key_exists('price', $values)) {
+                config(["bida.diy.prices.{$key}.price" => (int) $values['price']]);
+            }
+
+            if (array_key_exists('promo_price', $values)) {
+                $promo = $values['promo_price'];
+                config(["bida.diy.prices.{$key}.promo_price" => $promo === null || $promo === '' ? null : (int) $promo]);
+            }
+        }
+    }
+
     /**
      * Cada temporada por su clave: encendida o apagada, precio y fecha de término. Son
      * independientes: apagar el Día del Amor no toca a Halloween. Lo guardado antes de que hubiera
@@ -221,7 +282,7 @@ final class SiteSettings
                 config(["bida.seasons.{$key}.active" => (bool) $values['active']]);
             }
 
-            foreach (['price', 'promo_price'] as $field) {
+            foreach (['price', 'promo_price', 'diy_price'] as $field) {
                 if (array_key_exists($field, $values)) {
                     config(["bida.seasons.{$key}.{$field}" => $values[$field] === null || $values[$field] === '' ? null : (int) $values[$field]]);
                 }

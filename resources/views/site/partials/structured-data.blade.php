@@ -11,14 +11,14 @@
 --}}
 @php
     $brand = config('bida.brand');
-    $organizationId = route('home').'#organizacion';
+    $organizationId = lroute('home').'#organizacion';
     $sameAs = array_values(array_filter([
         config('bida.instagram') ? 'https://www.instagram.com/'.config('bida.instagram').'/' : null,
         config('bida.facebook') ? 'https://www.facebook.com/'.config('bida.facebook') : null,
         config('bida.tiktok') ? 'https://www.tiktok.com/@'.config('bida.tiktok') : null,
     ]));
     $offers ??= collect(\App\Support\Offers::packages())->map(fn (array $package) => [
-        'name' => 'Paquete '.$package['name'],
+        'name' => __('Paquete :name', ['name' => $package['name']]),
         'price' => $package['final_price'],
         'description' => $package['summary'] ?? '',
     ])->all();
@@ -28,29 +28,29 @@
             '@type' => 'Organization',
             '@id' => $organizationId,
             'name' => $brand,
-            'url' => route('home'),
+            'url' => lroute('home'),
             'logo' => asset('favicon.svg'),
             'email' => config('bida.email'),
             'telephone' => '+'.ltrim((string) config('bida.whatsapp'), '+'),
             'address' => ['@type' => 'PostalAddress', 'addressLocality' => config('bida.city'), 'addressCountry' => 'BO'],
-            'areaServed' => ['Bolivia', 'Latinoamérica'],
-            'knowsAbout' => ['invitaciones digitales', 'invitaciones web para bodas', 'invitaciones de XV años', 'confirmación de asistencia (RSVP)', 'control de entrada con código QR'],
+            'areaServed' => [__('Bolivia'), __('Latinoamérica')],
+            'knowsAbout' => ['invitaciones digitales', __('invitaciones web para bodas'), __('invitaciones de XV años'), __('confirmación de asistencia (RSVP)'), __('control de entrada con código QR')],
             'sameAs' => $sameAs,
         ],
         [
             '@type' => 'WebSite',
-            '@id' => route('home').'#sitio',
-            'url' => route('home'),
+            '@id' => lroute('home').'#sitio',
+            'url' => lroute('home'),
             'name' => $brand,
             'inLanguage' => 'es',
             'publisher' => ['@id' => $organizationId],
         ],
         [
             '@type' => 'Service',
-            'name' => $serviceName ?? 'Invitaciones digitales para eventos',
-            'serviceType' => 'Invitación digital (página web del evento)',
+            'name' => $serviceName ?? __('Invitaciones digitales para eventos'),
+            'serviceType' => __('Invitación digital (página web del evento)'),
             'provider' => ['@id' => $organizationId],
-            'areaServed' => ['Bolivia', 'Latinoamérica'],
+            'areaServed' => [__('Bolivia'), __('Latinoamérica')],
             'offers' => array_map(fn (array $offer) => [
                 '@type' => 'Offer',
                 'name' => $offer['name'],
@@ -85,7 +85,7 @@
             'dateModified' => $article['modified'],
             'author' => ['@id' => $organizationId],
             'publisher' => ['@id' => $organizationId],
-            'about' => ['invitación digital', 'confirmación de asistencia', 'control de entrada con código QR'],
+            'about' => [__('invitación digital'), __('confirmación de asistencia'), __('control de entrada con código QR')],
         ];
     }
 

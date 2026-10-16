@@ -5,8 +5,8 @@
     llevan todas las secciones (--cb-stamp). Estilos en css/invitation/tendencias/cabina.css.
 --}}
 @php
-    $date = $page->eventDate->locale('es');
-    $heroEyebrow = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? '¡Celebremos juntos!');
+    $date = $page->eventDate->locale(app()->getLocale());
+    $heroEyebrow = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? __('¡Celebremos juntos!'));
     $heroMessage = trim((string) ($page->welcome['mensaje'] ?? ''));
 @endphp
 {{-- El sello de la fecha de todas las secciones y la tinta que se lee sobre el papel fotográfico --}}
@@ -34,7 +34,7 @@
     @endif
 
     <a href="#contenido" class="inv-hero__scroll cb-hero__scroll">
-        {{ $invCopy['scroll_hint'] ?? 'Desliza' }}
+        {{ $invCopy['scroll_hint'] ?? __('Desliza') }}
         <span class="inv-hero__scroll-line" aria-hidden="true"></span>
     </a>
 </header>

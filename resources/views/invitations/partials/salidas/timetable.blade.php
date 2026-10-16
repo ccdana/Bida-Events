@@ -10,16 +10,16 @@
 <section class="inv-section reveal ps-timetable-section" id="itinerario">
     <div class="inv-wrap inv-wrap--wide">
         @include('invitations.partials.section-header', [
-            'eyebrow' => $invCopy['itinerary_eyebrow'] ?? 'Horario del día',
-            'title' => $data['titulo'] ?? 'Itinerario',
+            'eyebrow' => $invCopy['itinerary_eyebrow'] ?? __('Horario del día'),
+            'title' => $data['titulo'] ?? __('Itinerario'),
         ])
 
         @if(count($eventos) > 0)
             <table class="ps-timetable">
                 <thead>
                     <tr>
-                        <th scope="col">{{ $invCopy['board_time'] ?? 'Hora' }}</th>
-                        <th scope="col">{{ $invCopy['board_destination'] ?? 'Destino' }}</th>
+                        <th scope="col">{{ $invCopy['board_time'] ?? __('Hora') }}</th>
+                        <th scope="col">{{ $invCopy['board_destination'] ?? __('Destino') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -37,7 +37,7 @@
                 </tbody>
             </table>
         @else
-            <p class="inv-empty">{{ $invCopy['itinerary_empty'] ?? 'Muy pronto publicaremos el horario del acto y de la fiesta.' }}</p>
+            <p class="inv-empty">{{ $invCopy['itinerary_empty'] ?? __('Muy pronto publicaremos el horario del acto y de la fiesta.') }}</p>
         @endif
     </div>
 </section>

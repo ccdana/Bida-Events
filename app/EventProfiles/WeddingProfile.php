@@ -11,7 +11,7 @@ class WeddingProfile extends EventProfile
 
     public function label(): string
     {
-        return 'Boda';
+        return __('Boda');
     }
 
     public function modules(): array
@@ -27,17 +27,17 @@ class WeddingProfile extends EventProfile
     public function heroFields(): array
     {
         return [
-            'nombre' => ['label' => 'Nombre de uno de los novios', 'placeholder' => 'Ej. Camila'],
-            'nombre_pareja' => ['label' => 'Nombre de su pareja', 'placeholder' => 'Ej. Andrés', 'help' => 'La portada los une con un ampersand caligráfico.'],
+            'nombre' => ['label' => __('Nombre de uno de los novios'), 'placeholder' => __('Ej. Camila')],
+            'nombre_pareja' => ['label' => __('Nombre de su pareja'), 'placeholder' => __('Ej. Andrés'), 'help' => __('La portada los une con un ampersand caligráfico.')],
         ];
     }
 
     public function featuredGroups(): array
     {
         return [
-            'chambelanes' => ['Caballeros de honor', 'Caballero'],
-            'damitas' => ['Damas de honor', 'Dama'],
-            'padrinos' => ['Padrinos', 'Padrino'],
+            'chambelanes' => [__('Caballeros de honor'), __('Caballero')],
+            'damitas' => [__('Damas de honor'), __('Dama')],
+            'padrinos' => [__('Padrinos'), __('Padrino')],
         ];
     }
 
@@ -45,17 +45,17 @@ class WeddingProfile extends EventProfile
     {
         return [
             'bienvenida' => [
-                'nombre' => 'Falta el nombre de uno de los novios',
-                'nombre_pareja' => 'Falta el nombre de su pareja',
-                'imagen_hero' => 'Falta la foto de portada',
+                'nombre' => __('Falta el nombre de uno de los novios'),
+                'nombre_pareja' => __('Falta el nombre de su pareja'),
+                'imagen_hero' => __('Falta la foto de portada'),
             ],
-            'ubicacion' => ['nombre_lugar' => 'Falta el lugar de la boda'],
-            'itinerario' => ['eventos' => 'No hay ningún momento cargado'],
+            'ubicacion' => ['nombre_lugar' => __('Falta el lugar de la boda')],
+            'itinerario' => ['eventos' => __('No hay ningún momento cargado')],
         ];
     }
 
     public function sample(): array
     {
-        return ['name' => 'Ana & Luis', 'subtitle' => 'Nos casamos'];
+        return ['name' => __('Ana & Luis'), 'subtitle' => __('Nos casamos')];
     }
 }

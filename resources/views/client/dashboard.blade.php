@@ -12,6 +12,13 @@
 
     @include('client.partials.export-status')
 
+    @if(session('success'))
+        <p class="site-enter mt-6 flex items-center gap-2 rounded-[12px] border border-site-line bg-site-surface px-4 py-3 text-sm" role="status">
+            <x-phosphor-check-circle class="size-5 shrink-0 text-site-accent" aria-hidden="true" />
+            {{ session('success') }}
+        </p>
+    @endif
+
     @if($errors->has('quota'))
         <p class="site-enter mt-6 flex items-start gap-2 rounded-[12px] border border-site-danger/40 bg-site-danger/10 px-4 py-3 text-sm text-site-danger" role="alert">
             <x-phosphor-warning-circle class="size-5 shrink-0" aria-hidden="true" />
@@ -27,9 +34,9 @@
                     <p class="text-sm text-site-muted">Plan {{ $reseller['planName'] }}</p>
                     <p class="mt-1 text-3xl font-semibold tracking-tight tabular-nums">{{ $reseller['quotaLabel'] }}</p>
                     <p class="mt-1 text-sm text-site-muted">
-                        invitaciones creadas este mes
+                        invitaciones publicadas este mes
                         @if($reseller['renewsLabel'])
-                            · {{ $reseller['isActive'] ? 'renueva el' : 'venció el' }} {{ $reseller['renewsLabel'] }}
+                            · {{ match (true) { $reseller['isPastDue'] => 'venció el', $reseller['autoRenews'] => 'se renueva solo el', default => 'renueva el' } }} {{ $reseller['renewsLabel'] }}
                         @endif
                     </p>
                 </div>
@@ -47,6 +54,9 @@
                         </span>
                         <p class="mt-2 text-sm text-site-muted">{{ $reseller['blockedReason'] }}</p>
                     @endif
+                    @if($reseller['quotaNote'])
+                        <p class="mt-2 max-w-[34ch] text-sm text-site-muted sm:ml-auto">{{ $reseller['quotaNote'] }}</p>
+                    @endif
                 </div>
             </div>
 
@@ -57,9 +67,43 @@
                     'bg-site-tint' => $reseller['isActive'],
                 ]) role="status">
                     <x-phosphor-bell-ringing class="size-5 shrink-0" aria-hidden="true" />
-                    {{ $reseller['warning'] }}
+                    <span>
+                        {{ $reseller['warning'] }}
+                        @if($reseller['payUrl'])
+                            <a href="{{ $reseller['payUrl'] }}" class="ml-1 font-medium underline underline-offset-4">{{ $reseller['isActive'] ? 'Renovar' : 'Pagar ahora' }}</a>
+                        @endif
+                    </span>
                 </p>
             @endif
+        </section>
+    @endif
+
+    {{-- «Hazlo tú»: cualquiera arma su invitación sin pagar antes; al publicar elige gratis o con más --}}
+    @if($diy && $total > 0)
+        <section class="site-enter admin-card mt-8 flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between lg:p-8" style="--enter-index: 1">
+            <div>
+                <h2 class="text-lg font-semibold tracking-tight">Arma otra invitación</h2>
+                <p class="mt-1 max-w-[52ch] text-sm text-site-muted">
+                    Pruébala con todas las partes que quieras: pagas solo si al publicarla usas más de lo gratuito.
+                    @if($diy['drafts'] > 0)
+                        Tienes {{ $diy['drafts'] }} de {{ $diy['limit'] }} borradores.
+                    @endif
+                </p>
+            </div>
+            <div class="sm:text-right">
+                @if($diy['canCreate'])
+                    <a href="{{ route('client.diy.create') }}" class="admin-primary-button">
+                        <x-phosphor-plus-bold aria-hidden="true" />
+                        Nueva invitación
+                    </a>
+                @else
+                    <span class="admin-primary-button pointer-events-none opacity-50" aria-disabled="true">
+                        <x-phosphor-plus-bold aria-hidden="true" />
+                        Nueva invitación
+                    </span>
+                    <p class="mt-2 text-sm text-site-muted">{{ $diy['blockedReason'] }}</p>
+                @endif
+            </div>
         </section>
     @endif
 
@@ -97,14 +141,20 @@
                                 @if($invitation->event_date)
                                     <p class="mt-2 inline-flex items-center gap-2 text-site-muted">
                                         <x-phosphor-calendar-blank class="size-5 shrink-0" aria-hidden="true" />
-                                        {{ $invitation->event_date->locale('es')->translatedFormat('j \d\e F \d\e Y') }}, {{ $invitation->event_date->format('H:i') }}
+                                        {{ $invitation->event_date->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('j \d\e F \d\e Y')) }}, {{ $invitation->event_date->format('H:i') }}
                                     </p>
                                 @endif
                             </div>
-                            <span class="admin-status-badge self-start {{ $row['isPast'] ? 'is-primary' : ($row['publicUrl'] ? 'is-success' : 'is-pending') }}">
-                                <span class="admin-status-dot"></span>
-                                {{ $row['isPast'] ? 'Ya celebrado' : ($row['publicUrl'] ? 'En línea' : 'Sin publicar') }}
-                            </span>
+                            <div class="flex flex-col gap-1.5 self-start sm:items-end">
+                                <span class="admin-status-badge {{ $row['isPast'] ? 'is-primary' : ($row['publicUrl'] ? 'is-success' : 'is-pending') }}">
+                                    <span class="admin-status-dot"></span>
+                                    {{ $row['isPast'] ? 'Ya celebrado' : ($row['publicUrl'] ? 'En línea' : ($invitation->is_diy && ! $row['tierLabel'] ? 'Borrador' : 'Sin publicar')) }}
+                                </span>
+                                {{-- «Hazlo tú»: el nivel con el que se publicó --}}
+                                @if($row['tierLabel'])
+                                    <span class="text-xs text-site-muted">Nivel {{ $row['tierLabel'] }}</span>
+                                @endif
+                            </div>
                         </div>
 
                         <dl @class([
@@ -141,6 +191,14 @@
                                 </a>
                             @endcan
 
+                            {{-- «Hazlo tú»: su dueño la edita siempre; un borrador que nunca se publicó, también lo borra --}}
+                            @can('editOwn', $invitation)
+                                <a href="{{ route('client.diy.edit', $invitation) }}" class="admin-link-button">
+                                    <x-phosphor-pencil-simple aria-hidden="true" />
+                                    Editar
+                                </a>
+                            @endcan
+
                             @if($row['publicUrl'])
                                 <a href="{{ $row['publicUrl'] }}" target="_blank" rel="noopener" class="admin-link-button">
                                     <x-phosphor-arrow-square-out aria-hidden="true" />
@@ -153,6 +211,18 @@
                                     {{ $row['unavailableReason'] }}
                                 </span>
                             @endif
+
+                            @can('deleteOwn', $invitation)
+                                <form method="POST" action="{{ route('client.diy.destroy', $invitation) }}" class="sm:ml-auto"
+                                    onsubmit="return confirm(@js('¿Borrar el borrador «'.$invitation->title.'»? No se puede recuperar.'))">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="admin-link-button text-site-danger">
+                                        <x-phosphor-trash aria-hidden="true" />
+                                        Borrar borrador
+                                    </button>
+                                </form>
+                            @endcan
                         </div>
                     </article>
                 @endforeach
@@ -166,12 +236,35 @@
                 <p class="mt-1 max-w-[40ch] text-site-muted">Prueba con otra palabra del nombre.</p>
                 <a href="{{ route('client.dashboard') }}" class="admin-link-button mt-6">Ver todos mis eventos</a>
             @else
-                <h2 class="mt-4 text-lg font-medium">Todavía no tienes eventos</h2>
                 @if($reseller)
-                    <p class="mt-1 max-w-[40ch] text-site-muted">Crea la primera con «Nueva invitación»: aparecerá aquí con sus confirmaciones.</p>
-                @else
-                    <p class="mt-1 max-w-[40ch] text-site-muted">Cuando armemos tu invitación, aparecerá aquí con sus confirmaciones.</p>
-                    <a href="{{ route('home') }}#contacto" class="admin-link-button mt-6">Contactar al equipo</a>
+                    {{-- Con plan: lo que sigue es crear la primera invitación --}}
+                    <x-site.journey :current="4" class="mb-8 w-full max-w-md text-left" />
+                    <h2 class="text-lg font-medium">Crea tu primera invitación</h2>
+                    <p class="mt-1 max-w-[40ch] text-site-muted">Elige una plantilla, sube tus fotos y publícala. Aparecerá aquí con sus confirmaciones.</p>
+                    @if($reseller['canCreate'])
+                        <a href="{{ route('client.invitations.create') }}" class="admin-primary-button mt-6">
+                            <x-phosphor-plus-bold aria-hidden="true" />
+                            Nueva invitación
+                        </a>
+                    @endif
+                @elseif($diy)
+                    {{-- Cuenta recién abierta: arma tu invitación sin pagar antes («Hazlo tú»); al publicar eliges gratis o con más --}}
+                    <h2 class="text-lg font-medium">Arma tu invitación, gratis</h2>
+                    <p class="mt-1 max-w-[46ch] text-site-muted">
+                        Elige un diseño y prueba todas las partes que quieras. Al publicarla decides: gratis con la portada,
+                        la cuenta regresiva y la ubicación, o con todo lo que armaste.
+                    </p>
+                    <div class="mt-6 flex flex-wrap justify-center gap-2">
+                        <a href="{{ route('client.diy.create') }}" class="admin-primary-button">
+                            <x-phosphor-plus-bold aria-hidden="true" />
+                            Crear mi invitación
+                        </a>
+                        <a href="{{ lroute('pricing') }}#te-la-hacemos" class="admin-link-button">Prefiero que me la hagan</a>
+                    </div>
+                    <p class="mt-6 max-w-[46ch] text-sm text-site-muted">
+                        ¿Armas invitaciones para tus clientes? <a href="{{ $startUrl }}" class="font-medium text-site-ink underline underline-offset-4">Mira los planes mensuales</a>.
+                        Si el equipo ya está armando tu invitación, aparecerá aquí cuando esté lista.
+                    </p>
                 @endif
             @endif
         </div>

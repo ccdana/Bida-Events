@@ -2,13 +2,13 @@
     <div class="inv-wrap inv-wrap--wide">
         <header class="inv-head">
             @include('invitations.partials.lottie-framed-icon', ['name' => $invCopy['countdown_lottie'] ?? 'clock'])
-            <p class="inv-head__eyebrow" x-text="finished ? @js($invCopy['countdown_done_eyebrow'] ?? 'Llegó el momento') : @js($invCopy['countdown_eyebrow'] ?? 'El gran día se acerca')">{{ $invCopy['countdown_eyebrow'] ?? 'El gran día se acerca' }}</p>
-            <h2 class="inv-head__title" x-text="finished ? @js($invCopy['countdown_done_title'] ?? '¡Hoy es el gran día!') : @js($invCopy['countdown_title'] ?? 'Faltan')">{{ $invCopy['countdown_title'] ?? 'Faltan' }}</h2>
+            <p class="inv-head__eyebrow" x-text="finished ? @js($invCopy['countdown_done_eyebrow'] ?? __('Llegó el momento')) : @js($invCopy['countdown_eyebrow'] ?? __('El gran día se acerca'))">{{ $invCopy['countdown_eyebrow'] ?? __('El gran día se acerca') }}</p>
+            <h2 class="inv-head__title" x-text="finished ? @js($invCopy['countdown_done_title'] ?? __('¡Hoy es el gran día!')) : @js($invCopy['countdown_title'] ?? __('Faltan'))">{{ $invCopy['countdown_title'] ?? __('Faltan') }}</h2>
             <div class="inv-head__rule" aria-hidden="true"></div>
         </header>
 
         <div class="inv-countdown__grid" role="timer" x-show="!finished">
-            @foreach(['days' => 'Días', 'hours' => 'Horas', 'minutes' => 'Minutos', 'seconds' => 'Segundos'] as $unit => $label)
+            @foreach(['days' => __('Días'), 'hours' => __('Horas'), 'minutes' => __('Minutos'), 'seconds' => __('Segundos')] as $unit => $label)
                 <div class="inv-countdown__unit">
                     <span class="inv-countdown__value" x-text="pad(time.{{ $unit }})">00</span>
                     <span class="inv-countdown__label">{{ $label }}</span>
@@ -21,10 +21,10 @@
         @endif
 
         @if($agendar ?? false)
-            <div class="inv-actions inv-countdown__actions">
+            <div class="inv-actions inv-countdown__actions" data-ed="agendar">
                 <button type="button" class="inv-btn inv-btn--ghost" data-url="{{ $calendarUrl }}" onclick="openCalendar(this.dataset.url)">
                     @include('invitations.partials.lottie-icon', ['name' => 'calendar', 'class' => 'inv-countdown__lottie'])
-                    {{ $invCopy['countdown_calendar'] ?? 'Agendar en mi calendario' }}
+                    {{ $invCopy['countdown_calendar'] ?? __('Agendar en mi calendario') }}
                 </button>
             </div>
         @endif

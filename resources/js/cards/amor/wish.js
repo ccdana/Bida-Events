@@ -6,6 +6,7 @@
  *   semillas según la fuerza. El micrófono se apaga al terminar, al tocar de nuevo o a los 8 s.
  * Cuando quedan pocas semillas, se van todas y aparece el deseo. Es una puerta del modo historia.
  */
+import { t } from '../../i18n.js';
 import { celebrate, prefersReducedMotion, vibrate } from '../../story/effects.js';
 
 const SWIPE_UP = 40;
@@ -16,13 +17,14 @@ const MIC_LIMIT_MS = 8000;
 const insideEditor = () => window.self !== window.top && !window.invDemo;
 const random = (min, max) => min + Math.random() * (max - min);
 
-const MIC_MESSAGES = {
-    blocked: 'El micrófono está bloqueado para esta página. Actívalo en los permisos del navegador (el candado junto a la dirección) o desliza hacia arriba para soplar.',
-    dismissed: 'No se dio permiso para usar el micrófono. Tócalo otra vez y elige «Permitir», o desliza hacia arriba para soplar.',
-    missing: 'No encontramos un micrófono en este dispositivo. Desliza hacia arriba para soplar.',
-    busy: 'Otra aplicación está usando el micrófono. Ciérrala e inténtalo de nuevo, o desliza hacia arriba.',
-    unsupported: 'Este navegador no deja usar el micrófono aquí. Desliza hacia arriba para soplar.',
-};
+// Se leen al usarlos (no al cargar el módulo): window.bidaStrings llega con la página
+const micMessage = (kind) => ({
+    blocked: t('mic_blocked', 'El micrófono está bloqueado para esta página. Actívalo en los permisos del navegador (el candado junto a la dirección) o desliza hacia arriba para soplar.'),
+    dismissed: t('mic_dismissed', 'No se dio permiso para usar el micrófono. Tócalo otra vez y elige «Permitir», o desliza hacia arriba para soplar.'),
+    missing: t('mic_missing', 'No encontramos un micrófono en este dispositivo. Desliza hacia arriba para soplar.'),
+    busy: t('mic_busy', 'Otra aplicación está usando el micrófono. Ciérrala e inténtalo de nuevo, o desliza hacia arriba.'),
+    unsupported: t('mic_unsupported', 'Este navegador no deja usar el micrófono aquí. Desliza hacia arriba para soplar.'),
+})[kind];
 
 /** Estado del permiso sin pedirlo: 'granted', 'denied', 'prompt' o null si el navegador no lo dice. */
 async function micPermission() {
@@ -41,17 +43,17 @@ async function micErrorMessage(error) {
         case 'NotAllowedError':
         case 'PermissionDeniedError':
             // Quedó bloqueado, o la persona cerró el aviso sin elegir (se puede volver a pedir)
-            return await micPermission() === 'denied' ? MIC_MESSAGES.blocked : MIC_MESSAGES.dismissed;
+            return await micPermission() === 'denied' ? micMessage('blocked') : micMessage('dismissed');
         case 'NotFoundError':
         case 'DevicesNotFoundError':
         case 'OverconstrainedError':
-            return MIC_MESSAGES.missing;
+            return micMessage('missing');
         case 'NotReadableError':
         case 'TrackStartError':
         case 'AbortError':
-            return MIC_MESSAGES.busy;
+            return micMessage('busy');
         default:
-            return MIC_MESSAGES.unsupported;
+            return micMessage('unsupported');
     }
 }
 
@@ -157,7 +159,7 @@ export function dandelionWish() {
 
             // Si ya está bloqueado, se explica cómo activarlo en vez de pedirlo y fallar
             if (await micPermission() === 'denied') {
-                this.micError = MIC_MESSAGES.blocked;
+                this.micError = micMessage('blocked');
                 return;
             }
 

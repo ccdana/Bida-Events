@@ -3,13 +3,13 @@
         ? ['nombre' => $persona['nombre'] ?? '', 'detalle' => $persona['detalle'] ?? null]
         : ['nombre' => (string) $persona, 'detalle' => null];
     $groups = array_filter([
-        ($invCopy['court_men'] ?? 'Chambelanes') => array_values(array_filter(array_map($normalizePerson, $destacados['chambelanes'] ?? []), fn ($p) => $p['nombre'] !== '')),
-        ($invCopy['court_women'] ?? 'Damitas') => array_values(array_filter(array_map($normalizePerson, $destacados['damitas'] ?? []), fn ($p) => $p['nombre'] !== '')),
+        ($invCopy['court_men'] ?? __('Chambelanes')) => array_values(array_filter(array_map($normalizePerson, $destacados['chambelanes'] ?? []), fn ($p) => $p['nombre'] !== '')),
+        ($invCopy['court_women'] ?? __('Damitas')) => array_values(array_filter(array_map($normalizePerson, $destacados['damitas'] ?? []), fn ($p) => $p['nombre'] !== '')),
     ]);
     $padrinos = array_values(array_filter($destacados['padrinos'] ?? [], fn ($p) => !empty($p['nombres'] ?? null)));
     $tabs = array_filter([
-        'cortejo' => count($groups) ? ($invCopy['court_group_tab'] ?? 'Cortejo') : null,
-        'padrinos' => count($padrinos) ? ($invCopy['court_sponsors_tab'] ?? 'Padrinos') : null,
+        'cortejo' => count($groups) ? ($invCopy['court_group_tab'] ?? __('Cortejo')) : null,
+        'padrinos' => count($padrinos) ? ($invCopy['court_sponsors_tab'] ?? __('Padrinos')) : null,
     ]);
     // En los bautizos los padrinos son lo principal: su pestaña va primero
     if (($invCopy['court_first'] ?? null) === 'padrinos' && isset($tabs['padrinos'])) {
@@ -22,13 +22,13 @@
     <div class="inv-wrap">
         @include('invitations.partials.section-header', [
             'lottie' => $invCopy['court_lottie'] ?? 'crown',
-            'eyebrow' => $invCopy['court_eyebrow'] ?? 'Quienes me acompañan',
-            'title' => $invCopy['court_title'] ?? 'Mi cortejo',
-            'intro' => $invCopy['court_intro'] ?? 'Personas muy especiales que estarán a mi lado esta noche.',
+            'eyebrow' => $invCopy['court_eyebrow'] ?? __('Quienes me acompañan'),
+            'title' => $invCopy['court_title'] ?? __('Mi cortejo'),
+            'intro' => $invCopy['court_intro'] ?? __('Personas muy especiales que estarán a mi lado esta noche.'),
         ])
 
         @if(count($tabs) > 1)
-            <div class="inv-tabs" role="tablist" aria-label="Cortejo y padrinos">
+            <div class="inv-tabs" role="tablist" aria-label="{{ __('Cortejo y padrinos') }}">
                 @foreach($tabs as $key => $label)
                     <button type="button" role="tab" class="inv-tab"
                         :class="{ 'is-active': tab === '{{ $key }}' }"
@@ -41,14 +41,14 @@
         @if(isset($tabs['cortejo']))
             {{-- Cada grupo se despliega al tocarlo; cerrado muestra nombre del grupo y cantidad --}}
             <div class="inv-folds" x-show="tab === 'cortejo'" @if($firstTab !== 'cortejo') x-cloak @endif role="tabpanel">
-                <p class="inv-help inv-folds__hint">{{ $invCopy['court_folds_hint'] ?? 'Toca cada grupo para ver los nombres' }}</p>
+                <p class="inv-help inv-folds__hint">{{ $invCopy['court_folds_hint'] ?? __('Toca cada grupo para ver los nombres') }}</p>
                 @foreach($groups as $groupLabel => $people)
                     <details class="inv-fold inv-court__group">
                         <summary class="inv-fold__summary">
                             <span class="inv-fold__heading">
                                 <span class="inv-court__group-title">{{ $groupLabel }}</span>
                             </span>
-                            <span class="inv-court__count">{{ count($people) }} {{ count($people) === 1 ? 'persona' : 'personas' }}</span>
+                            <span class="inv-court__count">{{ count($people) === 1 ? __('1 persona') : __(':count personas', ['count' => count($people)]) }}</span>
                             <span class="inv-fold__chevron" aria-hidden="true"></span>
                         </summary>
                         <ul class="inv-fold__body inv-court__names">
@@ -100,7 +100,7 @@
         @endif
 
         @if(empty($tabs))
-            <p class="inv-empty">{{ $invCopy['court_empty'] ?? 'Pronto presentaremos a quienes me acompañan.' }}</p>
+            <p class="inv-empty">{{ $invCopy['court_empty'] ?? __('Pronto presentaremos a quienes me acompañan.') }}</p>
         @endif
     </div>
 </section>

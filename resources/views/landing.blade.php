@@ -15,43 +15,43 @@
     // Tarjetas e invitaciones de temporada: precio único de temporada en lugar de paquetes
     $isSeasonal = \App\Http\Controllers\EventLandingController::isSeasonal($page);
     $navLinks = array_filter([
-        '#disenos' => count($demos) > 1 ? 'Diseños' : null,
-        '#incluye' => 'Qué incluye',
-        '#como' => 'Cómo funciona',
-        '#precios' => 'Precios',
-        '#preguntas' => 'Preguntas',
+        '#disenos' => count($demos) > 1 ? __('Diseños') : null,
+        '#incluye' => __('Qué incluye'),
+        '#como' => __('Cómo funciona'),
+        '#precios' => __('Precios'),
+        '#preguntas' => __('Preguntas'),
     ]);
     // Los tres pasos, en el orden en que pasan (por eso van numerados)
     $steps = $isCard
         ? [
-            ['Elige el diseño', 'Pruébalos acá mismo y quédate con el que más se parezca a lo que quieres decir.'],
-            ['Mándanos tu foto y tu mensaje', 'Por WhatsApp. Nosotros la armamos y te la mostramos antes de enviarla.'],
-            ['Compártela', 'Te pasamos el enlace listo para mandar por WhatsApp o por redes.'],
+            [__('Elige el diseño'), __('Pruébalos acá mismo y quédate con el que más se parezca a lo que quieres decir.')],
+            [__('Mándanos tu foto y tu mensaje'), __('Por WhatsApp. Nosotros la armamos y te la mostramos antes de enviarla.')],
+            [__('Compártela'), __('Te pasamos el enlace listo para mandar por WhatsApp o por redes.')],
         ]
         : [
-            ['Elige el diseño', 'Pruébalos como un invitado: confirma, vota o sugiere una canción. Nada se guarda.'],
-            ['Mándanos tus datos', 'Nombres, fecha, lugar y fotos, por WhatsApp. Armamos la invitación y la revisas antes de compartirla.'],
-            ['Compártela con tus invitados', 'Un enlace por WhatsApp; ellos confirman desde el celular y tú ves las respuestas en tu panel.'],
+            [__('Elige el diseño'), __('Pruébalos como un invitado: confirma, vota o sugiere una canción. Nada se guarda.')],
+            [__('Mándanos tus datos'), __('Nombres, fecha, lugar y fotos, por WhatsApp. Armamos la invitación y la revisas antes de compartirla.')],
+            [__('Compártela con tus invitados'), __('Un enlace por WhatsApp; ellos confirman desde el celular y tú ves las respuestas en tu panel.')],
         ];
     // Para quién es: «tu boda», «tu graduación»…
-    $forPhrase = $page['for'] ?? (collect($bida['showcase'])->firstWhere('event', $page['event'])['phrase'] ?? 'tu evento');
+    $forPhrase = $page['for'] ?? (collect($bida['showcase'])->firstWhere('event', $page['event'])['phrase'] ?? __('tu evento'));
     $ctaUrl = $isSeasonal && $season ? $season['whatsappUrl'] : $contactUrl;
-    $ctaLabel = $isSeasonal && $season ? 'La quiero por '.\App\Support\Money::format($season['final_price']) : 'Escríbenos';
-    $accountUrl = $user ? route('dashboard') : route('login');
-    $accountLabel = $user ? 'Mi panel' : 'Ingresar';
+    $ctaLabel = $isSeasonal && $season ? __('La quiero por :price', ['price' => \App\Support\Money::format($season['final_price'])]) : __('Escríbenos');
+    $accountUrl = $user ? route('dashboard') : lroute('login');
+    $accountLabel = $user ? __('Mi panel') : __('Ingresar');
     $faqs = array_merge($page['faqs'], [
-        [$isCard ? '¿Quien la recibe necesita instalar algo?' : '¿Mis invitados necesitan instalar algo?', 'No. Se abre en el navegador del celular desde el enlace que compartes por WhatsApp.'],
-        ['¿Cómo se realiza el pago?', $isSeasonal ? 'Coordinamos el pago por WhatsApp cuando nos pides la '.($isCard ? 'tarjeta' : 'invitación').', antes de armarla.' : 'Coordinamos el pago por WhatsApp cuando eliges tu paquete, antes de empezar el diseño.'],
+        [$isCard ? __('¿Quien la recibe necesita instalar algo?') : __('¿Mis invitados necesitan instalar algo?'), __('No. Se abre en el navegador del celular desde el enlace que compartes por WhatsApp.')],
+        [__('¿Cómo se realiza el pago?'), $isSeasonal ? ($isCard ? __('Coordinamos el pago por WhatsApp cuando nos pides la tarjeta, antes de armarla.') : __('Coordinamos el pago por WhatsApp cuando nos pides la invitación, antes de armarla.')) : __('Coordinamos el pago por WhatsApp cuando eliges tu paquete, antes de empezar el diseño.')],
     ]);
     $socials = array_values(array_filter([
         ! empty($bida['instagram']) ? ['label' => 'Instagram', 'url' => 'https://www.instagram.com/'.$bida['instagram'].'/', 'icon' => 'instagram-logo'] : null,
         ! empty($bida['facebook']) ? ['label' => 'Facebook', 'url' => 'https://www.facebook.com/'.$bida['facebook'], 'icon' => 'facebook-logo'] : null,
         ! empty($bida['tiktok']) ? ['label' => 'TikTok', 'url' => 'https://www.tiktok.com/@'.$bida['tiktok'], 'icon' => 'tiktok-logo'] : null,
     ]));
-    $noun = $isCard ? 'tarjeta' : 'invitación';
+    $noun = $isCard ? 'tarjeta' : __('invitación');
     // Hasta tres diseños van en abanico junto al texto; con más, en fila debajo de la portada
     $shotsInRow = count($demos) > 3;
-    $demoNote = $page['demo_note'] ?? 'Toca un diseño para abrir su muestra y pruébala como un invitado: confirma, vota o sugiere una canción. Nada se guarda.';
+    $demoNote = $page['demo_note'] ?? __('Toca un diseño para abrir su muestra y pruébala como un invitado: confirma, vota o sugiere una canción. Nada se guarda.');
 @endphp
 
 @push('head')
@@ -59,7 +59,7 @@
     @include('site.partials.structured-data', [
         'faqs' => $faqs,
         'serviceName' => $page['title'],
-        'breadcrumbs' => [[$bida['brand'], route('home')], [$page['link'], route('landing', $slug)]],
+        'breadcrumbs' => [[$bida['brand'], lroute('home')], [$page['link'], lroute('landing', $slug)]],
         'offers' => $isSeasonal
             ? ($season ? [['name' => $page['link'], 'price' => $season['final_price'], 'description' => $page['description']]] : [])
             : null,
@@ -77,8 +77,8 @@
         <section class="site-landing">
             <div class="mx-auto grid max-w-7xl items-center gap-12 px-5 pb-16 pt-8 md:pt-14 lg:min-h-[calc(100dvh-72px)] lg:grid-cols-12 lg:gap-8 lg:px-8 lg:py-12">
                 <div class="lg:col-span-5">
-                    <nav class="site-enter text-sm text-site-muted" aria-label="Ruta">
-                        <a href="{{ route('home') }}" class="site-nav-link hover:text-site-ink">{{ $bida['brand'] }}</a>
+                    <nav class="site-enter text-sm text-site-muted" aria-label="{{ __('Ruta') }}">
+                        <a href="{{ lroute('home') }}" class="site-nav-link hover:text-site-ink">{{ $bida['brand'] }}</a>
                         <span class="mx-2" aria-hidden="true">/</span>
                         <span class="text-site-ink">{{ $page['link'] }}</span>
                     </nav>
@@ -95,19 +95,19 @@
                             {{ $ctaLabel }}
                         </a>
                         <a href="#precios" class="site-btn site-btn--ghost site-btn--lg justify-center">
-                            Ver precios
+                            {{ __('Ver precios') }}
                             <x-phosphor-arrow-down class="site-btn__arrow" aria-hidden="true" />
                         </a>
                     </div>
                     <p class="site-enter mt-6 text-sm text-site-muted" style="--enter-index: 5">
                         @if($isSeasonal)
                             @if($season)
-                                @if($season['old_price'])<del>{{ \App\Support\Money::format($season['old_price']) }}</del> @endif<strong class="text-site-ink">{{ \App\Support\Money::format($season['final_price']) }}</strong> por temporada · {{ $isCard ? 'Lista el mismo día' : 'Con confirmación de asistencia' }} · Se manda por WhatsApp
+                                @if($season['old_price'])<del>{{ \App\Support\Money::format($season['old_price']) }}</del> @endif<strong class="text-site-ink">{{ \App\Support\Money::format($season['final_price']) }}</strong> {{ __('por temporada · :value · Se manda por WhatsApp', ['value' => $isCard ? __('Lista el mismo día') : __('Con confirmación de asistencia')]) }}
                             @else
-                                {{ $isCard ? 'Lista el mismo día' : 'Con confirmación de asistencia' }} · Se manda por WhatsApp
+                                {{ __(':value · Se manda por WhatsApp', ['value' => $isCard ? __('Lista el mismo día') : __('Con confirmación de asistencia')]) }}
                             @endif
                         @else
-                            Paquetes desde {{ \App\Support\Money::format($fromPrice) }} · Pago único por invitación
+                            {{ __('Paquetes desde :value · Pago único por invitación', ['value' => \App\Support\Money::format($fromPrice)]) }}
                         @endif
                     </p>
                 </div>
@@ -144,10 +144,10 @@
             <div class="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-28">
                 <div class="grid gap-6 lg:grid-cols-12 lg:items-end lg:gap-8">
                     <h2 class="max-w-[18ch] text-3xl font-semibold leading-[1.1] tracking-tight md:text-5xl lg:col-span-7" data-reveal>
-                        Pensada para {{ $forPhrase }}
+                        {{ __('Pensada para :forPhrase', ['forPhrase' => $forPhrase]) }}
                     </h2>
                     <p class="max-w-[42ch] text-lg leading-relaxed text-site-muted lg:col-span-4 lg:col-start-9" data-reveal>
-                        {{ $page['features_note'] ?? 'Además de la cuenta regresiva, el itinerario y el mapa que lleva toda invitación.' }}
+                        {{ $page['features_note'] ?? __('Además de la cuenta regresiva, el itinerario y el mapa que lleva toda invitación.') }}
                     </p>
                 </div>
 
@@ -167,7 +167,7 @@
         <section id="como" class="scroll-mt-20 border-t border-site-line">
             <div class="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-24">
                 <h2 class="max-w-[20ch] text-3xl font-semibold leading-[1.1] tracking-tight md:text-5xl" data-reveal>
-                    De la idea al enlace, en tres pasos
+                    {{ __('De la idea al enlace, en tres pasos') }}
                 </h2>
                 <ol class="site-howto mt-12">
                     @foreach($steps as $index => [$stepTitle, $stepText])
@@ -187,32 +187,46 @@
                 <div class="mx-auto flex max-w-7xl flex-col items-start gap-8 px-5 py-20 lg:flex-row lg:items-end lg:justify-between lg:px-8" data-reveal>
                     @if($season)
                         <div>
-                            <p class="text-[0.95rem] font-medium text-site-accent">Precio de temporada</p>
+                            <p class="text-[0.95rem] font-medium text-site-accent">{{ __('Precio de temporada') }}</p>
                             <p class="mt-4 flex flex-wrap items-baseline gap-x-3 gap-y-1">
                                 @if($season['old_price'])
-                                    <del class="site-plan__old"><span class="sr-only">Antes </span>{{ \App\Support\Money::format($season['old_price']) }}</del>
+                                    <del class="site-plan__old"><span class="sr-only">{{ __('Antes') }} </span>{{ \App\Support\Money::format($season['old_price']) }}</del>
                                 @endif
                                 <span class="site-plan__price">{{ $season['final_price'] }}</span>
-                                <span class="text-xl text-site-muted">{{ \App\Support\Money::code() }} por {{ $noun }}</span>
+                                <span class="text-xl text-site-muted">{{ __(':value por :noun', ['value' => \App\Support\Money::code(), 'noun' => $noun]) }}</span>
                             </p>
                             <p class="mt-3 text-site-muted">
-                                {{ $season['promo_label'] }} hasta el {{ $season['endsAt']->locale('es')->translatedFormat('l j \d\e F') }}. Todos los diseños de la temporada cuestan lo mismo.
+                                {{ __(':promo_label hasta el :value. Todos los diseños de la temporada cuestan lo mismo.', ['promo_label' => $season['promo_label'], 'value' => $season['endsAt']->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('l j \d\e F'))]) }}
                             </p>
                         </div>
                         <a href="{{ $season['whatsappUrl'] }}" target="_blank" rel="noopener" class="site-btn site-btn--lg" data-magnetic>
                             <x-phosphor-whatsapp-logo aria-hidden="true" />
-                            La quiero por {{ \App\Support\Money::format($season['final_price']) }}
+                            {{ __('La quiero por :value', ['value' => \App\Support\Money::format($season['final_price'])]) }}
                         </a>
                     @else
-                        <p class="max-w-[40ch] text-2xl font-semibold leading-snug tracking-tight md:text-3xl">La temporada terminó. Escríbenos y te avisamos de la próxima.</p>
+                        <p class="max-w-[40ch] text-2xl font-semibold leading-snug tracking-tight md:text-3xl">{{ __('La temporada terminó. Escríbenos y te avisamos de la próxima.') }}</p>
                         <a href="{{ $contactUrl }}" target="_blank" rel="noopener" class="site-btn site-btn--lg" data-magnetic>
                             <x-phosphor-whatsapp-logo aria-hidden="true" />
-                            Escríbenos
+                            {{ __('Escríbenos') }}
                         </a>
                     @endif
                 </div>
             </section>
         @else
+            {{-- El modelo principal: también puede armarla la propia persona, con un plan mensual --}}
+            <section class="border-t border-site-line" aria-label="{{ __('Únete') }}">
+                <div class="mx-auto flex max-w-7xl flex-col gap-4 px-5 py-10 sm:flex-row sm:items-center sm:justify-between lg:px-8">
+                    <p class="max-w-[52ch] text-lg leading-snug">
+                        <span class="font-medium">{{ __('¿Prefieres armarla tú?') }}</span>
+                        <span class="text-site-muted">{{ __('Con «Únete» creas tu :noun con nuestras plantillas desde :value al mes.', ['noun' => $noun, 'value' => \App\Support\Money::format(collect(\App\Support\Offers::resellerPlans())->min('final_price'))]) }}</span>
+                    </p>
+                    <a href="{{ lroute('diy') }}#planes" class="site-link-arrow shrink-0">
+                        {{ __('Ver los planes') }}
+                        <x-phosphor-arrow-right aria-hidden="true" />
+                    </a>
+                </div>
+            </section>
+
             @include('site.partials.plans')
         @endif
 

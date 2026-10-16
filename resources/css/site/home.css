@@ -1,5 +1,5 @@
 /* ════════════════════════════════════════════════════════════════════════════
-   SITIO PÚBLICO — Portada, «Hazlo tú», pie y botón de temporadas
+   SITIO PÚBLICO — Portada, «Únete», pie y botón de temporadas
 
    Lenguaje editorial: titulares en serif (Instrument Serif) sobre la sans de la
    marca, filetes finos en lugar de tarjetas, fotos con radio suave y el dorado
@@ -348,11 +348,11 @@ a:hover > .site-link-arrow svg,
     }
 }
 
-/* Las otras dos maneras, debajo y en dos columnas en pantallas anchas */
+/* Las otras maneras, debajo y en una columna cada una en pantallas anchas (--offer-cols, de la portada) */
 @media (min-width: 900px) {
     .site-offer__side {
-        grid-template-columns: 1fr 1fr;
-        column-gap: 4rem;
+        grid-template-columns: repeat(var(--offer-cols, 2), minmax(0, 1fr));
+        column-gap: clamp(2rem, 4vw, 4rem);
     }
 }
 
@@ -574,7 +574,7 @@ a:hover > .site-link-arrow svg,
     margin-top: 0.25rem;
 }
 
-/* Aviso bajo un teléfono con una muestra (lo usa «Hazlo tú») */
+/* Aviso bajo un teléfono con una muestra (lo usa «Únete») */
 .site-tester__hint {
     display: flex;
     align-items: center;
@@ -645,7 +645,7 @@ a:hover > .site-link-arrow svg,
     color: var(--site-muted);
 }
 
-/* ── «Hazlo tú» ─────────────────────────────────────────────────────────── */
+/* ── «Únete» ─────────────────────────────────────────────────────────── */
 
 .site-diy-hero {
     display: grid;
@@ -791,6 +791,284 @@ a:hover > .site-link-arrow svg,
     color: var(--site-muted);
 }
 
+/* ── «Únete»: vender (portada, calculadora, planes, te la hacemos) ───── */
+
+.site-diy-hero .site-display {
+    font-size: clamp(2.7rem, 10vw, 5.4rem);
+}
+
+.site-diy-hero__line {
+    display: block;
+}
+
+.site-diy-hero__line--gain {
+    font-style: italic;
+    color: var(--site-accent);
+}
+
+/* En el celular los datos van uno por línea: con el salto, los puntos separadores quedaban sueltos */
+@media (max-width: 639px) {
+    .site-diy-hero .site-hero__facts {
+        flex-direction: column;
+    }
+
+    .site-diy-hero .site-hero__facts li + li::before {
+        display: none;
+    }
+}
+
+/* Beneficios cortos: una línea por cosa y, si hace falta, desde qué plan */
+.site-benefit__from {
+    margin-top: 0.3rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--site-accent);
+}
+
+/* Para quién: título en serif, la frase y el plan que conviene */
+.site-diy-who {
+    margin-top: 2.5rem;
+    border-top: 1px solid var(--site-line);
+}
+
+.site-diy-who li {
+    display: grid;
+    gap: 0.4rem;
+    padding: 1.35rem 0;
+    border-bottom: 1px solid var(--site-line);
+}
+
+@media (min-width: 900px) {
+    .site-diy-who li {
+        grid-template-columns: 1fr 1.2fr auto;
+        align-items: baseline;
+        gap: 2rem;
+    }
+}
+
+.site-diy-who__who {
+    font-family: var(--font-serif);
+    font-size: 1.65rem;
+    line-height: 1.15;
+}
+
+.site-diy-who__how {
+    color: var(--site-muted);
+    line-height: 1.55;
+}
+
+/* Plan de una sola invitación: una fila bajo las columnas, sin recuadro */
+.site-diy-single {
+    display: grid;
+    gap: 0.75rem;
+    padding: 1.75rem 0;
+    border-bottom: 1px solid var(--site-line);
+}
+
+@media (min-width: 900px) {
+    .site-diy-single {
+        grid-template-columns: 1fr auto auto;
+        align-items: center;
+        gap: 2.5rem;
+    }
+}
+
+.site-diy-single__name {
+    font-family: var(--font-serif);
+    font-size: 1.65rem;
+    line-height: 1.1;
+}
+
+.site-diy-single__text {
+    max-width: 52ch;
+    margin-top: 0.3rem;
+    line-height: 1.55;
+    color: var(--site-muted);
+}
+
+.site-diy-single__price {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    font-size: 1.4rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.site-diy-single__price del {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--site-muted);
+    text-decoration-color: var(--site-accent);
+}
+
+.site-diy-single__price small {
+    font-size: 0.85rem;
+    font-weight: 400;
+    color: var(--site-muted);
+}
+
+/* Comparación completa, escondida hasta que se pide */
+.site-diy-compare summary {
+    width: fit-content;
+    cursor: pointer;
+    list-style: none;
+}
+
+.site-diy-compare summary::-webkit-details-marker {
+    display: none;
+}
+
+.site-diy-compare summary svg {
+    transition: rotate 0.35s var(--site-ease);
+}
+
+.site-diy-compare[open] summary svg {
+    rotate: 180deg;
+}
+
+/* Cómo empiezas: tres pasos en una fila, sin numeración */
+.site-diy-steps {
+    display: grid;
+    margin-top: 2.5rem;
+    border-top: 1px solid var(--site-line);
+}
+
+.site-diy-steps li {
+    padding: 1.75rem 0;
+    border-bottom: 1px solid var(--site-line);
+}
+
+@media (min-width: 900px) {
+    .site-diy-steps {
+        grid-template-columns: repeat(3, 1fr);
+        border-bottom: 1px solid var(--site-line);
+    }
+
+    .site-diy-steps li {
+        padding: 2rem 2rem 2.25rem;
+        border-bottom: 0;
+    }
+
+    .site-diy-steps li + li {
+        border-left: 1px solid var(--site-line);
+    }
+
+    .site-diy-steps li:first-child {
+        padding-left: 0;
+    }
+}
+
+.site-diy-steps__icon {
+    width: 1.9rem;
+    height: 1.9rem;
+    color: var(--site-accent);
+}
+
+.site-diy-steps__title {
+    margin-top: 1rem;
+    font-family: var(--font-serif);
+    font-size: 1.7rem;
+    line-height: 1.1;
+}
+
+.site-diy-steps__text {
+    max-width: 32ch;
+    margin-top: 0.5rem;
+    line-height: 1.6;
+    color: var(--site-muted);
+}
+
+/* Lo secundario: filas sobrias, sin botones llenos */
+.site-diy-service {
+    max-width: 80rem;
+    margin-inline: auto;
+    padding: 4.5rem 1.25rem;
+    border-top: 1px solid var(--site-line);
+}
+
+@media (min-width: 1024px) {
+    .site-diy-service {
+        padding: 6rem 2rem;
+    }
+}
+
+.site-diy-service__head {
+    max-width: 46rem;
+}
+
+.site-diy-service__head .site-display--md {
+    font-size: clamp(1.9rem, 5.4vw, 3rem);
+}
+
+.site-diy-service__list {
+    margin-top: 2.5rem;
+    border-top: 1px solid var(--site-line);
+}
+
+.site-diy-service__list li {
+    display: grid;
+    gap: 0.75rem;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--site-line);
+}
+
+@media (min-width: 900px) {
+    .site-diy-service__list li {
+        grid-template-columns: 1fr 9rem 11rem;
+        align-items: center;
+        gap: 2rem;
+    }
+}
+
+.site-diy-service__name {
+    font-family: var(--font-serif);
+    font-size: 1.65rem;
+    line-height: 1.1;
+}
+
+.site-diy-service__text {
+    max-width: 46ch;
+    margin-top: 0.3rem;
+    line-height: 1.55;
+    color: var(--site-muted);
+}
+
+.site-diy-service__price {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    font-size: 1.4rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.site-diy-service__price del {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--site-muted);
+    text-decoration-color: var(--site-accent);
+}
+
+/* Cierre: una frase grande y dos botones */
+.site-diy-final {
+    max-width: 80rem;
+    margin-inline: auto;
+    padding: 5rem 1.25rem 6rem;
+    border-top: 1px solid var(--site-line);
+}
+
+@media (min-width: 1024px) {
+    .site-diy-final {
+        padding: 8rem 2rem 9rem;
+    }
+}
+
+.site-diy-final .site-display {
+    max-width: 18ch;
+    font-size: clamp(2.4rem, 8vw, 4.4rem);
+}
+
 /* ── Pie ────────────────────────────────────────────────────────────────── */
 
 .site-foot {
@@ -800,49 +1078,58 @@ a:hover > .site-link-arrow svg,
 
 .site-foot__inner {
     display: grid;
-    gap: 2.5rem;
+    gap: 3.5rem;
     max-width: 80rem;
     margin-inline: auto;
-    padding: 3.5rem 1.25rem 2.5rem;
-}
-
-@media (min-width: 768px) {
-    .site-foot__inner {
-        grid-template-columns: repeat(3, 1fr);
-    }
-
-    .site-foot__brand {
-        grid-column: 1 / -1;
-    }
+    padding: 4rem 1.25rem 3rem;
 }
 
 @media (min-width: 1100px) {
     .site-foot__inner {
-        grid-template-columns: 1.6fr repeat(3, 1fr);
-        gap: 3rem;
-        padding: 4.5rem 2rem 3rem;
-    }
-
-    .site-foot__brand {
-        grid-column: auto;
+        grid-template-columns: 1fr 1.05fr;
+        gap: 6rem;
+        padding: 6rem 2rem 4.5rem;
     }
 }
 
 .site-foot__brand {
     display: grid;
     justify-items: start;
-    gap: 1rem;
     align-content: start;
+    gap: 1.25rem;
 }
 
 .site-foot__logo {
     font-size: 1.15rem;
 }
 
+/* La frase de la marca, en serif, como el resto de los titulares del sitio */
+.site-foot__statement {
+    max-width: 18ch;
+    margin-top: 0.75rem;
+    font-family: var(--font-serif);
+    font-size: clamp(2.1rem, 6vw, 3.1rem);
+    line-height: 1.04;
+    letter-spacing: -0.012em;
+    text-wrap: balance;
+}
+
+.site-foot__statement em {
+    color: var(--site-accent);
+}
+
 .site-foot__pitch {
-    max-width: 36ch;
+    max-width: 38ch;
     line-height: 1.6;
     color: var(--site-muted);
+}
+
+.site-foot__contact {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1.5rem;
+    margin-top: 0.5rem;
 }
 
 .site-foot__mail {
@@ -851,29 +1138,58 @@ a:hover > .site-link-arrow svg,
     text-decoration: underline;
     text-decoration-color: var(--site-line);
     text-underline-offset: 4px;
+    transition: color 0.2s ease, text-decoration-color 0.2s ease;
+}
+
+.site-foot__mail:hover {
+    color: var(--site-ink);
+    text-decoration-color: var(--site-accent);
+}
+
+.site-foot__cols {
+    display: grid;
+    gap: 2.5rem 2rem;
+    align-content: start;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (min-width: 640px) {
+    .site-foot__cols {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+/* Cada columna abre con un filete corto dorado y un título en serif */
+.site-foot__col::before {
+    content: '';
+    display: block;
+    width: 1.75rem;
+    height: 1px;
+    margin-bottom: 1.1rem;
+    background: var(--site-accent);
 }
 
 .site-foot__title {
-    font-size: 0.74rem;
-    font-weight: 600;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--site-muted);
+    font-family: var(--font-serif);
+    font-size: 1.4rem;
+    line-height: 1.1;
 }
 
 .site-foot__col ul {
     display: grid;
-    gap: 0.65rem;
-    margin-top: 1rem;
+    gap: 0.7rem;
+    margin-top: 1.1rem;
 }
 
 .site-foot__col a {
-    color: var(--site-ink);
-    transition: color 0.2s ease;
+    color: var(--site-muted);
+    background: linear-gradient(var(--site-accent), var(--site-accent)) 0 100% / 0 1px no-repeat;
+    transition: color 0.25s ease, background-size 0.35s var(--site-ease);
 }
 
 .site-foot__col a:hover {
-    color: var(--site-accent);
+    color: var(--site-ink);
+    background-size: 100% 1px;
 }
 
 .site-foot__bar {
@@ -881,12 +1197,12 @@ a:hover > .site-link-arrow svg,
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: 1rem;
+    gap: 0.5rem 1rem;
     max-width: 80rem;
     margin-inline: auto;
-    padding: 1.25rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom));
+    padding: 1rem 1.25rem calc(1rem + env(safe-area-inset-bottom));
     border-top: 1px solid var(--site-line);
-    font-size: 0.9rem;
+    font-size: 0.88rem;
     color: var(--site-muted);
 }
 
@@ -898,7 +1214,14 @@ a:hover > .site-link-arrow svg,
 
 .site-foot__social {
     display: flex;
-    gap: 0.25rem;
+    gap: 0.1rem;
+    margin: 0.25rem 0 0 -0.7rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .site-foot__col a {
+        transition: color 0.25s ease;
+    }
 }
 
 /* ── Botón de temporadas: un botoncito redondo, sin texto ───────────────────
@@ -1082,4 +1405,239 @@ a:hover > .site-link-arrow svg,
     margin-top: 0.6rem;
     font-size: 0.85rem;
     color: var(--site-muted);
+}
+
+/* ── Recorrido de «Únete»: plan, cuenta, pago e invitación ───────────── */
+
+.site-journey {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.5rem;
+    font-size: 0.82rem;
+}
+
+.site-journey li {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding-top: 0.65rem;
+    border-top: 2px solid var(--site-line);
+    color: var(--site-muted);
+}
+
+.site-journey li.is-done {
+    border-top-color: var(--site-ink);
+}
+
+.site-journey li.is-current {
+    border-top-color: var(--site-accent);
+    color: var(--site-ink);
+    font-weight: 600;
+}
+
+.site-journey__check {
+    width: 0.8rem;
+    height: 0.8rem;
+    flex-shrink: 0;
+    color: var(--site-accent);
+}
+
+/* Cabecera: WhatsApp como ícono discreto junto a la acción principal */
+.site-header__chat {
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 999px;
+    color: var(--site-muted);
+    transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.site-header__chat:hover {
+    background: var(--site-tint);
+    color: var(--site-ink);
+}
+
+.site-header__chat svg {
+    width: 1.35rem;
+    height: 1.35rem;
+}
+
+/* ── Planes mensuales: tres columnas por fila, como los paquetes ─────────── */
+
+@media (min-width: 1024px) {
+    .site-plans--grid .site-plan:nth-child(n + 4) {
+        border-top: 1px solid var(--site-line);
+    }
+
+    .site-plans--grid .site-plan:nth-child(3n + 1) {
+        padding-left: 0;
+        border-left: 0;
+    }
+
+    .site-plans--grid .site-plan:nth-child(3n) {
+        padding-right: 0;
+    }
+}
+
+/* Cada cuánto se paga (Mensual, cada 3 meses, anual): texto con un filete dorado bajo el elegido,
+   como el índice de eventos; el descuento va en versalitas junto al nombre */
+.site-cycle {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 2rem;
+    border-bottom: 1px solid var(--site-line);
+}
+
+.site-cycle__option {
+    position: relative;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin-bottom: -1px;
+    padding: 0.5rem 0 0.85rem;
+    border: 0;
+    background: none;
+    color: var(--site-muted);
+    font: inherit;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.site-cycle__name {
+    font-family: var(--font-serif);
+    font-size: clamp(1.25rem, 2vw, 1.6rem);
+    line-height: 1.1;
+    white-space: nowrap;
+}
+
+.site-cycle__off {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--site-accent);
+    white-space: nowrap;
+}
+
+.site-cycle__option::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    bottom: -1px;
+    left: 0;
+    height: 2px;
+    background: var(--site-accent);
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+    transition: transform 0.55s var(--site-ease);
+}
+
+.site-cycle__option:hover,
+.site-cycle__option.is-active {
+    color: var(--site-ink);
+}
+
+.site-cycle__option.is-active::after {
+    transform: scaleX(1);
+}
+
+.site-cycle__option:focus-visible {
+    outline: 2px solid var(--site-accent);
+    outline-offset: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .site-cycle__option::after {
+        transition: none;
+    }
+}
+
+/* La celda que completa la fila: sin precio ni botón, solo la invitación a escribir */
+.site-plan--note {
+    justify-content: center;
+}
+
+/* ── Precios (/precios): las tres formas, de un vistazo ─────────────────
+   Tres columnas separadas por filetes que llevan a su bloque; el nombre en la serif de los
+   titulares y el «desde» en versalitas doradas. Los bloques de abajo reutilizan los de siempre. */
+
+.site-pricing-intro {
+    max-width: 80rem;
+    margin-inline: auto;
+    padding: 4.5rem 1.25rem 4rem;
+}
+
+@media (min-width: 1024px) {
+    .site-pricing-intro {
+        padding: 6.5rem 2rem 5rem;
+    }
+}
+
+.site-pricing-ways {
+    display: grid;
+    margin-top: 3rem;
+    border-top: 1px solid var(--site-line);
+}
+
+.site-pricing-ways li {
+    border-bottom: 1px solid var(--site-line);
+}
+
+.site-pricing-ways__link {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    height: 100%;
+    padding: 1.75rem 0;
+    color: inherit;
+    text-decoration: none;
+}
+
+.site-pricing-ways__name {
+    font-family: var(--font-serif);
+    font-size: clamp(1.6rem, 3vw, 2.1rem);
+    line-height: 1.05;
+    transition: color 0.3s ease;
+}
+
+.site-pricing-ways__text {
+    max-width: 34ch;
+    line-height: 1.55;
+    color: var(--site-muted);
+}
+
+.site-pricing-ways__from {
+    margin-top: auto;
+    padding-top: 0.75rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--site-accent);
+}
+
+@media (min-width: 900px) {
+    .site-pricing-ways {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .site-pricing-ways li + li {
+        border-left: 1px solid var(--site-line);
+    }
+
+    .site-pricing-ways__link {
+        padding: 2rem 2rem 2.25rem;
+    }
+
+    .site-pricing-ways li:first-child .site-pricing-ways__link {
+        padding-left: 0;
+    }
+}
+
+@media (hover: hover) {
+    .site-pricing-ways__link:hover .site-pricing-ways__name {
+        color: var(--site-accent);
+    }
 }

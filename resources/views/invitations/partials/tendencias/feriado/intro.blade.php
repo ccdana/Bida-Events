@@ -8,7 +8,7 @@
     css/invitation/tendencias/feriado.css.
 --}}
 @php
-    $date = $page->eventDate->locale('es');
+    $date = $page->eventDate->locale(app()->getLocale());
     $month = fn ($day) => \Illuminate\Support\Str::ucfirst($day->translatedFormat('F'));
     $weekday = fn ($day) => \Illuminate\Support\Str::ucfirst($day->translatedFormat('l'));
     // Las hojas que se arrancan: los cuatro días antes del cumpleaños. En el bloque va abajo la más
@@ -22,11 +22,11 @@
     :class="{ 'is-torn': stage >= 1, 'is-open': stage >= 2 }"
     role="dialog"
     aria-modal="true"
-    aria-label="Invitación al cumpleaños de {{ $page->displayName }}">
-    <p class="fd-intro__eyebrow">{{ $invCopy['intro_eyebrow'] ?? 'Este año el almanaque trae un feriado más' }}</p>
+    aria-label="{{ __('Invitación al cumpleaños de :displayName', ['displayName' => $page->displayName]) }}">
+    <p class="fd-intro__eyebrow">{{ $invCopy['intro_eyebrow'] ?? __('Este año el almanaque trae un feriado más') }}</p>
 
     <div class="fd-wall">
-        <button type="button" class="fd-pad" data-cover-trigger @click="open()" aria-label="Arrancar las hojas del almanaque hasta el día del cumpleaños">
+        <button type="button" class="fd-pad" data-cover-trigger @click="open()" aria-label="{{ __('Arrancar las hojas del almanaque hasta el día del cumpleaños') }}">
             <span class="fd-pad__board" aria-hidden="true">
                 <span class="fd-pad__eyelet"></span>
                 <span class="fd-pad__year">{{ $date->format('Y') }}</span>
@@ -44,11 +44,11 @@
                     </span>
                     <span class="fd-leaf__weekday">{{ $weekday($date) }}</span>
                     <span class="fd-leaf__holiday">
-                        <b>{{ $invCopy['cal_holiday'] ?? 'Feriado' }}</b>
-                        {{ $invCopy['cal_line'] ?? 'Cumpleaños de' }} {{ $page->displayName }}
+                        <b>{{ $invCopy['cal_holiday'] ?? __('Feriado') }}</b>
+                        {{ $invCopy['cal_line'] ?? __('Cumpleaños de') }} {{ $page->displayName }}
                     </span>
                     <span class="fd-leaf__note">
-                        {{ $invCopy['cal_note'] ?? '¡Mi cumple!' }}
+                        {{ $invCopy['cal_note'] ?? __('¡Mi cumple!') }}
                         <svg class="fd-arrow" viewBox="0 0 60 44" focusable="false"><path d="M50 4C34 4 18 14 10 34M10 34l-2-11M10 34l10-5"/></svg>
                     </span>
                 </span>
@@ -67,11 +67,11 @@
         {{-- El papelito pegado con el nombre del invitado --}}
         @if($guest)
             <p class="fd-sticky">
-                <span>{{ $invCopy['guest_banner_eyebrow'] ?? 'Día reservado para' }}</span>
+                <span>{{ $invCopy['guest_banner_eyebrow'] ?? __('Día reservado para') }}</span>
                 <strong>{{ $guest->name }}</strong>
             </p>
         @endif
     </div>
 
-    <p class="fd-intro__hint">{{ $invCopy['intro_hint'] ?? 'Toca el almanaque para arrancar las hojas' }}</p>
+    <p class="fd-intro__hint">{{ $invCopy['intro_hint'] ?? __('Toca el almanaque para arrancar las hojas') }}</p>
 </div>

@@ -21,8 +21,8 @@
     <div class="inv-wrap inv-wrap--wide">
         @include('invitations.partials.section-header', [
             'lottie' => 'gallery',
-            'eyebrow' => $invCopy['gallery_eyebrow'] ?? 'Momentos especiales',
-            'title' => $galeria['titulo'] ?? 'Galería',
+            'eyebrow' => $invCopy['gallery_eyebrow'] ?? __('Momentos especiales'),
+            'title' => $galeria['titulo'] ?? __('Galería'),
         ])
 
         @if($galleryCount > 0)
@@ -32,8 +32,8 @@
                     x-ref="stack"
                     tabindex="0"
                     role="group"
-                    aria-roledescription="carrusel"
-                    aria-label="Galería de fotos. Desliza o usa las flechas para cambiar de foto."
+                    aria-roledescription="{{ __('carrusel') }}"
+                    aria-label="{{ __('Galería de fotos. Desliza o usa las flechas para cambiar de foto.') }}"
                     @keydown.arrow-left.prevent="swipePrev()"
                     @keydown.arrow-right.prevent="swipeNext()"
                 >
@@ -46,7 +46,7 @@
                             <img
                                 src="{{ $url }}"
                                 @if(!empty($gallerySrcsets[$index])) srcset="{{ $gallerySrcsets[$index] }}" sizes="(min-width: 1024px) 25rem, (min-width: 768px) 22rem, 80vw" @endif
-                                alt="{{ $galleryAlts[$index] !== '' ? $galleryAlts[$index] : 'Foto '.($index + 1).' de '.$galleryCount }}"
+                                alt="{{ $galleryAlts[$index] !== '' ? $galleryAlts[$index] : __('Foto :value de :galleryCount', ['value' => ($index + 1), 'galleryCount' => $galleryCount]) }}"
                                 class="inv-gallery__image"
                                 loading="{{ $index < 3 ? 'eager' : 'lazy' }}"
                                 decoding="async"
@@ -57,23 +57,23 @@
                 </div>
 
                 @if($galleryCount > 1)
-                    <p class="inv-gallery__hint" :class="{ 'is-hidden': interacted }">{{ $invCopy['gallery_hint'] ?? 'Desliza la foto hacia un lado para ver la siguiente' }}</p>
+                    <p class="inv-gallery__hint" :class="{ 'is-hidden': interacted }">{{ $invCopy['gallery_hint'] ?? __('Desliza la foto hacia un lado para ver la siguiente') }}</p>
 
                     <div class="inv-gallery__nav">
-                        <button type="button" class="inv-gallery__arrow" @click="swipePrev()" aria-label="Foto anterior">
+                        <button type="button" class="inv-gallery__arrow" @click="swipePrev()" aria-label="{{ __('Foto anterior') }}">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </button>
                         <p class="inv-gallery__counter" aria-live="polite">
                             <span x-text="current + 1">1</span> / {{ $galleryCount }}
                         </p>
-                        <button type="button" class="inv-gallery__arrow" @click="swipeNext()" aria-label="Foto siguiente">
+                        <button type="button" class="inv-gallery__arrow" @click="swipeNext()" aria-label="{{ __('Foto siguiente') }}">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </button>
                     </div>
                 @endif
             </div>
         @else
-            <p class="inv-empty">{{ $invCopy['gallery_empty'] ?? 'Pronto compartiremos aquí las fotos.' }}</p>
+            <p class="inv-empty">{{ $invCopy['gallery_empty'] ?? __('Pronto compartiremos aquí las fotos.') }}</p>
         @endif
     </div>
 </section>

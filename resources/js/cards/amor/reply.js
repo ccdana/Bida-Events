@@ -3,6 +3,7 @@
  * y el mensaje al mismo punto que la respuesta común: POST /p/{slug}/respuesta. En la muestra de la
  * home se simula y en la vista previa del editor no se envía.
  */
+import { t } from '../../i18n.js';
 import { celebrate, vibrate } from '../../story/effects.js';
 
 export function flowerReply({ slug, guestToken = '', isPreview = false, to = '', flowers = {} } = {}) {
@@ -20,9 +21,16 @@ export function flowerReply({ slug, guestToken = '', isPreview = false, to = '',
 
         get sentTitle() {
             const flower = this.flowers[this.reaction];
-            const who = to ? ` a ${to}` : '';
 
-            return flower ? `${flower.label} va en camino${who}` : `Tu respuesta va en camino${who}`;
+            if (flower) {
+                return to
+                    ? t('flower_on_the_way_to', ':flower va en camino a :to', { flower: flower.label, to })
+                    : t('flower_on_the_way', ':flower va en camino', { flower: flower.label });
+            }
+
+            return to
+                ? t('reply_on_the_way_to', 'Tu respuesta va en camino a :to', { to })
+                : t('reply_on_the_way', 'Tu respuesta va en camino');
         },
 
         async submit() {
@@ -31,7 +39,7 @@ export function flowerReply({ slug, guestToken = '', isPreview = false, to = '',
             }
 
             if (isPreview) {
-                this.error = 'Las respuestas no se envían desde la vista previa.';
+                this.error = t('reply_preview', 'Las respuestas no se envían desde la vista previa.');
                 return;
             }
 
@@ -61,13 +69,13 @@ export function flowerReply({ slug, guestToken = '', isPreview = false, to = '',
                 const data = await response.json().catch(() => ({}));
 
                 if (!response.ok) {
-                    this.error = data.message || 'No se pudo enviar. Intenta de nuevo.';
+                    this.error = data.message || t('reply_failed', 'No se pudo enviar. Intenta de nuevo.');
                     return;
                 }
 
                 this.celebrateSent();
             } catch {
-                this.error = 'No se pudo enviar. Revisa tu conexión e intenta de nuevo.';
+                this.error = t('reply_offline', 'No se pudo enviar. Revisa tu conexión e intenta de nuevo.');
             } finally {
                 this.sending = false;
             }

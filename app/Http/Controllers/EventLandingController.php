@@ -40,7 +40,7 @@ class EventLandingController extends Controller
                 $page['title'],
                 $page['description'],
                 ShareMeta::defaultImage(),
-                route('landing', $landing),
+                lroute('landing', $landing),
             ),
         ]);
     }

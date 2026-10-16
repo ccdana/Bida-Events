@@ -6,7 +6,11 @@ use App\EventProfiles\EventProfiles;
 use App\Models\Invitation;
 use App\Models\User;
 use App\Modules\Module;
+use App\Payments\PaymentGateways;
+use App\Support\DiyInvitations;
 use App\Support\InvitationTemplates;
+use App\Support\Localization;
+use App\Support\Packages;
 use App\Support\ResellerSubscription;
 use Illuminate\Support\Collection;
 
@@ -47,12 +51,17 @@ class DashboardViewData
             'search' => $search,
             'total' => $rows->count(),
             'reseller' => $user?->isReseller() ? $this->reseller($user) : null,
+            // «Hazlo tú»: crear su propia invitación (sin plan), con cuántos borradores le quedan
+            'diy' => $user && DiyInvitations::canBuild($user) ? $this->diy($user) : null,
+            // Dónde elegir el plan: pagarlo aquí si hay pago en línea; si no, ver los planes y escribirnos
+            'startUrl' => app(PaymentGateways::class)->availableMethods() ? route('client.subscription') : lroute('diy').'#planes',
         ];
     }
 
     /**
-     * Lo que el revendedor necesita ver al entrar: su plan, cuánto cupo le queda este mes y si su
-     * suscripción está por vencer o ya venció (entonces no puede crear ni editar hasta renovar).
+     * Lo que el revendedor necesita ver al entrar: su plan, cuántas invitaciones publicó este mes (el
+     * cupo cuenta las publicadas; crear borradores no lo gasta) y si su suscripción está por vencer o
+     * ya venció (entonces no puede crear ni editar hasta renovar).
      */
     private function reseller(User $user): array
     {
@@ -62,10 +71,19 @@ class DashboardViewData
         $daysLeft = ResellerSubscription::daysLeft($user);
         $active = $user->hasActiveSubscription();
         $hasQuota = ResellerSubscription::hasQuotaLeft($user);
+        // Con tarjeta se renueva sola: el aviso de vencimiento solo hace falta si canceló o falló el cobro
+        $autoRenews = $user->renewsAutomatically() && $user->subscription_status === 'active';
+        $payOnline = (bool) app(PaymentGateways::class)->availableMethods();
+        $graceEnds = ResellerSubscription::graceEndsAt($user)?->locale(app()->getLocale())->translatedFormat(Localization::dateFormat('j \d\e F'));
 
         $warning = match (true) {
-            $daysLeft === null => 'Tu suscripción todavía no está activa. Escríbenos para registrar tu primer pago.',
+            $daysLeft === null => $payOnline
+                ? 'Tu suscripción todavía no está activa. Elige tu plan y paga en línea para empezar.'
+                : 'Tu suscripción todavía no está activa. Escríbenos para registrar tu primer pago.',
             ! $active => 'Tu suscripción venció: tus invitaciones siguen en línea, pero no puedes crear ni editar hasta renovarla.',
+            $user->subscription_status === 'past_due' => "No pudimos cobrar la renovación con tu tarjeta. Revisa tu medio de pago antes del {$graceEnds} para no perder el acceso al editor.",
+            ResellerSubscription::inGrace($user) => "Tu suscripción venció. Tienes hasta el {$graceEnds} para renovarla sin perder el acceso al editor.",
+            $autoRenews => null,
             $daysLeft <= ResellerSubscription::WARNING_DAYS => $daysLeft === 1
                 ? 'Tu suscripción vence mañana. Renuévala para no perder el acceso al editor.'
                 : "Tu suscripción vence en {$daysLeft} días. Renuévala para no perder el acceso al editor.",
@@ -77,17 +95,34 @@ class DashboardViewData
             'quotaUsed' => $used,
             'quotaLimit' => $limit,
             'quotaLabel' => $limit === null ? "{$used} este mes (sin tope)" : "{$used} de {$limit}",
-            'renewsLabel' => $user->subscription_renews_at?->locale('es')->translatedFormat('j \d\e F \d\e Y'),
+            'renewsLabel' => $user->subscription_renews_at?->locale(app()->getLocale())->translatedFormat(Localization::dateFormat('j \d\e F \d\e Y')),
             'isActive' => $active,
+            // Ya pasó la fecha (aunque siga en los días de gracia): «venció el», no «renueva el»
+            'isPastDue' => $daysLeft !== null && $daysLeft < 0,
+            'autoRenews' => $autoRenews,
             'warning' => $warning,
+            // Junto al aviso: pagar o renovar en línea (o el portal de la tarjeta, si el cobro falló)
+            'payUrl' => $warning && $payOnline ? route('client.subscription') : null,
             'isExpired' => $daysLeft !== null && ! $active,
-            'canCreate' => $active && $hasQuota,
-            // Por qué no puede crear, para decirlo junto al botón
-            'blockedReason' => match (true) {
-                ! $active => 'Renueva tu suscripción para crear invitaciones.',
-                ! $hasQuota => 'Ya usaste el cupo de este mes.',
-                default => null,
-            },
+            // Sin cupo igual crea y arma borradores: lo que no puede es publicar hasta el mes que viene
+            'canCreate' => $active,
+            'blockedReason' => $active ? null : 'Renueva tu suscripción para crear invitaciones.',
+            'quotaNote' => $active && ! $hasQuota ? 'Ya publicaste todas las de este mes: puedes seguir armando borradores y publicarlos el mes que viene.' : null,
+        ];
+    }
+
+    /** «Hazlo tú»: si puede crear otra (tope de borradores) y si todavía le queda la gratuita. */
+    private function diy(User $user): array
+    {
+        $drafts = DiyInvitations::draftsCount($user);
+        $limit = DiyInvitations::draftsLimit();
+
+        return [
+            'canCreate' => $drafts < $limit,
+            'drafts' => $drafts,
+            'limit' => $limit,
+            'freeAvailable' => DiyInvitations::freeAvailable($user),
+            'blockedReason' => $drafts < $limit ? null : "Ya tienes {$limit} borradores: publica uno o borra el que no uses.",
         ];
     }
 
@@ -113,6 +148,10 @@ class DashboardViewData
                 ? null
                 : match (true) {
                     $invitation->status === 'active' => 'El enlace venció: escríbenos para renovarlo.',
+                    // «Hazlo tú»: la arma y la publica el propio dueño
+                    $invitation->is_diy => $invitation->package === null
+                        ? 'Borrador: publícala desde el editor cuando esté lista.'
+                        : 'Oculta: publícala otra vez desde el editor.',
                     // El revendedor la arma él mismo: la publica desde su editor
                     $forReseller => 'Todavía sin publicar: publícala desde el editor.',
                     default => 'Todavía sin publicar: la estamos preparando.',
@@ -120,6 +159,8 @@ class DashboardViewData
             'metrics' => $isCard ? $this->cardMetrics($invitation) : $this->guestMetrics($guests),
             'guestsCount' => $guests->count(),
             'ownerLabel' => $forReseller && $user ? $this->ownerLabel($invitation, $user) : null,
+            // «Hazlo tú»: el nivel con el que se publicó (Gratis, Básico…); null mientras es borrador
+            'tierLabel' => $invitation->is_diy && Packages::isTier($invitation->package) ? (Packages::tierNames()[$invitation->package] ?? null) : null,
         ];
     }
 

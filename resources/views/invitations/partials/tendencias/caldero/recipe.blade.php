@@ -10,8 +10,8 @@
 <section class="inv-section reveal cl-recipe-section" id="itinerario">
     <div class="inv-wrap">
         @include('invitations.partials.section-header', [
-            'eyebrow' => $invCopy['itinerary_eyebrow'] ?? 'La receta de la noche',
-            'title' => $data['titulo'] ?? 'Itinerario',
+            'eyebrow' => $invCopy['itinerary_eyebrow'] ?? __('La receta de la noche'),
+            'title' => $data['titulo'] ?? __('Itinerario'),
         ])
 
         @if(count($eventos) > 0)
@@ -21,7 +21,7 @@
                         <span class="cl-step__vial" aria-hidden="true"><i></i></span>
                         <div class="cl-step__body">
                             <p class="cl-step__meta">
-                                <span class="cl-step__number">{{ $invCopy['potion_step'] ?? 'Paso' }} {{ $index + 1 }}</span>
+                                <span class="cl-step__number">{{ $invCopy['potion_step'] ?? __('Paso') }} {{ $index + 1 }}</span>
                                 <time class="cl-step__time">{{ $evento['hora'] ?? '' }}</time>
                             </p>
                             <h3 class="cl-step__title">{{ $evento['titulo'] ?? '' }}</h3>
@@ -33,7 +33,7 @@
                 @endforeach
             </ol>
         @else
-            <p class="inv-empty">{{ $invCopy['itinerary_empty'] ?? 'Muy pronto publicaremos la receta de la noche.' }}</p>
+            <p class="inv-empty">{{ $invCopy['itinerary_empty'] ?? __('Muy pronto publicaremos la receta de la noche.') }}</p>
         @endif
     </div>
 </section>

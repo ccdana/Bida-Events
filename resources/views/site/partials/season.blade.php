@@ -13,9 +13,13 @@
     $seasonIcons = ['halloween' => 'ghost', 'amor' => 'heart'];
     $soonest = collect($seasons)->sortBy(fn (array $season) => $season['endsAt']->getTimestamp())->first();
     $daysLeft = max(0, (int) now()->diffInDays($soonest['endsAt']));
-    $fabLabel = (count($seasons) === 1 ? 'De temporada' : count($seasons).' temporadas').': '
-        .collect($seasons)->pluck('name')->join(', ', ' y ').'. '
-        .($daysLeft > 0 ? "Quedan {$daysLeft} ".($daysLeft === 1 ? 'día' : 'días') : 'Termina hoy');
+    $timeLeft = match (true) {
+        $daysLeft === 0 => __('Termina hoy'),
+        $daysLeft === 1 => __('Queda 1 día'),
+        default => __('Quedan :days días', ['days' => $daysLeft]),
+    };
+    $fabLabel = (count($seasons) === 1 ? __('De temporada') : __(':count temporadas', ['count' => count($seasons)])).': '
+        .collect($seasons)->pluck('name')->join(', ', ' '.__('y').' ').'. '.$timeLeft;
 @endphp
 
 <div class="site-seasons" x-data="seasonDock(@js(array_column($seasons, 'key')))"
@@ -35,7 +39,7 @@
 
     <div class="site-season__backdrop" x-show="open" x-cloak x-transition.opacity @click="close()"></div>
 
-    <section id="temporadas" class="site-season__sheet" role="dialog" aria-modal="true" aria-label="Diseños de temporada"
+    <section id="temporadas" class="site-season__sheet" role="dialog" aria-modal="true" aria-label="{{ __('Diseños de temporada') }}"
         x-show="open" x-cloak
         x-transition:enter="site-season__sheet--enter" x-transition:enter-start="is-from" x-transition:enter-end="is-to"
         x-transition:leave="site-season__sheet--leave" x-transition:leave-start="is-to" x-transition:leave-end="is-from">

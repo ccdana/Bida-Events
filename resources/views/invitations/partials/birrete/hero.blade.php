@@ -5,12 +5,12 @@
     lado izquierdo. Detrás, birretes que siguen dando vueltas en el aire. Estilos en themes/birrete.css.
 --}}
 @php
-    $heroEyebrow = $invCopy['hero_eyebrow'] ?? 'Me gradúo';
+    $heroEyebrow = $invCopy['hero_eyebrow'] ?? __('Me gradúo');
     $career = trim((string) ($page->welcome['subtitulo'] ?? ''));
     $heroMessage = $page->welcome['mensaje'] ?? '';
     $heroDay = ($page->welcome['fecha_texto'] ?? null)
-        ?: \Illuminate\Support\Str::ucfirst($page->eventDate->locale('es')->translatedFormat('l j \d\e F'));
-    $classLine = ($invCopy['hero_class_label'] ?? 'Promoción').' '.$page->eventDate->format('Y');
+        ?: \Illuminate\Support\Str::ucfirst($page->eventDate->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('l j \d\e F')));
+    $classLine = ($invCopy['hero_class_label'] ?? __('Promoción')).' '.$page->eventDate->format('Y');
 
     // La carrera va por el borde de arriba del sello; la letra se achica para que entre en el arco
     $ringText = mb_strtoupper($career !== '' ? $career : $classLine);
@@ -80,16 +80,16 @@
 
     <dl class="br-facts inv-fade-up inv-fade-up--3">
         <div>
-            <dt>{{ $invCopy['hero_day_label'] ?? 'Día' }}</dt>
+            <dt>{{ $invCopy['hero_day_label'] ?? __('Día') }}</dt>
             <dd>{{ $heroDay }}</dd>
         </div>
         <div>
-            <dt>{{ $invCopy['hero_time_label'] ?? 'Hora' }}</dt>
+            <dt>{{ $invCopy['hero_time_label'] ?? __('Hora') }}</dt>
             <dd>{{ $page->eventDate->format('H:i') }}</dd>
         </div>
         @if($page->placeName)
             <div class="br-facts__place">
-                <dt>{{ $invCopy['hero_place_label'] ?? 'Lugar' }}</dt>
+                <dt>{{ $invCopy['hero_place_label'] ?? __('Lugar') }}</dt>
                 <dd>{{ $page->placeName }}</dd>
             </div>
         @endif
@@ -100,7 +100,7 @@
     @endif
 
     <a href="#contenido" class="inv-hero__scroll br-hero__scroll">
-        {{ $invCopy['scroll_hint'] ?? 'Desliza' }}
+        {{ $invCopy['scroll_hint'] ?? __('Desliza') }}
         <span class="inv-hero__scroll-line" aria-hidden="true"></span>
     </a>
 </header>

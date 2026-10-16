@@ -9,14 +9,14 @@
 @php
     $heroMessage = $page->welcome['mensaje'] ?? '';
     $heroDay = ($page->welcome['fecha_texto'] ?? null)
-        ?: \Illuminate\Support\Str::ucfirst($page->eventDate->locale('es')->translatedFormat('l j \d\e F'));
+        ?: \Illuminate\Support\Str::ucfirst($page->eventDate->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('l j \d\e F')));
     $initial = mb_strtoupper(mb_substr(trim($page->displayName), 0, 1));
 @endphp
 
 <header id="inicio" class="inv-hero ez-hero">
     <p class="ez-kicker">
-        <span>{{ $invCopy['scent_line'] ?? 'Eau de Quince' }}</span>
-        <span>{{ $invCopy['scent_edition'] ?? 'Edición' }} {{ $page->eventDate->format('Y') }}</span>
+        <span>{{ $invCopy['scent_line'] ?? __('Eau de Quince') }}</span>
+        <span>{{ $invCopy['scent_edition'] ?? __('Edición') }} {{ $page->eventDate->format('Y') }}</span>
     </p>
 
     <h1 class="ez-brand">{{ $page->displayName }}</h1>
@@ -35,7 +35,7 @@
     </figure>
 
     <div class="ez-launch">
-        <p class="ez-launch__label">{{ $invCopy['scent_launch'] ?? 'Lanzamiento' }}</p>
+        <p class="ez-launch__label">{{ $invCopy['scent_launch'] ?? __('Lanzamiento') }}</p>
         <p class="ez-launch__when">{{ $heroDay }} · {{ $page->eventDate->format('H:i') }}</p>
         @if($page->placeName)
             <p class="ez-launch__place">{{ $page->placeName }}</p>
@@ -47,7 +47,7 @@
     @endif
 
     <a href="#contenido" class="inv-hero__scroll ez-hero__scroll">
-        {{ $invCopy['scroll_hint'] ?? 'Desliza' }}
+        {{ $invCopy['scroll_hint'] ?? __('Desliza') }}
         <span class="inv-hero__scroll-line" aria-hidden="true"></span>
     </a>
 </header>

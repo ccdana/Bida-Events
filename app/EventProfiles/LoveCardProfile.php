@@ -14,7 +14,7 @@ class LoveCardProfile extends EventProfile
 
     public function label(): string
     {
-        return 'Día del Amor';
+        return __('Día del Amor');
     }
 
     public function kind(): string
@@ -47,17 +47,17 @@ class LoveCardProfile extends EventProfile
     {
         return [
             // La portada de la tarjeta no lleva nombres: solo la foto de los dos
-            'bienvenida' => ['imagen_hero' => 'Falta la foto de portada'],
+            'bienvenida' => ['imagen_hero' => __('Falta la foto de portada')],
             'dedicatoria' => [
-                'para' => 'Falta para quién es la tarjeta',
-                'de' => 'Falta quién la manda',
-                'mensaje' => 'Falta el mensaje',
+                'para' => __('Falta para quién es la tarjeta'),
+                'de' => __('Falta quién la manda'),
+                'mensaje' => __('Falta el mensaje'),
             ],
         ];
     }
 
     public function sample(): array
     {
-        return ['name' => 'Para Ana', 'subtitle' => 'Feliz Día del Amor'];
+        return ['name' => __('Para Ana'), 'subtitle' => __('Feliz Día del Amor')];
     }
 }

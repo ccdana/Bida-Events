@@ -11,15 +11,17 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * La política de contenido (CSP) sale en modo "solo reporte" hasta que se active
  * CSP_ENFORCE=true: así se puede medir qué bloquearía antes de exigirla.
- * Las invitaciones cargan Cloudinary, Google Fonts, Google Maps y YouTube, y Alpine
- * evalúa expresiones, por eso la política los contempla.
+ * Las invitaciones cargan Cloudinary, Google Fonts, Google Maps y YouTube, Alpine evalúa
+ * expresiones y el pago sigue en Lemon Squeezy o Libélula, por eso la política los contempla.
  */
 class SecurityHeaders
 {
     private const POLICY = [
         "default-src 'self'",
         "base-uri 'self'",
-        "form-action 'self'",
+        // El formulario «Continuar al pago» redirige a la página de pago de Lemon Squeezy o de
+        // Libélula, y form-action también vale para la redirección que sigue a un formulario
+        "form-action 'self' https://*.lemonsqueezy.com https://*.libelula.bo https://*.todotix.com",
         "frame-ancestors 'self'",
         "object-src 'none'",
         "img-src 'self' data: blob: https://res.cloudinary.com https://picsum.photos https://*.googleusercontent.com https://*.ytimg.com",

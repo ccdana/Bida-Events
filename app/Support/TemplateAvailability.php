@@ -69,6 +69,6 @@ final class TemplateAvailability
     {
         $endsAt = Offers::date(config("bida.seasons.{$season}.ends_at"));
 
-        return $endsAt ? Carbon::parse($endsAt)->locale('es')->translatedFormat('j \d\e F') : '';
+        return $endsAt ? Carbon::parse($endsAt)->locale(app()->getLocale())->translatedFormat(Localization::dateFormat('j \d\e F')) : '';
     }
 }

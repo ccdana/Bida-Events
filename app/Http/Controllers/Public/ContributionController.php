@@ -33,7 +33,7 @@ class ContributionController extends Controller
             ->first();
 
         if (! $invitation) {
-            return response()->json(['songs' => [], 'message' => 'Playlist no disponible'], 404);
+            return response()->json(['songs' => [], 'message' => __('Playlist no disponible')], 404);
         }
 
         $songs = $invitation->contributions()
@@ -56,7 +56,7 @@ class ContributionController extends Controller
             ->first();
 
         if (! $invitation) {
-            return response()->json(['success' => false, 'message' => 'Playlist no disponible'], 404);
+            return response()->json(['success' => false, 'message' => __('Playlist no disponible')], 404);
         }
 
         $validated = $request->validate([
@@ -82,7 +82,7 @@ class ContributionController extends Controller
 
         GuestContributionSubmitted::dispatch($contribution);
 
-        return response()->json(['success' => true, 'message' => '¡Canción agregada a la playlist!']);
+        return response()->json(['success' => true, 'message' => __('¡Canción agregada a la playlist!')]);
     }
 
     /**
@@ -99,7 +99,7 @@ class ContributionController extends Controller
             ->exists();
 
         if (! $acceptsReplies) {
-            return response()->json(['success' => false, 'message' => 'Esta tarjeta no recibe respuestas.'], 404);
+            return response()->json(['success' => false, 'message' => __('Esta tarjeta no recibe respuestas.')], 404);
         }
 
         // La flor (u otra reacción) solo puede ser una de las que ofrece la plantilla; con flor, el mensaje es opcional
@@ -129,7 +129,7 @@ class ContributionController extends Controller
 
         GuestContributionSubmitted::dispatch($contribution);
 
-        return response()->json(['success' => true, 'message' => 'Tu respuesta llegó.']);
+        return response()->json(['success' => true, 'message' => __('Tu respuesta llegó.')]);
     }
 
     public function listPhotos(string $slug)
@@ -140,7 +140,7 @@ class ContributionController extends Controller
             ->first();
 
         if (! $invitation) {
-            return response()->json(['photos' => [], 'message' => 'Fotomural no disponible'], 404);
+            return response()->json(['photos' => [], 'message' => __('Fotomural no disponible')], 404);
         }
 
         $photos = $invitation->contributions()
@@ -169,11 +169,11 @@ class ContributionController extends Controller
             ->first();
 
         if (! $invitation) {
-            return response()->json(['success' => false, 'message' => 'Fotomural no disponible'], 404);
+            return response()->json(['success' => false, 'message' => __('Fotomural no disponible')], 404);
         }
 
         if ($invitation->is_post_event) {
-            return response()->json(['success' => false, 'message' => 'El fotomural ya está en modo solo lectura'], 403);
+            return response()->json(['success' => false, 'message' => __('El fotomural ya está en modo solo lectura')], 403);
         }
 
         $validated = $request->validate([
@@ -208,7 +208,7 @@ class ContributionController extends Controller
 
         GuestContributionSubmitted::dispatch($contribution);
 
-        return response()->json(['success' => true, 'message' => '¡Foto compartida al fotomural!']);
+        return response()->json(['success' => true, 'message' => __('¡Foto compartida al fotomural!')]);
     }
 
     public function votePoll(Request $request, string $slug, string $pollId)
@@ -231,11 +231,11 @@ class ContributionController extends Controller
 
         // Sin fila de encuesta no hay dónde guardar el voto (la invitación aún no está normalizada)
         if (! $poll || ! ($poll['id'] ?? null)) {
-            return response()->json(['success' => false, 'message' => 'Esta encuesta no existe.'], 404);
+            return response()->json(['success' => false, 'message' => __('Esta encuesta no existe.')], 404);
         }
 
         if ($validated['option_index'] >= (int) ($poll['options_count'] ?? 0)) {
-            return response()->json(['success' => false, 'message' => 'Esa opción no existe en la encuesta.'], 422);
+            return response()->json(['success' => false, 'message' => __('Esa opción no existe en la encuesta.')], 422);
         }
 
         $existing = PollVote::where('invitation_poll_id', $poll['id'])
@@ -243,7 +243,7 @@ class ContributionController extends Controller
             ->first();
 
         if ($existing) {
-            return response()->json(['success' => false, 'message' => 'Ya votaste en esta encuesta.'], 422);
+            return response()->json(['success' => false, 'message' => __('Ya votaste en esta encuesta.')], 422);
         }
 
         $guestId = null;
@@ -266,7 +266,7 @@ class ContributionController extends Controller
         } catch (QueryException $exception) {
             // Dos toques a la vez: la clave única (invitation_poll_id, voter_key) es la que manda
             if (($exception->errorInfo[0] ?? null) === '23000') {
-                return response()->json(['success' => false, 'message' => 'Ya votaste en esta encuesta.'], 422);
+                return response()->json(['success' => false, 'message' => __('Ya votaste en esta encuesta.')], 422);
             }
 
             throw $exception;

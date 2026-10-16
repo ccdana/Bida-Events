@@ -8,6 +8,7 @@ use App\Services\InvitationModuleService;
 use App\Services\InvitationPreviewSession;
 use App\Support\InvitationDefaults;
 use App\Support\InvitationTemplates;
+use App\Support\Localization;
 use App\Support\Packages;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -60,7 +61,12 @@ class PreviewController extends Controller
             $config = $modulos['config'] ?? [];
             $template = InvitationDefaults::resolveTemplate($payload['template'] ?? ($config['template'] ?? null));
 
+            // La vista previa muestra los textos en el idioma elegido, aunque aún no se haya guardado
+            $locale = Localization::resolve($payload['locale'] ?? null);
+            Localization::apply($locale);
+
             $invitation = new Invitation([
+                'locale' => $locale,
                 'title' => $payload['title'] ?? 'Vista previa',
                 'slug' => $payload['slug'] ?? 'preview',
                 'template' => $template,
@@ -128,6 +134,7 @@ class PreviewController extends Controller
             'event_date' => $request->input('event_date'),
             'expires_at' => $request->input('expires_at'),
             'package' => $request->input('package'),
+            'locale' => $request->input('locale'),
             'modulos' => $modulos,
         ];
     }
@@ -157,6 +164,7 @@ class PreviewController extends Controller
             'event_date' => $request->input('event_date'),
             'expires_at' => $request->input('expires_at'),
             'package' => $request->input('package'),
+            'locale' => $request->input('locale'),
             'modulos' => $modulos,
         ];
     }

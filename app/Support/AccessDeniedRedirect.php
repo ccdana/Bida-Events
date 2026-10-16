@@ -2,8 +2,8 @@
 
 namespace App\Support;
 
-use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 
 /**
  * En los paneles (admin y cliente) un 403 no muestra la página de error del framework: se vuelve a donde
@@ -25,7 +25,7 @@ class AccessDeniedRedirect
         $user = $request->user();
 
         if (! $user) {
-            return redirect()->route('login');
+            return redirect()->to(lroute('login'));
         }
 
         $notice = self::notice($message);
@@ -38,7 +38,7 @@ class AccessDeniedRedirect
         $target = $sameHost && ! $samePage($previous) ? $previous : $panel;
 
         if ($samePage($target)) {
-            $target = route('home');
+            $target = lroute('home');
         }
 
         return redirect()->to($target, 303)->with('access_notice', $notice);

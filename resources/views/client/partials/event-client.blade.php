@@ -38,7 +38,7 @@
                 </div>
             </dl>
             <x-ui.copy-button class="admin-link-button mt-3"
-                :text="'Hola '.$credentials['name'].', ya puedes ver quién confirmó en tu invitación. Entra en '.route('login').' con el usuario '.$credentials['username'].' y la contraseña '.$credentials['password'].'.'"
+                :text="'Hola '.$credentials['name'].', ya puedes ver quién confirmó en tu invitación. Entra en '.lroute('login').' con el usuario '.$credentials['username'].' y la contraseña '.$credentials['password'].'.'"
                 label="Copiar mensaje para enviar" done="Mensaje copiado" icon="whatsapp-logo" />
         </div>
     @endif

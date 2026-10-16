@@ -271,6 +271,35 @@ final class EditableTexts
         'act4_promise_fallback' => 'Acto 4: promesa si no hay', 'act4_together' => 'Acto 4: antes del tiempo juntos',
     ];
 
+    /**
+     * Los textos por defecto que ve el visitante (los de las plantillas y los del catálogo), para
+     * comprobar que lang/en.json los tiene.
+     *
+     * @return list<string>
+     */
+    public static function defaults(): array
+    {
+        $strings = [];
+
+        foreach (self::catalog() as $texts) {
+            foreach ($texts as $key => $text) {
+                if (! in_array($key, self::NOT_TEXT, true) && isset($text[1]) && is_string($text[1])) {
+                    $strings[] = $text[1];
+                }
+            }
+        }
+
+        foreach (InvitationTemplates::all() as $template) {
+            foreach ((array) ($template['copy'] ?? []) as $key => $value) {
+                if (is_string($value) && ! in_array($key, self::NOT_TEXT, true)) {
+                    $strings[] = $value;
+                }
+            }
+        }
+
+        return array_values(array_unique($strings));
+    }
+
     /** Todas las claves que se pueden guardar: las del catálogo y las propias de cada plantilla. */
     public static function keys(): array
     {
@@ -293,7 +322,7 @@ final class EditableTexts
 
         foreach (self::catalog() as $module => $texts) {
             foreach ($texts as $key => $text) {
-                $groups[$module][] = self::field($key, $text[0], (string) ($copy[$key] ?? $text[1]), $text[2] ?? false);
+                $groups[$module][] = self::field($key, $text[0], __((string) ($copy[$key] ?? $text[1])), $text[2] ?? false);
             }
         }
 
@@ -305,7 +334,7 @@ final class EditableTexts
                 continue;
             }
 
-            $groups[self::GENERAL][] = self::field($key, self::TEMPLATE_LABELS[$key] ?? 'Texto de la plantilla', $value, mb_strlen($value) > 70);
+            $groups[self::GENERAL][] = self::field($key, self::TEMPLATE_LABELS[$key] ?? 'Texto de la plantilla', __($value), mb_strlen($value) > 70);
         }
 
         return $groups;

@@ -60,7 +60,7 @@
 </div>
 
 {{-- Mariposas encontradas --}}
-<div class="inv-hunt" x-data="butterflyHunt({ total: 3, message: @js($invCopy['butterflies_found'] ?? 'Encontraste las tres mariposas.') })" x-cloak>
+<div class="inv-hunt" x-data="butterflyHunt({ total: 3, message: @js($invCopy['butterflies_found'] ?? __('Encontraste las tres mariposas.')) })" x-cloak>
     <p class="inv-hunt__toast" x-show="toast" x-transition.opacity.duration.400ms role="status" aria-live="polite">
         <svg viewBox="0 0 48 40" aria-hidden="true"><path d="M23 20 C 14 2, 1 4, 3 15 C 4 22, 14 22, 23 20 Z M25 20 C 34 2, 47 4, 45 15 C 44 22, 34 22, 25 20 Z M23 21 C 12 24, 5 32, 11 36 C 17 39, 22 30, 23 21 Z M25 21 C 36 24, 43 32, 37 36 C 31 39, 26 30, 25 21 Z" /></svg>
         <span x-text="toast"></span>

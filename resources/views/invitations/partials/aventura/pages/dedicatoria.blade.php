@@ -16,12 +16,12 @@
         <article class="nb-page nb-page--lined nb-letter" data-nb-page @if($letterIndex === 0) id="dedicatoria" @endif>
             <div class="nb-page__inner">
                 @if($letterIndex === 0)
-                    <p class="nb-eyebrow">Una carta para ti</p>
+                    <p class="nb-eyebrow">{{ __('Una carta para ti') }}</p>
                     @if($letterTo !== '')
-                        <p class="nb-letter__greeting">Para {{ $letterTo }},</p>
+                        <p class="nb-letter__greeting">{{ __('Para :letterTo,', ['letterTo' => $letterTo]) }}</p>
                     @endif
                 @else
-                    <p class="nb-continued">La carta · continúa</p>
+                    <p class="nb-continued">{{ __('La carta · continúa') }}</p>
                 @endif
 
                 <div class="nb-letter__body">
@@ -38,7 +38,7 @@
                     @endif
                     @include('invitations.partials.aventura.flower', ['kind' => 'ramita', 'class' => 'nb-corner nb-corner--br'])
                 @else
-                    <p class="nb-next">sigue en la próxima hoja ›</p>
+                    <p class="nb-next">{{ __('sigue en la próxima hoja ›') }}</p>
                 @endif
             </div>
             <span class="nb-folio"><!--nb-folio--></span>

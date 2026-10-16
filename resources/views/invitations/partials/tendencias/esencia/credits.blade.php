@@ -9,23 +9,23 @@
         : ['nombre' => trim((string) $persona), 'detalle' => null];
     $padrinos = array_values(array_filter($data['padrinos'] ?? [], fn ($padrino) => !empty($padrino['nombres'] ?? null)));
     $court = array_filter([
-        ($invCopy['court_women'] ?? 'Damas') => array_values(array_filter(array_map($normalizePerson, $data['damitas'] ?? []), fn ($person) => $person['nombre'] !== '')),
-        ($invCopy['court_men'] ?? 'Chambelanes') => array_values(array_filter(array_map($normalizePerson, $data['chambelanes'] ?? []), fn ($person) => $person['nombre'] !== '')),
+        ($invCopy['court_women'] ?? __('Damas')) => array_values(array_filter(array_map($normalizePerson, $data['damitas'] ?? []), fn ($person) => $person['nombre'] !== '')),
+        ($invCopy['court_men'] ?? __('Chambelanes')) => array_values(array_filter(array_map($normalizePerson, $data['chambelanes'] ?? []), fn ($person) => $person['nombre'] !== '')),
     ]);
 @endphp
 
 <section class="inv-section reveal ez-credits-section" id="destacados">
     <div class="inv-wrap">
         @include('invitations.partials.section-header', [
-            'eyebrow' => $invCopy['court_eyebrow'] ?? 'La casa detrás de la fragancia',
-            'title' => $invCopy['court_title'] ?? 'Créditos',
+            'eyebrow' => $invCopy['court_eyebrow'] ?? __('La casa detrás de la fragancia'),
+            'title' => $invCopy['court_title'] ?? __('Créditos'),
             'intro' => $invCopy['court_intro'] ?? null,
         ])
 
         @if(count($padrinos) || count($court))
             <div class="ez-credits">
                 <p class="ez-credits__band">
-                    <span>{{ $invCopy['scent_line'] ?? 'Eau de Quince' }}</span>
+                    <span>{{ $invCopy['scent_line'] ?? __('Eau de Quince') }}</span>
                     <span>{{ $page->displayName }}</span>
                 </p>
 
@@ -67,7 +67,7 @@
                 @endif
             </div>
         @else
-            <p class="inv-empty">{{ $invCopy['court_empty'] ?? 'Pronto presentaré a mi corte de honor.' }}</p>
+            <p class="inv-empty">{{ $invCopy['court_empty'] ?? __('Pronto presentaré a mi corte de honor.') }}</p>
         @endif
     </div>
 </section>

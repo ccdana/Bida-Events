@@ -10,8 +10,8 @@
         : ['nombre' => trim((string) $persona), 'detalle' => null];
     $padrinos = array_values(array_filter($data['padrinos'] ?? [], fn ($padrino) => !empty($padrino['nombres'] ?? null)));
     $guests = array_filter([
-        ($invCopy['court_women'] ?? 'Invitados de honor') => array_values(array_filter(array_map($normalizePerson, $data['damitas'] ?? []), fn ($person) => $person['nombre'] !== '')),
-        ($invCopy['court_men'] ?? 'También en casa') => array_values(array_filter(array_map($normalizePerson, $data['chambelanes'] ?? []), fn ($person) => $person['nombre'] !== '')),
+        ($invCopy['court_women'] ?? __('Invitados de honor')) => array_values(array_filter(array_map($normalizePerson, $data['damitas'] ?? []), fn ($person) => $person['nombre'] !== '')),
+        ($invCopy['court_men'] ?? __('También en casa')) => array_values(array_filter(array_map($normalizePerson, $data['chambelanes'] ?? []), fn ($person) => $person['nombre'] !== '')),
     ]);
     $initialOf = fn (string $names) => mb_strtoupper(mb_substr(trim($names), 0, 1));
 @endphp
@@ -19,8 +19,8 @@
 <section class="inv-section reveal cs-portraits-section" id="destacados">
     <div class="inv-wrap">
         @include('invitations.partials.section-header', [
-            'eyebrow' => $invCopy['court_eyebrow'] ?? 'La galería de retratos',
-            'title' => $invCopy['court_title'] ?? 'Los dueños de casa',
+            'eyebrow' => $invCopy['court_eyebrow'] ?? __('La galería de retratos'),
+            'title' => $invCopy['court_title'] ?? __('Los dueños de casa'),
             'intro' => $invCopy['court_intro'] ?? null,
         ])
 
@@ -65,7 +65,7 @@
                 </div>
             @endif
         @else
-            <p class="inv-empty">{{ $invCopy['court_empty'] ?? 'Muy pronto presentaremos a los dueños de casa.' }}</p>
+            <p class="inv-empty">{{ $invCopy['court_empty'] ?? __('Muy pronto presentaremos a los dueños de casa.') }}</p>
         @endif
     </div>
 </section>

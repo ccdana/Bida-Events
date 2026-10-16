@@ -10,16 +10,16 @@
         : ['nombre' => trim((string) $persona), 'detalle' => null];
     $padrinos = array_values(array_filter($data['padrinos'] ?? [], fn ($padrino) => !empty($padrino['nombres'] ?? null)));
     $court = array_filter([
-        ($invCopy['court_women'] ?? 'Damas') => array_values(array_filter(array_map($normalizePerson, $data['damitas'] ?? []), fn ($person) => $person['nombre'] !== '')),
-        ($invCopy['court_men'] ?? 'Chambelanes') => array_values(array_filter(array_map($normalizePerson, $data['chambelanes'] ?? []), fn ($person) => $person['nombre'] !== '')),
+        ($invCopy['court_women'] ?? __('Damas')) => array_values(array_filter(array_map($normalizePerson, $data['damitas'] ?? []), fn ($person) => $person['nombre'] !== '')),
+        ($invCopy['court_men'] ?? __('Chambelanes')) => array_values(array_filter(array_map($normalizePerson, $data['chambelanes'] ?? []), fn ($person) => $person['nombre'] !== '')),
     ]);
 @endphp
 
 <section class="inv-section reveal zp-boxes-section" id="destacados">
     <div class="inv-wrap">
         @include('invitations.partials.section-header', [
-            'eyebrow' => $invCopy['court_eyebrow'] ?? 'Quienes me acompañan',
-            'title' => $invCopy['court_title'] ?? 'Mi corte de honor',
+            'eyebrow' => $invCopy['court_eyebrow'] ?? __('Quienes me acompañan'),
+            'title' => $invCopy['court_title'] ?? __('Mi corte de honor'),
             'intro' => $invCopy['court_intro'] ?? null,
         ])
 
@@ -31,7 +31,7 @@
                             <span class="zp-shelf__lid" aria-hidden="true"></span>
                             <span class="zp-shelf__label">
                                 @if(!empty($padrino['rol']))
-                                    <span class="zp-shelf__role"><small>{{ $invCopy['shoe_model'] ?? 'Modelo' }}</small>{{ $padrino['rol'] }}</span>
+                                    <span class="zp-shelf__role"><small>{{ $invCopy['shoe_model'] ?? __('Modelo') }}</small>{{ $padrino['rol'] }}</span>
                                 @endif
                                 <span class="zp-shelf__names">{{ $padrino['nombres'] }}</span>
                                 @if(!empty($padrino['mensaje']))
@@ -39,7 +39,7 @@
                                 @endif
                                 <span class="zp-shelf__foot" aria-hidden="true">
                                     <span class="zp-label__bars"></span>
-                                    <span class="zp-shelf__size"><small>{{ $invCopy['shoe_ref'] ?? 'Ref.' }}</small>{{ str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) }}</span>
+                                    <span class="zp-shelf__size"><small>{{ $invCopy['shoe_ref'] ?? __('Ref.') }}</small>{{ str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) }}</span>
                                 </span>
                             </span>
                         </li>
@@ -67,7 +67,7 @@
                 </div>
             @endif
         @else
-            <p class="inv-empty">{{ $invCopy['court_empty'] ?? 'Pronto presentaré a mi corte de honor.' }}</p>
+            <p class="inv-empty">{{ $invCopy['court_empty'] ?? __('Pronto presentaré a mi corte de honor.') }}</p>
         @endif
     </div>
 </section>

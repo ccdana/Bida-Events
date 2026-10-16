@@ -14,9 +14,9 @@
     $tiers = [];
     $offset = 0;
     foreach ([
-        $invCopy['scent_top'] ?? 'Notas de salida',
-        $invCopy['scent_heart'] ?? 'Notas de corazón',
-        $invCopy['scent_base'] ?? 'Notas de fondo',
+        $invCopy['scent_top'] ?? __('Notas de salida'),
+        $invCopy['scent_heart'] ?? __('Notas de corazón'),
+        $invCopy['scent_base'] ?? __('Notas de fondo'),
     ] as $index => $label) {
         $moments = array_slice($eventos, $offset, $sizes[$index]);
         $offset += $sizes[$index];
@@ -29,8 +29,8 @@
 <section class="inv-section reveal ez-pyramid-section" id="itinerario">
     <div class="inv-wrap">
         @include('invitations.partials.section-header', [
-            'eyebrow' => $invCopy['itinerary_eyebrow'] ?? 'La pirámide de la noche',
-            'title' => $data['titulo'] ?? 'Itinerario',
+            'eyebrow' => $invCopy['itinerary_eyebrow'] ?? __('La pirámide de la noche'),
+            'title' => $data['titulo'] ?? __('Itinerario'),
         ])
 
         @if($total > 0)
@@ -53,7 +53,7 @@
                 @endforeach
             </div>
         @else
-            <p class="inv-empty">{{ $invCopy['itinerary_empty'] ?? 'Muy pronto compartiré el programa de la noche.' }}</p>
+            <p class="inv-empty">{{ $invCopy['itinerary_empty'] ?? __('Muy pronto compartiré el programa de la noche.') }}</p>
         @endif
     </div>
 </section>

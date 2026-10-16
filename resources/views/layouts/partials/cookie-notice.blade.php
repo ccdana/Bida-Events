@@ -3,12 +3,12 @@
     App\Support\LegalPages, «cookies»), así que es un aviso informativo con un «Entendido» que se
     recuerda en el navegador. Sin JavaScript no se muestra. Estilos: site.css («Aviso de cookies»).
 --}}
-<div class="site-cookies" data-cookie-notice hidden role="region" aria-label="Aviso de cookies">
+<div class="site-cookies" data-cookie-notice hidden role="region" aria-label="{{ __('Aviso de cookies') }}">
     <p>
-        Usamos solo las cookies necesarias para que el sitio funcione y una para saber desde qué anuncio llegaste. Nada de publicidad.
-        <a href="{{ route('legal', 'cookies') }}">Ver la política de cookies</a>
+        {{ __('Usamos solo las cookies necesarias para que el sitio funcione y una para saber desde qué anuncio llegaste. Nada de publicidad.') }}
+        <a href="{{ lroute('legal', 'cookies') }}">{{ __('Ver la política de cookies') }}</a>
     </p>
-    <button type="button" class="site-btn site-cookies__ok" data-cookie-accept>Entendido</button>
+    <button type="button" class="site-btn site-cookies__ok" data-cookie-accept>{{ __('Entendido') }}</button>
 </div>
 <script>
     (function () {

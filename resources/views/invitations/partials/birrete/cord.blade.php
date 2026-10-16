@@ -9,8 +9,8 @@
 <section class="inv-section reveal br-cord-section" id="itinerario">
     <div class="inv-wrap">
         @include('invitations.partials.section-header', [
-            'eyebrow' => $invCopy['itinerary_eyebrow'] ?? 'Así será el día',
-            'title' => $data['titulo'] ?? 'Itinerario',
+            'eyebrow' => $invCopy['itinerary_eyebrow'] ?? __('Así será el día'),
+            'title' => $data['titulo'] ?? __('Itinerario'),
         ])
 
         @if(count($eventos) > 0)
@@ -31,7 +31,7 @@
             {{-- La borla al final del cordón --}}
             <span class="br-cord__tassel" aria-hidden="true"><i></i></span>
         @else
-            <p class="inv-empty">{{ $invCopy['itinerary_empty'] ?? 'Muy pronto compartiré el horario del acto y de la fiesta.' }}</p>
+            <p class="inv-empty">{{ $invCopy['itinerary_empty'] ?? __('Muy pronto compartiré el horario del acto y de la fiesta.') }}</p>
         @endif
     </div>
 </section>

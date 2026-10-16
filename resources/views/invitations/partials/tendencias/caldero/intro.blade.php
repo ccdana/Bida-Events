@@ -7,7 +7,7 @@
     Lógica en shell/cover-component; estilos en css/invitation/tendencias/caldero.css.
 --}}
 @php
-    $introDate = \Illuminate\Support\Str::ucfirst($page->eventDate->locale('es')->translatedFormat('j \d\e F'));
+    $introDate = \Illuminate\Support\Str::ucfirst($page->eventDate->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('j \d\e F')));
     // Burbujas que revientan en la superficie de la poción: x, tamaño
     $surfaceBubbles = [[98, 5], [132, 7], [170, 4.5], [204, 6], [116, 3.5], [188, 3.5]];
     // Los dulces del frasco del estante: x, y, color (1 principal, 2 secundario, 3 acento)
@@ -21,7 +21,7 @@
     @click="open()"
     role="dialog"
     aria-modal="true"
-    aria-label="Invitación a {{ $page->displayName }}">
+    aria-label="{{ __('Invitación a :displayName', ['displayName' => $page->displayName]) }}">
     {{-- El estante del laboratorio --}}
     <svg class="cl-shelf" viewBox="0 0 320 112" aria-hidden="true" focusable="false">
         <g class="cl-shelf__glass">
@@ -56,9 +56,9 @@
 
     <p class="cl-intro__eyebrow">
         @if($guest)
-            {{ $guest->name }}: {{ \Illuminate\Support\Str::lcfirst($invCopy['intro_eyebrow'] ?? 'Se está preparando una fiesta') }}
+            {{ $guest->name }}: {{ \Illuminate\Support\Str::lcfirst($invCopy['intro_eyebrow'] ?? __('Se está preparando una fiesta')) }}
         @else
-            {{ $invCopy['intro_eyebrow'] ?? 'Se está preparando una fiesta' }}
+            {{ $invCopy['intro_eyebrow'] ?? __('Se está preparando una fiesta') }}
         @endif
     </p>
 
@@ -77,7 +77,7 @@
             @endfor
         </span>
 
-        <button type="button" class="cl-cauldron" data-cover-trigger aria-label="Revolver la poción y abrir la invitación">
+        <button type="button" class="cl-cauldron" data-cover-trigger aria-label="{{ __('Revolver la poción y abrir la invitación') }}">
             <svg viewBox="0 0 300 250" aria-hidden="true" focusable="false">
                 <g class="cl-fire">
                     <rect class="cl-fire__log" x="78" y="224" width="144" height="13" rx="6.5" transform="rotate(-7 150 230)"/>
@@ -115,10 +115,10 @@
 
         {{-- La etiqueta de la receta, colgada del asa --}}
         <span class="cl-tag">
-            <span class="cl-tag__label">{{ $invCopy['potion_label'] ?? 'Receta secreta' }}</span>
+            <span class="cl-tag__label">{{ $invCopy['potion_label'] ?? __('Receta secreta') }}</span>
             <span class="cl-tag__date">{{ $introDate }}</span>
         </span>
     </div>
 
-    <p class="cl-intro__hint">{{ $invCopy['intro_hint'] ?? 'Toca el caldero para revolver la poción' }}</p>
+    <p class="cl-intro__hint">{{ $invCopy['intro_hint'] ?? __('Toca el caldero para revolver la poción') }}</p>
 </div>

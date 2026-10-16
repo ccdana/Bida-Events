@@ -28,7 +28,7 @@ class ResellerEditorTest extends TestCase
     {
         parent::setUp();
 
-        $this->reseller = User::factory()->reseller('aliado')->create();
+        $this->reseller = User::factory()->reseller()->create();
         $this->eventType = EventType::firstOrCreate(['slug' => 'xv-anos'], ['name' => 'XV Años']);
     }
 
@@ -51,29 +51,29 @@ class ResellerEditorTest extends TestCase
         );
     }
 
-    public function test_the_monthly_quota_stops_new_invitations_with_a_clear_message(): void
+    public function test_without_quota_a_new_invitation_is_saved_as_a_draft_with_a_clear_message(): void
     {
-        foreach (range(1, 8) as $ignored) {
+        foreach (range(1, 5) as $ignored) {
             $this->createInvitation(['reseller_id' => $this->reseller->id]);
         }
 
+        // El editor se abre igual: crear no gasta cupo
+        $this->actingAs($this->reseller)->withoutVite()->get(route('client.invitations.create'))->assertOk();
+
+        // Pide publicarla: se guarda, pero sin publicar, y se le dice cuándo podrá
         $this->actingAs($this->reseller)
-            ->from(route('client.dashboard'))
             ->post(route('client.invitations.store'), $this->payload())
-            ->assertSessionHasErrors(['quota' => 'Ya usaste las 8 invitaciones que incluye tu plan este mes. El cupo vuelve a empezar el primer día del próximo mes; si necesitas más, pregúntanos por un plan mayor.']);
+            ->assertRedirect()
+            ->assertSessionHas('warning', 'Guardamos tus cambios, pero no la publicamos: ya publicaste las 5 invitaciones de tu plan este mes. Podrás publicarla desde el 1 de '.now()->addMonthNoOverflow()->locale('es')->translatedFormat('F').', o ahora mismo con un plan mayor.');
 
-        $this->assertDatabaseMissing('invitations', ['slug' => 'xv-revendedor']);
-
-        // Tampoco se abre el editor: vuelve al panel con el aviso
-        $this->actingAs($this->reseller)
-            ->get(route('client.invitations.create'))
-            ->assertRedirect(route('client.dashboard'))
-            ->assertSessionHasErrors('quota');
+        $invitation = Invitation::where('slug', 'xv-revendedor')->firstOrFail();
+        $this->assertSame('inactive', $invitation->status);
+        $this->assertNull($invitation->first_published_at);
     }
 
     public function test_a_template_outside_the_plan_is_rejected(): void
     {
-        config(['bida.reseller_plans.aliado.templates' => [InvitationTemplates::BODA_JARDIN]]);
+        config(['bida.reseller_plans.inicial.templates' => [InvitationTemplates::BODA_JARDIN]]);
 
         $this->actingAs($this->reseller)
             ->post(route('client.invitations.store'), $this->payload())
@@ -123,7 +123,8 @@ class ResellerEditorTest extends TestCase
     public function test_an_expired_reseller_keeps_its_panel_but_cannot_create_or_edit(): void
     {
         $own = $this->createInvitation(['reseller_id' => $this->reseller->id]);
-        $this->reseller->update(['subscription_renews_at' => now()->subDay()->toDateString()]);
+        // Vencido y pasados los días de gracia
+        $this->reseller->update(['subscription_renews_at' => now()->subDays(10)->toDateString()]);
 
         $this->actingAs($this->reseller)->withoutVite()->get(route('client.dashboard'))->assertOk();
         $this->actingAs($this->reseller)->get(route('client.invitation.show', $own))->assertOk();
@@ -133,12 +134,13 @@ class ResellerEditorTest extends TestCase
         $this->actingAs($this->reseller)->post(route('client.editor.preview.store'), [])->assertRedirect()->assertSessionHas('access_notice');
     }
 
-    public function test_a_normal_client_does_not_reach_the_editor(): void
+    public function test_a_normal_client_does_not_reach_the_reseller_editor(): void
     {
         $client = User::factory()->create();
 
+        // Arma la suya con «Hazlo tú» (DiyInvitationTest), no con el editor del revendedor
         $this->actingAs($client)->get(route('client.invitations.create'))->assertRedirect()->assertSessionHas('access_notice');
-        $this->actingAs($client)->post(route('client.editor.media.upload'), [])->assertRedirect()->assertSessionHas('access_notice');
+        $this->actingAs($client)->post(route('client.invitations.store'), $this->payload())->assertRedirect()->assertSessionHas('access_notice');
     }
 
     private function payload(array $overrides = []): array

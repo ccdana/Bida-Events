@@ -50,7 +50,7 @@ class DoorController extends Controller
         $invitation = $this->invitationForDoor($doorToken);
         $code = strtolower(preg_replace('/[^a-z0-9]/i', '', (string) $request->input('code')) ?? '');
 
-        abort_if(strlen($code) < 4, 422, 'Escribe el código del pase.');
+        abort_if(strlen($code) < 4, 422, __('Escribe el código del pase.'));
 
         $guest = Guest::where('invitation_id', $invitation->id)
             ->where(function ($query) use ($code) {
@@ -61,7 +61,7 @@ class DoorController extends Controller
 
         if (! $guest) {
             return redirect()->route('door.open', $doorToken)
-                ->with('door_error', 'No hay ningún pase con ese código en esta invitación.');
+                ->with('door_error', __('No hay ningún pase con ese código en esta invitación.'));
         }
 
         return redirect()->route('door.entry', ['slug' => $invitation->slug, 'token' => $guest->qr_code_token]);
@@ -89,7 +89,7 @@ class DoorController extends Controller
     public function checkIn(CheckInGuestRequest $request, string $slug, string $token): RedirectResponse
     {
         [$invitation, $guest] = $this->findPass($slug, $token);
-        abort_unless($this->hasDoorAccess($request, $invitation), 403, 'Este teléfono no está habilitado para la puerta.');
+        abort_unless($this->hasDoorAccess($request, $invitation), 403, __('Este teléfono no está habilitado para la puerta.'));
 
         $people = (int) $request->validated('people');
 
@@ -112,20 +112,20 @@ class DoorController extends Controller
 
         return redirect()->route('door.entry', ['slug' => $slug, 'token' => $token])
             ->with($registered ? 'door_success' : 'door_error', $registered
-                ? ($registered === 1 ? 'Ingreso registrado: 1 persona.' : "Ingreso registrado: {$registered} personas.")
-                : 'Este pase ya no tiene personas por ingresar.');
+                ? ($registered === 1 ? __('Ingreso registrado: 1 persona.') : __('Ingreso registrado: :registered personas.', ['registered' => $registered]))
+                : __('Este pase ya no tiene personas por ingresar.'));
     }
 
     /** Deshace el último registro de ese pase, por si se tocó por error. */
     public function undo(Request $request, string $slug, string $token): RedirectResponse
     {
         [$invitation, $guest] = $this->findPass($slug, $token);
-        abort_unless($this->hasDoorAccess($request, $invitation), 403, 'Este teléfono no está habilitado para la puerta.');
+        abort_unless($this->hasDoorAccess($request, $invitation), 403, __('Este teléfono no está habilitado para la puerta.'));
 
         $guest->forceFill(['checked_in_passes' => 0, 'checked_in_at' => null])->save();
 
         return redirect()->route('door.entry', ['slug' => $slug, 'token' => $token])
-            ->with('door_success', 'Se deshizo el ingreso de este pase.');
+            ->with('door_success', __('Se deshizo el ingreso de este pase.'));
     }
 
     /** Resumen de la puerta: cuántas personas se esperan y cuántas ya entraron. */

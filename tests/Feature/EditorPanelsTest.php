@@ -24,16 +24,16 @@ class EditorPanelsTest extends TestCase
     /** Pestañas declaradas en el editor: código de módulo => id de la pestaña. */
     private function editorTabs(): array
     {
-        $script = file_get_contents(resource_path('views/admin/invitations/editor/script.blade.php'));
+        $script = file_get_contents(resource_path('js/admin/editor.js'));
         preg_match_all("/\{ id: '([a-z_]+)'[^}]*?moduleCode: '([a-z_]+)'/", $script, $matches, PREG_SET_ORDER);
 
         return collect($matches)->mapWithKeys(fn (array $m) => [$m[2] => $m[1]])->all();
     }
 
-    /** Paneles que el editor tiene a mano: los de la barra lateral y los propios de cada módulo. */
+    /** Paneles que el editor tiene a mano: los del panel de edición y los propios de cada módulo. */
     private function panelSources(): array
     {
-        $sidebar = file_get_contents(resource_path('views/admin/invitations/editor/sidebar.blade.php'));
+        $sidebar = file_get_contents(resource_path('views/admin/invitations/editor/panel.blade.php'));
         preg_match_all("/@include\('(admin\.invitations\.panels\.[a-z0-9.\-_]+)'/", $sidebar, $matches);
 
         $views = $matches[1];

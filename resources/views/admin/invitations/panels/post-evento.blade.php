@@ -2,7 +2,7 @@
     <section class="admin-card space-y-4">
         <div class="flex items-start justify-between gap-3">
             <div>
-                <p class="admin-eyebrow">Post-evento</p>
+                <p class="admin-eyebrow">Después de la fiesta</p>
                 <h2 class="font-serif text-xl text-stone-950">Galería oficial</h2>
                 <p class="mt-1 text-sm text-stone-500">Cuando termina el evento, la invitación muestra el mensaje de agradecimiento del banner y esta galería con las fotos oficiales.</p>
                 <p class="mt-1 text-xs text-stone-400">Si agregas un enlace externo, aparece el botón «Ver galería completa».</p>

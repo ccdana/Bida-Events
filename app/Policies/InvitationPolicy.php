@@ -6,6 +6,7 @@ use App\EventProfiles\EventProfiles;
 use App\Models\Invitation;
 use App\Models\User;
 use App\Modules\Module;
+use App\Support\DiyInvitations;
 use App\Support\Packages;
 
 class InvitationPolicy
@@ -28,6 +29,11 @@ class InvitationPolicy
             return true;
         }
 
+        // La que armó él mismo («Hazlo tú») la ve siempre: qué funciones trae lo dice su nivel
+        if ($invitation->is_diy) {
+            return (int) $invitation->user_id === (int) $user->id;
+        }
+
         return (int) $invitation->user_id === (int) $user->id
             && Packages::allowsFor($invitation, 'client_panel');
     }
@@ -48,12 +54,42 @@ class InvitationPolicy
     }
 
     /**
+     * «Hazlo tú»: cualquier cuenta del sitio (no revendedor) arma sus propias invitaciones sin pagar
+     * antes; paga, si hace falta, al publicar. El tope de borradores se revisa al crear
+     * (Client\DiyInvitationController), para poder explicar por qué no se puede.
+     */
+    public function createOwn(User $user): bool
+    {
+        return DiyInvitations::canBuild($user);
+    }
+
+    /** Las herramientas del editor (vista previa, subir archivos, mapas): revendedor al día o «Hazlo tú». */
+    public function useEditor(User $user): bool
+    {
+        return $this->create($user) || $this->createOwn($user);
+    }
+
+    /** Su propia invitación de «Hazlo tú»: la edita su dueño siempre, haya pagado o no. */
+    public function editOwn(User $user, Invitation $invitation): bool
+    {
+        return $invitation->is_diy && (int) $invitation->user_id === (int) $user->id;
+    }
+
+    /** Su borrador de «Hazlo tú» que nunca se publicó (sin nivel) lo puede borrar; publicado, ya no. */
+    public function deleteOwn(User $user, Invitation $invitation): bool
+    {
+        return $this->editOwn($user, $invitation) && $invitation->package === null && $invitation->status !== 'active';
+    }
+
+    /**
      * Editar es del administrador (pasa por before) y del revendedor que armó la invitación, mientras
-     * su suscripción esté al día. Un cliente nunca edita: se la arma el equipo o su revendedor.
+     * su suscripción esté al día. Un cliente nunca edita: se la arma el equipo o su revendedor (las de
+     * «Hazlo tú» se editan con editOwn, por su propio editor).
      */
     public function update(User $user, Invitation $invitation): bool
     {
-        return $invitation->reseller_id !== null
+        return ! $invitation->is_diy
+            && $invitation->reseller_id !== null
             && (int) $invitation->reseller_id === (int) $user->id
             && $user->isReseller()
             && $user->hasActiveSubscription();

@@ -1526,77 +1526,67 @@ html[data-theme='dark'] .adm-device {
     background: var(--site-bg);
 }
 
-/* ── Editor (admin/invitations/editor) ─────────────────────────────────────
-   Una sola lista de secciones con su estado, la sección abierta sin tarjetas
-   (bloques separados por filetes) y, en el celular, la lista y la vista previa
-   a pantalla completa.
+/* ── Editor: estilo Canva (admin/invitations/editor) ───────────────────────
+   A la izquierda las partes de la invitación, que solo se encienden o apagan
+   (modules). Al centro la invitación como lienzo, con su barra de herramientas
+   (preview). Al tocar un texto o una foto, una burbuja junto a él con solo
+   ese campo (panel); los formularios enteros van en un panel lateral. Una
+   invitación nueva empieza por el asistente (wizard). En el celular las partes
+   son un cajón y la burbuja una hoja que sube desde abajo.
    ──────────────────────────────────────────────────────────────────────── */
 
-.ed-head {
+.ed-shell {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+}
+
+/* ── Partes (barra lateral) ── */
+
+.ed-modules {
+    display: flex;
+    flex-direction: column;
     flex-shrink: 0;
-    padding: 1rem 1.25rem 0.85rem;
+    width: 17.5rem;
+    padding: 1rem 0.7rem 2rem;
+    overflow-y: auto;
+    border-right: 1px solid var(--site-line);
+    background: var(--site-bg);
+}
+
+.ed-modules__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0 0.5rem 0.9rem;
     border-bottom: 1px solid var(--site-line);
 }
 
-.ed-progress {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin-top: 0.75rem;
+.ed-modules__title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
 }
 
-.ed-progress__bar {
-    flex: 1;
-    height: 4px;
-    overflow: hidden;
-    border-radius: 999px;
-    background: var(--site-line);
-}
-
-.ed-progress__bar i {
-    display: block;
-    height: 100%;
-    border-radius: inherit;
-    background: var(--site-accent);
-    transition: width 0.5s var(--site-ease);
-}
-
-.ed-progress__text {
-    flex-shrink: 0;
+.ed-modules__intro {
+    margin-top: 0.3rem;
     font-size: 0.8rem;
+    line-height: 1.45;
     color: var(--site-muted);
 }
 
-.ed-mobile-bar {
-    display: flex;
-    justify-content: space-between;
-    gap: 0.5rem;
-    margin-top: 0.75rem;
-}
-
-.ed-rail {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    width: 15rem;
-    flex-shrink: 0;
-    padding: 0.9rem 0.6rem 1.5rem;
-    overflow-y: auto;
-    border-right: 1px solid var(--site-line);
-}
-
-@media (min-width: 1280px) {
-    .ed-rail {
-        width: 16.5rem;
-    }
-}
-
-.ed-rail__close {
+.ed-modules__close,
+.ed-modules__backdrop {
     display: none;
 }
 
-.ed-rail__label {
-    padding: 0 0.6rem 0.3rem;
+.ed-modules__group {
+    margin-top: 1rem;
+}
+
+.ed-modules__label {
+    padding: 0 0.5rem 0.35rem;
     font-size: 0.7rem;
     font-weight: 600;
     letter-spacing: 0.12em;
@@ -1604,34 +1594,27 @@ html[data-theme='dark'] .adm-device {
     color: var(--site-muted);
 }
 
-.ed-rail__row {
+.ed-part__row {
     display: flex;
     align-items: center;
-    gap: 0.4rem;
-    padding-right: 0.4rem;
-    border-radius: 10px;
+    gap: 0.35rem;
+    padding-right: 0.35rem;
+    border-radius: 12px;
+    transition: background-color 0.15s ease;
 }
 
-.ed-rail__row:hover {
+.ed-part__row:hover {
     background: var(--site-surface);
 }
 
-.ed-rail__row.is-active {
-    background: var(--site-surface);
-    box-shadow: inset 2px 0 0 var(--site-accent);
-}
-
-.ed-rail__row.is-off .ed-rail__btn {
-    opacity: 0.6;
-}
-
-.ed-rail__btn {
+.ed-part__name {
     display: flex;
     flex: 1;
-    align-items: flex-start;
-    gap: 0.6rem;
+    flex-direction: column;
+    justify-content: center;
     min-width: 0;
-    padding: 0.55rem 0.4rem 0.55rem 0.6rem;
+    min-height: 3.25rem;
+    padding: 0.45rem 0.5rem;
     border: 0;
     background: none;
     color: var(--site-ink);
@@ -1640,27 +1623,606 @@ html[data-theme='dark'] .adm-device {
     cursor: pointer;
 }
 
-.ed-rail__state {
-    width: 0.55rem;
-    height: 0.55rem;
-    margin-top: 0.4rem;
+.ed-part__label {
+    font-size: 0.92rem;
+    font-weight: 600;
+}
+
+.ed-part__status {
+    overflow: hidden;
+    font-size: 0.76rem;
+    color: var(--site-muted);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ed-part:not(.is-on) .ed-part__label {
+    font-weight: 500;
+    color: var(--site-muted);
+}
+
+/* «Hazlo tú»: desde qué nivel viene la parte, en versalitas junto al nombre */
+.ed-part__tier {
+    margin-left: 0.4rem;
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--site-muted);
+}
+
+/* Encendida pero por encima del nivel pagado: no se ve en la invitación publicada */
+.ed-part__tier.is-above,
+.ed-part:has(.ed-part__tier.is-above) .ed-part__status {
+    color: var(--site-danger);
+}
+
+.ed-part.is-pending .ed-part__status {
+    color: var(--site-accent);
+}
+
+.ed-part__help {
+    margin: 0.15rem 0.5rem 0.6rem;
+    padding: 0.6rem 0.75rem;
+    border-radius: 10px;
+    background: var(--site-tint);
+    font-size: 0.82rem;
+    line-height: 1.45;
+}
+
+/* El «?»: para qué se sugiere usar cada parte y cada campo */
+.ed-help-btn {
+    display: inline-flex;
     flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 1.9rem;
+    height: 1.9rem;
+    border: 1px solid var(--site-line);
     border-radius: 50%;
-    border: 1.5px solid var(--site-muted);
+    background: var(--site-bg);
+    color: var(--site-muted);
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+    transition: border-color 0.15s ease, color 0.15s ease;
 }
 
-.ed-rail__state.is-ok {
-    border-color: #2f8f5b;
-    background: #2f8f5b;
+.ed-help-btn:hover,
+.ed-help-btn[aria-expanded='true'] {
+    border-color: var(--site-ink);
+    color: var(--site-ink);
 }
 
-.ed-rail__state.is-issue {
-    border-color: var(--site-danger);
-    background: var(--site-danger);
+@media (pointer: coarse) {
+    .ed-help-btn {
+        width: 2.4rem;
+        height: 2.4rem;
+    }
 }
 
-/* La sección abierta: los bloques del panel van sin caja, separados por filetes */
-/* Solo los bloques de primer nivel; lo de adentro (cada foto, cada momento) conserva su caja */
+.adm-switch:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+/* ── Lienzo ── */
+
+.ed-canvas {
+    position: relative;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-width: 0;
+    background: color-mix(in srgb, var(--site-surface) 65%, var(--site-line));
+}
+
+.ed-toolbar {
+    position: relative;
+    z-index: 5;
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.6rem 0.9rem;
+    overflow-x: auto;
+    border-bottom: 1px solid var(--site-line);
+    background: var(--site-bg);
+    scrollbar-width: none;
+}
+
+.ed-toolbar::-webkit-scrollbar {
+    display: none;
+}
+
+.ed-tool {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 0.45rem;
+    min-height: 2.5rem;
+    padding: 0 0.9rem;
+    border: 1px solid var(--site-line);
+    border-radius: 999px;
+    background: var(--site-bg);
+    color: var(--site-ink);
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.ed-tool svg {
+    width: 1.05rem;
+    height: 1.05rem;
+}
+
+.ed-tool:hover {
+    border-color: var(--site-ink);
+}
+
+.ed-tool.is-on {
+    border-color: var(--site-ink);
+    background: var(--site-ink);
+    color: var(--site-bg);
+}
+
+.ed-tool--primary {
+    border-color: var(--site-accent);
+    background: var(--site-accent);
+    color: var(--site-on-accent);
+}
+
+.ed-tool--primary:hover {
+    border-color: var(--site-accent);
+    filter: brightness(1.08);
+}
+
+.ed-tool--published {
+    color: var(--site-accent);
+}
+
+/* «Hazlo tú»: «Nivel Estándar» en la barra; la palabra «Nivel» va apagada */
+.ed-tool__muted {
+    font-weight: 500;
+    color: var(--site-muted);
+}
+
+.ed-tool:disabled {
+    opacity: 0.55;
+    cursor: wait;
+}
+
+.ed-tool--parts {
+    display: none;
+}
+
+.ed-device-switch {
+    display: flex;
+    flex-shrink: 0;
+    gap: 2px;
+    margin-left: auto;
+    padding: 3px;
+    border: 1px solid var(--site-line);
+    border-radius: 999px;
+    background: var(--site-bg);
+    font-size: 0.8rem;
+}
+
+.ed-device-switch button {
+    min-height: 2rem;
+    padding: 0 0.85rem;
+    border: 0;
+    border-radius: 999px;
+    background: none;
+    color: var(--site-muted);
+    font: inherit;
+    cursor: pointer;
+}
+
+.ed-device-switch button.is-on {
+    background: var(--site-ink);
+    color: var(--site-bg);
+}
+
+.ed-toolbar__status {
+    flex-shrink: 0;
+    min-width: 6.5rem;
+    margin-left: auto;
+    font-size: 0.8rem;
+    color: var(--site-muted);
+    text-align: right;
+}
+
+.ed-preview {
+    position: relative;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.ed-preview__tip {
+    position: absolute;
+    top: 0.75rem;
+    left: 50%;
+    z-index: 3;
+    max-width: calc(100% - 2rem);
+    padding: 0.45rem 0.95rem;
+    border-radius: 999px;
+    background: var(--site-ink);
+    color: var(--site-bg);
+    font-size: 0.82rem;
+    box-shadow: var(--site-shadow);
+    translate: -50% 0;
+    pointer-events: none;
+}
+
+.ed-preview__tip--guest {
+    background: var(--site-accent);
+    color: var(--site-on-accent);
+}
+
+.ed-preview__stage {
+    flex: 1;
+    min-height: 0;
+    padding: 3.25rem 1.5rem 1.5rem;
+}
+
+/* ── Burbuja y panel lateral ── */
+
+.ed-panel {
+    position: absolute;
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    border: 1px solid var(--site-line);
+    background: var(--site-bg);
+    box-shadow: 0 24px 60px -24px rgb(0 0 0 / 0.45), 0 2px 6px rgb(0 0 0 / 0.08);
+}
+
+.ed-panel.is-bubble {
+    width: 360px;
+    max-height: calc(100% - 5.5rem);
+    border-radius: 18px;
+}
+
+/* Mientras se ubica junto a lo tocado */
+.ed-panel.is-bubble:not(.is-placed) {
+    top: 4.75rem;
+    right: 1.5rem;
+}
+
+.ed-panel__arrow {
+    display: none;
+}
+
+.ed-panel.is-placed.side-right .ed-panel__arrow,
+.ed-panel.is-placed.side-left .ed-panel__arrow {
+    position: absolute;
+    top: var(--ed-arrow, 2.5rem);
+    display: block;
+    width: 14px;
+    height: 14px;
+    border: 1px solid var(--site-line);
+    background: var(--site-bg);
+    translate: 0 -50%;
+    rotate: 45deg;
+}
+
+.ed-panel.side-right .ed-panel__arrow {
+    left: -8px;
+    border-top: 0;
+    border-right: 0;
+}
+
+.ed-panel.side-left .ed-panel__arrow {
+    right: -8px;
+    border-bottom: 0;
+    border-left: 0;
+}
+
+/* Todo el formulario de una parte: panel lateral a la derecha del lienzo */
+.ed-panel.is-full {
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(28rem, 100%);
+    border-width: 0 0 0 1px;
+}
+
+.ed-panel__top {
+    flex-shrink: 0;
+    padding: 0.85rem 1rem 0.75rem;
+    border-bottom: 1px solid var(--site-line);
+}
+
+.ed-panel__handle {
+    display: none;
+}
+
+.ed-panel__head {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.ed-panel__back {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 1px solid var(--site-line);
+    border-radius: 12px;
+    background: var(--site-surface);
+    color: var(--site-ink);
+    cursor: pointer;
+}
+
+.ed-panel__back:hover {
+    border-color: var(--site-ink);
+}
+
+.ed-panel__back svg {
+    width: 1.05rem;
+    height: 1.05rem;
+}
+
+.ed-panel__title {
+    flex: 1;
+    min-width: 0;
+    line-height: 1.2;
+}
+
+.ed-panel__title small {
+    display: block;
+    font-size: 0.72rem;
+    color: var(--site-muted);
+}
+
+.ed-panel__title span {
+    display: -webkit-box;
+    overflow: hidden;
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+
+.ed-panel__done {
+    flex-shrink: 0;
+    min-height: 2.5rem;
+    padding: 0 1.05rem;
+    border: 0;
+    border-radius: 12px;
+    background: var(--site-ink);
+    color: var(--site-bg);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.ed-panel__help,
+.ed-panel__notice {
+    margin-top: 0.65rem;
+    padding: 0.65rem 0.8rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    line-height: 1.45;
+}
+
+.ed-panel__help {
+    background: var(--site-tint);
+}
+
+.ed-panel__notice {
+    border: 1px solid var(--site-accent);
+}
+
+.ed-panel__show {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+    padding: 0.5rem 0.6rem 0.5rem 0.85rem;
+    border: 1px solid var(--site-line);
+    border-radius: 12px;
+    background: var(--site-surface);
+    font-size: 0.85rem;
+}
+
+/* Las opciones de una parte: una fila por cosa que se puede cambiar */
+.ed-choices {
+    flex: 1;
+    min-height: 0;
+    padding: 0.5rem 0.6rem 0.9rem;
+    overflow-y: auto;
+}
+
+.ed-choice {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    width: 100%;
+    min-height: 3.6rem;
+    padding: 0.5rem 0.55rem;
+    border: 0;
+    border-radius: 12px;
+    background: none;
+    color: var(--site-ink);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.ed-choice:hover {
+    background: var(--site-surface);
+}
+
+.ed-choice + .ed-choice {
+    box-shadow: 0 -1px 0 var(--site-line);
+}
+
+.ed-choice__thumb {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    overflow: hidden;
+    border: 1px solid var(--site-line);
+    border-radius: 10px;
+    background: var(--site-surface);
+    color: var(--site-muted);
+}
+
+.ed-choice__thumb svg {
+    width: 1rem;
+    height: 1rem;
+}
+
+.ed-choice__thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.ed-choice__label {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 600;
+}
+
+.ed-choice__value {
+    display: block;
+    overflow: hidden;
+    font-size: 0.78rem;
+    color: var(--site-muted);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ed-choice__go {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+    color: var(--site-muted);
+}
+
+.ed-choices__all {
+    display: block;
+    width: 100%;
+    margin-top: 0.6rem;
+    padding: 0.7rem;
+    border: 1px dashed var(--site-line);
+    border-radius: 12px;
+    background: none;
+    color: var(--site-muted);
+    font: inherit;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.ed-choices__all:hover {
+    border-color: var(--site-ink);
+    color: var(--site-ink);
+}
+
+.ed-field-more {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin: 0.7rem 1rem 0;
+    padding: 0.55rem 0.8rem;
+    border: 1px solid var(--site-line);
+    border-radius: 12px;
+    background: var(--site-surface);
+    color: var(--site-ink);
+    font: inherit;
+    font-size: 0.83rem;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.ed-field-more svg {
+    width: 0.95rem;
+    height: 0.95rem;
+    color: var(--site-muted);
+}
+
+/* El formulario: entero en el panel lateral; en la burbuja, solo el campo tocado */
+#invitation-form {
+    flex: 1;
+    min-height: 0;
+}
+
+.ed-panel.is-section #invitation-form {
+    display: none;
+}
+
+.ed-panel:not(.is-full) .ed-pager {
+    display: none;
+}
+
+/* Un campo a la vista: el bloque tocado y nada más (js/admin/editor.js, focusContainer) */
+.ed-panel.is-field .ed-focus-path > :not(.ed-focus-path):not(.ed-focus-field) {
+    display: none !important;
+}
+
+.ed-panel.is-field .ed-focus-path[style*='display: none'],
+.ed-panel.is-field .ed-focus-field[style*='display: none'] {
+    display: block !important;
+}
+
+.ed-panel.is-field #invitation-form .ed-focus-path {
+    padding-block: 0;
+    border-bottom: 0;
+}
+
+.ed-panel.is-field #invitation-form > .flex-1 {
+    flex: none;
+    padding-block: 0.25rem 1rem;
+}
+
+.ed-panel.is-field .ed-focus-field {
+    padding-top: 0.75rem;
+}
+
+.ed-panel.is-field .ed-focus-field .admin-input {
+    min-height: 3.25rem;
+    font-size: 1.05rem;
+}
+
+/* Su nombre ya está arriba de la burbuja */
+.ed-panel.is-field .ed-focus-title {
+    display: none !important;
+}
+
+/* Los botones de cada foto (quitar, recortar) aparecen con el cursor encima: abierta una foto,
+   o en una pantalla táctil, se ven siempre */
+.ed-panel.is-field .ed-focus-field .group .opacity-0 {
+    opacity: 1;
+}
+
+@media (hover: none) {
+    #invitation-form .group .opacity-0 {
+        opacity: 1;
+    }
+}
+
+/* Los bloques del formulario van sin caja, separados por filetes (solo los de primer nivel) */
 #invitation-form > .flex-1 > div > .admin-card,
 #invitation-form .ed-intro {
     padding: 1.25rem 0;
@@ -1672,11 +2234,15 @@ html[data-theme='dark'] .adm-device {
 }
 
 #invitation-form > .flex-1 {
-    padding-inline: 1.5rem;
+    padding-inline: 1.25rem;
+}
+
+#invitation-form .ed-intro > div > div > .admin-eyebrow {
+    display: none;
 }
 
 .ed-intro h2 {
-    font-size: 1.35rem;
+    font-size: 1.25rem;
 }
 
 .ed-pager {
@@ -1699,7 +2265,6 @@ html[data-theme='dark'] .adm-device {
     font: inherit;
     text-align: left;
     cursor: pointer;
-    transition: border-color 0.2s ease;
 }
 
 .ed-pager__btn:hover {
@@ -1726,35 +2291,462 @@ html[data-theme='dark'] .adm-device {
     height: 1.1rem;
 }
 
-.ed-rail__backdrop {
-    display: none;
+/* ── Asistente de creación ── */
+
+.ed-wizard {
+    position: absolute;
+    inset: 0;
+    z-index: 60;
+    overflow-y: auto;
+    background: var(--site-bg);
 }
 
-/* Celular y tableta: la lista se abre como cajón y la vista previa a pantalla completa */
+.ed-wizard__inner {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    max-width: 62rem;
+    margin: 0 auto;
+    padding: 1.25rem 1.25rem 0;
+}
+
+.ed-wizard__steps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.ed-wizard__step button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.5rem;
+    padding: 0 0.9rem 0 0.45rem;
+    border: 1px solid var(--site-line);
+    border-radius: 999px;
+    background: none;
+    color: var(--site-muted);
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.ed-wizard__step.is-done button {
+    color: var(--site-ink);
+    cursor: pointer;
+}
+
+.ed-wizard__step.is-current button {
+    border-color: var(--site-ink);
+    color: var(--site-ink);
+}
+
+.ed-wizard__num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.7rem;
+    height: 1.7rem;
+    border-radius: 50%;
+    background: var(--site-surface);
+    font-size: 0.8rem;
+}
+
+.ed-wizard__step.is-current .ed-wizard__num {
+    background: var(--site-ink);
+    color: var(--site-bg);
+}
+
+.ed-wizard__step.is-done .ed-wizard__num {
+    background: var(--site-accent);
+    color: var(--site-on-accent);
+}
+
+.ed-wizard__body {
+    flex: 1;
+    padding-bottom: 1rem;
+}
+
+.ed-wizard__title {
+    margin-top: 1.5rem;
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+}
+
+.ed-wizard__lead {
+    margin-top: 0.45rem;
+    max-width: 40rem;
+    line-height: 1.5;
+    color: var(--site-muted);
+}
+
+.ed-wizard__group {
+    margin-top: 1.5rem;
+}
+
+.ed-wizard__label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--site-muted);
+}
+
+.ed-wizard__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(10.5rem, 1fr));
+    gap: 0.75rem;
+    margin-top: 0.6rem;
+}
+
+.ed-wiz-tile {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+    min-height: 4.25rem;
+    padding: 0.9rem 1rem;
+    border: 1.5px solid var(--site-line);
+    border-radius: 16px;
+    background: var(--site-surface);
+    color: var(--site-ink);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ed-wiz-tile:hover:not(:disabled) {
+    border-color: var(--site-ink);
+}
+
+.ed-wiz-tile.is-on {
+    border-color: var(--site-accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--site-accent) 28%, transparent);
+}
+
+.ed-wiz-tile:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.ed-wiz-tile__name {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.ed-wiz-tile__note {
+    font-size: 0.78rem;
+    line-height: 1.35;
+    color: var(--site-muted);
+}
+
+.ed-wizard__designs {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+    gap: 1rem;
+    margin-top: 1.25rem;
+}
+
+.ed-design {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 0.55rem 0.55rem 0.9rem;
+    border: 1.5px solid var(--site-line);
+    border-radius: 18px;
+    background: var(--site-surface);
+    color: var(--site-ink);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ed-design:hover:not(:disabled) {
+    border-color: var(--site-ink);
+}
+
+.ed-design.is-on {
+    border-color: var(--site-accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--site-accent) 28%, transparent);
+}
+
+.ed-design:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.ed-design__shot {
+    display: block;
+    aspect-ratio: 3 / 4;
+    overflow: hidden;
+    border-radius: 12px;
+    background: var(--site-line);
+}
+
+.ed-design__shot img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
+}
+
+.ed-design__swatches {
+    display: flex;
+    height: 100%;
+}
+
+.ed-design__swatches i {
+    flex: 1;
+}
+
+.ed-design__name {
+    padding: 0.2rem 0.3rem 0;
+    font-weight: 600;
+}
+
+.ed-design__desc {
+    display: -webkit-box;
+    overflow: hidden;
+    padding: 0 0.3rem;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    color: var(--site-muted);
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+}
+
+.ed-wizard__form,
+.ed-wizard__fields {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.ed-wizard__form {
+    max-width: 34rem;
+    margin-top: 1.25rem;
+}
+
+.ed-wizard__fields--admin {
+    padding-top: 1.1rem;
+    border-top: 1px solid var(--site-line);
+}
+
+.ed-wiz-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.ed-wiz-field__label {
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.ed-wiz-field__hint {
+    font-size: 0.8rem;
+    color: var(--site-muted);
+}
+
+.ed-wiz-input {
+    min-height: 3.25rem;
+    padding: 0 1rem;
+    border: 1.5px solid var(--site-line);
+    border-radius: 14px;
+    background: var(--site-surface);
+    color: var(--site-ink);
+    font: inherit;
+    font-size: 1.05rem;
+}
+
+.ed-wiz-input:focus {
+    border-color: var(--site-accent);
+    outline: none;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--site-accent) 22%, transparent);
+}
+
+.ed-wizard__pair {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+}
+
+.ed-wizard__packages {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.6rem;
+}
+
+.ed-wiz-tile--small {
+    min-height: 0;
+    padding: 0.7rem 0.8rem;
+}
+
+.ed-wizard__error {
+    font-weight: 500;
+    color: var(--site-danger);
+}
+
+.ed-wizard__error--foot {
+    padding-bottom: 1rem;
+    text-align: right;
+}
+
+.ed-wizard__foot {
+    position: sticky;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+    padding: 1rem 0 calc(1rem + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--site-line);
+    background: var(--site-bg);
+}
+
+.ed-wiz-btn {
+    min-height: 3rem;
+    padding: 0 1.4rem;
+    border: 1.5px solid var(--site-line);
+    border-radius: 14px;
+    background: var(--site-bg);
+    color: var(--site-ink);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.ed-wiz-btn:hover {
+    border-color: var(--site-ink);
+}
+
+.ed-wiz-btn--primary {
+    border-color: var(--site-ink);
+    background: var(--site-ink);
+    color: var(--site-bg);
+}
+
+.ed-wiz-btn:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+/* ── Aviso antes de publicar ── */
+
+.ed-dialog-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    background: rgb(10 10 10 / 0.5);
+}
+
+.ed-dialog {
+    width: min(30rem, 100%);
+    max-height: 85dvh;
+    padding: 1.4rem;
+    overflow-y: auto;
+    border-radius: 20px;
+    background: var(--site-bg);
+    box-shadow: 0 30px 70px -25px rgb(0 0 0 / 0.55);
+}
+
+.ed-dialog__title {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.ed-dialog__text {
+    margin-top: 0.4rem;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--site-muted);
+}
+
+.ed-dialog__list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-top: 1rem;
+}
+
+.ed-dialog__list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid var(--site-line);
+    border-radius: 12px;
+}
+
+.ed-dialog__list small {
+    display: block;
+    font-size: 0.78rem;
+    color: var(--site-muted);
+}
+
+.ed-dialog__fix {
+    flex-shrink: 0;
+    min-height: 2.4rem;
+    padding: 0 0.9rem;
+    border: 1px solid var(--site-ink);
+    border-radius: 999px;
+    background: none;
+    color: var(--site-ink);
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.ed-dialog__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.6rem;
+    margin-top: 1.25rem;
+}
+
+/* ── Celular y tableta: las partes en un cajón y la burbuja como hoja ── */
+
 @media (max-width: 1023px) {
-    .ed-rail {
+    .ed-modules {
         position: fixed;
         inset: 0 auto 0 0;
         z-index: 70;
-        width: min(20rem, 88vw);
-        background: var(--site-bg);
+        width: min(21rem, 88vw);
         translate: -100% 0;
         transition: translate 0.3s var(--site-ease);
     }
 
-    .ed-rail.is-open {
+    .ed-modules.is-open {
         translate: 0 0;
         box-shadow: 0 30px 60px -20px rgb(0 0 0 / 0.45);
     }
 
-    .ed-rail__close {
-        display: flex;
+    .ed-modules__close {
+        display: inline-flex;
+        flex-shrink: 0;
         align-items: center;
-        justify-content: space-between;
-        padding: 0 0.4rem 0.4rem 0.6rem;
+        min-height: 2.5rem;
+        padding: 0 1rem;
+        border: 0;
+        border-radius: 12px;
+        background: var(--site-ink);
+        color: var(--site-bg);
+        font: inherit;
+        font-weight: 600;
     }
 
-    .ed-rail__backdrop {
+    .ed-modules__backdrop {
         position: fixed;
         inset: 0;
         z-index: 65;
@@ -1762,33 +2754,154 @@ html[data-theme='dark'] .adm-device {
         background: rgb(10 10 10 / 0.45);
     }
 
-    .ed-preview.is-open {
-        position: fixed;
-        inset: 0;
-        z-index: 80;
-        display: flex;
+    .ed-tool--parts {
+        display: inline-flex;
+    }
+
+    .ed-device-switch,
+    .ed-toolbar__status {
+        display: none;
+    }
+
+    .ed-toolbar {
+        padding: 0.5rem 0.75rem;
+    }
+
+    .ed-preview__tip {
+        top: 0.6rem;
+    }
+
+    .ed-preview__stage {
+        padding: 0;
+    }
+
+    .ed-preview .adm-device {
+        max-width: none !important;
+        padding: 0;
+        border-radius: 0;
+        background: transparent;
+        box-shadow: none;
+    }
+
+    .ed-preview .adm-device iframe {
+        border-radius: 0;
+    }
+
+    /* La burbuja y el panel suben desde abajo y tapan la invitación sin achicarla */
+    .ed-panel,
+    .ed-panel.is-bubble,
+    .ed-panel.is-full {
+        top: auto !important;
+        right: 0 !important;
+        bottom: 0;
+        left: 0 !important;
+        width: auto;
+        max-height: 72%;
+        border-width: 1px 0 0;
+        border-radius: 22px 22px 0 0;
+        box-shadow: 0 -18px 40px -22px rgb(0 0 0 / 0.35);
+    }
+
+    .ed-panel.is-full,
+    .ed-panel.is-tall {
+        height: calc(100% - 0.75rem);
+        max-height: none;
+    }
+
+    .ed-panel__arrow {
+        display: none !important;
+    }
+
+    .ed-panel__top {
+        padding: 0 1rem 0.75rem;
+    }
+
+    .ed-panel__handle {
+        display: block;
+        width: 100%;
+        height: 1.6rem;
+        border: 0;
+        background: none;
+        cursor: pointer;
+    }
+
+    .ed-panel__handle::after {
+        content: '';
+        display: block;
+        width: 2.5rem;
+        height: 4px;
+        margin: 0.6rem auto 0;
+        border-radius: 999px;
+        background: var(--site-line);
     }
 
     #invitation-form > .flex-1 {
         padding-inline: 1.1rem;
     }
-}
 
-@media (min-width: 1024px) {
-    .ed-mobile-bar,
-    .ed-preview__back {
-        display: none;
+    .ed-wizard__inner {
+        padding-inline: 1rem;
+    }
+
+    .ed-wizard__steps {
+        gap: 0.35rem;
+    }
+
+    .ed-wizard__step button {
+        padding-right: 0.7rem;
+        font-size: 0.78rem;
+    }
+
+    .ed-wizard__designs {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.7rem;
+    }
+
+    .ed-wizard__packages {
+        grid-template-columns: minmax(0, 1fr);
     }
 }
 
-/* Sección que el paquete elegido no incluye: candado de trazo y el interruptor bloqueado */
-.ed-rail__state.is-locked {
-    border-style: dashed;
-    border-color: var(--site-muted);
-    background: transparent;
+/* Computadora: con una burbuja abierta, el celular se corre a la izquierda y la burbuja queda al costado */
+@media (min-width: 1024px) {
+    .ed-preview__stage {
+        transition: padding 0.3s var(--site-ease);
+    }
+
+    .ed-canvas.has-bubble .ed-preview__stage {
+        padding-right: calc(360px + 2.5rem);
+    }
+
+    .ed-toolbar__status:empty {
+        min-width: 0;
+    }
 }
 
-.adm-switch:disabled {
-    opacity: 0.35;
-    cursor: not-allowed;
+/* Celular: el aviso va en su propia línea (no tapa los botones de la invitación) y Publicar
+   queda a mano, justo después de «Partes» */
+@media (max-width: 1023px) {
+    .ed-preview__tip {
+        position: static;
+        max-width: none;
+        margin: 0.5rem 0.75rem 0;
+        border-radius: 12px;
+        text-align: center;
+        translate: none;
+        box-shadow: none;
+    }
+
+    .ed-preview__stage {
+        margin-top: 0.5rem;
+    }
+
+    .ed-tool--parts {
+        order: -2;
+    }
+
+    /* «Hazlo tú»: el nivel va junto a «Publicar», no escondido al final de la barra */
+    .ed-tool--primary,
+    .ed-tool--published,
+    .ed-tool--tier {
+        order: -1;
+    }
 }

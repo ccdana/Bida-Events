@@ -6,20 +6,20 @@
     titulares), filetes finos y fotos. Datos: HomeController (paquetes, temporadas, servicios, muestras).
     Estilos: resources/css/site/site.css y resources/css/site/home.css.
 --}}
-@section('title', $bida['brand'].' | Invitaciones digitales para bodas, XV años, bautizos y graduaciones')
-@section('description', 'Invitaciones digitales con confirmación de asistencia, pase QR y control de entrada, música, fotos y mapa. Se comparten por WhatsApp. Paquetes desde '.\App\Support\Money::format($fromPrice).'.')
+@section('title', $bida['brand'].' | '.__('Crea tu invitación digital para bodas, XV años, bautizos y graduaciones'))
+@section('description', __('Arma tu invitación digital gratis con plantillas profesionales y paga solo si quieres más: confirmación de asistencia, galería y pase QR. O pídenos que la hagamos, desde :price.', ['price' => \App\Support\Money::format($fromPrice)]))
 
 @php
+    // Lo principal es armarla (las plantillas abren el menú); los precios de las tres formas, en su bloque y en /precios
     $sections = array_filter([
-        'plantillas' => count($designs) ? 'Plantillas' : null,
-        'incluye' => 'Qué incluye',
-        'precios' => 'Precios',
-        'preguntas' => 'Preguntas',
+        'plantillas' => count($designs) ? __('Plantillas') : null,
+        'incluye' => __('Qué incluye'),
+        'precios' => __('Precios'),
+        'preguntas' => __('Preguntas'),
     ]);
-    $navLinks = collect($sections)->mapWithKeys(fn (string $label, string $id) => ['#'.$id => $label])->all()
-        + [route('diy') => 'Hazlo tú'];
-    $accountUrl = $user ? route('dashboard') : route('login');
-    $accountLabel = $user ? 'Mi panel' : 'Ingresar';
+    $navLinks = collect($sections)->mapWithKeys(fn (string $label, string $id) => ['#'.$id => $label])->all();
+    $accountUrl = $user ? route('dashboard') : lroute('login');
+    $accountLabel = $user ? __('Mi panel') : __('Ingresar');
     $showcase = $bida['showcase'];
     // Con muestras, las fotos y la palabra de la portada siguen el orden del teléfono para cambiar junto con él
     if (count($demos)) {
@@ -37,36 +37,45 @@
     }
     // Qué puede incluir una invitación, agrupado por el momento del evento en que se usa
     $moments = [
-        'Antes del evento' => [
-            ['icon' => 'link-simple', 'title' => 'Un enlace que se abre en cualquier celular', 'text' => 'Portada, cuenta regresiva, itinerario y mapa con «Cómo llegar». Sin instalar nada.'],
-            ['icon' => 'check-circle', 'title' => 'Confirmación en un toque', 'text' => 'Cada invitado tiene su enlace personal: dice si va, con cuántas personas y si tiene alguna restricción alimentaria.'],
-            ['icon' => 'music-notes', 'title' => 'Música, fotos y video', 'text' => 'Tu canción de fondo, una galería que se desliza con el dedo y el video de tu save the date.'],
-            ['icon' => 'chart-bar', 'title' => 'Encuestas y playlist', 'text' => 'Tus invitados votan y sugieren las canciones de la pista antes de la fiesta.'],
+        __('Antes del evento') => [
+            ['icon' => 'link-simple', 'title' => __('Un enlace que se abre en cualquier celular'), 'text' => __('Portada, cuenta regresiva, itinerario y mapa con «Cómo llegar». Sin instalar nada.')],
+            ['icon' => 'check-circle', 'title' => __('Confirmación en un toque'), 'text' => __('Cada invitado tiene su enlace personal: dice si va, con cuántas personas y si tiene alguna restricción alimentaria.')],
+            ['icon' => 'music-notes', 'title' => __('Música, fotos y video'), 'text' => __('Tu canción de fondo, una galería que se desliza con el dedo y el video de tu save the date.')],
+            ['icon' => 'chart-bar', 'title' => __('Encuestas y playlist'), 'text' => __('Tus invitados votan y sugieren las canciones de la pista antes de la fiesta.')],
         ],
-        'En la puerta' => [
-            ['icon' => 'qr-code', 'title' => 'Pase QR y control de entrada', 'text' => 'En Premium, quien recibe a los invitados escanea el pase con su teléfono: ve si confirmó, cuántas personas entran y si ese pase ya se usó.'],
+        __('En la puerta') => [
+            ['icon' => 'qr-code', 'title' => __('Pase QR y control de entrada'), 'text' => __('En Premium, quien recibe a los invitados escanea el pase con su teléfono: ve si confirmó, cuántas personas entran y si ese pase ya se usó.')],
         ],
-        'Durante y después' => [
-            ['icon' => 'camera', 'title' => 'Fotomural en vivo', 'text' => 'Tus invitados suben fotos desde su celular y todos las ven al instante.'],
-            ['icon' => 'images', 'title' => 'Las fotos, en el mismo enlace', 'text' => 'Pasado el evento, la invitación reúne las fotos oficiales y las de tus invitados.'],
-            ['icon' => 'file-text', 'title' => 'Tu lista, lista para imprimir', 'text' => 'En Premium: invitados, confirmaciones y alimentación en PDF o Excel para el salón y el catering, y la invitación para imprimir.'],
+        __('Durante y después') => [
+            ['icon' => 'camera', 'title' => __('Fotomural en vivo'), 'text' => __('Tus invitados suben fotos desde su celular y todos las ven al instante.')],
+            ['icon' => 'images', 'title' => __('Las fotos, en el mismo enlace'), 'text' => __('Pasado el evento, la invitación reúne las fotos oficiales y las de tus invitados.')],
+            ['icon' => 'file-text', 'title' => __('Tu lista, lista para imprimir'), 'text' => __('En Premium: invitados, confirmaciones y alimentación en PDF o Excel para el salón y el catering, y la invitación para imprimir.')],
         ],
     ];
+    // El recorrido principal: la persona arma su propia invitación gratis y paga solo si quiere más
     $steps = [
-        ['icon' => 'chat-circle-text', 'title' => 'Nos escribes', 'text' => 'Cuéntanos qué celebras, la fecha y el lugar. Te ayudamos a elegir el paquete por WhatsApp.'],
-        ['icon' => 'pencil-simple-line', 'title' => 'Diseñamos contigo', 'text' => 'Armamos tu invitación con tus fotos, colores y textos. Revisas la vista previa y pides cambios.'],
-        ['icon' => 'paper-plane-tilt', 'title' => 'Compartes tu enlace', 'text' => 'Recibes el enlace general y, según tu paquete, uno personal para cada invitado.'],
-        ['icon' => 'list-checks', 'title' => 'Sigues las confirmaciones', 'text' => 'Ves en tu panel quién confirmó, cuántas personas asistirán y, el día del evento, quién ya llegó.'],
+        ['icon' => 'user-plus', 'title' => __('Creas tu cuenta'), 'text' => __('Gratis, con tu correo o con Google. Eliges qué celebras y el diseño que más te guste.')],
+        ['icon' => 'pencil-simple-line', 'title' => __('Armas tu invitación'), 'text' => __('Subes tus fotos y cambias colores, letras y textos mientras la ves en vivo. Prueba todas las partes que quieras.')],
+        ['icon' => 'paper-plane-tilt', 'title' => __('La publicas y la compartes'), 'text' => __('Gratis con lo básico, o con un pago único si usaste más. Envías tu enlace por WhatsApp; tus invitados la abren sin instalar nada.')],
+        ['icon' => 'list-checks', 'title' => __('Sigues las confirmaciones'), 'text' => __('Ves en tu panel quién confirmó, cuántas personas asistirán y, el día del evento, quién ya llegó.')],
     ];
+    // Plazos de «Te la hacemos», paquete por paquete, para la pregunta de cuánto tardan
+    $deliveries = collect($packages)
+        ->filter(fn (array $package) => filled($package['service']['delivery'] ?? null))
+        ->map(fn (array $package) => __(':name en :delivery', ['name' => $package['name'], 'delivery' => $package['service']['delivery']]))
+        ->join(', ', ' y ');
     $faqs = [
-        ['¿Qué es una invitación digital?', 'Es una página web con los datos de tu evento (fecha, lugar, itinerario, fotos y música) que tus invitados abren desde un enlace, por lo general enviado por WhatsApp. A diferencia de una imagen, permite confirmar asistencia, ver el mapa y recibir un pase de entrada con código QR.'],
-        ['¿Para qué tipo de eventos sirve?', 'Bodas, XV años, bautizos, cumpleaños, graduaciones, fiestas de temporada como Halloween y cualquier celebración. Adaptamos los textos y las secciones a tu evento.'],
-        ['¿Mis invitados necesitan instalar algo?', 'No. La invitación se abre en el navegador del celular desde el enlace que compartes.'],
-        ['¿Cómo confirman asistencia y cómo se controla la entrada?', 'En el paquete Estándar, cada invitado recibe su enlace personal y confirma por WhatsApp: se abre el mensaje con su nombre y cuántas personas van. En Premium la respuesta queda guardada en tu panel y el invitado recibe un pase con código QR; el día del evento, quien recibe a los invitados lo escanea con su teléfono y ve si puede pasar.'],
-        ['¿Puedo hacer cambios después de compartirla?', 'Sí. Horarios, ubicación y textos se actualizan en el mismo enlace, así tus invitados siempre ven la versión correcta.'],
-        ['¿Cuánto tardan en entregarla?', 'Depende del paquete y de cuándo nos envíes las fotos y los datos. Te damos una fecha de entrega al confirmar tu pedido.'],
-        ['¿Puedo armar mis propias invitaciones?', 'Sí. Con Hazlo tú tienes tu propio panel y nuestras plantillas por un plan mensual, sin comisión por invitación. Sirve si organizas varios eventos o si vendes invitaciones a tus clientes.'],
-        ['¿Cómo se realiza el pago?', 'Coordinamos el pago por WhatsApp (transferencia o QR) cuando eliges tu paquete, antes de empezar el diseño. Los precios están en dólares.'],
+        [__('¿Puedo armar mi propia invitación?'), __('Sí, es la forma principal de usar :brand. Creas tu cuenta gratis, eliges una plantilla y la armas con todas las partes que quieras. Al publicarla decides: gratis con la portada, la cuenta regresiva y la ubicación, o con un pago único por todo lo que usaste. Si armas invitaciones cada mes (las tuyas o las de tus clientes), hay planes para eso.', ['brand' => $bida['brand']])],
+        [__('¿Qué es una invitación digital?'), __('Es una página web con los datos de tu evento (fecha, lugar, itinerario, fotos y música) que tus invitados abren desde un enlace, por lo general enviado por WhatsApp. A diferencia de una imagen, permite confirmar asistencia, ver el mapa y recibir un pase de entrada con código QR.')],
+        [__('¿Para qué tipo de eventos sirve?'), __('Bodas, XV años, bautizos, cumpleaños, graduaciones, fiestas de temporada como Halloween y cualquier celebración. Adaptamos los textos y las secciones a tu evento.')],
+        [__('¿Mis invitados necesitan instalar algo?'), __('No. La invitación se abre en el navegador del celular desde el enlace que compartes.')],
+        [__('¿Cómo confirman asistencia y cómo se controla la entrada?'), __('En el paquete Estándar, cada invitado recibe su enlace personal y confirma por WhatsApp: se abre el mensaje con su nombre y cuántas personas van. En Premium la respuesta queda guardada en tu panel y el invitado recibe un pase con código QR; el día del evento, quien recibe a los invitados lo escanea con su teléfono y ve si puede pasar.')],
+        [__('¿Puedo hacer cambios después de compartirla?'), __('Sí. Horarios, ubicación y textos se actualizan en el mismo enlace, así tus invitados siempre ven la versión correcta.')],
+        [__('¿Cuánto tardan en entregarla?'), $deliveries !== ''
+            ? __('Si la armas tú, la publicas cuando quieras. Si te la hacemos, desde que nos envías las fotos y los datos').': '.$deliveries.'.'
+            : __('Si la armas tú, la publicas cuando quieras. Si te la hacemos, te damos una fecha de entrega al confirmar tu pedido.')],
+        [__('¿Y si prefiero que me la hagan?'), __('También lo hacemos: eliges un paquete, nos cuentas tu evento y armamos la invitación contigo. Es un pago único por invitación.')],
+        [__('¿Cómo se realiza el pago?'), __('La invitación que armas tú se paga una sola vez al publicarla (si no es la gratuita), con tarjeta o con el QR de cualquier banco de Bolivia. Los planes se pagan por mes o por varios meses de una vez. Los paquetes de «Te la hacemos» se coordinan por WhatsApp antes de empezar el diseño. Los precios están en dólares.')],
     ];
     $socials = array_values(array_filter([
         ! empty($bida['instagram']) ? ['label' => 'Instagram', 'url' => 'https://www.instagram.com/'.$bida['instagram'].'/', 'icon' => 'instagram-logo'] : null,
@@ -81,6 +90,7 @@
         return $position === false ? null : ['url' => $demo['coverUrl'], 'label' => $demo['label'], 'rotator' => $position];
     }, $demos)));
     [$mainService, $otherServices] = [$services[0] ?? null, array_slice($services, 1)];
+    $serviceOverlines = ['hazlo' => __('La armas tú'), 'invitaciones' => __('Te la hacemos'), 'planes' => __('Si armas muchas'), 'temporada' => __('Por temporada')];
 @endphp
 
 @push('head')
@@ -97,10 +107,10 @@
         <section data-rotator data-rotator-interval="3200" @if(count($demos)) data-rotator-driven @endif class="site-hero">
             <div class="site-hero__copy">
                 <h1 class="site-enter site-display">
-                    <span class="sr-only">Invitaciones digitales para bodas, XV años, bautizos, cumpleaños y graduaciones</span>
+                    <span class="sr-only">{{ __('Arma tu invitación digital para bodas, XV años, bautizos, cumpleaños y graduaciones') }}</span>
                     <span aria-hidden="true">
-                        Invitaciones digitales
-                        <span class="site-hero__for">para
+                        {{ __('Arma tu invitación digital') }}
+                        <span class="site-hero__for">{{ __('para') }}
                             <span class="site-rotator site-hero__word" data-rotator-group>
                                 @foreach($showcase as $index => $event)
                                     <span @class(['is-active' => $index === 0])>{{ $event['phrase'] }}</span>
@@ -110,12 +120,12 @@
                     </span>
                 </h1>
                 <p class="site-enter site-hero__lead" style="--enter-index: 1">
-                    Tus invitados la abren desde WhatsApp, confirman en un toque y entran a la fiesta con su pase QR.
+                    {{ __('Elige una plantilla, pon tus fotos y compártela por WhatsApp. Tus invitados confirman en un toque y entran a la fiesta con su pase QR.') }}
                 </p>
                 <ul class="site-enter site-hero__facts" style="--enter-index: 2">
-                    <li>Desde {{ \App\Support\Money::format($fromPrice) }}</li>
-                    <li>Sin instalar nada</li>
-                    <li>Pase QR en la puerta</li>
+                    <li>{{ __('La armas tú, gratis') }}</li>
+                    <li>{{ __('Sin instalar nada') }}</li>
+                    <li>{{ __('Pase QR en la puerta') }}</li>
                 </ul>
             </div>
 
@@ -130,9 +140,9 @@
                     @if(count($demos)) data-cover-reel="{{ json_encode($coverReel, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) }}" @endif>
                     <div class="site-phone__screen">
                         @if(count($demos))
-                            <iframe data-defer-src="{{ $demos[0]['coverUrl'] }}" data-defer-until-idle title="Apertura de las invitaciones de muestra" tabindex="-1" aria-hidden="true" data-cover-reel-frame></iframe>
+                            <iframe data-defer-src="{{ $demos[0]['coverUrl'] }}" data-defer-until-idle title="{{ __('Apertura de las invitaciones de muestra') }}" tabindex="-1" aria-hidden="true" data-cover-reel-frame></iframe>
                         @elseif($demoUrl)
-                            <iframe src="{{ $demoUrl }}" title="Vista previa de una invitación de ejemplo" loading="lazy" tabindex="-1" aria-hidden="true"></iframe>
+                            <iframe src="{{ $demoUrl }}" title="{{ __('Vista previa de una invitación de ejemplo') }}" loading="lazy" tabindex="-1" aria-hidden="true"></iframe>
                         @endif
                     </div>
 
@@ -147,7 +157,7 @@
         </section>
 
         {{-- ═══ Tipos de evento ═══ --}}
-        <section class="border-y border-site-line py-6 lg:py-8" aria-label="Eventos para los que diseñamos">
+        <section class="border-y border-site-line py-6 lg:py-8" aria-label="{{ __('Eventos para los que diseñamos') }}">
             <div class="site-marquee">
                 <div class="site-marquee__track">
                     @foreach([false, true] as $isCopy)
@@ -168,8 +178,8 @@
         @if($mainService)
             <section id="servicios" class="site-offer scroll-mt-20" aria-labelledby="servicios-titulo">
                 <div class="site-offer__intro">
-                    <h2 id="servicios-titulo" class="site-display site-display--md" data-reveal>Tres maneras de tener tu invitación</h2>
-                    <p class="site-muted-lead" data-reveal>La diseñamos contigo, la eliges de la temporada o la armas tú mismo.</p>
+                    <h2 id="servicios-titulo" class="site-display site-display--md" data-reveal>{{ __('Elige cómo quieres tu invitación') }}</h2>
+                    <p class="site-muted-lead" data-reveal>{{ __('La armas tú con tu propio panel, nos la pides o la eliges de la temporada.') }}</p>
                 </div>
 
                 <div class="site-offer__grid">
@@ -181,39 +191,43 @@
                                 width="{{ \App\Support\SiteImage::size('servicio-pareja')[0] }}" height="{{ \App\Support\SiteImage::size('servicio-pareja')[1] }}"
                                 loading="lazy" decoding="async">
                             <div class="site-offer__bubble" aria-hidden="true">
-                                <span>Hola, soy Familia Rojas. Confirmo mi asistencia con 3 personas.</span>
+                                <span>{{ __('Hola, soy Familia Rojas. Confirmo mi asistencia con 3 personas.') }}</span>
                                 <small>19:42 <x-phosphor-checks aria-hidden="true" /></small>
                             </div>
                         </figure>
                         <div class="site-offer__body">
-                            <p class="site-overline">Te la diseñamos</p>
+                            <p class="site-overline">{{ $serviceOverlines[$mainService['key']] ?? '' }}</p>
                             <h3 class="site-offer__name">{{ $mainService['name'] }}</h3>
                             <p class="site-offer__text">{{ $mainService['text'] }}</p>
                             <p class="site-offer__meta">
-                                @if($mainService['fromPrice'])
-                                    <span>Desde <b>{{ \App\Support\Money::format($mainService['fromPrice']) }}</b></span>
+                                @if($mainService['priceLabel'] ?? null)
+                                    <span><b>{{ $mainService['priceLabel'] }}</b></span>
+                                @elseif($mainService['fromPrice'])
+                                    <span>{{ __('Desde') }} <b>{{ \App\Support\Money::format($mainService['fromPrice']) }}</b>@if($mainService['priceSuffix'] ?? null) {{ $mainService['priceSuffix'] }}@endif</span>
                                 @endif
                                 <span class="site-link-arrow">{{ $mainService['cta'] }} <x-phosphor-arrow-right aria-hidden="true" /></span>
                             </p>
                         </div>
                     </a>
 
-                    <div class="site-offer__side">
+                    <div class="site-offer__side" style="--offer-cols: {{ min(3, max(1, count($otherServices))) }}">
                         @foreach($otherServices as $service)
                             <a href="{{ $service['url'] ?? $contactUrl }}" class="site-offer__row" data-reveal style="--reveal-index: {{ $loop->index + 1 }}"
                                 @unless($service['url']) target="_blank" rel="noopener" @endunless>
                                 <p class="site-overline">
                                     @if($service['live'])
-                                        <span class="site-live-dot" aria-hidden="true"></span> Ahora: {{ $service['live'] }}
+                                        <span class="site-live-dot" aria-hidden="true"></span> {{ __('Ahora: :live', ['live' => $service['live']]) }}
                                     @else
-                                        {{ $service['key'] === 'hazlo' ? 'Tu propio panel' : 'Por temporada' }}
+                                        {{ $serviceOverlines[$service['key']] ?? __('Por temporada') }}
                                     @endif
                                 </p>
                                 <h3 class="site-offer__name site-offer__name--sm">{{ $service['name'] }}</h3>
                                 <p class="site-offer__text">{{ $service['text'] }}</p>
                                 <p class="site-offer__meta">
-                                    @if($service['fromPrice'])
-                                        <span>Desde <b>{{ \App\Support\Money::format($service['fromPrice']) }}</b>@if($service['priceSuffix'] ?? null) {{ $service['priceSuffix'] }}@endif</span>
+                                    @if($service['priceLabel'] ?? null)
+                                        <span><b>{{ $service['priceLabel'] }}</b></span>
+                                    @elseif($service['fromPrice'])
+                                        <span>{{ __('Desde') }} <b>{{ \App\Support\Money::format($service['fromPrice']) }}</b>@if($service['priceSuffix'] ?? null) {{ $service['priceSuffix'] }}@endif</span>
                                     @endif
                                     <span class="site-link-arrow">{{ $service['cta'] }} <x-phosphor-arrow-right aria-hidden="true" /></span>
                                 </p>
@@ -229,15 +243,15 @@
             <section id="plantillas" class="site-tester scroll-mt-20" aria-labelledby="plantillas-titulo" x-data="{ active: 0 }">
                 <div class="site-tester__layout">
                     <div class="site-tester__head">
-                        <h2 id="plantillas-titulo" class="site-display site-display--md" data-reveal>Pruébala como invitado</h2>
+                        <h2 id="plantillas-titulo" class="site-display site-display--md" data-reveal>{{ __('Pruébala como invitado') }}</h2>
                         <p class="site-muted-lead" data-reveal>
-                            Así empieza cada diseño. Toca uno para abrir su muestra completa y pruébala como un invitado: confirma, vota o sugiere una canción. Nada se guarda.
+                            {{ __('Así empieza cada diseño. Toca uno para abrir su muestra completa y pruébala como un invitado: confirma, vota o sugiere una canción. Nada se guarda.') }}
                         </p>
                     </div>
 
                     {{-- Índice de eventos: el nombre en la letra de los títulos y cuántos diseños tiene; el
                          elegido se subraya con un filete dorado --}}
-                    <div class="site-tester__picker site-events" role="tablist" aria-label="Diseños por evento">
+                    <div class="site-tester__picker site-events" role="tablist" aria-label="{{ __('Diseños por evento') }}">
                         @foreach($designs as $index => $group)
                             <button type="button" role="tab" id="plantilla-tab-{{ $index }}" aria-controls="plantilla-panel-{{ $index }}"
                                 aria-selected="{{ $index === 0 ? 'true' : 'false' }}"
@@ -246,7 +260,7 @@
                                 @class(['site-events__tab', 'is-active' => $index === 0])
                                 :class="{ 'is-active': active === {{ $index }} }">
                                 <span class="site-events__name">{{ $group['label'] }}</span>
-                                <span class="site-events__count">{{ count($group['demos']) }}<span class="sr-only"> {{ count($group['demos']) === 1 ? 'diseño' : 'diseños' }}</span></span>
+                                <span class="site-events__count">{{ count($group['demos']) }}<span class="sr-only"> {{ count($group['demos']) === 1 ? __('diseño') : __('diseños') }}</span></span>
                             </button>
                         @endforeach
                     </div>
@@ -254,7 +268,7 @@
                     @foreach($designs as $index => $group)
                         <div id="plantilla-panel-{{ $index }}" role="tabpanel" aria-labelledby="plantilla-tab-{{ $index }}" class="site-tester__panel"
                             x-show="active === {{ $index }}" @if($index > 0) x-cloak @endif>
-                            @include('site.partials.shots', ['demos' => $group['demos'], 'noun' => 'invitación', 'layout' => 'row', 'label' => 'Diseños de '.$group['label']])
+                            @include('site.partials.shots', ['demos' => $group['demos'], 'noun' => __('invitación'), 'layout' => 'row', 'label' => __('Diseños de :label', ['label' => $group['label']])])
                             <a href="{{ $group['landingUrl'] }}" class="site-link-arrow site-tester__more">
                                 {{ $group['landingLabel'] }} <x-phosphor-arrow-right aria-hidden="true" />
                             </a>
@@ -268,13 +282,13 @@
         <section id="incluye" class="site-include scroll-mt-20" aria-labelledby="incluye-titulo">
             <div class="site-include__aside">
                 <div class="lg:sticky lg:top-28">
-                    <h2 id="incluye-titulo" class="site-display site-display--md" data-reveal>Todo lo que tu invitación puede hacer</h2>
-                    <p class="site-muted-lead" data-reveal>Antes, en la puerta y después del evento. Eliges lo que necesitas; todo se ve bien en el celular.</p>
+                    <h2 id="incluye-titulo" class="site-display site-display--md" data-reveal>{{ __('Todo lo que tu invitación puede hacer') }}</h2>
+                    <p class="site-muted-lead" data-reveal>{{ __('Antes, en la puerta y después del evento. Eliges lo que necesitas; todo se ve bien en el celular.') }}</p>
                     <figure class="site-photo site-photo--caption mt-8 aspect-[4/3] lg:aspect-[4/5]" data-reveal>
                         <x-site.image key="servicio-fotomural" />
                         <figcaption>
-                            <span>Durante la fiesta</span>
-                            Las fotos de tus invitados, al instante en el fotomural.
+                            <span>{{ __('Durante la fiesta') }}</span>
+                            {{ __('Las fotos de tus invitados, al instante en el fotomural.') }}
                         </figcaption>
                     </figure>
                 </div>
@@ -300,13 +314,17 @@
             </div>
         </section>
 
-        {{-- ═══ Cómo trabajamos: la línea se dibuja con el scroll ═══ --}}
+        {{-- ═══ Cómo funciona: el recorrido de quien arma su invitación; la línea se dibuja con el scroll ═══ --}}
         <section class="border-t border-site-line">
             <div class="mx-auto grid max-w-7xl gap-12 px-5 py-20 lg:grid-cols-12 lg:gap-8 lg:px-8 lg:py-28">
                 <div class="lg:col-span-5">
                     <div class="lg:sticky lg:top-32">
-                        <h2 class="site-display site-display--md" data-reveal>Así trabajamos</h2>
-                        <p class="site-muted-lead" data-reveal>De tu primer mensaje a las confirmaciones de tus invitados.</p>
+                        <h2 class="site-display site-display--md" data-reveal>{{ __('Así funciona') }}</h2>
+                        <p class="site-muted-lead" data-reveal>{{ __('De crear tu cuenta a las confirmaciones de tus invitados. Pagas solo si quieres más.') }}</p>
+                        <a href="{{ $startUrl }}" class="site-btn mt-8" data-reveal>
+                            {{ __('Crear mi invitación gratis') }}
+                            <x-phosphor-arrow-right class="site-btn__arrow" aria-hidden="true" />
+                        </a>
                     </div>
                 </div>
 
@@ -326,7 +344,42 @@
             </div>
         </section>
 
-        @include('site.partials.plans')
+        {{-- ═══ Precios: las tres formas en resumen (HomeController::pricingSummary); el detalle, en /precios ═══ --}}
+        <section id="precios" class="scroll-mt-20 border-t border-site-line bg-site-surface" aria-labelledby="precios-titulo">
+            <div class="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-28">
+                <div class="max-w-3xl">
+                    <h2 id="precios-titulo" class="site-display site-display--md" data-reveal>{{ __('Empieza gratis. Paga solo por lo que usas.') }}</h2>
+                    <p class="site-muted-lead" data-reveal>
+                        {{ __('Ármala tú, pídenos que la hagamos o, si armas muchas, elige un plan. Precios en dólares (:value).', ['value' => \App\Support\Money::code()]) }}
+                    </p>
+                </div>
+
+                <div class="site-plans mt-14">
+                    @foreach($pricingSummary as $index => $way)
+                        <x-site.price-card
+                            :name="$way['name']"
+                            :price="$way['price']"
+                            :old="$way['old'] ?? null"
+                            :suffix="$way['suffix']"
+                            :summary="$way['summary']"
+                            :features="$way['features']"
+                            :featured="$way['featured'] ?? false"
+                            :tag="($way['featured'] ?? false) ? __('Para empezar') : null"
+                            :url="$way['url']"
+                            :cta="$way['cta']"
+                            :index="$index"
+                            :reserve="true" />
+                    @endforeach
+                </div>
+
+                <p class="mt-10" data-reveal>
+                    <a href="{{ lroute('pricing') }}" class="site-link-arrow">
+                        {{ __('Ver todos los precios y qué trae cada nivel') }}
+                        <x-phosphor-arrow-right aria-hidden="true" />
+                    </a>
+                </p>
+            </div>
+        </section>
 
         @include('site.partials.faqs', ['faqs' => $faqs])
     </main>

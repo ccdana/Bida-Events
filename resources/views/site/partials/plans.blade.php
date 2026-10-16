@@ -1,78 +1,49 @@
 {{--
-    Precios de los paquetes (pago único por invitación). Recibe $packages (con su enlace de WhatsApp)
-    y $contactUrl. Con la promoción encendida, el precio normal va tachado junto al de hoy.
+    Precios de los paquetes de «Te la hacemos» (pago único por invitación). Recibe $packages (con su
+    enlace de WhatsApp) y $contactUrl; opcionales $plansId (el ancla, «precios» por defecto), $plansTitle
+    y $plansLead. Con la promoción encendida, el precio normal va tachado junto al de hoy. Cada paquete
+    dice primero su servicio (plazo, cambios y atención) y después lo que trae, que es lo mismo que el
+    nivel del mismo nombre de «Hazlo tú». La columna es la misma que la de los planes (components/site/price-card).
 --}}
-<section id="precios" class="scroll-mt-20 border-t border-site-line bg-site-surface" aria-labelledby="precios-titulo">
+@use('App\Support\Money')
+
+@php($sectionId = $plansId ?? 'precios')
+
+<section id="{{ $sectionId }}" class="scroll-mt-20 border-t border-site-line bg-site-surface" aria-labelledby="{{ $sectionId }}-titulo">
     <div class="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-28">
         <div class="max-w-3xl">
-            <h2 id="precios-titulo" class="site-display site-display--md" data-reveal>Elige tu paquete</h2>
+            <h2 id="{{ $sectionId }}-titulo" class="site-display site-display--md" data-reveal>{{ $plansTitle ?? __('Elige tu paquete') }}</h2>
             <p class="site-muted-lead" data-reveal>
-                Pago único por invitación, en dólares ({{ \App\Support\Money::code() }}). Cada paquete incluye todo lo del anterior.
+                {{ $plansLead ?? __('Pago único por invitación, en dólares (:currency). Cada paquete incluye todo lo del anterior.', ['currency' => Money::code()]) }}
             </p>
         </div>
 
         <div class="site-plans mt-14">
             @foreach($packages as $index => $package)
-                @php($featured = $package['featured'] ?? false)
-                @php($premium = $package['premium'] ?? false)
-                <article @class(['site-plan', 'site-plan--featured' => $featured, 'site-plan--premium' => $premium])
-                    data-reveal style="--reveal-index: {{ $index }}">
-                    <div class="site-plan__head">
-                        <h3 class="site-plan__name">
-                            {{ $package['name'] }}
-                            @if($premium)
-                                <x-phosphor-crown-simple-fill class="site-plan__crown" aria-hidden="true" />
-                            @endif
-                        </h3>
-                        @if($featured)
-                            <span class="site-plan__tag">Recomendado</span>
-                        @elseif($premium)
-                            <span class="site-plan__tag">Experiencia completa</span>
-                        @endif
-                    </div>
-
-                    <p class="site-plan__amount">
-                        @if(! empty($package['old_price']))
-                            <del class="site-plan__old"><span class="sr-only">Antes </span>{{ \App\Support\Money::format($package['old_price']) }}</del>
-                            <span class="sr-only">, ahora</span>
-                        @endif
-                        <span class="flex items-baseline gap-2">
-                            <span class="site-plan__price">{{ $package['final_price'] ?? $package['price'] }}</span>
-                            <span class="text-xl text-site-muted">{{ \App\Support\Money::code() }}</span>
-                        </span>
-                    </p>
-                    @if(! empty($package['old_price']))
-                        <p class="site-plan__saving">Ahorras {{ \App\Support\Money::format($package['old_price'] - $package['final_price']) }}</p>
-                    @endif
-
-                    <p class="mt-4 max-w-[36ch] leading-relaxed text-site-muted">{{ $package['summary'] }}</p>
-
-                    <ul class="site-plan__features">
-                        @foreach($package['features'] as $feature)
-                            <li>
-                                <x-phosphor-check-bold class="site-plan__check" aria-hidden="true" />
-                                <span>{{ $feature }}</span>
-                            </li>
-                        @endforeach
-                    </ul>
-
-                    <a href="{{ $package['whatsapp'] }}" target="_blank" rel="noopener"
-                        @class([
-                            'site-btn site-btn--lg mt-10 justify-center',
-                            'site-btn--gold' => $premium,
-                            'site-btn--ghost' => ! $featured && ! $premium,
-                        ])>
-                        Elegir {{ $package['name'] }}
-                        <x-phosphor-arrow-right class="site-btn__arrow" aria-hidden="true" />
-                    </a>
-                </article>
+                @php($featured = (bool) ($package['featured'] ?? false))
+                @php($premium = (bool) ($package['premium'] ?? false))
+                <x-site.price-card
+                    :name="$package['name']"
+                    :price="$package['final_price'] ?? $package['price']"
+                    :old="! empty($package['old_price']) ? Money::format($package['old_price']) : null"
+                    :suffix="Money::code()"
+                    :saving="! empty($package['old_price']) ? __('Ahorras :price', ['price' => Money::format($package['old_price'] - $package['final_price'])]) : null"
+                    :summary="$package['summary']"
+                    :features="[...($package['service_lines'] ?? []), ...$package['features']]"
+                    :featured="$featured"
+                    :premium="$premium"
+                    :tag="$featured ? __('Recomendado') : ($premium ? __('Experiencia completa') : null)"
+                    :url="$package['whatsapp']"
+                    :external="true"
+                    :cta="__('Elegir :name', ['name' => $package['name']])"
+                    :index="$index" />
             @endforeach
         </div>
 
         <p class="mt-10 text-site-muted" data-reveal>
-            ¿Buscas algo distinto?
-            <a href="{{ $contactUrl }}" target="_blank" rel="noopener" class="font-medium text-site-ink underline underline-offset-4">Escríbenos</a>
-            y armamos un paquete para tu evento.
+            {{ __('¿Buscas algo distinto?') }}
+            <a href="{{ $contactUrl }}" target="_blank" rel="noopener" class="font-medium text-site-ink underline underline-offset-4">{{ __('Escríbenos') }}</a>
+            {{ __('y armamos un paquete para tu evento.') }}
         </p>
     </div>
 </section>

@@ -9,7 +9,7 @@
 @endif
 
 @if($page->isPostEvent && $page->visible('post_evento') && !empty($page->welcome['mensaje_post_evento']))
-    <section class="inv-section reveal">
+    <section class="inv-section reveal" data-ed="post_evento">
         <div class="inv-wrap">
             <p class="inv-thanks__text">{{ $page->welcome['mensaje_post_evento'] }}</p>
         </div>
@@ -34,13 +34,13 @@
             <div class="inv-wrap">
                 @include('invitations.partials.section-header', [
                     'lottie' => 'calendar',
-                    'eyebrow' => 'Guarda la fecha',
-                    'title' => 'Agéndalo',
+                    'eyebrow' => __('Guarda la fecha'),
+                    'title' => __('Agéndalo'),
                     'intro' => $page->eventLabel,
                 ])
                 <div class="inv-actions">
                     <button type="button" class="inv-btn inv-btn--block" data-url="{{ $calendarUrl }}" onclick="openCalendar(this.dataset.url)">
-                        {{ $invCopy['calendar_add'] ?? 'Agregar a Google Calendar' }}
+                        {{ $invCopy['calendar_add'] ?? __('Agregar a Google Calendar') }}
                     </button>
                 </div>
             </div>

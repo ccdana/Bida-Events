@@ -11,7 +11,7 @@ class BirthdayProfile extends EventProfile
 
     public function label(): string
     {
-        return 'Cumpleaños';
+        return __('Cumpleaños');
     }
 
     public function modules(): array
@@ -27,30 +27,30 @@ class BirthdayProfile extends EventProfile
     public function heroFields(): array
     {
         return [
-            'nombre' => ['label' => 'Nombre de quien cumple años', 'placeholder' => 'Ej. Valeria'],
-            'edad' => ['label' => 'Edad que cumple', 'placeholder' => 'Ej. 30', 'type' => 'number', 'help' => 'Se muestra en grande en la portada y en las velas del pastel.'],
+            'nombre' => ['label' => __('Nombre de quien cumple años'), 'placeholder' => __('Ej. Valeria')],
+            'edad' => ['label' => __('Edad que cumple'), 'placeholder' => __('Ej. 30'), 'type' => 'number', 'help' => __('Se muestra en grande en la portada y en las velas del pastel.')],
         ];
     }
 
     public function featuredGroups(): array
     {
         return [
-            'chambelanes' => ['Amigos', 'Amigo'],
-            'damitas' => ['Familia', 'Familiar'],
-            'padrinos' => ['Anfitriones', 'Anfitrión'],
+            'chambelanes' => [__('Amigos'), __('Amigo')],
+            'damitas' => [__('Familia'), __('Familiar')],
+            'padrinos' => [__('Anfitriones'), __('Anfitrión')],
         ];
     }
 
     public function required(): array
     {
         return [
-            'bienvenida' => ['nombre' => 'Falta el nombre de quien cumple años', 'edad' => 'Falta la edad que cumple'],
-            'ubicacion' => ['nombre_lugar' => 'Falta el lugar de la fiesta'],
+            'bienvenida' => ['nombre' => __('Falta el nombre de quien cumple años'), 'edad' => __('Falta la edad que cumple')],
+            'ubicacion' => ['nombre_lugar' => __('Falta el lugar de la fiesta')],
         ];
     }
 
     public function sample(): array
     {
-        return ['name' => 'Valeria', 'subtitle' => 'Mis 30 años'];
+        return ['name' => __('Valeria'), 'subtitle' => __('Mis 30 años')];
     }
 }

@@ -148,11 +148,6 @@ class InvitationModuleService
         return "https://calendar.google.com/calendar/render?action=TEMPLATE&text={$title}&dates={$start}/{$end}&details={$details}&location={$location}";
     }
 
-    public static function generateGuestToken(): string
-    {
-        return Str::random(32);
-    }
-
     /** Asigna una clave estable a las encuestas que no la tengan. */
     protected function ensurePollKeys(array $questions): array
     {

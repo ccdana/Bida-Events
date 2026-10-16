@@ -48,7 +48,7 @@ abstract class EventProfile
     public function heroFields(): array
     {
         return [
-            'nombre' => ['label' => 'Nombre', 'placeholder' => 'Ej. Sofía Valentina'],
+            'nombre' => ['label' => __('Nombre'), 'placeholder' => __('Ej. Sofía Valentina')],
         ];
     }
 
@@ -72,8 +72,8 @@ abstract class EventProfile
     {
         return [
             'bienvenida' => [
-                'nombre' => 'Falta el nombre',
-                'imagen_hero' => 'Falta la foto de portada',
+                'nombre' => __('Falta el nombre'),
+                'imagen_hero' => __('Falta la foto de portada'),
             ],
         ];
     }
@@ -81,7 +81,7 @@ abstract class EventProfile
     /** Textos de ejemplo del editor (muestra de tipografías y marcadores). */
     public function sample(): array
     {
-        return ['name' => 'Sofía Valentina', 'subtitle' => 'Celebrando mis XV años'];
+        return ['name' => __('Sofía Valentina'), 'subtitle' => __('Celebrando mis XV años')];
     }
 
     /** Lo que viaja al editor. */

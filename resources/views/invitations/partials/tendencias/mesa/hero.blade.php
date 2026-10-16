@@ -7,10 +7,10 @@
     tarjeta se tambalea: data-poke). Estilos en css/invitation/tendencias/mesa.css.
 --}}
 @php
-    $heroEyebrow = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? 'Nos casamos');
+    $heroEyebrow = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? __('Nos casamos'));
     $heroMessage = $page->welcome['mensaje'] ?? '';
     $heroDay = ($page->welcome['fecha_texto'] ?? null)
-        ?: \Illuminate\Support\Str::ucfirst($page->eventDate->locale('es')->translatedFormat('l j \d\e F'));
+        ?: \Illuminate\Support\Str::ucfirst($page->eventDate->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('l j \d\e F')));
 @endphp
 
 <header id="inicio" class="inv-hero ms-hero">
@@ -35,19 +35,19 @@
 
     {{-- El menú de la celebración --}}
     <div class="ms-menu">
-        <p class="ms-menu__title">{{ $invCopy['table_menu'] ?? 'Menú de la celebración' }}</p>
+        <p class="ms-menu__title">{{ $invCopy['table_menu'] ?? __('Menú de la celebración') }}</p>
         <dl class="ms-menu__fields">
             <div>
-                <dt>Día</dt>
+                <dt>{{ __('Día') }}</dt>
                 <dd>{{ $heroDay }}</dd>
             </div>
             <div>
-                <dt>Hora</dt>
+                <dt>{{ __('Hora') }}</dt>
                 <dd>{{ $page->eventDate->format('H:i') }}</dd>
             </div>
             @if($page->placeName)
                 <div>
-                    <dt>Salón</dt>
+                    <dt>{{ __('Salón') }}</dt>
                     <dd>{{ $page->placeName }}</dd>
                 </div>
             @endif
@@ -59,7 +59,7 @@
     @endif
 
     <a href="#contenido" class="inv-hero__scroll ms-hero__scroll">
-        {{ $invCopy['scroll_hint'] ?? 'Desliza' }}
+        {{ $invCopy['scroll_hint'] ?? __('Desliza') }}
         <span class="inv-hero__scroll-line" aria-hidden="true"></span>
     </a>
 </header>

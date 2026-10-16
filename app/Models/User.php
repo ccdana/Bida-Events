@@ -2,15 +2,24 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Support\Localization;
 use Database\Factories\UserFactory;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Translation\HasLocalePreference;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 
-class User extends Authenticatable
+/**
+ * Las cuentas que arma el equipo entran con su usuario y pueden no tener correo. Las que se abren
+ * desde el sitio entran con el correo (verificado) o con Google. Solo la compra exige el correo
+ * verificado (middleware «verified»); el resto del panel no lo pide.
+ */
+class User extends Authenticatable implements HasLocalePreference, MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
@@ -24,7 +33,11 @@ class User extends Authenticatable
         'name',
         'username',
         'email',
+        // Idioma en que abrió la cuenta: el de sus correos (HasLocalePreference)
+        'locale',
         'password',
+        'google_id',
+        'avatar_url',
         'is_admin',
         'is_reseller',
         'reseller_plan',
@@ -59,8 +72,19 @@ class User extends Authenticatable
             // Copia legible de la contraseña generada, cifrada con APP_KEY; solo la ve el administrador
             'is_admin' => 'boolean',
             'is_reseller' => 'boolean',
+            // Cada cuántos meses se renueva sola con tarjeta (1, 3 o 12)
+            'subscription_cycle_months' => 'integer',
             'subscription_renews_at' => 'date',
+            'cancel_at_period_end' => 'boolean',
         ];
+    }
+
+    /** El correo se guarda en minúsculas y sin espacios: así se busca al iniciar sesión. */
+    protected function email(): Attribute
+    {
+        return Attribute::make(
+            set: fn (?string $value) => filled($value) ? Str::lower(trim($value)) : null,
+        );
     }
 
     public function invitations(): HasMany
@@ -86,10 +110,22 @@ class User extends Authenticatable
         return $this->belongsTo(User::class, 'created_by_reseller_id');
     }
 
-    /** Pagos de suscripción registrados por el administrador (solo revendedores). */
+    /** Pagos de suscripción: los registrados a mano y los cobrados en línea. */
     public function subscriptionPayments(): HasMany
     {
         return $this->hasMany(SubscriptionPayment::class);
+    }
+
+    /** Compras en línea, pagadas o no. */
+    public function paymentOrders(): HasMany
+    {
+        return $this->hasMany(PaymentOrder::class);
+    }
+
+    /** Idioma de los correos y avisos de la cuenta: el de la página donde la abrió. */
+    public function preferredLocale(): string
+    {
+        return Localization::resolve($this->locale);
     }
 
     public function isAdmin(): bool
@@ -104,14 +140,32 @@ class User extends Authenticatable
     }
 
     /**
-     * La suscripción vale mientras esté activa y su fecha de renovación todavía no haya llegado.
-     * El día exacto de la renovación ya cuenta como vencida: ese día hay que pagar.
+     * La suscripción vale mientras esté al día (o con el pago atrasado, que la pasarela reintenta)
+     * y no hayan pasado los días de gracia desde el vencimiento (config «payments.grace_days»). Con
+     * 0 días, el día exacto de la renovación ya cuenta como vencida. Cancelada o terminada, no vale.
      */
     public function hasActiveSubscription(): bool
     {
-        return $this->subscription_status === 'active'
+        return in_array($this->subscription_status, ['active', 'past_due'], true)
             && $this->subscription_renews_at !== null
-            && $this->subscription_renews_at->isFuture();
+            && $this->subscription_renews_at->copy()->startOfDay()->addDays(max(0, (int) config('payments.grace_days', 0)))->isFuture();
+    }
+
+    /**
+     * Tiene una suscripción en una pasarela que cobra sola cada mes (tarjeta) y que sigue viva: al
+     * día o con un cobro atrasado. Para cambiar de plan o de tarjeta usa el portal de la pasarela.
+     */
+    public function hasRecurringSubscription(): bool
+    {
+        return $this->payment_provider !== null
+            && $this->provider_subscription_id !== null
+            && in_array($this->subscription_status, ['active', 'past_due'], true);
+    }
+
+    /** Se va a renovar sola en la próxima fecha (no canceló la renovación). */
+    public function renewsAutomatically(): bool
+    {
+        return $this->hasRecurringSubscription() && ! $this->cancel_at_period_end;
     }
 
     /** Configuración del plan del revendedor (config/bida.php, «reseller_plans»); null si no tiene. */

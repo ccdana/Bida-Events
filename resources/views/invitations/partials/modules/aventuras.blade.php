@@ -12,7 +12,7 @@
 @if($adventureItems !== [])
     <section class="inv-section reveal" id="aventuras">
         <div class="inv-wrap">
-            @include('invitations.partials.section-header', ['compact' => true, 'title' => ($data['titulo'] ?? null) ?: 'Aventuras por vivir'])
+            @include('invitations.partials.section-header', ['compact' => true, 'title' => ($data['titulo'] ?? null) ?: __('Aventuras por vivir')])
             <ul class="inv-card-entry">
                 @foreach($adventureItems as $adventure)
                     <li>{{ $adventure }}</li>

@@ -3,7 +3,7 @@
 
     $maxPasses = max(1, (int) $guest->passes_allocated);
 @endphp
-<section class="inv-section reveal inv-rsvp" id="rsvp"
+<section class="inv-section reveal inv-rsvp" id="rsvp" data-ed="rsvp"
     x-data="rsvpForm(@js($slug), @js($guest->qr_code_token), {{ $maxPasses }}, @js($guest->status ?? ''), {{ (int) ($guest->passes_confirmed ?? 0) }})">
     @if(! empty($isDemo))
         {{-- Pase de la muestra: se muestra al confirmar sin llamar al servidor --}}
@@ -16,10 +16,10 @@
         <div x-show="currentStatus === 'confirmed'" x-cloak>
             <header class="inv-head">
                 @include('invitations.partials.lottie-framed-icon', ['name' => 'rsvp'])
-                <p class="inv-head__eyebrow">{{ $invCopy['rsvp_confirmed_eyebrow'] ?? 'Asistencia confirmada' }}</p>
+                <p class="inv-head__eyebrow">{{ $invCopy['rsvp_confirmed_eyebrow'] ?? __('Asistencia confirmada') }}</p>
                 <h2 class="inv-head__title" x-text="guestName || @js($guest->name)">{{ $guest->name }}</h2>
                 <div class="inv-head__rule" aria-hidden="true"></div>
-                <p class="inv-head__intro">{{ $rsvp['texto_confirmado'] ?? 'Presenta este pase en la entrada.' }}</p>
+                <p class="inv-head__intro">{{ $rsvp['texto_confirmado'] ?? __('Presenta este pase en la entrada.') }}</p>
             </header>
 
             <div class="inv-pass">
@@ -32,26 +32,26 @@
 
                 <dl class="inv-pass__facts">
                     <div>
-                        <dt class="inv-label">{{ $invCopy['rsvp_pass_people'] ?? 'Personas' }}</dt>
+                        <dt class="inv-label">{{ $invCopy['rsvp_pass_people'] ?? __('Personas') }}</dt>
                         <dd x-text="passesConfirmed">{{ $guest->passes_confirmed ?? 1 }}</dd>
                     </div>
                     <div>
-                        <dt class="inv-label">{{ $invCopy['rsvp_pass_code'] ?? 'Código' }}</dt>
+                        <dt class="inv-label">{{ $invCopy['rsvp_pass_code'] ?? __('Código') }}</dt>
                         <dd>{{ GuestPass::code($guest) }}</dd>
                     </div>
                 </dl>
             </div>
 
-            <p class="inv-help inv-rsvp__tip">{{ $invCopy['rsvp_tip'] ?? 'Toma una captura de pantalla por si no tienes señal en el lugar.' }}</p>
+            <p class="inv-help inv-rsvp__tip">{{ $invCopy['rsvp_tip'] ?? __('Toma una captura de pantalla por si no tienes señal en el lugar.') }}</p>
         </div>
 
         {{-- Declinado --}}
         <div x-show="currentStatus === 'declined'" x-cloak>
             @include('invitations.partials.section-header', [
                 'lottie' => 'rsvp',
-                'eyebrow' => $invCopy['rsvp_declined_eyebrow'] ?? 'Respuesta enviada',
-                'title' => $rsvp['texto_declinado'] ?? 'Gracias por avisarnos',
-                'intro' => $invCopy['rsvp_declined_intro'] ?? 'Si cambias de planes, comunícate con la familia para actualizar tu respuesta.',
+                'eyebrow' => $invCopy['rsvp_declined_eyebrow'] ?? __('Respuesta enviada'),
+                'title' => $rsvp['texto_declinado'] ?? __('Gracias por avisarnos'),
+                'intro' => $invCopy['rsvp_declined_intro'] ?? __('Si cambias de planes, comunícate con la familia para actualizar tu respuesta.'),
             ])
         </div>
 
@@ -59,55 +59,57 @@
         <div x-show="currentStatus === 'pending'">
             @include('invitations.partials.section-header', [
                 'lottie' => 'rsvp',
-                'eyebrow' => $invCopy['rsvp_eyebrow'] ?? 'Confirma tu asistencia',
-                'title' => $rsvp['titulo_confirmacion'] ?? '¿Nos acompañas?',
+                'eyebrow' => $invCopy['rsvp_eyebrow'] ?? __('Confirma tu asistencia'),
+                'title' => $rsvp['titulo_confirmacion'] ?? __('¿Nos acompañas?'),
                 'intro' => $rsvp['mensaje_personalizado'] ?? null,
             ])
 
             <p class="inv-rsvp__greeting">
-                Hola <strong>{{ $guest->name }}</strong>, reservamos
-                <strong>{{ $maxPasses }} {{ $maxPasses === 1 ? 'lugar' : 'lugares' }}</strong> para ti.
+                {!! __('Hola :name, reservamos :places para ti.', [
+                    'name' => '<strong>'.e($guest->name).'</strong>',
+                    'places' => '<strong>'.e($maxPasses === 1 ? __('1 lugar') : __(':count lugares', ['count' => $maxPasses])).'</strong>',
+                ]) !!}
             </p>
 
             <form class="inv-rsvp__form" data-needs-js @submit.prevent="submit()">
                 <fieldset class="inv-rsvp__step">
-                    <legend class="inv-rsvp__legend"><span class="inv-rsvp__num">1</span>{{ $invCopy['rsvp_attend_question'] ?? '¿Asistirás?' }}</legend>
+                    <legend class="inv-rsvp__legend"><span class="inv-rsvp__num">1</span>{{ $invCopy['rsvp_attend_question'] ?? __('¿Asistirás?') }}</legend>
                     <div class="inv-rsvp__choices">
                         <button type="button" class="inv-choice" :class="{ 'is-selected': attending === true }"
-                            :aria-pressed="(attending === true).toString()" @click="attending = true">{{ $invCopy['rsvp_yes'] ?? 'Sí, asistiré' }}</button>
+                            :aria-pressed="(attending === true).toString()" @click="attending = true">{{ $invCopy['rsvp_yes'] ?? __('Sí, asistiré') }}</button>
                         <button type="button" class="inv-choice" :class="{ 'is-selected': attending === false }"
-                            :aria-pressed="(attending === false).toString()" @click="attending = false">{{ $invCopy['rsvp_no'] ?? 'No podré ir' }}</button>
+                            :aria-pressed="(attending === false).toString()" @click="attending = false">{{ $invCopy['rsvp_no'] ?? __('No podré ir') }}</button>
                     </div>
                 </fieldset>
 
                 <fieldset class="inv-rsvp__step" x-show="attending === true" x-cloak x-transition.opacity>
-                    <legend class="inv-rsvp__legend"><span class="inv-rsvp__num">2</span>{{ $invCopy['rsvp_people_question'] ?? '¿Cuántas personas vendrán?' }}</legend>
+                    <legend class="inv-rsvp__legend"><span class="inv-rsvp__num">2</span>{{ $invCopy['rsvp_people_question'] ?? __('¿Cuántas personas vendrán?') }}</legend>
                     @if($maxPasses > 1)
                         <div class="inv-stepper">
-                            <button type="button" class="inv-stepper__btn" @click="passes = Math.max(1, passes - 1)" :disabled="passes <= 1" aria-label="Una persona menos">−</button>
+                            <button type="button" class="inv-stepper__btn" @click="passes = Math.max(1, passes - 1)" :disabled="passes <= 1" aria-label="{{ __('Una persona menos') }}">−</button>
                             <output class="inv-stepper__value" x-text="passes" aria-live="polite">1</output>
-                            <button type="button" class="inv-stepper__btn" @click="passes = Math.min(maxPasses, passes + 1)" :disabled="passes >= maxPasses" aria-label="Una persona más">+</button>
+                            <button type="button" class="inv-stepper__btn" @click="passes = Math.min(maxPasses, passes + 1)" :disabled="passes >= maxPasses" aria-label="{{ __('Una persona más') }}">+</button>
                         </div>
-                        <p class="inv-help">Puedes confirmar hasta {{ $maxPasses }} personas con esta invitación.</p>
+                        <p class="inv-help">{{ __('Puedes confirmar hasta :maxPasses personas con esta invitación.', ['maxPasses' => $maxPasses]) }}</p>
                     @else
-                        <p class="inv-rsvp__note">Esta invitación es para 1 persona.</p>
+                        <p class="inv-rsvp__note">{{ __('Esta invitación es para 1 persona.') }}</p>
                     @endif
 
-                    <label class="inv-label inv-rsvp__label" for="rsvp-dietary">{{ $invCopy['rsvp_dietary_label'] ?? 'Alergias o restricciones alimentarias (opcional)' }}</label>
-                    <textarea id="rsvp-dietary" class="inv-input" x-model="dietary" rows="2" maxlength="500" placeholder="Ej. vegetariano, sin gluten"></textarea>
+                    <label class="inv-label inv-rsvp__label" for="rsvp-dietary">{{ $invCopy['rsvp_dietary_label'] ?? __('Alergias o restricciones alimentarias (opcional)') }}</label>
+                    <textarea id="rsvp-dietary" class="inv-input" x-model="dietary" rows="2" maxlength="500" placeholder="{{ __('Ej. vegetariano, sin gluten') }}"></textarea>
                 </fieldset>
 
                 <div class="inv-rsvp__submit">
                     <button type="submit" class="inv-btn inv-btn--block" :disabled="attending === null || loading">
-                        <span x-text="loading ? 'Enviando…' : (attending === false ? @js($invCopy['rsvp_submit_decline'] ?? 'Enviar respuesta') : @js($invCopy['rsvp_submit'] ?? 'Confirmar asistencia'))">{{ $invCopy['rsvp_submit'] ?? 'Confirmar asistencia' }}</span>
+                        <span x-text="loading ? 'Enviando…' : (attending === false ? @js($invCopy['rsvp_submit_decline'] ?? __('Enviar respuesta')) : @js($invCopy['rsvp_submit'] ?? __('Confirmar asistencia')))">{{ $invCopy['rsvp_submit'] ?? __('Confirmar asistencia') }}</span>
                     </button>
-                    <p class="inv-help" x-show="attending === null">Elige una opción para continuar.</p>
+                    <p class="inv-help" x-show="attending === null">{{ __('Elige una opción para continuar.') }}</p>
                     <p class="inv-status is-error" x-show="error" x-cloak x-text="error" aria-live="assertive"></p>
                 </div>
             </form>
 
             <noscript>
-                <p class="inv-noscript">Para confirmar tu asistencia desde aquí necesitas activar JavaScript. Si no puedes, responde directamente a quien te compartió la invitación.</p>
+                <p class="inv-noscript">{{ __('Para confirmar tu asistencia desde aquí necesitas activar JavaScript. Si no puedes, responde directamente a quien te compartió la invitación.') }}</p>
             </noscript>
         </div>
     </div>
@@ -159,7 +161,7 @@ function rsvpForm(slug, token, maxPasses, initialStatus, initialPasses) {
                 const data = await res.json().catch(() => ({}));
 
                 if (!res.ok || !data.success) {
-                    throw new Error(data.message || 'No pudimos guardar tu respuesta. Intenta de nuevo.');
+                    throw new Error(data.message || @js(__('No pudimos guardar tu respuesta. Intenta de nuevo.')));
                 }
 
                 this.currentStatus = data.status;
@@ -171,7 +173,7 @@ function rsvpForm(slug, token, maxPasses, initialStatus, initialPasses) {
                 }
                 this.$el.scrollIntoView({ behavior: 'smooth', block: 'start' });
             } catch (e) {
-                this.error = e instanceof TypeError ? 'Revisa tu conexión e intenta de nuevo.' : e.message;
+                this.error = e instanceof TypeError ? @js(__('Revisa tu conexión e intenta de nuevo.')) : e.message;
             } finally {
                 this.loading = false;
             }

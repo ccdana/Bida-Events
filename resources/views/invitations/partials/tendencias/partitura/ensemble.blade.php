@@ -10,17 +10,17 @@
         : ['nombre' => trim((string) $persona), 'detalle' => null];
     $padrinos = array_values(array_filter($data['padrinos'] ?? [], fn ($padrino) => !empty($padrino['nombres'] ?? null)));
     $sections = array_filter([
-        ($invCopy['court_sponsors_tab'] ?? 'Padrinos') => array_map(fn ($padrino) => ['rol' => $padrino['rol'] ?? '', 'nombre' => $padrino['nombres'], 'mensaje' => $padrino['mensaje'] ?? null], $padrinos),
-        ($invCopy['court_men'] ?? 'Caballeros de honor') => array_map(fn ($person) => ['rol' => $person['detalle'] ?? '', 'nombre' => $person['nombre'], 'mensaje' => null], array_values(array_filter(array_map($normalizePerson, $data['chambelanes'] ?? []), fn ($person) => $person['nombre'] !== ''))),
-        ($invCopy['court_women'] ?? 'Damas de honor') => array_map(fn ($person) => ['rol' => $person['detalle'] ?? '', 'nombre' => $person['nombre'], 'mensaje' => null], array_values(array_filter(array_map($normalizePerson, $data['damitas'] ?? []), fn ($person) => $person['nombre'] !== ''))),
+        ($invCopy['court_sponsors_tab'] ?? __('Padrinos')) => array_map(fn ($padrino) => ['rol' => $padrino['rol'] ?? '', 'nombre' => $padrino['nombres'], 'mensaje' => $padrino['mensaje'] ?? null], $padrinos),
+        ($invCopy['court_men'] ?? __('Caballeros de honor')) => array_map(fn ($person) => ['rol' => $person['detalle'] ?? '', 'nombre' => $person['nombre'], 'mensaje' => null], array_values(array_filter(array_map($normalizePerson, $data['chambelanes'] ?? []), fn ($person) => $person['nombre'] !== ''))),
+        ($invCopy['court_women'] ?? __('Damas de honor')) => array_map(fn ($person) => ['rol' => $person['detalle'] ?? '', 'nombre' => $person['nombre'], 'mensaje' => null], array_values(array_filter(array_map($normalizePerson, $data['damitas'] ?? []), fn ($person) => $person['nombre'] !== ''))),
     ]);
 @endphp
 
 <section class="inv-section reveal pt-ensemble" id="destacados">
     <div class="inv-wrap">
         @include('invitations.partials.section-header', [
-            'eyebrow' => $invCopy['court_eyebrow'] ?? 'El ensamble',
-            'title' => $invCopy['court_title'] ?? 'Quienes tocan con nosotros',
+            'eyebrow' => $invCopy['court_eyebrow'] ?? __('El ensamble'),
+            'title' => $invCopy['court_title'] ?? __('Quienes tocan con nosotros'),
             'intro' => $invCopy['court_intro'] ?? null,
         ])
 
@@ -46,7 +46,7 @@
                 @endforeach
             </div>
         @else
-            <p class="inv-empty">{{ $invCopy['court_empty'] ?? 'Pronto presentaremos a quienes nos acompañan.' }}</p>
+            <p class="inv-empty">{{ $invCopy['court_empty'] ?? __('Pronto presentaremos a quienes nos acompañan.') }}</p>
         @endif
     </div>
 </section>

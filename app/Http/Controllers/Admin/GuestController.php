@@ -7,7 +7,6 @@ use App\Http\Requests\Admin\Guest\StoreGuestRequest;
 use App\Http\Requests\Admin\Guest\UpdateGuestRequest;
 use App\Models\Guest;
 use App\Models\Invitation;
-use App\Services\InvitationModuleService;
 use Illuminate\Http\Request;
 
 /**
@@ -33,12 +32,7 @@ class GuestController extends Controller
 
     public function store(StoreGuestRequest $request, Invitation $invitation)
     {
-        $validated = $request->validated();
-
-        $invitation->guests()->create([
-            ...$validated,
-            'qr_code_token' => InvitationModuleService::generateGuestToken(),
-        ]);
+        $invitation->guests()->create($request->validated());
 
         return back()->with('success', 'Invitado agregado.');
     }
@@ -56,7 +50,7 @@ class GuestController extends Controller
      */
     public function regenerateToken(Invitation $invitation, Guest $guest)
     {
-        $guest->update(['qr_code_token' => InvitationModuleService::generateGuestToken()]);
+        $guest->update(['qr_code_token' => Guest::newToken()]);
 
         return back()->with('success', 'Listo, el enlace anterior de '.$guest->name.' ya no funciona.');
     }

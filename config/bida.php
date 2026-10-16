@@ -31,7 +31,7 @@ return [
     'legal' => [
         'name' => env('BIDA_LEGAL_NAME'),
         'nit' => env('BIDA_LEGAL_NIT'),
-        'updated_at' => '2026-09-23',
+        'updated_at' => '2026-10-15',
     ],
 
     // Solo dígitos, con código de país (591 para Bolivia)
@@ -54,7 +54,7 @@ return [
     // Las tarjetas de temporada no van aquí: tienen su sección propia (clave «season»).
     'demo_invitations' => ['xv-isabella', 'boda-camila-andres', 'bautizo-emilia', 'cumple-daniela-30', 'graduacion-mariana', 'babyshower-valentina'],
 
-    // Página «Hazlo tú» (/hazlo-tu, planes mensuales): las muestras que se prueban en su teléfono
+    // Página «Únete» (/unete, planes mensuales): las muestras que se prueban en su teléfono
     'professionals' => [
         'demos' => ['lienzo-casa-molina', 'graduacion-mariana', 'halloween-noche-diego'],
     ],
@@ -392,20 +392,40 @@ return [
     'templates_disabled' => [],
 
     /*
-    | Lo que ofrece la marca, en la sección «Servicios» de la portada. «price» toma el
-    | precio de hoy: «packages» (el paquete más barato), «season» (la temporada vigente) o
-    | «reseller» (el plan mensual más barato para profesionales).
-    | «href» acepta un ancla, «season» (la temporada o su página) o una URL.
+    | Lo que ofrece la marca, en la sección «Servicios» de la portada. El primero es el modelo
+    | principal (que la persona arme su invitación gratis, «Hazlo tú»); los otros son secundarios.
+    | «price» toma el precio de hoy: «free» (gratis, y un pago único si quiere más), «packages» (el
+    | paquete más barato), «season» (la temporada vigente) o «reseller» (el plan más barato, al mes).
+    | «href» acepta un ancla, «create» (crear la invitación: la cuenta o el editor), «pricing#ancla»
+    | (la página de precios), «diy» (la página «Únete»), «season» (la temporada o su página) o una URL.
     */
     'services' => [
         [
+            'key' => 'hazlo',
+            'name' => 'Hazlo tú',
+            'text' => 'Armas tu invitación con nuestras plantillas y la pruebas completa, gratis. Al publicarla decides: gratis con lo básico, o un pago único si quieres galería, confirmaciones o pase QR.',
+            'occasions' => ['Tu evento', 'Tu familia', 'Cualquier celebración'],
+            'price' => 'free',
+            'href' => 'create',
+            'cta' => 'Crear mi invitación gratis',
+        ],
+        [
             'key' => 'invitaciones',
-            'name' => 'Invitaciones digitales',
-            'text' => 'La invitación web de tu evento: se abre con una animación, tus invitados confirman asistencia desde su enlace y tú sigues la lista desde tu panel.',
+            'name' => 'Te la hacemos',
+            'text' => 'Nos cuentas tu evento y armamos la invitación contigo, con un plazo de entrega y rondas de cambios. Tú sigues la lista de invitados desde tu panel.',
             'occasions' => ['Bodas', 'XV años', 'Bautizos', 'Cumpleaños', 'Y cualquier celebración'],
             'price' => 'packages',
-            'href' => '#plantillas',
-            'cta' => 'Ver las plantillas',
+            'href' => 'pricing#te-la-hacemos',
+            'cta' => 'Ver los paquetes',
+        ],
+        [
+            'key' => 'planes',
+            'name' => 'Planes para profesionales',
+            'text' => 'Para fotógrafos, salones y organizadores que arman invitaciones cada mes, con su marca y sin comisión por invitación.',
+            'occasions' => ['Fotógrafos y salones', 'Organizadores de eventos', 'Emprendedores'],
+            'price' => 'reseller',
+            'href' => 'diy',
+            'cta' => 'Ver los planes',
         ],
         [
             'key' => 'temporada',
@@ -415,15 +435,6 @@ return [
             'price' => 'season',
             'href' => 'season',
             'cta' => 'Ver la temporada',
-        ],
-        [
-            'key' => 'hazlo',
-            'name' => 'Hazlo tú',
-            'text' => 'Tu propio panel para armar invitaciones con nuestras plantillas, cuando quieras y para quien quieras: tu familia, tus clientes o tu negocio. Un plan al mes, sin comisión por invitación.',
-            'occasions' => ['Si organizas varios eventos', 'Fotógrafos y salones', 'Emprendedores de eventos'],
-            'price' => 'reseller',
-            'href' => '/hazlo-tu',
-            'cta' => 'Ver los planes',
         ],
     ],
 
@@ -449,11 +460,12 @@ return [
             'text' => 'Tarjetas digitales para decirle lo que sientes a tu pareja, a tu mejor amiga o a tu familia. Llevan tu foto y tu mensaje, se abren con un gesto y llegan por WhatsApp.',
             'more_note' => 'Durante la temporada vamos sumando diseños.',
             'active' => true,
-            // BIDA_SEASON_ENDS_AT era la fecha de la única temporada que había (esta)
-            'ends_at' => env('BIDA_SEASON_AMOR_ENDS_AT', env('BIDA_SEASON_ENDS_AT', '2026-09-21 23:59:59')),
+            'ends_at' => env('BIDA_SEASON_AMOR_ENDS_AT', '2026-09-21 23:59:59'),
             'price' => 14,
             'promo_price' => 11,
             'promo_label' => 'Promoción de temporada',
+            // «Hazlo tú» con un diseño de esta temporada: precio único con todo (null = el precio de su nivel)
+            'diy_price' => null,
             'templates' => ['tarjeta-ana-luis', 'tarjeta-libro-aventuras', 'historia-ana-luis'],
             'landing' => 'tarjetas-dia-del-amor',
             'whatsapp' => 'Hola {brand}, quiero una tarjeta del Día del Amor ({price}).',
@@ -472,6 +484,8 @@ return [
             'price' => 26,
             'promo_price' => 20,
             'promo_label' => 'Promoción de temporada',
+            // «Hazlo tú» con un diseño de esta temporada: precio único con todo (null = el precio de su nivel)
+            'diy_price' => null,
             'templates' => ['halloween-noche-diego', 'halloween-expediente-diego', 'halloween-noche-diego-funcion', 'halloween-noche-diego-caldero', 'halloween-noche-diego-casona'],
             'landing' => 'invitaciones-de-halloween',
             'whatsapp' => 'Hola {brand}, quiero una invitación para mi fiesta de Halloween ({price}).',
@@ -479,8 +493,42 @@ return [
     ],
 
     /*
-    | Paquetes de las invitaciones que arma el equipo. Lo que dice «features» es lo que el sistema
-    | habilita con cada paquete (App\Support\Packages): si se cambia una cosa, se cambian las dos.
+    | «Hazlo tú»: cualquier cuenta del sitio arma su propia invitación sin pagar nada antes
+    | (App\Support\DiyInvitations). Mientras es borrador tiene todo desbloqueado; al publicarla, el
+    | nivel sale de las partes que encendió: Gratis (portada, cuenta regresiva y ubicación, con la
+    | marca de Bida Events a la vista), o Básico, Estándar y Premium, los mismos módulos que los
+    | paquetes del equipo («packages»). Lo que no se paga se apaga para publicarla gratis.
+    |  - drafts_limit: borradores sin publicar que puede tener a la vez.
+    |  - free_per_account: invitaciones gratuitas por cuenta (una vez gratuita, sigue siéndolo).
+    |  - days_after_event: cuánto sigue en línea después del evento, la gratuita y la pagada.
+    |  - collections: familias de plantillas que se ofrecen (las de temporada, solo mientras se venden).
+    |  - prices: lo que cuesta publicarla con cada nivel, un pago único (App\Payments\InvitationPrice).
+    |    Subir de nivel cobra la diferencia. «promo_price» es el precio con descuento (null = sin
+    |    descuento). Se cambian en Ajustes. Una temporada puede tener su precio único («diy_price» en
+    |    «seasons»): sus diseños se publican con todo por ese precio.
+    |
+    | Precios definidos por el dueño (2026-10-15): US$ 2, 4 y 6, menos que «Te la hacemos» del mismo nivel.
+    */
+    'diy' => [
+        'drafts_limit' => (int) env('BIDA_DIY_DRAFTS_LIMIT', 3),
+        'free_per_account' => 1,
+        'days_after_event' => ['gratis' => 7, 'paid' => 30],
+        'collections' => ['lienzo', 'clasica', 'nueva', 'tendencias', 'temporada'],
+        'prices' => [
+            'basico' => ['price' => 2, 'promo_price' => null],
+            'estandar' => ['price' => 4, 'promo_price' => null],
+            'premium' => ['price' => 6, 'promo_price' => null],
+        ],
+    ],
+
+    /*
+    | Paquetes de las invitaciones que arma el equipo («Te la hacemos»). Son los mismos niveles de
+    | «Hazlo tú» (Básico, Estándar, Premium): lo que dice «features» es lo que el sistema habilita con
+    | cada uno (App\Support\Packages); si se cambia una cosa, se cambian las dos. Lo que se paga de más
+    | es el servicio («service»): en cuánto la entregamos desde que llegan los datos y cuántas rondas
+    | de cambios incluye (null = sin límite hasta el evento); la atención es por WhatsApp. Se cambian en Ajustes.
+    |
+    | (Supuesto) Plazos y rondas de cambios, pendientes de confirmar con el dueño.
     */
     'packages' => [
         [
@@ -489,6 +537,7 @@ return [
             'price' => 29,
             'promo_price' => 22,
             'summary' => 'Lo esencial para invitar con estilo y que nadie se pierda.',
+            'service' => ['delivery' => '3 días hábiles', 'revisions' => 1],
             'features' => [
                 'Portada con foto, nombre y mensaje',
                 'Cuenta regresiva y botón para agendar la fecha',
@@ -504,6 +553,7 @@ return [
             'promo_price' => 43,
             'featured' => true,
             'summary' => 'La invitación completa: cada invitado con su enlace y su confirmación por WhatsApp.',
+            'service' => ['delivery' => '2 días hábiles', 'revisions' => 2],
             'features' => [
                 'Todo lo del paquete Básico',
                 'Galería de fotos y video',
@@ -521,6 +571,7 @@ return [
             'promo_price' => 72,
             'premium' => true,
             'summary' => 'Con pase QR y control de entrada, tu panel de invitados y todo para que participen.',
+            'service' => ['delivery' => '24 horas', 'revisions' => null],
             'features' => [
                 'Todo lo del paquete Estándar',
                 'Confirmación con pase QR',
@@ -535,9 +586,11 @@ return [
     ],
 
     /*
-    | Planes de suscripción mensual para revendedores (fotógrafos, wedding planners, decoradores):
-    | arman sus propias invitaciones dentro de «quota_per_month» por mes calendario (null = sin
-    | tope). Cada plan desbloquea más cosas, y eso es lo que justifica pagar más:
+    | Planes de suscripción para quien arma invitaciones para otros (fotógrafos, wedding planners,
+    | decoradores, salones). Se pagan por mes, o por 3 o 12 meses con descuento (config
+    | «payments.prepay», Ajustes). Tres a la venta, cada uno suma al anterior:
+    |  - «quota_per_month»: invitaciones que puede **publicar** por mes calendario (null = sin tope).
+    |    Los borradores no gastan cupo (ResellerSubscription::quotaUsed).
     |  - «collections»: qué familias de plantillas puede usar (ver «collection» en
     |    App\Support\InvitationTemplates): lienzo (la genérica en blanco), clasica (XV, boda,
     |    bautizo, cumpleaños, graduación, baby shower), temporada (Halloween, tarjetas del Día
@@ -546,68 +599,56 @@ return [
     |  - «rsvp»: la confirmación de asistencia que puede usar: whatsapp (el invitado le escribe) y
     |    pass (pase QR guardado, control de entrada y reportes). En una invitación va una sola.
     | Todos los planes crean accesos para sus clientes (uno por evento), pero no más por mes que
-    | las invitaciones que el plan permite crear (ResellerSubscription::canCreateClients).
+    | su cupo (ResellerSubscription::canCreateClients).
     |  - «white_label»: el pie de sus invitaciones lleva su nombre comercial en vez de Bida Events.
-    | «cycle_months» es cuánto extiende la suscripción cada pago; «templates» (opcional) recorta
+    |  - «featured»: el recomendado de la página de planes.
+    | «cycle_months» es cuánto extiende la suscripción un pago mensual; «templates» (opcional) recorta
     | todavía más el catálogo con una lista de plantillas. «promo_price» es el precio con descuento
     | (null = sin descuento): se muestra el normal tachado. Precio, descuento y cupo se cambian en Ajustes.
-    | No se cobra automáticamente: el administrador registra cada pago desde Revendedores.
     |
-    | (Supuesto) Precios, cupos y qué incluye cada plan, pendientes de confirmar con el dueño.
+    | Precios definidos por el dueño (2026-10-15): US$ 10, 20 y 30 al mes. Los cupos son un supuesto.
     */
     'reseller_plans' => [
         'inicial' => [
             'name' => 'Inicial',
-            'price' => 9,
+            'price' => 10,
             'promo_price' => null,
-            'quota_per_month' => 3,
-            'collections' => ['lienzo', 'clasica'],
+            'quota_per_month' => 5,
+            'collections' => ['lienzo', 'clasica', 'temporada'],
             // Confirmación de asistencia que puede usar: [] ninguna, 'whatsapp', 'pass' (pase QR, puerta y reportes)
             'rsvp' => ['whatsapp'],
             'white_label' => false,
             'cycle_months' => 1,
             'templates' => null,
-            'summary' => 'Para empezar: la plantilla en blanco y las clásicas de cada evento.',
-            'features' => ['3 invitaciones al mes', 'Plantilla en blanco y plantillas clásicas', 'Acceso para tu cliente en cada evento'],
-        ],
-        'aliado' => [
-            'name' => 'Aliado',
-            'price' => 17,
-            'promo_price' => 14,
-            'quota_per_month' => 8,
-            'collections' => ['lienzo', 'clasica', 'temporada'],
-            'rsvp' => ['whatsapp'],
-            'white_label' => false,
-            'cycle_months' => 1,
-            'templates' => null,
-            'summary' => 'Las clásicas y las de temporada: Halloween y las tarjetas del Día del Amor.',
-            'features' => ['8 invitaciones al mes', 'Todo lo del plan Inicial', 'Plantillas de temporada: Halloween y Día del Amor', 'Acceso para tu cliente en cada evento'],
+            'summary' => 'Para empezar a vender invitaciones: las clásicas y las de temporada, con confirmación por WhatsApp.',
+            'features' => ['5 invitaciones al mes', 'Plantilla en blanco, clásicas y de temporada', 'Confirmación de asistencia por WhatsApp', 'Acceso para tu cliente en cada evento'],
         ],
         'emprendedor' => [
             'name' => 'Emprendedor',
-            'price' => 36,
-            'promo_price' => 29,
+            'price' => 20,
+            'promo_price' => null,
             'quota_per_month' => 20,
             'collections' => ['lienzo', 'clasica', 'temporada', 'nueva', 'tendencias'],
             'rsvp' => ['whatsapp', 'pass'],
             'white_label' => true,
+            'featured' => true,
             'cycle_months' => 1,
             'templates' => null,
-            'summary' => 'Con tu marca, las plantillas nuevas de cada evento y confirmación por WhatsApp.',
-            'features' => ['20 invitaciones al mes', 'Todo lo del plan Aliado', 'Las plantillas nuevas de cada evento, a medida que salen', 'Confirmación de asistencia por WhatsApp', 'Tu marca al pie, sin la de Bida Events'],
+            'summary' => 'Con tu marca, todas las plantillas y el pase QR: para quien vende invitaciones cada mes.',
+            'features' => ['20 invitaciones al mes', 'Todo lo del plan Inicial', 'Las plantillas nuevas y de tendencia, a medida que salen', 'Confirmación con pase QR, control de entrada y reportes', 'Tu marca al pie, sin la de Bida Events'],
         ],
         'agencia' => [
             'name' => 'Agencia',
-            'price' => 72,
-            'promo_price' => 59,
+            'price' => 30,
+            'promo_price' => null,
             'quota_per_month' => null,
             'collections' => ['lienzo', 'clasica', 'temporada', 'nueva', 'tendencias'],
             'rsvp' => ['whatsapp', 'pass'],
             'white_label' => true,
             'cycle_months' => 1,
             'templates' => null,
-            'summary' => 'Sin tope, con pase QR y control de entrada: para estudios que entregan todas las semanas.',
-            'features' => ['Invitaciones sin tope', 'Todo lo del plan Emprendedor', 'Confirmación con pase QR y control de entrada', 'Reportes en PDF y Excel, e invitación para imprimir'],
+            'summary' => 'Sin tope de invitaciones: para estudios y salones que entregan todas las semanas.',
+            'features' => ['Invitaciones sin tope', 'Todo lo del plan Emprendedor'],
         ],
     ],
 ];

@@ -6,9 +6,9 @@
     Aquí vive la primera de las tres mariposas escondidas (partials/amor/butterfly).
 --}}
 @php
-    $heroPhrase = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? 'Feliz Día del Amor');
+    $heroPhrase = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? __('Feliz Día del Amor'));
     $heroMessage = trim((string) ($page->welcome['mensaje'] ?? ''));
-    $heroImageAlt = ($page->welcome['imagen_hero_alt'] ?? null) ?: ($cardTo !== '' ? 'Foto para '.$cardTo : '');
+    $heroImageAlt = ($page->welcome['imagen_hero_alt'] ?? null) ?: ($cardTo !== '' ? __('Foto para :cardTo', ['cardTo' => $cardTo]) : '');
     // Florecitas alrededor de la foto: posición, tamaño, giro y turno
     $sprouts = [
         ['x' => '-8%', 'y' => '12%', 'size' => '2.6rem', 'turn' => '-14deg', 'tone' => 'rose'],
@@ -34,7 +34,7 @@
                             alt="{{ $heroImageAlt }}" loading="eager" fetchpriority="high" decoding="async" draggable="false">
                     </span>
                     <span class="inv-amor-hero__glare" aria-hidden="true"></span>
-                    <figcaption class="inv-amor-hero__caption">{{ $invCopy['photo_caption'] ?? 'Tú y yo' }}</figcaption>
+                    <figcaption class="inv-amor-hero__caption">{{ $invCopy['photo_caption'] ?? __('Tú y yo') }}</figcaption>
                 </figure>
 
                 @foreach($sprouts as $sprout)
@@ -48,7 +48,7 @@
         @endif
 
         <h1 class="inv-amor-hero__to inv-fade-up inv-fade-up--2" data-step style="--step: 3">
-            {{ $cardTo !== '' ? 'Para '.$cardTo : $page->displayName }}
+            {{ $cardTo !== '' ? __('Para :cardTo', ['cardTo' => $cardTo]) : $page->displayName }}
         </h1>
 
         @if($heroMessage !== '')
@@ -56,11 +56,11 @@
         @endif
 
         @if($cardFrom !== '')
-            <p class="inv-amor-hero__from inv-fade-up inv-fade-up--3" data-step style="--step: 6">De {{ $cardFrom }}</p>
+            <p class="inv-amor-hero__from inv-fade-up inv-fade-up--3" data-step style="--step: 6">{{ __('De :cardFrom', ['cardFrom' => $cardFrom]) }}</p>
         @endif
 
         <a href="#{{ $page->visible('dedicatoria') ? 'dedicatoria' : 'contenido' }}" class="inv-amor-hero__scroll inv-fade-up inv-fade-up--3" data-step style="--step: 7">
-            Leer la carta
+            {{ __('Leer la carta') }}
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </a>
     </div>

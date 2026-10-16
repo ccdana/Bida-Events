@@ -9,7 +9,7 @@
     :class="{ 'is-lit': lit }"
     role="dialog"
     aria-modal="true"
-    aria-label="Invitación a {{ $page->displayName }}">
+    aria-label="{{ __('Invitación a :displayName', ['displayName' => $page->displayName]) }}">
     <span class="inv-hw-intro__moon" aria-hidden="true"></span>
     @include('invitations.partials.halloween.landscape', ['class' => 'inv-hw-intro__land'])
 
@@ -24,21 +24,21 @@
     <div class="inv-hw-intro__content">
         <p class="inv-hw-intro__eyebrow">
             @if($guest)
-                {{ $guest->name }}, {{ mb_strtolower($invCopy['intro_eyebrow'] ?? 'Te espera una noche de miedo') }}
+                {{ $guest->name }}, {{ mb_strtolower($invCopy['intro_eyebrow'] ?? __('Te espera una noche de miedo')) }}
             @else
-                {{ $invCopy['intro_eyebrow'] ?? 'Te espera una noche de miedo' }}
+                {{ $invCopy['intro_eyebrow'] ?? __('Te espera una noche de miedo') }}
             @endif
         </p>
         <p class="inv-hw-intro__name">{{ $page->displayName }}</p>
 
-        <button type="button" class="inv-hw-lantern" data-cover-trigger @click="light()" aria-label="Encender la calabaza y abrir la invitación">
+        <button type="button" class="inv-hw-lantern" data-cover-trigger @click="light()" aria-label="{{ __('Encender la calabaza y abrir la invitación') }}">
             <span class="inv-hw-lantern__glow" aria-hidden="true"></span>
             @include('invitations.partials.halloween.pumpkin', ['class' => 'inv-hw-lantern__pumpkin'])
             <span class="inv-hw-lantern__tap" aria-hidden="true"></span>
         </button>
 
-        <p class="inv-hw-intro__hint">{{ $invCopy['intro_hint'] ?? 'Toca la calabaza para encenderla' }}</p>
+        <p class="inv-hw-intro__hint">{{ $invCopy['intro_hint'] ?? __('Toca la calabaza para encenderla') }}</p>
     </div>
 
-    <p class="inv-hw-intro__cheer" x-show="lit" x-cloak>{{ $invCopy['intro_cheer'] ?? '¡Que empiece la fiesta!' }}</p>
+    <p class="inv-hw-intro__cheer" x-show="lit" x-cloak>{{ $invCopy['intro_cheer'] ?? __('¡Que empiece la fiesta!') }}</p>
 </div>

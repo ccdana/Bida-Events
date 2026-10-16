@@ -12,7 +12,7 @@
     <article class="nb-page nb-page--paper nb-frames" data-nb-page @if($framePage === 0) id="marcos" @endif>
         <div class="nb-page__inner">
             @if($framePage === 0)
-                <h2 class="nb-title">{{ ($data['titulo'] ?? null) ?: 'Enmarcados para siempre' }}</h2>
+                <h2 class="nb-title">{{ ($data['titulo'] ?? null) ?: __('Enmarcados para siempre') }}</h2>
             @endif
 
             @foreach($framePair as $frameIndex => $photo)
@@ -22,13 +22,13 @@
                 @endphp
                 <figure class="nb-frame nb-frame--{{ $frameStyle }}">
                     <div class="nb-frame__border">
-                        @include('invitations.partials.aventura.photo', ['photo' => $photo, 'width' => 600, 'alt' => 'Foto enmarcada'])
+                        @include('invitations.partials.aventura.photo', ['photo' => $photo, 'width' => 600, 'alt' => __('Foto enmarcada')])
                         @if($frameStyle === 'ovalo')
                             @include('invitations.partials.aventura.flower', ['kind' => 'ramita', 'class' => 'nb-frame__wreath nb-frame__wreath--a'])
                             @include('invitations.partials.aventura.flower', ['kind' => 'ramita', 'class' => 'nb-frame__wreath nb-frame__wreath--b'])
                             @include('invitations.partials.aventura.flower', ['kind' => 'margarita', 'class' => 'nb-frame__bud'])
                         @elseif($frameStyle === 'boleto')
-                            <span class="nb-frame__ticket" aria-hidden="true">Pase para dos · N.º {{ str_pad((string) ($framePage * 2 + $frameIndex + 1), 3, '0', STR_PAD_LEFT) }}</span>
+                            <span class="nb-frame__ticket" aria-hidden="true">{{ __('Pase para dos · N.º :value', ['value' => str_pad((string) ($framePage * 2 + $frameIndex + 1), 3, '0', STR_PAD_LEFT)]) }}</span>
                         @endif
                     </div>
                     @if($frameCaption !== '')

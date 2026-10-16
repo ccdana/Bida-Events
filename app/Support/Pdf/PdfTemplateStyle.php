@@ -153,7 +153,7 @@ final class PdfTemplateStyle
     {
         $meta = InvitationTemplates::get($template);
         // La propia, la que declara la plantilla en el catálogo (colección «tendencias») o la de su evento
-        $style = self::styles()[self::key($template)] ?? $meta['pdf'] ?? self::inherited($meta['event']);
+        $style = self::styles()[(string) $template] ?? $meta['pdf'] ?? self::inherited($meta['event']);
         $style = [...self::DEFAULTS, ...$style];
 
         return [
@@ -183,13 +183,5 @@ final class PdfTemplateStyle
         }
 
         return ['cover' => $cover];
-    }
-
-    /** Nombres antiguos con prefijo "pages." (ver InvitationDefaults::resolveTemplate). */
-    private static function key(?string $template): string
-    {
-        $template = (string) $template;
-
-        return str_starts_with($template, 'pages.') ? substr($template, strlen('pages.')) : $template;
     }
 }

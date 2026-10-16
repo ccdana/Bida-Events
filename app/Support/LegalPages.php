@@ -30,9 +30,9 @@ final class LegalPages
     public static function links(): array
     {
         return [
-            ['url' => route('legal', 'privacidad'), 'label' => 'Privacidad'],
-            ['url' => route('legal', 'cookies'), 'label' => 'Cookies'],
-            ['url' => route('legal', 'terminos'), 'label' => 'Términos'],
+            ['url' => lroute('legal', 'privacidad'), 'label' => __('Privacidad')],
+            ['url' => lroute('legal', 'cookies'), 'label' => __('Cookies')],
+            ['url' => lroute('legal', 'terminos'), 'label' => __('Términos')],
         ];
     }
 
@@ -41,12 +41,12 @@ final class LegalPages
         $legal = config('bida.legal', []);
         $name = $legal['name'] ?: config('bida.brand');
 
-        return $legal['nit'] ? "{$name} (NIT {$legal['nit']})" : $name;
+        return $legal['nit'] ? __(':name (NIT :nit)', ['name' => $name, 'nit' => $legal['nit']]) : $name;
     }
 
     private static function contact(): string
     {
-        return collect([config('bida.email'), '+'.ltrim((string) config('bida.whatsapp'), '+').' (WhatsApp)'])->filter()->implode(' o al ');
+        return collect([config('bida.email'), '+'.ltrim((string) config('bida.whatsapp'), '+').' (WhatsApp)'])->filter()->implode(' '.__('o al').' ');
     }
 
     private static function privacy(): array
@@ -55,78 +55,78 @@ final class LegalPages
         $photosDays = (int) config('optimizations.retention.photos_days', 180);
 
         return [
-            'title' => 'Política de privacidad',
-            'description' => "Qué datos guarda {$brand}, para qué los usa, quién los ve y cómo pedir que se borren.",
-            'intro' => "En {$brand} hacemos invitaciones y tarjetas digitales. Para que funcionen guardamos algunos datos del organizador del evento y de sus invitados. Aquí explicamos cuáles, para qué y qué puedes hacer con ellos.",
+            'title' => __('Política de privacidad'),
+            'description' => __('Qué datos guarda :brand, para qué los usa, quién los ve y cómo pedir que se borren.', ['brand' => $brand]),
+            'intro' => __('En :brand hacemos invitaciones y tarjetas digitales. Para que funcionen guardamos algunos datos del organizador del evento y de sus invitados. Aquí explicamos cuáles, para qué y qué puedes hacer con ellos.', ['brand' => $brand]),
             'sections' => [
                 [
-                    'title' => 'Quién es responsable',
+                    'title' => __('Quién es responsable'),
                     'paragraphs' => [
-                        'El responsable de los datos es '.self::owner().', con domicilio en '.config('bida.city').'. Puedes escribirnos a '.self::contact().'.',
-                        'Cuando un profesional (fotógrafo, organizador de eventos u otro revendedor) arma una invitación con nuestra plataforma, esa persona decide qué datos de sus invitados carga y es responsable de ellos frente a su cliente; nosotros los guardamos y los procesamos por encargo suyo.',
+                        __('El responsable de los datos es :value, con domicilio en :city. Puedes escribirnos a :value2.', ['value' => self::owner(), 'city' => config('bida.city'), 'value2' => self::contact()]),
+                        __('Cuando un profesional (fotógrafo, organizador de eventos u otro revendedor) arma una invitación con nuestra plataforma, esa persona decide qué datos de sus invitados carga y es responsable de ellos frente a su cliente; nosotros los guardamos y los procesamos por encargo suyo.'),
                     ],
                 ],
                 [
-                    'title' => 'Qué datos guardamos',
+                    'title' => __('Qué datos guardamos'),
                     'items' => [
-                        'Del organizador o cliente: nombre, usuario y contraseña de acceso (la contraseña se guarda cifrada), teléfono si nos lo da, y el contenido de su invitación: nombres, fechas, lugares, fotos, videos, música y textos.',
-                        'De los invitados: el nombre y el teléfono que carga el organizador, la respuesta de asistencia, cuántas personas van y, si lo escriben, sus alergias o restricciones alimentarias.',
-                        'Lo que los invitados comparten por su cuenta: canciones sugeridas, votos en encuestas, respuestas a una tarjeta y fotos subidas al fotomural.',
-                        'De quienes visitan este sitio: desde qué campaña llegaron (por ejemplo, un anuncio en Facebook) durante 30 días, para saber qué publicidad funciona. No guardamos el nombre ni el teléfono de un visitante hasta que nos escribe.',
+                        __('Del organizador o cliente: nombre, usuario y contraseña de acceso (la contraseña se guarda cifrada), teléfono si nos lo da, y el contenido de su invitación: nombres, fechas, lugares, fotos, videos, música y textos.'),
+                        __('De los invitados: el nombre y el teléfono que carga el organizador, la respuesta de asistencia, cuántas personas van y, si lo escriben, sus alergias o restricciones alimentarias.'),
+                        __('Lo que los invitados comparten por su cuenta: canciones sugeridas, votos en encuestas, respuestas a una tarjeta y fotos subidas al fotomural.'),
+                        __('De quienes visitan este sitio: desde qué campaña llegaron (por ejemplo, un anuncio en Facebook) durante 30 días, para saber qué publicidad funciona. No guardamos el nombre ni el teléfono de un visitante hasta que nos escribe.'),
                     ],
                 ],
                 [
-                    'title' => 'Para qué los usamos',
+                    'title' => __('Para qué los usamos'),
                     'items' => [
-                        'Mostrar la invitación, recibir las confirmaciones y armar la lista de invitados, el pase con código QR y los reportes en PDF o Excel del organizador.',
-                        'Dar acceso al panel al organizador y, si corresponde, al profesional que armó la invitación.',
-                        'Responder consultas y coordinar pedidos y pagos por WhatsApp.',
-                        'Proteger el servicio: limitar intentos repetidos y guardar registros técnicos para detectar abusos.',
+                        __('Mostrar la invitación, recibir las confirmaciones y armar la lista de invitados, el pase con código QR y los reportes en PDF o Excel del organizador.'),
+                        __('Dar acceso al panel al organizador y, si corresponde, al profesional que armó la invitación.'),
+                        __('Responder consultas y coordinar pedidos y pagos por WhatsApp.'),
+                        __('Proteger el servicio: limitar intentos repetidos y guardar registros técnicos para detectar abusos.'),
                     ],
                     'note' => [
-                        'No vendemos datos, no los usamos para publicidad de terceros y no enviamos mensajes automáticos a los invitados: los enlaces los comparte el organizador.',
+                        __('No vendemos datos, no los usamos para publicidad de terceros y no enviamos mensajes automáticos a los invitados: los enlaces los comparte el organizador.'),
                     ],
                 ],
                 [
-                    'title' => 'Quién más los ve',
+                    'title' => __('Quién más los ve'),
                     'items' => [
-                        'El organizador del evento ve las respuestas de sus invitados. Los invitados solo ven la invitación y, en su enlace personal, su propio pase.',
-                        'Las invitaciones no aparecen en buscadores: solo las abre quien tiene el enlace.',
-                        'Las fotos, videos y audios se alojan en Cloudinary; los mapas se muestran con Google Maps y las tipografías se cargan desde Google Fonts. Esos servicios reciben la dirección IP de quien abre la invitación, como cualquier sitio que usa sus herramientas.',
+                        __('El organizador del evento ve las respuestas de sus invitados. Los invitados solo ven la invitación y, en su enlace personal, su propio pase.'),
+                        __('Las invitaciones no aparecen en buscadores: solo las abre quien tiene el enlace.'),
+                        __('Las fotos, videos y audios se alojan en Cloudinary; los mapas se muestran con Google Maps y las tipografías se cargan desde Google Fonts. Esos servicios reciben la dirección IP de quien abre la invitación, como cualquier sitio que usa sus herramientas.'),
                     ],
                 ],
                 [
-                    'title' => 'Cuánto tiempo los guardamos',
+                    'title' => __('Cuánto tiempo los guardamos'),
                     'items' => [
-                        'La invitación y sus respuestas se conservan mientras el organizador la tenga activa y hasta su fecha de vencimiento.',
-                        "Las fotos que suben los invitados al fotomural se borran {$photosDays} días después del evento.",
-                        'Los reportes descargables (PDF y Excel) se borran a los pocos días de generarse.',
-                        'Las copias de seguridad se renuevan de forma periódica y las antiguas se eliminan.',
+                        __('La invitación y sus respuestas se conservan mientras el organizador la tenga activa y hasta su fecha de vencimiento.'),
+                        __('Las fotos que suben los invitados al fotomural se borran :photosDays días después del evento.', ['photosDays' => $photosDays]),
+                        __('Los reportes descargables (PDF y Excel) se borran a los pocos días de generarse.'),
+                        __('Las copias de seguridad se renuevan de forma periódica y las antiguas se eliminan.'),
                     ],
                 ],
                 [
-                    'title' => 'Tus derechos',
+                    'title' => __('Tus derechos'),
                     'paragraphs' => [
-                        'Puedes pedirnos ver, corregir o borrar tus datos, o que dejemos de usarlos, escribiéndonos a '.self::contact().'. Si eres invitado de un evento, también puedes pedírselo al organizador. Respondemos en un plazo razonable y, si no podemos borrar algo (por ejemplo, porque el organizador todavía lo necesita para su evento), te explicamos por qué.',
-                        'Estos derechos se apoyan en la Constitución Política del Estado Plurinacional de Bolivia (artículos 21 y 130) y en la Ley N.º 164 General de Telecomunicaciones y Tecnologías de Información y Comunicación.',
+                        __('Puedes pedirnos ver, corregir o borrar tus datos, o que dejemos de usarlos, escribiéndonos a :value. Si eres invitado de un evento, también puedes pedírselo al organizador. Respondemos en un plazo razonable y, si no podemos borrar algo (por ejemplo, porque el organizador todavía lo necesita para su evento), te explicamos por qué.', ['value' => self::contact()]),
+                        __('Estos derechos se apoyan en la Constitución Política del Estado Plurinacional de Bolivia (artículos 21 y 130) y en la Ley N.º 164 General de Telecomunicaciones y Tecnologías de Información y Comunicación.'),
                     ],
                 ],
                 [
-                    'title' => 'Seguridad',
+                    'title' => __('Seguridad'),
                     'paragraphs' => [
-                        'El sitio funciona con conexión cifrada (HTTPS), las contraseñas se guardan cifradas y el acceso al panel está limitado a cada organizador. Ningún sistema es infalible: si detectamos un problema que afecte tus datos, te avisaremos.',
+                        __('El sitio funciona con conexión cifrada (HTTPS), las contraseñas se guardan cifradas y el acceso al panel está limitado a cada organizador. Ningún sistema es infalible: si detectamos un problema que afecte tus datos, te avisaremos.'),
                     ],
                 ],
                 [
-                    'title' => 'Menores de edad',
+                    'title' => __('Menores de edad'),
                     'paragraphs' => [
-                        'Muchas invitaciones son de cumpleaños, XV años o bautizos. Los datos y las fotos de menores los carga su familia o el organizador adulto del evento, que es quien decide qué se publica.',
+                        __('Muchas invitaciones son de cumpleaños, XV años o bautizos. Los datos y las fotos de menores los carga su familia o el organizador adulto del evento, que es quien decide qué se publica.'),
                     ],
                 ],
                 [
-                    'title' => 'Cambios',
+                    'title' => __('Cambios'),
                     'paragraphs' => [
-                        'Si cambiamos esta política, publicamos la nueva versión en esta misma página con su fecha.',
+                        __('Si cambiamos esta política, publicamos la nueva versión en esta misma página con su fecha.'),
                     ],
                 ],
             ],
@@ -138,41 +138,41 @@ final class LegalPages
         $brand = config('bida.brand');
 
         return [
-            'title' => 'Política de cookies',
-            'description' => "Qué cookies usa {$brand}, para qué sirve cada una y cómo borrarlas.",
-            'intro' => 'Una cookie es un archivo pequeño que el sitio guarda en tu navegador. Usamos pocas y ninguna es de publicidad: estas son todas.',
+            'title' => __('Política de cookies'),
+            'description' => __('Qué cookies usa :brand, para qué sirve cada una y cómo borrarlas.', ['brand' => $brand]),
+            'intro' => __('Una cookie es un archivo pequeño que el sitio guarda en tu navegador. Usamos pocas y ninguna es de publicidad: estas son todas.'),
             'sections' => [
                 [
-                    'title' => 'Cookies necesarias',
-                    'paragraphs' => ['Sin ellas el sitio no funciona; no se pueden desactivar desde aquí.'],
+                    'title' => __('Cookies necesarias'),
+                    'paragraphs' => [__('Sin ellas el sitio no funciona; no se pueden desactivar desde aquí.')],
                     'items' => [
-                        'Sesión: mantiene abierta tu cuenta mientras navegas por el panel. Dura mientras la sesión esté activa ('.(int) config('session.lifetime', 120).' minutos sin uso).',
-                        'Protección de formularios (XSRF-TOKEN): evita que otro sitio envíe formularios en tu nombre, por ejemplo una confirmación de asistencia. Dura lo mismo que la sesión.',
-                        'Control de entrada (bida_puerta_…): solo en el teléfono de quien controla la entrada de un evento, después de abrir el enlace de puerta que le compartió el organizador. Permite registrar el ingreso de los invitados y dura 16 horas.',
+                        __('Sesión: mantiene abierta tu cuenta mientras navegas por el panel. Dura mientras la sesión esté activa (:value minutos sin uso).', ['value' => (int) config('session.lifetime', 120)]),
+                        __('Protección de formularios (XSRF-TOKEN): evita que otro sitio envíe formularios en tu nombre, por ejemplo una confirmación de asistencia. Dura lo mismo que la sesión.'),
+                        __('Control de entrada (bida_puerta_…): solo en el teléfono de quien controla la entrada de un evento, después de abrir el enlace de puerta que le compartió el organizador. Permite registrar el ingreso de los invitados y dura 16 horas.'),
                     ],
                 ],
                 [
-                    'title' => 'Cookie de campaña',
+                    'title' => __('Cookie de campaña'),
                     'items' => [
-                        'bida_origen: recuerda durante '.LeadSource::DAYS.' días desde qué anuncio o enlace llegaste (Facebook, Instagram, un código QR…). Solo sirve para que, si nos escribes por WhatsApp, sepamos qué campaña funcionó. No te identifica ni se comparte con nadie.',
+                        __('bida_origen: recuerda durante :value días desde qué anuncio o enlace llegaste (Facebook, Instagram, un código QR…). Solo sirve para que, si nos escribes por WhatsApp, sepamos qué campaña funcionó. No te identifica ni se comparte con nadie.', ['value' => LeadSource::DAYS]),
                     ],
                 ],
                 [
-                    'title' => 'Preferencias guardadas en tu navegador',
+                    'title' => __('Preferencias guardadas en tu navegador'),
                     'items' => [
-                        'Tema claro u oscuro del sitio y el aviso de cookies ya leído: se guardan en el almacenamiento local de tu navegador, no viajan a nuestro servidor.',
+                        __('Tema claro u oscuro del sitio y el aviso de cookies ya leído: se guardan en el almacenamiento local de tu navegador, no viajan a nuestro servidor.'),
                     ],
                 ],
                 [
-                    'title' => 'Servicios de terceros',
+                    'title' => __('Servicios de terceros'),
                     'paragraphs' => [
-                        'Las invitaciones pueden mostrar un mapa de Google Maps, videos o música alojados en Cloudinary y tipografías de Google Fonts. Al cargarlos, esos servicios pueden guardar sus propias cookies o registrar tu dirección IP según sus políticas. No usamos herramientas de analítica ni píxeles de publicidad.',
+                        __('Las invitaciones pueden mostrar un mapa de Google Maps, videos o música alojados en Cloudinary y tipografías de Google Fonts. Al cargarlos, esos servicios pueden guardar sus propias cookies o registrar tu dirección IP según sus políticas. No usamos herramientas de analítica ni píxeles de publicidad.'),
                     ],
                 ],
                 [
-                    'title' => 'Cómo borrarlas o bloquearlas',
+                    'title' => __('Cómo borrarlas o bloquearlas'),
                     'paragraphs' => [
-                        'Puedes borrar las cookies o bloquearlas desde la configuración de tu navegador. Si bloqueas las necesarias, no podrás entrar al panel ni confirmar asistencia en una invitación.',
+                        __('Puedes borrar las cookies o bloquearlas desde la configuración de tu navegador. Si bloqueas las necesarias, no podrás entrar al panel ni confirmar asistencia en una invitación.'),
                     ],
                 ],
             ],
@@ -184,57 +184,60 @@ final class LegalPages
         $brand = config('bida.brand');
 
         return [
-            'title' => 'Términos de uso',
-            'description' => "Las reglas para usar {$brand}: pedidos, pagos, contenido, suscripciones de profesionales y responsabilidades.",
-            'intro' => "Al usar {$brand}, pedir una invitación o suscribirte como profesional, aceptas estas condiciones. Las escribimos para que se entiendan.",
+            'title' => __('Términos de uso'),
+            'description' => __('Las reglas para usar :brand: pedidos, pagos, contenido, suscripciones de profesionales y responsabilidades.', ['brand' => $brand]),
+            'intro' => __('Al usar :brand, pedir una invitación o suscribirte como profesional, aceptas estas condiciones. Las escribimos para que se entiendan.', ['brand' => $brand]),
             'sections' => [
                 [
-                    'title' => 'El servicio',
+                    'title' => __('El servicio'),
                     'paragraphs' => [
-                        "{$brand} ofrece invitaciones y tarjetas digitales que se comparten con un enlace, con confirmación de asistencia, reportes y otros módulos según el paquete o plan contratado. El servicio lo presta ".self::owner().'.',
+                        __(':brand ofrece invitaciones y tarjetas digitales que se comparten con un enlace, con confirmación de asistencia, reportes y otros módulos según el paquete o plan contratado. El servicio lo presta :value.', ['brand' => $brand, 'value' => self::owner()]),
                     ],
                 ],
                 [
-                    'title' => 'Pedidos y pagos',
+                    'title' => __('Pedidos y pagos'),
                     'items' => [
-                        'Los precios se muestran en bolivianos en este sitio y se confirman por WhatsApp antes de empezar el diseño.',
-                        'El pago se coordina por WhatsApp (transferencia o QR). No cobramos automáticamente ni guardamos datos de tarjetas.',
-                        'Las promociones valen hasta la fecha que se indica en cada una.',
+                        __('Los precios se muestran en dólares estadounidenses en este sitio. Los pagos con QR de Bolivia se cobran en bolivianos, al tipo de cambio oficial.'),
+                        __('Una invitación que armas tú se puede publicar gratis con las partes básicas o con un pago único por el nivel de las partes que uses. Subir de nivel después cobra solo la diferencia.'),
+                        __('Los pagos en línea se hacen con tarjeta, a través de nuestro procesador de pagos, o con QR de Bolivia. No guardamos los datos de tu tarjeta.'),
+                        __('Los paquetes que arma nuestro equipo se confirman y se pagan por WhatsApp antes de empezar el diseño.'),
+                        __('Las promociones valen hasta la fecha que se indica en cada una.'),
                     ],
                 ],
                 [
-                    'title' => 'Tu contenido',
+                    'title' => __('Tu contenido'),
                     'items' => [
-                        'Eres responsable de las fotos, textos, música y datos que cargas o nos envías, y de tener permiso para usarlos, en especial las fotos de otras personas.',
-                        'No se permite contenido ilegal, que ofenda o discrimine, o que use marcas o imágenes de terceros sin autorización. Podemos retirar una invitación que no cumpla estas reglas.',
-                        'Nos das permiso para alojar y mostrar ese contenido solo para que la invitación funcione. No lo usamos en nuestra publicidad sin pedirte autorización.',
+                        __('Eres responsable de las fotos, textos, música y datos que cargas o nos envías, y de tener permiso para usarlos, en especial las fotos de otras personas.'),
+                        __('No se permite contenido ilegal, que ofenda o discrimine, o que use marcas o imágenes de terceros sin autorización. Podemos retirar una invitación que no cumpla estas reglas.'),
+                        __('Nos das permiso para alojar y mostrar ese contenido solo para que la invitación funcione. No lo usamos en nuestra publicidad sin pedirte autorización.'),
                     ],
                 ],
                 [
-                    'title' => 'Suscripción para profesionales',
+                    'title' => __('Suscripción para profesionales'),
                     'items' => [
-                        'Los profesionales (fotógrafos, organizadores, decoradores y otros revendedores) pagan un plan mensual que les permite armar un número de invitaciones por mes, con las plantillas y funciones de su plan.',
-                        'Cada pago extiende la suscripción un mes desde la fecha de vencimiento vigente, o desde el día del pago si ya había vencido.',
-                        'Si la suscripción vence, las invitaciones ya publicadas siguen en línea y el panel sigue disponible para ver invitados y descargar reportes, pero no se pueden crear ni editar invitaciones hasta renovar.',
-                        'El profesional fija libremente lo que cobra a sus clientes y es responsable frente a ellos por el servicio que les ofrece.',
+                        __('Los profesionales (fotógrafos, organizadores, decoradores y otros revendedores) pagan un plan que les permite publicar un número de invitaciones por mes, con las plantillas y funciones de su plan.'),
+                        __('El plan se paga por mes o por 3 o 12 meses. Cada pago extiende la suscripción por ese tiempo desde la fecha de vencimiento vigente, o desde el día del pago si ya había vencido. Con tarjeta, la suscripción se renueva sola en el mismo ciclo hasta que la canceles.'),
+                        __('Puedes cancelar tu plan cuando quieras desde tu cuenta. Al cancelar no se hacen más cobros y conservas el acceso hasta el final del período ya pagado. No devolvemos meses parciales ni períodos ya pagados.'),
+                        __('Si la suscripción vence, las invitaciones ya publicadas siguen en línea y el panel sigue disponible para ver invitados y descargar reportes, pero no se pueden crear ni editar invitaciones hasta renovar.'),
+                        __('El profesional fija libremente lo que cobra a sus clientes y es responsable frente a ellos por el servicio que les ofrece.'),
                     ],
                 ],
                 [
-                    'title' => 'Disponibilidad',
+                    'title' => __('Disponibilidad'),
                     'paragraphs' => [
-                        'Trabajamos para que las invitaciones estén siempre en línea y hacemos copias de seguridad, pero puede haber interrupciones breves por mantenimiento o por fallas de proveedores. Una invitación está disponible hasta su fecha de vencimiento.',
+                        __('Trabajamos para que las invitaciones estén siempre en línea y hacemos copias de seguridad, pero puede haber interrupciones breves por mantenimiento o por fallas de proveedores. Una invitación está disponible hasta su fecha de vencimiento.'),
                     ],
                 ],
                 [
-                    'title' => 'Responsabilidad',
+                    'title' => __('Responsabilidad'),
                     'paragraphs' => [
-                        "{$brand} no responde por la organización del evento, por cambios de fecha o lugar que no se hayan actualizado en la invitación, ni por el uso que cada organizador haga de los datos de sus invitados.",
+                        __(':brand no responde por la organización del evento, por cambios de fecha o lugar que no se hayan actualizado en la invitación, ni por el uso que cada organizador haga de los datos de sus invitados.', ['brand' => $brand]),
                     ],
                 ],
                 [
-                    'title' => 'Cambios y contacto',
+                    'title' => __('Cambios y contacto'),
                     'paragraphs' => [
-                        'Podemos actualizar estos términos; la versión vigente es la publicada en esta página con su fecha. Para cualquier consulta, escríbenos a '.self::contact().'.',
+                        __('Podemos actualizar estos términos; la versión vigente es la publicada en esta página con su fecha. Para cualquier consulta, escríbenos a :value.', ['value' => self::contact()]),
                     ],
                 ],
             ],

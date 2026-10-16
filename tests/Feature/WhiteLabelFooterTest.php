@@ -27,7 +27,7 @@ class WhiteLabelFooterTest extends TestCase
 
     public function test_a_reseller_without_white_label_keeps_the_bida_credit(): void
     {
-        $this->publicPage(User::factory()->reseller('aliado')->create(['business_name' => 'Estudio Aliado']))
+        $this->publicPage(User::factory()->reseller()->create(['business_name' => 'Estudio Aliado']))
             ->assertSee('<span class="inv-footer__brand">Bida Events</span>', false)
             ->assertSee('<a href="'.route('home').'" class="inv-footer__credit"', false)
             ->assertDontSee('Estudio Aliado');

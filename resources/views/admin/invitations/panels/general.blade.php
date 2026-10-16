@@ -1,6 +1,6 @@
 <div x-show="activeTab === 'general'" x-cloak class="space-y-4">
     @include('admin.partials.panel-intro', [
-        'eyebrow' => 'General',
+        'eyebrow' => 'Datos del evento',
         'title' => 'Datos del evento',
         'description' => 'el título, la fecha y la hora que aparecen en la invitación y en la cuenta regresiva.',
     ])
@@ -18,6 +18,23 @@
                     <span class="block text-sm font-semibold" x-text="kind.label"></span>
                     <span class="mt-0.5 block text-xs text-site-muted" x-text="kind.hint"></span>
                 </button>
+            </template>
+        </div>
+    </section>
+
+    {{-- Idioma de la invitación: sus textos y botones salen en él; lo que escribe el cliente no se traduce --}}
+    <section class="admin-card space-y-3 p-4">
+        <div>
+            <h3 class="text-sm font-semibold">Idioma de la invitación</h3>
+            <p class="mt-0.5 text-xs text-site-muted">Los textos y botones que trae la invitación salen en este idioma, y los ejemplos de cada parte también. Lo que escribas tú queda como lo escribas; tus invitados pueden traducirla con su navegador a cualquier otro idioma.</p>
+        </div>
+        <div class="grid grid-cols-2 gap-2" role="radiogroup" aria-label="Idioma de la invitación">
+            <template x-for="option in (config.localeOptions ?? [])" :key="option.value">
+                <button type="button" role="radio" @click="meta.locale = option.value"
+                    :aria-checked="(meta.locale === option.value).toString()"
+                    class="rounded-[12px] border p-3 text-left text-sm font-semibold transition-colors"
+                    :class="meta.locale === option.value ? 'border-site-ink bg-site-bg' : 'border-site-line hover:bg-site-bg'"
+                    x-text="option.label"></button>
             </template>
         </div>
     </section>
@@ -130,7 +147,10 @@
                     x-text="error || 'En 24 horas, por ejemplo 18:30'">En 24 horas, por ejemplo 18:30</p>
             </div>
         </div>
-        @include('admin.partials.date-field', ['id' => 'expires-at', 'label' => 'El enlace deja de funcionar el', 'model' => 'meta.expires_at'])
+        {{-- En «Hazlo tú» el vencimiento va solo con la fecha del evento (App\Support\DiyInvitations::expiresAt) --}}
+        @if(($editorMode ?? 'admin') !== 'diy')
+            @include('admin.partials.date-field', ['id' => 'expires-at', 'label' => 'El enlace deja de funcionar el', 'model' => 'meta.expires_at'])
+        @endif
     </section>
 
     {{-- Cliente: solo en el editor del administrador; el revendedor es siempre el dueño de lo que crea --}}

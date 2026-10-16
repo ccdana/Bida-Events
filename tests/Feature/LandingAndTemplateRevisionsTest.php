@@ -5,7 +5,6 @@ namespace Tests\Feature;
 use App\Http\Controllers\HomeController;
 use App\Services\InvitationModuleService;
 use App\Support\ColorContrast;
-use App\Support\InvitationDefaults;
 use App\Support\InvitationTemplates;
 use App\Support\ShowcaseDemos;
 use App\Support\TrendTemplates;
@@ -182,11 +181,6 @@ class LandingAndTemplateRevisionsTest extends TestCase
         $this->assertSame(TrendTemplates::key('cuento', 'xv'), $carta->fresh()->template);
         $this->assertSame(TrendTemplates::key('zapatos', 'xv'), $galeria->fresh()->template);
         $this->assertSame(TrendTemplates::key('zapatos', 'xv'), $caleidoscopio->fresh()->template);
-
-        // Un nombre viejo que llegue por otro lado (una sesión, un enlace del editor) también se resuelve
-        $this->assertSame(TrendTemplates::key('cuento', 'xv'), InvitationDefaults::resolveTemplate('invitations.templates.xv-carta-de-baile'));
-        $this->assertSame(TrendTemplates::key('zapatos', 'xv'), InvitationDefaults::resolveTemplate('invitations.templates.xv-galeria'));
-        $this->assertSame(TrendTemplates::key('zapatos', 'xv'), InvitationDefaults::resolveTemplate('invitations.templates.xv-caleidoscopio'));
 
         $this->withoutVite()->get(route('invitation.show', $carta->slug))->assertOk()->assertSee('inv-page inv-cuento', false);
         $this->withoutVite()->get(route('invitation.show', $caleidoscopio->slug))->assertOk()->assertSee('inv-page inv-zapatos', false);

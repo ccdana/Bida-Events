@@ -23,17 +23,17 @@
     };
     $padrinos = array_values(array_filter($data['padrinos'] ?? [], fn ($padrino) => !empty($padrino['nombres'] ?? null)));
     $groups = array_filter([
-        ($invCopy['court_men'] ?? 'Familia') => array_values(array_filter(array_map($normalizePerson, $data['chambelanes'] ?? []), fn ($person) => $person['nombre'] !== '')),
-        ($invCopy['court_women'] ?? 'Compañeros') => array_values(array_filter(array_map($normalizePerson, $data['damitas'] ?? []), fn ($person) => $person['nombre'] !== '')),
+        ($invCopy['court_men'] ?? __('Familia')) => array_values(array_filter(array_map($normalizePerson, $data['chambelanes'] ?? []), fn ($person) => $person['nombre'] !== '')),
+        ($invCopy['court_women'] ?? __('Compañeros')) => array_values(array_filter(array_map($normalizePerson, $data['damitas'] ?? []), fn ($person) => $person['nombre'] !== '')),
     ]);
 @endphp
 
 <section class="inv-section reveal br-medals-section" id="destacados">
     <div class="inv-wrap">
         @include('invitations.partials.section-header', [
-            'eyebrow' => $invCopy['court_eyebrow'] ?? 'Quienes me acompañaron',
-            'title' => $invCopy['court_title'] ?? 'Gracias a ustedes',
-            'intro' => $invCopy['court_intro'] ?? 'Las personas que hicieron posible este logro.',
+            'eyebrow' => $invCopy['court_eyebrow'] ?? __('Quienes me acompañaron'),
+            'title' => $invCopy['court_title'] ?? __('Gracias a ustedes'),
+            'intro' => $invCopy['court_intro'] ?? __('Las personas que hicieron posible este logro.'),
         ])
 
         @if(count($padrinos) || count($groups))
@@ -74,7 +74,7 @@
                 </div>
             @endforeach
         @else
-            <p class="inv-empty">{{ $invCopy['court_empty'] ?? 'Pronto presentaré a quienes me acompañaron.' }}</p>
+            <p class="inv-empty">{{ $invCopy['court_empty'] ?? __('Pronto presentaré a quienes me acompañaron.') }}</p>
         @endif
     </div>
 </section>

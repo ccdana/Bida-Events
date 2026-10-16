@@ -27,7 +27,7 @@
     }, $bookHtml);
 @endphp
 
-<div class="nb-book" data-notebook data-start="{{ empty($isPreview) ? 0 : 1 }}" aria-label="Libro de aventuras">
+<div class="nb-book" data-notebook data-start="{{ empty($isPreview) ? 0 : 1 }}" aria-label="{{ __('Libro de aventuras') }}">
     <div class="nb-book__pages" data-nb-pages>
         @include('invitations.partials.aventura.pages.tapa')
         {!! $bookHtml !!}
@@ -39,10 +39,10 @@
         avanzar y hacia la derecha para volver; también con las flechas del teclado. Sin botones.
     --}}
     <div class="nb-controls" data-needs-js data-nb-controls>
-        <p class="nb-controls__status" data-nb-status aria-live="polite">Tapa</p>
+        <p class="nb-controls__status" data-nb-status aria-live="polite">{{ __('Tapa') }}</p>
         <p class="nb-controls__hint" data-nb-hint>
-            <span class="nb-hint-touch">Desliza la hoja con el dedo: a la izquierda para seguir, a la derecha para volver</span>
-            <span class="nb-hint-mouse">Arrastra la hoja con el mouse (o usa las flechas ← →) para pasarla</span>
+            <span class="nb-hint-touch">{{ __('Desliza la hoja con el dedo: a la izquierda para seguir, a la derecha para volver') }}</span>
+            <span class="nb-hint-mouse">{{ __('Arrastra la hoja con el mouse (o usa las flechas ← →) para pasarla') }}</span>
         </p>
     </div>
 
@@ -51,7 +51,7 @@
         <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 26V11a3 3 0 0 1 6 0v12m0-2a3 3 0 0 1 6 0v3m0-1a3 3 0 0 1 6 0v3m0-1a3 3 0 0 1 6 0v8c0 7-5 12-12 12h-3c-4 0-7-2-9-5l-7-10a3 3 0 0 1 5-4l2 3"/></svg>
     </div>
     <p class="nb-view-all" data-needs-js>
-        <a href="?hojas=todas" data-nb-all>Ver todas las hojas</a>
-        <a href="?" data-nb-book hidden>Volver al libro</a>
+        <a href="?hojas=todas" data-nb-all>{{ __('Ver todas las hojas') }}</a>
+        <a href="?" data-nb-book hidden>{{ __('Volver al libro') }}</a>
     </p>
 </div>

@@ -11,8 +11,8 @@
 <section class="inv-section reveal rv-agenda-section" id="itinerario">
     <div class="inv-wrap inv-wrap--wide">
         @include('invitations.partials.section-header', [
-            'eyebrow' => $invCopy['itinerary_eyebrow'] ?? 'Agenda',
-            'title' => $data['titulo'] ?? 'Itinerario',
+            'eyebrow' => $invCopy['itinerary_eyebrow'] ?? __('Agenda'),
+            'title' => $data['titulo'] ?? __('Itinerario'),
         ])
 
         @if(count($eventos) > 0)
@@ -20,7 +20,7 @@
                 @foreach($eventos as $index => $evento)
                     <li @class(['rv-listing', 'is-pick' => $index === 0]) data-step style="--step: {{ $index }}">
                         @if($index === 0)
-                            <span class="rv-listing__pick">{{ $invCopy['mag_pick'] ?? 'Imperdible' }}</span>
+                            <span class="rv-listing__pick">{{ $invCopy['mag_pick'] ?? __('Imperdible') }}</span>
                         @endif
                         @if(!empty($evento['hora']))
                             <time class="rv-listing__time">{{ $evento['hora'] }}</time>
@@ -33,7 +33,7 @@
                 @endforeach
             </ol>
         @else
-            <p class="inv-empty">{{ $invCopy['itinerary_empty'] ?? 'Muy pronto publicaremos la agenda del día.' }}</p>
+            <p class="inv-empty">{{ $invCopy['itinerary_empty'] ?? __('Muy pronto publicaremos la agenda del día.') }}</p>
         @endif
     </div>
 </section>

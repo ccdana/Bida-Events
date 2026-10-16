@@ -114,4 +114,17 @@ return [
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Registro desde el sitio
+    |--------------------------------------------------------------------------
+    |
+    | Con false nadie puede abrir una cuenta nueva (ni con correo ni con Google):
+    | solo entran las cuentas que ya existen. Se enciende junto con los pagos,
+    | para que quien se registre pueda elegir y pagar su plan.
+    |
+    */
+
+    'registration' => (bool) env('AUTH_REGISTRATION', true),
+
 ];

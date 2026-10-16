@@ -32,14 +32,14 @@
     @click="water()"
     role="dialog"
     aria-modal="true"
-    aria-label="{{ $introTo ? 'Carta para '.$introTo : 'Una carta para ti' }}">
+    aria-label="{{ $introTo ? __('Carta para :introTo', ['introTo' => $introTo]) : __('Una carta para ti') }}">
     <span class="inv-bloom__sun" aria-hidden="true"></span>
 
     <div class="inv-bloom">
-        <p class="inv-bloom__eyebrow">{{ $introFrom ? 'Tienes una carta de '.$introFrom : 'Tienes una carta' }}</p>
+        <p class="inv-bloom__eyebrow">{{ $introFrom ? __('Tienes una carta de :introFrom', ['introFrom' => $introFrom]) : __('Tienes una carta') }}</p>
 
         <button type="button" class="inv-bloom__stage" data-cover-trigger
-            :aria-label="drops < 3 ? `Regar la flor (faltan ${3 - drops} toques)` : 'La flor se abrió'">
+            :aria-label="drops < 3 ? `Regar la flor (faltan ${3 - drops} toques)` : @js(__('La flor se abrió'))">
             <span class="inv-bloom__drops" x-ref="sky" aria-hidden="true"></span>
 
             <svg class="inv-bloom__art" viewBox="0 0 240 300" aria-hidden="true">
@@ -132,11 +132,11 @@
                         <i :class="{ 'is-full': drops >= {{ $drop }} }"></i>
                     @endfor
                 </span>
-                <span x-text="drops === 0 ? @js($invCopy['intro_hint'] ?? 'Riégalo con tres toques') : (drops === 1 ? 'Otra gotita…' : '¡Una más!')">{{ $invCopy['intro_hint'] ?? 'Riégalo con tres toques' }}</span>
+                <span x-text="drops === 0 ? @js($invCopy['intro_hint'] ?? __('Riégalo con tres toques')) : (drops === 1 ? 'Otra gotita…' : '¡Una más!')">{{ $invCopy['intro_hint'] ?? __('Riégalo con tres toques') }}</span>
             </p>
-            <p class="inv-bloom__to" x-show="drops >= 3" x-cloak>{{ $introTo ? 'Para '.$introTo : 'Para ti' }}</p>
+            <p class="inv-bloom__to" x-show="drops >= 3" x-cloak>{{ $introTo ? __('Para :introTo', ['introTo' => $introTo]) : __('Para ti') }}</p>
         </div>
 
-        <button type="button" class="inv-bloom__skip" x-show="drops < 3" @click.stop="bloomNow()">Abrir sin esperar</button>
+        <button type="button" class="inv-bloom__skip" x-show="drops < 3" @click.stop="bloomNow()">{{ __('Abrir sin esperar') }}</button>
     </div>
 </div>

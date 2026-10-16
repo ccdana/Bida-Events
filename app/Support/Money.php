@@ -17,13 +17,14 @@ final class Money
         return self::symbol($currency).' '.self::number($amount);
     }
 
-    /** Solo el número, con coma decimal cuando hace falta: 29, 1.200, 29,50. */
+    /** Solo el número, con los separadores del idioma: 29, 1.200, 29,50 (en inglés: 1,200 y 29.50). */
     public static function number(int|float|string|null $amount): string
     {
         $value = (float) $amount;
         $decimals = floor($value) === $value ? 0 : 2;
+        [$decimal, $thousands] = Localization::numberSeparators();
 
-        return number_format($value, $decimals, ',', '.');
+        return number_format($value, $decimals, $decimal, $thousands);
     }
 
     public static function symbol(?string $currency = null): string

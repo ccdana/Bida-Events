@@ -8,10 +8,10 @@
     $names = $page->names();
     $first = $names[0] ?? $page->displayName;
     $second = $names[1] ?? null;
-    $heroEyebrow = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? 'Nos casamos');
+    $heroEyebrow = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? __('Nos casamos'));
     $heroMessage = $page->welcome['mensaje'] ?? '';
     $heroDay = ($page->welcome['fecha_texto'] ?? null)
-        ?: $page->eventDate->locale('es')->translatedFormat('j \d\e F \d\e Y');
+        ?: $page->eventDate->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('j \d\e F \d\e Y'));
 @endphp
 
 <header id="inicio" class="inv-hero dc-hero">
@@ -29,7 +29,7 @@
         <h1 class="dc-names">
             <span class="dc-name dc-name--a inv-fade-up inv-fade-up--1">{{ $first }}</span>
             @if($second)
-                <span class="dc-name__and">y</span>
+                <span class="dc-name__and">{{ __('y') }}</span>
                 <span class="dc-name dc-name--b inv-fade-up inv-fade-up--2">{{ $second }}</span>
             @endif
         </h1>
@@ -55,7 +55,7 @@
     </div>
 
     <div class="dc-hero__details inv-fade-up inv-fade-up--3">
-        <p class="dc-hero__meet">{{ $invCopy['hero_meet'] ?? 'Nuestros caminos se juntan el' }}</p>
+        <p class="dc-hero__meet">{{ $invCopy['hero_meet'] ?? __('Nuestros caminos se juntan el') }}</p>
         <p class="dc-hero__date">{{ $heroDay }}</p>
         <p class="dc-hero__where">
             <span>{{ $page->eventDate->format('H:i') }}</span>
@@ -69,7 +69,7 @@
     </div>
 
     <a href="#contenido" class="inv-hero__scroll dc-hero__scroll">
-        {{ $invCopy['scroll_hint'] ?? 'Desliza' }}
+        {{ $invCopy['scroll_hint'] ?? __('Desliza') }}
         <span class="inv-hero__scroll-line" aria-hidden="true"></span>
     </a>
 </header>

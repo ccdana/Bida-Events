@@ -24,7 +24,7 @@
         $monthStart = $since->copy()->startOfMonth();
         $leadingBlanks = $monthStart->dayOfWeekIso - 1;
         $weekdays = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
-        $weekdayNames = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo'];
+        $weekdayNames = ['lunes', 'martes', __('miércoles'), 'jueves', 'viernes', __('sábado'), 'domingo'];
 
         // Próximo mes cumplido: el mismo día del mes (o el último, si el mes es más corto)
         $nextMonthly = null;
@@ -42,24 +42,24 @@
         $daysToNext = $nextMonthly ? (int) $today->diffInDays($nextMonthly) : null;
         $nextCount = $monthsTogether + ($daysToNext === 0 ? 0 : 1);
         $units = array_values(array_filter([
-            ['value' => $elapsed->y, 'label' => $elapsed->y === 1 ? 'año' : 'años'],
-            ['value' => $elapsed->m, 'label' => $elapsed->m === 1 ? 'mes' : 'meses'],
-            ['value' => $elapsed->d, 'label' => $elapsed->d === 1 ? 'día' : 'días'],
+            ['value' => $elapsed->y, 'label' => $elapsed->y === 1 ? __('año') : __('años')],
+            ['value' => $elapsed->m, 'label' => $elapsed->m === 1 ? __('mes') : __('meses')],
+            ['value' => $elapsed->d, 'label' => $elapsed->d === 1 ? __('día') : __('días')],
         ], fn (array $unit, int $index) => $unit['value'] > 0 || $index === 2, ARRAY_FILTER_USE_BOTH));
     @endphp
 
     <article class="nb-page nb-page--grid nb-anniversary" data-nb-page id="juntos-desde" data-nb-count>
         <div class="nb-page__inner">
-            <p class="nb-eyebrow">Nuestro mes de aniversario</p>
+            <p class="nb-eyebrow">{{ __('Nuestro mes de aniversario') }}</p>
 
             <div class="nb-calendar">
                 <span class="nb-tape nb-tape--a" aria-hidden="true"></span>
                 <p class="nb-calendar__month">
-                    {{ \Illuminate\Support\Str::ucfirst($since->locale('es')->translatedFormat('F')) }}
+                    {{ \Illuminate\Support\Str::ucfirst($since->locale(app()->getLocale())->translatedFormat('F')) }}
                     <span>{{ $since->year }}</span>
                 </p>
                 <table class="nb-calendar__grid">
-                    <caption class="sr-only">{{ \Illuminate\Support\Str::ucfirst($since->locale('es')->translatedFormat('F \d\e Y')) }}</caption>
+                    <caption class="sr-only">{{ \Illuminate\Support\Str::ucfirst($since->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('F \d\e Y'))) }}</caption>
                     <thead>
                         <tr>
                             @foreach($weekdays as $index => $weekday)
@@ -92,10 +92,10 @@
             </div>
 
             <p class="nb-hand nb-anniversary__since">
-                El {{ $since->locale('es')->translatedFormat('j \d\e F \d\e Y') }} empezó nuestra aventura
+                {{ __('El :date empezó nuestra aventura', ['date' => $since->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('j \d\e F \d\e Y'))]) }}
             </p>
 
-            <p class="nb-anniversary__label">{{ ($data['titulo'] ?? null) ?: 'Llevamos juntos' }}</p>
+            <p class="nb-anniversary__label">{{ ($data['titulo'] ?? null) ?: __('Llevamos juntos') }}</p>
             <div class="nb-anniversary__units">
                 @foreach($units as $unit)
                     <p class="nb-anniversary__unit">
@@ -106,11 +106,11 @@
             </div>
 
             <p class="nb-anniversary__note">
-                <span data-count-to="{{ $totalDays }}" data-count-format="thousands">{{ number_format($totalDays, 0, ',', '.') }}</span> días de aventuras
+                <span data-count-to="{{ $totalDays }}" data-count-format="thousands">{{ number_format($totalDays, 0, ',', '.') }}</span> {{ __('días de aventuras') }}
                 @if($daysToNext === 0 && $monthsTogether > 0)
-                    · ¡hoy cumplimos {{ $monthsTogether }} {{ $monthsTogether === 1 ? 'mes' : 'meses' }}!
+                    {{ $monthsTogether === 1 ? __('· ¡hoy cumplimos 1 mes!') : __('· ¡hoy cumplimos :count meses!', ['count' => $monthsTogether]) }}
                 @elseif($daysToNext !== null && $nextCount > 0)
-                    · faltan {{ $daysToNext }} {{ $daysToNext === 1 ? 'día' : 'días' }} para los {{ $nextCount }} {{ $nextCount === 1 ? 'mes' : 'meses' }}
+                    {{ __('· faltan :days para los :count meses', ['days' => $daysToNext === 1 ? __('1 día') : __(':count días', ['count' => $daysToNext]), 'count' => $nextCount]) }}
                 @endif
             </p>
         </div>

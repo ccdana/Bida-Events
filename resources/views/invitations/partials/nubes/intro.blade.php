@@ -5,8 +5,8 @@
     Lógica en shell/cover-component; estilos en themes/nubes.css.
 --}}
 @php
-    $introEyebrow = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? 'Mi bautizo');
-    $introDate = \Illuminate\Support\Str::ucfirst($page->eventDate->locale('es')->translatedFormat('j \d\e F \d\e Y'));
+    $introEyebrow = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? __('Mi bautizo'));
+    $introDate = \Illuminate\Support\Str::ucfirst($page->eventDate->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('j \d\e F \d\e Y')));
     // Capas de nubes: [lado, fila, profundidad]; las de adelante tapan más y se van más lejos
     $banks = [
         ['left', 'top', 'back'], ['right', 'top', 'back'],
@@ -22,7 +22,7 @@
     @click="open()"
     role="dialog"
     aria-modal="true"
-    aria-label="Invitación al bautizo de {{ $page->displayName }}">
+    aria-label="{{ __('Invitación al bautizo de :displayName', ['displayName' => $page->displayName]) }}">
     <span class="nb-intro__sky" aria-hidden="true"></span>
     <span class="nb-intro__sun" aria-hidden="true"></span>
     <span class="nb-intro__rays" aria-hidden="true"></span>
@@ -41,13 +41,13 @@
     <div class="nb-intro__content">
         <p class="nb-intro__eyebrow">
             @if($guest)
-                Para {{ $guest->name }}
+                {{ __('Para :name', ['name' => $guest->name]) }}
             @else
                 {{ $introEyebrow }}
             @endif
         </p>
 
-        <button type="button" class="nb-puff" data-cover-trigger aria-label="Abrir las nubes y entrar a la invitación">
+        <button type="button" class="nb-puff" data-cover-trigger aria-label="{{ __('Abrir las nubes y entrar a la invitación') }}">
             @include('invitations.partials.nubes.cloud', ['class' => 'nb-puff__cloud', 'shade' => true])
             {{-- El nombre llena la panza de la nube (data-fit mide la caja de __label) --}}
             <span class="nb-puff__label">
@@ -60,6 +60,6 @@
         </button>
 
         <p class="nb-intro__date">{{ $introDate }}</p>
-        <p class="nb-intro__hint">{{ $invCopy['intro_hint'] ?? 'Toca la nube para abrir el cielo' }}</p>
+        <p class="nb-intro__hint">{{ $invCopy['intro_hint'] ?? __('Toca la nube para abrir el cielo') }}</p>
     </div>
 </div>

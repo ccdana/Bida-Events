@@ -5,10 +5,10 @@
     cosida a mano, el lugar y el mensaje. Estilos en css/invitation/tendencias/bordado.css.
 --}}
 @php
-    $heroKicker = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['intro_eyebrow'] ?? 'Bordado con amor');
+    $heroKicker = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['intro_eyebrow'] ?? __('Bordado con amor'));
     $heroMessage = $page->welcome['mensaje'] ?? '';
     $heroDay = ($page->welcome['fecha_texto'] ?? null)
-        ?: \Illuminate\Support\Str::ucfirst($page->eventDate->locale('es')->translatedFormat('l j \d\e F \d\e Y'));
+        ?: \Illuminate\Support\Str::ucfirst($page->eventDate->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('l j \d\e F \d\e Y')));
 
     // La corona: hojitas a lo largo del tallo, alternando hacia afuera y hacia adentro
     $wreathLeaves = [];
@@ -56,7 +56,7 @@
     {{-- La fecha, en una etiqueta de tela cosida con pespunte --}}
     <p class="bd-tag inv-fade-up inv-fade-up--3">
         <span class="bd-tag__day">{{ $heroDay }}</span>
-        <span class="bd-tag__time">a las {{ $page->eventDate->format('H:i') }}</span>
+        <span class="bd-tag__time">{{ __('a las :date', ['date' => $page->eventDate->format('H:i')]) }}</span>
     </p>
 
     @if($page->placeName)
@@ -68,7 +68,7 @@
     @endif
 
     <a href="#contenido" class="inv-hero__scroll bd-hero__scroll">
-        {{ $invCopy['scroll_hint'] ?? 'Desliza' }}
+        {{ $invCopy['scroll_hint'] ?? __('Desliza') }}
         <span class="inv-hero__scroll-line" aria-hidden="true"></span>
     </a>
 </header>

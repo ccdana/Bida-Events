@@ -2,23 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use App\Support\InvitationTemplates;
+use App\Support\DiyPlans;
 use App\Support\LeadSource;
 use App\Support\LegalPages;
 use App\Support\Money;
 use App\Support\Offers;
+use App\Support\PricingPage;
 use App\Support\ShareMeta;
-use App\Support\ShowcaseDemos;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 /**
- * Páginas públicas que no son de un evento: «Hazlo tú» (planes mensuales para crear invitaciones
+ * Páginas públicas que no son de un evento: «Únete» (planes mensuales para crear invitaciones
  * propias) y las legales (privacidad, cookies y términos).
  */
 class PublicPagesController extends Controller
 {
-    /** Código de WhatsApp de la página «Hazlo tú» («Ref. HAZLO-…»). */
+    /** Código de WhatsApp de la página «Únete» («Ref. HAZLO-…»). */
     public const DIY_CODE = 'HAZLO';
 
     /** Precio de ejemplo al que se vende una invitación, para la tabla «Cuentas claras». (Supuesto) */
@@ -30,49 +30,47 @@ class PublicPagesController extends Controller
     public const GUIDE_UPDATED_AT = '2026-09-24';
 
     /**
-     * «Hazlo tú»: planes mensuales para armar invitaciones propias (revendedores). Qué se obtiene en
-     * detalle, para quién sirve, cuentas claras con un ejemplo y los planes con su precio de hoy
-     * (config «bida.reseller_plans» con lo que el administrador cambió en Ajustes, descuentos incluidos).
+     * «Únete»: el plan mensual para armar invitaciones propias y venderlas (revendedores) es lo
+     * principal; que el equipo se las haga («paquetes») es lo secundario. Los precios salen de la
+     * config «bida.reseller_plans» con lo que el administrador cambió en Ajustes (descuentos
+     * incluidos); el precio de venta de ejemplo solo se usa en las preguntas.
      */
     public function diy(Request $request): View
     {
         $bida = config('bida');
         $whatsapp = fn (string $message): string => LeadSource::whatsappUrl($request, $message, self::DIY_CODE);
-        $templates = collect(InvitationTemplates::all());
+        $diy = DiyPlans::make($request, self::DIY_CODE);
+        $plans = $diy['plans'];
 
-        $plans = collect(Offers::resellerPlans())->map(fn (array $plan, string $key): array => $plan + [
-            'key' => $key,
-            'templates_count' => $templates->filter(fn (array $template) => in_array($template['collection'] ?? 'clasica', $plan['collections'] ?? [], true))->count(),
-            // Cuánto sale cada invitación si se usa todo el cupo del mes
-            'cost_per_invitation' => $plan['quota_per_month'] ? round($plan['final_price'] / $plan['quota_per_month'], 2) : null,
-            'example_margin' => $plan['quota_per_month'] ? $plan['quota_per_month'] * self::EXAMPLE_RESALE_PRICE - $plan['final_price'] : null,
-            'whatsapp' => $whatsapp("Hola {brand}, quiero el plan {$plan['name']} de Hazlo tú (".Money::format($plan['final_price']).' al mes).'),
-        ])->values()->all();
-
-        return view('hazlo-tu', [
+        return view('unete', [
             'bida' => $bida,
             'user' => $request->user(),
             'plans' => $plans,
-            // El que se destaca: el primero con marca propia, el que más conviene a quien vende invitaciones
-            'featuredPlan' => collect($plans)->firstWhere('white_label', true)['key'] ?? null,
-            'collections' => [
-                'lienzo' => ['label' => 'Plantilla en blanco', 'templates' => $templates->where('collection', 'lienzo')->pluck('label')->all()],
-                'clasica' => ['label' => 'Plantillas clásicas', 'templates' => $templates->where('collection', 'clasica')->pluck('label')->all()],
-                'temporada' => ['label' => 'Plantillas de temporada', 'templates' => $templates->where('collection', 'temporada')->pluck('label')->all()],
-                // Las que se suman durante el año; mientras no haya, la página dice que llegan
-                'nueva' => ['label' => 'Plantillas nuevas de cada evento', 'templates' => $templates->where('collection', 'nueva')->pluck('label')->all()],
-            ],
-            'demo' => ShowcaseDemos::find($bida['professionals']['demos'] ?? [])[0] ?? null,
+            'featuredPlan' => $diy['featuredPlan'],
+            // Pagar 3 o 12 meses de una vez, con su descuento (el selector de la página de planes)
+            'planCycles' => $diy['cycles'],
+            'collections' => $diy['collections'],
+            // Lo secundario: que el equipo haga la invitación (pago único por invitación)
+            'packages' => HomeController::packages($bida['packages'], $whatsapp),
             'examplePrice' => self::EXAMPLE_RESALE_PRICE,
-            'contactUrl' => $whatsapp('Hola {brand}, quiero saber cómo funciona Hazlo tú para armar mis propias invitaciones.'),
+            'contactUrl' => $whatsapp(__('Hola {brand}, quiero saber cómo funciona Únete para armar mis propias invitaciones.')),
             'landings' => HomeController::landingLinks(),
             'share' => ShareMeta::make(
-                "Hazlo tú: crea tus propias invitaciones digitales | {$bida['brand']}",
-                'Tu propio panel para crear invitaciones digitales con plantillas profesionales, confirmación de asistencia, pase QR y control de entrada. Planes mensuales desde '.Money::format(collect($plans)->min('final_price')).', sin comisión por invitación.',
+                __('Únete: haz tus propias invitaciones digitales y véndelas con tu marca | :brand', ['brand' => $bida['brand']]),
+                __('Arma tus propias invitaciones digitales con plantillas profesionales, para tu evento o para vender con tu marca. Desde :price al mes, sin comisión por invitación.', ['price' => Money::format(collect($plans)->min('final_price'))]),
                 ShareMeta::defaultImage(),
-                route('diy'),
+                lroute('diy'),
             ),
         ]);
+    }
+
+    /**
+     * Precios: las tres formas de tener la invitación lado a lado (Hazlo tú, Planes y Te la hacemos),
+     * la comparación de los niveles y las preguntas. Los datos los arma App\Support\PricingPage.
+     */
+    public function pricing(Request $request): View
+    {
+        return view('precios', PricingPage::make($request));
     }
 
     /**
@@ -91,13 +89,13 @@ class PublicPagesController extends Controller
             'packages' => $packages,
             'plans' => Offers::resellerPlans(),
             'landings' => HomeController::landingLinks(),
-            'contactUrl' => LeadSource::whatsappUrl($request, 'Hola {brand}, leí la guía y quiero mi invitación digital.', self::GUIDE_CODE),
+            'contactUrl' => LeadSource::whatsappUrl($request, __('Hola {brand}, leí la guía y quiero mi invitación digital.'), self::GUIDE_CODE),
             'updatedAt' => self::GUIDE_UPDATED_AT,
             'share' => ShareMeta::make(
-                "Invitaciones digitales: qué son, cuánto cuestan y cómo elegir | {$bida['brand']}",
-                'Guía clara para elegir tu invitación digital: qué debe incluir, precios de referencia desde '.Money::format(collect($packages)->min('final_price')).', confirmación de asistencia y control de entrada con código QR.',
+                __('Invitaciones digitales: qué son, cuánto cuestan y cómo elegir | :brand', ['brand' => $bida['brand']]),
+                __('Guía clara para elegir tu invitación digital: qué debe incluir, precios de referencia desde :price, confirmación de asistencia y control de entrada con código QR.', ['price' => Money::format(collect($packages)->min('final_price'))]),
                 ShareMeta::defaultImage(),
-                route('guide'),
+                lroute('guide'),
             ),
         ]);
     }
@@ -115,13 +113,13 @@ class PublicPagesController extends Controller
             'slug' => $page,
             'content' => $content,
             'updatedAt' => $bida['legal']['updated_at'] ?? null,
-            'contactUrl' => LeadSource::whatsappUrl($request, 'Hola {brand}, tengo una consulta sobre mis datos.', LeadSource::HOME),
+            'contactUrl' => LeadSource::whatsappUrl($request, __('Hola {brand}, tengo una consulta sobre mis datos.'), LeadSource::HOME),
             'landings' => HomeController::landingLinks(),
             'share' => ShareMeta::make(
                 "{$content['title']} | {$bida['brand']}",
                 $content['description'],
                 ShareMeta::defaultImage(),
-                route('legal', $page),
+                lroute('legal', $page),
             ),
         ]);
     }

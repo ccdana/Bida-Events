@@ -32,7 +32,7 @@ class ClientController extends Controller
                 ->orWhere('username', 'like', "%{$search}%")))
             ->with([
                 'createdByReseller:id,name,business_name',
-                'invitations' => fn ($query) => $query->select('id', 'user_id', 'reseller_id', 'title', 'slug', 'event_date', 'status')->latest('event_date'),
+                'invitations' => fn ($query) => $query->select('id', 'user_id', 'reseller_id', 'is_diy', 'package', 'title', 'slug', 'event_date', 'status')->latest('event_date'),
             ])
             ->orderBy('name')
             ->paginate(30)

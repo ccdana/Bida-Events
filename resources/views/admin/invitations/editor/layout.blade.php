@@ -7,9 +7,79 @@
         </p>
     @endunless
 
-    <div class="flex min-h-0 flex-1">
-        @include('admin.invitations.editor.sidebar')
-        @include('admin.invitations.editor.preview')
+    {{--
+        Editor estilo Canva: a la izquierda las partes que se encienden y apagan (modules); al centro la
+        invitación como lienzo con su barra de herramientas (preview); al tocar un texto o una foto, una
+        burbuja con solo ese campo (panel). Una invitación nueva empieza por el asistente (wizard).
+    --}}
+    <div class="ed-shell relative" :class="{ 'is-guest': guestView, 'is-editing': isEditingPart }">
+        @include('admin.invitations.editor.modules')
+        <div class="ed-canvas" x-ref="canvas" :class="{ 'has-bubble': isBubble }">
+            @include('admin.invitations.editor.preview')
+            @include('admin.invitations.editor.panel')
+        </div>
+        @include('admin.invitations.editor.wizard')
+    </div>
+
+    {{-- Antes de publicar: lo que sigue de ejemplo y lo que falta, con atajo a cada parte --}}
+    <div class="ed-dialog-backdrop" x-show="publishDialog" x-cloak x-transition.opacity
+        @click.self="publishDialog = false" @keydown.escape.window="publishDialog = false">
+        <div class="ed-dialog" role="dialog" aria-modal="true" aria-labelledby="publish-title">
+            <h2 id="publish-title" class="ed-dialog__title">Antes de publicar</h2>
+            <p class="ed-dialog__text" x-show="examplesTotal > 0">
+                Todavía hay cosas de ejemplo en tu invitación. Si no las cambias, tus invitados las verán tal cual.
+            </p>
+            <ul class="ed-dialog__list">
+                <template x-for="item in examplesLeft" :key="'ej-' + item.tab.id">
+                    <li>
+                        <span><strong x-text="item.tab.label"></strong>
+                            <small x-text="item.count === 1 ? '1 cosa de ejemplo' : item.count + ' cosas de ejemplo'"></small></span>
+                        <button type="button" class="ed-dialog__fix" @click="fixPart(item.tab.id)">Cambiar</button>
+                    </li>
+                </template>
+                <template x-for="item in pendingIssues" :key="'pend-' + item.tabId + item.issue">
+                    <li>
+                        <span><strong x-text="item.label"></strong> <small x-text="item.issue"></small></span>
+                        <button type="button" class="ed-dialog__fix" @click="fixPart(item.tabId)">Completar</button>
+                    </li>
+                </template>
+            </ul>
+            <div class="ed-dialog__actions">
+                <button type="button" class="ed-wiz-btn" @click="publishDialog = false">Seguir editando</button>
+                <button type="button" class="ed-wiz-btn ed-wiz-btn--primary" @click="publish()">Publicar igual</button>
+            </div>
+        </div>
+    </div>
+
+    {{-- «Hazlo tú»: de qué depende el nivel de la invitación, con atajo para apagar cada parte que lo sube --}}
+    <div class="ed-dialog-backdrop" x-show="tierDialog" x-cloak x-transition.opacity
+        @click.self="tierDialog = false" @keydown.escape.window="tierDialog = false">
+        <div class="ed-dialog" role="dialog" aria-modal="true" aria-labelledby="tier-title">
+            <h2 id="tier-title" class="ed-dialog__title">Tu invitación hoy: <span x-text="diyTierName(diyRequiredTier)"></span></h2>
+            <p class="ed-dialog__text">
+                Mientras la armas, todo está abierto para que la pruebes. El nivel sale de las partes que dejes
+                encendidas: la gratuita trae la portada, la cuenta regresiva y la ubicación.
+            </p>
+            {{-- El precio entero solo antes de pagar un nivel; subir de nivel cobra la diferencia (página de publicar) --}}
+            <p class="ed-dialog__text" x-show="config.diyTiers?.prices?.[diyRequiredTier] && [null, 'gratis'].includes(config.diyTiers?.paid ?? null)" x-cloak>
+                <span x-text="config.diyTiers?.paid ? 'Subirla a ' + diyTierName(diyRequiredTier) + ' cuesta' : 'Publicarla así cuesta'"></span>
+                <strong x-text="config.diyTiers?.prices?.[diyRequiredTier]"></strong>, un pago único.
+            </p>
+            <p class="ed-dialog__text" x-show="config.diyTiers?.paid" x-cloak>
+                Ya está publicada con el nivel <strong x-text="diyTierName(config.diyTiers?.paid)"></strong>.
+            </p>
+            <ul class="ed-dialog__list" x-show="diyPaidParts.length">
+                <template x-for="part in diyPaidParts" :key="'nivel-' + part.id">
+                    <li>
+                        <span><strong x-text="part.label"></strong> <small x-text="'Desde ' + part.tier"></small></span>
+                        <button type="button" class="ed-dialog__fix" @click="togglePart(flatTabs.find(tab => tab.id === part.id))">Apagar</button>
+                    </li>
+                </template>
+            </ul>
+            <div class="ed-dialog__actions">
+                <button type="button" class="ed-wiz-btn ed-wiz-btn--primary" @click="tierDialog = false">Listo</button>
+            </div>
+        </div>
     </div>
 
     {{--

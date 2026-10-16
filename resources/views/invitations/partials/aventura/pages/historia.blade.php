@@ -21,7 +21,7 @@
 
         $chapters[] = [
             'number' => $chapterIndex + 1,
-            'title' => trim((string) ($chapter['titulo'] ?? '')) ?: 'Capítulo '.($chapterIndex + 1),
+            'title' => trim((string) ($chapter['titulo'] ?? '')) ?: __('Capítulo :value', ['value' => ($chapterIndex + 1)]),
             'date' => $chapterDate,
             'photo' => $hasPhoto ? ['url' => $chapter['foto'], 'alt' => $chapter['alt'] ?? ''] : null,
             'pages' => $chapterPages ?: [''],
@@ -36,8 +36,8 @@
     {{-- Apertura con el índice de capítulos --}}
     <article class="nb-page nb-page--kraft nb-story-open" data-nb-page id="historia">
         <div class="nb-page__inner">
-            <p class="nb-eyebrow">Capítulo por capítulo</p>
-            <h2 class="nb-title nb-title--big">{{ ($data['titulo'] ?? null) ?: 'Nuestra historia' }}</h2>
+            <p class="nb-eyebrow">{{ __('Capítulo por capítulo') }}</p>
+            <h2 class="nb-title nb-title--big">{{ ($data['titulo'] ?? null) ?: __('Nuestra historia') }}</h2>
 
             <ol class="nb-index">
                 @foreach($chapters as $chapter)
@@ -46,7 +46,7 @@
                             <span class="nb-index__number">{{ $chapter['number'] }}</span>
                             <span class="nb-index__title">{{ $chapter['title'] }}</span>
                             @if($chapter['date'])
-                                <span class="nb-index__date">{{ $chapter['date']->locale('es')->translatedFormat('M Y') }}</span>
+                                <span class="nb-index__date">{{ $chapter['date']->locale(app()->getLocale())->translatedFormat('M Y') }}</span>
                             @endif
                         </a>
                     </li>
@@ -69,11 +69,11 @@
                         <header class="nb-chapter__head">
                             @if($chapter['date'])
                                 <p class="nb-stamp">
-                                    <span>{{ $chapter['date']->locale('es')->translatedFormat('j M') }}</span>
+                                    <span>{{ $chapter['date']->locale(app()->getLocale())->translatedFormat('j M') }}</span>
                                     <span>{{ $chapter['date']->year }}</span>
                                 </p>
                             @endif
-                            <p class="nb-chapter__number">Capítulo {{ $chapter['number'] }}</p>
+                            <p class="nb-chapter__number">{{ __('Capítulo :number', ['number' => $chapter['number']]) }}</p>
                             <h3 class="nb-chapter__title">{{ $chapter['title'] }}</h3>
                         </header>
 
@@ -83,7 +83,7 @@
                             </figure>
                         @endif
                     @else
-                        <p class="nb-continued">Capítulo {{ $chapter['number'] }} · continúa</p>
+                        <p class="nb-continued">{{ __('Capítulo :number · continúa', ['number' => $chapter['number']]) }}</p>
                     @endif
 
                     @if(trim($chapterText) !== '')
@@ -97,7 +97,7 @@
                     @endif
 
                     @if($chapterPageIndex < count($chapter['pages']) - 1)
-                        <p class="nb-next">sigue en la próxima hoja ›</p>
+                        <p class="nb-next">{{ __('sigue en la próxima hoja ›') }}</p>
                     @else
                         <p class="nb-chapter__end">@include('invitations.partials.aventura.flower', ['kind' => 'margarita'])</p>
                     @endif

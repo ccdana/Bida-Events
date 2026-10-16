@@ -9,8 +9,8 @@
         : ['nombre' => trim((string) $persona), 'detalle' => null];
     $padrinos = array_values(array_filter($data['padrinos'] ?? [], fn ($padrino) => !empty($padrino['nombres'] ?? null)));
     $family = array_filter([
-        ($invCopy['court_men'] ?? 'Abuelos') => array_values(array_filter(array_map($normalizePerson, $data['chambelanes'] ?? []), fn ($person) => $person['nombre'] !== '')),
-        ($invCopy['court_women'] ?? 'Tías y amigas') => array_values(array_filter(array_map($normalizePerson, $data['damitas'] ?? []), fn ($person) => $person['nombre'] !== '')),
+        ($invCopy['court_men'] ?? __('Abuelos')) => array_values(array_filter(array_map($normalizePerson, $data['chambelanes'] ?? []), fn ($person) => $person['nombre'] !== '')),
+        ($invCopy['court_women'] ?? __('Tías y amigas')) => array_values(array_filter(array_map($normalizePerson, $data['damitas'] ?? []), fn ($person) => $person['nombre'] !== '')),
     ]);
     $initialOf = function (string $names): string {
         $words = array_values(array_filter(preg_split('/\s+/u', trim($names)) ?: [], fn ($word) => ! preg_match('/^(sr|sra|srta|dr|dra|don|doña|lic|ing)\.?$/iu', $word)));
@@ -22,8 +22,8 @@
 <section class="inv-section reveal en-senders-section" id="destacados">
     <div class="inv-wrap">
         @include('invitations.partials.section-header', [
-            'eyebrow' => $invCopy['court_eyebrow'] ?? 'Remitentes',
-            'title' => $invCopy['court_title'] ?? 'Con mucho cariño',
+            'eyebrow' => $invCopy['court_eyebrow'] ?? __('Remitentes'),
+            'title' => $invCopy['court_title'] ?? __('Con mucho cariño'),
             'intro' => $invCopy['court_intro'] ?? null,
         ])
 
@@ -71,7 +71,7 @@
                 </div>
             @endif
         @else
-            <p class="inv-empty">{{ $invCopy['court_empty'] ?? 'Pronto presentaremos a quienes organizan la celebración.' }}</p>
+            <p class="inv-empty">{{ $invCopy['court_empty'] ?? __('Pronto presentaremos a quienes organizan la celebración.') }}</p>
         @endif
     </div>
 </section>

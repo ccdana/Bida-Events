@@ -11,7 +11,7 @@ class GraduationProfile extends EventProfile
 
     public function label(): string
     {
-        return 'Graduación';
+        return __('Graduación');
     }
 
     public function modules(): array
@@ -27,29 +27,29 @@ class GraduationProfile extends EventProfile
     public function heroFields(): array
     {
         return [
-            'nombre' => ['label' => 'Nombre de quien se gradúa', 'placeholder' => 'Ej. Mariana Rojas'],
+            'nombre' => ['label' => __('Nombre de quien se gradúa'), 'placeholder' => __('Ej. Mariana Rojas')],
         ];
     }
 
     public function featuredGroups(): array
     {
         return [
-            'padrinos' => ['Padrinos de promoción', 'Padrino'],
-            'chambelanes' => ['Familia', 'Familiar'],
-            'damitas' => ['Compañeros', 'Compañero'],
+            'padrinos' => [__('Padrinos de promoción'), __('Padrino')],
+            'chambelanes' => [__('Familia'), __('Familiar')],
+            'damitas' => [__('Compañeros'), __('Compañero')],
         ];
     }
 
     public function required(): array
     {
         return [
-            'bienvenida' => ['nombre' => 'Falta el nombre de quien se gradúa', 'imagen_hero' => 'Falta la foto de portada'],
-            'ubicacion' => ['nombre_lugar' => 'Falta el lugar de la fiesta'],
+            'bienvenida' => ['nombre' => __('Falta el nombre de quien se gradúa'), 'imagen_hero' => __('Falta la foto de portada')],
+            'ubicacion' => ['nombre_lugar' => __('Falta el lugar de la fiesta')],
         ];
     }
 
     public function sample(): array
     {
-        return ['name' => 'Mariana Rojas', 'subtitle' => 'Licenciatura en Arquitectura'];
+        return ['name' => __('Mariana Rojas'), 'subtitle' => __('Licenciatura en Arquitectura')];
     }
 }

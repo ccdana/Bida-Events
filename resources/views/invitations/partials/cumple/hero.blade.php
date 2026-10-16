@@ -1,9 +1,9 @@
 {{-- Portada del cumpleaños: banderines, la edad gigante detrás de una foto tipo sticker, globos, nombre que salta y entrada de fiesta --}}
 @php
-    $heroRibbon = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? '¡Celebremos juntos!');
+    $heroRibbon = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? __('¡Celebremos juntos!'));
     $heroMessage = $page->welcome['mensaje'] ?? '';
     $heroDay = ($page->welcome['fecha_texto'] ?? null)
-        ?: \Illuminate\Support\Str::ucfirst($page->eventDate->locale('es')->translatedFormat('l j \d\e F'));
+        ?: \Illuminate\Support\Str::ucfirst($page->eventDate->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('l j \d\e F')));
     $heroAge = $page->age();
     $letterIndex = 0;
 @endphp
@@ -51,7 +51,7 @@
         @endif
 
         <div class="inv-cumple-ticket inv-cumple-pop" style="--d: 0.95s">
-            <span class="inv-cumple-ticket__label">{{ $invCopy['hero_ticket_label'] ?? 'Fiesta' }}</span>
+            <span class="inv-cumple-ticket__label">{{ $invCopy['hero_ticket_label'] ?? __('Fiesta') }}</span>
             <span class="inv-cumple-ticket__main">
                 <span class="inv-cumple-ticket__day">{{ $heroDay }}</span>
                 <span class="inv-cumple-ticket__year">{{ $page->eventDate->format('Y') }}</span>
@@ -60,7 +60,7 @@
         </div>
 
         <a href="#contenido" class="inv-hero__scroll inv-cumple-hero__scroll">
-            {{ $invCopy['scroll_hint'] ?? 'Desliza' }}
+            {{ $invCopy['scroll_hint'] ?? __('Desliza') }}
             <span class="inv-hero__scroll-line" aria-hidden="true"></span>
         </a>
     </div>

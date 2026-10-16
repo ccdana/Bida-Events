@@ -4,6 +4,7 @@ namespace App\ViewModels\Client;
 
 use App\Models\Guest;
 use App\Models\Invitation;
+use App\Support\Localization;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
@@ -58,8 +59,8 @@ class GuestReportData
 
         return [
             'invitation' => $invitation,
-            'eventDateLabel' => $eventDate ? Str::ucfirst($eventDate->locale('es')->translatedFormat('l j \d\e F \d\e Y, H:i')) : '',
-            'generatedAt' => now()->locale('es')->translatedFormat('j \d\e F \d\e Y, H:i'),
+            'eventDateLabel' => $eventDate ? Str::ucfirst($eventDate->locale(app()->getLocale())->translatedFormat(Localization::dateFormat('l j \d\e F \d\e Y, H:i'))) : '',
+            'generatedAt' => now()->locale(app()->getLocale())->translatedFormat(Localization::dateFormat('j \d\e F \d\e Y, H:i')),
             'daysLeft' => $daysLeft,
             'stats' => $stats,
             'rows' => $rows,

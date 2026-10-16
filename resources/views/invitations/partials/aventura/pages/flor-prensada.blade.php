@@ -4,7 +4,7 @@
         <figure class="nb-pressed__flower">
             <span class="nb-tape nb-tape--a" aria-hidden="true"></span>
             @include('invitations.partials.aventura.flower', ['kind' => 'girasol'])
-            <figcaption class="nb-hand">Flor amarilla, para ti</figcaption>
+            <figcaption class="nb-hand">{{ __('Flor amarilla, para ti') }}</figcaption>
         </figure>
     </div>
     <span class="nb-folio"><!--nb-folio--></span>

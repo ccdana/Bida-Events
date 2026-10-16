@@ -15,7 +15,7 @@
     :class="{ 'is-torn': stage >= 1, 'is-open': stage >= 2 }"
     role="dialog"
     aria-modal="true"
-    aria-label="Invitación a la graduación de {{ $page->displayName }}">
+    aria-label="{{ __('Invitación a la graduación de :displayName', ['displayName' => $page->displayName]) }}">
     <span class="rv-awning" aria-hidden="true"></span>
 
     <div class="rv-rack">
@@ -23,15 +23,15 @@
         <span class="rv-rack__issue rv-rack__issue--left" aria-hidden="true"><i></i></span>
         <span class="rv-rack__issue rv-rack__issue--right" aria-hidden="true"><i></i></span>
 
-        <button type="button" class="rv-issue" data-cover-trigger @click="open()" aria-label="Romper la faja y abrir la revista">
+        <button type="button" class="rv-issue" data-cover-trigger @click="open()" aria-label="{{ __('Romper la faja y abrir la revista') }}">
             {{-- Las hojas de adentro: se ven cuando se abre la tapa --}}
             <span class="rv-issue__inside" aria-hidden="true">
-                <span class="rv-issue__inside-title">{{ $invCopy['mag_contents'] ?? 'En esta edición' }}</span>
+                <span class="rv-issue__inside-title">{{ $invCopy['mag_contents'] ?? __('En esta edición') }}</span>
                 <span class="rv-issue__inside-lines"></span>
             </span>
 
             <span class="rv-issue__cover">
-                <span class="rv-issue__masthead">{{ $invCopy['mag_name'] ?? 'Promoción' }}</span>
+                <span class="rv-issue__masthead">{{ $invCopy['mag_name'] ?? __('Promoción') }}</span>
                 <span @class(['rv-issue__photo', 'is-typographic' => ! $page->heroImage])>
                     @if($page->heroImage)
                         @include('invitations.partials.tendencias.photo', ['widths' => [360, 720], 'width' => 720, 'sizes' => '16rem'])
@@ -44,8 +44,8 @@
 
             {{-- La faja: dos mitades que se separan al romperse --}}
             <span class="rv-band" aria-hidden="true">
-                <span class="rv-band__half rv-band__half--left"><span>{{ $invCopy['intro_eyebrow'] ?? 'Edición de colección' }}</span></span>
-                <span class="rv-band__half rv-band__half--right"><span>{{ $invCopy['mag_name'] ?? 'Promoción' }} {{ $introYear }}</span></span>
+                <span class="rv-band__half rv-band__half--left"><span>{{ $invCopy['intro_eyebrow'] ?? __('Edición de colección') }}</span></span>
+                <span class="rv-band__half rv-band__half--right"><span>{{ $invCopy['mag_name'] ?? __('Promoción') }} {{ $introYear }}</span></span>
             </span>
         </button>
 
@@ -53,9 +53,9 @@
 
         @if($guest)
             {{-- La nota pegada al estante: el ejemplar está apartado --}}
-            <p class="rv-intro__guest">{{ $invCopy['guest_banner_eyebrow'] ?? 'Ejemplar reservado para' }} <b>{{ $guest->name }}</b></p>
+            <p class="rv-intro__guest">{{ $invCopy['guest_banner_eyebrow'] ?? __('Ejemplar reservado para') }} <b>{{ $guest->name }}</b></p>
         @endif
     </div>
 
-    <p class="rv-intro__hint">{{ $invCopy['intro_hint'] ?? 'Toca para romper la faja' }}</p>
+    <p class="rv-intro__hint">{{ $invCopy['intro_hint'] ?? __('Toca para romper la faja') }}</p>
 </div>

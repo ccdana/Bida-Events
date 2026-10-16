@@ -38,7 +38,7 @@ final class ShareMeta
         ];
     }
 
-    /** El logo de Bida: portada del sitio, páginas por evento, «Hazlo tú», guía y páginas legales. */
+    /** El logo de Bida: portada del sitio, páginas por evento, «Únete», guía y páginas legales. */
     public static function defaultImage(): string
     {
         return asset(self::DEFAULT_IMAGE);
@@ -53,7 +53,7 @@ final class ShareMeta
     {
         $eyebrow = ($page->welcome['subtitulo'] ?? null)
             ?: ($page->copy['hero_eyebrow'] ?? null)
-            ?: 'Mis XV años';
+            ?: __('Mis XV años');
 
         $guest = $personal ? $page->guest : null;
 
@@ -63,7 +63,7 @@ final class ShareMeta
 
         // Neutro en persona: sirve igual para «Mis XV años» que para «Nos casamos»
         $title = $guest
-            ? "{$page->displayName} · Invitación para {$guest->name}"
+            ? __(':displayName · Invitación para :name', ['displayName' => $page->displayName, 'name' => $guest->name])
             : "{$page->displayName} · {$eyebrow}";
 
         $description = collect([$guest ? $eyebrow : null, $page->eventLabel, $page->placeName])->filter()->implode(' · ');
@@ -86,10 +86,10 @@ final class ShareMeta
         $to = trim((string) ($page->dedication['para'] ?? '')) ?: $guestName;
         $from = trim((string) ($page->dedication['de'] ?? ''));
 
-        $title = collect([$to ? "Para {$to}" : null, $from !== '' ? "de {$from}" : null])->filter()->implode(', ')
+        $title = collect([$to ? __('Para :to', ['to' => $to]) : null, $from !== '' ? __('de :from', ['from' => $from]) : null])->filter()->implode(', ')
             ?: $page->displayName;
 
-        return self::make($title, $phrase.' · Abre la carta', self::invitationImage($page), $url, 'article');
+        return self::make($title, __(':phrase · Abre la carta', ['phrase' => $phrase]), self::invitationImage($page), $url, 'article');
     }
 
     /** La foto principal de la portada (Cloudinary la recorta a 1200×630); sin foto, el logo de Bida. */

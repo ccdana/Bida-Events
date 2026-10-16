@@ -1,6 +1,6 @@
 {{--
     Panel de App\Modules\Card\StoryActsModule: lo que se cuenta en cada acto de «Nuestra historia».
-    Nombres y primera foto van en «Banner principal»; la fecha en «Juntos desde»; fotos actuales en
+    Nombres y primera foto van en «Portada»; la fecha en «Juntos desde»; fotos actuales en
     «Galería»; la canción en «Música». Todo es opcional: un campo vacío muestra un texto de respaldo.
 --}}
 @php($storyQuotes = \App\Modules\Card\StoryActsModule::QUOTES)
@@ -20,7 +20,7 @@
             <label class="admin-label" for="relato-primeras">Primeras impresiones</label>
             <textarea id="relato-primeras" x-model="modules.relato.primeras_impresiones" @input="schedulePreview()" rows="4" maxlength="1500" class="admin-input" placeholder="Lo que pensaron el uno del otro al principio, antes de saber lo que venía."></textarea>
         </div>
-        <p class="text-[11px] text-site-muted">La foto de este acto es la del «Banner principal» y la fecha es la de «Juntos desde».</p>
+        <p class="text-[11px] text-site-muted">La foto de este acto es la de la «Portada» y la fecha es la de «Juntos desde».</p>
     </section>
 
     <section class="admin-card p-3 space-y-3">

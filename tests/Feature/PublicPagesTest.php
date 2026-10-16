@@ -21,28 +21,30 @@ class PublicPagesTest extends TestCase
         config(['bida.whatsapp' => '+591 7123-4567']);
         $this->seed(ShowcaseInvitationsSeeder::class);
 
-        // El administrador subió el precio del plan Aliado desde Ajustes
-        SiteSettings::put('reseller_plans', ['aliado' => ['price' => 20, 'promo_price' => 16, 'quota_per_month' => 9]]);
+        // El administrador subió el precio del plan Inicial desde Ajustes
+        SiteSettings::put('reseller_plans', ['inicial' => ['price' => 20, 'promo_price' => 16, 'quota_per_month' => 9]]);
         SiteSettings::apply();
 
         $this->withoutVite()->get(route('diy'))
             ->assertOk()
-            ->assertSee('Tu propio panel para crear invitaciones digitales')
-            // Beneficios explicados, con la entrada por QR
-            ->assertSee('Qué obtienes con Hazlo tú')
-            ->assertSee('Control de entrada el día del evento')
-            ->assertSee('Cuentas claras')
-            ->assertSeeInOrder(['Inicial', '9', 'USD al mes', 'Aliado', 'US$ 20', '16', 'USD al mes', '9 invitaciones al mes', 'Emprendedor', 'Agencia', 'Invitaciones sin tope'])
-            // La comparación dice qué desbloquea cada plan
-            ->assertSeeInOrder(['Accesos para clientes al mes', 'Plantilla en blanco', 'Plantillas clásicas', 'Plantillas de temporada', 'Plantillas nuevas de cada evento', 'Confirmación por WhatsApp', 'Confirmación con pase QR', 'Tu marca al pie'])
-            ->assertSee('Noche de calabazas')
+            // La página arranca en lo que ganas, sin el módulo de portada
+            ->assertDontSee('Haz tus propias invitaciones.')
+            ->assertSee('Un negocio de invitaciones, sin montarlo desde cero')
+            ->assertSee('Lo que cobras es tuyo')
+            ->assertSee('Tu marca al frente')
+            ->assertSee('Entrada con QR el día del evento')
+            // Los planes que se venden, con la misma columna que los paquetes: precio de hoy, descuento (Inicial: 20 → 16) y lo que trae
+            ->assertSee('id="planes"', false)
+            ->assertSee('site-plans site-plans--grid', false)
+            ->assertDontSee('id="comparar"', false)
+            ->assertSeeInOrder(['Elige tu plan', 'Inicial', 'US$ 20', '16', 'USD al mes', 'Ahorras US$ 4 al mes', '9 invitaciones al mes', 'plantillas para elegir', 'Emprendedor', 'Agencia', 'Invitaciones sin tope', 'Elegir Agencia'])
+            // La pregunta de cuánto se gana usa el cupo y el precio de hoy (9 × 25 − 16)
+            ->assertSee('suman US$ 225 y te quedan US$ 209 después del plan')
+            // Lo secundario: que lo haga el equipo, con los paquetes de hoy
+            ->assertSeeInOrder(['Te la hacemos nosotros', 'Básico', 'US$ 22', 'Estándar', 'US$ 43', 'Premium', 'US$ 72'])
             // WhatsApp con el plan y el código de la página
-            ->assertSee(rawurlencode('quiero el plan Aliado de Hazlo tú (US$ 16 al mes)'), false)
-            ->assertSee(rawurlencode('Ref. HAZLO'), false)
-            // Las muestras del teléfono se pueden abrir
-            ->assertSee(route('invitation.demo', 'lienzo-casa-molina'), false);
-
-        $this->withoutVite()->get(route('invitation.demo', 'lienzo-casa-molina'))->assertOk();
+            ->assertSee(rawurlencode('quiero el plan Inicial de Únete (US$ 16 al mes)'), false)
+            ->assertSee(rawurlencode('Ref. HAZLO'), false);
     }
 
     public function test_the_legal_pages_exist_and_are_linked_from_every_site_page(): void
@@ -84,7 +86,7 @@ class PublicPagesTest extends TestCase
 
     public function test_a_logged_in_reseller_sees_the_page_with_its_panel_link(): void
     {
-        $reseller = User::factory()->reseller('aliado')->create();
+        $reseller = User::factory()->reseller()->create();
 
         $this->actingAs($reseller)->withoutVite()->get(route('diy'))
             ->assertOk()

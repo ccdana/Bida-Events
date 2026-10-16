@@ -9,13 +9,13 @@
 
 @php
     $navLinks = [
-        route('home') => 'Inicio',
-        route('diy') => 'Hazlo tú',
+        lroute('home') => __('Inicio'),
+        lroute('diy') => __('Únete'),
     ];
-    $accountUrl = $user ? route('dashboard') : route('login');
-    $accountLabel = $user ? 'Mi panel' : 'Ingresar';
+    $accountUrl = $user ? route('dashboard') : lroute('login');
+    $accountLabel = $user ? __('Mi panel') : __('Ingresar');
     $socials = [];
-    $others = collect(\App\Support\LegalPages::links())->reject(fn (array $link) => $link['url'] === route('legal', $slug));
+    $others = collect(\App\Support\LegalPages::links())->reject(fn (array $link) => $link['url'] === lroute('legal', $slug));
 @endphp
 
 @section('content')
@@ -24,8 +24,8 @@
     @include('site.partials.header', ['navLinks' => $navLinks])
 
     <main class="mx-auto max-w-7xl px-5 pb-24 pt-10 lg:px-8 lg:pt-16">
-        <nav class="text-sm text-site-muted" aria-label="Ruta">
-            <a href="{{ route('home') }}" class="site-nav-link hover:text-site-ink">{{ $bida['brand'] }}</a>
+        <nav class="text-sm text-site-muted" aria-label="{{ __('Ruta') }}">
+            <a href="{{ lroute('home') }}" class="site-nav-link hover:text-site-ink">{{ $bida['brand'] }}</a>
             <span class="mx-2" aria-hidden="true">/</span>
             <span class="text-site-ink">{{ $content['title'] }}</span>
         </nav>
@@ -36,11 +36,11 @@
                     <h1 class="site-display site-display--md max-w-[14ch]">{{ $content['title'] }}</h1>
                     @if($updatedAt)
                         <p class="mt-4 text-sm text-site-muted">
-                            Actualizada el {{ \Illuminate\Support\Carbon::parse($updatedAt)->locale('es')->translatedFormat('j \d\e F \d\e Y') }}
+                            {{ __('Actualizada el :value', ['value' => \Illuminate\Support\Carbon::parse($updatedAt)->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('j \d\e F \d\e Y'))]) }}
                         </p>
                     @endif
 
-                    <ol class="site-legal__toc mt-8 hidden lg:block" aria-label="En esta página">
+                    <ol class="site-legal__toc mt-8 hidden lg:block" aria-label="{{ __('En esta página') }}">
                         @foreach($content['sections'] as $index => $section)
                             <li>
                                 <a href="#seccion-{{ $index + 1 }}">
@@ -77,11 +77,11 @@
                 @endforeach
 
                 <aside class="site-legal__more">
-                    <p>¿Dudas sobre tus datos? <a href="{{ $contactUrl }}" target="_blank" rel="noopener">Escríbenos por WhatsApp</a> o a <a href="mailto:{{ $bida['email'] }}">{{ $bida['email'] }}</a>.</p>
+                    <p>{{ __('¿Dudas sobre tus datos?') }} <a href="{{ $contactUrl }}" target="_blank" rel="noopener">{{ __('Escríbenos por WhatsApp') }}</a> {{ __('o a') }} <a href="mailto:{{ $bida['email'] }}">{{ $bida['email'] }}</a>.</p>
                     <p>
-                        También puedes leer
+                        {{ __('También puedes leer') }}
                         @foreach($others as $link)
-                            <a href="{{ $link['url'] }}">{{ mb_strtolower($link['label']) === 'términos' ? 'los términos de uso' : 'la política de '.mb_strtolower($link['label']) }}</a>{{ $loop->last ? '.' : ' y ' }}
+                            <a href="{{ $link['url'] }}">{{ mb_strtolower($link['label']) === __('términos') ? __('los términos de uso') : __('la política de :value', ['value' => mb_strtolower($link['label'])]) }}</a>{{ $loop->last ? '.' : ' y ' }}
                         @endforeach
                     </p>
                 </aside>

@@ -2,26 +2,27 @@
     $showMusicPlayer = ($flags['musica'] ?? false) && !empty($musica['audio_url'] ?? null);
 @endphp
 @if($showMusicPlayer)
-<div class="inv-player"
+{{-- data-ed: en el editor se toca para cambiar la música (resources/js/admin/editor.js) --}}
+<div class="inv-player" data-ed="musica"
     x-data="musicPlayer(@js($musica['audio_url']), @js((bool) ($musica['autoplay'] ?? false)))"
     x-init="init()">
 
     <button type="button" class="inv-player__toggle" @click="toggle()"
-        :aria-label="playing ? 'Pausar música' : 'Reproducir música'"
+        :aria-label="playing ? @js(__('Pausar música')) : @js(__('Reproducir música'))"
         :aria-pressed="playing.toString()">
         <span x-show="!playing">@include('invitations.partials.icon', ['name' => 'play', 'animated' => false])</span>
         <span x-show="playing" x-cloak>@include('invitations.partials.icon', ['name' => 'pause', 'animated' => false])</span>
     </button>
 
     <div class="inv-player__meta">
-        <span class="inv-player__title">{{ $musica['titulo'] ?? 'Música de fondo' }}</span>
-        <span class="inv-player__artist" x-text="playing || started ? @js($musica['artista'] ?? 'Sonando ahora') : 'Toca para escuchar'">{{ $invCopy['music_hint'] ?? 'Toca para escuchar' }}</span>
+        <span class="inv-player__title">{{ $musica['titulo'] ?? __('Música de fondo') }}</span>
+        <span class="inv-player__artist" x-text="playing || started ? @js($musica['artista'] ?? __('Sonando ahora')) : 'Toca para escuchar'">{{ $invCopy['music_hint'] ?? __('Toca para escuchar') }}</span>
     </div>
 
     <span class="inv-player__eq" :class="{ 'is-playing': playing }" aria-hidden="true"><i></i><i></i><i></i></span>
 
     <label class="inv-player__volume">
-        <span class="sr-only">Volumen</span>
+        <span class="sr-only">{{ __('Volumen') }}</span>
         <input type="range" min="0" max="1" step="0.05" x-model.number="volume" @input="setVolume()">
     </label>
 

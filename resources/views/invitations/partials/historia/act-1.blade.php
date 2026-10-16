@@ -21,7 +21,7 @@
         </h1>
         <p class="story-opening__intro">{{ $actIntro }}</p>
         @if($cardTo !== '')
-            <p class="story-opening__to">Para {{ $cardTo }}</p>
+            <p class="story-opening__to">{{ __('Para :cardTo', ['cardTo' => $cardTo]) }}</p>
         @endif
     </div>
 
@@ -31,7 +31,7 @@
         <p class="story-met reveal" id="juntos-desde">
             @if($metOn)
                 {{ $invCopy['act1_met_prefix'] }}
-                <time datetime="{{ $metOn->toDateString() }}">{{ $metOn->translatedFormat('j \d\e F \d\e Y') }}</time>
+                <time datetime="{{ $metOn->toDateString() }}">{{ $metOn->translatedFormat(\App\Support\Localization::dateFormat('j \d\e F \d\e Y')) }}</time>
             @else
                 {{ $invCopy['act1_met_fallback'] }}
             @endif
@@ -41,7 +41,7 @@
             <figure class="story-underwater reveal">
                 <img src="{{ \App\Support\CloudinaryImage::url($page->heroImage, 800) }}"
                     @if($srcset = \App\Support\CloudinaryImage::srcset($page->heroImage, [480, 800])) srcset="{{ $srcset }}" sizes="(min-width: 640px) 26rem, 82vw" @endif
-                    alt="{{ $filled($page->welcome['imagen_hero_alt'] ?? null) ?? 'Primera foto de '.$coupleLabel }}"
+                    alt="{{ $filled($page->welcome['imagen_hero_alt'] ?? null) ?? __('Primera foto de :coupleLabel', ['coupleLabel' => $coupleLabel]) }}"
                     width="800" height="1000" decoding="async" fetchpriority="high">
                 <span class="story-underwater__ripples" aria-hidden="true"></span>
             </figure>

@@ -6,7 +6,7 @@
     Lógica en shell/cover-component; estilos en themes/birrete.css.
 --}}
 @php
-    $introClass = ($invCopy['hero_class_label'] ?? 'Promoción').' '.$page->eventDate->format('Y');
+    $introClass = ($invCopy['hero_class_label'] ?? __('Promoción')).' '.$page->eventDate->format('Y');
 @endphp
 
 <div class="inv-themed-intro br-intro"
@@ -16,21 +16,21 @@
     @click="open()"
     role="dialog"
     aria-modal="true"
-    aria-label="Invitación a la graduación de {{ $page->displayName }}">
+    aria-label="{{ __('Invitación a la graduación de :displayName', ['displayName' => $page->displayName]) }}">
     <span class="br-intro__stage" aria-hidden="true"></span>
 
     <div class="br-intro__content">
         <p class="br-intro__eyebrow">
             @if($guest)
-                Para {{ $guest->name }}
+                {{ __('Para :name', ['name' => $guest->name]) }}
             @else
-                {{ $invCopy['intro_eyebrow'] ?? 'Tienes una invitación' }}
+                {{ $invCopy['intro_eyebrow'] ?? __('Tienes una invitación') }}
             @endif
         </p>
         <p class="br-intro__name">{{ $page->displayName }}</p>
         <p class="br-intro__class">{{ $introClass }}</p>
 
-        <button type="button" class="br-intro__cap" data-cover-trigger aria-label="Pasar la borla al otro lado y abrir la invitación">
+        <button type="button" class="br-intro__cap" data-cover-trigger aria-label="{{ __('Pasar la borla al otro lado y abrir la invitación') }}">
             @include('invitations.partials.birrete.cap', ['side' => 'both'])
             <span class="br-intro__shadow" aria-hidden="true"></span>
             {{-- Destellos donde cae la borla --}}
@@ -39,8 +39,8 @@
             @endfor
         </button>
 
-        <p class="br-intro__cheer" aria-hidden="true">{{ $invCopy['intro_cheer'] ?? '¡Lo logramos!' }}</p>
-        <p class="br-intro__hint">{{ $invCopy['intro_hint'] ?? 'Toca la borla para pasarla al otro lado' }}</p>
+        <p class="br-intro__cheer" aria-hidden="true">{{ $invCopy['intro_cheer'] ?? __('¡Lo logramos!') }}</p>
+        <p class="br-intro__hint">{{ $invCopy['intro_hint'] ?? __('Toca la borla para pasarla al otro lado') }}</p>
     </div>
 
     {{-- Los birretes de los compañeros que salen volando con el suyo --}}

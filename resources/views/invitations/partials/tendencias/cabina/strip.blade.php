@@ -6,10 +6,10 @@
     pie es texto común; la portada lleva su h1 aparte). Necesita $page e $invCopy.
 --}}
 @php
-    $stripDate = $page->eventDate->locale('es');
+    $stripDate = $page->eventDate->locale(app()->getLocale());
     $stripStamp = $stripDate->format('d m')." '".$stripDate->format('y');
     $stripAge = $page->age();
-    $stripDay = \Illuminate\Support\Str::ucfirst($stripDate->translatedFormat('l j \d\e F'));
+    $stripDay = \Illuminate\Support\Str::ucfirst($stripDate->translatedFormat(\App\Support\Localization::dateFormat('l j \d\e F')));
 @endphp
 
 <div class="cb-strip {{ $class ?? '' }}">
@@ -17,7 +17,7 @@
         <figure class="cb-frame cb-frame--{{ $pose }}" @if($pose > 1) aria-hidden="true" @endif>
             @include('invitations.partials.tendencias.photo', ['widths' => [480, 768], 'width' => 768, 'sizes' => '(min-width: 640px) 16rem, 62vw'])
             @if($pose === 3 && $stripAge !== null)
-                <span class="cb-sticker" aria-hidden="true"><b>{{ $stripAge }}</b>{{ $invCopy['booth_age'] ?? 'años' }}</span>
+                <span class="cb-sticker" aria-hidden="true"><b>{{ $stripAge }}</b>{{ $invCopy['booth_age'] ?? __('años') }}</span>
             @endif
             <span class="cb-stamp" aria-hidden="true">{{ $stripStamp }}</span>
         </figure>

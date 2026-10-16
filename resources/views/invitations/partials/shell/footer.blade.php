@@ -4,6 +4,17 @@
     En celular todo va apilado y centrado; en pantallas anchas la barra inferior se reparte a los lados.
 --}}
 <footer class="inv-footer {{ $footerClass ?? '' }}">
+    {{-- Invitación gratuita de «Hazlo tú» (InvitationPage::isFreeTier): la marca de Bida Events, a la vista --}}
+    @if($page->isFreeTier())
+        <a href="{{ lroute('home') }}" class="inv-free-mark" target="_blank" rel="noopener">
+            <span class="inv-free-mark__text">{{ __('Invitación gratuita hecha con') }} <strong>{{ config('bida.brand') }}</strong></span>
+            <span class="inv-free-mark__cta">
+                {{ __('Crea la tuya') }}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+        </a>
+    @endif
+
     <div class="inv-footer__inner">
         @if(($footerOrnament ?? null) === 'balloons')
             <span class="inv-footer__ornament inv-cumple-trio" aria-hidden="true">
@@ -25,7 +36,7 @@
         <div class="inv-footer__bar">
             <a href="#inicio" class="inv-footer__top">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                {{ $invCopy['back_to_top'] ?? 'Volver al inicio' }}
+                {{ $invCopy['back_to_top'] ?? __('Volver al inicio') }}
             </a>
 
             {{-- Crédito del pie (InvitationPage::footerBrand): el de Bida Events, que lleva a su sitio en otra
@@ -37,11 +48,11 @@
                         {{ $footerBrand['pitch'] }}
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     </span>
-                    <span class="inv-footer__text">Hecho con cariño por <span class="inv-footer__brand">{{ $footerBrand['name'] }}</span></span>
+                    <span class="inv-footer__text">{{ __('Hecho con cariño por') }} <span class="inv-footer__brand">{{ $footerBrand['name'] }}</span></span>
                 </a>
             @else
                 <p class="inv-footer__credit">
-                    <span class="inv-footer__text">Hecho con cariño por <span class="inv-footer__brand">{{ $footerBrand['name'] }}</span></span>
+                    <span class="inv-footer__text">{{ __('Hecho con cariño por') }} <span class="inv-footer__brand">{{ $footerBrand['name'] }}</span></span>
                 </p>
             @endif
         </div>

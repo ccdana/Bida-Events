@@ -73,10 +73,10 @@ class SiteSettingsTest extends TestCase
         $this->assertSame(450, $packages['estandar']['final_price']);
         $this->assertNull($packages['estandar']['old_price']);
 
-        // Y así se ven: el precio normal tachado y el de hoy al lado
-        $this->get(route('home'))
+        // Y así se ven en los precios: el precio normal tachado y el de hoy al lado
+        $this->get(route('pricing'))
             ->assertOk()
-            ->assertSeeInOrder(['US$ 250', '199', 'USD', '450', 'USD', 'US$ 800', '650'])
+            ->assertSeeInOrder(['id="te-la-hacemos"', 'US$ 250', '199', 'USD', '450', 'USD', 'US$ 800', '650'], false)
             ->assertSee('Ahorras US$ 150');
     }
 

@@ -7,18 +7,19 @@ use App\Http\Requests\Admin\Reseller\RegisterPaymentRequest;
 use App\Http\Requests\Admin\Reseller\StoreResellerRequest;
 use App\Models\SubscriptionPayment;
 use App\Models\User;
+use App\Services\SubscriptionActivator;
 use App\Support\ClientCredentials;
+use App\Support\Localization;
 use App\Support\Money;
 use App\Support\Offers;
 use App\Support\ResellerSubscription;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\View\View;
 
 /**
- * Revendedores: alta con usuario y contraseña, y registro de los pagos de su suscripción.
- * No hay cobro automático ni mensajes automáticos: el administrador ve quién vence y le escribe.
+ * Revendedores: alta con usuario y contraseña, y registro a mano de los pagos de su suscripción
+ * (los cobrados en línea se registran solos). El administrador ve quién vence y le escribe.
  */
 class ResellerController extends Controller
 {
@@ -72,77 +73,39 @@ class ResellerController extends Controller
             ]);
     }
 
-    public function registerPayment(RegisterPaymentRequest $request, User $reseller): RedirectResponse
+    public function registerPayment(RegisterPaymentRequest $request, User $reseller, SubscriptionActivator $activator): RedirectResponse
     {
         abort_unless($reseller->isReseller(), 404);
 
-        $plan = $request->validated('plan');
+        // El código del formulario hace que un doble clic o una recarga no sume otro mes
+        $payment = $activator->recordPayment($reseller, $request->validated('plan'), [
+            'amount' => $request->validated('amount'),
+            'currency' => Money::code(),
+            'registered_by' => $request->user()->id,
+            'note' => $request->validated('note'),
+            'request_token' => $request->validated('request_token'),
+        ]);
 
-        $renewsUntil = DB::transaction(function () use ($request, $reseller, $plan) {
-            // El revendedor queda bloqueado mientras se registra: dos envíos del mismo formulario no se pisan
-            $reseller = User::whereKey($reseller->id)->lockForUpdate()->firstOrFail();
-
-            // Mismo formulario enviado otra vez (doble clic, recarga): el pago ya está, no se suma otro mes
-            if (SubscriptionPayment::where('request_token', $request->validated('request_token'))->exists()) {
-                return null;
-            }
-
-            $renewsUntil = ResellerSubscription::renewalDate($reseller, $plan);
-
-            SubscriptionPayment::create([
-                'user_id' => $reseller->id,
-                'plan' => $plan,
-                'amount' => $request->validated('amount'),
-                'currency' => Money::code(),
-                'paid_at' => now()->toDateString(),
-                'renews_until' => $renewsUntil->toDateString(),
-                'registered_by' => $request->user()->id,
-                'note' => $request->validated('note'),
-                'request_token' => $request->validated('request_token'),
-            ]);
-
-            $reseller->update([
-                'reseller_plan' => $plan,
-                'subscription_status' => 'active',
-                'subscription_renews_at' => $renewsUntil->toDateString(),
-            ]);
-
-            return $renewsUntil;
-        });
-
-        if ($renewsUntil === null) {
+        if ($payment === null) {
             return back()->with('success', 'Ese pago ya estaba registrado: no se sumó otro mes.');
         }
 
         return back()->with(
             'success',
-            "Pago registrado: {$reseller->name} queda al día hasta el ".$renewsUntil->locale('es')->translatedFormat('j \d\e F \d\e Y').'.'
+            "Pago registrado: {$reseller->name} queda al día hasta el ".$payment->renews_until->locale(app()->getLocale())->translatedFormat(Localization::dateFormat('j \d\e F \d\e Y')).'.'
         );
     }
 
     /**
-     * Anula el último pago de un revendedor (uno cargado por error). Solo el último, para que la
-     * cadena de renovaciones no quede con huecos: la fecha vuelve a la del pago anterior o, si no
-     * había otro, la suscripción queda sin activar.
+     * Anula el último pago de un revendedor registrado a mano (uno cargado por error): la fecha
+     * vuelve a la del pago anterior. Los cobrados con tarjeta o QR se devuelven en la pasarela; aquí
+     * no se tocan, para que el historial no diga algo distinto de lo que cobró la pasarela.
      */
-    public function destroyPayment(User $reseller, SubscriptionPayment $payment): RedirectResponse
+    public function destroyPayment(User $reseller, SubscriptionPayment $payment, SubscriptionActivator $activator): RedirectResponse
     {
         abort_unless($reseller->isReseller() && (int) $payment->user_id === (int) $reseller->id, 404);
-
-        $latest = $reseller->subscriptionPayments()->latest('paid_at')->latest('id')->first();
-        abort_unless($latest?->is($payment), 422, 'Solo se puede anular el último pago.');
-
-        DB::transaction(function () use ($reseller, $payment) {
-            $payment->delete();
-
-            $previous = $reseller->subscriptionPayments()->latest('paid_at')->latest('id')->first();
-
-            $reseller->update([
-                'reseller_plan' => $previous?->plan ?? $reseller->reseller_plan,
-                'subscription_status' => $previous ? 'active' : null,
-                'subscription_renews_at' => $previous?->renews_until?->toDateString(),
-            ]);
-        });
+        abort_unless($payment->isManual(), 422, 'Los pagos con tarjeta o QR se devuelven desde la pasarela.');
+        abort_unless($activator->annulLatest($payment), 422, 'Solo se puede anular el último pago.');
 
         return back()->with('success', "Pago anulado. {$reseller->name} vuelve a la fecha que tenía antes de ese pago.");
     }
@@ -157,6 +120,9 @@ class ResellerController extends Controller
 
         [$statusLabel, $statusClass] = match (true) {
             $reseller->subscription_renews_at === null => ['Sin pagos', 'is-pending'],
+            // La tarjeta no pasó; la pasarela la reintenta mientras corren los días de gracia
+            $reseller->subscription_status === 'past_due' && $reseller->hasActiveSubscription() => ['Cobro fallido', 'is-danger'],
+            ResellerSubscription::inGrace($reseller) => ['En días de gracia', 'is-pending'],
             $reseller->hasActiveSubscription() && $daysLeft > ResellerSubscription::WARNING_DAYS => ['Al día', 'is-success'],
             $reseller->hasActiveSubscription() => ['Vence pronto', 'is-pending'],
             $reseller->subscription_status === 'canceled' => ['Cancelada', 'is-primary'],
@@ -172,8 +138,16 @@ class ResellerController extends Controller
             'statusLabel' => $statusLabel,
             'statusClass' => $statusClass,
             'daysLeft' => $daysLeft,
-            'dueSoon' => $reseller->subscription_renews_at !== null && ResellerSubscription::expiresSoon($reseller),
-            'renewsLabel' => $reseller->subscription_renews_at?->locale('es')->translatedFormat('j \d\e F \d\e Y') ?? '—',
+            // A quién escribirle: vence pronto y no se cobra solo (o el cobro con tarjeta falló)
+            'dueSoon' => $reseller->subscription_renews_at !== null && ResellerSubscription::expiresSoon($reseller)
+                && ! ($reseller->renewsAutomatically() && $reseller->subscription_status === 'active'),
+            'renewsLabel' => $reseller->subscription_renews_at?->locale(app()->getLocale())->translatedFormat(Localization::dateFormat('j \d\e F \d\e Y')) ?? '—',
+            // Con tarjeta se cobra solo: no hace falta escribirle para renovar
+            'renewal' => match (true) {
+                $reseller->renewsAutomatically() => 'Con tarjeta: se renueva sola',
+                $reseller->hasRecurringSubscription() => 'Con tarjeta: canceló la renovación',
+                default => null,
+            },
             'quotaLabel' => $limit === null ? "{$used} (sin tope)" : "{$used} de {$limit}",
             'lastPayment' => $reseller->subscriptionPayments->first(),
             // WhatsApp sin número: el administrador elige el chat y envía él mismo el mensaje

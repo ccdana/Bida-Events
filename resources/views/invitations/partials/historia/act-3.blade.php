@@ -48,7 +48,7 @@
 
         <div class="story-dedication reveal" id="dedicatoria">
             @if($cardTo !== '')
-                <p class="story-dedication__to">Para {{ $cardTo }}</p>
+                <p class="story-dedication__to">{{ __('Para :cardTo', ['cardTo' => $cardTo]) }}</p>
             @endif
             @foreach($paragraphs($message) as $paragraph)
                 <p class="story-dedication__text">{!! nl2br(e($paragraph)) !!}</p>
@@ -65,7 +65,7 @@
                     @foreach($couplePhotos as $index => $photo)
                         <figure class="story-now__photo reveal" style="--i: {{ $index }}">
                             <img src="{{ \App\Support\CloudinaryImage::url($photo['url'], $index === 0 ? 900 : 600) }}"
-                                alt="{{ $photo['alt'] !== '' ? $photo['alt'] : $coupleLabel.' hoy, foto '.($index + 1) }}"
+                                alt="{{ $photo['alt'] !== '' ? $photo['alt'] : __(':coupleLabel hoy, foto :value', ['coupleLabel' => $coupleLabel, 'value' => ($index + 1)]) }}"
                                 loading="lazy" decoding="async">
                         </figure>
                     @endforeach

@@ -21,7 +21,7 @@
     :class="{ 'is-spinning': stage >= 1, 'is-open': stage >= 2 }"
     role="dialog"
     aria-modal="true"
-    aria-label="Invitación al bautizo de {{ $page->displayName }}">
+    aria-label="{{ __('Invitación al bautizo de :displayName', ['displayName' => $page->displayName]) }}">
     {{-- La ventana del cuarto, con la luna afuera --}}
     <span class="mv-intro__window" aria-hidden="true"><i></i></span>
 
@@ -34,13 +34,13 @@
 
     <p class="mv-intro__eyebrow">
         @if($guest)
-            Para {{ $guest->name }}
+            {{ __('Para :name', ['name' => $guest->name]) }}
         @else
-            {{ $invCopy['intro_eyebrow'] ?? 'Un día muy especial' }}
+            {{ $invCopy['intro_eyebrow'] ?? __('Un día muy especial') }}
         @endif
     </p>
 
-    <button type="button" class="mv-intro__trigger" data-cover-trigger @click="open()" aria-label="Hacer girar el móvil y abrir la invitación">
+    <button type="button" class="mv-intro__trigger" data-cover-trigger @click="open()" aria-label="{{ __('Hacer girar el móvil y abrir la invitación') }}">
         @include('invitations.partials.tendencias.movil.mobile', ['class' => 'mv-mobile--intro'])
         {{-- Las notas de la cajita de música --}}
         <span class="mv-intro__notes" aria-hidden="true">
@@ -59,7 +59,7 @@
     </svg>
 
     <p class="mv-intro__name">{{ $page->displayName }}</p>
-    <p class="mv-intro__hint">{{ $invCopy['intro_hint'] ?? 'Toca el móvil para que gire' }}</p>
+    <p class="mv-intro__hint">{{ $invCopy['intro_hint'] ?? __('Toca el móvil para que gire') }}</p>
 
     {{-- La luz del cuarto, que se enciende desde el móvil --}}
     <span class="mv-intro__light" aria-hidden="true"></span>

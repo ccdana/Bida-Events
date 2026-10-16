@@ -7,7 +7,7 @@
     css/invitation/tendencias/reloj.css.
 --}}
 @php
-    $introDate = \Illuminate\Support\Str::ucfirst($page->eventDate->locale('es')->translatedFormat('l j \d\e F · H:i'));
+    $introDate = \Illuminate\Support\Str::ucfirst($page->eventDate->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('l j \d\e F · H:i')));
     $names = $page->names();
     // La hora de la boda en ángulos de las agujas; cada reloj arranca en otra hora y da vueltas hasta ella
     $hour = (int) $page->eventDate->format('G') % 12;
@@ -26,10 +26,10 @@
     :class="{ 'is-wound': stage >= 1, 'is-open': stage >= 2 }"
     role="dialog"
     aria-modal="true"
-    aria-label="Invitación a la boda de {{ $page->displayName }}">
-    <p class="rl-intro__eyebrow">{{ $invCopy['intro_eyebrow'] ?? 'Desde ese día, un mismo tiempo' }}</p>
+    aria-label="{{ __('Invitación a la boda de :displayName', ['displayName' => $page->displayName]) }}">
+    <p class="rl-intro__eyebrow">{{ $invCopy['intro_eyebrow'] ?? __('Desde ese día, un mismo tiempo') }}</p>
 
-    <button type="button" class="rl-pair" data-cover-trigger @click="open()" aria-label="Dar cuerda a los dos relojes">
+    <button type="button" class="rl-pair" data-cover-trigger @click="open()" aria-label="{{ __('Dar cuerda a los dos relojes') }}">
         @foreach($watches as [$side, $name, $startHour, $startMinute, $secondDelay])
             @include('invitations.partials.tendencias.reloj.dial', [
                 'class' => 'rl-watch--'.$side,
@@ -43,9 +43,9 @@
         <p class="rl-intro__names">{{ $page->displayName }}</p>
         <p class="rl-intro__date">{{ $introDate }}</p>
         @if($guest)
-            <p class="rl-intro__guest">{{ $invCopy['guest_banner_eyebrow'] ?? 'Con tiempo reservado para' }} {{ $guest->name }}</p>
+            <p class="rl-intro__guest">{{ $invCopy['guest_banner_eyebrow'] ?? __('Con tiempo reservado para') }} {{ $guest->name }}</p>
         @endif
     </div>
 
-    <p class="rl-intro__hint">{{ $invCopy['intro_hint'] ?? 'Toca la corona para darles cuerda' }}</p>
+    <p class="rl-intro__hint">{{ $invCopy['intro_hint'] ?? __('Toca la corona para darles cuerda') }}</p>
 </div>

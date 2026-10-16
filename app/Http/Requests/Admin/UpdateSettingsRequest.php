@@ -23,6 +23,9 @@ class UpdateSettingsRequest extends FormRequest
             'packages' => ['array'],
             'packages.*.price' => ['required', 'integer', 'min:0', 'max:100000'],
             'packages.*.promo_price' => ['nullable', 'integer', 'min:0', 'max:100000'],
+            // El servicio de cada paquete: plazo («2 días hábiles») y rondas de cambios (vacío = sin límite)
+            'packages.*.delivery' => ['nullable', 'string', 'max:40'],
+            'packages.*.revisions' => ['nullable', 'integer', 'min:0', 'max:20'],
 
             // Cada temporada: encendida o no, precio y fecha de término
             'seasons' => ['array'],
@@ -30,6 +33,17 @@ class UpdateSettingsRequest extends FormRequest
             'seasons.*.price' => ['required', 'integer', 'min:0', 'max:100000'],
             'seasons.*.promo_price' => ['nullable', 'integer', 'min:0', 'max:100000'],
             'seasons.*.ends_at' => ['nullable', 'date'],
+            'seasons.*.diy_price' => ['nullable', 'integer', 'min:0', 'max:100000'],
+
+            // Descuento en % por pagar los planes 3 o 12 meses de una vez
+            'prepay' => ['array'],
+            'prepay.3' => ['nullable', 'integer', 'min:0', 'max:90'],
+            'prepay.12' => ['nullable', 'integer', 'min:0', 'max:90'],
+
+            // «Hazlo tú»: lo que cuesta publicar con cada nivel
+            'diy_prices' => ['array'],
+            'diy_prices.*.price' => ['required', 'integer', 'min:0', 'max:100000'],
+            'diy_prices.*.promo_price' => ['nullable', 'integer', 'min:0', 'max:100000'],
 
             // Planes de revendedor: precio mensual y cupo (vacío = sin tope)
             'reseller_plans' => ['array'],
@@ -63,6 +77,13 @@ class UpdateSettingsRequest extends FormRequest
                     }
                 }
 
+                foreach ((array) $this->input('diy_prices', []) as $key => $tier) {
+                    if (($tier['promo_price'] ?? '') !== '' && ($tier['promo_price'] ?? null) !== null
+                        && (int) $tier['promo_price'] >= (int) ($tier['price'] ?? 0)) {
+                        $validator->errors()->add("diy_prices.{$key}.promo_price", 'El precio con descuento tiene que ser menor que el normal.');
+                    }
+                }
+
                 foreach ((array) $this->input('reseller_plans', []) as $key => $plan) {
                     if (($plan['promo_price'] ?? '') !== '' && ($plan['promo_price'] ?? null) !== null
                         && (int) $plan['promo_price'] >= (int) ($plan['price'] ?? 0)) {
@@ -92,6 +113,10 @@ class UpdateSettingsRequest extends FormRequest
             'seasons.*.price' => 'precio de la temporada',
             'seasons.*.promo_price' => 'precio con descuento de la temporada',
             'seasons.*.ends_at' => 'fecha de término de la temporada',
+            'seasons.*.diy_price' => 'precio único de Hazlo tú de la temporada',
+            'diy_prices.*.price' => 'precio del nivel',
+            'prepay.3' => 'descuento por 3 meses',
+            'prepay.12' => 'descuento por 12 meses',
             'contact.whatsapp' => 'número de WhatsApp',
             'contact.email' => 'correo',
         ];

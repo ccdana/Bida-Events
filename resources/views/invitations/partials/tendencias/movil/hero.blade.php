@@ -7,10 +7,10 @@
     tendencias/movil.css.
 --}}
 @php
-    $date = $page->eventDate->locale('es');
-    $heroEyebrow = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? 'Mi bautizo');
+    $date = $page->eventDate->locale(app()->getLocale());
+    $heroEyebrow = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? __('Mi bautizo'));
     $heroMessage = trim((string) ($page->welcome['mensaje'] ?? ''));
-    $heroDay = ($page->welcome['fecha_texto'] ?? null) ?: \Illuminate\Support\Str::ucfirst($date->translatedFormat('l j \d\e F'));
+    $heroDay = ($page->welcome['fecha_texto'] ?? null) ?: \Illuminate\Support\Str::ucfirst($date->translatedFormat(\App\Support\Localization::dateFormat('l j \d\e F')));
 @endphp
 
 @include('invitations.partials.tendencias.movil.shapes')
@@ -33,16 +33,16 @@
     <div class="mv-card mv-hero__facts inv-fade-up inv-fade-up--3">
         <dl class="mv-facts">
             <div>
-                <dt>@include('invitations.partials.tendencias.movil.figure', ['shape' => 'star', 'class' => 'mv-felt--2 mv-facts__icon'])<span class="tr-sr-only">Fecha</span></dt>
+                <dt>@include('invitations.partials.tendencias.movil.figure', ['shape' => 'star', 'class' => 'mv-felt--2 mv-facts__icon'])<span class="tr-sr-only">{{ __('Fecha') }}</span></dt>
                 <dd>{{ $heroDay }}</dd>
             </div>
             <div>
-                <dt>@include('invitations.partials.tendencias.movil.figure', ['shape' => 'candle', 'class' => 'mv-felt--1 mv-facts__icon'])<span class="tr-sr-only">Hora</span></dt>
+                <dt>@include('invitations.partials.tendencias.movil.figure', ['shape' => 'candle', 'class' => 'mv-felt--1 mv-facts__icon'])<span class="tr-sr-only">{{ __('Hora') }}</span></dt>
                 <dd>{{ $date->format('H:i') }}</dd>
             </div>
             @if($page->placeName)
                 <div>
-                    <dt>@include('invitations.partials.tendencias.movil.figure', ['shape' => 'house', 'class' => 'mv-felt--2 mv-facts__icon'])<span class="tr-sr-only">Lugar</span></dt>
+                    <dt>@include('invitations.partials.tendencias.movil.figure', ['shape' => 'house', 'class' => 'mv-felt--2 mv-facts__icon'])<span class="tr-sr-only">{{ __('Lugar') }}</span></dt>
                     <dd><a href="#ubicacion">{{ $page->placeName }}</a></dd>
                 </div>
             @endif
@@ -53,7 +53,7 @@
     </div>
 
     <a href="#contenido" class="inv-hero__scroll mv-hero__scroll">
-        {{ $invCopy['scroll_hint'] ?? 'Desliza' }}
+        {{ $invCopy['scroll_hint'] ?? __('Desliza') }}
         <span class="inv-hero__scroll-line" aria-hidden="true"></span>
     </a>
 </header>

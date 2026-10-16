@@ -22,35 +22,83 @@ class HomePageTest extends TestCase
         $response = $this->get(route('home'));
 
         $response->assertOk()
-            ->assertSee('Invitaciones digitales para bodas, XV años, bautizos, cumpleaños y graduaciones')
-            // Promoción de inauguración: el precio normal tachado y el de hoy
-            ->assertSeeInOrder(['US$ 29', '22', 'USD', 'US$ 57', '43', 'USD', 'US$ 99', '72', 'USD'])
-            // Solo con los precios: sin texto de la promoción sobre los paquetes
-            ->assertDontSee('Promoción de inauguración')
-            ->assertSee('Ahorras US$ 7')
-            // Servicios: las invitaciones, lo de temporada y «Hazlo tú», cada uno con su precio de hoy (en dólares)
+            ->assertSee('Arma tu invitación digital para bodas, XV años, bautizos, cumpleaños y graduaciones')
+            // El modelo principal va primero: armarla gratis; la cabecera lleva a crear la cuenta y de ahí al editor
+            ->assertSee('La armas tú, gratis')
+            ->assertSee('Crear mi invitación')
+            ->assertSee(route('register', ['crear' => 1]), false)
+            // Servicios: primero «Hazlo tú» (gratis), luego que la hagamos nosotros, los planes y lo de temporada,
+            // cada uno con su precio de hoy (en dólares)
             ->assertSee('id="servicios"', false)
-            ->assertSeeInOrder(['Invitaciones digitales', 'Desde', 'US$ 22', 'Diseños de temporada', 'Hazlo tú', 'Desde', 'US$ 9', 'al mes'])
+            ->assertSeeInOrder(['Hazlo tú', 'Gratis', 'Te la hacemos', 'Desde', 'US$ 22', 'Planes para profesionales', 'Desde', 'US$ 10', 'al mes', 'Diseños de temporada'])
             ->assertSee(route('diy'), false)
             // Los recuerdos en vivo van dentro de lo que incluye la invitación, y ya no hay sección de contacto
             ->assertSeeInOrder(['id="incluye"', 'Pase QR y control de entrada', 'Fotomural en vivo', 'id="precios"'], false)
             ->assertDontSee('¿Ya tienes fecha')
             ->assertSee('https://wa.me/59171234567?text=', false)
-            ->assertSee(rawurlencode('me interesa el paquete Estándar (US$ 43)'), false)
             ->assertSee(route('login'), false)
             ->assertSee('Ingresar')
             ->assertSee('https://www.facebook.com/bidaeventsbo', false);
+
+        // Los paquetes, con la promoción de inauguración, en la página de precios: el normal tachado y el de hoy
+        $this->get(route('pricing'))
+            ->assertOk()
+            ->assertSeeInOrder(['id="te-la-hacemos"', 'US$ 29', '22', 'USD', 'US$ 57', '43', 'USD', 'US$ 99', '72', 'USD'], false)
+            // Solo con los precios: sin texto de la promoción sobre los paquetes
+            ->assertDontSee('Promoción de inauguración')
+            ->assertSee('Ahorras US$ 7')
+            ->assertSee(rawurlencode('me interesa el paquete Estándar (US$ 43)'), false);
     }
 
     public function test_without_the_launch_promo_the_packages_show_their_normal_price(): void
     {
         config(['bida.launch_promo.active' => false]);
 
-        $this->get(route('home'))
+        $html = $this->get(route('pricing'))
             ->assertOk()
             ->assertDontSee('Promoción de inauguración')
-            ->assertDontSee('<del class="site-plan__old">', false)
-            ->assertSee(rawurlencode('me interesa el paquete Estándar (US$ 57)'), false);
+            ->assertSee(rawurlencode('me interesa el paquete Estándar (US$ 57)'), false)
+            ->getContent();
+
+        // Los paquetes (lo adicional) ya no tachan nada; los planes mensuales llevan su propio descuento
+        $packages = Str::before(Str::after($html, 'id="te-la-hacemos"'), 'id="comparar"');
+        $this->assertStringNotContainsString('<del class="site-plan__old">', $packages);
+    }
+
+    public function test_the_home_sums_up_the_prices_and_the_pricing_page_has_them_all(): void
+    {
+        // La portada resume las tres formas y lleva a /precios
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertSeeInOrder(['id="precios"', 'Hazlo tú', 'Gratis', 'Te la hacemos', 'Planes', 'Ver todos los precios'], false)
+            ->assertDontSee('Elegir Inicial');
+
+        $html = $this->get(route('pricing'))
+            ->assertOk()
+            // Hazlo tú, los planes y lo que hacemos nosotros, en ese orden
+            ->assertSeeInOrder(['id="hazlo-tu"', 'id="planes"', 'Inicial', 'Emprendedor', 'Agencia', 'id="te-la-hacemos"', 'Básico', 'Estándar', 'Premium'], false)
+            // Sin pago en línea, elegir un plan abre WhatsApp con ese plan (con el pago, pasa por crear la cuenta)
+            ->assertSee('Elegir Inicial')
+            ->assertSee(rawurlencode('quiero el plan Inicial de Únete'), false)
+            ->getContent();
+
+        // Los tres usan la misma columna de precios (4 niveles, 3 planes y 3 paquetes)
+        $this->assertGreaterThanOrEqual(10, substr_count($html, 'class="site-plan__head"'));
+    }
+
+    public function test_the_footer_does_not_pin_the_temporary_season_pages(): void
+    {
+        // Halloween y el Día del Amor se encienden y se apagan solas: no van fijas en el pie
+        config(['bida.seasons.halloween.ends_at' => '2026-10-31 23:59:59']);
+        $this->travelTo(Carbon::parse('2026-10-20 12:00:00', 'America/La_Paz'));
+        $this->seed(ShowcaseInvitationsSeeder::class);
+
+        $html = $this->withoutVite()->get(route('home'))->assertOk()->getContent();
+        $footer = Str::between($html, '<footer class="site-foot">', '</footer>');
+
+        $this->assertStringContainsString(route('landing', 'invitaciones-de-boda'), $footer);
+        $this->assertStringNotContainsString(route('landing', 'invitaciones-de-halloween'), $footer);
+        $this->assertStringNotContainsString(route('landing', 'tarjetas-dia-del-amor'), $footer);
     }
 
     public function test_the_season_waits_behind_a_floating_button_with_its_countdown_and_promo_price(): void

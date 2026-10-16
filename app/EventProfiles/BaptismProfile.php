@@ -11,7 +11,7 @@ class BaptismProfile extends EventProfile
 
     public function label(): string
     {
-        return 'Bautizo';
+        return __('Bautizo');
     }
 
     public function modules(): array
@@ -26,7 +26,7 @@ class BaptismProfile extends EventProfile
     public function heroFields(): array
     {
         return [
-            'nombre' => ['label' => 'Nombre del bebé', 'placeholder' => 'Ej. Mateo Andrés'],
+            'nombre' => ['label' => __('Nombre del bebé'), 'placeholder' => __('Ej. Mateo Andrés')],
         ];
     }
 
@@ -34,23 +34,23 @@ class BaptismProfile extends EventProfile
     public function featuredGroups(): array
     {
         return [
-            'padrinos' => ['Padrinos', 'Padrino'],
-            'chambelanes' => ['Abuelos', 'Abuelo'],
-            'damitas' => ['Tíos', 'Tío'],
+            'padrinos' => [__('Padrinos'), __('Padrino')],
+            'chambelanes' => [__('Abuelos'), __('Abuelo')],
+            'damitas' => [__('Tíos'), __('Tío')],
         ];
     }
 
     public function required(): array
     {
         return [
-            'bienvenida' => ['nombre' => 'Falta el nombre del bebé', 'imagen_hero' => 'Falta la foto de portada'],
-            'ubicacion' => ['nombre_lugar' => 'Falta la iglesia o el lugar'],
-            'destacados' => ['padrinos' => 'Faltan los padrinos'],
+            'bienvenida' => ['nombre' => __('Falta el nombre del bebé'), 'imagen_hero' => __('Falta la foto de portada')],
+            'ubicacion' => ['nombre_lugar' => __('Falta la iglesia o el lugar')],
+            'destacados' => ['padrinos' => __('Faltan los padrinos')],
         ];
     }
 
     public function sample(): array
     {
-        return ['name' => 'Mateo Andrés', 'subtitle' => 'Mi bautizo'];
+        return ['name' => __('Mateo Andrés'), 'subtitle' => __('Mi bautizo')];
     }
 }

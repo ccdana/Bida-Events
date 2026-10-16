@@ -6,7 +6,7 @@
     Estilos en themes/caminos.css.
 --}}
 @php
-    $introDate = \Illuminate\Support\Str::ucfirst($page->eventDate->locale('es')->translatedFormat('j \d\e F \d\e Y'));
+    $introDate = \Illuminate\Support\Str::ucfirst($page->eventDate->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('j \d\e F \d\e Y')));
     // La inicial de cada uno para el punto que recorre su camino
     $walkers = collect($page->names())->take(2)->map(fn (string $name) => mb_strtoupper(mb_substr(trim($name), 0, 1)))->pad(2, '')->all();
     $routeA = 'M14 22 C40 30 46 70 72 62 S94 70 100 75';
@@ -25,16 +25,16 @@
     :class="{ 'is-unfolding': stage >= 1, 'is-open': stage >= 2 }"
     role="dialog"
     aria-modal="true"
-    aria-label="Invitación a la boda de {{ $page->displayName }}">
+    aria-label="{{ __('Invitación a la boda de :displayName', ['displayName' => $page->displayName]) }}">
     <p class="dc-intro__eyebrow">
         @if($guest)
-            {{ $guest->name }}, {{ mb_strtolower($invCopy['intro_eyebrow'] ?? 'Te mandamos un mapa') }}
+            {{ $guest->name }}, {{ mb_strtolower($invCopy['intro_eyebrow'] ?? __('Te mandamos un mapa')) }}
         @else
-            {{ $invCopy['intro_eyebrow'] ?? 'Te mandamos un mapa' }}
+            {{ $invCopy['intro_eyebrow'] ?? __('Te mandamos un mapa') }}
         @endif
     </p>
 
-    <button type="button" class="dc-map" data-cover-trigger @click="open()" aria-label="Desplegar el mapa y abrir la invitación">
+    <button type="button" class="dc-map" data-cover-trigger @click="open()" aria-label="{{ __('Desplegar el mapa y abrir la invitación') }}">
         <span class="dc-map__half dc-map__half--left" aria-hidden="true">{!! $routes !!}</span>
         <span class="dc-map__flap" aria-hidden="true">
             <span class="dc-map__half dc-map__half--right">{!! $routes !!}</span>
@@ -69,5 +69,5 @@
         </svg>
     </button>
 
-    <p class="dc-intro__hint">{{ $invCopy['intro_hint'] ?? 'Toca el mapa para desplegarlo' }}</p>
+    <p class="dc-intro__hint">{{ $invCopy['intro_hint'] ?? __('Toca el mapa para desplegarlo') }}</p>
 </div>

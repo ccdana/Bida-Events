@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="{{ app()->getLocale() }}">
 <head>
     @include('layouts.partials.panel-head')
     <title>@yield('title', 'Mis eventos') | {{ config('bida.brand') }}</title>
 </head>
 {{--
-    Panel del cliente. El revendedor (Hazlo tú) maneja muchos eventos: tiene la barra lateral con su
+    Panel del cliente. El revendedor (Únete) maneja muchos eventos: tiene la barra lateral con su
     navegación y los filtros de sus invitaciones, igual que el administrador. El cliente de un evento
     ve una cabecera simple.
 --}}
@@ -20,9 +20,10 @@
                 : null,
             'nav' => [
                 ['label' => 'Mis eventos', 'url' => route('client.dashboard'), 'icon' => 'squares-four', 'active' => request()->routeIs('client.dashboard', 'client.invitation.show')],
-                ['label' => 'Mi plan', 'url' => route('diy').'#planes', 'icon' => 'seal-check', 'active' => false],
+                // Con el pago en línea, su plan y sus pagos; si no, los planes de la página pública
+                ['label' => 'Mi plan', 'url' => config('payments.enabled') ? route('client.subscription') : lroute('diy').'#planes', 'icon' => 'seal-check', 'active' => request()->routeIs('client.subscription*')],
                 ['label' => 'Mi cuenta', 'url' => route('client.account'), 'icon' => 'user-circle', 'active' => request()->routeIs('client.account')],
-                ['label' => 'Ver el sitio', 'url' => route('home'), 'icon' => 'arrow-square-out', 'active' => false],
+                ['label' => 'Ver el sitio', 'url' => lroute('home'), 'icon' => 'arrow-square-out', 'active' => false],
             ],
             'filterGroups' => $filterGroups ?? null,
             'filterValues' => $filterValues ?? [],
@@ -43,6 +44,7 @@
 
             <main class="panel-content">
                 @include('layouts.partials.access-notice')
+                @include('layouts.partials.verify-notice')
                 @yield('content')
             </main>
         </div>
@@ -60,7 +62,14 @@
                     @if($panelUser?->is_admin)
                         <a href="{{ route('admin.dashboard') }}" class="admin-link-button mr-2">Panel admin</a>
                     @endif
-                    <span class="mr-1 hidden text-sm text-site-muted sm:inline">{{ $panelUser?->name }}</span>
+                    @if($panelUser && ! $panelUser->is_admin)
+                        <a href="{{ route('client.account') }}" @class(['mr-1 text-sm transition-colors hover:text-site-ink', 'font-medium text-site-ink' => request()->routeIs('client.account'), 'text-site-muted' => ! request()->routeIs('client.account')])
+                            @if(request()->routeIs('client.account')) aria-current="page" @endif>
+                            <span class="hidden sm:inline">{{ $panelUser->name }} · </span>Mi cuenta
+                        </a>
+                    @else
+                        <span class="mr-1 hidden text-sm text-site-muted sm:inline">{{ $panelUser?->name }}</span>
+                    @endif
                     @include('layouts.partials.panel-actions')
                 </div>
             </div>
@@ -68,6 +77,7 @@
 
         <main class="mx-auto max-w-6xl px-5 py-8 lg:px-8 lg:py-12">
             @include('layouts.partials.access-notice')
+            @include('layouts.partials.verify-notice')
             @yield('content')
         </main>
 

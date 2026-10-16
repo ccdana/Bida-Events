@@ -10,8 +10,8 @@
         : ['nombre' => trim((string) $persona), 'detalle' => null];
     $padrinos = array_values(array_filter($data['padrinos'] ?? [], fn ($padrino) => !empty($padrino['nombres'] ?? null)));
     $court = array_filter([
-        ($invCopy['court_women'] ?? 'Familia') => array_values(array_filter(array_map($normalizePerson, $data['damitas'] ?? []), fn ($person) => $person['nombre'] !== '')),
-        ($invCopy['court_men'] ?? 'Amigos') => array_values(array_filter(array_map($normalizePerson, $data['chambelanes'] ?? []), fn ($person) => $person['nombre'] !== '')),
+        ($invCopy['court_women'] ?? __('Familia')) => array_values(array_filter(array_map($normalizePerson, $data['damitas'] ?? []), fn ($person) => $person['nombre'] !== '')),
+        ($invCopy['court_men'] ?? __('Amigos')) => array_values(array_filter(array_map($normalizePerson, $data['chambelanes'] ?? []), fn ($person) => $person['nombre'] !== '')),
     ]);
     // Las iniciales del cartelito: las dos primeras palabras que no sean tratamientos ni conectores
     $initialsOf = function (string $names): string {
@@ -24,8 +24,8 @@
 <section class="inv-section reveal cb-cast-section" id="destacados">
     <div class="inv-wrap">
         @include('invitations.partials.section-header', [
-            'eyebrow' => $invCopy['court_eyebrow'] ?? 'Salen en la foto',
-            'title' => $invCopy['court_title'] ?? 'Mi gente favorita',
+            'eyebrow' => $invCopy['court_eyebrow'] ?? __('Salen en la foto'),
+            'title' => $invCopy['court_title'] ?? __('Mi gente favorita'),
             'intro' => $invCopy['court_intro'] ?? null,
         ])
 
@@ -64,7 +64,7 @@
                 </div>
             @endforeach
         @else
-            <p class="inv-empty">{{ $invCopy['court_empty'] ?? 'Pronto presentaré a mi gente favorita.' }}</p>
+            <p class="inv-empty">{{ $invCopy['court_empty'] ?? __('Pronto presentaré a mi gente favorita.') }}</p>
         @endif
     </div>
 </section>

@@ -7,11 +7,6 @@ const tendencias = ['cuento', 'zapatos', 'joyero', 'esencia', 'partitura', 'mesa
 // Plantillas rehechas sobre la misma base adaptable: también cargan solo su hoja (resources/css/invitation/themes)
 const temas = ['gota', 'nubes', 'birrete', 'atelier'].map((theme) => `resources/css/invitation/themes/${theme}.css`);
 
-// Dentro de Docker (compose.yaml define BIDA_DOCKER) el servidor tiene que escuchar en todas las
-// interfaces para que el navegador del equipo lo alcance, y buscar los cambios por sondeo: los
-// avisos del sistema de archivos no cruzan el volumen montado en Windows ni en macOS.
-const enDocker = process.env.BIDA_DOCKER === 'true';
-
 export default defineConfig({
     plugins: [
         laravel({
@@ -22,10 +17,7 @@ export default defineConfig({
         tailwindcss(),
     ],
     server: {
-        host: enDocker ? '0.0.0.0' : undefined,
-        hmr: enDocker ? { host: 'localhost' } : undefined,
         watch: {
-            usePolling: enDocker,
             ignored: ['**/storage/framework/views/**'],
         },
     },

@@ -6,10 +6,10 @@
 --}}
 <div class="rl-watch {{ $class ?? '' }}" style="{{ $style ?? '' }}">
     <span class="rl-watch__dial" aria-hidden="true">
-        <span class="rl-watch__numeral rl-watch__numeral--12">XII</span>
-        <span class="rl-watch__numeral rl-watch__numeral--3">III</span>
-        <span class="rl-watch__numeral rl-watch__numeral--6">VI</span>
-        <span class="rl-watch__numeral rl-watch__numeral--9">IX</span>
+        <span class="rl-watch__numeral rl-watch__numeral--12">{{ __('XII') }}</span>
+        <span class="rl-watch__numeral rl-watch__numeral--3">{{ __('III') }}</span>
+        <span class="rl-watch__numeral rl-watch__numeral--6">{{ __('VI') }}</span>
+        <span class="rl-watch__numeral rl-watch__numeral--9">{{ __('IX') }}</span>
     </span>
     @if(!empty($name))
         <span class="rl-watch__name">{{ $name }}</span>

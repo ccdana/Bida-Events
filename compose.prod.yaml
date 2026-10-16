@@ -1,14 +1,13 @@
-# Producción de Bida Events con Docker.
+# Producción de Bida Events con Docker. Paso a paso en docs/despliegue.md.
 #
-#   cp .env.example .env            y completá los valores (ver docs/docker.md)
 #   docker compose -f compose.prod.yaml build
 #   docker compose -f compose.prod.yaml up -d
 #
-# Queda escuchando en el puerto 8080 del servidor. Delante va Cloudflare (o Nginx del sistema)
-# poniendo el HTTPS; el contenedor nunca se publica directo a internet en el 80.
+# Nginx («web») publica el 80 (redirige a HTTPS) y el 443 con el certificado de origen de
+# Cloudflare (docker/nginx/certs/origin.crt y origin.key, fuera de git). Delante va Cloudflare en
+# modo «Full (strict)».
 #
-# Diferencias con compose.yaml (desarrollo): el código viaja dentro de la imagen, sirve Nginx con
-# PHP-FPM en vez de `artisan serve`, y hay un servicio para las tareas programadas.
+# El nombre del proyecto no se cambia: de él cuelgan los volúmenes con la base y las fotos.
 
 name: bida-events-prod
 
@@ -51,7 +50,7 @@ services:
     environment:
       <<: *app-env
       BIDA_RELEASE: "1"
-      # Poné BIDA_MIGRATE=0 si preferís correr las migraciones a mano antes de levantar
+      # BIDA_MIGRATE=0 si prefieres correr las migraciones a mano antes de levantar
       BIDA_MIGRATE: ${BIDA_MIGRATE:-1}
 
   # Nginx: archivos de public/ y todo lo demás a PHP-FPM

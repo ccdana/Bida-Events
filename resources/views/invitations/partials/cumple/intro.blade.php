@@ -35,7 +35,7 @@
     :class="{ 'is-blown': blown }"
     role="dialog"
     aria-modal="true"
-    aria-label="Invitación al cumpleaños de {{ $page->displayName }}">
+    aria-label="{{ __('Invitación al cumpleaños de :displayName', ['displayName' => $page->displayName]) }}">
     <div class="inv-cumple-intro__confetti" aria-hidden="true">
         @for($i = 0; $i < 36; $i++)
             @php
@@ -49,14 +49,14 @@
     <div class="inv-cumple-intro__content">
         <p class="inv-cumple-ribbon inv-cumple-intro__eyebrow">
             @if($guest)
-                ¡{{ $guest->name }}, estás invitado!
+                {{ __('¡:name, estás invitado!', ['name' => $guest->name]) }}
             @else
-                {{ $invCopy['intro_eyebrow'] ?? '¡Estás invitado!' }}
+                {{ $invCopy['intro_eyebrow'] ?? __('¡Estás invitado!') }}
             @endif
         </p>
         <p class="inv-cumple-intro__name">{{ $page->displayName }}</p>
 
-        <button type="button" class="inv-cumple-cake" data-cover-trigger @click="blow()" aria-label="Soplar las velas y abrir la invitación">
+        <button type="button" class="inv-cumple-cake" data-cover-trigger @click="blow()" aria-label="{{ __('Soplar las velas y abrir la invitación') }}">
             <span class="inv-cumple-cake__glow" aria-hidden="true"></span>
             @foreach([[4, 14, 16, '0s', 'c2'], [88, 8, 12, '-0.7s', 'c1'], [-2, 58, 11, '-1.2s', 'c1'], [94, 50, 17, '-0.4s', 'c2'], [14, 40, 9, '-1.5s', 'c3']] as [$left, $top, $size, $delay, $color])
                 <span class="inv-cumple-cake__sparkle" style="--l: {{ $left }}%; --t: {{ $top }}%; --s: {{ $size }}px; --d: {{ $delay }}; --c: var(--inv-cumple-{{ $color }})" aria-hidden="true"></span>
@@ -123,8 +123,8 @@
             </span>
         </button>
 
-        <p class="inv-cumple-intro__hint">{{ $invCopy['intro_hint'] ?? 'Toca el pastel para soplar las velas' }}</p>
+        <p class="inv-cumple-intro__hint">{{ $invCopy['intro_hint'] ?? __('Toca el pastel para soplar las velas') }}</p>
     </div>
 
-    <p class="inv-cumple-intro__cheer" x-show="blown" x-cloak>{{ $invCopy['intro_cheer'] ?? '¡A celebrar!' }}</p>
+    <p class="inv-cumple-intro__cheer" x-show="blown" x-cloak>{{ $invCopy['intro_cheer'] ?? __('¡A celebrar!') }}</p>
 </div>

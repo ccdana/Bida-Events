@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Support\LegalPages;
+use App\Support\Localization;
 use App\Support\Money;
 use App\Support\Offers;
 use Illuminate\Http\Response;
@@ -19,21 +20,37 @@ use Illuminate\Http\Response;
 class SeoController extends Controller
 {
     /** Rutas que nunca se indexan: datos de clientes e invitados, paneles y la puerta del evento. */
-    public const PRIVATE_PATHS = ['/p/', '/muestra/', '/admin/', '/client/', '/puerta/', '/entrada/', '/login', '/dashboard'];
+    public const PRIVATE_PATHS = ['/p/', '/muestra/', '/admin/', '/client/', '/puerta/', '/entrada/', '/login', '/en/login', '/dashboard'];
 
-    /** Mapa del sitio: solo las páginas públicas, con la fecha de su última revisión. */
+    /**
+     * Mapa del sitio: solo las páginas públicas, con la fecha de su última revisión. Cada página va
+     * una vez por idioma y cada una enlaza a todas sus versiones (xhtml:link, hreflang).
+     */
     public function sitemap(): Response
     {
         $today = now()->toDateString();
         $legalUpdated = config('bida.legal.updated_at', $today);
 
-        $urls = collect([
-            ['loc' => route('home'), 'lastmod' => $today, 'priority' => '1.0'],
-            ['loc' => route('guide'), 'lastmod' => PublicPagesController::GUIDE_UPDATED_AT, 'priority' => '0.8'],
-            ['loc' => route('diy'), 'lastmod' => $today, 'priority' => '0.8'],
+        $pages = collect([
+            ['route' => 'home', 'parameters' => [], 'lastmod' => $today, 'priority' => '1.0'],
+            ['route' => 'guide', 'parameters' => [], 'lastmod' => PublicPagesController::GUIDE_UPDATED_AT, 'priority' => '0.8'],
+            ['route' => 'pricing', 'parameters' => [], 'lastmod' => $today, 'priority' => '0.9'],
+            ['route' => 'diy', 'parameters' => [], 'lastmod' => $today, 'priority' => '0.8'],
         ])
-            ->merge(collect(config('bida.landings', []))->keys()->map(fn (string $slug) => ['loc' => route('landing', $slug), 'lastmod' => $today, 'priority' => '0.9']))
-            ->merge(collect(LegalPages::PAGES)->map(fn (string $page) => ['loc' => route('legal', $page), 'lastmod' => $legalUpdated, 'priority' => '0.3']));
+            ->merge(collect(config('bida.landings', []))->keys()->map(fn (string $slug) => ['route' => 'landing', 'parameters' => ['landing' => $slug], 'lastmod' => $today, 'priority' => '0.9']))
+            ->merge(collect(LegalPages::PAGES)->map(fn (string $page) => ['route' => 'legal', 'parameters' => ['page' => $page], 'lastmod' => $legalUpdated, 'priority' => '0.3']));
+
+        $urls = $pages->flatMap(function (array $page) {
+            $versions = collect(Localization::locales())
+                ->mapWithKeys(fn (string $locale) => [$locale => Localization::route($page['route'], $page['parameters'], true, $locale)]);
+
+            return $versions->map(fn (string $url) => [
+                'loc' => $url,
+                'lastmod' => $page['lastmod'],
+                'priority' => $page['priority'],
+                'alternates' => $versions->all() + ['x-default' => $versions[Localization::default()]],
+            ])->values();
+        });
 
         return response()
             ->view('sitemap', ['urls' => $urls])
@@ -50,7 +67,10 @@ class SeoController extends Controller
     {
         $bida = config('bida');
 
-        return $this->text(view('seo.llms', [
+        // Un archivo por idioma: es Markdown corrido, no se arma con frases sueltas
+        $view = view()->exists('seo.llms-'.app()->getLocale()) ? 'seo.llms-'.app()->getLocale() : 'seo.llms';
+
+        return $this->text(view($view, [
             'bida' => $bida,
             'packages' => Offers::packages(),
             'plans' => Offers::resellerPlans(),

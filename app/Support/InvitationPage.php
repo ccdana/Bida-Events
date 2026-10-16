@@ -149,8 +149,9 @@ final class InvitationPage
         $this->welcome = (array) ($modules['bienvenida'] ?? []);
         $this->dedication = (array) ($modules['dedicatoria'] ?? []);
         $this->music = (array) ($modules['musica'] ?? []);
-        // Los textos de la plantilla, con los que esta invitación cambió encima (EditableTexts)
-        $this->copy = array_merge($meta['copy'], EditableTexts::sanitize($this->config['textos'] ?? []));
+        // Los textos de la plantilla (en el idioma de la invitación), con los que esta invitación
+        // cambió encima: lo que escribió el cliente no se traduce (EditableTexts)
+        $this->copy = array_merge(self::translateCopy($meta['copy']), EditableTexts::sanitize($this->config['textos'] ?? []));
         $this->partials = $meta['partials'] ?? [];
         $this->reactions = $meta['reactions'] ?? [];
         $this->profile = app(EventProfiles::class)->forTemplate($template);
@@ -164,7 +165,7 @@ final class InvitationPage
         $this->heroImage = ($this->welcome['imagen_hero'] ?? null) ?: null;
         $this->hasPlayer = $this->visible('musica') && ! empty($this->music['audio_url'] ?? null);
         $this->eventDate = $invitation->event_date->copy()->timezone(config('app.timezone'));
-        $this->eventLabel = Str::ucfirst($this->eventDate->locale('es')->translatedFormat('l j \d\e F · H:i \h'));
+        $this->eventLabel = Str::ucfirst($this->eventDate->locale(app()->getLocale())->translatedFormat(Localization::dateFormat('l j \d\e F · H:i \h')));
         $this->displayName = ($this->welcome['nombre_quinceanera'] ?? null) ?: $invitation->title;
         $this->eventKey = $meta['event'] ?? 'xv';
         $this->theme = $meta['theme'] ?? $this->eventKey;
@@ -232,13 +233,28 @@ final class InvitationPage
         return $this->guest !== null && $this->showsRsvp();
     }
 
+    /**
+     * Los textos por defecto de una plantilla en el idioma activo. Los que no son texto (animaciones,
+     * orden de pestañas) quedan como están.
+     *
+     * @param  array<string, mixed>  $copy
+     * @return array<string, mixed>
+     */
+    public static function translateCopy(array $copy): array
+    {
+        return array_map(
+            fn (mixed $value) => is_string($value) ? __($value) : $value,
+            array_diff_key($copy, array_flip(EditableTexts::NOT_TEXT)),
+        ) + array_intersect_key($copy, array_flip(EditableTexts::NOT_TEXT));
+    }
+
     /** Enlaces del menú en el mismo orden en que aparecen las secciones. */
     public function navItems(): array
     {
-        $items = [['id' => 'inicio', 'label' => $this->copy['nav_inicio'] ?? 'Inicio']];
+        $items = [['id' => 'inicio', 'label' => $this->copy['nav_inicio'] ?? __('Inicio')]];
 
         if ($this->showsGuestBanner()) {
-            $items[] = ['id' => 'guest-banner', 'label' => 'Tu invitación'];
+            $items[] = ['id' => 'guest-banner', 'label' => __('Tu invitación')];
         }
 
         foreach ($this->order as $module) {
@@ -251,8 +267,8 @@ final class InvitationPage
             $registry = app(ModuleRegistry::class);
 
             $label = $module === 'destacados'
-                ? ($this->copy['nav_court'] ?? self::NAV_LABELS['destacados'])
-                : ($this->copy['nav_'.$module] ?? self::NAV_LABELS[$module] ?? ($registry->has($module) ? $registry->get($module)->label() : Str::headline($module)));
+                ? ($this->copy['nav_court'] ?? __(self::NAV_LABELS['destacados']))
+                : ($this->copy['nav_'.$module] ?? (isset(self::NAV_LABELS[$module]) ? __(self::NAV_LABELS[$module]) : ($registry->has($module) ? __($registry->get($module)->label()) : Str::headline($module))));
 
             $items[] = ['id' => str_replace('_', '-', $module), 'label' => $label];
         }
@@ -311,9 +327,15 @@ final class InvitationPage
 
         return [
             'name' => 'Bida Events',
-            'url' => route('home'),
-            'pitch' => $this->copy['footer_pitch'] ?? '¿Te gustó esta invitación? Crea la tuya',
+            'url' => lroute('home'),
+            'pitch' => $this->copy['footer_pitch'] ?? __('¿Te gustó esta invitación? Crea la tuya'),
         ];
+    }
+
+    /** Invitación gratuita de «Hazlo tú»: lleva la marca de Bida Events a la vista (shell/footer). */
+    public function isFreeTier(): bool
+    {
+        return $this->invitation->is_diy && $this->invitation->package === Packages::FREE;
     }
 
     /** Iniciales para monogramas y sellos, p. ej. "A & L". */

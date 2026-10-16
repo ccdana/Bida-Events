@@ -7,7 +7,7 @@
     Lógica en shell/cover-component; estilos en themes/salidas.css.
 --}}
 @php
-    $introDate = \Illuminate\Support\Str::ucfirst($page->eventDate->locale('es')->translatedFormat('j M Y'));
+    $introDate = \Illuminate\Support\Str::ucfirst($page->eventDate->locale(app()->getLocale())->translatedFormat('j M Y'));
     $gate = $page->eventDate->format('j');
 @endphp
 
@@ -17,7 +17,7 @@
     :class="{ 'is-torn': stage >= 1, 'is-open': stage >= 2 }"
     role="dialog"
     aria-modal="true"
-    aria-label="Invitación a la graduación de {{ $page->displayName }}">
+    aria-label="{{ __('Invitación a la graduación de :displayName', ['displayName' => $page->displayName]) }}">
     <div class="ps-gate" aria-hidden="true">
         <div class="ps-gate__window">
             <span class="ps-gate__sky"></span>
@@ -35,37 +35,37 @@
         </div>
 
         <div class="ps-gate__board">
-            <span class="ps-gate__number">{{ $invCopy['board_gate'] ?? 'Puerta' }} {{ $gate }}</span>
+            <span class="ps-gate__number">{{ $invCopy['board_gate'] ?? __('Puerta') }} {{ $gate }}</span>
             <span class="ps-gate__status">
-                <span class="ps-gate__status-now">{{ $invCopy['board_on_time'] ?? 'A tiempo' }}</span>
-                <span class="ps-gate__status-next">{{ $invCopy['board_today'] ?? 'Embarcando hoy' }}</span>
+                <span class="ps-gate__status-now">{{ $invCopy['board_on_time'] ?? __('A tiempo') }}</span>
+                <span class="ps-gate__status-next">{{ $invCopy['board_today'] ?? __('Embarcando hoy') }}</span>
             </span>
         </div>
     </div>
 
-    <p class="ps-intro__eyebrow">{{ $invCopy['intro_eyebrow'] ?? 'Tienes un asiento reservado' }}</p>
+    <p class="ps-intro__eyebrow">{{ $invCopy['intro_eyebrow'] ?? __('Tienes un asiento reservado') }}</p>
 
-    <button type="button" class="ps-pass" data-cover-trigger @click="open()" aria-label="Abordar y abrir la invitación">
+    <button type="button" class="ps-pass" data-cover-trigger @click="open()" aria-label="{{ __('Abordar y abrir la invitación') }}">
         <span class="ps-pass__main">
             <span class="ps-pass__title">
-                {{ $invCopy['pass_title'] ?? 'Pase de abordar' }}
+                {{ $invCopy['pass_title'] ?? __('Pase de abordar') }}
                 <span class="ps-pass__led" aria-hidden="true"></span>
             </span>
             <span class="ps-pass__field">
-                <small>{{ $invCopy['pass_passenger'] ?? 'Pasajero' }}</small>
-                <b>{{ $guest?->name ?? ($invCopy['pass_guest'] ?? 'Invitado especial') }}</b>
+                <small>{{ $invCopy['pass_passenger'] ?? __('Pasajero') }}</small>
+                <b>{{ $guest?->name ?? ($invCopy['pass_guest'] ?? __('Invitado especial')) }}</b>
             </span>
             <span class="ps-pass__field">
-                <small>{{ $invCopy['board_destination'] ?? 'Destino' }}</small>
+                <small>{{ $invCopy['board_destination'] ?? __('Destino') }}</small>
                 <b>{{ $page->displayName }}</b>
             </span>
             <span class="ps-pass__row">
                 <span class="ps-pass__field">
-                    <small>{{ $invCopy['board_date'] ?? 'Fecha' }}</small>
+                    <small>{{ $invCopy['board_date'] ?? __('Fecha') }}</small>
                     <b>{{ $introDate }}</b>
                 </span>
                 <span class="ps-pass__field">
-                    <small>{{ $invCopy['board_time'] ?? 'Hora' }}</small>
+                    <small>{{ $invCopy['board_time'] ?? __('Hora') }}</small>
                     <b>{{ $page->eventDate->format('H:i') }}</b>
                 </span>
             </span>
@@ -76,5 +76,5 @@
         </span>
     </button>
 
-    <p class="ps-intro__hint">{{ $invCopy['intro_hint'] ?? 'Toca el pase para abordar' }}</p>
+    <p class="ps-intro__hint">{{ $invCopy['intro_hint'] ?? __('Toca el pase para abordar') }}</p>
 </div>

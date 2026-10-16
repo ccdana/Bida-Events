@@ -43,8 +43,6 @@ return [
         'binaries' => [
             'pg_dump' => env('BACKUP_PG_DUMP', 'pg_dump'),
             'psql' => env('BACKUP_PSQL', 'psql'),
-            'mysqldump' => env('BACKUP_MYSQLDUMP', 'mysqldump'),
-            'mysql' => env('BACKUP_MYSQL', 'mysql'),
         ],
 
         // Segundos máximos para volcar o restaurar la base

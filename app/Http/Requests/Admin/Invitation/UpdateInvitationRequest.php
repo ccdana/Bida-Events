@@ -4,6 +4,7 @@ namespace App\Http\Requests\Admin\Invitation;
 
 use App\Http\Requests\Admin\Invitation\Concerns\ValidatesInvitationModules;
 use App\Models\Invitation;
+use App\Support\Localization;
 use App\Support\Packages;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -33,12 +34,15 @@ class UpdateInvitationRequest extends FormRequest
                 Rule::unique('invitations', 'slug')->ignore($invitation instanceof Invitation ? $invitation->id : null),
             ],
             'template' => ['required', 'string'],
+            // Idioma de los textos y botones de la invitación (config/localization.php)
+            'locale' => ['sometimes', Rule::in(Localization::locales())],
             'event_type_id' => ['required', 'exists:event_types,id'],
             'user_id' => ['nullable', 'exists:users,id'],
             'event_date' => ['required', 'date'],
             'status' => ['required', 'in:active,inactive'],
-            // Paquete vendido (App\Support\Packages); vacío = todo incluido (tarjetas y anteriores)
-            'package' => ['nullable', Rule::in(Packages::ORDER)],
+            // Paquete vendido (App\Support\Packages); vacío = todo incluido (tarjetas y anteriores). Gratis
+            // solo lo tienen las de «Hazlo tú»: el administrador las guarda (o sube de nivel) desde aquí
+            'package' => ['nullable', Rule::in(Packages::TIERS)],
             'expires_at' => ['required', 'date'],
             ...$this->moduleRules(),
         ];

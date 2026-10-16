@@ -1,7 +1,7 @@
 {{-- Preguntas frecuentes. Recibe $faqs: lista de [pregunta, respuesta]. --}}
 <section id="preguntas" class="scroll-mt-20 border-t border-site-line">
     <div class="mx-auto max-w-3xl px-5 py-20 lg:py-28">
-        <h2 class="text-3xl font-semibold leading-[1.1] tracking-tight md:text-5xl" data-reveal>Preguntas frecuentes</h2>
+        <h2 class="text-3xl font-semibold leading-[1.1] tracking-tight md:text-5xl" data-reveal>{{ __('Preguntas frecuentes') }}</h2>
 
         <div class="mt-12 divide-y divide-site-line border-y border-site-line" data-reveal>
             @foreach($faqs as [$question, $answer])

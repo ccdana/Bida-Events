@@ -14,7 +14,7 @@
 @endphp
 <!DOCTYPE html>
 {{-- La clase no-js la quita el primer script de la cabecera (ver shell/head) --}}
-<html lang="es" class="no-js">
+<html lang="{{ app()->getLocale() }}" class="no-js">
 <head>
     @include('invitations.partials.shell.head')
     {{-- Letras propias del cuaderno: manuscrita y de máquina de escribir --}}
@@ -22,7 +22,7 @@
     @vite(['resources/css/invitation/story.css', 'resources/css/cards/aventura.css'])
 </head>
 <body class="inv-page inv-aventura overflow-x-hidden {{ $page->hasPlayer ? 'has-player' : '' }}" x-data="invitationApp()" x-init="init()">
-    <a class="inv-skip" href="#contenido">{{ $invCopy['skip_link'] ?? 'Saltar al contenido' }}</a>
+    <a class="inv-skip" href="#contenido">{{ $invCopy['skip_link'] ?? __('Saltar al contenido') }}</a>
 
     @include('invitations.partials.aventura.sprite')
 
@@ -40,8 +40,8 @@
 
     @include('invitations.partials.shell.footer', [
         'footerClass' => 'inv-aventura-footer',
-        'footerName' => $cardTo !== '' ? 'Para '.$cardTo : $page->displayName,
-        'footerDate' => \Illuminate\Support\Str::ucfirst($page->eventDate->locale('es')->translatedFormat('j \d\e F \d\e Y')),
+        'footerName' => $cardTo !== '' ? __('Para :cardTo', ['cardTo' => $cardTo]) : $page->displayName,
+        'footerDate' => \Illuminate\Support\Str::ucfirst($page->eventDate->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('j \d\e F \d\e Y'))),
         'footerOrnament' => null,
     ])
 

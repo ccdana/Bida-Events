@@ -40,7 +40,7 @@
                                 @if($photo = $filled($moment['foto'] ?? null))
                                     <figure class="story-moment__photo" data-surface>
                                         <img src="{{ \App\Support\CloudinaryImage::url($photo, 700) }}"
-                                            alt="{{ $filled($moment['foto_alt'] ?? null) ?? ($title ?? 'Uno de nuestros momentos') }}"
+                                            alt="{{ $filled($moment['foto_alt'] ?? null) ?? ($title ?? __('Uno de nuestros momentos')) }}"
                                             width="700" height="525" loading="lazy" decoding="async">
                                     </figure>
                                 @endif

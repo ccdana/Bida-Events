@@ -10,16 +10,16 @@
         : ['nombre' => trim((string) $persona), 'detalle' => null];
     $padrinos = array_values(array_filter($data['padrinos'] ?? [], fn ($padrino) => !empty($padrino['nombres'] ?? null)));
     $groups = array_filter([
-        ($invCopy['court_men'] ?? 'El show') => array_values(array_filter(array_map($normalizePerson, $data['chambelanes'] ?? []), fn ($person) => $person['nombre'] !== '')),
-        ($invCopy['court_women'] ?? 'El jurado') => array_values(array_filter(array_map($normalizePerson, $data['damitas'] ?? []), fn ($person) => $person['nombre'] !== '')),
+        ($invCopy['court_men'] ?? __('El show')) => array_values(array_filter(array_map($normalizePerson, $data['chambelanes'] ?? []), fn ($person) => $person['nombre'] !== '')),
+        ($invCopy['court_women'] ?? __('El jurado')) => array_values(array_filter(array_map($normalizePerson, $data['damitas'] ?? []), fn ($person) => $person['nombre'] !== '')),
     ]);
 @endphp
 
 <section class="inv-section reveal cl-crew-section" id="destacados">
     <div class="inv-wrap">
         @include('invitations.partials.section-header', [
-            'eyebrow' => $invCopy['court_eyebrow'] ?? 'Los aprendices del caldero',
-            'title' => $invCopy['court_title'] ?? 'Quién prepara la poción',
+            'eyebrow' => $invCopy['court_eyebrow'] ?? __('Los aprendices del caldero'),
+            'title' => $invCopy['court_title'] ?? __('Quién prepara la poción'),
             'intro' => $invCopy['court_intro'] ?? null,
         ])
 
@@ -64,7 +64,7 @@
                 </div>
             @endif
         @else
-            <p class="inv-empty">{{ $invCopy['court_empty'] ?? 'Pronto presentaremos a quienes preparan la fiesta.' }}</p>
+            <p class="inv-empty">{{ $invCopy['court_empty'] ?? __('Pronto presentaremos a quienes preparan la fiesta.') }}</p>
         @endif
     </div>
 </section>

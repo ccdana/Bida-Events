@@ -16,7 +16,7 @@ class CanvasProfile extends EventProfile
 
     public function label(): string
     {
-        return 'Evento libre';
+        return __('Evento libre');
     }
 
     public function modules(): array
@@ -31,16 +31,16 @@ class CanvasProfile extends EventProfile
     public function heroFields(): array
     {
         return [
-            'nombre' => ['label' => 'Nombre o título del evento', 'placeholder' => 'Ej. Aniversario 25 de Casa Molina', 'help' => 'Lo que va en grande en la portada: un nombre, una marca o el título de la celebración.'],
+            'nombre' => ['label' => __('Nombre o título del evento'), 'placeholder' => __('Ej. Aniversario 25 de Casa Molina'), 'help' => __('Lo que va en grande en la portada: un nombre, una marca o el título de la celebración.')],
         ];
     }
 
     public function featuredGroups(): array
     {
         return [
-            'padrinos' => ['Anfitriones', 'Anfitrión'],
-            'chambelanes' => ['Invitados especiales', 'Invitado especial'],
-            'damitas' => ['Equipo', 'Integrante'],
+            'padrinos' => [__('Anfitriones'), __('Anfitrión')],
+            'chambelanes' => [__('Invitados especiales'), __('Invitado especial')],
+            'damitas' => [__('Equipo'), __('Integrante')],
         ];
     }
 
@@ -48,13 +48,13 @@ class CanvasProfile extends EventProfile
     public function required(): array
     {
         return [
-            'bienvenida' => ['nombre' => 'Falta el nombre o título del evento'],
-            'ubicacion' => ['nombre_lugar' => 'Falta el lugar'],
+            'bienvenida' => ['nombre' => __('Falta el nombre o título del evento')],
+            'ubicacion' => ['nombre_lugar' => __('Falta el lugar')],
         ];
     }
 
     public function sample(): array
     {
-        return ['name' => 'Casa Molina', 'subtitle' => 'Celebramos 25 años'];
+        return ['name' => __('Casa Molina'), 'subtitle' => __('Celebramos 25 años')];
     }
 }

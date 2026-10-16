@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 
 /**
  * Las invitaciones del panel, en dos listas que no se mezclan: las de los clientes y las de muestra
- * (las que el sitio enseña para probar: portada, temporadas, «Hazlo tú» y páginas por evento).
+ * (las que el sitio enseña para probar: portada, temporadas, «Únete» y páginas por evento).
  */
 class DashboardController extends Controller
 {
@@ -41,7 +41,7 @@ class DashboardController extends Controller
 
         // Solo la página que se ve, y los invitados los cuenta la base
         $invitations = InvitationFilters::apply($scope(), $filters)
-            ->select('id', 'user_id', 'reseller_id', 'event_type_id', 'slug', 'template', 'package', 'title', 'event_date', 'status', 'expires_at', 'created_at')
+            ->select('id', 'user_id', 'reseller_id', 'is_diy', 'event_type_id', 'slug', 'template', 'package', 'title', 'event_date', 'status', 'expires_at', 'created_at')
             ->with(['eventType:id,name,slug,kind', 'user:id,name,username'])
             ->withCount([
                 'guests',

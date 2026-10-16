@@ -7,10 +7,10 @@
     Estilos en tendencias/partitura.css.
 --}}
 @php
-    $date = $page->eventDate->locale('es');
-    $heroEyebrow = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? 'Nos casamos');
+    $date = $page->eventDate->locale(app()->getLocale());
+    $heroEyebrow = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? __('Nos casamos'));
     $heroMessage = trim((string) ($page->welcome['mensaje'] ?? ''));
-    $heroDay = ($page->welcome['fecha_texto'] ?? null) ?: \Illuminate\Support\Str::ucfirst($date->translatedFormat('l j \d\e F'));
+    $heroDay = ($page->welcome['fecha_texto'] ?? null) ?: \Illuminate\Support\Str::ucfirst($date->translatedFormat(\App\Support\Localization::dateFormat('l j \d\e F')));
     $voices = array_slice($page->names(), 0, 2);
     // Las dos melodías: la primera sube, la segunda baja, y terminan en la misma nota
     $melodies = [
@@ -22,11 +22,11 @@
 <header id="inicio" class="inv-hero pt-hero">
     <div class="pt-sheet">
         <div class="pt-masthead inv-fade-up">
-            <span>{{ $invCopy['score_program'] ?? 'Programa' }}</span>
-            <span>{{ $invCopy['score_opus'] ?? 'Op. 1' }}</span>
+            <span>{{ $invCopy['score_program'] ?? __('Programa') }}</span>
+            <span>{{ $invCopy['score_opus'] ?? __('Op. 1') }}</span>
         </div>
 
-        <p class="pt-work inv-fade-up">{{ $invCopy['score_title'] ?? 'Concierto para dos voces' }}</p>
+        <p class="pt-work inv-fade-up">{{ $invCopy['score_title'] ?? __('Concierto para dos voces') }}</p>
 
         @if($page->heroImage)
             <figure class="pt-photo inv-fade-up inv-fade-up--1">
@@ -55,7 +55,7 @@
                     ])
                 </span>
                 @if(! $loop->last)
-                    <span class="tr-sr-only">y</span>
+                    <span class="tr-sr-only">{{ __('y') }}</span>
                 @endif
             @endforeach
         </h1>
@@ -63,7 +63,7 @@
         {{-- Indicaciones de la función: el calderón sobre la fecha --}}
         <dl class="pt-marks inv-fade-up inv-fade-up--3">
             <div class="pt-marks__row">
-                <dt>{{ $invCopy['score_date'] ?? 'Función' }}</dt>
+                <dt>{{ $invCopy['score_date'] ?? __('Función') }}</dt>
                 <dd>
                     <svg class="pt-fermata" viewBox="0 0 40 22" aria-hidden="true" focusable="false"><path d="M3 20 C 6 3, 34 3, 37 20"/><circle cx="20" cy="15" r="2.6"/></svg>
                     {{ $heroDay }} · {{ $date->format('H:i') }}
@@ -71,7 +71,7 @@
             </div>
             @if($page->placeName)
                 <div class="pt-marks__row">
-                    <dt>{{ $invCopy['score_hall'] ?? 'Sala' }}</dt>
+                    <dt>{{ $invCopy['score_hall'] ?? __('Sala') }}</dt>
                     <dd><a href="#ubicacion">{{ $page->placeName }}</a></dd>
                 </div>
             @endif
@@ -83,7 +83,7 @@
     </div>
 
     <a href="#contenido" class="inv-hero__scroll pt-hero__scroll">
-        {{ $invCopy['scroll_hint'] ?? 'Desliza' }}
+        {{ $invCopy['scroll_hint'] ?? __('Desliza') }}
         <span class="inv-hero__scroll-line" aria-hidden="true"></span>
     </a>
 </header>

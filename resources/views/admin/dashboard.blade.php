@@ -12,7 +12,7 @@
             <h1 class="text-3xl font-semibold tracking-tight md:text-4xl">{{ $isShowcase ? 'Muestras' : 'Invitaciones' }}</h1>
             <p class="mt-2 max-w-[56ch] text-site-muted">
                 @if($isShowcase)
-                    Las invitaciones que el sitio enseña para probar: la portada, las temporadas, «Hazlo tú» y las páginas
+                    Las invitaciones que el sitio enseña para probar: la portada, las temporadas, «Únete» y las páginas
                     por evento. Se editan como cualquier otra, pero no se mezclan con las de tus clientes.
                 @else
                     Los eventos de tus clientes separados por tipo. Filtra desde la barra lateral y abre la ficha de cualquiera
@@ -76,7 +76,7 @@
                     <a href="{{ route($listRoute) }}" class="admin-link-button mt-6">Ver todo</a>
                 @elseif($isShowcase)
                     <h2 class="mt-4 text-lg font-medium">No hay invitaciones de muestra</h2>
-                    <p class="mt-1 max-w-[44ch] text-site-muted">Son las que dice config/bida.php (demo_invitations, temporadas, «Hazlo tú» y páginas por evento).</p>
+                    <p class="mt-1 max-w-[44ch] text-site-muted">Son las que dice config/bida.php (demo_invitations, temporadas, «Únete» y páginas por evento).</p>
                 @else
                     <h2 class="mt-4 text-lg font-medium">Todavía no hay invitaciones</h2>
                     <p class="mt-1 max-w-[40ch] text-site-muted">Crea la primera, asígnale un cliente y compártela cuando esté lista.</p>

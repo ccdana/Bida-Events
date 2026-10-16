@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
-use App\Services\InvitationModuleService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class Guest extends Model
 {
@@ -38,10 +38,14 @@ class Guest extends Model
     protected static function booted(): void
     {
         static::creating(function (Guest $guest) {
-            if (empty($guest->qr_code_token)) {
-                $guest->qr_code_token = InvitationModuleService::generateGuestToken();
-            }
+            $guest->qr_code_token = $guest->qr_code_token ?: self::newToken();
         });
+    }
+
+    /** Clave del enlace personal del invitado (/p/{slug}/i/{token}). */
+    public static function newToken(): string
+    {
+        return Str::random(32);
     }
 
     public function invitation(): BelongsTo

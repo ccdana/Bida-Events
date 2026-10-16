@@ -45,7 +45,11 @@ class SettingsController extends Controller
             ->map(fn (array $package) => [
                 'price' => (int) $package['price'],
                 'promo_price' => ($package['promo_price'] ?? '') === '' ? null : (int) $package['promo_price'],
-            ])
+            ] + (array_key_exists('delivery', $package) ? [
+                // El servicio de «Te la hacemos» (sin rondas = cambios sin límite hasta el evento)
+                'delivery' => trim((string) $package['delivery']),
+                'revisions' => ($package['revisions'] ?? '') === '' ? null : (int) $package['revisions'],
+            ] : []))
             ->all());
 
         // Cada temporada por separado: se enciende, se apaga y cambia de precio sin tocar a las demás
@@ -56,6 +60,8 @@ class SettingsController extends Controller
                 'price' => (int) $season['price'],
                 'promo_price' => ($season['promo_price'] ?? '') === '' ? null : (int) $season['promo_price'],
                 'ends_at' => $this->date($season['ends_at'] ?? null),
+                // «Hazlo tú» con un diseño de la temporada: precio único (vacío = el de su nivel)
+                'diy_price' => ($season['diy_price'] ?? '') === '' ? null : (int) $season['diy_price'],
             ])
             ->all());
 
@@ -65,6 +71,21 @@ class SettingsController extends Controller
                 'price' => (int) $plan['price'],
                 'promo_price' => ($plan['promo_price'] ?? '') === '' ? null : (int) $plan['promo_price'],
                 'quota_per_month' => ($plan['quota_per_month'] ?? '') === '' ? null : (int) $plan['quota_per_month'],
+            ])
+            ->all());
+
+        // Descuento por pagar 3 o 12 meses de una vez (QR por adelantado o tarjeta que se renueva así)
+        if ($request->has('prepay')) {
+            SiteSettings::put('prepay', collect(SiteSettings::PREPAY_MONTHS)
+                ->mapWithKeys(fn (int $months) => [$months => (int) $request->input("prepay.{$months}", 0)])
+                ->all());
+        }
+
+        SiteSettings::put('diy_prices', collect($request->input('diy_prices', []))
+            ->only(array_keys(config('bida.diy.prices', [])))
+            ->map(fn (array $tier) => [
+                'price' => (int) $tier['price'],
+                'promo_price' => ($tier['promo_price'] ?? '') === '' ? null : (int) $tier['promo_price'],
             ])
             ->all());
 

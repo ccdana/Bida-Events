@@ -7,12 +7,12 @@
     Los números de página son los mismos que llevan las secciones (tendencias/revista.css).
 --}}
 @php
-    $date = $page->eventDate->locale('es');
+    $date = $page->eventDate->locale(app()->getLocale());
     $year = $date->format('Y');
-    $heroEyebrow = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? 'Me gradúo');
+    $heroEyebrow = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? __('Me gradúo'));
     $heroMessage = trim((string) ($page->welcome['mensaje'] ?? ''));
-    $heroDay = ($page->welcome['fecha_texto'] ?? null) ?: \Illuminate\Support\Str::ucfirst($date->translatedFormat('l j \d\e F'));
-    $pageWord = $invCopy['mag_page'] ?? 'pág.';
+    $heroDay = ($page->welcome['fecha_texto'] ?? null) ?: \Illuminate\Support\Str::ucfirst($date->translatedFormat(\App\Support\Localization::dateFormat('l j \d\e F')));
+    $pageWord = $invCopy['mag_page'] ?? __('pág.');
 
     // Número de página de cada sección: la portada es la 1 y cada sección ocupa una doble página
     $contents = array_values(array_filter($page->navItems(), fn (array $item) => $item['id'] !== 'inicio'));
@@ -24,9 +24,9 @@
 
     // Los titulares de tapa: solo los que tienen página en esta edición
     $coverLines = array_values(array_filter([
-        isset($pages['itinerario']) ? ['itinerario', $invCopy['mag_agenda'] ?? 'El programa completo'] : null,
-        isset($pages['dress-code']) ? ['dress-code', $invCopy['mag_style'] ?? 'Qué ponerte'] : null,
-        isset($pages['galeria']) ? ['galeria', $invCopy['gallery_eyebrow'] ?? 'Fotorreportaje'] : null,
+        isset($pages['itinerario']) ? ['itinerario', $invCopy['mag_agenda'] ?? __('El programa completo')] : null,
+        isset($pages['dress-code']) ? ['dress-code', $invCopy['mag_style'] ?? __('Qué ponerte')] : null,
+        isset($pages['galeria']) ? ['galeria', $invCopy['gallery_eyebrow'] ?? __('Fotorreportaje')] : null,
     ]));
 
     // Código de barras: las barras salen de los dígitos de la fecha (AAAAMMDD)
@@ -39,7 +39,7 @@
 
 <style>
     .inv-revista {
-        --rv-running: "{{ $cssText(($invCopy['mag_name'] ?? 'Promoción').' '.$year) }}";
+        --rv-running: "{{ $cssText(($invCopy['mag_name'] ?? __('Promoción')).' '.$year) }}";
         --rv-page-word: "{{ $cssText($pageWord) }}";
     }
 </style>
@@ -48,10 +48,10 @@
     <article class="rv-cover inv-fade-up">
         <div class="rv-cover__top">
             <p class="rv-cover__issue">
-                <span>{{ $invCopy['mag_issue'] ?? 'N.º 1 · Edición especial' }}</span>
+                <span>{{ $invCopy['mag_issue'] ?? __('N.º 1 · Edición especial') }}</span>
                 <span>{{ \Illuminate\Support\Str::ucfirst($date->translatedFormat('F Y')) }}</span>
             </p>
-            <p class="rv-masthead" data-fit data-fit-max="190" style="--fit-fallback: clamp(3.2rem, 20vw, 8rem)">{{ $invCopy['mag_name'] ?? 'Promoción' }}</p>
+            <p class="rv-masthead" data-fit data-fit-max="190" style="--fit-fallback: clamp(3.2rem, 20vw, 8rem)">{{ $invCopy['mag_name'] ?? __('Promoción') }}</p>
             <span class="rv-masthead__year">{{ $year }}</span>
         </div>
 
@@ -68,17 +68,17 @@
 
             {{-- La fiesta del año: el titular principal, con el resaltador sobre la fecha --}}
             <a href="{{ isset($pages['ubicacion']) ? '#ubicacion' : '#contenido' }}" class="rv-lead">
-                <span class="rv-lead__kicker">{{ $invCopy['mag_party'] ?? 'La fiesta del año' }}</span>
+                <span class="rv-lead__kicker">{{ $invCopy['mag_party'] ?? __('La fiesta del año') }}</span>
                 <span class="rv-lead__date"><mark>{{ $heroDay }}</mark> <mark>{{ $date->format('H:i') }}</mark></span>
                 @if($page->placeName)
-                    <span class="rv-lead__place">{{ $invCopy['mag_where'] ?? 'Dónde será' }}: {{ $page->placeName }}</span>
+                    <span class="rv-lead__place">{{ $invCopy['mag_where'] ?? __('Dónde será') }}: {{ $page->placeName }}</span>
                 @endif
             </a>
 
-            <span class="rv-sticker" aria-hidden="true">{{ $invCopy['intro_eyebrow'] ?? 'Edición de colección' }}</span>
+            <span class="rv-sticker" aria-hidden="true">{{ $invCopy['intro_eyebrow'] ?? __('Edición de colección') }}</span>
 
             <figcaption class="rv-star">
-                <span class="rv-star__kicker">{{ $invCopy['mag_exclusive'] ?? 'Exclusiva' }} · {{ $heroEyebrow }}</span>
+                <span class="rv-star__kicker">{{ $invCopy['mag_exclusive'] ?? __('Exclusiva') }} · {{ $heroEyebrow }}</span>
                 <h1 class="rv-star__name">{{ $page->displayName }}</h1>
             </figcaption>
         </figure>
@@ -106,8 +106,8 @@
 
     {{-- El índice de la edición: cada sección con su página --}}
     @if(count($contents))
-        <nav class="rv-contents inv-fade-up inv-fade-up--2" aria-label="{{ $invCopy['mag_contents'] ?? 'En esta edición' }}">
-            <p class="rv-contents__title">{{ $invCopy['mag_contents'] ?? 'En esta edición' }}</p>
+        <nav class="rv-contents inv-fade-up inv-fade-up--2" aria-label="{{ $invCopy['mag_contents'] ?? __('En esta edición') }}">
+            <p class="rv-contents__title">{{ $invCopy['mag_contents'] ?? __('En esta edición') }}</p>
             <ol class="rv-contents__list">
                 @foreach($contents as $item)
                     <li>
@@ -122,15 +122,15 @@
     @endif
 
     @if($heroMessage !== '')
-        <section class="rv-letter inv-fade-up inv-fade-up--3" aria-label="{{ $invCopy['mag_letter'] ?? 'Carta del editor' }}">
-            <p class="rv-letter__title">{{ $invCopy['mag_letter'] ?? 'Carta del editor' }}</p>
+        <section class="rv-letter inv-fade-up inv-fade-up--3" aria-label="{{ $invCopy['mag_letter'] ?? __('Carta del editor') }}">
+            <p class="rv-letter__title">{{ $invCopy['mag_letter'] ?? __('Carta del editor') }}</p>
             <p class="rv-letter__text">{{ $heroMessage }}</p>
             <p class="rv-letter__sign">— {{ $page->displayName }}</p>
         </section>
     @endif
 
     <a href="#contenido" class="inv-hero__scroll rv-hero__scroll">
-        {{ $invCopy['scroll_hint'] ?? 'Desliza' }}
+        {{ $invCopy['scroll_hint'] ?? __('Desliza') }}
         <span class="inv-hero__scroll-line" aria-hidden="true"></span>
     </a>
 </header>

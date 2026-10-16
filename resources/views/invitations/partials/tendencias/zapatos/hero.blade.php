@@ -9,15 +9,15 @@
     (data-parallax). Estilos en css/invitation/tendencias/zapatos.css.
 --}}
 @php
-    $heroEyebrow = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? 'Mis XV años');
+    $heroEyebrow = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? __('Mis XV años'));
     $heroMessage = $page->welcome['mensaje'] ?? '';
     $heroDay = ($page->welcome['fecha_texto'] ?? null)
-        ?: \Illuminate\Support\Str::ucfirst($page->eventDate->locale('es')->translatedFormat('l j \d\e F'));
+        ?: \Illuminate\Support\Str::ucfirst($page->eventDate->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('l j \d\e F')));
     $firstName = \Illuminate\Support\Str::of($page->displayName)->explode(' ')->first();
     // El código de barras sale de la fecha: siempre el mismo para esta invitación
     $barcode = $page->eventDate->format('Ymd').$page->eventDate->format('Hi');
     // La palabra antes del número de cada caja (CSS counter)
-    $refLabel = trim(str_replace(['<', '>', '"', '\\'], '', (string) ($invCopy['shoe_ref'] ?? 'Ref.')));
+    $refLabel = trim(str_replace(['<', '>', '"', '\\'], '', (string) ($invCopy['shoe_ref'] ?? __('Ref.'))));
     // El papel de las etiquetas y el de seda siguen el modo de la paleta: claros sobre un fondo claro y
     // apenas más claros que el fondo si es oscuro. La tinta de las etiquetas la calcula el servidor.
     $contrast = \App\Support\ColorContrast::class;
@@ -49,7 +49,7 @@
 <header id="inicio" class="inv-hero zp-hero">
     <p class="zp-kicker">{{ $heroEyebrow }}</p>
     <h1 class="zp-brand">{{ $page->displayName }}</h1>
-    <p class="zp-brand__line">{{ $invCopy['shoe_line'] ?? 'Colección XV' }} · {{ $page->eventDate->format('Y') }}</p>
+    <p class="zp-brand__line">{{ $invCopy['shoe_line'] ?? __('Colección XV') }} · {{ $page->eventDate->format('Y') }}</p>
 
     {{-- La caja abierta: el papel de seda hacia los lados, la foto y las dos zapatillas --}}
     <div class="zp-open">
@@ -73,21 +73,21 @@
     {{-- La etiqueta del costado de la caja: cuándo y dónde --}}
     <div class="zp-label">
         <p class="zp-label__head">
-            <span>{{ $invCopy['shoe_model'] ?? 'Modelo' }}</span>
-            <strong>{{ $invCopy['shoe_model_name'] ?? 'Mis primeros tacones' }}</strong>
+            <span>{{ $invCopy['shoe_model'] ?? __('Modelo') }}</span>
+            <strong>{{ $invCopy['shoe_model_name'] ?? __('Mis primeros tacones') }}</strong>
         </p>
         <dl class="zp-label__fields">
             <div>
-                <dt>{{ $invCopy['shoe_date'] ?? 'Fecha' }}</dt>
+                <dt>{{ $invCopy['shoe_date'] ?? __('Fecha') }}</dt>
                 <dd>{{ $heroDay }}</dd>
             </div>
             <div>
-                <dt>{{ $invCopy['shoe_time'] ?? 'Hora' }}</dt>
+                <dt>{{ $invCopy['shoe_time'] ?? __('Hora') }}</dt>
                 <dd>{{ $page->eventDate->format('H:i') }}</dd>
             </div>
             @if($page->placeName)
                 <div class="zp-label__wide">
-                    <dt>{{ $invCopy['shoe_place'] ?? 'Lugar' }}</dt>
+                    <dt>{{ $invCopy['shoe_place'] ?? __('Lugar') }}</dt>
                     <dd>{{ $page->placeName }}</dd>
                 </div>
             @endif
@@ -95,7 +95,7 @@
         <div class="zp-label__foot" aria-hidden="true">
             <span class="zp-label__bars"></span>
             <span class="zp-label__code">{{ $barcode }}</span>
-            <span class="zp-label__size"><small>{{ $invCopy['shoe_size'] ?? 'Talla' }}</small>XV</span>
+            <span class="zp-label__size"><small>{{ $invCopy['shoe_size'] ?? __('Talla') }}</small>XV</span>
         </div>
     </div>
 
@@ -104,7 +104,7 @@
     @endif
 
     <a href="#contenido" class="inv-hero__scroll zp-hero__scroll">
-        {{ $invCopy['scroll_hint'] ?? 'Desliza' }}
+        {{ $invCopy['scroll_hint'] ?? __('Desliza') }}
         <span class="inv-hero__scroll-line" aria-hidden="true"></span>
     </a>
 </header>

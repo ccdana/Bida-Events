@@ -20,7 +20,7 @@
     <table class="rv-issue">
         <tr>
             <td>{{ $copy['mag_issue'] ?? 'N.º 1 · Edición especial' }}</td>
-            <td style="text-align: right;">{{ $invitation->event_date?->locale('es')->translatedFormat('F Y') }}</td>
+            <td style="text-align: right;">{{ $invitation->event_date?->locale(app()->getLocale())->translatedFormat('F Y') }}</td>
         </tr>
     </table>
     <p class="rv-mast">{{ $copy['mag_name'] ?? 'Promoción' }}</p>

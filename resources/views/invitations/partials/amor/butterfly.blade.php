@@ -5,7 +5,7 @@
 --}}
 <button type="button" class="inv-butterfly" data-butterfly="{{ $butterflyId }}" style="{{ $butterflyStyle ?? '' }}"
     x-data @click="$dispatch('butterfly-caught', { id: @js($butterflyId), rect: $el.getBoundingClientRect() })"
-    aria-label="Una mariposa escondida: tócala">
+    aria-label="{{ __('Una mariposa escondida: tócala') }}">
     <span class="inv-butterfly__flight" aria-hidden="true">
         <svg class="inv-butterfly__art" viewBox="0 0 48 40">
             <g class="inv-butterfly__wing inv-butterfly__wing--left">

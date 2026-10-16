@@ -14,8 +14,8 @@
     <div class="inv-wrap inv-wrap--wide">
         @include('invitations.partials.section-header', [
             'lottie' => 'heart',
-            'eyebrow' => $invCopy['post_eyebrow'] ?? 'Recuerdos oficiales',
-            'title' => $postEvento['titulo'] ?? 'Galería del fotógrafo',
+            'eyebrow' => $invCopy['post_eyebrow'] ?? __('Recuerdos oficiales'),
+            'title' => $postEvento['titulo'] ?? __('Galería del fotógrafo'),
             'intro' => $postEvento['descripcion'] ?? null,
         ])
 
@@ -26,7 +26,7 @@
                         @php($postSrcset = \App\Support\CloudinaryImage::srcset($foto['url'], [320, 640, 960]))
                         <img src="{{ \App\Support\CloudinaryImage::url($foto['url'], 600) }}"
                             @if($postSrcset) srcset="{{ $postSrcset }}" sizes="(min-width: 768px) 18rem, 45vw" @endif
-                            alt="{{ $foto['alt'] !== '' ? $foto['alt'] : 'Foto oficial '.($index + 1) }}" loading="lazy" decoding="async">
+                            alt="{{ $foto['alt'] !== '' ? $foto['alt'] : __('Foto oficial :value', ['value' => ($index + 1)]) }}" loading="lazy" decoding="async">
                     </a>
                 @endforeach
             </div>
@@ -34,10 +34,10 @@
 
         @if(!empty($externalLink))
             <div class="inv-actions">
-                <a href="{{ $externalLink }}" target="_blank" rel="noopener" class="inv-btn inv-btn--block">{{ $invCopy['post_button'] ?? 'Ver galería completa' }}</a>
+                <a href="{{ $externalLink }}" target="_blank" rel="noopener" class="inv-btn inv-btn--block">{{ $invCopy['post_button'] ?? __('Ver galería completa') }}</a>
             </div>
         @elseif(!count($fotos))
-            <p class="inv-empty">{{ $invCopy['post_empty'] ?? 'Las fotos oficiales se publicarán muy pronto.' }}</p>
+            <p class="inv-empty">{{ $invCopy['post_empty'] ?? __('Las fotos oficiales se publicarán muy pronto.') }}</p>
         @endif
     </div>
 </section>

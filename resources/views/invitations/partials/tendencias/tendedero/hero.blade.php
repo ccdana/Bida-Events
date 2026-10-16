@@ -6,14 +6,14 @@
     tendencias/tendedero.css.
 --}}
 @php
-    $date = $page->eventDate->locale('es');
-    $heroEyebrow = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? 'Baby shower');
+    $date = $page->eventDate->locale(app()->getLocale());
+    $heroEyebrow = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? __('Baby shower'));
     $heroMessage = trim((string) ($page->welcome['mensaje'] ?? ''));
-    $heroDay = ($page->welcome['fecha_texto'] ?? null) ?: \Illuminate\Support\Str::ucfirst($date->translatedFormat('l j \d\e F'));
+    $heroDay = ($page->welcome['fecha_texto'] ?? null) ?: \Illuminate\Support\Str::ucfirst($date->translatedFormat(\App\Support\Localization::dateFormat('l j \d\e F')));
     $tags = array_values(array_filter([
-        [$invCopy['line_date'] ?? 'Fecha', $heroDay, null],
-        [$invCopy['line_time'] ?? 'Hora', $date->format('H:i'), null],
-        $page->placeName ? [$invCopy['line_place'] ?? 'Lugar', $page->placeName, '#ubicacion'] : null,
+        [$invCopy['line_date'] ?? __('Fecha'), $heroDay, null],
+        [$invCopy['line_time'] ?? __('Hora'), $date->format('H:i'), null],
+        $page->placeName ? [$invCopy['line_place'] ?? __('Lugar'), $page->placeName, '#ubicacion'] : null,
     ]));
 @endphp
 
@@ -67,7 +67,7 @@
     @endif
 
     <a href="#contenido" class="inv-hero__scroll td-hero__scroll">
-        {{ $invCopy['scroll_hint'] ?? 'Desliza' }}
+        {{ $invCopy['scroll_hint'] ?? __('Desliza') }}
         <span class="inv-hero__scroll-line" aria-hidden="true"></span>
     </a>
 </header>

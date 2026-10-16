@@ -3,11 +3,10 @@
  * Bida Events — Entry Point (Core Bundle)
  *
  * Este archivo es el punto de entrada principal.  Solo carga de forma
- * síncrona lo estrictamente necesario (Alpine.js + axios ≈ 30 kB).
+ * síncrona lo estrictamente necesario (Alpine.js).
  * Todo lo demás se carga dinámicamente según lo que la página necesite.
  * ────────────────────────────────────────────────────────────────────────────
  */
-import './bootstrap';
 import Alpine from 'alpinejs';
 
 window.Alpine = Alpine;
@@ -139,6 +138,11 @@ if (document.querySelector('[data-notebook]')) {
 // ── «Nuestra historia» — estanque de apertura y escenario que sigue la lectura ─
 if (document.querySelector('[data-card="historia"]')) {
     loaders.push(import('./cards/historia/index.js'));
+}
+
+// ── Editor de invitaciones (admin, revendedor y «Hazlo tú») — sus componentes de Alpine ─
+if (document.querySelector('[x-data^="invitationForm("]')) {
+    loaders.push(import('./admin/editor.js'));
 }
 
 // ── Sitio público (home y login) — animaciones; no retrasa a Alpine ────

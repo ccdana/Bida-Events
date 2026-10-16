@@ -1,6 +1,5 @@
 <?php
 
-use App\Support\InvitationTemplates;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
@@ -12,6 +11,13 @@ use Illuminate\Support\Facades\DB;
  */
 return new class extends Migration
 {
+    /** Plantillas reemplazadas → la vigente («Galería Quince» y «Caleidoscopio» terminaron en «El cambio de zapatos»). */
+    private const RENAMED = [
+        'invitations.templates.xv-carta-de-baile' => 'invitations.templates.xv-cuento',
+        'invitations.templates.xv-galeria' => 'invitations.templates.xv-zapatos',
+        'invitations.templates.xv-caleidoscopio' => 'invitations.templates.xv-zapatos',
+    ];
+
     /** Muestras de las plantillas anteriores → las de las nuevas. */
     private const DEMOS = [
         'xv-isabella-carta' => 'xv-isabella-cuento',
@@ -20,7 +26,7 @@ return new class extends Migration
 
     public function up(): void
     {
-        foreach (InvitationTemplates::RENAMED as $old => $new) {
+        foreach (self::RENAMED as $old => $new) {
             DB::table('invitations')->where('template', $old)->update(['template' => $new]);
         }
 
@@ -33,7 +39,7 @@ return new class extends Migration
 
     public function down(): void
     {
-        foreach (InvitationTemplates::RENAMED as $old => $new) {
+        foreach (self::RENAMED as $old => $new) {
             DB::table('invitations')->where('template', $new)->update(['template' => $old]);
         }
 

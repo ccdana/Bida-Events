@@ -10,7 +10,7 @@
     shell/cover-component; estilos en css/invitation/themes/atelier.css.
 --}}
 @php
-    $introDate = \Illuminate\Support\Str::ucfirst($page->eventDate->locale('es')->translatedFormat('j \d\e F · H:i'));
+    $introDate = \Illuminate\Support\Str::ucfirst($page->eventDate->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('j \d\e F · H:i')));
     // Media funda (la izquierda; la derecha es la misma en espejo): hombro, costado y ruedo redondeado
     $bagHalf = 'M100 4 C78 6 40 18 16 40 C9 47 8 56 8 66 L6 306 C6 318 14 326 26 326 L100 326 Z';
     // El ribete cosido, un poco hacia adentro del borde
@@ -26,9 +26,9 @@
     :class="{ 'is-unzipped': stage >= 1, 'is-open': stage >= 2 }"
     role="dialog"
     aria-modal="true"
-    aria-label="Invitación a la colección de {{ $page->displayName }}">
+    aria-label="{{ __('Invitación a la colección de :displayName', ['displayName' => $page->displayName]) }}">
     <span class="at-intro__light" aria-hidden="true"></span>
-    <p class="at-intro__eyebrow">{{ $invCopy['intro_eyebrow'] ?? 'Colección XV' }}</p>
+    <p class="at-intro__eyebrow">{{ $invCopy['intro_eyebrow'] ?? __('Colección XV') }}</p>
 
     <div class="at-bag">
         {{-- Los degradados de la tela, el forro y el satén (los colores salen de la paleta, en la hoja) --}}
@@ -153,14 +153,14 @@
         <div class="at-tag-card">
             <span class="at-tag-card__cord" aria-hidden="true"></span>
             <span class="at-tag-card__eyelet" aria-hidden="true"></span>
-            <span class="at-tag-card__house">{{ $invCopy['atelier_house'] ?? 'Maison' }}</span>
+            <span class="at-tag-card__house">{{ $invCopy['atelier_house'] ?? __('Maison') }}</span>
             <span class="at-tag-card__name">{{ $page->displayName }}</span>
-            <span class="at-tag-card__line">{{ $invCopy['atelier_collection'] ?? 'Colección XV' }} · {{ $page->eventDate->format('Y') }}</span>
+            <span class="at-tag-card__line">{{ $invCopy['atelier_collection'] ?? __('Colección XV') }} · {{ $page->eventDate->format('Y') }}</span>
         </div>
 
         {{-- El cierre: la parte que todavía no se abrió y el tirador --}}
         <span class="at-zip__closed" aria-hidden="true"></span>
-        <button type="button" class="at-zip" data-cover-trigger @click="open()" aria-label="Bajar el cierre y abrir la funda del vestido">
+        <button type="button" class="at-zip" data-cover-trigger @click="open()" aria-label="{{ __('Bajar el cierre y abrir la funda del vestido') }}">
             <span class="at-zip__pull" aria-hidden="true">
                 <span class="at-zip__slider"></span>
                 <span class="at-zip__tab"><i></i></span>
@@ -171,9 +171,9 @@
     <div class="at-intro__meta">
         <p class="at-intro__date">{{ $introDate }}</p>
         @if($guest)
-            <p class="at-intro__guest">{{ $invCopy['guest_banner_eyebrow'] ?? 'Invitación para' }} {{ $guest->name }}</p>
+            <p class="at-intro__guest">{{ $invCopy['guest_banner_eyebrow'] ?? __('Invitación para') }} {{ $guest->name }}</p>
         @endif
     </div>
 
-    <p class="at-intro__hint">{{ $invCopy['intro_hint'] ?? 'Toca el cierre para abrir la funda' }}</p>
+    <p class="at-intro__hint">{{ $invCopy['intro_hint'] ?? __('Toca el cierre para abrir la funda') }}</p>
 </div>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="{{ app()->getLocale() }}">
 <head>
     @include('layouts.partials.panel-head')
     <title>@yield('title', 'Panel') | {{ config('bida.brand') }}</title>
@@ -20,7 +20,7 @@
             ['label' => 'Revendedores', 'url' => route('admin.resellers.index'), 'icon' => 'storefront', 'active' => request()->routeIs('admin.resellers.*'),
                 'badge' => $resellersDue ?: null, 'badgeTitle' => $resellersDue.' por vencer o vencidos'],
             ['label' => 'Ajustes', 'url' => route('admin.settings'), 'icon' => 'sliders-horizontal', 'active' => request()->routeIs('admin.settings')],
-            ['label' => 'Ver el sitio', 'url' => route('home'), 'icon' => 'arrow-square-out', 'active' => false],
+            ['label' => 'Ver el sitio', 'url' => lroute('home'), 'icon' => 'arrow-square-out', 'active' => false],
         ],
         'filterGroups' => $filterGroups ?? null,
         'filterValues' => $filterValues ?? [],

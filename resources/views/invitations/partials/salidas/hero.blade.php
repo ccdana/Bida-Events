@@ -5,11 +5,11 @@
     ventanilla del avión. Estilos en themes/salidas.css.
 --}}
 @php
-    $heroStripe = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? 'Me gradúo');
+    $heroStripe = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? __('Me gradúo'));
     $heroMessage = $page->welcome['mensaje'] ?? '';
     $heroDay = ($page->welcome['fecha_texto'] ?? null)
-        ?: \Illuminate\Support\Str::ucfirst($page->eventDate->locale('es')->translatedFormat('D j M'));
-    $status = $page->eventDate->isToday() ? ($invCopy['board_today'] ?? 'Embarcando hoy') : ($invCopy['board_on_time'] ?? 'A tiempo');
+        ?: \Illuminate\Support\Str::ucfirst($page->eventDate->locale(app()->getLocale())->translatedFormat('D j M'));
+    $status = $page->eventDate->isToday() ? ($invCopy['board_today'] ?? __('Embarcando hoy')) : ($invCopy['board_on_time'] ?? __('A tiempo'));
     $words = preg_split('/\s+/u', trim($page->displayName)) ?: [$page->displayName];
     $flap = 0;
 @endphp
@@ -17,7 +17,7 @@
 <header id="inicio" class="inv-hero ps-hero">
     <div class="ps-board inv-fade-up">
         <div class="ps-board__top">
-            <p class="ps-board__title"><span class="ps-light" aria-hidden="true"></span>{{ $invCopy['board_title'] ?? 'Próxima salida' }}</p>
+            <p class="ps-board__title"><span class="ps-light" aria-hidden="true"></span>{{ $invCopy['board_title'] ?? __('Próxima salida') }}</p>
             <p class="ps-board__clock">{{ $page->eventDate->format('H:i') }}</p>
         </div>
 
@@ -37,21 +37,21 @@
 
         <dl class="ps-rows">
             <div class="ps-row">
-                <dt>{{ $invCopy['board_date'] ?? 'Fecha' }}</dt>
+                <dt>{{ $invCopy['board_date'] ?? __('Fecha') }}</dt>
                 <dd>{{ $heroDay }}</dd>
             </div>
             <div class="ps-row">
-                <dt>{{ $invCopy['board_time'] ?? 'Hora' }}</dt>
+                <dt>{{ $invCopy['board_time'] ?? __('Hora') }}</dt>
                 <dd>{{ $page->eventDate->format('H:i') }}</dd>
             </div>
             @if($page->placeName)
                 <div class="ps-row ps-row--wide">
-                    <dt>{{ $invCopy['board_gate'] ?? 'Puerta' }}</dt>
+                    <dt>{{ $invCopy['board_gate'] ?? __('Puerta') }}</dt>
                     <dd>{{ $page->placeName }}</dd>
                 </div>
             @endif
             <div class="ps-row ps-row--status">
-                <dt>{{ $invCopy['board_status'] ?? 'Estado' }}</dt>
+                <dt>{{ $invCopy['board_status'] ?? __('Estado') }}</dt>
                 <dd>{{ $status }}</dd>
             </div>
         </dl>
@@ -77,7 +77,7 @@
     @endif
 
     <a href="#contenido" class="inv-hero__scroll ps-hero__scroll">
-        {{ $invCopy['scroll_hint'] ?? 'Desliza' }}
+        {{ $invCopy['scroll_hint'] ?? __('Desliza') }}
         <span class="inv-hero__scroll-line" aria-hidden="true"></span>
     </a>
 </header>

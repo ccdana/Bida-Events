@@ -7,8 +7,8 @@
     Lógica en shell/cover-component; estilos en css/invitation/tendencias/encomienda.css.
 --}}
 @php
-    $introDate = \Illuminate\Support\Str::ucfirst($page->eventDate->locale('es')->translatedFormat('j \d\e F'));
-    $tapeText = mb_strtoupper(($invCopy['parcel_fragile'] ?? 'Frágil').' · '.($invCopy['parcel_care'] ?? 'Con mucho amor').' · ');
+    $introDate = \Illuminate\Support\Str::ucfirst($page->eventDate->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('j \d\e F')));
+    $tapeText = mb_strtoupper(($invCopy['parcel_fragile'] ?? __('Frágil')).' · '.($invCopy['parcel_care'] ?? __('Con mucho amor')).' · ');
 @endphp
 
 <div class="inv-themed-intro en-intro"
@@ -18,8 +18,8 @@
     @click="open()"
     role="dialog"
     aria-modal="true"
-    aria-label="Invitación al baby shower de {{ $page->displayName }}">
-    <p class="en-intro__eyebrow">{{ $invCopy['intro_eyebrow'] ?? 'Llegó una encomienda muy especial' }}</p>
+    aria-label="{{ __('Invitación al baby shower de :displayName', ['displayName' => $page->displayName]) }}">
+    <p class="en-intro__eyebrow">{{ $invCopy['intro_eyebrow'] ?? __('Llegó una encomienda muy especial') }}</p>
 
     <div class="en-box">
         {{-- Adentro: el cartón, el papel de seda y la tarjeta con su nombre --}}
@@ -28,25 +28,25 @@
             <span class="en-tissue en-tissue--right"></span>
         </span>
         <span class="en-card">
-            <span class="en-card__kicker">{{ $invCopy['hero_eyebrow'] ?? 'Baby shower' }}</span>
+            <span class="en-card__kicker">{{ $invCopy['hero_eyebrow'] ?? __('Baby shower') }}</span>
             <span class="en-card__name">{{ $page->displayName }}</span>
             <span class="en-card__date">{{ $introDate }}</span>
         </span>
 
         {{-- Las dos solapas: en una la guía del envío, en la otra el sello --}}
         <span class="en-box__flap en-box__flap--left" aria-hidden="true">
-            <span class="en-rubber">{{ $invCopy['parcel_fragile'] ?? 'Frágil' }}</span>
+            <span class="en-rubber">{{ $invCopy['parcel_fragile'] ?? __('Frágil') }}</span>
             <span class="en-arrows"><i></i><i></i></span>
         </span>
         <span class="en-box__flap en-box__flap--right">
             <span class="en-label">
-                <span class="en-label__head">{{ $invCopy['parcel_title'] ?? 'Encomienda especial' }}</span>
+                <span class="en-label__head">{{ $invCopy['parcel_title'] ?? __('Encomienda especial') }}</span>
                 <span class="en-label__row">
-                    <small>Para</small>
-                    <b>{{ $guest?->name ?? 'Nuestra familia y amigos' }}</b>
+                    <small>{{ __('Para') }}</small>
+                    <b>{{ $guest?->name ?? __('Nuestra familia y amigos') }}</b>
                 </span>
                 <span class="en-label__row">
-                    <small>{{ $invCopy['parcel_arrival'] ?? 'Llega' }}</small>
+                    <small>{{ $invCopy['parcel_arrival'] ?? __('Llega') }}</small>
                     <b>{{ $introDate }}</b>
                 </span>
                 <span class="en-label__bars" aria-hidden="true"></span>
@@ -54,7 +54,7 @@
         </span>
 
         {{-- La cinta que cierra la caja --}}
-        <button type="button" class="en-tape" data-cover-trigger aria-label="Despegar la cinta y abrir la caja">
+        <button type="button" class="en-tape" data-cover-trigger aria-label="{{ __('Despegar la cinta y abrir la caja') }}">
             <span class="en-tape__print" aria-hidden="true">{{ str_repeat($tapeText, 4) }}</span>
         </button>
     </div>
@@ -65,5 +65,5 @@
         @endfor
     </span>
 
-    <p class="en-intro__hint">{{ $invCopy['intro_hint'] ?? 'Toca la cinta para abrir la caja' }}</p>
+    <p class="en-intro__hint">{{ $invCopy['intro_hint'] ?? __('Toca la cinta para abrir la caja') }}</p>
 </div>

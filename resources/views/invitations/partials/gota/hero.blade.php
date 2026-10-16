@@ -5,10 +5,10 @@
     principales, la fecha, la hora, el lugar y el mensaje. Estilos en themes/gota.css.
 --}}
 @php
-    $heroEyebrow = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? 'Mi bautizo');
+    $heroEyebrow = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? __('Mi bautizo'));
     $heroMessage = $page->welcome['mensaje'] ?? '';
     $heroDay = ($page->welcome['fecha_texto'] ?? null)
-        ?: \Illuminate\Support\Str::ucfirst($page->eventDate->locale('es')->translatedFormat('l j \d\e F'));
+        ?: \Illuminate\Support\Str::ucfirst($page->eventDate->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('l j \d\e F')));
     // Los padrinos principales (los primeros de la lista) van en el agua, bajo la foto
     $sponsors = $page->visible('destacados')
         ? (string) collect($modulos['destacados']['padrinos'] ?? [])->pluck('nombres')->filter()->first()
@@ -35,7 +35,7 @@
 
         @if($sponsors !== '')
             <p class="gt-hero__sponsors inv-fade-up inv-fade-up--3">
-                <span>{{ $invCopy['ring_label'] ?? 'Mis padrinos' }}</span>
+                <span>{{ $invCopy['ring_label'] ?? __('Mis padrinos') }}</span>
                 {{ $sponsors }}
             </p>
         @endif
@@ -54,7 +54,7 @@
         @endif
 
         <a href="#contenido" class="inv-hero__scroll gt-hero__scroll">
-            {{ $invCopy['scroll_hint'] ?? 'Desliza' }}
+            {{ $invCopy['scroll_hint'] ?? __('Desliza') }}
             <span class="inv-hero__scroll-line" aria-hidden="true"></span>
         </a>
     </div>

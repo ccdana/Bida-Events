@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\SubscriptionPayment;
 use App\Models\User;
+use App\Services\SubscriptionActivator;
 use App\Support\SiteSettings;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
@@ -60,10 +61,10 @@ class ResellerAdminTest extends TestCase
 
     public function test_a_payment_activates_the_subscription_and_extends_it(): void
     {
-        $reseller = User::factory()->create(['is_reseller' => true, 'reseller_plan' => 'aliado']);
+        $reseller = User::factory()->create(['is_reseller' => true, 'reseller_plan' => 'inicial']);
 
         $this->actingAs($this->admin)
-            ->post(route('admin.resellers.payments.store', $reseller), ['plan' => 'aliado', 'amount' => 120, 'note' => 'Transferencia', 'request_token' => (string) Str::uuid()])
+            ->post(route('admin.resellers.payments.store', $reseller), ['plan' => 'inicial', 'amount' => 120, 'note' => 'Transferencia', 'request_token' => (string) Str::uuid()])
             ->assertRedirect()
             ->assertSessionHas('success');
 
@@ -108,11 +109,11 @@ class ResellerAdminTest extends TestCase
 
     public function test_the_last_payment_can_be_annulled_and_the_date_goes_back(): void
     {
-        $reseller = User::factory()->create(['is_reseller' => true, 'reseller_plan' => 'aliado']);
+        $reseller = User::factory()->create(['is_reseller' => true, 'reseller_plan' => 'inicial']);
 
         foreach (range(1, 2) as $ignored) {
             $this->actingAs($this->admin)->post(route('admin.resellers.payments.store', $reseller), [
-                'plan' => 'aliado', 'amount' => 120, 'request_token' => (string) Str::uuid(),
+                'plan' => 'inicial', 'amount' => 120, 'request_token' => (string) Str::uuid(),
             ]);
         }
 
@@ -137,21 +138,41 @@ class ResellerAdminTest extends TestCase
         $this->assertFalse($reseller->fresh()->hasActiveSubscription());
     }
 
+    public function test_a_card_or_qr_payment_is_shown_with_its_origin_and_not_annulled_by_hand(): void
+    {
+        $reseller = User::factory()->create(['is_reseller' => true, 'reseller_plan' => 'inicial', 'name' => 'Paga con tarjeta']);
+        $payment = app(SubscriptionActivator::class)->recordPayment($reseller, 'inicial', [
+            'amount' => 14, 'currency' => 'USD', 'provider' => 'lemonsqueezy', 'external_id' => 'ls_123',
+        ]);
+
+        $this->actingAs($this->admin)->get(route('admin.resellers.index'))
+            ->assertOk()
+            ->assertSee('· tarjeta')
+            ->assertDontSee(route('admin.resellers.payments.destroy', [$reseller, $payment]));
+
+        $this->actingAs($this->admin)
+            ->delete(route('admin.resellers.payments.destroy', [$reseller, $payment]))
+            ->assertStatus(422);
+
+        $this->assertModelExists($payment);
+        $this->assertSame('2026-11-15', $reseller->fresh()->subscription_renews_at->toDateString());
+    }
+
     public function test_the_admin_sets_the_price_and_quota_of_each_plan(): void
     {
         $this->actingAs($this->admin)->put(route('admin.settings.update'), [
             'promo_active' => '1',
             'packages' => collect(config('bida.packages'))->mapWithKeys(fn ($p) => [$p['key'] => ['price' => $p['price'], 'promo_price' => $p['promo_price'] ?? '']])->all(),
             'reseller_plans' => [
-                'aliado' => ['price' => 140, 'quota_per_month' => 12],
+                'inicial' => ['price' => 140, 'quota_per_month' => 12],
                 'agencia' => ['price' => 600, 'quota_per_month' => ''],
             ],
         ])->assertSessionHasNoErrors();
 
         SiteSettings::apply();
 
-        $this->assertSame(140, config('bida.reseller_plans.aliado.price'));
-        $this->assertSame(12, config('bida.reseller_plans.aliado.quota_per_month'));
+        $this->assertSame(140, config('bida.reseller_plans.inicial.price'));
+        $this->assertSame(12, config('bida.reseller_plans.inicial.quota_per_month'));
         $this->assertSame(600, config('bida.reseller_plans.agencia.price'));
         $this->assertNull(config('bida.reseller_plans.agencia.quota_per_month'));
 
@@ -163,7 +184,7 @@ class ResellerAdminTest extends TestCase
         $client = User::factory()->create();
 
         $this->actingAs($this->admin)
-            ->post(route('admin.resellers.payments.store', $client), ['plan' => 'aliado', 'amount' => 120, 'request_token' => (string) Str::uuid()])
+            ->post(route('admin.resellers.payments.store', $client), ['plan' => 'inicial', 'amount' => 120, 'request_token' => (string) Str::uuid()])
             ->assertNotFound();
 
         $this->assertDatabaseCount('subscription_payments', 0);
@@ -174,7 +195,7 @@ class ResellerAdminTest extends TestCase
         User::factory()->reseller(renewsAt: '2026-12-01')->create(['name' => 'Tranquila al día']);
         User::factory()->reseller(renewsAt: '2026-10-18')->create(['name' => 'Vence en tres días']);
         User::factory()->reseller(renewsAt: '2026-10-10')->create(['name' => 'Ya vencida']);
-        User::factory()->create(['is_reseller' => true, 'reseller_plan' => 'aliado', 'name' => 'Nunca pagó']);
+        User::factory()->create(['is_reseller' => true, 'reseller_plan' => 'inicial', 'name' => 'Nunca pagó']);
 
         $response = $this->actingAs($this->admin)
             ->get(route('admin.resellers.index'))

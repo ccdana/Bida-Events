@@ -14,10 +14,10 @@
     <article class="nb-page nb-page--paper nb-todo" data-nb-page @if($adventurePage === 0) id="aventuras" @endif>
         <div class="nb-page__inner">
             @if($adventurePage === 0)
-                <p class="nb-eyebrow">Próximamente</p>
-                <h2 class="nb-title">{{ ($data['titulo'] ?? null) ?: 'Aventuras por vivir' }}</h2>
+                <p class="nb-eyebrow">{{ __('Próximamente') }}</p>
+                <h2 class="nb-title">{{ ($data['titulo'] ?? null) ?: __('Aventuras por vivir') }}</h2>
             @else
-                <p class="nb-continued">Aventuras por vivir · continúa</p>
+                <p class="nb-continued">{{ __('Aventuras por vivir · continúa') }}</p>
             @endif
 
             <ul class="nb-todo__list">

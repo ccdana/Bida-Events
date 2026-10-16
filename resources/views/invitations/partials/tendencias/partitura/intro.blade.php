@@ -21,12 +21,12 @@
     @click="open()"
     role="dialog"
     aria-modal="true"
-    aria-label="Invitación de {{ $page->displayName }}">
+    aria-label="{{ __('Invitación de :displayName', ['displayName' => $page->displayName]) }}">
     <p class="pt-intro__eyebrow">
         @if($guest)
-            Para {{ $guest->name }}
+            {{ __('Para :name', ['name' => $guest->name]) }}
         @else
-            {{ $invCopy['intro_eyebrow'] ?? 'Tienes una invitación' }}
+            {{ $invCopy['intro_eyebrow'] ?? __('Tienes una invitación') }}
         @endif
     </p>
 
@@ -39,7 +39,7 @@
             <path class="pt-stand__legs" d="M160 304 L96 328 M160 304 L224 328 M160 304 L160 326"/>
         </svg>
 
-        <button type="button" class="pt-score" data-cover-trigger @click="open()" aria-label="Marcar la entrada y abrir la invitación">
+        <button type="button" class="pt-score" data-cover-trigger @click="open()" aria-label="{{ __('Marcar la entrada y abrir la invitación') }}">
             {{-- La primera página: el sistema de dos voces, vacío hasta que suena --}}
             <span class="pt-score__page" aria-hidden="true">
                 <svg viewBox="0 0 320 210" focusable="false">
@@ -90,8 +90,8 @@
 
             {{-- La tapa de la partitura --}}
             <span class="pt-score__cover">
-                <span class="pt-score__opus">{{ $invCopy['score_opus'] ?? 'Op. 1' }}</span>
-                <span class="pt-score__work">{{ $invCopy['score_title'] ?? 'Concierto para dos voces' }}</span>
+                <span class="pt-score__opus">{{ $invCopy['score_opus'] ?? __('Op. 1') }}</span>
+                <span class="pt-score__work">{{ $invCopy['score_title'] ?? __('Concierto para dos voces') }}</span>
                 <span class="pt-score__names">{{ $page->displayName }}</span>
             </span>
         </button>
@@ -110,5 +110,5 @@
         </p>
     </div>
 
-    <p class="pt-intro__hint">{{ $invCopy['intro_hint'] ?? 'Toca la batuta para empezar' }}</p>
+    <p class="pt-intro__hint">{{ $invCopy['intro_hint'] ?? __('Toca la batuta para empezar') }}</p>
 </div>

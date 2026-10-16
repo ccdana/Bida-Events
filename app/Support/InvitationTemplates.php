@@ -46,19 +46,6 @@ final class InvitationTemplates
     public const DEFAULT = self::XV_PREMIUM;
 
     /**
-     * Plantillas que se reemplazaron por otra (la invitación sigue igual, con el diseño nuevo). Las
-     * migraciones 2026_09_29_000001 y 2026_09_30_000001 ya pasaron las guardadas; esto cubre las que
-     * lleguen por otro lado (una sesión abierta, un enlace del editor) y lo usa
-     * InvitationDefaults::resolveTemplate. Siempre apunta a la plantilla vigente: «Galería Quince» se
-     * volvió «Caleidoscopio» y «Caleidoscopio», «El cambio de zapatos».
-     */
-    public const RENAMED = [
-        'invitations.templates.xv-carta-de-baile' => 'invitations.templates.xv-cuento',
-        'invitations.templates.xv-galeria' => 'invitations.templates.xv-zapatos',
-        'invitations.templates.xv-caleidoscopio' => 'invitations.templates.xv-zapatos',
-    ];
-
-    /**
      * Paleta por defecto de una plantilla. La usan el editor y las pruebas de contraste
      * para medir que cada tema se lea.
      *
@@ -589,7 +576,7 @@ final class InvitationTemplates
                     'act2_label' => 'La marea',
                     'act3_label' => 'De frente',
                     'act4_label' => 'La constelación',
-                    'act1_title' => 'The story we write together',
+                    'act1_title' => 'La historia que escribimos juntos',
                     'act1_intro_fallback' => 'Toda historia empieza lejos, como la luna en el agua: se la ve antes de entenderla.',
                     'act1_met_prefix' => 'Nos conocimos el',
                     'act1_met_fallback' => 'No recordamos el día exacto. Recordamos que después de ese día, todo fue distinto.',
@@ -959,20 +946,13 @@ final class InvitationTemplates
 
     public static function get(?string $template): array
     {
-        $template = (string) $template;
-
-        // Nombres antiguos con prefijo "pages." (ver InvitationDefaults::resolveTemplate)
-        if (str_starts_with($template, 'pages.')) {
-            $template = substr($template, strlen('pages.'));
-        }
-
-        return self::all()[$template] ?? self::all()[self::DEFAULT];
+        return self::all()[(string) $template] ?? self::all()[self::DEFAULT];
     }
 
     /**
      * Familia de la plantilla: lienzo (en blanco), clasica (una por evento), temporada (Halloween y
      * las tarjetas) y nueva (las que se suman durante el año para cada evento). La usan los planes de
-     * revendedor: Inicial lienzo y clásicas, Aliado suma temporada y desde Emprendedor las nuevas.
+     * revendedor: Inicial lienzo, clásicas y temporada; desde Emprendedor también las nuevas y de tendencia.
      */
     public static function collection(?string $template): string
     {

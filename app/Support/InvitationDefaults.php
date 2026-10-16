@@ -52,20 +52,13 @@ class InvitationDefaults
     }
 
     /**
-     * Clave de catálogo de la plantilla. Acepta los nombres antiguos con prefijo "pages." (JSON o sesión)
-     * y cae en la plantilla por defecto si no existe. La vista que la dibuja sale de
-     * InvitationTemplates::view() (los diseños de «tendencias» comparten una).
+     * Clave de catálogo de la plantilla; cae en la plantilla por defecto si no existe. La vista que la
+     * dibuja sale de InvitationTemplates::view() (los diseños de «tendencias» comparten una).
      */
     public static function resolveTemplate(?string $template): string
     {
         $default = InvitationTemplates::DEFAULT;
         $template = $template ?: $default;
-
-        if (str_starts_with($template, 'pages.')) {
-            $template = substr($template, strlen('pages.'));
-        }
-
-        $template = InvitationTemplates::RENAMED[$template] ?? $template;
 
         $known = isset(InvitationTemplates::all()[$template]) && view()->exists(InvitationTemplates::view($template));
 

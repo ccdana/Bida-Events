@@ -4,7 +4,7 @@
 
 {{--
     Ajustes del sitio, en cuatro pestañas: lo que se cobra por invitación (paquetes y promoción), las
-    temporadas (cada una por separado), «Hazlo tú» (planes mensuales) y el contacto con las redes. Un solo formulario: las
+    temporadas (cada una por separado), «Únete» (planes mensuales) y el contacto con las redes. Un solo formulario: las
     pestañas solo ordenan la pantalla, se guarda todo junto desde la barra fija de abajo. Si al
     guardar algo no pasa la validación, se abre la pestaña donde está el error.
 --}}
@@ -14,11 +14,11 @@
     $errorKeys = collect($errors->keys());
     $startTab = match (true) {
         $errorKeys->contains(fn ($key) => str_starts_with($key, 'seasons')) => 'temporadas',
-        $errorKeys->contains(fn ($key) => str_starts_with($key, 'reseller_plans')) => 'hazlo',
+        $errorKeys->contains(fn ($key) => str_starts_with($key, 'reseller_plans') || str_starts_with($key, 'prepay')) => 'hazlo',
         $errorKeys->contains(fn ($key) => str_starts_with($key, 'contact')) => 'contacto',
         default => 'paquetes',
     };
-    $tabs = ['paquetes' => 'Paquetes y promoción', 'temporadas' => 'Temporadas', 'hazlo' => 'Hazlo tú', 'contacto' => 'Contacto y redes'];
+    $tabs = ['paquetes' => 'Paquetes y promoción', 'temporadas' => 'Temporadas', 'hazlo' => 'Únete', 'contacto' => 'Contacto y redes'];
     $enabledTemplates = collect(old('templates', collect($seasonalTemplates)->filter(fn ($t) => $t['enabled'])->keys()->all()));
     $statusLabels = [
         'selling' => ['En el sitio', 'is-success'],
@@ -35,7 +35,7 @@
             <h1 class="text-3xl font-semibold tracking-tight md:text-4xl">Ajustes</h1>
             <p class="mt-2 max-w-[62ch] text-site-muted">
                 Los precios que ve la gente, hasta cuándo dura cada promoción, qué temporadas se ofrecen y los planes de
-                Hazlo tú, y el WhatsApp y las redes del sitio. Los precios van en dólares ({{ $currency }}) y todo se aplica al instante, sin tocar el código.
+                Únete, y el WhatsApp y las redes del sitio. Los precios van en dólares ({{ $currency }}) y todo se aplica al instante, sin tocar el código.
             </p>
         </header>
 
@@ -135,6 +135,80 @@
                         @endforeach
                     </div>
                 </section>
+
+                {{-- El servicio de «Te la hacemos»: lo que se paga de más sobre el mismo nivel de «Hazlo tú» --}}
+                <section class="set-block">
+                    <div class="set-block__head">
+                        <div>
+                            <h2 class="set-block__title">El servicio de cada paquete</h2>
+                            <p class="set-block__text">
+                                Lo que se promete en el sitio: en cuánto entregan la invitación desde que llegan los datos y
+                                cuántas rondas de cambios incluye. Sin rondas, dice «Cambios sin límite hasta el evento».
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="set-list">
+                        <div class="set-list__head" aria-hidden="true">
+                            <span>Paquete</span><span>Entrega en</span><span>Rondas de cambios</span>
+                        </div>
+                        @foreach($settings['packages'] as $package)
+                            <div class="set-list__row">
+                                <p class="min-w-0 font-medium">{{ $package['name'] }}</p>
+                                <div>
+                                    <label for="entrega-{{ $package['key'] }}" class="admin-label set-list__label">Entrega en</label>
+                                    <input id="entrega-{{ $package['key'] }}" type="text" maxlength="40" class="admin-input" placeholder="2 días hábiles"
+                                        name="packages[{{ $package['key'] }}][delivery]" value="{{ old('packages.'.$package['key'].'.delivery', $package['delivery']) }}">
+                                </div>
+                                <div>
+                                    <label for="rondas-{{ $package['key'] }}" class="admin-label set-list__label">Rondas de cambios</label>
+                                    <input id="rondas-{{ $package['key'] }}" type="number" min="0" max="20" class="admin-input" placeholder="Sin límite"
+                                        name="packages[{{ $package['key'] }}][revisions]" value="{{ old('packages.'.$package['key'].'.revisions', $package['revisions']) }}">
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </section>
+
+                {{-- «Hazlo tú»: lo que cuesta publicar con cada nivel la invitación que arma la persona (App\Payments\InvitationPrice) --}}
+                <section class="set-block">
+                    <div class="set-block__head">
+                        <div>
+                            <h2 class="set-block__title">Hazlo tú: publicar con cada nivel</h2>
+                            <p class="set-block__text">
+                                Un pago único por invitación armada por la persona, con los mismos módulos que el paquete del mismo nombre.
+                                La gratuita no se cobra; subir de nivel cobra la diferencia. El descuento vale mientras esté cargado.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="set-list">
+                        <div class="set-list__head" aria-hidden="true">
+                            <span>Nivel</span><span>Precio ({{ $currency }})</span><span>Con descuento</span>
+                        </div>
+                        @foreach($settings['diy_prices'] as $tier)
+                            <div class="set-list__row">
+                                <div class="min-w-0">
+                                    <p class="font-medium">{{ $tier['name'] }}</p>
+                                    <p class="text-sm text-site-muted">{{ $tier['summary'] }}</p>
+                                </div>
+                                <div>
+                                    <label for="diy-precio-{{ $tier['key'] }}" class="admin-label set-list__label">Precio ({{ $currency }})</label>
+                                    <input id="diy-precio-{{ $tier['key'] }}" type="number" min="0" max="100000" required class="admin-input"
+                                        name="diy_prices[{{ $tier['key'] }}][price]" value="{{ old('diy_prices.'.$tier['key'].'.price', $tier['price']) }}">
+                                </div>
+                                <div>
+                                    <label for="diy-promo-{{ $tier['key'] }}" class="admin-label set-list__label">Con descuento</label>
+                                    <input id="diy-promo-{{ $tier['key'] }}" type="number" min="0" max="100000" class="admin-input" placeholder="Sin descuento"
+                                        name="diy_prices[{{ $tier['key'] }}][promo_price]" value="{{ old('diy_prices.'.$tier['key'].'.promo_price', $tier['promo_price']) }}">
+                                    @error('diy_prices.'.$tier['key'].'.promo_price')
+                                        <p class="mt-1.5 text-sm text-site-danger">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </section>
             </div>
 
             {{-- ══ Temporadas: cada una se enciende, se apaga y se ajusta por separado ══ --}}
@@ -185,6 +259,13 @@
                                     <p class="mt-1.5 text-sm text-site-danger">{{ $message }}</p>
                                 @enderror
                             </div>
+                            <div>
+                                <label for="season-diy-{{ $season['key'] }}" class="admin-label">Hazlo tú, precio único</label>
+                                <input id="season-diy-{{ $season['key'] }}" type="number" min="0" max="100000" class="admin-input" placeholder="El de su nivel"
+                                    name="seasons[{{ $season['key'] }}][diy_price]" value="{{ old('seasons.'.$season['key'].'.diy_price', $season['diy_price']) }}"
+                                    aria-describedby="season-diy-hint-{{ $season['key'] }}">
+                                <p id="season-diy-hint-{{ $season['key'] }}" class="mt-1.5 text-xs text-site-muted">Quien la arma solo la publica con todo por este precio. Vacío: paga según su nivel.</p>
+                            </div>
                             <div class="set-fields__wide">
                                 <label for="season-ends-{{ $season['key'] }}" class="admin-label">Hasta cuándo se vende</label>
                                 <input id="season-ends-{{ $season['key'] }}" type="datetime-local" class="admin-input"
@@ -217,18 +298,18 @@
                 @endforeach
             </div>
 
-            {{-- ══ Hazlo tú: planes mensuales ══ --}}
+            {{-- ══ Únete: planes mensuales ══ --}}
             <div id="panel-hazlo" role="tabpanel" aria-labelledby="ajustes-hazlo" x-show="tab === 'hazlo'" @if($startTab !== 'hazlo') x-cloak @endif>
                 <section class="set-block">
                     <div class="set-block__head">
                         <div>
-                            <h2 class="set-block__title">Planes de Hazlo tú</h2>
+                            <h2 class="set-block__title">Planes de Únete</h2>
                             <p class="set-block__text">
                                 La suscripción mensual para quien arma sus propias invitaciones. El precio y el descuento se ven en
-                                la página Hazlo tú; el cupo es cuántas invitaciones (y accesos de cliente) puede crear por mes.
+                                la página Únete; el cupo es cuántas invitaciones (y accesos de cliente) puede crear por mes.
                             </p>
                         </div>
-                        <a href="{{ route('diy') }}#planes" target="_blank" rel="noopener" class="admin-link-button">
+                        <a href="{{ lroute('diy') }}" target="_blank" rel="noopener" class="admin-link-button">
                             Ver la página
                             <x-phosphor-arrow-square-out aria-hidden="true" />
                         </a>
@@ -262,6 +343,33 @@
                                     <input id="plan-cupo-{{ $plan['key'] }}" type="number" min="1" max="10000" class="admin-input" placeholder="Sin tope"
                                         name="reseller_plans[{{ $plan['key'] }}][quota_per_month]" value="{{ old('reseller_plans.'.$plan['key'].'.quota_per_month', $plan['quota_per_month']) }}">
                                 </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </section>
+
+                {{-- Pagar 3 o 12 meses de una vez: con QR por adelantado; con tarjeta, si Lemon Squeezy tiene la variante de ese ciclo --}}
+                <section class="set-block">
+                    <div class="set-block__head">
+                        <div>
+                            <h2 class="set-block__title">Pagar por 3 o 12 meses</h2>
+                            <p class="set-block__text">
+                                El descuento sobre el precio mensual por pagar varios meses de una vez. El anual es el que más conviene:
+                                con QR hay que pagar cada vez, así que pagar el año ahorra pasos. Con tarjeta, cada variante de Lemon
+                                Squeezy tiene que costar lo mismo que aquí (precio del plan × meses, menos el descuento). 0 = sin descuento.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="set-fields">
+                        @foreach($settings['prepay'] as $months => $discount)
+                            <div>
+                                <label for="prepay-{{ $months }}" class="admin-label">{{ $months === 12 ? 'Anual (12 meses)' : $months.' meses' }}, % de descuento</label>
+                                <input id="prepay-{{ $months }}" type="number" min="0" max="90" class="admin-input"
+                                    name="prepay[{{ $months }}]" value="{{ old('prepay.'.$months, $discount) }}">
+                                @error('prepay.'.$months)
+                                    <p class="mt-1.5 text-sm text-site-danger">{{ $message }}</p>
+                                @enderror
                             </div>
                         @endforeach
                     </div>

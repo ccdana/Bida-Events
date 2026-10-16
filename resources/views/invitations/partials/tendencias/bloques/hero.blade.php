@@ -5,12 +5,12 @@
     palabra), la fecha, la hora, el lugar y el mensaje. Estilos en css/invitation/tendencias/bloques.css.
 --}}
 @php
-    $heroKicker = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? 'Baby shower');
+    $heroKicker = ($page->welcome['subtitulo'] ?? null) ?: ($invCopy['hero_eyebrow'] ?? __('Baby shower'));
     $heroMessage = $page->welcome['mensaje'] ?? '';
     $heroDay = ($page->welcome['fecha_texto'] ?? null)
-        ?: \Illuminate\Support\Str::ucfirst($page->eventDate->locale('es')->translatedFormat('l j \d\e F'));
+        ?: \Illuminate\Support\Str::ucfirst($page->eventDate->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('l j \d\e F')));
     $nameWords = array_values(array_filter(preg_split('/\s+/u', trim($page->displayName)) ?: []));
-    $longestWord = max(array_map('mb_strlen', $nameWords ?: ['Bebé']));
+    $longestWord = max(array_map('mb_strlen', $nameWords ?: [__('Bebé')]));
     $initial = mb_strtoupper(mb_substr($page->displayName, 0, 1));
 @endphp
 
@@ -26,7 +26,7 @@
             </span>
             <span class="bl-cube__face bl-cube__face--right bl-tone--0" aria-hidden="true"><b>{{ $initial }}</b></span>
             <span class="bl-cube__face bl-cube__face--left bl-tone--1" aria-hidden="true"><i class="bl-star"></i></span>
-            <span class="bl-cube__face bl-cube__face--top bl-tone--2" aria-hidden="true"><b>A</b></span>
+            <span class="bl-cube__face bl-cube__face--top bl-tone--2" aria-hidden="true"><b>{{ __('A') }}</b></span>
             <span class="bl-cube__face bl-cube__face--back bl-tone--1" aria-hidden="true"></span>
             <span class="bl-cube__face bl-cube__face--bottom bl-tone--0" aria-hidden="true"></span>
         </div>
@@ -65,7 +65,7 @@
     @endif
 
     <a href="#contenido" class="inv-hero__scroll bl-hero__scroll">
-        {{ $invCopy['scroll_hint'] ?? 'Desliza' }}
+        {{ $invCopy['scroll_hint'] ?? __('Desliza') }}
         <span class="inv-hero__scroll-line" aria-hidden="true"></span>
     </a>
 </header>

@@ -47,7 +47,7 @@ class CampaignLink extends Command
             'utm_campaign' => $this->option('campana'),
         ]);
 
-        $url = ($page === 'inicio' ? route('home') : route('landing', $page)).'?'.http_build_query($query);
+        $url = ($page === 'inicio' ? lroute('home') : lroute('landing', $page)).'?'.http_build_query($query);
         $code = LeadSource::code(Request::create($url), $page === 'inicio' ? LeadSource::HOME : $landings[$page]['code']);
 
         $this->components->twoColumnDetail('Enlace', $url);

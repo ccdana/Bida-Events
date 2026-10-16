@@ -11,7 +11,7 @@ class XvProfile extends EventProfile
 
     public function label(): string
     {
-        return 'XV años';
+        return __('XV años');
     }
 
     public function modules(): array
@@ -26,30 +26,30 @@ class XvProfile extends EventProfile
     public function heroFields(): array
     {
         return [
-            'nombre' => ['label' => 'Nombre de la quinceañera', 'placeholder' => 'Ej. Sofía Valentina'],
+            'nombre' => ['label' => __('Nombre de la quinceañera'), 'placeholder' => __('Ej. Sofía Valentina')],
         ];
     }
 
     public function featuredGroups(): array
     {
         return [
-            'chambelanes' => ['Chambelanes', 'Chambelán'],
-            'damitas' => ['Damitas', 'Damita'],
-            'padrinos' => ['Padrinos', 'Padrino'],
+            'chambelanes' => [__('Chambelanes'), __('Chambelán')],
+            'damitas' => [__('Damitas'), __('Damita')],
+            'padrinos' => [__('Padrinos'), __('Padrino')],
         ];
     }
 
     public function required(): array
     {
         return [
-            'bienvenida' => ['nombre' => 'Falta el nombre de la quinceañera', 'imagen_hero' => 'Falta la foto de portada'],
-            'ubicacion' => ['nombre_lugar' => 'Falta el lugar de la fiesta'],
-            'itinerario' => ['eventos' => 'No hay ningún momento cargado'],
+            'bienvenida' => ['nombre' => __('Falta el nombre de la quinceañera'), 'imagen_hero' => __('Falta la foto de portada')],
+            'ubicacion' => ['nombre_lugar' => __('Falta el lugar de la fiesta')],
+            'itinerario' => ['eventos' => __('No hay ningún momento cargado')],
         ];
     }
 
     public function sample(): array
     {
-        return ['name' => 'Sofía Valentina', 'subtitle' => 'Celebrando mis XV años'];
+        return ['name' => __('Sofía Valentina'), 'subtitle' => __('Celebrando mis XV años')];
     }
 }

@@ -13,28 +13,28 @@
 
     <p class="inv-story__hint" x-show="on && index === 0 && !moved" x-cloak aria-hidden="true">
         <span class="inv-story__hint-ring"></span>
-        {{ $storyHint ?? 'Toca para seguir' }}
+        {{ $storyHint ?? __('Toca para seguir') }}
     </p>
 
     <div class="inv-story__controls" x-show="on" x-cloak>
-        <button type="button" class="inv-story__btn" @click="prev(true)" :disabled="index === 0" aria-label="Parte anterior">
+        <button type="button" class="inv-story__btn" @click="prev(true)" :disabled="index === 0" aria-label="{{ __('Parte anterior') }}">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M15 5l-7 7 7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
 
         <span class="inv-story__count" aria-hidden="true"><span x-text="index + 1"></span>/<span x-text="count"></span></span>
 
         <button type="button" class="inv-story__btn inv-story__btn--next" @click="next(true)"
-            :aria-label="index === count - 1 ? 'Volver a empezar' : 'Parte siguiente'">
+            :aria-label="index === count - 1 ? @js(__('Volver a empezar')) : @js(__('Parte siguiente'))">
             <svg x-show="index < count - 1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
             <svg x-show="index === count - 1" x-cloak viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4h4" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
 
-        <button type="button" class="inv-story__all" @click="leave()">Ver todo</button>
+        <button type="button" class="inv-story__all" @click="leave()">{{ __('Ver todo') }}</button>
     </div>
 
     <button type="button" class="inv-story__resume" x-show="ready && !on" x-cloak @click="resume()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2.5"/><path d="M10 9l4 3-4 3z" fill="currentColor" stroke="none"/></svg>
-        Ver como historia
+        {{ __('Ver como historia') }}
     </button>
 
     <p class="sr-only" aria-live="polite" x-text="announce"></p>

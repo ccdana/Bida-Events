@@ -10,7 +10,7 @@
         leave(event) { if (!event.currentTarget.contains(event.relatedTarget)) this.active = null; },
     }">
     @include('admin.partials.panel-intro', [
-        'eyebrow' => 'Estética',
+        'eyebrow' => 'Colores y letras',
         'title' => 'Colores y tipografías',
         'description' => 'los colores y las letras de toda la invitación.',
         'tip' => 'Pasa el cursor por un color o una tipografía: en la muestra se marca dónde se usa.',

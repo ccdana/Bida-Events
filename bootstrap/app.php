@@ -7,6 +7,7 @@ use App\Http\Middleware\EnsureUserIsClient;
 use App\Http\Middleware\EnsureUserIsReseller;
 use App\Http\Middleware\LogSlowRequests;
 use App\Http\Middleware\SecurityHeaders;
+use App\Http\Middleware\SetInvitationLocale;
 use App\Support\AccessDeniedRedirect;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -28,6 +29,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'reseller' => EnsureUserIsReseller::class,
             'cache.public.invitations' => CachePublicInvitations::class,
             'lead.source' => CaptureLeadSource::class,
+            'invitation.locale' => SetInvitationLocale::class,
         ]);
 
         $middleware->web(append: [

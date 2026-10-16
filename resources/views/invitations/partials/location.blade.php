@@ -11,8 +11,8 @@
     <div class="inv-wrap inv-wrap--wide">
         @include('invitations.partials.section-header', [
             'lottie' => 'location',
-            'eyebrow' => $invCopy['location_eyebrow'] ?? '¿Dónde nos vemos?',
-            'title' => $placeName ?: ($invCopy['location_title'] ?? 'Ubicación'),
+            'eyebrow' => $invCopy['location_eyebrow'] ?? __('¿Dónde nos vemos?'),
+            'title' => $placeName ?: ($invCopy['location_title'] ?? __('Ubicación')),
             'intro' => $address,
         ])
 
@@ -24,7 +24,7 @@
                         <img
                             src="{{ \App\Support\CloudinaryImage::url($imageUrl, 1200) }}"
                             @if($locationSrcset) srcset="{{ $locationSrcset }}" sizes="(min-width: 768px) 40vw, 100vw" @endif
-                            alt="{{ $placeName ?? 'Lugar del evento' }}"
+                            alt="{{ $placeName ?? __('Lugar del evento') }}"
                             loading="lazy"
                             decoding="async"
                         >
@@ -37,7 +37,7 @@
                             src="{{ $mapEmbed }}"
                             loading="lazy"
                             referrerpolicy="no-referrer-when-downgrade"
-                            title="Mapa de {{ $placeName ?? 'la ubicación del evento' }}"
+                            title="{{ __('Mapa de :value', ['value' => $placeName ?? __('la ubicación del evento')]) }}"
                             allowfullscreen
                         ></iframe>
                     </div>
@@ -47,7 +47,7 @@
 
         @if($mapsNavUrl)
             <div class="inv-actions">
-                <a href="{{ $mapsNavUrl }}" target="_blank" rel="noopener" class="inv-btn inv-btn--block">{{ $invCopy['location_button'] ?? 'Cómo llegar' }}</a>
+                <a href="{{ $mapsNavUrl }}" target="_blank" rel="noopener" class="inv-btn inv-btn--block">{{ $invCopy['location_button'] ?? __('Cómo llegar') }}</a>
             </div>
         @endif
 

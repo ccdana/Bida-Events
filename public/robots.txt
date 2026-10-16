@@ -9,6 +9,7 @@ Disallow: /client/
 Disallow: /puerta/
 Disallow: /entrada/
 Disallow: /login
+Disallow: /en/login
 Disallow: /dashboard
 Allow: /
 
