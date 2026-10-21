@@ -216,8 +216,8 @@ final class LegalPages
                     'title' => __('Suscripción para profesionales'),
                     'items' => [
                         __('Los profesionales (fotógrafos, organizadores, decoradores y otros revendedores) pagan un plan que les permite publicar un número de invitaciones por mes, con las plantillas y funciones de su plan.'),
-                        __('El plan se paga por mes o por 3 o 12 meses. Cada pago extiende la suscripción por ese tiempo desde la fecha de vencimiento vigente, o desde el día del pago si ya había vencido. Con tarjeta, la suscripción se renueva sola en el mismo ciclo hasta que la canceles.'),
-                        __('Puedes cancelar tu plan cuando quieras desde tu cuenta. Al cancelar no se hacen más cobros y conservas el acceso hasta el final del período ya pagado. No devolvemos meses parciales ni períodos ya pagados.'),
+                        ...PlanTerms::renewal(),
+                        ...PlanTerms::termsChangeAndCancel(),
                         __('Si la suscripción vence, las invitaciones ya publicadas siguen en línea y el panel sigue disponible para ver invitados y descargar reportes, pero no se pueden crear ni editar invitaciones hasta renovar.'),
                         __('El profesional fija libremente lo que cobra a sus clientes y es responsable frente a ellos por el servicio que les ofrece.'),
                     ],

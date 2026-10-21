@@ -38,7 +38,7 @@
         [__('¿Cómo confirman asistencia los invitados?'), __('Cada invitado recibe su propio enlace, elige si va y cuántas personas de las que tiene asignadas lo acompañan. Quien organiza ve las respuestas al momento en su panel y puede descargarlas en PDF o Excel.')],
         [__('¿Cómo funciona el control de entrada con código QR?'), __('Al confirmar, cada invitado recibe un pase con código QR. El día del evento, quien recibe en la puerta abre un enlace en su teléfono y escanea el pase: ve el nombre, cuántas personas pueden entrar y si el pase ya se usó. Un pase no sirve dos veces.')],
         [__('¿Las invitaciones digitales aparecen en Google?'), __('No deberían. Las de :brand están marcadas para que los buscadores no las indexen: solo las abre quien tiene el enlace, y los datos de los invitados solo los ve quien organiza.', ['brand' => $brand])],
-        [__('¿Puedo hacer mis propias invitaciones digitales?'), __('Sí. Con Únete tienes un panel propio con las mismas plantillas y el mismo editor, desde :price al mes y sin comisión por invitación. Sirve para familias con varios eventos y para fotógrafos, salones u organizadores.', ['price' => $money($fromPlan)])],
+        [__('¿Puedo hacer mis propias invitaciones digitales?'), __('Sí. Con los planes tienes un panel propio con las mismas plantillas y el mismo editor, desde :price al mes y sin comisión por invitación. Sirven para familias con varios eventos y para fotógrafos, salones u organizadores.', ['price' => $money($fromPlan)])],
     ];
 
     $includes = [
@@ -95,11 +95,11 @@
 @section('content')
     <div data-header-sentinel class="pointer-events-none absolute inset-x-0 top-0 h-4" aria-hidden="true"></div>
 
-    @include('site.partials.header', ['navLinks' => [lroute('home') => __('Inicio'), lroute('diy') => __('Únete'), '#preguntas' => __('Preguntas')]])
+    @include('site.partials.header')
 
     <main class="mx-auto max-w-7xl px-5 pb-24 pt-10 lg:px-8 lg:pt-16">
         <nav class="text-sm text-site-muted" aria-label="{{ __('Ruta') }}">
-            <a href="{{ lroute('home') }}" class="site-nav-link hover:text-site-ink">{{ $brand }}</a>
+            <a href="{{ lroute('home') }}" class="site-nav-link site-touch-y hover:text-site-ink">{{ $brand }}</a>
             <span class="mx-2" aria-hidden="true">/</span>
             <span class="text-site-ink">{{ __('Guía de invitaciones digitales') }}</span>
         </nav>
@@ -224,7 +224,7 @@
                         </table>
                     </div>
                     <p>
-                        {{ __('Si armas varias invitaciones al año, o las vendes a tus clientes,') }} <a href="{{ lroute('diy') }}">{{ __('Únete') }}</a> {{ __('te da un panel propio desde :value al mes, sin comisión por invitación.', ['value' => $money($fromPlan)]) }}
+                        {{ __('Si armas varias invitaciones al año, o las vendes a tus clientes,') }} <a href="{{ lroute('diy') }}">{{ __('los planes') }}</a> {{ __('te dan un panel propio desde :value al mes, sin comisión por invitación.', ['value' => $money($fromPlan)]) }}
                     </p>
                 </section>
 

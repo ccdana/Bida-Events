@@ -51,10 +51,10 @@ class PublicPagesController extends Controller
             'planCycles' => $diy['cycles'],
             'collections' => $diy['collections'],
             'examplePrice' => self::EXAMPLE_RESALE_PRICE,
-            'contactUrl' => $whatsapp(__('Hola {brand}, quiero saber cómo funciona Únete para armar mis propias invitaciones.')),
+            'contactUrl' => $whatsapp(__('Hola {brand}, quiero saber cómo funcionan los planes para armar mis propias invitaciones.')),
             'landings' => HomeController::landingLinks(),
             'share' => ShareMeta::make(
-                __('Únete: haz tus propias invitaciones digitales y véndelas con tu marca | :brand', ['brand' => $bida['brand']]),
+                __('Planes para profesionales: haz tus propias invitaciones digitales y véndelas con tu marca | :brand', ['brand' => $bida['brand']]),
                 __('Arma tus propias invitaciones digitales con plantillas profesionales, para tu evento o para vender con tu marca. Desde :price al mes, sin comisión por invitación.', ['price' => Money::format(collect($plans)->min('final_price'))]),
                 ShareMeta::defaultImage(),
                 lroute('diy'),
@@ -110,7 +110,7 @@ class PublicPagesController extends Controller
             'user' => $request->user(),
             'slug' => $page,
             'content' => $content,
-            'updatedAt' => $bida['legal']['updated_at'] ?? null,
+            'updatedAt' => $bida['legal']['updated_pages'][$page] ?? $bida['legal']['updated_at'] ?? null,
             'contactUrl' => LeadSource::whatsappUrl($request, __('Hola {brand}, tengo una consulta sobre mis datos.'), LeadSource::HOME),
             'landings' => HomeController::landingLinks(),
             'share' => ShareMeta::make(

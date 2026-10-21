@@ -138,7 +138,7 @@ class PaymentOrder extends Model
 
         $planName = config("bida.reseller_plans.{$this->plan}.name", $this->plan);
 
-        return "Plan {$planName} de «Únete» · ".($this->months === 1 ? '1 mes' : "{$this->months} meses");
+        return "Plan {$planName} · ".($this->months === 1 ? '1 mes' : "{$this->months} meses");
     }
 
     /** La página a la que vuelve el comprador para esperar el aviso del cobro. */

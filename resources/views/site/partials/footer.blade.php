@@ -58,7 +58,7 @@
                 <p class="site-foot__title">{{ __('También') }}</p>
                 <ul>
                     <li><a href="{{ lroute('pricing') }}">{{ __('Precios') }}</a></li>
-                    <li><a href="{{ lroute('diy') }}">{{ __('Planes para profesionales') }}</a></li>
+                    <li><a href="{{ lroute('diy') }}">{{ __('Planes') }}</a></li>
                     <li><a href="{{ lroute('guide') }}">{{ __('Guía de invitaciones') }}</a></li>
                     <li><a href="{{ $accountUrl }}">{{ $accountLabel }}</a></li>
                 </ul>
@@ -77,6 +77,6 @@
 
     <div class="site-foot__bar">
         <p>© {{ now()->year }} {{ $bida['brand'] }}@if(! empty($bida['city'])) <span aria-hidden="true">·</span> {{ $bida['city'] }}@endif</p>
-        <x-site.language-switch />
+        <x-site.language-switch touch />
     </div>
 </footer>

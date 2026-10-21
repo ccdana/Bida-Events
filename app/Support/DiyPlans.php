@@ -38,7 +38,7 @@ final class DiyPlans
                 'checkout' => $checkout(1),
                 'key' => $key,
                 'templates_count' => $templates->filter(fn (array $template) => in_array($template['collection'] ?? 'clasica', $plan['collections'] ?? [], true))->count(),
-                'whatsapp' => LeadSource::whatsappUrl($request, __('Hola {brand}, quiero el plan :name de Únete (:price al mes).', ['name' => $plan['name'], 'price' => Money::format($plan['final_price'])]), $leadCode),
+                'whatsapp' => LeadSource::whatsappUrl($request, __('Hola {brand}, quiero el plan :name (:price al mes).', ['name' => $plan['name'], 'price' => Money::format($plan['final_price'])]), $leadCode),
                 // Por ciclo: lo que queda por mes, el precio que se tacha, lo que se paga y se ahorra, y a dónde lleva
                 'cycles' => collect($prepay)->map(function (int $discount, int $months) use ($plan, $key, $checkout, $request, $leadCode) {
                     $total = (float) SubscriptionPrice::amount($key, $months, 'USD');
@@ -56,8 +56,8 @@ final class DiyPlans
                         'url' => $checkout($months) ?? LeadSource::whatsappUrl(
                             $request,
                             $months === 1
-                                ? __('Hola {brand}, quiero el plan :name de Únete.', ['name' => $plan['name']])
-                                : __('Hola {brand}, quiero el plan :name de Únete, pagando :months meses.', ['name' => $plan['name'], 'months' => $months]),
+                                ? __('Hola {brand}, quiero el plan :name.', ['name' => $plan['name']])
+                                : __('Hola {brand}, quiero el plan :name, pagando :months meses.', ['name' => $plan['name'], 'months' => $months]),
                             $leadCode,
                         ),
                     ];

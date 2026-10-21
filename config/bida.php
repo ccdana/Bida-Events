@@ -32,6 +32,10 @@ return [
         'name' => env('BIDA_LEGAL_NAME'),
         'nit' => env('BIDA_LEGAL_NIT'),
         'updated_at' => '2026-10-15',
+        // Fecha propia de una página legal que cambió después (la clave es su página: privacidad, cookies, terminos)
+        'updated_pages' => [
+            'terminos' => '2026-10-21',
+        ],
     ],
 
     // Solo dígitos, con código de país (591 para Bolivia)
@@ -349,7 +353,7 @@ return [
                 ['icon' => 'lock-simple', 'title' => 'Solo para quien la recibe', 'text' => 'Se abre con su enlace y no aparece en buscadores.'],
             ],
             'faqs' => [
-                ['¿Cuánto tarda en estar lista?', 'Nos mandas la foto, el mensaje y la fecha, y la tenemos el mismo día. Si la pides el 21, escríbenos temprano.'],
+                ['¿Cuánto tarda en estar lista?', 'Nos mandas la foto, el mensaje y la fecha, y la tenemos el mismo día. Si la pides sobre la fecha, escríbenos temprano.'],
                 ['¿Se puede mandar a una amiga o a la familia?', 'Sí. Cambiamos los textos para el Día de la Amistad o para quien quieras.'],
                 ['¿Quién más puede ver la tarjeta?', 'Solo quien tenga el enlace. No aparece en buscadores y la respuesta la lees solo tú.'],
             ],

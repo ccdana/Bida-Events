@@ -10,18 +10,13 @@
     inventado: ni cuentas regresivas ni testimonios. Todo lo que se promete existe en el panel del
     revendedor.
 --}}
-@section('title', __('Únete: haz tus propias invitaciones digitales y véndelas con tu marca').' | '.$bida['brand'])
+@section('title', __('Planes para profesionales: haz tus propias invitaciones digitales y véndelas con tu marca').' | '.$bida['brand'])
 @section('description', __('Arma tus propias invitaciones digitales con plantillas profesionales, para tu evento o para vender con tu marca. Desde :price al mes, sin comisión por invitación.', ['price' => \App\Support\Money::format(collect($plans)->min('final_price'))]))
 
 @use('App\Support\Money')
+@use('App\Support\PlanTerms')
 
 @php
-    $navLinks = [
-        '#que-obtienes' => __('Qué ganas'),
-        '#planes' => __('Planes'),
-        '#preguntas' => __('Preguntas'),
-        '#a-medida' => __('A medida'),
-    ];
     $accountUrl = $user ? route('dashboard') : lroute('login');
     $accountLabel = $user ? __('Mi panel') : __('Ingresar');
     $fromPrice = collect($plans)->min('final_price');
@@ -29,8 +24,8 @@
     // Descuento por pagar 3 o 12 meses de una vez (Ajustes), para las preguntas
     $prepayText = \App\Payments\SubscriptionPrice::prepaySummary();
     $costAnswer = $prepayText !== ''
-        ? __('Desde :price al mes, y menos pagando varios meses de una vez (:discounts). Pagas con QR de cualquier banco de Bolivia o con tarjeta; con tarjeta se renueva solo y lo cancelas cuando quieras.', ['price' => Money::format($fromPrice), 'discounts' => $prepayText])
-        : __('Desde :price al mes. Pagas con QR de cualquier banco de Bolivia o con tarjeta; con tarjeta se renueva solo y lo cancelas cuando quieras.', ['price' => Money::format($fromPrice)]);
+        ? __('Desde :price al mes, y menos pagando varios meses de una vez (:discounts).', ['price' => Money::format($fromPrice), 'discounts' => $prepayText]).' '.PlanTerms::payment()
+        : __('Desde :price al mes.', ['price' => Money::format($fromPrice)]).' '.PlanTerms::payment();
 
     // El primer plan que trae cada cosa, para decir «desde» sin escribirlo a mano
     $firstWith = fn (callable $has): ?string => collect($plans)->first($has)['name'] ?? null;
@@ -50,7 +45,7 @@
         ['who' => __('Fotógrafos y videógrafos'), 'how' => __('La invitación digital completa tu paquete.'), 'plan' => __('Inicial')],
         ['who' => __('Salones y locales'), 'how' => __('La regalas o la vendes con cada evento que reservan.'), 'plan' => __('Emprendedor')],
         ['who' => __('Organizadores y agencias'), 'how' => __('Entregas invitaciones todas las semanas, cada cliente con su acceso.'), 'plan' => __('Agencia')],
-        ['who' => __('Quien organiza un solo evento'), 'how' => __('Tu cumpleaños, tu boda o tu graduación, con tu propia invitación.'), 'plan' => __('Hazlo tú (pago único)')],
+        ['who' => __('Quien organiza un solo evento'), 'how' => __('Tu cumpleaños, tu boda o tu graduación, con tu propia invitación.'), 'plan' => __('Hazlo tú (pago único)'), 'url' => lroute('pricing').'#hazlo-tu', 'isPlan' => false],
         ['who' => __('Familias con varios eventos'), 'how' => __('El cumpleaños, el bautizo y la graduación de la casa, sin pagar cada una.'), 'plan' => __('Inicial')],
     ];
     $steps = [
@@ -62,7 +57,7 @@
     $example = collect($plans)->firstWhere('key', 'inicial') ?? collect($plans)->first();
     $exampleSales = ($example['quota_per_month'] ?? 0) * $examplePrice;
     $faqs = [
-        [__('¿Qué es Únete?'), __('Es un plan que te da tu propio panel en :brand para armar invitaciones digitales con nuestras plantillas y venderlas con tu marca, o usarlas en tus propios eventos. Armas todos los borradores que quieras y publicas las que tu plan permite cada mes.', ['brand' => $bida['brand']])],
+        [__('¿Qué son los planes?'), __('Son planes mensuales que te dan tu propio panel en :brand para armar invitaciones digitales con nuestras plantillas y venderlas con tu marca, o usarlas en tus propios eventos. Armas todos los borradores que quieras y publicas las que tu plan permite cada mes.', ['brand' => $bida['brand']])],
         [__('¿Cuánto puedo ganar?'), __('Depende de a cuánto vendas y cuántas armes. Por ejemplo, con el plan :name (:price al mes), :quota_per_month invitaciones vendidas a :price2 suman :price3 y te quedan :price4 después del plan. El precio de venta lo decides tú.', ['name' => $example['name'], 'price' => Money::format($example['final_price']), 'quota_per_month' => $example['quota_per_month'], 'price2' => Money::format($examplePrice), 'price3' => Money::format($exampleSales), 'price4' => Money::format($exampleSales - $example['final_price'])])],
         [__('¿Cobran comisión por invitación?'), __('No. Pagas el plan del mes y lo que cobras por cada invitación es tuyo.')],
         [__('¿Necesito saber diseñar?'), __('No. Eliges una plantilla, cargas las fotos y los datos del evento y la invitación ya se ve bien. Si quieres ir más lejos, cambias colores, letras y cada texto.')],
@@ -70,7 +65,7 @@
         [__('¿Cuentan las invitaciones que todavía no publico?'), __('No. El cupo de tu plan cuenta las invitaciones que publicas en el mes: los borradores no lo gastan, y ocultar una y volver a publicarla no la cuenta dos veces.')],
         [__('¿Qué pasa si no renuevo a tiempo?'), __('Las invitaciones que ya publicaste siguen en línea y puedes ver invitados y descargar reportes. Lo que se pausa es crear y editar invitaciones hasta que renueves.')],
         [__('¿Cuántos accesos para clientes puedo crear?'), __('Uno por evento y, en total, tantos por mes como invitaciones incluye tu plan. Si creaste uno mal, lo eliminas y creas otro.')],
-        [__('¿Puedo cambiar de plan?'), __('Sí. Nos escribes y el cambio se aplica con tu siguiente pago.')],
+        [PlanTerms::question(), PlanTerms::answer()],
         [__('¿Y si solo necesito una invitación?'), __('Para una sola no hace falta un plan: crea tu cuenta y ármala con todo. La publicas gratis con lo básico, o pagas una sola vez el nivel que usaste.')],
         [__('¿Hacen invitaciones a medida?'), __('Si quieres algo a medida, escríbenos por WhatsApp o al correo :email y lo conversamos.', ['email' => $bida['email']])],
     ];
@@ -79,16 +74,16 @@
 @push('head')
     @include('site.partials.structured-data', [
         'faqs' => $faqs,
-        'serviceName' => __('Únete: plan mensual para crear y vender invitaciones digitales'),
+        'serviceName' => __('Planes para profesionales: crea y vende invitaciones digitales'),
         'offers' => array_map(fn (array $plan) => ['name' => __('Plan :name (mensual)', ['name' => $plan['name']]), 'price' => $plan['final_price'], 'description' => $plan['summary'] ?? ''], $plans),
-        'breadcrumbs' => [[$bida['brand'], lroute('home')], [__('Únete'), lroute('diy')]],
+        'breadcrumbs' => [[$bida['brand'], lroute('home')], [__('Planes'), lroute('diy')]],
     ])
 @endpush
 
 @section('content')
     <div data-header-sentinel class="pointer-events-none absolute inset-x-0 top-0 h-4" aria-hidden="true"></div>
 
-    @include('site.partials.header', ['navLinks' => $navLinks])
+    @include('site.partials.header')
 
     <main>
         {{-- ═══ Qué ganas ═══ --}}
@@ -122,7 +117,7 @@
                     <li>
                         <span class="site-diy-who__who">{{ $profile['who'] }}</span>
                         <span class="site-diy-who__how">{{ $profile['how'] }}</span>
-                        <a href="#planes" class="site-diy-who__plan site-link-arrow">{{ __('Plan :plan', ['plan' => $profile['plan']]) }} <x-phosphor-arrow-right aria-hidden="true" /></a>
+                        <a href="{{ $profile['url'] ?? '#planes' }}" class="site-diy-who__plan site-link-arrow">{{ ($profile['isPlan'] ?? true) ? __('Plan :plan', ['plan' => $profile['plan']]) : $profile['plan'] }} <x-phosphor-arrow-right aria-hidden="true" /></a>
                     </li>
                 @endforeach
             </ul>

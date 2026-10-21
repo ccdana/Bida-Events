@@ -8,10 +8,6 @@
 @section('description', $content['description'])
 
 @php
-    $navLinks = [
-        lroute('home') => __('Inicio'),
-        lroute('diy') => __('Únete'),
-    ];
     $accountUrl = $user ? route('dashboard') : lroute('login');
     $accountLabel = $user ? __('Mi panel') : __('Ingresar');
     $socials = [];
@@ -21,11 +17,11 @@
 @section('content')
     <div data-header-sentinel class="pointer-events-none absolute inset-x-0 top-0 h-4" aria-hidden="true"></div>
 
-    @include('site.partials.header', ['navLinks' => $navLinks])
+    @include('site.partials.header')
 
     <main class="mx-auto max-w-7xl px-5 pb-24 pt-10 lg:px-8 lg:pt-16">
         <nav class="text-sm text-site-muted" aria-label="{{ __('Ruta') }}">
-            <a href="{{ lroute('home') }}" class="site-nav-link hover:text-site-ink">{{ $bida['brand'] }}</a>
+            <a href="{{ lroute('home') }}" class="site-nav-link site-touch-y hover:text-site-ink">{{ $bida['brand'] }}</a>
             <span class="mx-2" aria-hidden="true">/</span>
             <span class="text-site-ink">{{ $content['title'] }}</span>
         </nav>
@@ -89,5 +85,5 @@
         </div>
     </main>
 
-    @include('site.partials.footer', ['navLinks' => $navLinks, 'socials' => $socials])
+    @include('site.partials.footer', ['socials' => $socials])
 @endsection

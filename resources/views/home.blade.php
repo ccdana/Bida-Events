@@ -10,14 +10,6 @@
 @section('description', __('Arma tu invitación digital gratis con plantillas profesionales y paga solo si quieres más: confirmación de asistencia, galería y pase QR.'))
 
 @php
-    // Lo principal es armarla (las plantillas abren el menú); los precios de las tres formas, en su bloque y en /precios
-    $sections = array_filter([
-        'plantillas' => count($designs) ? __('Plantillas') : null,
-        'incluye' => __('Qué incluye'),
-        'precios' => __('Precios'),
-        'preguntas' => __('Preguntas'),
-    ]);
-    $navLinks = collect($sections)->mapWithKeys(fn (string $label, string $id) => ['#'.$id => $label])->all();
     $accountUrl = $user ? route('dashboard') : lroute('login');
     $accountLabel = $user ? __('Mi panel') : __('Ingresar');
     $showcase = $bida['showcase'];
@@ -93,7 +85,7 @@
 @section('content')
     <div data-header-sentinel class="pointer-events-none absolute inset-x-0 top-0 h-4" aria-hidden="true"></div>
 
-    @include('site.partials.header', ['navLinks' => $navLinks])
+    @include('site.partials.header', ['hasTemplates' => count($designs) > 0])
 
     <main>
         {{-- ═══ Portada: la palabra del evento y la foto cambian con la apertura que muestra el teléfono ═══ --}}
@@ -389,7 +381,7 @@
         @include('site.partials.faqs', ['faqs' => $faqs])
     </main>
 
-    @include('site.partials.footer', ['navLinks' => $navLinks, 'socials' => $socials])
+    @include('site.partials.footer', ['socials' => $socials])
 
     {{-- ═══ Temporadas: un botón discreto abajo a la derecha que abre las que se venden hoy ═══ --}}
     @if(count($seasons))

@@ -15,13 +15,6 @@
 @use('App\Support\Money')
 
 @php
-    $navLinks = [
-        '#hazlo-tu' => __('Hazlo tú'),
-        '#planes' => __('Planes'),
-        '#comparar' => __('Comparar'),
-        '#preguntas' => __('Preguntas'),
-        '#a-medida' => __('A medida'),
-    ];
     $accountUrl = $user ? route('dashboard') : lroute('login');
     $accountLabel = $user ? __('Mi panel') : __('Ingresar');
     $fromPlan = collect($plans)->min('final_price');
@@ -47,7 +40,7 @@
 @section('content')
     <div data-header-sentinel class="pointer-events-none absolute inset-x-0 top-0 h-4" aria-hidden="true"></div>
 
-    @include('site.partials.header', ['navLinks' => $navLinks])
+    @include('site.partials.header')
 
     <main>
         {{-- ═══ Las formas de tenerla, de un vistazo ═══ --}}

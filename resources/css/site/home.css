@@ -1492,6 +1492,8 @@ a:hover > .site-link-arrow svg,
 .site-cycle__option {
     position: relative;
     display: inline-flex;
+    min-width: 2.75rem;
+    justify-content: center;
     align-items: baseline;
     gap: 0.5rem;
     margin-bottom: -1px;

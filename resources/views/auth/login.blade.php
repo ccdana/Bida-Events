@@ -42,7 +42,7 @@
 
         @include('auth.partials.password', ['index' => 5, 'forgot' => true])
 
-        <label class="site-enter flex cursor-pointer items-center gap-3 text-[0.95rem]" style="--enter-index: 6">
+        <label class="site-enter site-touch-row flex cursor-pointer items-center gap-3 text-[0.95rem]" style="--enter-index: 6">
             <input type="checkbox" name="remember" value="1" class="site-checkbox" @checked(old('remember'))>
             {{ __('Mantener la sesión iniciada') }}
         </label>

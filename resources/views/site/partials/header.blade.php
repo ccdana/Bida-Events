@@ -1,11 +1,22 @@
 {{--
-    Cabecera del sitio público. Recibe $navLinks (href => texto), $contactUrl, $accountUrl y $accountLabel.
+    Cabecera del sitio público. Recibe $contactUrl, $accountUrl y $accountLabel y, opcional, $hasTemplates
+    (false si la portada no tiene muestras: entonces no se ofrece «Plantillas»).
+    El menú es el mismo en todas las páginas: Plantillas, Precios, Planes y Guía.
     La acción principal lleva a crear la invitación gratis («Hazlo tú», el modelo principal: cada quien
     arma la suya): sin cuenta, a crearla; con cuenta, al editor. Escribir por WhatsApp queda como
     acción secundaria.
 --}}
 @php
     $ctaUrl = \App\Support\DiyInvitations::startUrl(request()->user());
+
+    // Cada enlace lleva a su página (o a su sección, estando en la portada); el de la página abierta queda marcado
+    $here = \Illuminate\Support\Str::after((string) request()->route()?->getName(), 'en.');
+    $menu = array_values(array_filter([
+        ($hasTemplates ?? true) ? ['label' => __('Plantillas'), 'url' => ($here === 'home' ? '' : lroute('home')).'#plantillas', 'current' => false] : null,
+        ['label' => __('Precios'), 'url' => lroute('pricing'), 'current' => $here === 'pricing'],
+        ['label' => __('Planes'), 'url' => lroute('diy'), 'current' => $here === 'diy'],
+        ['label' => __('Guía'), 'url' => lroute('guide'), 'current' => $here === 'guide'],
+    ]));
 @endphp
 <header data-site-header x-data="{ open: false }" @keydown.escape.window="open = false"
     class="site-header sticky top-0 z-40" :class="{ 'is-open': open }">
@@ -15,8 +26,8 @@
         </a>
 
         <nav class="hidden items-center gap-8 text-[0.95rem] text-site-muted lg:flex" aria-label="{{ __('Secciones') }}">
-            @foreach($navLinks as $href => $label)
-                <a href="{{ $href }}" class="site-nav-link hover:text-site-ink">{{ $label }}</a>
+            @foreach($menu as $item)
+                <a href="{{ $item['url'] }}" @class(['site-nav-link hover:text-site-ink', 'text-site-ink' => $item['current']]) @if($item['current']) aria-current="page" @endif>{{ $item['label'] }}</a>
             @endforeach
         </nav>
 
@@ -50,8 +61,8 @@
         x-transition:leave="transition duration-200 ease-in" x-transition:leave-end="-translate-y-2 opacity-0"
         class="px-5 pb-6 lg:hidden">
         <nav class="flex flex-col text-lg" aria-label="{{ __('Secciones') }}">
-            @foreach($navLinks as $href => $label)
-                <a href="{{ $href }}" @click="open = false" class="border-b border-site-line py-3.5">{{ $label }}</a>
+            @foreach($menu as $item)
+                <a href="{{ $item['url'] }}" @click="open = false" @class(['border-b border-site-line py-3.5', 'text-site-ink' => $item['current']]) @if($item['current']) aria-current="page" @endif>{{ $item['label'] }}</a>
             @endforeach
         </nav>
         <div class="mt-6 grid gap-3">
@@ -66,7 +77,7 @@
             </a>
             <div class="mt-1 flex items-center justify-between border-t border-site-line pt-4">
                 <x-site.language-switch touch />
-                @include('layouts.partials.theme-toggle', ['class' => 'theme-toggle--touch'])
+                @include('layouts.partials.theme-toggle')
             </div>
         </div>
     </div>

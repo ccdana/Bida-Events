@@ -175,10 +175,45 @@ html[data-theme='dark'] .site {
     font-size: 0.88rem;
 }
 
-/* El interruptor de tema dentro del menú del celular, con área de toque completa */
-.site-header .theme-toggle--touch {
-    width: 2.75rem;
-    height: 2.75rem;
+/* ── Áreas de toque ─────────────────────────────────────────────────────────
+   En celulares y tablets (o pantallas táctiles) todo lo que se toca mide al menos 44 px. El texto no
+   cambia de tamaño: crece el área. En computador el diseño se queda compacto. */
+@media (pointer: coarse), (max-width: 1023px) {
+    /* Enlaces sueltos, los que no van dentro de un párrafo */
+    .site-touch-y,
+    .site-link-arrow,
+    .site-foot__mail,
+    .site-foot__logo {
+        display: inline-flex;
+        align-items: center;
+        min-height: 2.75rem;
+    }
+
+    /* Un renglón completo que se toca (la casilla «Mantener la sesión» con su texto) */
+    .site-touch-row {
+        min-height: 2.75rem;
+    }
+
+    /* Textos cortos como el idioma: un cuadro de 44 px */
+    .site-touch {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 2.75rem;
+        min-height: 2.75rem;
+    }
+
+    /* Las pestañas de ciclo de pago (Mensual · Cada 3 meses · Anual) rondaban los 43,6 px */
+    button.site-cycle__option {
+        padding-top: 0.55rem;
+        padding-bottom: 0.9rem;
+    }
+
+    /* Más específico que el botón de iconos del panel, que se carga después */
+    body .theme-toggle {
+        width: 2.75rem;
+        height: 2.75rem;
+    }
 }
 
 .site-btn--ghost {

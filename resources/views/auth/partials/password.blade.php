@@ -8,7 +8,7 @@
     <div class="flex items-baseline justify-between gap-4">
         <label for="password" class="text-[0.95rem] font-medium">{{ $label ?? __('Contraseña') }}</label>
         @if($forgot ?? false)
-            <a href="{{ lroute('password.request') }}" class="text-sm text-site-muted underline underline-offset-4 transition-colors hover:text-site-ink">{{ __('¿La olvidaste?') }}</a>
+            <a href="{{ lroute('password.request') }}" class="site-touch-y text-sm text-site-muted underline underline-offset-4 transition-colors hover:text-site-ink">{{ __('¿La olvidaste?') }}</a>
         @endif
     </div>
     <div class="site-field">

@@ -44,7 +44,7 @@ class PublicPagesTest extends TestCase
             ->assertSee('id="a-medida"', false)
             ->assertDontSee('Te la hacemos')
             // WhatsApp con el plan y el código de la página
-            ->assertSee(rawurlencode('quiero el plan Inicial de Únete (US$ 16 al mes)'), false)
+            ->assertSee(rawurlencode('quiero el plan Inicial (US$ 16 al mes)'), false)
             ->assertSee(rawurlencode('Ref. HAZLO'), false);
     }
 

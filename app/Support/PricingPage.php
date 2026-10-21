@@ -214,7 +214,7 @@ final class PricingPage
                 ? __('Con tarjeta de crédito o débito, en dólares, desde cualquier país, o con el QR de cualquier banco de Bolivia, en bolivianos al cambio oficial. Los planes se pagan por mes o varios meses de una vez, con descuento (:discounts).', ['discounts' => $prepayText])
                 : __('Con tarjeta de crédito o débito, en dólares, desde cualquier país, o con el QR de cualquier banco de Bolivia, en bolivianos al cambio oficial. Los planes se pagan por mes.')],
             [__('¿Hacen invitaciones a medida?'), __('Si quieres algo a medida, escríbenos por WhatsApp o al correo :email y lo conversamos.', ['email' => config('bida.email')])],
-            [__('¿Puedo cambiar de plan o cancelarlo?'), __('Sí. Con tarjeta lo haces tú mismo desde «Mi plan»; con QR, eliges otro plan en tu próximo pago. Lo que ya publicaste sigue en línea.')],
+            [PlanTerms::question(), PlanTerms::answer()],
         ]));
     }
 }

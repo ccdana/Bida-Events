@@ -46,8 +46,7 @@ class HeroAndLandingCtaTest extends TestCase
         // El idioma y el tema viven dentro del menú, con área de toque completa
         $menu = Str::between($html, 'id="menu-movil"', '</header>');
         $this->assertStringContainsString('hreflang="en"', $menu);
-        $this->assertStringContainsString('min-h-11', $menu);
-        $this->assertStringContainsString('theme-toggle--touch', $menu);
+        $this->assertStringContainsString('site-touch', $menu);
     }
 
     public function test_the_other_site_pages_share_the_phone_header(): void
@@ -86,7 +85,13 @@ class HeroAndLandingCtaTest extends TestCase
 
     public function test_the_season_pages_keep_the_service_flow(): void
     {
-        // Las de temporada se piden por WhatsApp y las armamos nosotros
+        // Las de temporada se piden por WhatsApp y las armamos nosotros (mientras la temporada está en venta:
+        // con su fecha vigente y sus muestras sembradas; terminada, ver SeasonEndedLandingTest)
+        $seeder = new ShowcaseInvitationsSeeder;
+        $seeder->seedSlug('tarjeta-ana-luis');
+        $seeder->seedSlug('halloween-noche-diego');
+        config(['bida.seasons.amor.ends_at' => now()->addWeek()->toDateTimeString(), 'bida.seasons.halloween.ends_at' => now()->addWeek()->toDateTimeString()]);
+
         $this->withoutVite()->get('/invitaciones-de-halloween')
             ->assertOk()
             ->assertSee('Mándanos tus datos')

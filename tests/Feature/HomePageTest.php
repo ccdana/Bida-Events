@@ -83,7 +83,7 @@ class HomePageTest extends TestCase
             ->assertSeeInOrder(['id="hazlo-tu"', 'Básico', 'Estándar', 'Premium', 'id="planes"', 'Inicial', 'Emprendedor', 'Agencia', 'id="a-medida"'], false)
             // Sin pago en línea, elegir un plan abre WhatsApp con ese plan (con el pago, pasa por crear la cuenta)
             ->assertSee('Elegir Inicial')
-            ->assertSee(rawurlencode('quiero el plan Inicial de Únete'), false)
+            ->assertSee(rawurlencode('quiero el plan Inicial'), false)
             ->getContent();
 
         // Los dos usan la misma columna de precios (4 niveles y 3 planes)

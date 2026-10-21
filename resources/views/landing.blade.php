@@ -14,13 +14,6 @@
     $isCard = ($page['kind'] ?? null) === 'card';
     // Tarjetas e invitaciones de temporada: precio único de temporada en lugar de paquetes
     $isSeasonal = \App\Http\Controllers\EventLandingController::isSeasonal($page);
-    $navLinks = array_filter([
-        '#disenos' => count($demos) > 1 ? __('Diseños') : null,
-        '#incluye' => __('Qué incluye'),
-        '#como' => __('Cómo funciona'),
-        '#precios' => __('Precios'),
-        '#preguntas' => __('Preguntas'),
-    ]);
     // Los tres pasos, en el orden en que pasan (por eso van numerados)
     $steps = $isCard
         ? [
@@ -43,8 +36,11 @@
             ]);
     // Para quién es: «tu boda», «tu graduación»…
     $forPhrase = $page['for'] ?? (collect($bida['showcase'])->firstWhere('event', $page['event'])['phrase'] ?? __('tu evento'));
-    $ctaUrl = $isSeasonal && $season ? $season['whatsappUrl'] : $contactUrl;
-    $ctaLabel = $isSeasonal && $season ? __('La quiero por :price', ['price' => \App\Support\Money::format($season['final_price'])]) : __('Escríbenos');
+    // Fuera de temporada (la fecha de Ajustes ya pasó) la página no vende: queda abierta para probar las muestras
+    // y el botón anota a quien quiere que le avisen cuando vuelva
+    $ended = $isSeasonal && ! $season;
+    $ctaUrl = $ended ? $waitlistUrl : ($isSeasonal && $season ? $season['whatsappUrl'] : $contactUrl);
+    $ctaLabel = $ended ? __('Avísame cuando vuelva') : ($isSeasonal && $season ? __('La quiero por :price', ['price' => \App\Support\Money::format($season['final_price'])]) : __('Escríbenos'));
     $accountUrl = $user ? route('dashboard') : lroute('login');
     $accountLabel = $user ? __('Mi panel') : __('Ingresar');
     $faqs = array_merge($page['faqs'], [
@@ -77,7 +73,7 @@
 @section('content')
     <div data-header-sentinel class="pointer-events-none absolute inset-x-0 top-0 h-4" aria-hidden="true"></div>
 
-    @include('site.partials.header', ['navLinks' => $navLinks])
+    @include('site.partials.header')
 
     {{-- El diseño elegido se comparte entre la portada (el teléfono) y la sección de diseños --}}
     <main>
@@ -86,10 +82,16 @@
             <div class="mx-auto grid max-w-7xl items-center gap-12 px-5 pb-16 pt-8 md:pt-14 lg:min-h-[calc(100dvh-72px)] lg:grid-cols-12 lg:gap-8 lg:px-8 lg:py-12">
                 <div class="lg:col-span-5">
                     <nav class="site-enter text-sm text-site-muted" aria-label="{{ __('Ruta') }}">
-                        <a href="{{ lroute('home') }}" class="site-nav-link hover:text-site-ink">{{ $bida['brand'] }}</a>
+                        <a href="{{ lroute('home') }}" class="site-nav-link site-touch-y hover:text-site-ink">{{ $bida['brand'] }}</a>
                         <span class="mx-2" aria-hidden="true">/</span>
                         <span class="text-site-ink">{{ $page['link'] }}</span>
                     </nav>
+                    @if($ended)
+                        <p class="site-enter mt-5 inline-flex items-start gap-2 rounded-[12px] border border-site-line bg-site-surface px-4 py-3 text-sm" style="--enter-index: 1" role="status">
+                            <x-phosphor-hourglass-medium class="mt-0.5 size-4 shrink-0 text-site-accent" aria-hidden="true" />
+                            <span><strong class="font-semibold text-site-ink">{{ __('La temporada terminó.') }}</strong> {{ __('Las muestras siguen abiertas para que las pruebes.') }}</span>
+                        </p>
+                    @endif
                     <h1 class="site-enter site-display mt-5 max-w-[16ch]" style="--enter-index: 1">
                         {{ $page['heading'] }}
                     </h1>
@@ -109,13 +111,17 @@
                                 <x-phosphor-arrow-right class="site-btn__arrow" aria-hidden="true" />
                             </a>
                         @endif
-                        <a href="#precios" class="site-btn site-btn--ghost site-btn--lg justify-center">
-                            {{ __('Ver precios') }}
-                            <x-phosphor-arrow-down class="site-btn__arrow" aria-hidden="true" />
-                        </a>
+                        @unless($ended)
+                            <a href="#precios" class="site-btn site-btn--ghost site-btn--lg justify-center">
+                                {{ __('Ver precios') }}
+                                <x-phosphor-arrow-down class="site-btn__arrow" aria-hidden="true" />
+                            </a>
+                        @endunless
                     </div>
                     <p class="site-enter mt-6 text-sm text-site-muted" style="--enter-index: 5">
-                        @if($isSeasonal)
+                        @if($ended)
+                            {{ __('Te avisamos por WhatsApp cuando vuelva la temporada.') }}
+                        @elseif($isSeasonal)
                             @if($season)
                                 @if($season['old_price'])<del>{{ \App\Support\Money::format($season['old_price']) }}</del> @endif<strong class="text-site-ink">{{ \App\Support\Money::format($season['final_price']) }}</strong> {{ __('por temporada · :value · Se manda por WhatsApp', ['value' => $isCard ? __('Lista el mismo día') : __('Con confirmación de asistencia')]) }}
                             @else
@@ -178,7 +184,8 @@
             </div>
         </section>
 
-        {{-- ═══ Cómo funciona: tres pasos, en orden ═══ --}}
+        {{-- ═══ Cómo funciona: tres pasos, en orden (fuera de temporada no se puede pedir) ═══ --}}
+        @unless($ended)
         <section id="como" class="scroll-mt-20 border-t border-site-line">
             <div class="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-24">
                 <h2 class="max-w-[20ch] text-3xl font-semibold leading-[1.1] tracking-tight md:text-5xl" data-reveal>
@@ -206,6 +213,7 @@
                 @endunless
             </div>
         </section>
+        @endunless
 
         @if($isSeasonal)
             {{-- De temporada: precio de temporada tachado y rebajado; pasada la fecha, se consulta --}}
@@ -231,9 +239,9 @@
                         </a>
                     @else
                         <p class="max-w-[40ch] text-2xl font-semibold leading-snug tracking-tight md:text-3xl">{{ __('La temporada terminó. Escríbenos y te avisamos de la próxima.') }}</p>
-                        <a href="{{ $contactUrl }}" target="_blank" rel="noopener" class="site-btn site-btn--lg" data-magnetic>
+                        <a href="{{ $waitlistUrl }}" target="_blank" rel="noopener" class="site-btn site-btn--lg" data-magnetic>
                             <x-phosphor-whatsapp-logo aria-hidden="true" />
-                            {{ __('Escríbenos') }}
+                            {{ __('Avísame cuando vuelva') }}
                         </a>
                     @endif
                 </div>
@@ -261,5 +269,5 @@
         @include('site.partials.faqs', ['faqs' => $faqs])
     </main>
 
-    @include('site.partials.footer', ['navLinks' => $navLinks, 'socials' => $socials])
+    @include('site.partials.footer', ['socials' => $socials])
 @endsection

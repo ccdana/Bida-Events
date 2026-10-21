@@ -16,7 +16,7 @@
                     <x-brand.logo animated />
                 </a>
                 <div class="flex items-center gap-4">
-                    <x-site.language-switch />
+                    <x-site.language-switch touch />
                     @include('layouts.partials.theme-toggle')
                 </div>
             </div>

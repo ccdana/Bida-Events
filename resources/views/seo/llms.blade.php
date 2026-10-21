@@ -7,7 +7,7 @@
 
 - «Hazlo tú»: cualquiera crea su cuenta y arma su propia invitación con las plantillas, gratis. Se publica gratis con la portada, la cuenta regresiva y la ubicación, o con un pago único por el nivel de lo que usó (Básico, Estándar o Premium).
 - A medida: para algo distinto se escribe por WhatsApp o al correo y se conversa; no tiene precio publicado.
-- Planes («Únete»): por mes, 3 o 12 meses, para fotógrafos, salones y organizadores que arman invitaciones cada mes, sin comisión por invitación.
+- Planes: por mes, 3 o 12 meses, para fotógrafos, salones y organizadores que arman invitaciones cada mes, sin comisión por invitación.
 - Tarjetas digitales de temporada (Día del Amor, Halloween) listas para compartir.
 - Nivel Estándar: cada invitado recibe un enlace personal y confirma por WhatsApp con un mensaje que ya lleva su nombre y cuántas personas van.
 - Nivel Premium: la confirmación queda guardada en el panel del organizador y el invitado recibe un pase con código QR.
@@ -22,7 +22,7 @@
 - {!! \App\Support\Packages::tierNames()[$tier] ?? $tier !!}: {!! \App\Support\Money::format($price['final']) !!}.
 @endforeach
 
-## Únete (planes mensuales)
+## Planes para profesionales (mensuales)
 
 @foreach($plans as $plan)
 - Plan {!! $plan['name'] !!}: {!! \App\Support\Money::format($plan['final_price']) !!} al mes, {!! $plan['quota_per_month'] === null ? 'invitaciones sin tope' : ($plan['quota_per_month'] === 1 ? '1 invitación al mes' : $plan['quota_per_month'].' invitaciones al mes') !!}{!! ! empty($plan['white_label']) ? ', con la marca del cliente al pie' : '' !!}.
@@ -33,7 +33,7 @@
 - [Inicio]({!! lroute('home') !!}): qué es, cómo funciona, muestras que se pueden probar y precios.
 - [Precios]({!! lroute('pricing') !!}): Hazlo tú y los planes, lado a lado, con lo que trae cada nivel.
 - [Guía de invitaciones digitales]({!! lroute('guide') !!}): qué son, cuánto cuestan, cómo elegir una y cómo funciona el control de entrada con QR.
-- [Únete]({!! lroute('diy') !!}): planes mensuales para crear invitaciones propias.
+- [Planes]({!! lroute('diy') !!}): planes mensuales para crear invitaciones propias.
 @foreach($landings as $landing)
 - [{!! $landing['label'] !!}]({!! $landing['url'] !!})
 @endforeach

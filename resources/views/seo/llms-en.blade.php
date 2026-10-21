@@ -7,7 +7,7 @@
 
 - "Do it yourself" («Hazlo tú»): anyone creates an account and builds their own invitation with the templates, for free. It is published free with the cover, the countdown and the location, or with a one-time payment for the level of what they used (Basic, Standard or Premium).
 - Custom work: for anything different, write by WhatsApp or email and we talk it through; it has no published price.
-- Plans («Únete», "Join"): monthly, 3 or 12 months, for photographers, venues and organizers who build invitations every month, with no commission per invitation.
+- Plans: monthly, 3 or 12 months, for photographers, venues and organizers who build invitations every month, with no commission per invitation.
 - Seasonal digital cards (Love Day, Halloween) ready to share.
 - Standard level: each guest gets a personal link and confirms over WhatsApp with a message that already carries their name and how many people are coming.
 - Premium level: the RSVP is saved in the organizer's dashboard and the guest receives a pass with a QR code.
@@ -22,7 +22,7 @@
 - {!! __(\App\Support\Packages::tierNames()[$tier] ?? $tier) !!}: {!! \App\Support\Money::format($price['final']) !!}.
 @endforeach
 
-## Join (monthly plans)
+## Plans for professionals (monthly)
 
 @foreach($plans as $plan)
 - {!! $plan['name'] !!} plan: {!! \App\Support\Money::format($plan['final_price']) !!} per month, {!! $plan['quota_per_month'] === null ? 'unlimited invitations' : ($plan['quota_per_month'] === 1 ? '1 invitation per month' : $plan['quota_per_month'].' invitations per month') !!}{!! ! empty($plan['white_label']) ? ', with the client\'s brand in the footer' : '' !!}.
@@ -33,7 +33,7 @@
 - [Home]({!! lroute('home') !!}): what it is, how it works, samples you can try and prices.
 - [Pricing]({!! lroute('pricing') !!}): Do it yourself and the plans, side by side, with what each level includes.
 - [Digital invitations guide]({!! lroute('guide') !!}): what they are, how much they cost, how to choose one and how QR door check-in works.
-- [Join]({!! lroute('diy') !!}): monthly plans to create your own invitations.
+- [Plans]({!! lroute('diy') !!}): monthly plans to create your own invitations.
 @foreach($landings as $landing)
 - [{!! $landing['label'] !!}]({!! $landing['url'] !!})
 @endforeach
