@@ -177,3 +177,20 @@ dc up -d
 dc exec app php artisan bida:salud --sin-correo
 dc exec app php artisan up
 ```
+
+## Muestras de la portada
+
+Las invitaciones de muestra (`/muestra/…`, la portada y las páginas por evento) traen una fecha fija en
+`database/seeders/showcase`. `php artisan bida:renovar-muestras` (todas las noches a las 00:20) las mantiene a unas
+semanas de su fecha: si la fecha ya quedó a menos de 45 días o pasó, vuelve a sembrar esa muestra con la fecha
+corrida, junto con su vencimiento y los textos que la repiten («Sábado 12 de diciembre», «confirma antes del 20 de
+noviembre»). Las de temporada (Halloween, Día del Amor) conservan su día de calendario y pasan al año siguiente.
+Si todas están al día no hace nada.
+
+```bash
+dc exec app php artisan bida:renovar-muestras --dry-run   # qué cambiaría
+dc exec app php artisan bida:renovar-muestras --forzar    # volver a sembrar todas
+```
+
+Las capturas de la portada (`bida:capturas-muestras`) muestran la fecha de cuando se tomaron: si cambia mucho,
+regenerarlas.

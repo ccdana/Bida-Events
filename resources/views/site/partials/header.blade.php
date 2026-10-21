@@ -33,9 +33,9 @@
             </a>
         </div>
 
+        {{-- En el celular la acción principal siempre está a la vista; idioma y tema van dentro del menú --}}
         <div class="flex items-center gap-2 lg:hidden">
-            <x-site.language-switch />
-            @include('layouts.partials.theme-toggle')
+            <a href="{{ $ctaUrl }}" class="site-btn site-btn--compact">{{ __('Crear gratis') }}</a>
             <button type="button" class="relative grid size-11 place-items-center rounded-full border border-site-line"
                 @click="open = !open" :aria-expanded="open.toString()" aria-controls="menu-movil">
                 <span class="sr-only" x-text="open ? @js(__('Cerrar menú')) : @js(__('Abrir menú'))">{{ __('Abrir menú') }}</span>
@@ -64,6 +64,10 @@
                 <x-phosphor-whatsapp-logo class="size-5" aria-hidden="true" />
                 {{ __('O escríbenos por WhatsApp') }}
             </a>
+            <div class="mt-1 flex items-center justify-between border-t border-site-line pt-4">
+                <x-site.language-switch touch />
+                @include('layouts.partials.theme-toggle', ['class' => 'theme-toggle--touch'])
+            </div>
         </div>
     </div>
 </header>

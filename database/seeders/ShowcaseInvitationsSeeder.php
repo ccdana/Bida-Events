@@ -9,6 +9,7 @@ use App\Models\Invitation;
 use App\Models\PollVote;
 use App\Services\InvitationCacheService;
 use App\Services\InvitationModuleService;
+use App\Support\ShowcaseDates;
 use App\Support\TrendTemplates;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Arr;
@@ -41,15 +42,32 @@ class ShowcaseInvitationsSeeder extends Seeder
         }
     }
 
+    /**
+     * Los datos de una muestra con las fechas al día (App\Support\ShowcaseDates): la fecha del evento y los
+     * textos que la repiten se corren para que la muestra nunca se vea como un evento ya terminado.
+     */
     public static function data(string $slug): array
+    {
+        return ShowcaseDates::roll(self::raw($slug));
+    }
+
+    /**
+     * Los datos tal como están escritos en los archivos, con sus fechas de ejemplo. Las variantes parten de
+     * esto y no de data(): la fecha se corre una sola vez, al final, sobre lo que quedó armado.
+     */
+    public static function raw(string $slug): array
     {
         $demo = TrendTemplates::demo($slug);
 
-        if ($demo !== null) {
-            return ShowcaseVariant::of($demo['base'], $slug, self::data($demo['base'])['invitation']['title'], $demo['template']);
-        }
+        return $demo !== null
+            ? ShowcaseVariant::of($demo['base'], $slug, self::raw($demo['base'])['invitation']['title'], $demo['template'])
+            : require database_path("seeders/showcase/{$slug}.php");
+    }
 
-        return require database_path("seeders/showcase/{$slug}.php");
+    /** Siembra una sola muestra (la usa bida:renovar-muestras cuando su fecha tiene que correr). */
+    public function seedSlug(string $slug): void
+    {
+        $this->seedInvitation(self::data($slug));
     }
 
     protected function seedInvitation(array $data): void

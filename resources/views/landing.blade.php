@@ -28,11 +28,19 @@
             [__('Mándanos tu foto y tu mensaje'), __('Por WhatsApp. Nosotros la armamos y te la mostramos antes de enviarla.')],
             [__('Compártela'), __('Te pasamos el enlace listo para mandar por WhatsApp o por redes.')],
         ]
-        : [
-            [__('Elige el diseño'), __('Pruébalos como un invitado: confirma, vota o sugiere una canción. Nada se guarda.')],
-            [__('Mándanos tus datos'), __('Nombres, fecha, lugar y fotos, por WhatsApp. Armamos la invitación y la revisas antes de compartirla.')],
-            [__('Compártela con tus invitados'), __('Un enlace por WhatsApp; ellos confirman desde el celular y tú ves las respuestas en tu panel.')],
-        ];
+        : ($isSeasonal
+            // Las invitaciones de temporada (Halloween) se piden por WhatsApp y las armamos nosotros
+            ? [
+                [__('Elige el diseño'), __('Pruébalos como un invitado: confirma, vota o sugiere una canción. Nada se guarda.')],
+                [__('Mándanos tus datos'), __('Nombres, fecha, lugar y fotos, por WhatsApp. Armamos la invitación y la revisas antes de compartirla.')],
+                [__('Compártela con tus invitados'), __('Un enlace por WhatsApp; ellos confirman desde el celular y tú ves las respuestas en tu panel.')],
+            ]
+            // Las demás las arma cada quien en su cuenta (Hazlo tú), igual que dice el botón principal
+            : [
+                [__('Elige el diseño'), __('Pruébalos como un invitado: confirma, vota o sugiere una canción. Nada se guarda.')],
+                [__('Crea tu cuenta y ármala'), __('Es gratis: subes tus fotos, escribes los datos del evento y la ves en vivo mientras la armas.')],
+                [__('Publícala y compártela'), __('Gratis con lo básico, o un pago único si quieres más. Un enlace por WhatsApp; ellos confirman desde el celular y tú ves las respuestas en tu panel.')],
+            ]);
     // Para quién es: «tu boda», «tu graduación»…
     $forPhrase = $page['for'] ?? (collect($bida['showcase'])->firstWhere('event', $page['event'])['phrase'] ?? __('tu evento'));
     $ctaUrl = $isSeasonal && $season ? $season['whatsappUrl'] : $contactUrl;
@@ -185,6 +193,17 @@
                         </li>
                     @endforeach
                 </ol>
+
+                @unless($isSeasonal)
+                    {{-- Quien no quiere armarla, la pide hecha --}}
+                    <p class="mt-10 flex flex-wrap items-center gap-x-3 gap-y-1 text-site-muted" data-reveal>
+                        {{ __('¿Prefieres que la armemos por ti?') }}
+                        <a href="{{ $contactUrl }}" target="_blank" rel="noopener" class="site-link-arrow">
+                            {{ __('Escríbenos') }}
+                            <x-phosphor-arrow-right class="site-btn__arrow" aria-hidden="true" />
+                        </a>
+                    </p>
+                @endunless
             </div>
         </section>
 

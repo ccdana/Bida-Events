@@ -115,7 +115,17 @@
                 <p class="site-enter site-hero__lead" style="--enter-index: 1">
                     {{ __('Elige una plantilla, pon tus fotos y compártela por WhatsApp. Tus invitados confirman en un toque y entran a la fiesta con su pase QR.') }}
                 </p>
-                <ul class="site-enter site-hero__facts" style="--enter-index: 2">
+                {{-- La acción de la portada: crear la invitación gratis (el modelo principal); ver las muestras queda a un toque --}}
+                <div class="site-enter site-hero__actions" style="--enter-index: 2">
+                    <a href="{{ $startUrl }}" class="site-btn site-btn--lg">
+                        {{ __('Crear mi invitación gratis') }}
+                        <x-phosphor-arrow-right class="site-btn__arrow" aria-hidden="true" />
+                    </a>
+                    @if(count($designs))
+                        <a href="#plantillas" class="site-btn site-btn--ghost site-btn--lg">{{ __('Ver muestras') }}</a>
+                    @endif
+                </div>
+                <ul class="site-enter site-hero__facts" style="--enter-index: 3">
                     <li>{{ __('La armas tú, gratis') }}</li>
                     <li>{{ __('Sin instalar nada') }}</li>
                     <li>{{ __('Pase QR en la puerta') }}</li>

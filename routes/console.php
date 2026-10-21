@@ -23,6 +23,9 @@ Schedule::command('bida:probar-respaldo')->weeklyOn(0, '04:00')->withoutOverlapp
 // Fotos de eventos viejos y exportaciones vencidas (retención en config/optimizations.php)
 Schedule::command('invitations:purge-contributions')->dailyAt('03:30')->withoutOverlapping();
 
+// Las muestras de la portada siempre a unas semanas de su fecha: solo vuelve a sembrar las que ya la pasaron o la tienen cerca
+Schedule::command('bida:renovar-muestras')->dailyAt('00:20')->withoutOverlapping();
+
 // Trabajos fallidos, cola detenida, respaldos y disco; avisa por correo si OPERATIONS_ALERT_EMAIL está definido
 Schedule::command('bida:salud')->hourly()->withoutOverlapping();
 

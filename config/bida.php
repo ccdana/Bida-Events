@@ -160,7 +160,7 @@ return [
             'title' => 'Invitaciones digitales de boda en Bolivia',
             'description' => 'Invitación web para tu boda con confirmación de asistencia por invitado, padrinos, mesa de regalos y mapa. Lista para enviar por WhatsApp.',
             'heading' => 'Invitaciones de boda que tus invitados abren desde WhatsApp',
-            'intro' => 'Todo lo que sus invitados necesitan saber en un enlace: cuándo, dónde, qué ponerse y cómo confirmar. Eligen el diseño y lo armamos con sus fotos y sus colores.',
+            'intro' => 'Todo lo que sus invitados necesitan saber en un enlace: cuándo, dónde, qué ponerse y cómo confirmar. Elijan el diseño y ármenla con sus fotos y sus colores.',
             'highlights' => [
                 ['icon' => 'map-pin', 'title' => 'Ceremonia y recepción', 'text' => 'Cada momento con su hora y cada lugar con su mapa y el botón para llegar.'],
                 ['icon' => 'users-three', 'title' => 'Padrinos y cortejo', 'text' => 'Presenten a quienes los acompañan, con nombre y el papel de cada uno.'],
@@ -184,7 +184,7 @@ return [
             'title' => 'Invitaciones digitales de XV años en Bolivia',
             'description' => 'Invitación web para quince años con chambelanes y padrinos, playlist, encuestas, fotomural y confirmación con pase QR. Lista para enviar por WhatsApp.',
             'heading' => 'Invitaciones de XV años con música, juegos y pase de entrada',
-            'intro' => 'Una invitación donde los invitados también participan: votan, sugieren canciones y suben fotos. Eliges el diseño y lo armamos con tus fotos y tus colores.',
+            'intro' => 'Una invitación donde los invitados también participan: votan, sugieren canciones y suben fotos. Elige el diseño y ármala con tus fotos y tus colores.',
             'highlights' => [
                 ['icon' => 'users-three', 'title' => 'Chambelanes y padrinos', 'text' => 'Presenta a tu corte y a tus padrinos, cada uno con su papel en la fiesta.'],
                 ['icon' => 'music-notes', 'title' => 'Playlist y encuestas', 'text' => 'Tus invitados sugieren las canciones del baile y votan en juegos antes de la fiesta.'],
@@ -208,7 +208,7 @@ return [
             'title' => 'Invitaciones digitales de bautizo en Bolivia',
             'description' => 'Invitación web para bautizo con padrinos, horario de la misa y la recepción, mapa y confirmación de asistencia. Lista para enviar por WhatsApp.',
             'heading' => 'Invitaciones de bautizo tranquilas, claras y fáciles de compartir',
-            'intro' => 'Los datos que la familia necesita, claros y en un solo enlace: la misa, la recepción, los padrinos y cómo llegar. Eligen el diseño y lo armamos con sus fotos.',
+            'intro' => 'Los datos que la familia necesita, claros y en un solo enlace: la misa, la recepción, los padrinos y cómo llegar. Elijan el diseño y ármenla con sus fotos.',
             'highlights' => [
                 ['icon' => 'hands-praying', 'title' => 'Padrinos primero', 'text' => 'Los padrinos encabezan la sección de familia, con su nombre y un mensaje.'],
                 ['icon' => 'map-pin', 'title' => 'Misa y recepción', 'text' => 'Horario de la iglesia y de la recepción, con mapa y botón para llegar a cada lugar.'],
@@ -232,7 +232,7 @@ return [
             'title' => 'Invitaciones digitales de cumpleaños en Bolivia',
             'description' => 'Invitación web de cumpleaños con playlist, juegos, dress code y confirmación de asistencia. Lista para enviar por WhatsApp.',
             'heading' => 'Invitaciones de cumpleaños para que la fiesta empiece antes',
-            'intro' => 'Una invitación con juegos, playlist y todo lo necesario para llegar a la fiesta. Eliges el diseño y lo armamos con tus fotos, tus colores y el tema de tu cumple.',
+            'intro' => 'Una invitación con juegos, playlist y todo lo necesario para llegar a la fiesta. Elige el diseño y ármala con tus fotos, tus colores y el tema de tu cumple.',
             'highlights' => [
                 ['icon' => 'chart-bar', 'title' => 'Juegos antes de la fiesta', 'text' => 'Encuestas divertidas que tus invitados responden y ven los resultados al instante.'],
                 ['icon' => 'music-notes', 'title' => 'Playlist entre todos', 'text' => 'Cada invitado sugiere la canción que no puede faltar en la pista.'],

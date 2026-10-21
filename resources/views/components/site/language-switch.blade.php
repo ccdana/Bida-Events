@@ -4,6 +4,7 @@
     paneles no la tienen. El idioma activo no es un enlace. Los demás idiomas los resuelve el
     traductor del navegador, que lee el lang de cada página.
 --}}
+@props(['touch' => false])
 @php
     $localizations = collect(\App\Support\Localization::locales())
         ->mapWithKeys(fn (string $code) => [$code => \App\Support\Localization::switchUrl($code)])
@@ -13,10 +14,11 @@
 @if($localizations->count() > 1)
     <nav {{ $attributes->class(['inline-flex items-center gap-1.5 text-[0.8rem] font-medium tracking-[0.08em] text-site-muted']) }} aria-label="{{ __('Idioma') }}" translate="no">
         @foreach($localizations as $code => $url)
+            {{-- «touch»: en el menú del celular cada opción mide al menos 44 px --}}
             @if($code === app()->getLocale())
-                <span class="text-site-ink" aria-current="true" lang="{{ $code }}">{{ \App\Support\Localization::short($code) }}</span>
+                <span @class(['text-site-ink', 'inline-flex min-h-11 min-w-11 items-center justify-center' => $touch]) aria-current="true" lang="{{ $code }}">{{ \App\Support\Localization::short($code) }}</span>
             @else
-                <a href="{{ $url }}" hreflang="{{ $code }}" lang="{{ $code }}" title="{{ $languageNames[$code] }}" class="transition-colors hover:text-site-ink">{{ \App\Support\Localization::short($code) }}</a>
+                <a href="{{ $url }}" hreflang="{{ $code }}" lang="{{ $code }}" title="{{ $languageNames[$code] }}" @class(['transition-colors hover:text-site-ink', 'inline-flex min-h-11 min-w-11 items-center justify-center' => $touch])>{{ \App\Support\Localization::short($code) }}</a>
             @endif
             @unless($loop->last)
                 <span aria-hidden="true">·</span>

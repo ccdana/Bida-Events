@@ -19,7 +19,7 @@ final class ShowcaseVariant
      */
     public static function of(string $base, string $slug, string $title, string $template, array $changes = []): array
     {
-        $data = ShowcaseInvitationsSeeder::data($base);
+        $data = ShowcaseInvitationsSeeder::raw($base);
         $palette = InvitationTemplates::palette($template);
         $fonts = InvitationTemplates::get($template)['fonts'] ?? null;
 

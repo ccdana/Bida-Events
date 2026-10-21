@@ -169,6 +169,18 @@ html[data-theme='dark'] .site {
     font-size: 1rem;
 }
 
+/* El botón de la cabecera en el celular: cabe junto al logo y el menú sin pasar de 44 px de alto */
+.site-btn--compact {
+    padding: 0 1rem;
+    font-size: 0.88rem;
+}
+
+/* El interruptor de tema dentro del menú del celular, con área de toque completa */
+.site-header .theme-toggle--touch {
+    width: 2.75rem;
+    height: 2.75rem;
+}
+
 .site-btn--ghost {
     background: transparent;
     color: var(--site-ink);

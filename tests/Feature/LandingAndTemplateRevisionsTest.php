@@ -133,9 +133,10 @@ class LandingAndTemplateRevisionsTest extends TestCase
 
         $html = $this->withoutVite()->get(route('home'))
             ->assertOk()
-            // La portada ya no tiene los botones de «Probar una invitación» ni «Escríbenos» debajo del texto
+            // La portada no tiene los botones de «Probar una invitación» ni «Escríbenos»: su acción es crear la
+            // invitación gratis, y ver las muestras (ver HeroAndLandingCtaTest)
             ->assertDontSee('Probar una invitación')
-            ->assertDontSee('site-hero__actions', false)
+            ->assertSee('site-hero__actions', false)
             // Una pestaña por evento (un índice tipográfico, sin íconos) y su fila de capturas, con el enlace a su página
             ->assertSee('role="tablist"', false)
             ->assertSee('site-events__tab', false)
