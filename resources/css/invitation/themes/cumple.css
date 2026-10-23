@@ -57,7 +57,7 @@
     padding: 0.5rem 1.4rem;
     background: var(--inv-cumple-ink);
     color: var(--bg-color);
-    font-size: 0.68rem;
+    font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.2em;
     text-transform: uppercase;
@@ -457,7 +457,7 @@ html.inv-cover-skip .inv-cumple-intro {
     border-radius: 999px;
     background: var(--bg-color);
     box-shadow: 3px 3px 0 var(--inv-cumple-c1);
-    font-size: 0.62rem;
+    font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.18em;
     text-transform: uppercase;
@@ -827,7 +827,7 @@ html.inv-cover-waiting .inv-cumple-hero * {
     padding: 0.5rem 0.45rem;
     background: var(--inv-cumple-ink);
     color: var(--bg-color);
-    font-size: 0.55rem;
+    font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.24em;
     text-transform: uppercase;
@@ -852,7 +852,7 @@ html.inv-cover-waiting .inv-cumple-hero * {
 }
 
 .inv-cumple-ticket__year {
-    font-size: 0.62rem;
+    font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.2em;
     color: var(--inv-soft);
@@ -909,7 +909,7 @@ html.inv-cover-waiting .inv-cumple-hero * {
     padding: 0.4rem 1.15rem;
     background: var(--inv-cumple-ink);
     color: var(--bg-color);
-    font-size: 0.62rem;
+    font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.2em;
     clip-path: polygon(0 0, 100% 0, calc(100% - 9px) 50%, 100% 100%, 0 100%, 9px 50%);

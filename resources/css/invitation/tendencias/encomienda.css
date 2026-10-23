@@ -130,7 +130,7 @@
 
 .en-card__kicker {
     font-family: var(--font-titles);
-    font-size: 0.68rem;
+    font-size: 0.75rem;
     letter-spacing: 0.2em;
     text-transform: uppercase;
     color: var(--inv-accent-ink);
@@ -260,7 +260,7 @@
     padding-bottom: 0.3rem;
     border-bottom: 1px dashed color-mix(in srgb, var(--tr-text) 40%, transparent);
     font-family: var(--font-titles);
-    font-size: 0.58rem;
+    font-size: 0.75rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
 }
@@ -272,7 +272,7 @@
 
 .en-label__row small {
     font-family: var(--font-titles);
-    font-size: 0.55rem;
+    font-size: 0.75rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--inv-muted);
@@ -329,7 +329,7 @@
     overflow: hidden;
     writing-mode: vertical-rl;
     font-family: var(--font-titles);
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     line-height: 3.1rem;
     letter-spacing: 0.2em;
     white-space: nowrap;
@@ -502,7 +502,7 @@ html.inv-cover-waiting .en-hero * {
 }
 
 .en-waybill__code {
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     color: var(--inv-muted);
 }
 
@@ -560,7 +560,7 @@ html.inv-cover-waiting .en-hero * {
 .en-content {
     margin: 1.3rem 0 0;
     font-family: var(--font-titles);
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     letter-spacing: 0.2em;
     text-transform: uppercase;
     text-align: center;
@@ -607,7 +607,7 @@ html.inv-cover-waiting .en-hero * {
 
 .en-field dt {
     font-family: var(--font-titles);
-    font-size: 0.6rem;
+    font-size: 0.75rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--inv-muted);
@@ -648,7 +648,7 @@ html.inv-cover-waiting .en-hero * {
     left: -1.6rem;
     padding: 0.3rem 0.8rem;
     border-radius: 999px;
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     rotate: -9deg;
     animation-delay: 1.3s;
 }
@@ -921,7 +921,7 @@ html.inv-cover-waiting .en-hero * {
     border-radius: 0.15rem;
     color: var(--en-stamp);
     font-family: var(--font-titles);
-    font-size: 0.66rem;
+    font-size: 0.75rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
     rotate: -2deg;
@@ -1024,7 +1024,7 @@ html.inv-cover-waiting .en-hero * {
 
 .en-postage__art small {
     font-family: var(--font-titles);
-    font-size: 0.6rem;
+    font-size: 0.75rem;
     letter-spacing: 0.14em;
 }
 
@@ -1054,7 +1054,7 @@ html.inv-cover-waiting .en-hero * {
 
 .en-sender__role {
     font-family: var(--font-titles);
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     letter-spacing: 0.16em;
     text-transform: uppercase;
     color: var(--en-stamp);

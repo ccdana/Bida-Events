@@ -9,7 +9,7 @@
 @section('content')
     @php($showcase = config('bida.showcase'))
 
-    <main data-rotator data-rotator-interval="3600" class="grid min-h-[100dvh] lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
+    <main id="contenido" tabindex="-1" data-rotator data-rotator-interval="3600" class="grid min-h-[100dvh] lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
         <div class="flex flex-col px-5 py-6 sm:px-10 lg:px-16">
             <div class="flex items-center justify-between gap-4">
                 <a href="{{ lroute('home') }}" class="text-lg">
@@ -21,7 +21,7 @@
                 </div>
             </div>
 
-            <div class="mx-auto my-auto w-full max-w-sm py-14 lg:mx-0">
+            <div class="site-auth mx-auto my-auto w-full max-w-sm py-14 lg:mx-0">
                 @yield('auth')
             </div>
 
@@ -36,4 +36,16 @@
             </div>
         </div>
     </main>
+
+    {{-- Tras un error, el foco va al primer campo con error (que lleva su mensaje en aria-describedby): así el teclado
+         y los lectores de pantalla llegan directo a lo que hay que corregir --}}
+    <script>
+        (function () {
+            var invalid = document.querySelector('.site-auth [aria-invalid="true"]');
+
+            if (invalid) {
+                invalid.focus();
+            }
+        })();
+    </script>
 @endsection

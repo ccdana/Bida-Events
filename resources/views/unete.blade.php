@@ -85,7 +85,7 @@
 
     @include('site.partials.header')
 
-    <main>
+    <main id="contenido" tabindex="-1">
         {{-- ═══ Qué ganas ═══ --}}
         <section id="que-obtienes" class="site-benefits scroll-mt-20" aria-labelledby="que-obtienes-titulo">
             <div class="site-benefits__head">

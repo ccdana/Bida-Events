@@ -110,6 +110,8 @@ function invitationApp() {
 function invitationNav(sectionIds) {
     return {
         open: false,
+        // El botón se esconde al bajar (para no tapar títulos ni botones) y vuelve al subir
+        tucked: false,
         active: sectionIds[0] ?? 'inicio',
         // Las invitaciones se pueden recorrer como historia (partials/story/invitation)
         hasStories: false,
@@ -154,8 +156,35 @@ function invitationNav(sectionIds) {
             }
         },
 
+        // Baja: se esconde; sube un poco, está cerca del inicio o del final, o hay un panel abierto: se muestra
+        trackScroll() {
+            let last = window.scrollY;
+            let waiting = false;
+
+            window.addEventListener('scroll', () => {
+                if (waiting) return;
+                waiting = true;
+
+                requestAnimationFrame(() => {
+                    const y = window.scrollY;
+                    const delta = y - last;
+                    const nearEnd = window.innerHeight + y >= document.documentElement.scrollHeight - 240;
+
+                    if (this.open || y < 160 || nearEnd || delta < -8) {
+                        this.tucked = false;
+                    } else if (delta > 8) {
+                        this.tucked = true;
+                    }
+
+                    last = y;
+                    waiting = false;
+                });
+            }, { passive: true });
+        },
+
         init() {
             this.hasStories = Boolean(document.querySelector('[data-inv-story]'));
+            this.trackScroll();
 
             if (!('IntersectionObserver' in window)) {
                 return;

@@ -73,7 +73,7 @@
             </div>
         @endif
 
-        <div @class(['site-plans site-plans--grid', 'mt-14' => count($cycles) <= 1, 'mt-8' => count($cycles) > 1])>
+        <div data-carousel @class(['site-plans site-plans--grid', 'mt-14' => count($cycles) <= 1, 'mt-8' => count($cycles) > 1])>
             @foreach($plans as $index => $plan)
                 @php($featured = $plan['key'] === $featuredPlan)
                 {{-- El de más arriba (sin tope de invitaciones) lleva el estilo premium, como el paquete Premium --}}

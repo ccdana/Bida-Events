@@ -26,6 +26,9 @@ export default defineConfig({
             output: {
                 manualChunks(id) {
                     // Aislar vendors pesados en chunks separados y predecibles
+                    // El ayudante de módulos CommonJS lo usan varios bloques (incluida la entrada): sin esta línea
+                    // caía dentro de vendor-videojs y toda página descargaba Video.js solo para importarlo
+                    if (id.includes('commonjsHelpers'))         return 'vendor-common';
                     if (id.includes('node_modules/video.js'))   return 'vendor-videojs';
                     if (id.includes('node_modules/lottie-web')) return 'vendor-lottie';
                     if (id.includes('node_modules/motion'))     return 'vendor-motion';

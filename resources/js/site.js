@@ -356,8 +356,76 @@ function initCoverReel(reel) {
     document.addEventListener('visibilitychange', () => (document.hidden ? stop() : start()));
 }
 
+/**
+ * Carruseles de tarjetas ([data-carousel]: los precios en celular y tablet). El deslizar y el ajuste a cada
+ * tarjeta los hace CSS (scroll-snap); aquí solo se agregan los puntos que marcan cuál se ve.
+ */
+function initCarousels() {
+    document.querySelectorAll('[data-carousel]').forEach((scroller) => {
+        const cards = [...scroller.children];
+
+        if (cards.length < 2) {
+            return;
+        }
+
+        const dots = document.createElement('div');
+        dots.className = 'site-dots';
+        dots.setAttribute('aria-hidden', 'true');
+        const marks = cards.map(() => dots.appendChild(document.createElement('span')));
+        scroller.after(dots);
+
+        let frame = 0;
+        const update = () => {
+            frame = 0;
+            const left = scroller.getBoundingClientRect().left + parseFloat(getComputedStyle(scroller).paddingLeft);
+            const atEnd = scroller.scrollLeft + scroller.clientWidth >= scroller.scrollWidth - 2;
+            const nearest = cards.reduce((best, card, index) => {
+                const distance = Math.abs(card.getBoundingClientRect().left - left);
+
+                return distance < best.distance ? { index, distance } : best;
+            }, { index: 0, distance: Infinity }).index;
+            const active = atEnd ? cards.length - 1 : nearest;
+
+            marks.forEach((mark, index) => mark.classList.toggle('is-active', index === active));
+        };
+
+        scroller.addEventListener('scroll', () => {
+            frame ||= requestAnimationFrame(update);
+        }, { passive: true });
+        update();
+    });
+}
+
+/**
+ * Acordeones de la portada (details[data-accordion]: «Todo lo que tu invitación puede hacer»). Vienen abiertos
+ * en el HTML, así que sin JavaScript se ve todo. En celular queda abierto solo el primero; en pantallas anchas
+ * todos van abiertos y no se cierran.
+ */
+function initAccordions() {
+    const groups = [...document.querySelectorAll('details[data-accordion]')];
+
+    if (!groups.length) {
+        return;
+    }
+
+    const wide = window.matchMedia('(min-width: 1024px)');
+    const apply = () => groups.forEach((group, index) => {
+        group.open = wide.matches || index === 0;
+    });
+
+    apply();
+    wide.addEventListener('change', apply);
+    groups.forEach((group) => group.addEventListener('toggle', () => {
+        if (wide.matches && !group.open) {
+            group.open = true;
+        }
+    }));
+}
+
 initReveal();
 initRotators();
 initMagnetic();
 initHeaderState();
 initCoverReels();
+initCarousels();
+initAccordions();

@@ -1,6 +1,8 @@
 @extends('layouts.auth')
 
 @section('title', __('Confirma tu correo').' | '.config('bida.brand'))
+@section('description', __('Confirma tu correo para activar tu cuenta de :brand.', ['brand' => config('bida.brand')]))
+@section('robots', 'noindex, nofollow')
 
 @section('auth')
     @if(str_contains((string) session('url.intended'), '/client/suscripcion'))

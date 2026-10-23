@@ -144,7 +144,7 @@
     margin: 0.7rem 0 0;
     padding-block: 0.35rem;
     border-block: 1px solid var(--br-line);
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.3em;
     text-transform: uppercase;
@@ -465,7 +465,7 @@
 
 .br-kicker {
     margin: 0;
-    font-size: 0.74rem;
+    font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.34em;
     text-transform: uppercase;
@@ -558,7 +558,7 @@
     background: var(--br-cap);
     color: var(--tr-ink-secondary);
     clip-path: polygon(0 0, 100% 0, 92% 50%, 100% 100%, 0 100%, 8% 50%);
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.26em;
     text-transform: uppercase;
@@ -622,7 +622,7 @@
 }
 
 .br-facts dt {
-    font-size: 0.64rem;
+    font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.22em;
     text-transform: uppercase;
@@ -682,7 +682,7 @@
 }
 
 .inv-birrete .inv-head__eyebrow {
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.3em;
     text-transform: uppercase;
@@ -957,7 +957,7 @@ html:not(.no-js) .br-cord-section.reveal:not(.is-visible) .br-knot__tie {
 
 .br-medal__role {
     margin-top: 1rem;
-    font-size: 0.68rem;
+    font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.22em;
     text-transform: uppercase;
@@ -989,7 +989,7 @@ html:not(.no-js) .br-cord-section.reveal:not(.is-visible) .br-knot__tie {
 
 .br-group__title {
     margin: 0 0 1rem;
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.3em;
     text-transform: uppercase;

@@ -92,7 +92,7 @@
 
 .zp-shoe__name {
     font-family: var(--font-script);
-    font-size: 11px;
+    font-size: 0.75rem;
     fill: color-mix(in srgb, var(--tr-primary) 72%, #000);
 }
 
@@ -140,7 +140,7 @@
     position: relative;
     margin: 0;
     padding-left: 0.46em;
-    font-size: 0.66rem;
+    font-size: 0.75rem;
     font-weight: 600;
     letter-spacing: 0.46em;
     text-transform: uppercase;
@@ -384,7 +384,7 @@
 .zp-intro__reveal small {
     padding-left: 0.4em;
     font-family: var(--font-body);
-    font-size: 0.62rem;
+    font-size: 0.75rem;
     font-weight: 600;
     letter-spacing: 0.4em;
     text-transform: uppercase;
@@ -523,7 +523,7 @@
 .zp-brand__line {
     margin: 0;
     padding-left: 0.42em;
-    font-size: 0.66rem;
+    font-size: 0.75rem;
     font-weight: 600;
     letter-spacing: 0.42em;
     text-transform: uppercase;
@@ -640,7 +640,7 @@
 
 .zp-label__head span,
 .zp-label__fields dt {
-    font-size: 0.6rem;
+    font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.2em;
     text-transform: uppercase;
@@ -694,7 +694,7 @@
 
 .zp-label__code {
     grid-column: 1;
-    font-size: 0.62rem;
+    font-size: 0.75rem;
     letter-spacing: 0.32em;
     font-variant-numeric: tabular-nums;
     color: var(--inv-muted);
@@ -717,7 +717,7 @@
 
 .zp-label__size small {
     font-family: var(--font-body);
-    font-size: 0.5rem;
+    font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.16em;
     text-transform: uppercase;
@@ -789,7 +789,7 @@
     border-radius: 2px;
     background: var(--zp-paper);
     box-shadow: 0 1px 2px rgb(0 0 0 / 0.2);
-    font-size: 0.56rem;
+    font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.18em;
     text-transform: uppercase;
@@ -802,7 +802,7 @@
 
 .inv-zapatos .inv-head__eyebrow {
     padding-left: 0.3em;
-    font-size: 0.66rem;
+    font-size: 0.75rem;
     font-weight: 600;
     letter-spacing: 0.3em;
     color: var(--inv-accent-ink);
@@ -1012,7 +1012,7 @@
     padding: 0.28rem 1rem 0.26rem 0.9rem;
     background: var(--tr-primary);
     color: var(--tr-ink-primary);
-    font-size: 0.58rem;
+    font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.16em;
     text-transform: uppercase;
@@ -1021,7 +1021,7 @@
 
 .zp-step__time {
     display: block;
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.18em;
     color: var(--inv-accent-ink);
@@ -1090,7 +1090,7 @@
 .zp-shelf__role {
     display: grid;
     gap: 0.1rem;
-    font-size: 0.66rem;
+    font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.18em;
     text-transform: uppercase;
@@ -1098,7 +1098,7 @@
 }
 
 .zp-shelf__role small {
-    font-size: 0.52rem;
+    font-size: 0.75rem;
     letter-spacing: 0.24em;
     color: var(--inv-muted);
 }
@@ -1148,7 +1148,7 @@
 
 .zp-shelf__size small {
     font-family: var(--font-body);
-    font-size: 0.46rem;
+    font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.14em;
     text-transform: uppercase;

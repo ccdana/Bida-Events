@@ -364,7 +364,7 @@
 .rl-kicker {
     margin: 0;
     padding-left: 0.4em;
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     font-weight: 600;
     letter-spacing: 0.4em;
     text-transform: uppercase;
@@ -533,7 +533,7 @@
 }
 
 .rl-subdial dt {
-    font-size: 0.56rem;
+    font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.18em;
     text-transform: uppercase;
@@ -550,7 +550,7 @@
 
 .rl-subdial dd small {
     display: block;
-    font-size: 0.66rem;
+    font-size: 0.75rem;
     text-transform: uppercase;
 }
 
@@ -569,7 +569,7 @@
 }
 
 .rl-place span {
-    font-size: 0.62rem;
+    font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.22em;
     text-transform: uppercase;
@@ -632,7 +632,7 @@
 
 .inv-reloj .inv-head__eyebrow {
     padding-left: 0.3em;
-    font-size: 0.68rem;
+    font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.3em;
     color: var(--inv-accent-ink);
@@ -727,7 +727,7 @@
 }
 
 .inv-reloj .inv-countdown__label {
-    font-size: 0.56rem;
+    font-size: 0.75rem;
 }
 
 .inv-reloj .inv-gallery__card {
@@ -921,7 +921,7 @@
 
 .rl-sponsor__role {
     padding-left: 0.2em;
-    font-size: 0.64rem;
+    font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.2em;
     text-transform: uppercase;

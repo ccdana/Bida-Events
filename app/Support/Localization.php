@@ -281,7 +281,7 @@ final class Localization
      * La misma página que se está viendo, en otro idioma, con su búsqueda; null si la página no
      * tiene versión en ese idioma (las invitaciones, los paneles).
      */
-    public static function switchUrl(string $locale): ?string
+    public static function switchUrl(string $locale, bool $withQuery = true): ?string
     {
         $current = request()->route();
         $name = $current?->getName();
@@ -300,7 +300,23 @@ final class Localization
         $url = self::route($base, $current->parameters(), true, $locale);
         $query = request()->getQueryString();
 
-        return $query ? $url.'?'.$query : $url;
+        return $withQuery && $query ? $url.'?'.$query : $url;
+    }
+
+    /**
+     * La dirección única de la página abierta, la que los buscadores deben contar: en el idioma actual, sin
+     * ?utm_… ni ?ref= y con el dominio oficial (APP_URL), no el que haya escrito quien la visita.
+     */
+    public static function canonicalUrl(): ?string
+    {
+        if (request()->route() === null) {
+            return null;
+        }
+
+        $url = self::switchUrl(app()->getLocale(), false) ?? url()->current();
+        $path = rtrim((string) parse_url($url, PHP_URL_PATH), '/');
+
+        return rtrim((string) config('app.url'), '/').$path;
     }
 
     /**
@@ -314,7 +330,7 @@ final class Localization
         $urls = [];
 
         foreach (self::locales() as $locale) {
-            if ($url = self::switchUrl($locale)) {
+            if ($url = self::switchUrl($locale, false)) {
                 $urls[$locale] = $url;
             }
         }

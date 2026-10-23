@@ -1,6 +1,8 @@
 @extends('layouts.auth')
 
 @section('title', __('Ingresar').' | '.config('bida.brand'))
+@section('description', __('Ingresa a tu cuenta de :brand para administrar tu invitación, tus invitados y las confirmaciones de tu evento.', ['brand' => config('bida.brand')]))
+@section('robots', 'noindex, nofollow')
 
 @section('auth')
     @php($showcase = config('bida.showcase'))

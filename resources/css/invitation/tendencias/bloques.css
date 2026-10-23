@@ -775,7 +775,7 @@ html:not(.no-js) .bl-tower-section.reveal:not(.is-visible) :is(.bl-floor, .bl-to
 }
 
 .bl-host__role {
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     font-weight: 800;
     letter-spacing: 0.2em;
     text-transform: uppercase;

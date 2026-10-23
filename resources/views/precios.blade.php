@@ -42,7 +42,7 @@
 
     @include('site.partials.header')
 
-    <main>
+    <main id="contenido" tabindex="-1">
         {{-- ═══ Las formas de tenerla, de un vistazo ═══ --}}
         <section class="site-pricing-intro" aria-labelledby="precios-titulo">
             <div class="max-w-3xl">
@@ -75,7 +75,7 @@
                     </p>
                 </div>
 
-                <div class="site-plans site-plans--pro mt-14">
+                <div class="site-plans site-plans--pro mt-14" data-carousel>
                     @foreach($diyTiers as $index => $tier)
                         <x-site.price-card
                             :name="$tier['name']"

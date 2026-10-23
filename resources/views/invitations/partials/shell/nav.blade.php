@@ -8,7 +8,8 @@
     <button type="button"
         class="inv-nav__toggle"
         x-ref="toggle"
-        :class="{ 'is-open': open }"
+        :class="{ 'is-open': open, 'is-tucked': tucked && ! open }"
+        @focus="tucked = false"
         @click="toggle()"
         :aria-expanded="open.toString()"
         aria-controls="inv-nav-panel">

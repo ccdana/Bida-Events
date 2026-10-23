@@ -443,7 +443,7 @@
 }
 
 .inv-movil .inv-head__eyebrow {
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     letter-spacing: 0.2em;
 }
 
@@ -618,7 +618,7 @@
 }
 
 .mv-godparent__role {
-    font-size: 0.66rem;
+    font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.14em;
     text-transform: uppercase;
@@ -649,7 +649,7 @@
     padding: 0.35rem 0.9rem;
     border-radius: 999px;
     background: var(--tr-bg);
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.18em;
     text-transform: uppercase;

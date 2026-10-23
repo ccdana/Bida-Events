@@ -35,6 +35,8 @@ return [
         // Fecha propia de una página legal que cambió después (la clave es su página: privacidad, cookies, terminos)
         'updated_pages' => [
             'terminos' => '2026-10-21',
+            'privacidad' => '2026-10-23',
+            'cookies' => '2026-10-23',
         ],
     ],
 
@@ -74,6 +76,39 @@ return [
         ['phrase' => 'tu cumpleaños', 'label' => 'cumpleaños', 'image' => 'event-cumpleanos', 'event' => 'cumple'],
         ['phrase' => 'tus XV años', 'label' => 'XV años', 'image' => 'event-xv', 'event' => 'xv'],
         ['phrase' => 'tu graduación', 'label' => 'graduaciones', 'image' => 'event-graduacion', 'event' => 'graduacion'],
+    ],
+
+    /*
+    | Cuándo se lanzó cada diseño nuevo (clave de la plantilla sin «invitations.templates.»). La insignia «Nuevo»
+    | de las muestras se ve «new_badge_days» días desde esa fecha y se apaga sola: así significa algo. Al sumar un
+    | diseño de la colección «nueva» o «tendencias», agrega aquí su fecha (lo exige TemplateLaunchDatesTest).
+    */
+    'new_badge_days' => 30,
+    'template_launched' => [
+        'boda-dos-caminos' => '2026-09-26',
+        'graduacion-proxima-salida' => '2026-09-26',
+        'bautizo-la-gota' => '2026-09-26',
+        'cumple-stickers' => '2026-09-26',
+        'halloween-expediente' => '2026-09-26',
+        'xv-cuento' => '2026-09-29',
+        'xv-zapatos' => '2026-10-01',
+        'xv-joyero' => '2026-09-29',
+        'xv-esencia' => '2026-09-29',
+        'boda-partitura' => '2026-09-27',
+        'boda-mesa' => '2026-09-29',
+        'boda-reloj' => '2026-09-29',
+        'bautizo-movil' => '2026-09-27',
+        'bautizo-estrellas' => '2026-09-27',
+        'bautizo-bordado' => '2026-09-27',
+        'cumple-gira' => '2026-09-27',
+        'cumple-feriado' => '2026-09-29',
+        'cumple-cabina' => '2026-09-29',
+        'graduacion-revista' => '2026-09-27',
+        'halloween-funcion' => '2026-09-27',
+        'halloween-caldero' => '2026-09-27',
+        'halloween-casona' => '2026-10-02',
+        'babyshower-bloques' => '2026-09-27',
+        'babyshower-encomienda' => '2026-09-27',
     ],
 
     // Franja de tipos de evento (ícono de Phosphor sin prefijo)

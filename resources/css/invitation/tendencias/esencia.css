@@ -139,7 +139,7 @@
     position: relative;
     margin: 0;
     padding-left: 0.5em;
-    font-size: 0.64rem;
+    font-size: 0.75rem;
     font-weight: 600;
     letter-spacing: 0.5em;
     text-transform: uppercase;
@@ -556,7 +556,7 @@
 .ez-intro__reveal small {
     padding-left: 0.4em;
     font-family: var(--font-body);
-    font-size: 0.62rem;
+    font-size: 0.75rem;
     font-weight: 600;
     letter-spacing: 0.4em;
     color: var(--inv-accent-ink);
@@ -764,7 +764,7 @@
     justify-content: center;
     gap: 0.4rem 0.9rem;
     margin: 0;
-    font-size: 0.64rem;
+    font-size: 0.75rem;
     font-weight: 600;
     letter-spacing: 0.3em;
     text-transform: uppercase;
@@ -851,7 +851,7 @@
 .ez-launch__label {
     margin: 0;
     padding-left: 0.3em;
-    font-size: 0.64rem;
+    font-size: 0.75rem;
     font-weight: 600;
     letter-spacing: 0.3em;
     text-transform: uppercase;
@@ -926,7 +926,7 @@
 
 .inv-esencia .inv-head__eyebrow {
     padding-left: 0.28em;
-    font-size: 0.66rem;
+    font-size: 0.75rem;
     font-weight: 600;
     letter-spacing: 0.28em;
     color: var(--inv-accent-ink);
@@ -1088,7 +1088,7 @@
 }
 
 .ez-note__time {
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     font-weight: 600;
     letter-spacing: 0.18em;
     color: var(--inv-accent-ink);
@@ -1129,7 +1129,7 @@
     padding: 0.7rem 1.1rem;
     background: var(--ez-black);
     color: var(--ez-black-ink);
-    font-size: 0.64rem;
+    font-size: 0.75rem;
     font-weight: 600;
     letter-spacing: 0.24em;
     text-transform: uppercase;
@@ -1155,7 +1155,7 @@
 }
 
 .ez-credit__role {
-    font-size: 0.66rem;
+    font-size: 0.75rem;
     font-weight: 600;
     letter-spacing: 0.18em;
     text-transform: uppercase;

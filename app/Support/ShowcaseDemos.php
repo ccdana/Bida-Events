@@ -3,6 +3,8 @@
 namespace App\Support;
 
 use App\Models\Invitation;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 
 /**
  * Invitaciones de muestra que el visitante puede probar sin que nada se guarde.
@@ -112,12 +114,24 @@ final class ShowcaseDemos
                     'icon' => $icon,
                     // La tarjeta del diseño en la página por evento muestra sus colores y si es de las nuevas
                     'palette' => array_values(array_intersect_key($template['palette'], array_flip(['background', 'accent', 'primary', 'secondary', 'text']))),
-                    'isNew' => in_array($template['collection'] ?? null, ['nueva', 'tendencias'], true),
+                    'isNew' => self::isNew($invitation->template),
                 ];
             })
             ->filter()
             ->values()
             ->all();
+    }
+
+    /**
+     * Si un diseño es nuevo: se lanzó hace menos de «bida.new_badge_days» días (config «bida.template_launched»).
+     * Sin fecha de lanzamiento, no lleva la insignia.
+     */
+    public static function isNew(string $template): bool
+    {
+        $launched = config('bida.template_launched.'.Str::afterLast($template, '.'));
+
+        return $launched !== null
+            && now()->startOfDay()->lessThan(Carbon::parse($launched)->startOfDay()->addDays((int) config('bida.new_badge_days', 30)));
     }
 
     /** URL de la captura de la apertura de una muestra (con su fecha, para que un cambio no quede en caché) o null si no hay. */

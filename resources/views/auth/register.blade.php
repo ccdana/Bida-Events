@@ -1,6 +1,7 @@
 @extends('layouts.auth')
 
 @section('title', __('Crea tu cuenta').' | '.config('bida.brand'))
+@section('description', __('Crea tu cuenta gratis en :brand: arma tu invitación digital con plantillas profesionales y paga solo si quieres más que lo básico.', ['brand' => config('bida.brand')]))
 
 @section('auth')
     {{-- Con un plan elegido, el recorrido del plan; si no, el de «Hazlo tú» (cuenta, invitación, publicar) --}}

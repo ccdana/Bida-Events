@@ -102,8 +102,8 @@ class PlanTermsAndMenuTest extends TestCase
     public function test_the_terms_update_date_is_their_own(): void
     {
         $this->withoutVite()->get('/legal/terminos')->assertOk()->assertSee('Actualizada el 21 de octubre de 2026');
-        $this->withoutVite()->get('/legal/privacidad')->assertOk()->assertSee('Actualizada el 15 de octubre de 2026');
-        $this->withoutVite()->get('/legal/cookies')->assertOk()->assertSee('Actualizada el 15 de octubre de 2026');
+        $this->withoutVite()->get('/legal/privacidad')->assertOk()->assertSee('Actualizada el 23 de octubre de 2026');
+        $this->withoutVite()->get('/legal/cookies')->assertOk()->assertSee('Actualizada el 23 de octubre de 2026');
     }
 
     public function test_the_english_pages_say_the_same_thing(): void

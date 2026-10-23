@@ -637,7 +637,7 @@
 .dc-walk__pin text {
     fill: var(--bg-color);
     font-family: var(--font-titles);
-    font-size: 8px;
+    font-size: 0.75rem;
     font-weight: 700;
 }
 

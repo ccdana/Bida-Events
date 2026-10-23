@@ -87,7 +87,7 @@
 
     @include('site.partials.header', ['hasTemplates' => count($designs) > 0])
 
-    <main>
+    <main id="contenido" tabindex="-1">
         {{-- ═══ Portada: la palabra del evento y la foto cambian con la apertura que muestra el teléfono ═══ --}}
         <section data-rotator data-rotator-interval="3200" @if(count($demos)) data-rotator-driven @endif class="site-hero">
             <div class="site-hero__copy">
@@ -291,8 +291,12 @@
 
             <div class="site-include__list">
                 @foreach($moments as $moment => $items)
-                    <div class="site-include__moment">
-                        <h3 class="site-overline" data-reveal>{{ $moment }}</h3>
+                    {{-- Abiertos en el HTML (sin JavaScript se ve todo); en celular site.js deja abierto solo el primero --}}
+                    <details class="site-include__moment" open data-accordion>
+                        <summary class="site-include__summary" data-reveal>
+                            <span class="site-overline">{{ $moment }}</span>
+                            <x-phosphor-caret-down class="site-include__caret" aria-hidden="true" />
+                        </summary>
                         <ul>
                             @foreach($items as $item)
                                 <li class="site-include__item" data-reveal>
@@ -304,14 +308,14 @@
                                 </li>
                             @endforeach
                         </ul>
-                    </div>
+                    </details>
                 @endforeach
             </div>
         </section>
 
         {{-- ═══ Cómo funciona: el recorrido de quien arma su invitación; la línea se dibuja con el scroll ═══ --}}
         <section class="border-t border-site-line">
-            <div class="mx-auto grid max-w-7xl gap-12 px-5 py-20 lg:grid-cols-12 lg:gap-8 lg:px-8 lg:py-28">
+            <div class="mx-auto grid max-w-7xl gap-12 px-5 py-14 lg:grid-cols-12 lg:gap-8 lg:px-8 lg:py-28">
                 <div class="lg:col-span-5">
                     <div class="lg:sticky lg:top-32">
                         <h2 class="site-display site-display--md" data-reveal>{{ __('Así funciona') }}</h2>
@@ -341,7 +345,7 @@
 
         {{-- ═══ Precios: las formas en resumen (HomeController::pricingSummary); el detalle, en /precios ═══ --}}
         <section id="precios" class="scroll-mt-20 border-t border-site-line bg-site-surface" aria-labelledby="precios-titulo">
-            <div class="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-28">
+            <div class="mx-auto max-w-7xl px-5 py-14 lg:px-8 lg:py-28">
                 <div class="max-w-3xl">
                     <h2 id="precios-titulo" class="site-display site-display--md" data-reveal>{{ __('Empieza gratis. Paga solo por lo que usas.') }}</h2>
                     <p class="site-muted-lead" data-reveal>
@@ -349,7 +353,7 @@
                     </p>
                 </div>
 
-                <div class="site-plans mt-14">
+                <div class="site-plans mt-14" data-carousel>
                     @foreach($pricingSummary as $index => $way)
                         <x-site.price-card
                             :name="$way['name']"

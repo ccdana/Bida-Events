@@ -20,7 +20,7 @@
     background: none;
     color: var(--inv-soft);
     font: inherit;
-    font-size: 0.68rem;
+    font-size: 0.75rem;
     font-weight: 600;
     letter-spacing: 0.18em;
     text-transform: uppercase;
@@ -236,7 +236,7 @@
 
 .inv-dress__style {
     margin: -1.25rem 0 1.75rem;
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     font-weight: 600;
     letter-spacing: 0.2em;
     text-align: center;
@@ -374,7 +374,7 @@
 
 .inv-court__count {
     font-family: var(--font-body);
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     font-weight: 600;
     letter-spacing: 0.14em;
     color: var(--inv-soft);
@@ -552,7 +552,7 @@
 .inv-polls__count,
 .inv-pager__count {
     min-width: 4.5rem;
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     font-weight: 600;
     letter-spacing: 0.18em;
     text-transform: uppercase;
@@ -729,7 +729,7 @@
 
 .inv-playlist__num {
     min-width: 1.4rem;
-    font-size: 0.68rem;
+    font-size: 0.75rem;
     font-weight: 600;
     color: var(--inv-soft);
     font-variant-numeric: tabular-nums;
@@ -748,7 +748,7 @@
 
 .inv-playlist__by {
     margin-top: 0.15rem;
-    font-size: 0.74rem;
+    font-size: 0.75rem;
     color: var(--inv-soft);
 }
 
@@ -1008,7 +1008,7 @@ div.inv-gift {
     border: 1px solid var(--inv-line-strong);
     border-radius: 50%;
     font-family: var(--font-body);
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     font-weight: 600;
     color: var(--inv-accent-ink);
 }
@@ -1173,7 +1173,7 @@ div.inv-gift {
     overflow: hidden;
     background: linear-gradient(transparent, rgb(0 0 0 / 0.55));
     color: #fff;
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     white-space: nowrap;
     text-overflow: ellipsis;
 }
@@ -1270,7 +1270,7 @@ div.inv-gift {
 }
 
 .inv-milestone__label {
-    font-size: 0.68rem;
+    font-size: 0.75rem;
     font-weight: 600;
     letter-spacing: 0.24em;
     text-transform: uppercase;

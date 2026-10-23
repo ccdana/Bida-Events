@@ -223,7 +223,7 @@
 }
 
 .gr-date__status {
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     letter-spacing: 0.1em;
 }
 
@@ -268,7 +268,7 @@
     border-radius: 4px;
     background: var(--gr-paper);
     color: var(--gr-ink-1);
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     font-weight: 800;
     letter-spacing: 0.14em;
     rotate: 6deg;
@@ -337,7 +337,7 @@
     padding: 0.35rem 0.75rem;
     background: var(--gr-ink-2);
     color: var(--tr-ink-secondary);
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     font-weight: 800;
     letter-spacing: 0.16em;
     rotate: -2deg;
@@ -531,7 +531,7 @@
 
 .gr-band__print {
     overflow: hidden;
-    font-size: 0.58rem;
+    font-size: 0.75rem;
     font-weight: 800;
     letter-spacing: 0.14em;
     text-overflow: ellipsis;

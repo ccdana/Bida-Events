@@ -19,7 +19,7 @@
 
     @include('site.partials.header')
 
-    <main class="mx-auto max-w-7xl px-5 pb-24 pt-10 lg:px-8 lg:pt-16">
+    <main id="contenido" tabindex="-1" class="mx-auto max-w-7xl px-5 pb-24 pt-10 lg:px-8 lg:pt-16">
         <nav class="text-sm text-site-muted" aria-label="{{ __('Ruta') }}">
             <a href="{{ lroute('home') }}" class="site-nav-link site-touch-y hover:text-site-ink">{{ $bida['brand'] }}</a>
             <span class="mx-2" aria-hidden="true">/</span>

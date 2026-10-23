@@ -193,7 +193,7 @@ html.inv-music-on .inv-joyero {
 }
 
 .jo-box__plaque-xv {
-    font-size: 0.55rem;
+    font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.3em;
     padding-left: 0.3em;
@@ -380,7 +380,7 @@ html.inv-music-on .inv-joyero {
 .jo-kicker {
     margin: 0;
     padding-left: 0.4em;
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.4em;
     text-transform: uppercase;
@@ -541,7 +541,7 @@ html.inv-music-on .inv-joyero {
 .jo-card__title {
     margin: 0 0 0.8rem;
     padding-left: 0.3em;
-    font-size: 0.68rem;
+    font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.3em;
     text-transform: uppercase;
@@ -561,7 +561,7 @@ html.inv-music-on .inv-joyero {
 }
 
 .jo-card__fields dt {
-    font-size: 0.64rem;
+    font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.18em;
     text-transform: uppercase;
@@ -629,7 +629,7 @@ html.inv-music-on .inv-joyero {
 /* Antes del antetítulo, una gema tallada */
 .inv-joyero .inv-head__eyebrow {
     padding-left: 0.26em;
-    font-size: 0.68rem;
+    font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.26em;
     color: var(--inv-accent-ink);
@@ -866,7 +866,7 @@ html.inv-music-on .inv-joyero {
 
 .jo-jewel__role {
     padding-left: 0.2em;
-    font-size: 0.66rem;
+    font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.2em;
     text-transform: uppercase;

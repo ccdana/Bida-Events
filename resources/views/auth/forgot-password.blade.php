@@ -1,6 +1,8 @@
 @extends('layouts.auth')
 
 @section('title', __('Recuperar la contraseña').' | '.config('bida.brand'))
+@section('description', __('Recupera el acceso a tu cuenta de :brand: escribe tu correo y te enviamos un enlace para crear una contraseña nueva.', ['brand' => config('bida.brand')]))
+@section('robots', 'noindex, nofollow')
 
 @section('auth')
     <h1 class="site-enter text-3xl font-semibold tracking-tight sm:text-4xl" style="--enter-index: 1">{{ __('¿Olvidaste tu contraseña?') }}</h1>

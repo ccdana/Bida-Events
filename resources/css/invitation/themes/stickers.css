@@ -602,7 +602,7 @@ a.st-missing:focus-visible {
 .st-fig--chip .st-chip__no {
     padding: 0.22rem 0.3rem 0.26rem;
     border-radius: 0 0 0.55rem 0.55rem;
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     letter-spacing: 0.04em;
 }
 
@@ -983,7 +983,7 @@ a.st-missing:focus-visible {
 }
 
 .st-fan small {
-    font-size: 0.68rem;
+    font-size: 0.75rem;
     font-weight: 700;
     line-height: 1.1;
     text-align: center;

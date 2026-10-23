@@ -268,7 +268,7 @@
     position: relative;
     margin-top: 0.7rem;
     padding-top: 0.55rem;
-    font-size: 0.66rem;
+    font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.2em;
     text-transform: uppercase;
@@ -776,7 +776,7 @@
 
 .inv-bordado .inv-countdown__label {
     margin-top: 0.1rem;
-    font-size: 0.5rem;
+    font-size: 0.75rem;
 }
 
 /* ── Itinerario: el muestrario de puntadas ─────────────────────────────── */
@@ -929,7 +929,7 @@ html:not(.no-js) .bd-sampler-section.reveal:not(.is-visible) .bd-row__stitch {
 }
 
 .bd-monogram__role {
-    font-size: 0.68rem;
+    font-size: 0.75rem;
     font-weight: 800;
     letter-spacing: 0.22em;
     text-transform: uppercase;

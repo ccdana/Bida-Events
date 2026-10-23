@@ -77,22 +77,55 @@ const createLoader = () => {
 
 const loaders = [];
 
-// ── Video.js (~500 kB) — solo si hay reproductores de video ─────────────
-// No bloquea el arranque de Alpine: ningún x-data lo necesita y el reproductor se inicia solo al cargar.
-if (document.querySelector('[data-video-player]')) {
-    import('./video-player.js').catch((error) => console.error('[Bida Events] Error al cargar el reproductor:', error));
-}
+// Lo pesado y opcional se baja cuando hace falta, no al abrir la invitación: el invitado que nunca llega al video
+// no lo descarga, y los adornos animados esperan a que la página ya cargó y el navegador está libre.
+const whenNear = (selector, margin, run) => {
+    const elements = document.querySelectorAll(selector);
 
-// ── Lottie Icons (~1 MB) — solo si hay iconos animados ──────────────────
+    if (!elements.length) {
+        return;
+    }
+
+    if (!('IntersectionObserver' in window)) {
+        run();
+
+        return;
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+            observer.disconnect();
+            run();
+        }
+    }, { rootMargin: margin });
+
+    elements.forEach((element) => observer.observe(element));
+};
+
+const whenIdle = (run) => {
+    const start = () => ('requestIdleCallback' in window ? requestIdleCallback(run, { timeout: 3000 }) : setTimeout(run, 1500));
+
+    document.readyState === 'complete' ? start() : window.addEventListener('load', start, { once: true });
+};
+
+// ── Video.js (~700 kB, 207 kB comprimido) — solo si hay reproductores y cuando el primero se acerca ──
+// No bloquea el arranque de Alpine: ningún x-data lo necesita y el reproductor se inicia solo al cargar.
+whenNear('[data-video-player]', '800px 0px', () => {
+    import('./video-player.js').catch((error) => console.error('[Bida Events] Error al cargar el reproductor:', error));
+});
+
+// ── Lottie Icons — solo si hay iconos animados, ya cargada la página ────
 // Tampoco bloquea Alpine: son adornos; las galerías e itinerarios los piden con window.initLottieIcons?.()
 if (document.querySelector('[data-lottie-icon]')) {
-    import('./lottie-icons.js')
-        .then(({ initLottieIcons, refreshLottieIconColors }) => {
-            window.initLottieIcons = initLottieIcons;
-            window.refreshLottieIconColors = refreshLottieIconColors;
-            initLottieIcons();
-        })
-        .catch((error) => console.error('[Bida Events] Error al cargar los iconos animados:', error));
+    whenIdle(() => {
+        import('./lottie-icons.js')
+            .then(({ initLottieIcons, refreshLottieIconColors }) => {
+                window.initLottieIcons = initLottieIcons;
+                window.refreshLottieIconColors = refreshLottieIconColors;
+                initLottieIcons();
+            })
+            .catch((error) => console.error('[Bida Events] Error al cargar los iconos animados:', error));
+    });
 }
 
 // ── Gallery Stack (~110 kB con motion) — solo si hay galería ────────────

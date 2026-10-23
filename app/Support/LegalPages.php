@@ -56,7 +56,7 @@ final class LegalPages
 
         return [
             'title' => __('Política de privacidad'),
-            'description' => __('Qué datos guarda :brand, para qué los usa, quién los ve y cómo pedir que se borren.', ['brand' => $brand]),
+            'description' => __('Qué datos guarda :brand de organizadores e invitados, para qué los usa, con qué servicios los comparte, cuánto tiempo los conserva y cómo pedir que se borren.', ['brand' => $brand]),
             'intro' => __('En :brand hacemos invitaciones y tarjetas digitales. Para que funcionen guardamos algunos datos del organizador del evento y de sus invitados. Aquí explicamos cuáles, para qué y qué puedes hacer con ellos.', ['brand' => $brand]),
             'sections' => [
                 [
@@ -69,10 +69,12 @@ final class LegalPages
                 [
                     'title' => __('Qué datos guardamos'),
                     'items' => [
-                        __('Del organizador o cliente: nombre, usuario y contraseña de acceso (la contraseña se guarda cifrada), teléfono si nos lo da, y el contenido de su invitación: nombres, fechas, lugares, fotos, videos, música y textos.'),
+                        __('Del organizador o cliente: nombre, correo electrónico, usuario y contraseña de acceso (la contraseña se guarda cifrada), teléfono si nos lo da, y el contenido de su invitación: nombres, fechas, lugares, fotos, videos, música y textos.'),
+                        __('Si entras con Google: el nombre, el correo verificado y la foto de perfil que Google nos comparte, y el identificador de tu cuenta de Google. Nunca recibimos tu contraseña de Google.'),
+                        __('De los pagos: el plan o nivel, los meses, el monto, la moneda, el estado y el código de la operación. Los datos de tu tarjeta o de tu banco los recibe directamente quien procesa el pago; nosotros no los vemos ni los guardamos.'),
                         __('De los invitados: el nombre y el teléfono que carga el organizador, la respuesta de asistencia, cuántas personas van y, si lo escriben, sus alergias o restricciones alimentarias.'),
                         __('Lo que los invitados comparten por su cuenta: canciones sugeridas, votos en encuestas, respuestas a una tarjeta y fotos subidas al fotomural.'),
-                        __('De quienes visitan este sitio: desde qué campaña llegaron (por ejemplo, un anuncio en Facebook) durante 30 días, para saber qué publicidad funciona. No guardamos el nombre ni el teléfono de un visitante hasta que nos escribe.'),
+                        __('De quienes visitan este sitio: desde qué campaña llegaron (por ejemplo, un anuncio en Facebook) durante :value días, con una cookie que no es necesaria para usar el sitio y que no te identifica; sirve para saber qué publicidad funciona. No guardamos el nombre ni el teléfono de un visitante hasta que nos escribe.', ['value' => LeadSource::DAYS]),
                     ],
                 ],
                 [
@@ -81,6 +83,8 @@ final class LegalPages
                         __('Mostrar la invitación, recibir las confirmaciones y armar la lista de invitados, el pase con código QR y los reportes en PDF o Excel del organizador.'),
                         __('Dar acceso al panel al organizador y, si corresponde, al profesional que armó la invitación.'),
                         __('Responder consultas y coordinar pedidos y pagos por WhatsApp.'),
+                        __('Cobrar tus pagos en línea (tarjeta o QR) y activar tu plan o el nivel de tu invitación.'),
+                        __('Enviarte los correos de tu cuenta: confirmar tu correo y recuperar tu contraseña.'),
                         __('Proteger el servicio: limitar intentos repetidos y guardar registros técnicos para detectar abusos.'),
                     ],
                     'note' => [
@@ -92,7 +96,8 @@ final class LegalPages
                     'items' => [
                         __('El organizador del evento ve las respuestas de sus invitados. Los invitados solo ven la invitación y, en su enlace personal, su propio pase.'),
                         __('Las invitaciones no aparecen en buscadores: solo las abre quien tiene el enlace.'),
-                        __('Las fotos, videos y audios se alojan en Cloudinary; los mapas se muestran con Google Maps y las tipografías se cargan desde Google Fonts. Esos servicios reciben la dirección IP de quien abre la invitación, como cualquier sitio que usa sus herramientas.'),
+                        __('Las fotos, videos y audios se alojan en Cloudinary; los mapas se muestran con Google Maps, los videos de YouTube con YouTube y las tipografías se cargan desde Google Fonts. Esos servicios reciben la dirección IP de quien abre la invitación, como cualquier sitio que usa sus herramientas.'),
+                        __('Los pagos con tarjeta los procesa Lemon Squeezy y los pagos con QR en Bolivia, Libélula: reciben tu nombre, tu correo y el monto del plan o nivel para poder cobrarte. Entrar con Google lo gestiona Google, y los correos de tu cuenta se envían con Zoho Mail. Cada servicio trata esos datos según su propia política de privacidad.'),
                     ],
                 ],
                 [
@@ -139,7 +144,7 @@ final class LegalPages
 
         return [
             'title' => __('Política de cookies'),
-            'description' => __('Qué cookies usa :brand, para qué sirve cada una y cómo borrarlas.', ['brand' => $brand]),
+            'description' => __('Qué cookies usa :brand: las necesarias para que el sitio funcione y una de campaña que no te identifica. Para qué sirve cada una y cómo borrarlas o bloquearlas.', ['brand' => $brand]),
             'intro' => __('Una cookie es un archivo pequeño que el sitio guarda en tu navegador. Usamos pocas y ninguna es de publicidad: estas son todas.'),
             'sections' => [
                 [
@@ -152,9 +157,9 @@ final class LegalPages
                     ],
                 ],
                 [
-                    'title' => __('Cookie de campaña'),
+                    'title' => __('Cookie de campaña (no necesaria)'),
                     'items' => [
-                        __('bida_origen: recuerda durante :value días desde qué anuncio o enlace llegaste (Facebook, Instagram, un código QR…). Solo sirve para que, si nos escribes por WhatsApp, sepamos qué campaña funcionó. No te identifica ni se comparte con nadie.', ['value' => LeadSource::DAYS]),
+                        __('bida_origen: recuerda durante :value días desde qué anuncio o enlace llegaste (Facebook, Instagram, un código QR…). Solo sirve para que, si nos escribes por WhatsApp, sepamos qué campaña funcionó. No te identifica ni se comparte con nadie. No es necesaria para usar el sitio: si prefieres no guardarla, bloquéala desde tu navegador y todo seguirá funcionando.', ['value' => LeadSource::DAYS]),
                     ],
                 ],
                 [
@@ -166,7 +171,7 @@ final class LegalPages
                 [
                     'title' => __('Servicios de terceros'),
                     'paragraphs' => [
-                        __('Las invitaciones pueden mostrar un mapa de Google Maps, videos o música alojados en Cloudinary y tipografías de Google Fonts. Al cargarlos, esos servicios pueden guardar sus propias cookies o registrar tu dirección IP según sus políticas. No usamos herramientas de analítica ni píxeles de publicidad.'),
+                        __('Las invitaciones pueden mostrar un mapa de Google Maps, videos de YouTube, videos o música alojados en Cloudinary y tipografías de Google Fonts. Al cargarlos, esos servicios pueden guardar sus propias cookies o registrar tu dirección IP según sus políticas. Lo mismo pasa al entrar con Google o al pagar en las páginas de Lemon Squeezy o Libélula. No usamos herramientas de analítica ni píxeles de publicidad.'),
                     ],
                 ],
                 [
@@ -185,7 +190,7 @@ final class LegalPages
 
         return [
             'title' => __('Términos de uso'),
-            'description' => __('Las reglas para usar :brand: pedidos, pagos, contenido, suscripciones de profesionales y responsabilidades.', ['brand' => $brand]),
+            'description' => __('Las reglas para usar :brand: pedidos y pagos, el contenido que subes, los planes de profesionales, cómo cancelar y la responsabilidad de cada parte.', ['brand' => $brand]),
             'intro' => __('Al usar :brand, pedir una invitación o suscribirte como profesional, aceptas estas condiciones. Las escribimos para que se entiendan.', ['brand' => $brand]),
             'sections' => [
                 [

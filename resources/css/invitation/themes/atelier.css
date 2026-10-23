@@ -91,7 +91,7 @@
     position: relative;
     margin: 0;
     padding-left: 0.5em;
-    font-size: 0.66rem;
+    font-size: 0.75rem;
     font-weight: 600;
     letter-spacing: 0.5em;
     text-transform: uppercase;
@@ -397,7 +397,7 @@
 .at-tag-card__house,
 .at-tag-card__line {
     padding-left: 0.34em;
-    font-size: 0.5rem;
+    font-size: 0.75rem;
     font-weight: 600;
     letter-spacing: 0.34em;
     text-transform: uppercase;
@@ -633,7 +633,7 @@
 .at-kicker {
     margin: 0;
     padding-left: 0.42em;
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     font-weight: 600;
     letter-spacing: 0.42em;
     text-transform: uppercase;
@@ -732,7 +732,7 @@
 .at-label__house,
 .at-label__line {
     padding-left: 0.3em;
-    font-size: 0.62rem;
+    font-size: 0.75rem;
     font-weight: 600;
     letter-spacing: 0.3em;
     text-transform: uppercase;
@@ -768,7 +768,7 @@
     margin: 0 0 0.75rem;
     padding-bottom: 0.55rem;
     border-bottom: 1.5px dashed var(--at-seam);
-    font-size: 0.68rem;
+    font-size: 0.75rem;
     font-weight: 600;
     letter-spacing: 0.2em;
     text-transform: uppercase;
@@ -791,7 +791,7 @@
 }
 
 .at-sheet__field dt {
-    font-size: 0.64rem;
+    font-size: 0.75rem;
     font-weight: 600;
     letter-spacing: 0.18em;
     text-transform: uppercase;
@@ -940,7 +940,7 @@
 
 .inv-atelier .inv-head__eyebrow {
     padding-left: 0.26em;
-    font-size: 0.68rem;
+    font-size: 0.75rem;
     font-weight: 600;
     letter-spacing: 0.26em;
     color: var(--inv-accent-ink);
@@ -1165,7 +1165,7 @@
 
 .at-look__number {
     display: block;
-    font-size: 0.64rem;
+    font-size: 0.75rem;
     font-weight: 600;
     letter-spacing: 0.2em;
     text-transform: uppercase;
@@ -1279,7 +1279,7 @@
 
 .at-tag__role {
     padding-left: 0.22em;
-    font-size: 0.64rem;
+    font-size: 0.75rem;
     font-weight: 600;
     letter-spacing: 0.22em;
     text-transform: uppercase;
@@ -1336,7 +1336,7 @@
 }
 
 .at-lineup__look {
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     font-weight: 600;
     letter-spacing: 0.08em;
     color: var(--inv-accent-ink);

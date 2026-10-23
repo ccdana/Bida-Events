@@ -34,12 +34,29 @@ html.inv-cover-waiting body {
     border-radius: 999px;
     background: var(--bg-color);
     color: var(--text-color);
-    font-size: 0.62rem;
+    font-size: 0.75rem;
     font-weight: 600;
     letter-spacing: 0.22em;
     text-transform: uppercase;
     cursor: pointer;
     box-shadow: 0 1px 3px rgb(0 0 0 / 0.08);
+}
+
+/* Al bajar se esconde para no tapar lo que se lee; al subir vuelve (invitationNav en shell/scripts) */
+.inv-nav__toggle {
+    transition: translate 0.35s var(--inv-ease), opacity 0.25s ease;
+}
+
+.inv-nav__toggle.is-tucked {
+    translate: 0 -220%;
+    opacity: 0;
+    pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .inv-nav__toggle {
+        transition: none;
+    }
 }
 
 .inv-nav__bars {
@@ -154,7 +171,7 @@ html.inv-cover-waiting body {
 .inv-nav__num {
     min-width: 1.75rem;
     font-family: var(--font-body);
-    font-size: 0.66rem;
+    font-size: 0.75rem;
     font-weight: 600;
     letter-spacing: 0.12em;
     color: var(--inv-soft);
@@ -249,7 +266,7 @@ html.inv-cover-waiting body {
 }
 
 .inv-player__title {
-    font-size: 0.6rem;
+    font-size: 0.75rem;
     font-weight: 600;
     letter-spacing: 0.22em;
     text-transform: uppercase;

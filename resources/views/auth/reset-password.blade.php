@@ -1,6 +1,8 @@
 @extends('layouts.auth')
 
 @section('title', __('Contraseña nueva').' | '.config('bida.brand'))
+@section('description', __('Crea una contraseña nueva para entrar a tu cuenta de :brand.', ['brand' => config('bida.brand')]))
+@section('robots', 'noindex, nofollow')
 
 @section('auth')
     <h1 class="site-enter text-3xl font-semibold tracking-tight sm:text-4xl" style="--enter-index: 1">{{ __('Crea una contraseña nueva') }}</h1>

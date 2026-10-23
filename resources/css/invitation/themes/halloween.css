@@ -272,7 +272,7 @@ html.inv-cover-skip .inv-hw-intro {
 
 .inv-hw-intro__eyebrow {
     margin: 0;
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.28em;
     text-transform: uppercase;
@@ -565,7 +565,7 @@ html.inv-cover-waiting .inv-hw-hero * {
 
 .inv-hw-hero__eyebrow {
     margin: 0;
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.3em;
     text-transform: uppercase;
@@ -609,7 +609,7 @@ html.inv-cover-waiting .inv-hw-hero * {
 
 .inv-hw-ticket__label {
     grid-area: label;
-    font-size: 0.6rem;
+    font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.24em;
     text-transform: uppercase;

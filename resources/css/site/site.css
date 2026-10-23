@@ -175,6 +175,30 @@ html[data-theme='dark'] .site {
     font-size: 0.88rem;
 }
 
+/* Enlace «Saltar al contenido»: invisible hasta que el teclado le da el foco */
+.site-skip {
+    position: fixed;
+    top: 0.75rem;
+    left: 0.75rem;
+    z-index: 100;
+    padding: 0.65rem 1.1rem;
+    border-radius: 999px;
+    background: var(--site-ink);
+    color: var(--site-bg);
+    font-size: 0.9rem;
+    font-weight: 500;
+    transform: translateY(-200%);
+    transition: transform 0.2s ease;
+}
+
+.site-skip:focus {
+    transform: none;
+}
+
+main:focus {
+    outline: none;
+}
+
 /* ── Áreas de toque ─────────────────────────────────────────────────────────
    En celulares y tablets (o pantallas táctiles) todo lo que se toca mide al menos 44 px. El texto no
    cambia de tamaño: crece el área. En computador el diseño se queda compacto. */
@@ -758,6 +782,72 @@ html[data-theme='dark'] .site-plan--premium {
     color: var(--plan-gold);
 }
 
+/* En celular y tablet las tarjetas se deslizan de lado (la siguiente asoma para avisar) en lugar de apilarse:
+   cada bloque de precios baja de ~3.000 px a ~900. Los puntos de abajo marcan en cuál va (site.js, [data-carousel]) */
+@media (max-width: 1023px) {
+    .site-plans {
+        display: flex;
+        gap: 0;
+        margin-inline: -1.25rem;
+        padding-inline: 1.25rem;
+        overflow-x: auto;
+        overscroll-behavior-x: contain;
+        scroll-snap-type: x mandatory;
+        scroll-padding-inline: 1.25rem;
+        scrollbar-width: none;
+        border-top: 0;
+        border-bottom: 1px solid var(--site-line);
+    }
+
+    .site-plans::-webkit-scrollbar {
+        display: none;
+    }
+
+    .site-plan {
+        flex: 0 0 86%;
+        max-width: 24rem;
+        padding: 2rem 1.25rem 2rem 0;
+        scroll-snap-align: start;
+        border-bottom: 0;
+    }
+
+    .site-plan + .site-plan {
+        padding-left: 1.25rem;
+        border-left: 1px solid var(--site-line);
+    }
+
+    .site-plan:last-child {
+        margin-right: 1.25rem;
+    }
+}
+
+/* Puntos de posición del carrusel; solo donde las tarjetas se deslizan */
+.site-dots {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1.25rem;
+}
+
+.site-dots span {
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--site-line);
+    transition: width 0.3s var(--site-ease), background-color 0.3s ease;
+}
+
+.site-dots span.is-active {
+    width: 20px;
+    background: var(--site-accent);
+}
+
+@media (min-width: 1024px) {
+    .site-dots {
+        display: none;
+    }
+}
+
 @media (min-width: 1024px) {
     .site-plans {
         grid-template-columns: repeat(3, 1fr);
@@ -890,6 +980,11 @@ html.theme-changing *:not(.theme-toggle__icon) {
 .site-enter {
     animation: site-enter 0.95s var(--site-ease) both;
     animation-delay: calc(var(--enter-index, 0) * 90ms);
+}
+
+/* Ingreso, registro y recuperar contraseña: los campos y botones aparecen de una vez, sin esperar; solo los textos se animan */
+.site-auth form .site-enter {
+    animation: none;
 }
 
 /* Solo se oculta si hay JS; el layout lo revela todo si site.js no carga */
@@ -2344,23 +2439,23 @@ html.site-season-open {
    ancho y el botón de la temporada espera a que se cierre.
    ──────────────────────────────────────────────────────────────────────── */
 
+/* Una barra baja y corta (texto a la izquierda, botón a la derecha): en el celular no tapa la portada */
 .site-cookies {
     position: fixed;
-    right: 1rem;
-    bottom: calc(1rem + env(safe-area-inset-bottom));
-    left: 1rem;
+    right: 0.75rem;
+    bottom: calc(0.75rem + env(safe-area-inset-bottom));
+    left: 0.75rem;
     z-index: 45;
     display: flex;
-    flex-wrap: wrap;
     align-items: center;
-    gap: 0.75rem 1rem;
-    padding: 1rem 1.1rem;
+    gap: 0.75rem;
+    padding: 0.6rem 0.6rem 0.6rem 1rem;
     border: 1px solid var(--site-line);
-    border-radius: 1.1rem;
+    border-radius: 1rem;
     background: var(--site-surface);
     color: var(--site-ink);
-    font-size: 0.9rem;
-    line-height: 1.5;
+    font-size: 0.8rem;
+    line-height: 1.4;
     box-shadow: 0 20px 44px -24px rgb(0 0 0 / 0.45);
 }
 
@@ -2369,7 +2464,7 @@ html.site-season-open {
 }
 
 .site-cookies p {
-    flex: 1 1 16rem;
+    flex: 1 1 auto;
     color: var(--site-muted);
 }
 
@@ -2382,6 +2477,8 @@ html.site-season-open {
 
 .site-cookies__ok {
     flex-shrink: 0;
+    padding: 0 1.1rem;
+    font-size: 0.85rem;
 }
 
 @media (min-width: 640px) {

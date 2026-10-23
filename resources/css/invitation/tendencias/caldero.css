@@ -325,7 +325,7 @@
 }
 
 .cl-tag__date {
-    font-size: 0.58rem;
+    font-size: 0.75rem;
     font-weight: 800;
     letter-spacing: 0.14em;
     text-transform: uppercase;
@@ -655,7 +655,7 @@
 }
 
 .cl-jar__tag-number {
-    font-size: 0.62rem;
+    font-size: 0.75rem;
     font-weight: 800;
     letter-spacing: 0.16em;
 }
@@ -884,7 +884,7 @@
 
 .inv-caldero .inv-countdown__label {
     margin-top: 0.15rem;
-    font-size: 0.5rem;
+    font-size: 0.75rem;
     color: color-mix(in srgb, var(--tr-text) 80%, transparent);
 }
 
@@ -1083,7 +1083,7 @@
 .cl-brewer__glass i:nth-child(3) { --n: 2; animation-delay: -1.6s; }
 
 .cl-brewer__role {
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     font-weight: 800;
     letter-spacing: 0.2em;
     text-transform: uppercase;

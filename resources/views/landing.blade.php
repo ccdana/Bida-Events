@@ -76,7 +76,7 @@
     @include('site.partials.header')
 
     {{-- El diseño elegido se comparte entre la portada (el teléfono) y la sección de diseños --}}
-    <main>
+    <main id="contenido" tabindex="-1">
         {{-- ═══ Portada: el texto del evento y sus diseños, cada uno como la captura de su apertura ═══ --}}
         <section class="site-landing">
             <div class="mx-auto grid max-w-7xl items-center gap-12 px-5 pb-16 pt-8 md:pt-14 lg:min-h-[calc(100dvh-72px)] lg:grid-cols-12 lg:gap-8 lg:px-8 lg:py-12">

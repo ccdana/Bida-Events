@@ -76,7 +76,7 @@ class PublicPagesTest extends TestCase
         $this->withoutVite()->get(route('home'))
             ->assertOk()
             ->assertSee('data-cookie-notice', false)
-            ->assertSee('Ver la política de cookies');
+            ->assertSee('Más información');
 
         $this->seed(ShowcaseInvitationsSeeder::class);
 

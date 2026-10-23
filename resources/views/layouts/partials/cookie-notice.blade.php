@@ -5,8 +5,8 @@
 --}}
 <div class="site-cookies" data-cookie-notice hidden role="region" aria-label="{{ __('Aviso de cookies') }}">
     <p>
-        {{ __('Usamos solo las cookies necesarias para que el sitio funcione y una para saber desde qué anuncio llegaste. Nada de publicidad.') }}
-        <a href="{{ lroute('legal', 'cookies') }}">{{ __('Ver la política de cookies') }}</a>
+        {{ __('Usamos las cookies necesarias y una de campaña que no te identifica. Nada de publicidad.') }}
+        <a href="{{ lroute('legal', 'cookies') }}">{{ __('Más información') }}</a>
     </p>
     <button type="button" class="site-btn site-cookies__ok" data-cookie-accept>{{ __('Entendido') }}</button>
 </div>

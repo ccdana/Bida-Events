@@ -217,7 +217,7 @@ a:hover > .site-link-arrow svg,
 .site-offer {
     max-width: 80rem;
     margin-inline: auto;
-    padding: 4.5rem 1.25rem;
+    padding: 3.25rem 1.25rem;
 }
 
 @media (min-width: 1024px) {
@@ -415,7 +415,7 @@ a:hover > .site-link-arrow svg,
 /* ── Probar como invitado ───────────────────────────────────────────────── */
 
 .site-tester {
-    padding: 4rem 0;
+    padding: 3rem 0;
     border-top: 1px solid var(--site-line);
     background: var(--site-surface);
 }
@@ -597,7 +597,7 @@ a:hover > .site-link-arrow svg,
     gap: 3rem;
     max-width: 80rem;
     margin-inline: auto;
-    padding: 4.5rem 1.25rem;
+    padding: 3.25rem 1.25rem;
     border-top: 1px solid var(--site-line);
 }
 
@@ -617,6 +617,45 @@ a:hover > .site-link-arrow svg,
 .site-include__moment ul {
     margin-top: 0.9rem;
     border-top: 1px solid var(--site-line);
+}
+
+/* Cada momento (Antes, En la puerta, Durante y después) es un acordeón en el celular */
+.site-include__summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: 2.75rem;
+    cursor: pointer;
+    list-style: none;
+}
+
+.site-include__summary::-webkit-details-marker {
+    display: none;
+}
+
+.site-include__caret {
+    flex-shrink: 0;
+    width: 1.1rem;
+    height: 1.1rem;
+    color: var(--site-accent);
+    transition: rotate 0.3s var(--site-ease);
+}
+
+.site-include__moment[open] > .site-include__summary .site-include__caret {
+    rotate: 180deg;
+}
+
+/* En pantallas anchas todo va abierto: el título no se toca ni lleva flecha */
+@media (min-width: 1024px) {
+    .site-include__summary {
+        pointer-events: none;
+        cursor: default;
+    }
+
+    .site-include__caret {
+        display: none;
+    }
 }
 
 .site-include__item {
@@ -1054,7 +1093,7 @@ a:hover > .site-link-arrow svg,
 .site-diy-final {
     max-width: 80rem;
     margin-inline: auto;
-    padding: 5rem 1.25rem 6rem;
+    padding: 3.75rem 1.25rem 4.5rem;
     border-top: 1px solid var(--site-line);
 }
 

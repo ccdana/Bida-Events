@@ -13,6 +13,11 @@
     )])
     <meta name="theme-color" content="#f4f4f2" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#131414" media="(prefers-color-scheme: dark)">
+    @hasSection('robots')
+        <meta name="robots" content="@yield('robots')">
+    @elseif($canonical = \App\Support\Localization::canonicalUrl())
+        <link rel="canonical" href="{{ $canonical }}">
+    @endif
     @include('layouts.partials.hreflang')
     <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
     <link rel="alternate icon" href="{{ asset('favicon.ico') }}">
@@ -36,6 +41,8 @@
     @stack('head')
 </head>
 <body class="site min-h-[100dvh]">
+    <a href="#contenido" class="site-skip">{{ __('Saltar al contenido') }}</a>
+
     @yield('content')
 
     @include('layouts.partials.cookie-notice')

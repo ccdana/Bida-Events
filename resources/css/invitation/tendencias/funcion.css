@@ -81,7 +81,7 @@
 
 .fn-poster__presents {
     margin: 0;
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.34em;
     text-transform: uppercase;
@@ -197,7 +197,7 @@
     padding: 0.25rem 0.45rem;
     background: var(--fn-curtain);
     color: var(--tr-ink-secondary);
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     font-weight: 800;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -236,7 +236,7 @@
 }
 
 .fn-billing dt {
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     letter-spacing: 0.14em;
     color: var(--inv-soft);
 }
@@ -304,7 +304,7 @@
 
 /* El título de cada sección es el letrero de la marquesina, con sus focos */
 .inv-funcion .inv-head__eyebrow {
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     letter-spacing: 0.3em;
     color: var(--fn-bulb);
 }
@@ -455,7 +455,7 @@
 
 .fn-intro__eyebrow {
     margin: 0;
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.34em;
     text-transform: uppercase;

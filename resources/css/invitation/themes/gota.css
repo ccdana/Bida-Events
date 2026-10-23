@@ -172,7 +172,7 @@
     margin: 0.6rem 0 0;
     padding-block: 0.4rem;
     border-block: 1px solid color-mix(in srgb, var(--tr-primary) 30%, transparent);
-    font-size: 0.68rem;
+    font-size: 0.75rem;
     font-weight: 600;
     letter-spacing: 0.26em;
     text-transform: uppercase;
@@ -568,7 +568,7 @@
 
 .gt-kicker {
     margin: 0;
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.34em;
     text-transform: uppercase;
@@ -685,7 +685,7 @@
 
 .gt-hero__sponsors span {
     font-family: var(--font-body);
-    font-size: 0.66rem;
+    font-size: 0.75rem;
     font-style: normal;
     font-weight: 700;
     letter-spacing: 0.28em;
@@ -771,7 +771,7 @@
 }
 
 .inv-gota .inv-head__eyebrow {
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.3em;
     text-transform: uppercase;
@@ -1113,7 +1113,7 @@ html:not(.no-js) .gt-drops-section.reveal:not(.is-visible) .gt-drop__bead {
 }
 
 .gt-ripple__role {
-    font-size: 0.68rem;
+    font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.22em;
     text-transform: uppercase;
@@ -1150,7 +1150,7 @@ html:not(.no-js) .gt-drops-section.reveal:not(.is-visible) .gt-drop__bead {
 
 .gt-family__title {
     margin: 0 0 0.8rem;
-    font-size: 0.68rem;
+    font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.24em;
     text-transform: uppercase;

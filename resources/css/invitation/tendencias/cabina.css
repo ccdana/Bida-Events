@@ -603,7 +603,7 @@
 .cb-kicker {
     margin: 0;
     padding-left: 0.3em;
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.3em;
     text-transform: uppercase;
@@ -721,7 +721,7 @@
     right: 0.8rem;
     bottom: 0.65rem;
     font-family: var(--font-titles);
-    font-size: 0.62rem;
+    font-size: 0.75rem;
     font-weight: 600;
     letter-spacing: 0.1em;
     color: var(--tr-accent);
@@ -735,7 +735,7 @@
 
 .inv-cabina .inv-head__eyebrow {
     padding-left: 0.26em;
-    font-size: 0.68rem;
+    font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.26em;
     color: var(--tr-accent);
@@ -910,7 +910,7 @@
     right: 0.4rem;
     bottom: 0.25rem;
     font-family: var(--font-titles);
-    font-size: 0.58rem;
+    font-size: 0.75rem;
     font-weight: 600;
     letter-spacing: 0.06em;
     color: var(--tr-accent);
@@ -992,7 +992,7 @@
 
 .cb-host__role {
     padding-left: 0.2em;
-    font-size: 0.66rem;
+    font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.2em;
     text-transform: uppercase;
@@ -1076,7 +1076,7 @@
 }
 
 .cb-contact small {
-    font-size: 0.74rem;
+    font-size: 0.75rem;
     line-height: 1.35;
     color: var(--inv-muted);
 }
