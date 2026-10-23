@@ -1,7 +1,7 @@
 # Despliegue en producción (Docker)
 
 Cómo está armado el servidor y el paso a paso para publicar una versión nueva. Los servicios
-externos (correo, Lemon Squeezy, Libélula) se conectan con [`conexiones.md`](conexiones.md); los
+externos se conectan con las guías de [`conexiones/`](conexiones/01-zoho-mail.md) (Zoho, Google, Lemon Squeezy y Libélula); los
 registros, alertas y respaldos están en [`operacion.md`](operacion.md).
 
 ## 1. Cómo está armado
@@ -106,9 +106,9 @@ que el servidor tiene y que ya no se usan. Edita con `nano .env`:
 
 | Bloque | Variables | Valor para empezar |
 | --- | --- | --- |
-| Correo | `MAIL_*`, `OPERATIONS_ALERT_EMAIL` | Zoho: [`conexiones.md`](conexiones.md), paso 1. Sin correo nadie confirma su cuenta ni recupera la contraseña |
+| Correo | `MAIL_*`, `OPERATIONS_ALERT_EMAIL` | Zoho: [`conexiones/01-zoho-mail.md`](conexiones/01-zoho-mail.md). Sin correo nadie confirma su cuenta ni recupera la contraseña |
 | Cuentas | `AUTH_REGISTRATION`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | `AUTH_REGISTRATION=true` cuando el correo funcione; Google vacío oculta el botón |
-| Pagos | `PAYMENTS_*`, `LEMONSQUEEZY_*`, `LIBELULA_*` | `PAYMENTS_ENABLED=false` hasta completar [`conexiones.md`](conexiones.md) (los botones van a WhatsApp) |
+| Pagos | `PAYMENTS_*`, `LEMONSQUEEZY_*`, `LIBELULA_*` | `PAYMENTS_ENABLED=false` hasta completar [`conexiones/03-lemon-squeezy.md`](conexiones/03-lemon-squeezy.md) (los botones van a WhatsApp) |
 | Marca | `BIDA_LEGAL_NAME`, `BIDA_LEGAL_NIT`, `BIDA_DIY_DRAFTS_LIMIT` | Razón social y NIT para las páginas legales; vacíos muestran la marca |
 | Temporadas | `BIDA_SEASON_AMOR_ENDS_AT`, `BIDA_SEASON_HALLOWEEN_ENDS_AT` | Los de la plantilla |
 | Seguridad y registros | `RATE_LIMIT_REGISTER`, `RATE_LIMIT_PASSWORD_EMAIL`, `RATE_LIMIT_DOOR`, `LOG_DAILY_DAYS` | Los de la plantilla |
@@ -193,7 +193,7 @@ Las imágenes viejas ocupan disco:
 docker image prune -f
 ```
 
-Después, con calma: conectar el correo y los pagos con [`conexiones.md`](conexiones.md).
+Después, con calma: conectar el correo, Google y los pagos con las guías de [`conexiones/`](conexiones/01-zoho-mail.md), en orden.
 
 ## 3. Publicar una versión nueva (cada vez)
 

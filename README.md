@@ -57,7 +57,7 @@ Cloudflare. El paso a paso está en [`docs/despliegue.md`](docs/despliegue.md).
 | Archivo | Qué explica |
 | --- | --- |
 | [`docs/despliegue.md`](docs/despliegue.md) | Cómo está armado el servidor y cómo publicar una versión nueva |
-| [`docs/conexiones.md`](docs/conexiones.md) | Conectar el correo (Zoho), Lemon Squeezy y Libélula en producción |
+| [`docs/conexiones/`](docs/conexiones/) | Paso a paso de cada conexión en producción: [Zoho Mail](docs/conexiones/01-zoho-mail.md), [Google OAuth](docs/conexiones/02-google-oauth.md), [Lemon Squeezy](docs/conexiones/03-lemon-squeezy.md) y [Libélula](docs/conexiones/04-libelula.md) |
 | [`docs/operacion.md`](docs/operacion.md) | Registros, alertas, pagos en línea, respaldos y restauración |
 | [`docs/flujo-navegacion.md`](docs/flujo-navegacion.md) | A dónde lleva cada botón del sitio |
 | [`docs/idiomas.md`](docs/idiomas.md) | Español e inglés: cómo agregar textos y páginas, y la comprobación de traducciones |

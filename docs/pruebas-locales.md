@@ -2,7 +2,7 @@
 
 Guía para probar en Laragon (`bida-events.test`) el registro con Google, el correo, la tarjeta
 (Lemon Squeezy en **modo de prueba**, sin dinero real) y el QR de Libélula. Para dejarlos funcionando
-en el servidor está [conexiones.md](conexiones.md).
+en el servidor están las guías de [`conexiones/`](conexiones/01-zoho-mail.md).
 
 **Ya quedó listo en tu `.env`:** todas las variables, vacías, al final del archivo (bloque «Pruebas
 de pagos y registro en desarrollo»), con el modo de prueba de Lemon Squeezy encendido y
@@ -165,7 +165,7 @@ php artisan tinker --execute="Mail::raw('Prueba', fn (\$m) => \$m->to('tu@correo
 ```
 
 Si no aparece ningún error, revisa tu bandeja (y spam). Los DNS para que no caiga en spam están en
-[conexiones.md › 1.5](conexiones.md#15-dns-para-que-no-lleguen-a-spam).
+[conexiones/01-zoho-mail.md › paso 5](conexiones/01-zoho-mail.md#paso-5-dns-para-que-no-caiga-en-spam).
 
 > Con `MAIL_MAILER=log` (como está ahora) los correos no se envían: quedan escritos en
 > `storage/logs/laravel.log`, y de ahí puedes copiar el enlace para confirmar el correo.
