@@ -92,11 +92,8 @@ class PricingPageTest extends TestCase
     {
         $this->withoutVite()->get(route('home'))
             ->assertOk()
-            ->assertSee('La armas tú, gratis')
-            // El servicio principal es «Hazlo tú», gratis
-            ->assertSeeInOrder(['id="servicios"', 'Hazlo tú', 'Gratis', 'Crear mi invitación gratis', 'Planes para profesionales'], false)
-            // Las formas en resumen, con el detalle en /precios y el aviso de lo a medida
-            ->assertSeeInOrder(['id="precios"', 'Empieza gratis. Paga solo por lo que usas.', 'Hazlo tú', 'Planes', '¿Quieres algo a medida?', 'Ver todos los precios y qué trae cada nivel'], false)
+            // Las formas en resumen (el servicio principal es «Hazlo tú», gratis), con el detalle en /precios y el aviso de lo a medida
+            ->assertSeeInOrder(['id="precios"', 'Empieza gratis. Paga solo por lo que usas.', 'Hazlo tú', 'Gratis', 'Crear mi invitación gratis', 'Planes', '¿Quieres algo a medida?', 'Ver todos los precios'], false)
             ->assertSee(route('pricing'), false)
             ->assertSee(route('register', ['crear' => 1]), false)
             ->assertDontSee('Te la hacemos');

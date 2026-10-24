@@ -146,8 +146,8 @@ final class Localization
         'bida.reseller_plans', 'bida.diy', 'bida.launch_promo', 'bida.professionals',
     ];
 
-    /** Lo mismo, pero con el texto en las claves del arreglo (la franja de tipos de evento). */
-    public const TRANSLATED_CONFIG_KEYS = ['bida.event_types'];
+    /** Lo mismo, pero con el texto en las claves del arreglo (hoy ninguna). */
+    public const TRANSLATED_CONFIG_KEYS = [];
 
     /**
      * Deja un idioma activo: el de la aplicación, las fechas y, si no es el de base, los textos que

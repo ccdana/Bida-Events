@@ -76,10 +76,10 @@ class HomeController extends Controller
                 'name' => __('Hazlo tú'),
                 'price' => __('Gratis'),
                 'suffix' => '',
-                'summary' => __('La armas tú y la pruebas completa. Pagas solo si al publicarla quieres más que lo básico.'),
+                'summary' => __('La armas tú y pagas solo si quieres más que lo básico.'),
                 'features' => array_values(array_filter([
-                    __('Gratis con portada, cuenta regresiva y ubicación'),
-                    $fromTier !== null ? __('Galería, confirmaciones y pase QR en un solo pago, desde :price', ['price' => Money::format($fromTier)]) : null,
+                    __('Gratis: portada, cuenta regresiva y ubicación'),
+                    $fromTier !== null ? __('Galería, confirmaciones y pase QR, desde :price', ['price' => Money::format($fromTier)]) : null,
                     __('Subir de nivel cobra solo la diferencia'),
                 ])),
                 'url' => $startUrl,
@@ -91,7 +91,7 @@ class HomeController extends Controller
                 'price' => (string) $cheapestPlan['final_price'],
                 'old' => $cheapestPlan['old_price'] ? Money::format($cheapestPlan['old_price']) : null,
                 'suffix' => __(':currency al mes', ['currency' => Money::code()]),
-                'summary' => __('Para quien arma muchas: las tuyas o las de tus clientes, sin comisión por invitación.'),
+                'summary' => __('Para quien arma muchas, sin comisión por invitación.'),
                 'features' => array_values(array_filter([
                     __('Invitaciones cada mes, con su cupo'),
                     $prepay ? __('Menos pagando :discounts', ['discounts' => Localization::join(array_map(
@@ -177,7 +177,7 @@ class HomeController extends Controller
     public static function landingLinks(): array
     {
         return collect(config('bida.landings', []))
-            ->map(fn (array $landing, string $slug) => ['url' => lroute('landing', $slug), 'label' => $landing['link'], 'slug' => $slug, 'event' => $landing['event']])
+            ->map(fn (array $landing, string $slug) => ['url' => lroute('landing', $slug), 'label' => $landing['link'], 'name' => $landing['label'] ?? $landing['link'], 'slug' => $slug, 'event' => $landing['event']])
             ->values()
             ->all();
     }

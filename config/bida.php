@@ -111,18 +111,6 @@ return [
         'babyshower-encomienda' => '2026-09-27',
     ],
 
-    // Franja de tipos de evento (ícono de Phosphor sin prefijo)
-    'event_types' => [
-        'Bodas' => 'heart',
-        'Bautizos' => 'baby',
-        'Cumpleaños' => 'cake',
-        'XV años' => 'crown-simple',
-        'Primera comunión' => 'church',
-        'Baby shower' => 'baby-carriage',
-        'Graduaciones' => 'graduation-cap',
-        'Aniversarios' => 'champagne',
-    ],
-
     /*
     | Fotos del sitio (licencia gratuita de Adobe Stock, ID en "stock"). Si
     | existe el archivo en public/{path} se usa; si no, se muestra un marcador

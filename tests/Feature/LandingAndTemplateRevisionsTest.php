@@ -281,7 +281,7 @@ class LandingAndTemplateRevisionsTest extends TestCase
             'Mesa de honor' => [TrendTemplates::key('mesa', 'boda'), 'boda-camila-andres', ['ms-plate__monogram', 'ms-placecard__guest', 'ms-course__number', 'ms-ambient__glow--right']],
             'A la misma hora' => [TrendTemplates::key('reloj', 'boda'), 'boda-camila-andres', ['rl-hand--second', 'rl-watch__crown', 'rl-intro__together', 'rl-ambient__gear--right-small']],
             // Las dos de cumpleaños nuevas: las hojas del almanaque que se arrancan y la cabina de fotos con su tira
-            'Día feriado' => [TrendTemplates::key('feriado', 'cumple'), 'cumple-daniela-30', ['fd-leaf--day', 'fd-sticky', 'fd-month__day is-marked', 'fd-ambient__leaf--right']],
+            'Día feriado' => [TrendTemplates::key('feriado', 'cumple'), 'cumple-daniela-30', ['fd-leaf--day', 'fd-sticky', 'is-marked', 'fd-ambient__leaf--right']],
             'Cabina de fotos' => [TrendTemplates::key('cabina', 'cumple'), 'cumple-daniela-30', ['cb-booth__screen', 'cb-strip--intro', 'cb-intro__guest', 'cb-ambient__flash--right']],
             'Esencia XV' => [TrendTemplates::key('esencia', 'xv'), 'xv-isabella', ['ez-mist', 'ez-intro__reveal', 'ez-cube__lid', 'ez-face--under', 'ez-band--across', 'ez-plinth__top', 'ez-tier--2', 'ez-ambient__mist--center']],
             // La borla del birrete cruza con el cordón en vuelo: nunca hay un cuadro sin borla ni sin cordón

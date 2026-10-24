@@ -125,7 +125,9 @@ class SeoAndMobileFixesTest extends TestCase
             $html = $this->withoutVite()->get($url)->assertOk()->getContent();
 
             $this->assertStringNotContainsString('data-carousel', $html, $url);
-            $this->assertStringContainsString('<details class="site-plan__more" open data-accordion="closed">', $html, $url);
+            // La lista de lo que incluye cada plan va siempre a la vista, sin botón que la abra
+            $this->assertStringNotContainsString('<details class="site-plan__more"', $html, $url);
+            $this->assertStringContainsString('class="site-plan__features"', $html, $url);
         }
 
         $css = file_get_contents(resource_path('css/site/site.css'));
@@ -162,13 +164,20 @@ class SeoAndMobileFixesTest extends TestCase
         $this->assertMatchesRegularExpression('/@media \(max-width: 1023px\) \{\s*\.site-plans \{\s*position: relative;/', $site);
     }
 
-    public function test_the_home_includes_become_three_accordions_open_by_default(): void
+    public function test_the_home_merges_how_it_works_with_what_it_includes_and_keeps_five_questions(): void
     {
         $html = $this->withoutVite()->get('/')->assertOk()->getContent();
 
-        $this->assertSame(3, substr_count($html, 'class="site-include__moment" open data-accordion'));
-        $this->assertStringContainsString('site-include__summary', $html);
-        $this->assertStringContainsString('function initAccordions()', file_get_contents(resource_path('js/site.js')));
+        // Cuatro pasos y siete cosas que incluir, en un solo bloque y sin acordeones; sin franja de tipos de evento
+        $how = Str::between($html, 'id="incluye"', 'id="precios"');
+        $this->assertSame(4, substr_count($how, 'class="site-step"'));
+        $this->assertSame(7, substr_count($how, 'class="site-include__item"'));
+        $this->assertStringNotContainsString('<details', $how);
+        $this->assertStringNotContainsString('data-accordion', $html);
+        $this->assertStringNotContainsString('site-marquee', $html);
+
+        // Solo las preguntas que deciden una compra
+        $this->assertSame(5, substr_count($html, 'class="site-faq group"'));
     }
 
     // ── M11 · Canónica, saltar al contenido, descripciones e indexación

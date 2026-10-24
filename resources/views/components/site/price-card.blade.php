@@ -1,7 +1,8 @@
 {{--
     Una columna de precios del sitio: nombre con su etiqueta, precio (con el normal tachado si hay
-    rebaja), lo que incluye y el botón. La usan los niveles de «Hazlo tú» y los planes mensuales
-    de «Únete», así las dos formas de pago se ven igual. Estilos: site.css («Precios»).
+    rebaja), lo que incluye (lista corta, siempre a la vista) y el botón. La usan los niveles de «Hazlo tú»
+    y los planes mensuales, así las dos formas de pago se ven igual. Filas separadas por filetes, sin
+    cajas. Estilos: site.css («Precios»).
 
     - price / old / suffix: el precio de hoy, el normal tachado (o null) y lo que va después («USD»).
     - featured: el recomendado (filete dorado arriba); premium: el de más arriba (corona y botón dorado).
@@ -69,22 +70,14 @@
 
     <p class="site-plan__summary">{{ $summary }}</p>
 
-    {{-- Abierta en el HTML (sin JavaScript y en computador se ve toda); en el celular site.js la deja cerrada --}}
-    <details class="site-plan__more" open data-accordion="closed">
-        <summary>
-            <span class="site-plan__more-open">{{ __('Ver qué incluye') }}</span>
-            <span class="site-plan__more-close">{{ __('Ocultar') }}</span>
-            <x-phosphor-caret-down class="site-plan__caret" aria-hidden="true" />
-        </summary>
-        <ul class="site-plan__features">
-            @foreach($features as $feature)
-                <li>
-                    <x-phosphor-check-bold class="site-plan__check" aria-hidden="true" />
-                    <span>{{ $feature }}</span>
-                </li>
-            @endforeach
-        </ul>
-    </details>
+    <ul class="site-plan__features">
+        @foreach($features as $feature)
+            <li>
+                <x-phosphor-check-bold class="site-plan__check" aria-hidden="true" />
+                <span>{{ $feature }}</span>
+            </li>
+        @endforeach
+    </ul>
 
     <a href="{{ $url }}" @if($cycles) :href="cycles[cycle].url" @endif @if($external) target="_blank" rel="noopener" @endif
         @class([

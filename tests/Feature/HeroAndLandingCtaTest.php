@@ -29,9 +29,10 @@ class HeroAndLandingCtaTest extends TestCase
                 'site-hero__actions',
                 'href="'.$start.'" class="site-btn site-btn--lg"',
                 'Crear mi invitación gratis',
-                'href="#plantillas" class="site-btn site-btn--ghost site-btn--lg">Ver muestras',
-                'site-hero__facts',
-            ], false);
+                // Las muestras, un círculo con una flecha (el nombre va en el aria-label)
+                'href="#plantillas" class="site-btn site-btn--ghost site-btn--lg site-btn--icon" aria-label="Ver muestras"',
+            ], false)
+            ->assertDontSee('site-hero__facts', false);
     }
 
     public function test_the_phone_header_shows_the_create_button_next_to_the_menu(): void

@@ -1,9 +1,9 @@
 {{--
-    Pie del sitio público. A la izquierda, la marca con una frase en serif, cómo escribirnos y las
-    redes; al lado, los enlaces ordenados por lo que busca cada visitante (invitaciones por evento,
-    lo demás que ofrecemos y lo legal) y, abajo, la línea de derechos. Sin tarjetas ni sombras:
-    solo filetes y el dorado como único acento. Recibe $landings, $contactUrl, $accountUrl,
-    $accountLabel, $bida y, opcional, $socials. Estilos: home.css («Pie»).
+    Pie del sitio público. A la izquierda, la marca con una frase en serif y una fila de íconos para escribirnos
+    (WhatsApp, correo y redes); al lado, los enlaces ordenados por lo que busca cada visitante (invitaciones por
+    evento, lo demás que ofrecemos y lo legal) y, abajo, la línea de derechos. Sin tarjetas ni sombras: solo filetes
+    y el dorado como único acento. Recibe $landings, $contactUrl, $accountUrl, $accountLabel, $bida y, opcional,
+    $socials. Estilos: home.css («Pie»).
 --}}
 @php
     $footerSocials = $socials ?? [];
@@ -23,21 +23,23 @@
                 <x-brand.logo />
             </a>
             <p class="site-foot__statement">{{ __('Cada celebración merece una invitación') }} <em>{{ __('a su altura.') }}</em></p>
-            <p class="site-foot__pitch">{{ __('Invitaciones digitales con confirmación de asistencia, pase QR y control de entrada.') }}</p>
-            <div class="site-foot__contact">
-                <a href="{{ $contactUrl }}" target="_blank" rel="noopener" class="site-btn">
-                    <x-phosphor-whatsapp-logo aria-hidden="true" />
-                    {{ __('Escríbenos por WhatsApp') }}
-                </a>
+            <ul class="site-foot__social" aria-label="{{ __('Escríbenos y síguenos') }}">
+                <li>
+                    <a href="{{ $contactUrl }}" target="_blank" rel="noopener" class="site-icon-btn site-icon-btn--whatsapp" aria-label="{{ __('Escríbenos por WhatsApp') }}" title="{{ __('Escríbenos por WhatsApp') }}">
+                        <x-phosphor-whatsapp-logo aria-hidden="true" />
+                    </a>
+                </li>
                 @if(! empty($bida['email']))
-                    <a href="mailto:{{ $bida['email'] }}" class="site-foot__mail">{{ $bida['email'] }}</a>
+                    <li>
+                        <a href="mailto:{{ $bida['email'] }}" class="site-icon-btn" aria-label="{{ __('Escribir al correo :email', ['email' => $bida['email']]) }}" title="{{ $bida['email'] }}">
+                            <x-phosphor-envelope-simple aria-hidden="true" />
+                        </a>
+                    </li>
                 @endif
-            </div>
-            <ul class="site-foot__social" aria-label="{{ __('Redes sociales') }}">
                 @foreach($footerSocials as $social)
                     <li>
-                        <a href="{{ $social['url'] }}" target="_blank" rel="noopener" class="site-social" aria-label="{{ $social['label'] }}">
-                            <x-dynamic-component :component="'phosphor-'.$social['icon'].'-light'" class="size-5" aria-hidden="true" />
+                        <a href="{{ $social['url'] }}" target="_blank" rel="noopener" class="site-icon-btn" aria-label="{{ $social['label'] }}" title="{{ $social['label'] }}">
+                            <x-dynamic-component :component="'phosphor-'.$social['icon'].'-light'" aria-hidden="true" />
                         </a>
                     </li>
                 @endforeach
@@ -49,7 +51,7 @@
                 <p class="site-foot__title">{{ __('Invitaciones') }}</p>
                 <ul>
                     @foreach($eventLandings as $landing)
-                        <li><a href="{{ $landing['url'] }}">{{ $landing['label'] }}</a></li>
+                        <li><a href="{{ $landing['url'] }}">{{ $landing['name'] ?? $landing['label'] }}</a></li>
                     @endforeach
                 </ul>
             </nav>
@@ -64,19 +66,16 @@
                 </ul>
             </nav>
 
-            <nav class="site-foot__col" aria-label="{{ __('Información legal') }}">
-                <p class="site-foot__title">{{ __('Legal') }}</p>
-                <ul>
-                    @foreach(\App\Support\LegalPages::links() as $legalLink)
-                        <li><a href="{{ $legalLink['url'] }}">{{ $legalLink['label'] }}</a></li>
-                    @endforeach
-                </ul>
-            </nav>
         </div>
     </div>
 
     <div class="site-foot__bar">
         <p>© {{ now()->year }} {{ $bida['brand'] }}@if(! empty($bida['city'])) <span aria-hidden="true">·</span> {{ $bida['city'] }}@endif</p>
+        <nav class="site-foot__legal" aria-label="{{ __('Información legal') }}">
+            @foreach(\App\Support\LegalPages::links() as $legalLink)
+                <a href="{{ $legalLink['url'] }}">{{ $legalLink['label'] }}</a>
+            @endforeach
+        </nav>
         <x-site.language-switch touch />
     </div>
 </footer>

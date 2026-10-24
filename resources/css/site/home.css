@@ -23,15 +23,21 @@
 }
 
 .site-display--md {
-    font-size: clamp(2.1rem, 6.6vw, 3.6rem);
-    line-height: 1.02;
+    font-size: clamp(1.95rem, 5.6vw, 3rem);
+    line-height: 1.04;
+}
+
+/* Subtítulo de un bloque (por ejemplo «Y puede incluir») */
+.site-display--sm {
+    font-size: clamp(1.6rem, 4.4vw, 2.1rem);
+    line-height: 1.08;
 }
 
 .site-muted-lead {
     max-width: 50ch;
-    margin-top: 1.1rem;
-    font-size: 1.08rem;
-    line-height: 1.65;
+    margin-top: 0.8rem;
+    font-size: 1rem;
+    line-height: 1.6;
     color: var(--site-muted);
     text-wrap: pretty;
 }
@@ -84,11 +90,11 @@ a:hover > .site-link-arrow svg,
 
 .site-hero {
     display: grid;
-    gap: 2.75rem;
+    gap: 1.75rem;
     width: 100%;
     max-width: 80rem;
     margin-inline: auto;
-    padding: 2.25rem 1.25rem 3.5rem;
+    padding: 1.5rem 1.25rem 2.25rem;
 }
 
 @media (min-width: 1024px) {
@@ -96,8 +102,8 @@ a:hover > .site-link-arrow svg,
         grid-template-columns: 1.08fr 0.92fr;
         align-items: center;
         gap: 3rem;
-        min-height: calc(100dvh - 72px);
-        padding: 3rem 2rem 4rem;
+        min-height: min(calc(100dvh - 72px), 46rem);
+        padding: 2.5rem 2rem 3rem;
     }
 }
 
@@ -112,8 +118,8 @@ a:hover > .site-link-arrow svg,
 
 .site-hero__lead {
     max-width: 40ch;
-    margin-top: 1.4rem;
-    font-size: 1.14rem;
+    margin-top: 1rem;
+    font-size: 1.1rem;
     line-height: 1.6;
     color: var(--site-muted);
     text-wrap: pretty;
@@ -123,12 +129,12 @@ a:hover > .site-link-arrow svg,
     display: flex;
     flex-wrap: wrap;
     gap: 0.75rem;
-    margin-top: 2rem;
+    margin-top: 1.5rem;
 }
 
 @media (max-width: 479px) {
-    .site-hero__actions .site-btn {
-        flex: 1 1 100%;
+    .site-hero__actions .site-btn:not(.site-btn--icon) {
+        flex: 1 1 0;
         justify-content: center;
     }
 }
@@ -162,7 +168,7 @@ a:hover > .site-link-arrow svg,
     width: 100%;
     max-width: 24rem;
     margin-inline: auto;
-    padding-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
 }
 
 @media (min-width: 640px) {
@@ -174,7 +180,7 @@ a:hover > .site-link-arrow svg,
 @media (min-width: 1024px) {
     .site-hero__stage {
         max-width: none;
-        padding-bottom: 3rem;
+        padding-bottom: 2rem;
     }
 }
 
@@ -190,80 +196,77 @@ a:hover > .site-link-arrow svg,
     left: 0;
 }
 
-.site-marquee__item {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    white-space: nowrap;
-    font-family: var(--font-serif);
-    font-size: 1.7rem;
-    letter-spacing: -0.005em;
+/* ── Precios de la portada: las dos formas de tenerla y, en pantallas anchas, una foto ──
+   Foto real de una pareja con su invitación; encima, la confirmación que llega por WhatsApp. */
+
+.site-pricing {
+    display: grid;
+    padding: 2.25rem max(1.25rem, calc((100% - 80rem) / 2 + 1.25rem));
+    border-top: 1px solid var(--site-line);
+    background: var(--site-surface);
 }
 
-.site-marquee__item svg {
-    width: 1.5rem;
-    height: 1.5rem;
+@media (min-width: 1024px) {
+    .site-pricing {
+        grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+        gap: 4rem;
+        align-items: center;
+        padding: 4rem max(2rem, calc((100% - 80rem) / 2 + 2rem));
+    }
+}
+
+.site-pricing__photo {
+    display: none;
+}
+
+@media (min-width: 1024px) {
+    .site-pricing__photo {
+        display: block;
+    }
+}
+
+.site-pricing__body {
+    min-width: 0;
+}
+
+.site-pricing__body > .site-plans {
+    margin-top: 1.25rem;
+}
+
+/* Bajo los precios: lo de temporada, lo a medida y el enlace a todos los precios */
+.site-pricing__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.25rem 1.5rem;
+    margin-top: 0.75rem;
+}
+
+.site-pricing__season {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    font-weight: 500;
+}
+
+.site-pricing__season svg {
+    width: 1.3rem;
+    height: 1.3rem;
     color: var(--site-accent);
 }
 
-@media (min-width: 1024px) {
-    .site-marquee__item {
-        font-size: 2.1rem;
-    }
+.site-custom {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
-/* ── Lo que ofrecemos: la pieza principal dibujada y dos maneras más debajo ── */
-
-.site-offer {
-    max-width: 80rem;
-    margin-inline: auto;
-    padding: 3.25rem 1.25rem;
+.site-custom > span {
+    margin-right: 0.25rem;
 }
 
-@media (min-width: 1024px) {
-    .site-offer {
-        padding: 7rem 2rem;
-    }
-}
-
-.site-offer__intro {
-    max-width: 44rem;
-}
-
-.site-offer__grid {
-    display: grid;
-    gap: 2.5rem;
-    margin-top: 3rem;
-}
-
-.site-offer__main,
-.site-offer__row {
-    display: block;
-    color: inherit;
-    text-decoration: none;
-}
-
-/* Pieza principal: la composición y el texto; en pantallas anchas, uno al lado del otro */
-@media (min-width: 900px) {
-    .site-offer__main {
-        display: grid;
-        grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
-        gap: 4rem;
-        align-items: center;
-    }
-}
-
-.site-offer__body {
-    padding-top: 1.75rem;
-}
-
-@media (min-width: 900px) {
-    .site-offer__body {
-        padding-top: 0;
-    }
-}
-
-/* Foto real de la pareja con su invitación; encima, la confirmación que llega por WhatsApp */
 .site-offer__visual {
     position: relative;
     margin: 0;
@@ -278,19 +281,8 @@ a:hover > .site-link-arrow svg,
     width: 100%;
     height: 100%;
     object-fit: cover;
-    /* Las caras quedan arriba del centro: al recortar en el celular no se pierden */
+    /* Las caras quedan arriba del centro: al recortar no se pierden */
     object-position: 50% 30%;
-    transition: scale 1.2s var(--site-ease);
-}
-
-.site-offer__main:hover .site-offer__visual img {
-    scale: 1.03;
-}
-
-@media (min-width: 900px) {
-    .site-offer__visual {
-        aspect-ratio: 5 / 4;
-    }
 }
 
 .site-offer__bubble {
@@ -331,105 +323,37 @@ a:hover > .site-link-arrow svg,
     50% { translate: 0 -6px; }
 }
 
-@media (max-width: 479px) {
-    .site-offer__bubble {
-        max-width: 10.5rem;
-        font-size: 0.68rem;
-    }
-}
-
 @media (prefers-reduced-motion: reduce) {
     .site-offer__bubble {
         animation: none;
     }
+}
 
-    .site-offer__visual img {
-        transition: none;
+/* El aspecto de la foto de precios, después del de base para ganarle */
+@media (min-width: 1024px) {
+    .site-pricing .site-pricing__photo {
+        aspect-ratio: 4 / 5;
     }
-}
-
-/* Las otras maneras, debajo y en una columna cada una en pantallas anchas (--offer-cols, de la portada) */
-@media (min-width: 900px) {
-    .site-offer__side {
-        grid-template-columns: repeat(var(--offer-cols, 2), minmax(0, 1fr));
-        column-gap: clamp(2rem, 4vw, 4rem);
-    }
-}
-
-.site-offer__name {
-    margin-top: 0.6rem;
-    font-family: var(--font-serif);
-    font-size: clamp(2rem, 6vw, 2.8rem);
-    font-weight: 400;
-    line-height: 1.05;
-}
-
-.site-offer__name--sm {
-    font-size: clamp(1.7rem, 5vw, 2.2rem);
-}
-
-.site-offer__text {
-    max-width: 48ch;
-    margin-top: 0.75rem;
-    line-height: 1.65;
-    color: var(--site-muted);
-}
-
-.site-offer__meta {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem 1.5rem;
-    margin-top: 1.25rem;
-    color: var(--site-muted);
-}
-
-.site-offer__meta b {
-    color: var(--site-ink);
-    font-weight: 600;
-}
-
-.site-offer__side {
-    display: grid;
-    border-top: 1px solid var(--site-line);
-}
-
-.site-offer__row {
-    padding: 2rem 0;
-    border-bottom: 1px solid var(--site-line);
-    transition: padding-left 0.4s var(--site-ease);
-}
-
-.site-offer__row:hover {
-    padding-left: 0.5rem;
-}
-
-.site-offer__main:focus-visible,
-.site-offer__row:focus-visible {
-    outline: 2px solid var(--site-accent);
-    outline-offset: 6px;
-    border-radius: 12px;
 }
 
 /* ── Probar como invitado ───────────────────────────────────────────────── */
 
 .site-tester {
-    padding: 3rem 0;
+    padding: 2.25rem 0;
     border-top: 1px solid var(--site-line);
     background: var(--site-surface);
 }
 
 @media (min-width: 1024px) {
     .site-tester {
-        padding: 5.5rem 0;
+        padding: 4rem 0;
     }
 }
 
 /* Una columna: el título, las fichas de cada evento y, debajo, sus diseños como capturas en fila */
 .site-tester__layout {
     display: grid;
-    gap: 1.75rem;
+    gap: 1.25rem;
     max-width: 80rem;
     margin-inline: auto;
     padding-inline: 1.25rem;
@@ -437,7 +361,7 @@ a:hover > .site-link-arrow svg,
 
 @media (min-width: 1024px) {
     .site-tester__layout {
-        gap: 2.25rem;
+        gap: 1.75rem;
         padding-inline: 2rem;
     }
 }
@@ -590,100 +514,94 @@ a:hover > .site-link-arrow svg,
     height: 1.05rem;
 }
 
-/* ── Qué incluye ────────────────────────────────────────────────────────── */
+/* ── Así funciona y qué puede incluir ────────────────────────────────────────
+   Los cuatro pasos (con su línea que se dibuja) y, al lado, lo que se puede encender: sin acordeones, una
+   lista corta con un ícono suelto por renglón. */
 
-.site-include {
+.site-how {
     display: grid;
-    gap: 3rem;
-    max-width: 80rem;
-    margin-inline: auto;
-    padding: 3.25rem 1.25rem;
+    gap: 2rem;
+    padding: 2.25rem max(1.25rem, calc((100% - 80rem) / 2 + 1.25rem));
     border-top: 1px solid var(--site-line);
 }
 
 @media (min-width: 1024px) {
-    .site-include {
-        grid-template-columns: 5fr 6fr;
-        gap: 5rem;
-        padding: 7rem 2rem;
+    .site-how {
+        grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+        gap: 4rem;
+        padding: 4rem max(2rem, calc((100% - 80rem) / 2 + 2rem));
     }
 }
 
-.site-include__list {
+.site-how .site-steps {
     display: grid;
-    gap: 2.75rem;
+    gap: 1.25rem;
+    margin-top: 1.5rem;
 }
 
-.site-include__moment ul {
-    margin-top: 0.9rem;
-    border-top: 1px solid var(--site-line);
-}
-
-/* Cada momento (Antes, En la puerta, Durante y después) es un acordeón en el celular */
-.site-include__summary {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+.site-step {
+    display: grid;
+    grid-template-columns: 2.5rem minmax(0, 1fr);
     gap: 1rem;
-    min-height: 2.75rem;
-    cursor: pointer;
-    list-style: none;
+    align-items: center;
 }
 
-.site-include__summary::-webkit-details-marker {
-    display: none;
+.site-step__title {
+    font-size: 1.1rem;
+    font-weight: 500;
 }
 
-.site-include__caret {
-    flex-shrink: 0;
-    width: 1.1rem;
-    height: 1.1rem;
-    color: var(--site-accent);
-    transition: rotate 0.3s var(--site-ease);
+.site-step__text {
+    margin-top: 0.15rem;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: var(--site-muted);
 }
 
-.site-include__moment[open] > .site-include__summary .site-include__caret {
-    rotate: 180deg;
+.site-how .site-include {
+    display: grid;
+    margin-top: 1.25rem;
+    border-top: 1px solid var(--site-line);
 }
 
-/* En pantallas anchas todo va abierto: el título no se toca ni lleva flecha */
 @media (min-width: 1024px) {
-    .site-include__summary {
-        pointer-events: none;
-        cursor: default;
+    .site-how .site-include {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        column-gap: 2.5rem;
     }
 
-    .site-include__caret {
-        display: none;
+    /* Con un número impar, el último ocupa todo el ancho en vez de dejar un hueco */
+    .site-how .site-include__item:last-child:nth-child(odd) {
+        grid-column: 1 / -1;
     }
 }
 
 .site-include__item {
     display: grid;
-    grid-template-columns: 2rem 1fr;
-    gap: 1rem;
-    padding: 1.25rem 0;
+    grid-template-columns: 1.75rem minmax(0, 1fr);
+    gap: 0.85rem;
+    padding: 0.85rem 0;
     border-bottom: 1px solid var(--site-line);
 }
 
 .site-include__icon {
-    width: 1.6rem;
-    height: 1.6rem;
+    width: 1.5rem;
+    height: 1.5rem;
     margin-top: 0.1rem;
     color: var(--site-accent);
 }
 
 .site-include__title {
-    font-size: 1.12rem;
+    font-size: 1.02rem;
     font-weight: 500;
 }
 
 .site-include__text {
-    margin-top: 0.35rem;
-    line-height: 1.6;
+    margin-top: 0.2rem;
+    font-size: 0.92rem;
+    line-height: 1.5;
     color: var(--site-muted);
 }
-
 /* ── «Únete» ─────────────────────────────────────────────────────────── */
 
 .site-diy-hero {
@@ -1174,17 +1092,17 @@ a:hover > .site-link-arrow svg,
 
 .site-foot__inner {
     display: grid;
-    gap: 3.5rem;
+    gap: 1.75rem;
     max-width: 80rem;
     margin-inline: auto;
-    padding: 4rem 1.25rem 3rem;
+    padding: 2.25rem 1.25rem 1.5rem;
 }
 
 @media (min-width: 1100px) {
     .site-foot__inner {
         grid-template-columns: 1fr 1.05fr;
-        gap: 6rem;
-        padding: 6rem 2rem 4.5rem;
+        gap: 5rem;
+        padding: 3.5rem 2rem 2.5rem;
     }
 }
 
@@ -1192,7 +1110,7 @@ a:hover > .site-link-arrow svg,
     display: grid;
     justify-items: start;
     align-content: start;
-    gap: 1.25rem;
+    gap: 0.9rem;
 }
 
 .site-foot__logo {
@@ -1201,11 +1119,10 @@ a:hover > .site-link-arrow svg,
 
 /* La frase de la marca, en serif, como el resto de los titulares del sitio */
 .site-foot__statement {
-    max-width: 18ch;
-    margin-top: 0.75rem;
+    max-width: 20ch;
     font-family: var(--font-serif);
-    font-size: clamp(2.1rem, 6vw, 3.1rem);
-    line-height: 1.04;
+    font-size: clamp(1.7rem, 5vw, 2.3rem);
+    line-height: 1.06;
     letter-spacing: -0.012em;
     text-wrap: balance;
 }
@@ -1214,72 +1131,40 @@ a:hover > .site-link-arrow svg,
     color: var(--site-accent);
 }
 
-.site-foot__pitch {
-    max-width: 38ch;
-    line-height: 1.6;
-    color: var(--site-muted);
-}
-
-.site-foot__contact {
+/* WhatsApp, correo y redes: una sola fila de círculos con su ícono */
+.site-foot__social {
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
-    gap: 0.75rem 1.5rem;
-    margin-top: 0.5rem;
+    gap: 0.5rem;
 }
 
-.site-foot__mail {
-    font-size: 0.95rem;
-    color: var(--site-muted);
-    text-decoration: underline;
-    text-decoration-color: var(--site-line);
-    text-underline-offset: 4px;
-    transition: color 0.2s ease, text-decoration-color 0.2s ease;
-}
-
-.site-foot__mail:hover {
-    color: var(--site-ink);
-    text-decoration-color: var(--site-accent);
-}
-
+/* Dos columnas de enlaces: las invitaciones por evento y lo demás; lo legal va en la línea de abajo */
 .site-foot__cols {
     display: grid;
-    gap: 2.5rem 2rem;
+    gap: 0.5rem 1.5rem;
     align-content: start;
     grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-@media (min-width: 640px) {
-    .site-foot__cols {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-}
-
-/* Cada columna abre con un filete corto dorado y un título en serif */
-.site-foot__col::before {
-    content: '';
-    display: block;
-    width: 1.75rem;
-    height: 1px;
-    margin-bottom: 1.1rem;
-    background: var(--site-accent);
-}
-
 .site-foot__title {
+    margin-bottom: 0.25rem;
     font-family: var(--font-serif);
-    font-size: 1.4rem;
+    font-size: 1.25rem;
     line-height: 1.1;
+    color: var(--site-accent);
 }
 
 .site-foot__col ul {
     display: grid;
-    gap: 0.7rem;
-    margin-top: 1.1rem;
+    gap: 0;
 }
 
 .site-foot__col a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.25rem;
     color: var(--site-muted);
-    background: linear-gradient(var(--site-accent), var(--site-accent)) 0 100% / 0 1px no-repeat;
+    background: linear-gradient(var(--site-accent), var(--site-accent)) 0 calc(100% - 0.35rem) / 0 1px no-repeat;
     transition: color 0.25s ease, background-size 0.35s var(--site-ease);
 }
 
@@ -1293,10 +1178,10 @@ a:hover > .site-link-arrow svg,
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: 0.5rem 1rem;
+    gap: 0 1rem;
     max-width: 80rem;
     margin-inline: auto;
-    padding: 1rem 1.25rem calc(1rem + env(safe-area-inset-bottom));
+    padding: 0.75rem 1.25rem calc(0.75rem + env(safe-area-inset-bottom));
     border-top: 1px solid var(--site-line);
     font-size: 0.88rem;
     color: var(--site-muted);
@@ -1308,10 +1193,31 @@ a:hover > .site-link-arrow svg,
     }
 }
 
-.site-foot__social {
+/* Privacidad · Cookies · Términos: enlaces chicos en la línea de derechos, cada uno con su área de toque */
+.site-foot__legal {
     display: flex;
-    gap: 0.1rem;
-    margin: 0.25rem 0 0 -0.7rem;
+    flex-wrap: wrap;
+    gap: 0 1rem;
+    margin-right: auto;
+}
+
+.site-foot__legal a,
+.site-foot__bar > p {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.25rem;
+}
+
+/* En el celular los derechos ocupan su renglón; lo legal y el idioma comparten el de abajo */
+@media (max-width: 639px) {
+    .site-foot__bar > p {
+        flex: 1 1 100%;
+        min-height: 2rem;
+    }
+}
+
+.site-foot__legal a:hover {
+    color: var(--site-ink);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1319,7 +1225,6 @@ a:hover > .site-link-arrow svg,
         transition: color 0.25s ease;
     }
 }
-
 /* ── Botón de temporadas: un botoncito redondo, sin texto ───────────────────
    El ícono de la temporada con su color; con varias temporadas, sus íconos se
    turnan. Un punto dorado late en la esquina para avisar que hay algo por

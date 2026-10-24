@@ -24,25 +24,23 @@ class HomePageTest extends TestCase
         $response->assertOk()
             ->assertSee('Arma tu invitación digital para bodas, XV años, bautizos, cumpleaños y graduaciones')
             // El modelo principal va primero: armarla gratis; la cabecera lleva a crear la cuenta y de ahí al editor
-            ->assertSee('La armas tú, gratis')
             ->assertSee('Crear mi invitación')
             ->assertSee(route('register', ['crear' => 1]), false)
-            // Servicios: primero «Hazlo tú» (gratis), luego los planes y lo de temporada, cada uno con su
-            // precio de hoy (en dólares)
-            ->assertSee('id="servicios"', false)
-            ->assertSeeInOrder(['Hazlo tú', 'Gratis', 'Planes para profesionales', 'Desde', 'US$ 10', 'al mes', 'Diseños de temporada'])
+            // Cómo funciona y qué incluye van antes de los precios (que ya no repiten los servicios en otra sección);
+            // en los precios, «Hazlo tú» (gratis) y los planes con su precio de hoy (en dólares)
+            ->assertDontSee('id="servicios"', false)
+            ->assertSeeInOrder(['id="incluye"', 'Pase QR en la puerta', 'Fotomural en vivo', 'id="precios"', 'Hazlo tú', 'Gratis', 'Planes', 'site-plan__price"', '10', 'USD al mes', 'Diseños de temporada'], false)
             ->assertSee(route('diy'), false)
-            // Los recuerdos en vivo van dentro de lo que incluye la invitación, y ya no hay sección de contacto
-            ->assertSeeInOrder(['id="incluye"', 'Pase QR y control de entrada', 'Fotomural en vivo', 'id="precios"'], false)
             ->assertDontSee('¿Ya tienes fecha')
             ->assertSee('https://wa.me/59171234567?text=', false)
             ->assertSee(route('login'), false)
             ->assertSee('Ingresar')
             ->assertSee('https://www.facebook.com/bidaeventsbo', false);
 
-        // Lo a medida se avisa sin precios, con WhatsApp y correo
+        // Lo a medida se avisa sin precios, con dos botones de ícono: WhatsApp y correo (su nombre va en el aria-label)
         $response->assertSee('id="precios"', false)
             ->assertSee('¿Quieres algo a medida?')
+            ->assertSee('aria-label="Escribir por WhatsApp"', false)
             ->assertSee('mailto:'.config('bida.email'), false);
     }
 
@@ -66,7 +64,7 @@ class HomePageTest extends TestCase
         $this->withoutVite()->get(route('pricing'))
             ->assertSee('id="a-medida"', false)
             ->assertSee('¿Quieres algo a medida?')
-            ->assertSee('Escríbenos por WhatsApp o al correo y lo conversamos.');
+            ->assertSee('aria-label="Escribir por WhatsApp"', false);
     }
 
     public function test_the_home_sums_up_the_prices_and_the_pricing_page_has_them_all(): void
@@ -187,14 +185,11 @@ class HomePageTest extends TestCase
             ->assertSee('id="temporada-halloween"', false);
     }
 
-    public function test_home_lists_every_configured_event_type_and_the_brand_logo(): void
+    public function test_home_has_the_brand_logo_and_no_event_marquee(): void
     {
-        config(['bida.event_types' => ['Bodas' => 'heart', 'Aniversarios' => 'champagne']]);
-
         $this->get(route('home'))
             ->assertOk()
-            ->assertSee('Bodas')
-            ->assertSee('Aniversarios')
+            ->assertDontSee('site-marquee', false)
             ->assertSee('brand-mark', false)
             ->assertSee('favicon.svg', false)
             ->assertSee('onclick="toggleTheme()"', false);
