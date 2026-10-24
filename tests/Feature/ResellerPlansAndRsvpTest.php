@@ -90,7 +90,7 @@ class ResellerPlansAndRsvpTest extends TestCase
     {
         $reseller = User::factory()->reseller()->create(['password' => Hash::make('clave-que-le-dimos')]);
 
-        $this->actingAs($reseller)->withoutVite()->get(route('client.account'))->assertOk()->assertSee('Cambiar contraseña');
+        $this->actingAs($reseller)->withoutVite()->get(route('client.account'))->assertOk()->assertSee('Cambiar la contraseña');
 
         $this->actingAs($reseller)
             ->put(route('client.account.password'), ['current_password' => 'otra-cosa', 'password' => 'mi-clave-nueva-1', 'password_confirmation' => 'mi-clave-nueva-1'])

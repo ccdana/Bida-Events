@@ -8,7 +8,7 @@
     al llegar, se recarga con la invitación publicada.
 --}}
 @section('content')
-    <div class="grid max-w-2xl gap-6"
+    <div class="grid max-w-xl gap-5"
         x-data="{
             status: @js($order->status),
             tries: 0,
@@ -28,7 +28,8 @@
         @if($order->isPaid())
             <header class="site-enter">
                 <p class="text-sm text-site-muted">{{ $invitation?->title }}</p>
-                <h1 class="mt-1 text-3xl font-semibold tracking-tight md:text-4xl">Listo: tu invitación está publicada con el nivel {{ $tierName }}</h1>
+                <x-phosphor-check-circle-light class="size-9 text-site-accent" aria-hidden="true" />
+                <h1 class="site-display site-display--md mt-2">Listo: tu invitación está publicada con el nivel {{ $tierName }}</h1>
                 <p class="mt-2 text-site-muted">
                     Copia el enlace y compártelo con tus invitados.
                     @if($order->provider === 'lemonsqueezy' && $order->user?->email)
@@ -49,16 +50,13 @@
         @elseif($order->isPending() && ! empty($order->meta['qr_image']))
             {{-- QR de Bolivia: se escanea desde la app de cualquier banco; Tigo Money y tarjeta, en la página de la pasarela --}}
             <header class="site-enter">
-                <h1 class="text-3xl font-semibold tracking-tight md:text-4xl">Escanea el QR para pagar</h1>
-                <p class="mt-2 text-site-muted">
-                    Abre la app de tu banco, elige pagar con QR y escanéalo (o guarda la imagen y súbela desde la app).
-                    Tu invitación se publica sola cuando se confirma el pago.
-                </p>
+                <h1 class="site-display site-display--md">Escanea el QR para pagar</h1>
+                <p class="mt-2 text-site-muted">Con la app de tu banco. Tu invitación se publica sola al confirmarse el pago.</p>
             </header>
 
-            <section class="site-enter admin-card flex flex-col gap-6 sm:flex-row sm:items-center" style="--enter-index: 1" aria-label="QR de pago">
+            <section class="site-enter flex flex-col gap-5 border-y border-site-line py-5 sm:flex-row sm:items-center" style="--enter-index: 1" aria-label="QR de pago">
                 <img src="{{ $order->meta['qr_image'] }}" alt="QR para pagar {{ \App\Support\Money::format($order->amount, $order->currency) }}"
-                    width="220" height="220" class="size-[220px] shrink-0 rounded-[12px] bg-white p-2">
+                    width="200" height="200" class="size-[200px] shrink-0 rounded-[12px] bg-white p-2">
                 <div class="grid gap-2">
                     <p class="text-3xl font-semibold tracking-tight tabular-nums">{{ \App\Support\Money::format($order->amount, $order->currency) }}</p>
                     <p class="text-site-muted">
@@ -67,9 +65,12 @@
                             · vale hasta el {{ $order->expires_at->timezone(config('app.timezone'))->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('j \d\e F')) }}
                         @endif
                     </p>
-                    <p class="text-sm text-site-muted">Código de tu compra: <span class="font-mono font-medium text-site-ink">{{ $order->reference_code }}</span></p>
+                    <p class="flex items-center gap-1.5 text-sm text-site-muted" title="El código de tu compra">
+                        <x-phosphor-hash-light class="size-4 text-site-accent" aria-hidden="true" />
+                        <span class="font-mono font-medium text-site-ink">{{ $order->reference_code }}</span>
+                    </p>
                     @if(! empty($order->meta['payment_page_url']))
-                        <a href="{{ $order->meta['payment_page_url'] }}" class="mt-2 text-sm font-medium underline underline-offset-4">Pagar con Tigo Money o tarjeta</a>
+                        <a href="{{ $order->meta['payment_page_url'] }}" class="site-help"><x-phosphor-arrow-up-right-light aria-hidden="true" /> Tigo Money o tarjeta</a>
                     @endif
                 </div>
             </section>
@@ -83,7 +84,8 @@
             </p>
         @elseif($order->isPending())
             <header class="site-enter">
-                <h1 class="text-3xl font-semibold tracking-tight md:text-4xl">Estamos confirmando tu pago</h1>
+                <x-phosphor-hourglass-medium-light class="size-9 text-site-accent" aria-hidden="true" />
+                <h1 class="site-display site-display--md mt-2">Estamos confirmando tu pago</h1>
                 <p class="mt-2 text-site-muted" x-show="tries < 60">
                     Suele tardar unos segundos. Puedes cerrar esta página: tu invitación se publica igual en cuanto llegue la confirmación.
                 </p>
@@ -97,7 +99,8 @@
             </p>
         @else
             <header class="site-enter">
-                <h1 class="text-3xl font-semibold tracking-tight md:text-4xl">El pago no se completó</h1>
+                <x-phosphor-warning-circle-light class="size-9 text-site-accent" aria-hidden="true" />
+                <h1 class="site-display site-display--md mt-2">El pago no se completó</h1>
                 <p class="mt-2 text-site-muted">
                     {{ match ($order->status) {
                         \App\Models\PaymentOrder::REFUNDED => 'Este pago se devolvió.',
@@ -108,7 +111,7 @@
             </header>
             @if($invitation)
                 <div class="site-enter" style="--enter-index: 1">
-                    <a href="{{ route('client.diy.publish', $invitation) }}" class="admin-primary-button min-h-11">Intentar de nuevo</a>
+                    <a href="{{ route('client.diy.publish', $invitation) }}" class="site-btn site-btn--lg"><x-phosphor-arrow-clockwise-light aria-hidden="true" /> Intentar de nuevo</a>
                 </div>
             @endif
         @endif

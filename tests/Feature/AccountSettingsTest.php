@@ -57,8 +57,8 @@ class AccountSettingsTest extends TestCase
 
         $this->actingAs($client)->withoutVite()->get(route('client.account'))
             ->assertOk()
-            ->assertSee('entras con Google')
-            ->assertSee('Envíame un enlace para crearla');
+            ->assertSee('Entras con Google')
+            ->assertSee('Crear una contraseña propia');
 
         $this->actingAs($client)->from(route('client.account'))
             ->post(route('client.account.password-link'))

@@ -238,7 +238,6 @@
             @else
                 @if($reseller)
                     {{-- Con plan: lo que sigue es crear la primera invitación --}}
-                    <x-site.journey :current="4" class="mb-8 w-full max-w-md text-left" />
                     <h2 class="text-lg font-medium">Crea tu primera invitación</h2>
                     <p class="mt-1 max-w-[40ch] text-site-muted">Elige una plantilla, sube tus fotos y publícala. Aparecerá aquí con sus confirmaciones.</p>
                     @if($reseller['canCreate'])

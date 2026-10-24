@@ -1417,6 +1417,236 @@ a:hover > .site-link-arrow svg,
     height: 1.35rem;
 }
 
+/* ── Filas (Mi cuenta, Mi suscripción) ───────────────────────────────────────
+   Una lista de renglones con filete: un ícono suelto, la etiqueta chica y el dato. Los que se pueden cambiar son un
+   <details>: «Cambiar» despliega solo su formulario. */
+
+.site-rows {
+    border-top: 1px solid var(--site-line);
+}
+
+.site-row {
+    border-bottom: 1px solid var(--site-line);
+}
+
+.site-row__summary {
+    display: grid;
+    grid-template-columns: 1.5rem minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.9rem;
+    min-height: 3.5rem;
+    padding-block: 0.6rem;
+    list-style: none;
+}
+
+summary.site-row__summary {
+    cursor: pointer;
+}
+
+.site-row__summary::-webkit-details-marker {
+    display: none;
+}
+
+.site-row__icon {
+    width: 1.4rem;
+    height: 1.4rem;
+    color: var(--site-accent);
+}
+
+.site-row__main {
+    display: grid;
+    min-width: 0;
+}
+
+.site-row__label {
+    font-size: 0.8rem;
+    color: var(--site-muted);
+}
+
+.site-row__value {
+    font-weight: 500;
+    overflow-wrap: anywhere;
+}
+
+.site-row__sub {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 0.1rem;
+    font-size: 0.85rem;
+    font-weight: 400;
+    color: var(--site-muted);
+}
+
+.site-row__sub svg {
+    width: 1rem;
+    height: 1rem;
+    color: var(--site-accent);
+}
+
+/* El estado del correo y cómo entra, como íconos al lado del dato */
+.site-row__state {
+    display: inline-block;
+    width: 1.1rem;
+    height: 1.1rem;
+    margin-left: 0.3rem;
+    vertical-align: -0.2em;
+    color: var(--site-muted);
+}
+
+.site-row__state.is-ok {
+    color: var(--site-accent);
+}
+
+.site-row__state.is-warn {
+    color: var(--site-danger);
+}
+
+.site-row__change {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 2.25rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--site-ink);
+}
+
+.site-row__change svg {
+    width: 1.1rem;
+    height: 1.1rem;
+    color: var(--site-accent);
+}
+
+summary.site-row__summary:hover .site-row__change,
+a.site-row__change:hover {
+    color: var(--site-accent);
+}
+
+/* Abierta, la fila muestra la ✕ en vez del lápiz (y la flecha hacia arriba en vez de hacia abajo) */
+.site-row__close {
+    display: none;
+}
+
+.site-row[open] .site-row__open {
+    display: none;
+}
+
+.site-row[open] .site-row__close {
+    display: block;
+}
+
+.site-row__body {
+    padding: 0.25rem 0 1.25rem 2.4rem;
+}
+
+@media (max-width: 479px) {
+    .site-row__body {
+        padding-left: 0;
+    }
+}
+
+/* ── Elegir (Mi plan): opciones como filas con filete y un punto dorado en la elegida ─────────── */
+
+.site-legend {
+    margin-bottom: 0.4rem;
+    font-family: var(--font-serif);
+    font-size: 1.4rem;
+    line-height: 1.15;
+}
+
+.site-choices {
+    border-top: 1px solid var(--site-line);
+}
+
+.site-choice {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1.1rem minmax(0, 1fr);
+    gap: 0.9rem;
+    padding-block: 0.9rem;
+    border-bottom: 1px solid var(--site-line);
+    cursor: pointer;
+}
+
+.site-choice__dot {
+    width: 1rem;
+    height: 1rem;
+    margin-top: 0.25rem;
+    border: 1px solid color-mix(in srgb, var(--site-ink) 35%, var(--site-line));
+    border-radius: 50%;
+    transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.site-choice:has(input:checked) .site-choice__dot {
+    border-color: var(--site-accent);
+    background: var(--site-accent);
+    box-shadow: inset 0 0 0 3px var(--site-bg);
+}
+
+.site-choice:has(input:focus-visible) .site-choice__dot {
+    outline: 2px solid var(--site-accent);
+    outline-offset: 3px;
+}
+
+.site-choice__body {
+    display: grid;
+    gap: 0.15rem;
+    min-width: 0;
+}
+
+.site-choice__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0 1rem;
+}
+
+.site-choice__name {
+    font-weight: 600;
+}
+
+.site-choice__note {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0 0.75rem;
+    font-size: 0.9rem;
+    line-height: 1.45;
+    color: var(--site-muted);
+}
+
+.site-choice__tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: var(--site-accent);
+}
+
+.site-choice__tag svg {
+    width: 1rem;
+    height: 1rem;
+}
+
+.site-choice:hover .site-choice__name {
+    color: var(--site-accent);
+}
+
+/* El total: la palabra, el monto en grande y cómo se cobra */
+.site-total {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.25rem 0.75rem;
+}
+
+.site-total__amount {
+    font-size: 1.8rem;
+    font-weight: 600;
+    line-height: 1;
+}
+
 /* ── Planes mensuales: tres columnas por fila, como los paquetes ─────────── */
 
 @media (min-width: 1024px) {

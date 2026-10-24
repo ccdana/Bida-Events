@@ -2,202 +2,289 @@
 
 @section('title', 'Mi cuenta')
 
-{{-- La cuenta del cliente o del revendedor: sus datos de acceso, el correo y la contraseña --}}
+{{--
+    La cuenta del cliente o del revendedor: una lista corta de sus datos. Lo que se puede cambiar (el correo y la
+    contraseña) tiene su fila con «Cambiar», que despliega solo ese formulario; si el envío falló, la fila vuelve
+    abierta con su error. Campos de una línea, íconos en vez de frases. Estilos: home.css («Filas»).
+--}}
 @section('content')
     @php($emailVerified = filled($user->email) && $user->hasVerifiedEmail())
+    @php($openEmail = $errors->has('email') || $errors->has('email_current_password'))
+    @php($openPassword = $errors->has('current_password') || $errors->has('password') || $errors->has('password_link'))
 
-    <div class="grid max-w-2xl gap-8">
+    <div class="grid max-w-xl gap-5">
         <header class="site-enter">
-            <h1 class="text-3xl font-semibold tracking-tight md:text-4xl">Mi cuenta</h1>
-            <p class="mt-2 text-site-muted">Tus datos para entrar al panel. Con tu correo confirmado puedes recuperar la contraseña sin pedírnosla.</p>
+            <h1 class="site-display site-display--md">Mi cuenta</h1>
         </header>
 
         @if(session('success'))
-            <p class="site-enter flex items-center gap-2 rounded-[12px] border border-site-line bg-site-surface px-4 py-3 text-sm" role="status">
-                <x-phosphor-check-circle class="size-5 shrink-0 text-site-accent" aria-hidden="true" />
+            <p class="site-enter flex items-start gap-2 border-l-2 border-site-accent py-1 pl-3 text-sm" role="status">
+                <x-phosphor-check-circle-light class="mt-0.5 size-4 shrink-0 text-site-accent" aria-hidden="true" />
                 {{ session('success') }}
             </p>
         @endif
 
-        <section class="site-enter admin-card" style="--enter-index: 1">
-            <dl class="grid gap-4 sm:grid-cols-2">
-                <div>
-                    <dt class="text-sm text-site-muted">Nombre</dt>
-                    <dd class="mt-0.5 font-medium">{{ $user->name }}</dd>
+        <div class="site-rows site-enter" style="--enter-index: 1">
+            {{-- Quién eres: nombre, usuario y, si tiene, el nombre comercial --}}
+            <div class="site-row">
+                <div class="site-row__summary">
+                    <x-phosphor-user-light class="site-row__icon" aria-hidden="true" />
+                    <span class="site-row__main">
+                        <span class="site-row__label">Nombre</span>
+                        <span class="site-row__value">{{ $user->name }}</span>
+                    </span>
                 </div>
-                <div>
-                    <dt class="text-sm text-site-muted">Usuario</dt>
-                    <dd class="mt-0.5 font-mono font-medium">{{ $user->username }}</dd>
+            </div>
+            <div class="site-row">
+                <div class="site-row__summary">
+                    <x-phosphor-at-light class="site-row__icon" aria-hidden="true" />
+                    <span class="site-row__main">
+                        <span class="site-row__label">Usuario</span>
+                        <span class="site-row__value font-mono">{{ $user->username }}</span>
+                    </span>
                 </div>
-                <div>
-                    <dt class="text-sm text-site-muted">Correo</dt>
-                    <dd class="mt-0.5 font-medium">
-                        @if(filled($user->email))
-                            <span class="break-all">{{ $user->email }}</span>
-                            <span class="block text-sm font-normal text-site-muted">{{ $emailVerified ? 'Confirmado' : 'Sin confirmar' }}{{ $user->google_id ? ' · entras con Google' : '' }}</span>
-                        @else
-                            <span class="text-site-muted">Sin correo</span>
-                        @endif
-                    </dd>
-                </div>
-                @if($user->business_name)
-                    <div>
-                        <dt class="text-sm text-site-muted">Nombre comercial</dt>
-                        <dd class="mt-0.5 font-medium">{{ $user->business_name }}</dd>
+            </div>
+            @if($user->business_name)
+                <div class="site-row">
+                    <div class="site-row__summary">
+                        <x-phosphor-storefront-light class="site-row__icon" aria-hidden="true" />
+                        <span class="site-row__main">
+                            <span class="site-row__label">Nombre comercial</span>
+                            <span class="site-row__value">{{ $user->business_name }}</span>
+                        </span>
                     </div>
-                @endif
-                @if($user->isReseller())
-                    <div>
-                        <dt class="text-sm text-site-muted">Plan</dt>
-                        <dd class="mt-0.5 font-medium">{{ $user->planConfig()['name'] ?? 'Sin plan' }}</dd>
-                    </div>
-                @endif
-            </dl>
-        </section>
-
-        {{-- Plan y pagos: para revendedores, o para quien puede empezar uno pagando en línea --}}
-        @if($user->isReseller() || $payOnline)
-            <section class="site-enter admin-card" style="--enter-index: 2" aria-labelledby="plan-pagos">
-                <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
-                    <h2 id="plan-pagos" class="text-lg font-semibold tracking-tight">Plan y pagos</h2>
-                    @if($payOnline)
-                        <a href="{{ route('client.subscription') }}" class="text-sm font-medium underline underline-offset-4">
-                            {{ $user->renewsAutomatically() ? 'Administrar mi suscripción' : ($user->isReseller() ? 'Renovar o cambiar de plan' : 'Elegir un plan') }}
-                        </a>
-                    @endif
                 </div>
+            @endif
 
-                @if($user->isReseller())
-                    <p class="mt-1 text-sm text-site-muted">
-                        Plan {{ $user->planConfig()['name'] ?? 'sin elegir' }}
-                        @if($user->subscription_renews_at)
-                            · {{ $user->renewsAutomatically() ? 'se renueva solo con tarjeta el' : ($user->hasActiveSubscription() ? 'pagado hasta el' : 'venció el') }}
-                            {{ $user->subscription_renews_at->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('j \d\e F \d\e Y')) }}
-                        @endif
-                    </p>
-                @else
-                    <p class="mt-1 text-sm text-site-muted">Con un plan armas tus propias invitaciones con nuestras plantillas.</p>
-                @endif
+            {{-- Correo: confirmado o no, con un ícono; «Cambiar» abre su formulario --}}
+            <details class="site-row" @if($openEmail) open @endif>
+                <summary class="site-row__summary">
+                    <x-phosphor-envelope-simple-light class="site-row__icon" aria-hidden="true" />
+                    <span class="site-row__main">
+                        <span class="site-row__label">Correo</span>
+                        <span class="site-row__value">
+                            @if(filled($user->email))
+                                <span class="break-all">{{ $user->email }}</span>
+                                @if($emailVerified)
+                                    <x-phosphor-check-circle-light class="site-row__state is-ok" aria-hidden="true" />
+                                    <span class="sr-only">Confirmado</span>
+                                @else
+                                    <x-phosphor-warning-circle-light class="site-row__state is-warn" aria-hidden="true" />
+                                    <span class="sr-only">Sin confirmar</span>
+                                @endif
+                                @if($user->google_id)
+                                    <x-phosphor-google-logo-light class="site-row__state" aria-hidden="true" />
+                                    <span class="sr-only">Entras con Google</span>
+                                @endif
+                            @else
+                                <span class="text-site-muted">Sin correo</span>
+                            @endif
+                        </span>
+                    </span>
+                    <span class="site-row__change" title="{{ filled($user->email) ? 'Cambiar el correo' : 'Agregar un correo' }}">
+                        <x-phosphor-pencil-simple-light class="site-row__open" aria-hidden="true" />
+                        <x-phosphor-x-light class="site-row__close" aria-hidden="true" />
+                        <span>{{ filled($user->email) ? 'Cambiar' : 'Agregar' }}</span>
+                    </span>
+                </summary>
 
-                @if($payments->isNotEmpty())
-                    <table class="mt-5 w-full text-sm">
-                        <caption class="sr-only">Últimos pagos</caption>
-                        <thead class="text-left text-site-muted">
-                            <tr>
-                                <th scope="col" class="pb-2 font-normal">Fecha</th>
-                                <th scope="col" class="pb-2 font-normal">Plan</th>
-                                <th scope="col" class="pb-2 text-right font-normal">Monto</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-site-line">
-                            @foreach($payments as $payment)
-                                <tr>
-                                    <td class="py-2 tabular-nums">{{ $payment->paid_at->format('d/m/Y') }}</td>
-                                    <td class="py-2">
-                                        {{ config("bida.reseller_plans.{$payment->plan}.name", $payment->plan) }}
-                                        <span class="text-site-muted">· {{ $payment->providerLabel() }}</span>
-                                    </td>
-                                    <td class="py-2 text-right tabular-nums">{{ \App\Support\Money::format($payment->amount, $payment->currency) }}</td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                @endif
-            </section>
-        @endif
+                <form method="POST" action="{{ route('client.account.email') }}" class="site-row__body grid gap-4">
+                    @csrf
+                    @method('PUT')
 
-        <section class="site-enter admin-card" style="--enter-index: 2" aria-labelledby="cambiar-correo">
-            <h2 id="cambiar-correo" class="text-lg font-semibold tracking-tight">{{ filled($user->email) ? 'Cambiar el correo' : 'Agregar un correo' }}</h2>
-            <p class="mt-1 text-sm text-site-muted">Te enviamos un enlace para confirmarlo. Ahí te llegarán también los avisos de tu cuenta.</p>
-
-            <form method="POST" action="{{ route('client.account.email') }}" class="mt-5 grid gap-4 sm:grid-cols-2">
-                @csrf
-                @method('PUT')
-
-                <div>
-                    <label for="email" class="admin-label">Correo</label>
-                    <input id="email" name="email" type="email" required maxlength="255" value="{{ old('email', $user->email) }}"
-                        autocomplete="email" autocapitalize="none" spellcheck="false" class="admin-input" @error('email') aria-invalid="true" @enderror>
-                    @error('email')
-                        <p class="mt-1.5 text-sm text-site-danger">{{ $message }}</p>
-                    @enderror
-                </div>
-                <div>
-                    <label for="email_current_password" class="admin-label">Tu contraseña actual</label>
-                    <input id="email_current_password" name="email_current_password" type="password" required
-                        autocomplete="current-password" class="admin-input" @error('email_current_password') aria-invalid="true" @enderror>
-                    @error('email_current_password')
-                        <p class="mt-1.5 text-sm text-site-danger">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <div class="sm:col-span-2">
-                    <button type="submit" class="admin-primary-button min-h-11">
-                        <x-phosphor-envelope-simple aria-hidden="true" />
-                        Guardar el correo
-                    </button>
-                </div>
-            </form>
-        </section>
-
-        <section class="site-enter admin-card" style="--enter-index: 3" aria-labelledby="cambiar-contrasena">
-            <h2 id="cambiar-contrasena" class="text-lg font-semibold tracking-tight">Cambiar contraseña</h2>
-            <p class="mt-1 text-sm text-site-muted">Al cambiarla se cierra tu sesión en los demás dispositivos donde estabas conectado.</p>
-
-            <form method="POST" action="{{ route('client.account.password') }}" class="mt-5 grid gap-4" x-data="{ show: false }">
-                @csrf
-                @method('PUT')
-
-                <div>
-                    <label for="current_password" class="admin-label">Contraseña actual</label>
-                    <input id="current_password" name="current_password" :type="show ? 'text' : 'password'" type="password" required
-                        autocomplete="current-password" class="admin-input" @error('current_password') aria-invalid="true" @enderror>
-                    @error('current_password')
-                        <p class="mt-1.5 text-sm text-site-danger">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <div class="grid gap-4 sm:grid-cols-2">
-                    <div>
-                        <label for="password" class="admin-label">Contraseña nueva</label>
-                        <input id="password" name="password" :type="show ? 'text' : 'password'" type="password" required minlength="8"
-                            autocomplete="new-password" class="admin-input" aria-describedby="password-help" @error('password') aria-invalid="true" @enderror>
-                        <p id="password-help" class="mt-1.5 text-xs text-site-muted">Al menos 8 caracteres.</p>
-                        @error('password')
-                            <p class="mt-1.5 text-sm text-site-danger">{{ $message }}</p>
+                    <div class="grid gap-1">
+                        <label for="email" class="site-label">Correo nuevo</label>
+                        <div class="site-field">
+                            <x-phosphor-envelope-simple-light class="site-field__icon" aria-hidden="true" />
+                            <input id="email" name="email" type="email" required maxlength="255" value="{{ old('email', $user->email) }}"
+                                autocomplete="email" autocapitalize="none" spellcheck="false" @class(['site-input', 'is-invalid' => $errors->has('email')]) @error('email') aria-invalid="true" @enderror>
+                        </div>
+                        @error('email')
+                            <p class="text-sm text-site-danger">{{ $message }}</p>
                         @enderror
                     </div>
-                    <div>
-                        <label for="password_confirmation" class="admin-label">Repite la nueva</label>
-                        <input id="password_confirmation" name="password_confirmation" :type="show ? 'text' : 'password'" type="password" required
-                            autocomplete="new-password" class="admin-input">
+                    <div class="grid gap-1">
+                        <label for="email_current_password" class="site-label">Tu contraseña</label>
+                        <div class="site-field">
+                            <x-phosphor-lock-key-light class="site-field__icon" aria-hidden="true" />
+                            <input id="email_current_password" name="email_current_password" type="password" required
+                                autocomplete="current-password" @class(['site-input', 'is-invalid' => $errors->has('email_current_password')]) @error('email_current_password') aria-invalid="true" @enderror>
+                        </div>
+                        @error('email_current_password')
+                            <p class="text-sm text-site-danger">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+                        <button type="submit" class="admin-primary-button min-h-11">
+                            <x-phosphor-check-bold aria-hidden="true" />
+                            Guardar
+                        </button>
+                        <span class="flex items-center gap-1.5 text-sm text-site-muted">
+                            <x-phosphor-paper-plane-tilt-light class="size-4 text-site-accent" aria-hidden="true" />
+                            Te enviamos un enlace para confirmarlo.
+                        </span>
+                    </div>
+                </form>
+            </details>
+
+            {{-- Contraseña: «Cambiar» abre sus tres campos --}}
+            <details class="site-row" @if($openPassword) open @endif>
+                <summary class="site-row__summary">
+                    <x-phosphor-lock-key-light class="site-row__icon" aria-hidden="true" />
+                    <span class="site-row__main">
+                        <span class="site-row__label">Contraseña</span>
+                        <span class="site-row__value" aria-hidden="true">••••••••</span>
+                    </span>
+                    <span class="site-row__change" title="Cambiar la contraseña">
+                        <x-phosphor-pencil-simple-light class="site-row__open" aria-hidden="true" />
+                        <x-phosphor-x-light class="site-row__close" aria-hidden="true" />
+                        <span>Cambiar</span>
+                    </span>
+                </summary>
+
+                <form method="POST" action="{{ route('client.account.password') }}" class="site-row__body grid gap-4" x-data="{ show: false }">
+                    @csrf
+                    @method('PUT')
+
+                    <div class="grid gap-1">
+                        <label for="current_password" class="site-label">Actual</label>
+                        <div class="site-field">
+                            <x-phosphor-lock-key-light class="site-field__icon" aria-hidden="true" />
+                            <input id="current_password" name="current_password" :type="show ? 'text' : 'password'" type="password" required
+                                autocomplete="current-password" @class(['site-input', 'is-invalid' => $errors->has('current_password')]) @error('current_password') aria-invalid="true" @enderror>
+                        </div>
+                        @error('current_password')
+                            <p class="text-sm text-site-danger">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div class="grid gap-4 sm:grid-cols-2">
+                        <div class="grid gap-1">
+                            <label for="password" class="site-label">Nueva</label>
+                            <div class="site-field">
+                                <x-phosphor-key-light class="site-field__icon" aria-hidden="true" />
+                                <input id="password" name="password" :type="show ? 'text' : 'password'" type="password" required minlength="8" maxlength="72"
+                                    autocomplete="new-password" aria-describedby="password-help" @class(['site-input', 'is-invalid' => $errors->has('password')]) @error('password') aria-invalid="true" @enderror>
+                            </div>
+                            @error('password')
+                                <p class="text-sm text-site-danger">{{ $message }}</p>
+                            @else
+                                <p id="password-help" class="text-sm text-site-muted">Mínimo 8, con letras y números.</p>
+                            @enderror
+                        </div>
+                        <div class="grid gap-1">
+                            <label for="password_confirmation" class="site-label">Repítela</label>
+                            <div class="site-field">
+                                <x-phosphor-key-light class="site-field__icon" aria-hidden="true" />
+                                <input id="password_confirmation" name="password_confirmation" :type="show ? 'text' : 'password'" type="password" required
+                                    autocomplete="new-password" class="site-input">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+                        <button type="submit" class="admin-primary-button min-h-11">
+                            <x-phosphor-check-bold aria-hidden="true" />
+                            Guardar
+                        </button>
+                        <button type="button" class="site-help" @click="show = !show" :aria-pressed="show.toString()">
+                            <x-phosphor-eye-light x-show="!show" aria-hidden="true" />
+                            <x-phosphor-eye-slash-light x-show="show" x-cloak aria-hidden="true" />
+                            <span x-text="show ? 'Ocultar' : 'Mostrar'">Mostrar</span>
+                        </button>
+                        <span class="flex items-center gap-1.5 text-sm text-site-muted">
+                            <x-phosphor-devices-light class="size-4 text-site-accent" aria-hidden="true" />
+                            Se cierra tu sesión en los demás dispositivos.
+                        </span>
+                    </div>
+                </form>
+
+                {{-- Sin la actual (entró con Google o la olvidó): enlace al correo confirmado --}}
+                @if($emailVerified)
+                    <form method="POST" action="{{ route('client.account.password-link') }}" class="site-row__body border-t border-site-line text-sm text-site-muted">
+                        @csrf
+                        <button type="submit" class="site-help" title="{{ $user->google_id ? '¿Entras con Google y quieres una contraseña propia?' : '¿No recuerdas la actual?' }}">
+                            <x-phosphor-envelope-simple-light aria-hidden="true" />
+                            {{ $user->google_id ? 'Crear una contraseña propia' : '¿No la recuerdas? Envíame un enlace' }}
+                        </button>
+                        @error('password_link')
+                            <span class="mt-1.5 block text-site-danger">{{ $message }}</span>
+                        @enderror
+                    </form>
+                @endif
+            </details>
+
+            {{-- Plan y pagos: para revendedores, o para quien puede empezar uno pagando en línea --}}
+            @if($user->isReseller() || $payOnline)
+                <div class="site-row">
+                    <div class="site-row__summary">
+                        <x-phosphor-seal-check-light class="site-row__icon" aria-hidden="true" />
+                        <span class="site-row__main">
+                            <span class="site-row__label">Plan</span>
+                            <span class="site-row__value">
+                                @if($user->isReseller())
+                                    {{ $user->planConfig()['name'] ?? 'Sin elegir' }}
+                                    @if($user->subscription_renews_at)
+                                        <span class="site-row__sub">
+                                            @if($user->renewsAutomatically())
+                                                <x-phosphor-arrow-clockwise-light aria-hidden="true" /> se renueva el
+                                            @elseif($user->hasActiveSubscription())
+                                                <x-phosphor-check-circle-light aria-hidden="true" /> pagado hasta el
+                                            @else
+                                                <x-phosphor-warning-circle-light aria-hidden="true" /> venció el
+                                            @endif
+                                            {{ $user->subscription_renews_at->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('j \d\e F \d\e Y')) }}
+                                        </span>
+                                    @endif
+                                @else
+                                    <span class="text-site-muted">Sin plan</span>
+                                @endif
+                            </span>
+                        </span>
+                        @if($payOnline)
+                            <a href="{{ route('client.subscription') }}" class="site-row__change" title="{{ $user->renewsAutomatically() ? 'Administrar mi suscripción' : ($user->isReseller() ? 'Renovar o cambiar de plan' : 'Elegir un plan') }}">
+                                <span>{{ $user->renewsAutomatically() ? 'Administrar' : ($user->isReseller() ? 'Renovar' : 'Elegir') }}</span>
+                                <x-phosphor-arrow-right-light aria-hidden="true" />
+                            </a>
+                        @endif
                     </div>
                 </div>
 
-                <label class="inline-flex items-center gap-2 text-sm">
-                    <input type="checkbox" x-model="show" class="size-4">
-                    Mostrar las contraseñas
-                </label>
-
-                <div>
-                    <button type="submit" class="admin-primary-button min-h-11">
-                        <x-phosphor-key aria-hidden="true" />
-                        Guardar la contraseña nueva
-                    </button>
-                </div>
-            </form>
-
-            {{-- Sin la actual (entró con Google o la olvidó): enlace al correo confirmado --}}
-            @if($emailVerified)
-                <form method="POST" action="{{ route('client.account.password-link') }}" class="mt-6 border-t border-site-line pt-5 text-sm text-site-muted">
-                    @csrf
-                    {{ $user->google_id ? '¿Entras con Google y quieres una contraseña propia?' : '¿No recuerdas la actual?' }}
-                    <button type="submit" class="font-medium text-site-ink underline underline-offset-4 transition-colors hover:text-site-accent">Envíame un enlace para crearla</button>
-                    @error('password_link')
-                        <span class="mt-1.5 block text-site-danger">{{ $message }}</span>
-                    @enderror
-                </form>
+                @if($payments->isNotEmpty())
+                    <details class="site-row">
+                        <summary class="site-row__summary">
+                            <x-phosphor-receipt-light class="site-row__icon" aria-hidden="true" />
+                            <span class="site-row__main">
+                                <span class="site-row__label">Pagos</span>
+                                <span class="site-row__value">{{ $payments->count() }} {{ $payments->count() === 1 ? 'reciente' : 'recientes' }}</span>
+                            </span>
+                            <span class="site-row__change" title="Ver los últimos pagos">
+                                <x-phosphor-caret-down-light class="site-row__open" aria-hidden="true" />
+                                <x-phosphor-caret-up-light class="site-row__close" aria-hidden="true" />
+                            </span>
+                        </summary>
+                        <table class="site-row__body w-full text-sm">
+                            <caption class="sr-only">Últimos pagos</caption>
+                            <thead class="sr-only">
+                                <tr><th scope="col">Fecha</th><th scope="col">Plan</th><th scope="col">Monto</th></tr>
+                            </thead>
+                            <tbody class="divide-y divide-site-line">
+                                @foreach($payments as $payment)
+                                    <tr>
+                                        <td class="py-2 tabular-nums text-site-muted">{{ $payment->paid_at->format('d/m/Y') }}</td>
+                                        <td class="py-2">
+                                            {{ config("bida.reseller_plans.{$payment->plan}.name", $payment->plan) }}
+                                            <span class="text-site-muted">· {{ $payment->providerLabel() }}</span>
+                                        </td>
+                                        <td class="py-2 text-right tabular-nums">{{ \App\Support\Money::format($payment->amount, $payment->currency) }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </details>
+                @endif
             @endif
-        </section>
+        </div>
     </div>
 @endsection

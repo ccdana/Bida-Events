@@ -57,17 +57,18 @@ class SubscriptionCheckoutTest extends TestCase
         $this->actingAs(User::factory()->create())->withoutVite()->get(route('client.subscription', ['plan' => 'emprendedor']))
             ->assertOk()
             ->assertSee('Elige tu plan')
-            ->assertSee('Tarjeta de crédito o débito')
-            ->assertSee('value="emprendedor" x-model="plan" class="mt-1 size-4 accent-[var(--site-accent)]" checked', false)
+            ->assertSee('Dólares, desde cualquier país')
+            // El plan elegido viene marcado: la opción es una fila con un punto dorado (la casilla real queda oculta)
+            ->assertSee('value="emprendedor" x-model="plan" class="sr-only" checked', false)
             // Sin appkey de Libélula no se ofrece el pago en Bolivia
-            ->assertDontSee('Pago en Bolivia');
+            ->assertDontSee('QR en Bolivia');
 
         // Con tarjeta y sin variantes de 3 o 12 meses, no hay ciclos que elegir (PlansAndCyclesTest
         // prueba la tarjeta anual)
         config(['payments.lemonsqueezy.variants.inicial:12' => null]);
         $this->actingAs(User::factory()->create())->withoutVite()->get(route('client.subscription'))
             ->assertOk()
-            ->assertDontSee('Cuántos meses pagas');
+            ->assertDontSee('name="months"', false);
 
         // Quien ya entró va directo a pagar
         $this->withoutVite()->get(route('pricing'))->assertOk()->assertSee(route('client.subscription', ['plan' => 'inicial']), false);
@@ -141,8 +142,8 @@ class SubscriptionCheckoutTest extends TestCase
 
         $this->actingAs($user)->withoutVite()->get(route('client.subscription'))
             ->assertOk()
-            ->assertSee('Tu suscripción con tarjeta')
-            ->assertSee('se renueva solo el')
+            ->assertSee('Suscripción con tarjeta')
+            ->assertSee('se renueva el')
             ->assertSee(route('client.subscription.portal'), false)
             ->assertDontSee('Continuar al pago');
 
@@ -182,7 +183,7 @@ class SubscriptionCheckoutTest extends TestCase
 
         $this->actingAs($user)->withoutVite()->get(route('client.subscription.order', $order->public_id))
             ->assertOk()
-            ->assertSee('Estamos confirmando tu pago')
+            ->assertSee('Confirmando tu pago')
             ->assertSee($order->reference_code);
 
         $this->actingAs($user)->getJson(route('client.subscription.order', $order->public_id))->assertExactJson(['status' => 'pending']);
@@ -193,7 +194,7 @@ class SubscriptionCheckoutTest extends TestCase
         $this->actingAs($user)->getJson(route('client.subscription.order', $order->public_id))->assertExactJson(['status' => 'paid']);
         $this->actingAs($user->fresh())->withoutVite()->get(route('client.subscription.order', $order->public_id))
             ->assertOk()
-            ->assertSee('Listo: tu plan Inicial está activo')
+            ->assertSee('Tu plan Inicial está activo')
             ->assertSee(route('client.invitations.create'), false);
 
         // La orden de otra persona no se ve
@@ -235,7 +236,7 @@ class SubscriptionCheckoutTest extends TestCase
 
         $this->actingAs($user->fresh())->withoutVite()->get(route('client.account'))
             ->assertOk()
-            ->assertSee('Plan y pagos')
+            ->assertSee('Pagos')
             ->assertSee('Inicial')
             ->assertSee('· tarjeta')
             ->assertSee(route('client.subscription'), false);

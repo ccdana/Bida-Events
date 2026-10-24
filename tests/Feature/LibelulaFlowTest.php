@@ -47,8 +47,9 @@ class LibelulaFlowTest extends TestCase
     {
         $this->actingAs($this->buyer)->withoutVite()->get(route('client.subscription'))
             ->assertOk()
-            ->assertSee('Pago en Bolivia: QR, Tigo Money o tarjeta boliviana')
-            ->assertSee('Cuántos meses pagas')
+            ->assertSee('QR en Bolivia')
+            ->assertSee('Tigo Money o tarjeta boliviana')
+            ->assertSee('name="months"', false)
             ->assertSee('12 meses')
             // Precio de hoy del Inicial (US$ 10) al cambio oficial: Bs 70 al mes, Bs 209 por 3 meses
             ->assertSee('70.00', false)
@@ -71,7 +72,7 @@ class LibelulaFlowTest extends TestCase
             ->assertSee('Escanea el QR para pagar')
             ->assertSee('Bs 209')
             ->assertSee('Plan Inicial · 3 meses')
-            ->assertSee('Pagar con Tigo Money o tarjeta')
+            ->assertSee('Tigo Money o tarjeta')
             ->assertSee($order->meta['qr_image'], false);
     }
 
