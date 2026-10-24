@@ -190,6 +190,47 @@ class SeoAndMobileFixesTest extends TestCase
         $this->assertSame(5, substr_count($html, 'class="site-faq group"'));
     }
 
+    // ── Rediseño de las páginas públicas (fase 3): guía y páginas por evento
+
+    public function test_the_guide_folds_each_topic_like_a_question_but_keeps_all_its_text_in_the_html(): void
+    {
+        $html = $this->withoutVite()->get('/guia-invitaciones-digitales')->assertOk()->getContent();
+
+        // Ocho temas plegables (el primero, abierto): el título es un h2 dentro del summary y el texto sigue en la página
+        $this->assertSame(8, substr_count($html, 'class="site-fold"'));
+        $this->assertSame(1, substr_count($html, 'class="site-fold" open'));
+        $this->assertStringContainsString('<summary class="site-fold__summary">', $html);
+        $this->assertStringContainsString('Confirmación de asistencia y control de entrada con QR', $html);
+        $this->assertStringContainsString('Un pase usado no vuelve a servir.', $html);
+
+        // Sin índice lateral, citas ni tablas que se deslicen: las de la guía son de pocas columnas
+        $this->assertStringNotContainsString('site-legal__toc', $html);
+        $this->assertStringNotContainsString('site-guide__quote', $html);
+        $this->assertSame(3, substr_count($html, 'site-compare"') + substr_count($html, 'site-table site-table--fit'));
+
+        // Las preguntas frecuentes de la guía siguen completas (alimentan los datos estructurados)
+        $this->assertSame(7, substr_count($html, 'class="site-faq group"'));
+
+        // Un enlace a un tema (/guia…#precios) lo abre antes de llegar
+        $this->assertStringContainsString('function initFolds()', file_get_contents(resource_path('js/site.js')));
+    }
+
+    public function test_an_event_landing_puts_what_it_has_next_to_the_three_steps_and_ends_in_a_price_strip(): void
+    {
+        $html = $this->withoutVite()->get('/invitaciones-de-boda')->assertOk()->getContent();
+
+        $this->assertStringContainsString('class="site-how site-how--event', $html);
+        $this->assertSame(4, substr_count($html, 'class="site-include__item"'));
+        $this->assertSame(3, substr_count($html, 'class="site-step"'));
+        $this->assertStringContainsString('id="como"', $html);
+        $this->assertStringNotContainsString('site-howto', $html);
+
+        // El precio es una franja con un botón; «Ver precios» de la portada es una flecha con su nombre en el aria-label
+        $this->assertStringContainsString('class="site-close site-section--surface scroll-mt-20"', $html);
+        $this->assertStringContainsString('aria-label="Ver precios"', $html);
+        $this->assertStringContainsString('aria-label="Escribir por WhatsApp"', $html);
+    }
+
     // ── M11 · Canónica, saltar al contenido, descripciones e indexación
 
     public function test_every_site_page_declares_its_own_canonical_without_campaign_parameters(): void

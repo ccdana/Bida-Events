@@ -22,6 +22,11 @@
     text-wrap: balance;
 }
 
+.site-display--lg {
+    font-size: clamp(2.2rem, 7.4vw, 3.8rem);
+    line-height: 1;
+}
+
 .site-display--md {
     font-size: clamp(1.95rem, 5.6vw, 3rem);
     line-height: 1.04;
@@ -678,6 +683,19 @@ a:hover > .site-link-arrow svg,
     height: 3.25rem;
 }
 
+/* ── Página por evento: lo propio del evento y los tres pasos ─────────────── */
+
+@media (min-width: 1024px) {
+    .site-how--event {
+        grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    }
+
+    /* Fuera de temporada no hay pasos: lo propio del evento ocupa todo el ancho */
+    .site-how--solo {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
 /* ── «Únete» ─────────────────────────────────────────────────────────────── */
 
 .site-benefits__list {
@@ -916,8 +934,9 @@ a:hover > .site-link-arrow svg,
     letter-spacing: 0.04em;
 }
 
+.site-table--fit thead th:first-child,
 .site-table--fit tbody th {
-    width: 32%;
+    width: 34%;
 }
 
 @media (min-width: 1024px) {
@@ -1193,72 +1212,155 @@ a:hover > .site-link-arrow svg,
 }
 
 /* ── Guía (guia.blade.php) ─────────────────────────────────────────────────
-   Usa el armazón de las páginas legales (índice fijo y texto a la derecha) y suma
-   la respuesta corta del principio, los subtítulos, las citas y las tablas.
+   La respuesta corta del principio y cada tema como un renglón plegable, igual que las preguntas
+   frecuentes: lo importante a la vista y el detalle (que sigue en el HTML) a un toque.
    ──────────────────────────────────────────────────────────────────────── */
 
 .site-guide__answer {
-    margin-bottom: 2rem;
-    padding: 1.25rem 0 1.25rem 1.25rem;
+    margin-bottom: 1.25rem;
+    padding: 0.25rem 0 0.25rem 1rem;
     border-left: 2px solid var(--site-accent);
 }
 
 .site-guide__answer p {
     max-width: 62ch;
-    font-size: 1.05rem;
-    line-height: 1.7;
+    font-size: 1rem;
+    line-height: 1.6;
 }
 
 .site-guide__answer .site-guide__answer-label {
-    margin-bottom: 0.4rem;
-    font-size: 0.72rem;
+    margin-bottom: 0.25rem;
+    font-size: 0.85rem;
     font-weight: 600;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
     color: var(--site-accent);
 }
 
-.site-guide .site-legal__section h3 {
-    margin: 1.6rem 0 0.7rem;
-    font-size: 1.05rem;
+.site-folds {
+    border-top: 1px solid var(--site-line);
+}
+
+.site-fold {
+    border-bottom: 1px solid var(--site-line);
+}
+
+.site-fold::details-content {
+    block-size: 0;
+    overflow: clip;
+    transition: block-size 0.45s var(--site-ease), content-visibility 0.45s allow-discrete;
+}
+
+.site-fold[open]::details-content {
+    block-size: auto;
+}
+
+.site-fold__summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    min-height: 3.5rem;
+    padding-block: 0.5rem;
+    cursor: pointer;
+    list-style: none;
+}
+
+.site-fold__summary::-webkit-details-marker {
+    display: none;
+}
+
+.site-fold__summary h2 {
+    font-family: var(--font-serif);
+    font-size: 1.4rem;
+    font-weight: 400;
+    line-height: 1.15;
+    text-wrap: balance;
+    transition: color 0.25s ease;
+}
+
+.site-fold__summary:hover h2 {
+    color: var(--site-accent);
+}
+
+.site-fold__sign {
+    flex-shrink: 0;
+    width: 1.25rem;
+    height: 1.25rem;
+    color: var(--site-accent);
+    transition: rotate 0.4s var(--site-ease);
+}
+
+.site-fold[open] .site-fold__sign {
+    rotate: 45deg;
+}
+
+.site-fold__body {
+    padding-bottom: 1.25rem;
+}
+
+.site-fold__body p,
+.site-fold__body li {
+    max-width: 68ch;
+    font-size: 0.97rem;
+    line-height: 1.6;
+    color: var(--site-muted);
+}
+
+.site-fold__body p + p,
+.site-fold__body ul + p,
+.site-fold__body p + ul,
+.site-fold__body p + .site-compare,
+.site-fold__body p + .site-table,
+.site-fold__body .site-compare + p,
+.site-fold__body .site-table + p {
+    margin-top: 0.9rem;
+}
+
+.site-fold__body h3 {
+    margin: 1rem 0 0.4rem;
+    font-size: 1rem;
     font-weight: 600;
 }
 
-.site-guide .site-legal__section a,
-.site-guide .site-legal__section li a {
+.site-fold__body h3:first-child {
+    margin-top: 0;
+}
+
+.site-fold__body ul {
+    display: grid;
+    gap: 0.4rem;
+    padding-left: 1.1rem;
+    list-style: disc;
+}
+
+.site-fold__body li::marker {
+    color: var(--site-accent);
+}
+
+.site-fold__body a {
     color: var(--site-ink);
     text-decoration: underline;
     text-underline-offset: 4px;
 }
 
-.site-guide .site-table {
-    margin-top: 1.25rem;
+/* Los enlaces a cada evento: en una línea que se parte, sin viñetas */
+.site-fold__body .site-fold__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 1.25rem;
+    padding-left: 0;
+    list-style: none;
 }
 
-.site-guide .site-table + p {
-    margin-top: 1.1rem;
+.site-fold__links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.5rem;
 }
 
-.site-guide__quote {
-    margin-top: 1.75rem;
-    padding: 0.25rem 0 0.25rem 1.25rem;
-    border-left: 1px solid var(--site-line);
+.site-fold__body .site-table,
+.site-fold__body .site-compare {
+    margin-top: 0.9rem;
 }
-
-.site-guide__quote p {
-    font-family: 'Instrument Serif', Georgia, serif;
-    font-size: 1.45rem;
-    font-style: italic;
-    line-height: 1.35;
-    color: var(--site-ink);
-}
-
-.site-guide__quote footer {
-    margin-top: 0.6rem;
-    font-size: 0.85rem;
-    color: var(--site-muted);
-}
-
 /* ── Recorrido de «Únete»: plan, cuenta, pago e invitación ───────────── */
 
 .site-journey {

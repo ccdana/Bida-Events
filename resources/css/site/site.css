@@ -1333,8 +1333,8 @@ html.theme-changing *:not(.theme-toggle__icon) {
     position: relative;
     display: grid;
     justify-items: center;
-    gap: 1.25rem;
-    padding-top: 2.5rem;
+    gap: 1rem;
+    padding-top: 1.5rem;
 }
 
 .site-landing__photo {
@@ -1623,7 +1623,7 @@ html.theme-changing *:not(.theme-toggle__icon) {
     gap: 0.75rem;
     max-width: 80rem;
     margin-inline: auto;
-    padding: 0 1.25rem 4.5rem;
+    padding: 0 1.25rem 1.75rem;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1631,50 +1631,6 @@ html.theme-changing *:not(.theme-toggle__icon) {
     .site-shot__cta,
     .site-shot__cta svg {
         transition: none;
-    }
-}
-
-/* Lo que incluye: grilla de dos columnas separada por filetes, sin tarjetas */
-.site-grid-features {
-    display: grid;
-    border-top: 1px solid var(--site-line);
-}
-
-.site-grid-features li {
-    display: grid;
-    grid-template-columns: 2rem 1fr;
-    gap: 0.5rem 1rem;
-    padding-block: 1.75rem;
-    border-bottom: 1px solid var(--site-line);
-}
-
-.site-grid-features__icon {
-    grid-row: span 2;
-    width: 1.75rem;
-    height: 1.75rem;
-    color: var(--site-accent);
-}
-
-.site-grid-features h3 {
-    font-size: 1.35rem;
-    font-weight: 500;
-    line-height: 1.25;
-}
-
-.site-grid-features p {
-    max-width: 44ch;
-    line-height: 1.65;
-    color: var(--site-muted);
-}
-
-@media (min-width: 768px) {
-    .site-grid-features {
-        grid-template-columns: 1fr 1fr;
-        column-gap: 3rem;
-    }
-
-    .site-grid-features li {
-        padding-block: 2.25rem;
     }
 }
 
@@ -2840,9 +2796,8 @@ html.site-season-open {
     cursor: pointer;
 }
 
-/* ── Página por evento: marca de diseño nuevo y pasos ──────────────────────
-   (landing.blade.php). Los pasos van numerados porque son una secuencia.
-   Todo con los colores del sitio, también en modo oscuro. */
+/* ── Página por evento: marca de diseño nuevo ──────────────────────────────
+   (landing.blade.php). Con los colores del sitio, también en modo oscuro. */
 
 .site-badge-new {
     display: inline-block;
@@ -2857,44 +2812,3 @@ html.site-season-open {
     vertical-align: middle;
 }
 
-/* Pasos: el número grande en el color de la marca, una columna en el celular y tres en pantalla ancha */
-.site-howto {
-    display: grid;
-    gap: 2.5rem;
-}
-
-@media (min-width: 900px) {
-    .site-howto {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 2rem;
-    }
-}
-
-.site-howto__item {
-    padding-top: 1.25rem;
-    border-top: 1px solid var(--site-line);
-}
-
-.site-howto__num {
-    display: block;
-    font-size: 3.2rem;
-    font-weight: 600;
-    line-height: 1;
-    letter-spacing: -0.03em;
-    color: var(--site-accent);
-    font-variant-numeric: tabular-nums;
-}
-
-.site-howto__title {
-    margin: 1rem 0 0;
-    font-size: 1.3rem;
-    font-weight: 600;
-    letter-spacing: -0.01em;
-}
-
-.site-howto__text {
-    max-width: 38ch;
-    margin: 0.5rem 0 0;
-    line-height: 1.6;
-    color: var(--site-muted);
-}

@@ -356,8 +356,28 @@ function initCoverReel(reel) {
     document.addEventListener('visibilitychange', () => (document.hidden ? stop() : start()));
 }
 
+/**
+ * Renglones plegables de la guía (details.site-fold): un enlace a su ancla (#precios, #entrada…) abre el renglón
+ * antes de llegar a él, para que quien llega desde otra página no encuentre un título cerrado.
+ */
+function initFolds() {
+    const reveal = () => {
+        const target = location.hash.length > 1 ? document.getElementById(decodeURIComponent(location.hash.slice(1))) : null;
+        const fold = target?.closest('details.site-fold');
+
+        if (fold && !fold.open) {
+            fold.open = true;
+            fold.scrollIntoView();
+        }
+    };
+
+    reveal();
+    window.addEventListener('hashchange', reveal);
+}
+
 initReveal();
 initRotators();
 initMagnetic();
 initHeaderState();
 initCoverReels();
+initFolds();

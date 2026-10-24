@@ -33,6 +33,7 @@ class SeasonEndedLandingTest extends TestCase
             ->assertSee('Las muestras siguen abiertas para que las pruebes.')
             ->assertSee('Avísame cuando vuelva')
             ->assertSee('Te avisamos por WhatsApp cuando vuelva la temporada.')
+            ->assertSee('site-how--solo', false)
             ->assertDontSee('Ver precios')
             ->assertDontSee('Lista el mismo día')
             ->assertDontSee('La quiero por')

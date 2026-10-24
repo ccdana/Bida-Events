@@ -187,7 +187,7 @@ return [
             'title' => 'Invitaciones digitales de boda en Bolivia',
             'description' => 'Invitación web para tu boda con confirmación de asistencia por invitado, padrinos, mesa de regalos y mapa. Lista para enviar por WhatsApp.',
             'heading' => 'Invitaciones de boda que tus invitados abren desde WhatsApp',
-            'intro' => 'Todo lo que sus invitados necesitan saber en un enlace: cuándo, dónde, qué ponerse y cómo confirmar. Elijan el diseño y ármenla con sus fotos y sus colores.',
+            'intro' => 'Cuándo, dónde, qué ponerse y cómo confirmar, en un solo enlace. Elijan el diseño y ármenla con sus fotos y sus colores.',
             'highlights' => [
                 ['icon' => 'map-pin', 'title' => 'Ceremonia y recepción', 'text' => 'Cada momento con su hora y cada lugar con su mapa y el botón para llegar.'],
                 ['icon' => 'users-three', 'title' => 'Padrinos y cortejo', 'text' => 'Presenten a quienes los acompañan, con nombre y el papel de cada uno.'],
@@ -211,7 +211,7 @@ return [
             'title' => 'Invitaciones digitales de XV años en Bolivia',
             'description' => 'Invitación web para quince años con chambelanes y padrinos, playlist, encuestas, fotomural y confirmación con pase QR. Lista para enviar por WhatsApp.',
             'heading' => 'Invitaciones de XV años con música, juegos y pase de entrada',
-            'intro' => 'Una invitación donde los invitados también participan: votan, sugieren canciones y suben fotos. Elige el diseño y ármala con tus fotos y tus colores.',
+            'intro' => 'Tus invitados votan, sugieren canciones y suben fotos. Elige el diseño y ármala con tus fotos y tus colores.',
             'highlights' => [
                 ['icon' => 'users-three', 'title' => 'Chambelanes y padrinos', 'text' => 'Presenta a tu corte y a tus padrinos, cada uno con su papel en la fiesta.'],
                 ['icon' => 'music-notes', 'title' => 'Playlist y encuestas', 'text' => 'Tus invitados sugieren las canciones del baile y votan en juegos antes de la fiesta.'],
@@ -235,7 +235,7 @@ return [
             'title' => 'Invitaciones digitales de bautizo en Bolivia',
             'description' => 'Invitación web para bautizo con padrinos, horario de la misa y la recepción, mapa y confirmación de asistencia. Lista para enviar por WhatsApp.',
             'heading' => 'Invitaciones de bautizo tranquilas, claras y fáciles de compartir',
-            'intro' => 'Los datos que la familia necesita, claros y en un solo enlace: la misa, la recepción, los padrinos y cómo llegar. Elijan el diseño y ármenla con sus fotos.',
+            'intro' => 'La misa, la recepción, los padrinos y cómo llegar, claros y en un solo enlace. Elijan el diseño y ármenla con sus fotos.',
             'highlights' => [
                 ['icon' => 'hands-praying', 'title' => 'Padrinos primero', 'text' => 'Los padrinos encabezan la sección de familia, con su nombre y un mensaje.'],
                 ['icon' => 'map-pin', 'title' => 'Misa y recepción', 'text' => 'Horario de la iglesia y de la recepción, con mapa y botón para llegar a cada lugar.'],
@@ -259,7 +259,7 @@ return [
             'title' => 'Invitaciones digitales de cumpleaños en Bolivia',
             'description' => 'Invitación web de cumpleaños con playlist, juegos, dress code y confirmación de asistencia. Lista para enviar por WhatsApp.',
             'heading' => 'Invitaciones de cumpleaños para que la fiesta empiece antes',
-            'intro' => 'Una invitación con juegos, playlist y todo lo necesario para llegar a la fiesta. Elige el diseño y ármala con tus fotos, tus colores y el tema de tu cumple.',
+            'intro' => 'Con juegos, playlist y todo para llegar a la fiesta. Elige el diseño y ármala con tus fotos y el tema de tu cumple.',
             'highlights' => [
                 ['icon' => 'chart-bar', 'title' => 'Juegos antes de la fiesta', 'text' => 'Encuestas divertidas que tus invitados responden y ven los resultados al instante.'],
                 ['icon' => 'music-notes', 'title' => 'Playlist entre todos', 'text' => 'Cada invitado sugiere la canción que no puede faltar en la pista.'],
@@ -285,7 +285,7 @@ return [
             'title' => 'Invitaciones digitales de graduación en Bolivia',
             'description' => 'Invitación web para tu graduación o promoción: horario del acto y de la fiesta, mapa, padrinos de promoción y confirmación de asistencia. Lista para enviar por WhatsApp.',
             'heading' => 'Invitaciones de graduación para celebrar el logro en grande',
-            'intro' => 'Un diploma que se abre al tocar la cinta y todo lo que tus invitados necesitan: la hora del acto, la fiesta, el lugar y quiénes te acompañaron. Con tus fotos, tus colores y tu carrera.',
+            'intro' => 'Un diploma que se abre al tocar la cinta, con la hora del acto, la fiesta, el lugar y quiénes te acompañaron. Con tus fotos y tu carrera.',
             'highlights' => [
                 ['icon' => 'graduation-cap', 'title' => 'Acto y fiesta en un enlace', 'text' => 'El horario de la colación y el de la celebración, con el mapa de cada lugar.'],
                 ['icon' => 'users-three', 'title' => 'Padrinos y compañeros', 'text' => 'Un espacio para agradecer a tus padrinos de promoción, tu familia y tus compañeros.'],
@@ -310,7 +310,7 @@ return [
             'title' => 'Invitaciones digitales de baby shower en Bolivia',
             'description' => 'Invitación web para el baby shower: el programa de la tarde, el mapa, la lista de regalos para el bebé y la confirmación de cada invitado. Lista para enviar por WhatsApp.',
             'heading' => 'Invitaciones de baby shower para celebrar su llegada',
-            'intro' => 'La ropita en el tendedero, su nombre en bloques de juguete o una encomienda que llega con todo el cuidado, y todo lo que tus invitados necesitan saber: cuándo, dónde, qué llevar de regalo y cómo confirmar. Con sus fotos y los colores que elijas.',
+            'intro' => 'La ropita en el tendedero, su nombre en bloques de juguete o una encomienda con cuidado, y todo para tus invitados: cuándo, dónde, qué regalar y cómo confirmar.',
             'highlights' => [
                 ['icon' => 'baby-carriage', 'title' => 'Con el nombre del bebé', 'text' => 'O con «Bebé en camino» si todavía no lo eligieron: va en la portada, estampado en el enterito, armado con bloques o en la guía del envío.'],
                 ['icon' => 'gift', 'title' => 'Lista de regalos', 'text' => 'Pañales, ropita o una lluvia de sobres: cada opción con su detalle y, si quieres, los datos de la cuenta.'],
@@ -338,7 +338,7 @@ return [
             'title' => 'Invitaciones digitales para fiestas de Halloween en Bolivia',
             'description' => 'Invitación web para tu fiesta de disfraces: se abre encendiendo una calabaza, tus invitados confirman asistencia, votan y sugieren canciones. Lista para enviar por WhatsApp.',
             'heading' => 'Invitaciones de Halloween para tu fiesta de disfraces',
-            'intro' => 'Una invitación que se enciende al tocar la calabaza, con la cuenta regresiva a la noche, el lugar, el disfraz que esperas y la confirmación de cada invitado.',
+            'intro' => 'Se enciende al tocar la calabaza, con la cuenta regresiva a la noche, el lugar, el disfraz que esperas y la confirmación de cada invitado.',
             'features_note' => 'Además de la cuenta regresiva y el mapa, lo que hace más divertida la previa.',
             'highlights' => [
                 ['icon' => 'ghost', 'title' => 'Se enciende al abrirla', 'text' => 'Una calabaza que se ilumina al tocarla, murciélagos y la luna llena en la portada.'],
@@ -366,7 +366,7 @@ return [
             'title' => 'Tarjetas digitales para el Día del Amor en Bolivia',
             'description' => 'Tarjetas digitales para el 21 de septiembre: tu foto y tu mensaje en una tarjeta que se abre con un gesto y te puede responder. Para tu pareja, tus amigos o tu familia. Lista para enviar por WhatsApp.',
             'heading' => 'Tarjetas digitales para el Día del Amor y la Primavera',
-            'intro' => 'Para tu pareja, tu mejor amiga o tu familia. Nos mandas tu foto y tu mensaje, eliges el diseño y la tarjeta llega por WhatsApp el mismo día.',
+            'intro' => 'Para tu pareja, tu mejor amiga o tu familia: nos mandas tu foto y tu mensaje y la tarjeta llega por WhatsApp el mismo día.',
             'features_note' => 'Cada diseño se abre a su manera; esto lo tienen todos.',
             'demo_note' => 'Toca un diseño para abrir su muestra y escribe una respuesta. Nada de lo que hagas se guarda.',
             'highlights' => [

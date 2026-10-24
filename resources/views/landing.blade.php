@@ -3,9 +3,9 @@
 {{--
     Página por tipo de evento o de tarjeta. El contenido vive en config/bida.php (landings); ver
     EventLandingController. Arriba, cada diseño se ve como una captura de cómo empieza su apertura
-    (bida:capturas-muestras) y al tocarlo se abre su muestra completa; luego lo propio del evento, el
-    precio y las preguntas. Las muestras salen de «demos» o, en las tarjetas, de la temporada, así
-    sumar un diseño no cambia esta vista.
+    (bida:capturas-muestras) y al tocarlo se abre su muestra completa; luego lo propio del evento junto a
+    los tres pasos, una franja con el precio y las preguntas. Poco texto, íconos donde sirven. Las muestras
+    salen de «demos» o, en las tarjetas, de la temporada, así sumar un diseño no cambia esta vista.
 --}}
 @section('title', $page['title'].' | '.$bida['brand'])
 @section('description', $page['description'])
@@ -14,25 +14,25 @@
     $isCard = ($page['kind'] ?? null) === 'card';
     // Tarjetas e invitaciones de temporada: precio único de temporada en lugar de paquetes
     $isSeasonal = \App\Http\Controllers\EventLandingController::isSeasonal($page);
-    // Los tres pasos, en el orden en que pasan (por eso van numerados)
+    // Los tres pasos, en el orden en que pasan
     $steps = $isCard
         ? [
-            [__('Elige el diseño'), __('Pruébalos acá mismo y quédate con el que más se parezca a lo que quieres decir.')],
-            [__('Mándanos tu foto y tu mensaje'), __('Por WhatsApp. Nosotros la armamos y te la mostramos antes de enviarla.')],
-            [__('Compártela'), __('Te pasamos el enlace listo para mandar por WhatsApp o por redes.')],
+            ['cursor-click', __('Elige el diseño'), __('Pruébalos acá mismo y quédate con el que más te guste.')],
+            ['whatsapp-logo', __('Mándanos tu foto y tu mensaje'), __('Por WhatsApp. La armamos y te la mostramos antes de enviarla.')],
+            ['paper-plane-tilt', __('Compártela'), __('Te pasamos el enlace para mandar por WhatsApp o por redes.')],
         ]
         : ($isSeasonal
             // Las invitaciones de temporada (Halloween) se piden por WhatsApp y las armamos nosotros
             ? [
-                [__('Elige el diseño'), __('Pruébalos como un invitado: confirma, vota o sugiere una canción. Nada se guarda.')],
-                [__('Mándanos tus datos'), __('Nombres, fecha, lugar y fotos, por WhatsApp. Armamos la invitación y la revisas antes de compartirla.')],
-                [__('Compártela con tus invitados'), __('Un enlace por WhatsApp; ellos confirman desde el celular y tú ves las respuestas en tu panel.')],
+                ['cursor-click', __('Elige el diseño'), __('Pruébalo como invitado: nada se guarda.')],
+                ['whatsapp-logo', __('Mándanos tus datos'), __('Nombres, fecha, lugar y fotos por WhatsApp. La revisas antes de compartirla.')],
+                ['paper-plane-tilt', __('Compártela con tus invitados'), __('Un enlace por WhatsApp; confirman desde el celular y tú ves las respuestas.')],
             ]
             // Las demás las arma cada quien en su cuenta (Hazlo tú), igual que dice el botón principal
             : [
-                [__('Elige el diseño'), __('Pruébalos como un invitado: confirma, vota o sugiere una canción. Nada se guarda.')],
-                [__('Crea tu cuenta y ármala'), __('Es gratis: subes tus fotos, escribes los datos del evento y la ves en vivo mientras la armas.')],
-                [__('Publícala y compártela'), __('Gratis con lo básico, o un pago único si quieres más. Un enlace por WhatsApp; ellos confirman desde el celular y tú ves las respuestas en tu panel.')],
+                ['cursor-click', __('Elige el diseño'), __('Pruébalo como invitado: nada se guarda.')],
+                ['user-plus', __('Crea tu cuenta y ármala'), __('Gratis: subes tus fotos, escribes los datos y la ves en vivo.')],
+                ['paper-plane-tilt', __('Publícala y compártela'), __('Gratis o con pago único. Se envía por WhatsApp y ves las respuestas en tu panel.')],
             ]);
     // Para quién es: «tu boda», «tu graduación»…
     $forPhrase = $page['for'] ?? (collect($bida['showcase'])->firstWhere('event', $page['event'])['phrase'] ?? __('tu evento'));
@@ -55,7 +55,7 @@
     $noun = $isCard ? 'tarjeta' : __('invitación');
     // Hasta tres diseños van en abanico junto al texto; con más, en fila debajo de la portada
     $shotsInRow = count($demos) > 3;
-    $demoNote = $page['demo_note'] ?? __('Toca un diseño para abrir su muestra y pruébala como un invitado: confirma, vota o sugiere una canción. Nada se guarda.');
+    $demoNote = $page['demo_note'] ?? __('Toca un diseño para abrir su muestra y pruébala: nada se guarda.');
 @endphp
 
 @push('head')
@@ -79,7 +79,7 @@
     <main id="contenido" tabindex="-1">
         {{-- ═══ Portada: el texto del evento y sus diseños, cada uno como la captura de su apertura ═══ --}}
         <section class="site-landing">
-            <div class="mx-auto grid max-w-7xl items-center gap-12 px-5 pb-16 pt-8 md:pt-14 lg:min-h-[calc(100dvh-72px)] lg:grid-cols-12 lg:gap-8 lg:px-8 lg:py-12">
+            <div class="mx-auto grid max-w-7xl items-center gap-6 px-5 pb-6 pt-3 md:pt-8 lg:min-h-[min(calc(100dvh-72px),46rem)] lg:grid-cols-12 lg:gap-8 lg:px-8 lg:py-10">
                 <div class="lg:col-span-5">
                     <nav class="site-enter text-sm text-site-muted" aria-label="{{ __('Ruta') }}">
                         <a href="{{ lroute('home') }}" class="site-nav-link site-touch-y hover:text-site-ink">{{ $bida['brand'] }}</a>
@@ -87,19 +87,19 @@
                         <span class="text-site-ink">{{ $page['link'] }}</span>
                     </nav>
                     @if($ended)
-                        <p class="site-enter mt-5 inline-flex items-start gap-2 rounded-[12px] border border-site-line bg-site-surface px-4 py-3 text-sm" style="--enter-index: 1" role="status">
+                        <p class="site-enter mt-3 flex items-start gap-2 text-sm" style="--enter-index: 1" role="status">
                             <x-phosphor-hourglass-medium class="mt-0.5 size-4 shrink-0 text-site-accent" aria-hidden="true" />
                             <span><strong class="font-semibold text-site-ink">{{ __('La temporada terminó.') }}</strong> {{ __('Las muestras siguen abiertas para que las pruebes.') }}</span>
                         </p>
                     @endif
-                    <h1 class="site-enter site-display mt-5 max-w-[16ch]" style="--enter-index: 1">
+                    <h1 class="site-enter site-display site-display--lg mt-3" style="--enter-index: 1">
                         {{ $page['heading'] }}
                     </h1>
-                    <p class="site-enter mt-6 max-w-[44ch] text-lg leading-relaxed text-site-muted" style="--enter-index: 2">
+                    <p class="site-enter site-hero__lead" style="--enter-index: 2">
                         {{ $page['intro'] }}
                     </p>
 
-                    <div class="site-enter mt-9 flex flex-col gap-3 sm:flex-row" style="--enter-index: 4">
+                    <div class="site-enter site-hero__actions" style="--enter-index: 4">
                         @if($isSeasonal)
                             <a href="{{ $ctaUrl }}" target="_blank" rel="noopener" class="site-btn site-btn--lg justify-center" data-magnetic>
                                 <x-phosphor-whatsapp-logo aria-hidden="true" />
@@ -112,25 +112,20 @@
                             </a>
                         @endif
                         @unless($ended)
-                            <a href="#precios" class="site-btn site-btn--ghost site-btn--lg justify-center">
-                                {{ __('Ver precios') }}
-                                <x-phosphor-arrow-down class="site-btn__arrow" aria-hidden="true" />
+                            <a href="#precios" class="site-btn site-btn--ghost site-btn--lg site-btn--icon" aria-label="{{ __('Ver precios') }}" title="{{ __('Ver precios') }}">
+                                <x-phosphor-arrow-down aria-hidden="true" />
                             </a>
                         @endunless
                     </div>
-                    <p class="site-enter mt-6 text-sm text-site-muted" style="--enter-index: 5">
-                        @if($ended)
-                            {{ __('Te avisamos por WhatsApp cuando vuelva la temporada.') }}
-                        @elseif($isSeasonal)
-                            @if($season)
+                    @if($isSeasonal)
+                        <p class="site-enter mt-4 text-sm text-site-muted" style="--enter-index: 5">
+                            @if($ended)
+                                {{ __('Te avisamos por WhatsApp cuando vuelva la temporada.') }}
+                            @elseif($season)
                                 @if($season['old_price'])<del>{{ \App\Support\Money::format($season['old_price']) }}</del> @endif<strong class="text-site-ink">{{ \App\Support\Money::format($season['final_price']) }}</strong> {{ __('por temporada · :value · Se manda por WhatsApp', ['value' => $isCard ? __('Lista el mismo día') : __('Con confirmación de asistencia')]) }}
-                            @else
-                                {{ __(':value · Se manda por WhatsApp', ['value' => $isCard ? __('Lista el mismo día') : __('Con confirmación de asistencia')]) }}
                             @endif
-                        @else
-                            {{ __('Gratis para empezar · Desde :value si quieres más, pago único', ['value' => \App\Support\Money::format($fromPrice)]) }}
-                        @endif
-                    </p>
+                        </p>
+                    @endif
                 </div>
 
                 @if(count($demos) && ! $shotsInRow)
@@ -145,7 +140,8 @@
                         <p class="site-landing__hint">{{ $demoNote }}</p>
                     </div>
                 @else
-                    <div class="site-photo aspect-[4/5] w-full lg:col-span-6 lg:col-start-7">
+                    {{-- Con los diseños en fila debajo, la foto solo acompaña en pantallas anchas: en el celular son dos pantallas de más --}}
+                    <div @class(['site-photo aspect-[16/10] w-full lg:aspect-[6/5] lg:col-span-6 lg:col-start-7', 'hidden lg:block' => $shotsInRow])>
                         <x-site.image :key="$page['image']" :priority="true" />
                     </div>
                 @endif
@@ -160,108 +156,93 @@
             @endif
         </section>
 
-        {{-- ═══ Qué incluye: lo propio de este evento, en una grilla de filetes ═══ --}}
-        <section id="incluye" class="scroll-mt-20 border-t border-site-line">
-            <div class="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-28">
-                <div class="grid gap-6 lg:grid-cols-12 lg:items-end lg:gap-8">
-                    <h2 class="max-w-[18ch] text-3xl font-semibold leading-[1.1] tracking-tight md:text-5xl lg:col-span-7" data-reveal>
-                        {{ __('Pensada para :forPhrase', ['forPhrase' => $forPhrase]) }}
-                    </h2>
-                    <p class="max-w-[42ch] text-lg leading-relaxed text-site-muted lg:col-span-4 lg:col-start-9" data-reveal>
-                        {{ $page['features_note'] ?? __('Además de la cuenta regresiva, el itinerario y el mapa que lleva toda invitación.') }}
-                    </p>
-                </div>
+        {{-- ═══ Lo propio de este evento y, al lado, los tres pasos (fuera de temporada no se puede pedir) ═══ --}}
+        <section id="incluye" @class(['site-how site-how--event scroll-mt-20', 'site-how--solo' => $ended]) aria-labelledby="incluye-titulo">
+            <div class="site-how__includes">
+                <h2 id="incluye-titulo" class="site-display site-display--md" data-reveal>{{ __('Pensada para :forPhrase', ['forPhrase' => $forPhrase]) }}</h2>
 
-                <ul class="site-grid-features mt-14">
+                <ul class="site-include">
                     @foreach($page['highlights'] as $index => $highlight)
-                        <li data-reveal style="--reveal-index: {{ $index % 2 }}">
-                            <x-dynamic-component :component="'phosphor-'.$highlight['icon'].'-light'" class="site-grid-features__icon" aria-hidden="true" />
-                            <h3>{{ $highlight['title'] }}</h3>
-                            <p>{{ $highlight['text'] }}</p>
+                        <li class="site-include__item" data-reveal>
+                            <x-dynamic-component :component="'phosphor-'.$highlight['icon'].'-light'" class="site-include__icon" aria-hidden="true" />
+                            <div>
+                                <h3 class="site-include__title">{{ $highlight['title'] }}</h3>
+                                <p class="site-include__text">{{ $highlight['text'] }}</p>
+                            </div>
                         </li>
                     @endforeach
                 </ul>
             </div>
-        </section>
 
-        {{-- ═══ Cómo funciona: tres pasos, en orden (fuera de temporada no se puede pedir) ═══ --}}
-        @unless($ended)
-        <section id="como" class="scroll-mt-20 border-t border-site-line">
-            <div class="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-24">
-                <h2 class="max-w-[20ch] text-3xl font-semibold leading-[1.1] tracking-tight md:text-5xl" data-reveal>
-                    {{ __('De la idea al enlace, en tres pasos') }}
-                </h2>
-                <ol class="site-howto mt-12">
-                    @foreach($steps as $index => [$stepTitle, $stepText])
-                        <li class="site-howto__item" data-reveal style="--reveal-index: {{ $index }}">
-                            <span class="site-howto__num" aria-hidden="true">{{ $index + 1 }}</span>
-                            <h3 class="site-howto__title">{{ $stepTitle }}</h3>
-                            <p class="site-howto__text">{{ $stepText }}</p>
-                        </li>
-                    @endforeach
-                </ol>
+            @unless($ended)
+                <div id="como" class="site-how__steps scroll-mt-20">
+                    <h2 class="site-display site-display--md" data-reveal>{{ __('En tres pasos') }}</h2>
 
-                @unless($isSeasonal)
-                    {{-- Quien no quiere armarla, la pide hecha --}}
-                    <p class="mt-10 flex flex-wrap items-center gap-x-3 gap-y-1 text-site-muted" data-reveal>
-                        {{ __('¿Prefieres que la armemos por ti?') }}
-                        <a href="{{ $contactUrl }}" target="_blank" rel="noopener" class="site-link-arrow">
-                            {{ __('Escríbenos') }}
-                            <x-phosphor-arrow-right class="site-btn__arrow" aria-hidden="true" />
-                        </a>
-                    </p>
-                @endunless
-            </div>
+                    <ol class="site-steps">
+                        @foreach($steps as [$stepIcon, $stepTitle, $stepText])
+                            <li class="site-step" data-reveal>
+                                <span class="site-step__node">
+                                    <x-dynamic-component :component="'phosphor-'.$stepIcon.'-light'" class="size-5" aria-hidden="true" />
+                                </span>
+                                <div>
+                                    <h3 class="site-step__title">{{ $stepTitle }}</h3>
+                                    <p class="site-step__text">{{ $stepText }}</p>
+                                </div>
+                            </li>
+                        @endforeach
+                    </ol>
+                </div>
+            @endunless
         </section>
-        @endunless
 
         @if($isSeasonal)
             {{-- De temporada: precio de temporada tachado y rebajado; pasada la fecha, se consulta --}}
-            <section id="precios" class="scroll-mt-20 border-t border-site-line bg-site-surface">
-                <div class="mx-auto flex max-w-7xl flex-col items-start gap-8 px-5 py-20 lg:flex-row lg:items-end lg:justify-between lg:px-8" data-reveal>
-                    @if($season)
-                        <div>
-                            <p class="text-[0.95rem] font-medium text-site-accent">{{ __('Precio de temporada') }}</p>
-                            <p class="mt-4 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                                @if($season['old_price'])
-                                    <del class="site-plan__old"><span class="sr-only">{{ __('Antes') }} </span>{{ \App\Support\Money::format($season['old_price']) }}</del>
-                                @endif
-                                <span class="site-plan__price">{{ $season['final_price'] }}</span>
-                                <span class="text-xl text-site-muted">{{ __(':value por :noun', ['value' => \App\Support\Money::code(), 'noun' => $noun]) }}</span>
-                            </p>
-                            <p class="mt-3 text-site-muted">
-                                {{ __(':promo_label hasta el :value. Todos los diseños de la temporada cuestan lo mismo.', ['promo_label' => $season['promo_label'], 'value' => $season['endsAt']->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('l j \d\e F'))]) }}
-                            </p>
-                        </div>
+            <section id="precios" class="site-close site-section--surface scroll-mt-20">
+                @if($season)
+                    <div data-reveal>
+                        <p class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                            @if($season['old_price'])
+                                <del class="site-plan__old"><span class="sr-only">{{ __('Antes') }} </span>{{ \App\Support\Money::format($season['old_price']) }}</del>
+                            @endif
+                            <span class="site-plan__price">{{ $season['final_price'] }}</span>
+                            <span class="text-xl text-site-muted">{{ __(':value por :noun', ['value' => \App\Support\Money::code(), 'noun' => $noun]) }}</span>
+                        </p>
+                        <p class="mt-2 text-sm text-site-muted">
+                            {{ __(':promo_label hasta el :value. Todos los diseños de la temporada cuestan lo mismo.', ['promo_label' => $season['promo_label'], 'value' => $season['endsAt']->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('l j \d\e F'))]) }}
+                        </p>
+                    </div>
+                    <div class="site-close__actions" data-reveal>
                         <a href="{{ $season['whatsappUrl'] }}" target="_blank" rel="noopener" class="site-btn site-btn--lg" data-magnetic>
                             <x-phosphor-whatsapp-logo aria-hidden="true" />
                             {{ __('La quiero por :value', ['value' => \App\Support\Money::format($season['final_price'])]) }}
                         </a>
-                    @else
-                        <p class="max-w-[40ch] text-2xl font-semibold leading-snug tracking-tight md:text-3xl">{{ __('La temporada terminó. Escríbenos y te avisamos de la próxima.') }}</p>
+                    </div>
+                @else
+                    <p class="max-w-[40ch] font-serif text-2xl leading-snug md:text-3xl" data-reveal>{{ __('La temporada terminó. Escríbenos y te avisamos de la próxima.') }}</p>
+                    <div class="site-close__actions" data-reveal>
                         <a href="{{ $waitlistUrl }}" target="_blank" rel="noopener" class="site-btn site-btn--lg" data-magnetic>
                             <x-phosphor-whatsapp-logo aria-hidden="true" />
                             {{ __('Avísame cuando vuelva') }}
                         </a>
-                    @endif
-                </div>
+                    </div>
+                @endif
             </section>
         @else
-            {{-- Precios: armarla es gratis y se paga solo por lo que se usa; lo a medida se conversa, sin precio --}}
-            <section id="precios" class="scroll-mt-20 border-t border-site-line bg-site-surface" aria-labelledby="precios-titulo">
-                <div class="mx-auto max-w-7xl px-5 py-20 lg:px-8">
+            {{-- Precio en una franja: armarla es gratis y se paga solo por lo que se usa; lo a medida se conversa, sin precio --}}
+            <section id="precios" class="site-close site-section--surface scroll-mt-20" aria-labelledby="precios-titulo">
+                <div>
                     <h2 id="precios-titulo" class="site-display site-display--md" data-reveal>{{ __('Empieza gratis. Paga solo por lo que usas.') }}</h2>
                     <p class="site-muted-lead" data-reveal>
-                        {{ __('Arma tu :noun gratis, con la portada, la cuenta regresiva y la ubicación. Si quieres más, un pago único desde :value, en dólares (:currency).', ['noun' => $noun, 'value' => \App\Support\Money::format($fromPrice), 'currency' => \App\Support\Money::code()]) }}
+                        {{ __('Gratis con lo básico; si quieres más, un pago único desde :value (:currency).', ['value' => \App\Support\Money::format($fromPrice), 'currency' => \App\Support\Money::code()]) }}
+                        <a href="{{ lroute('pricing') }}" class="site-link-arrow">{{ __('Ver todos los precios') }} <x-phosphor-arrow-right aria-hidden="true" /></a>
                     </p>
-                    <p class="mt-8 flex flex-wrap gap-3" data-reveal>
-                        <a href="{{ \App\Support\DiyInvitations::startUrl($user) }}" class="site-btn site-btn--lg">
-                            {{ __('Crear mi invitación gratis') }}
-                            <x-phosphor-arrow-right class="site-btn__arrow" aria-hidden="true" />
-                        </a>
-                        <a href="{{ lroute('pricing') }}" class="site-btn site-btn--ghost site-btn--lg">{{ __('Ver precios') }}</a>
-                    </p>
-                    @include('site.partials.custom-request')
+                </div>
+                <div class="site-close__actions" data-reveal>
+                    <a href="{{ \App\Support\DiyInvitations::startUrl($user) }}" class="site-btn site-btn--lg">
+                        {{ __('Crear mi invitación gratis') }}
+                        <x-phosphor-arrow-right class="site-btn__arrow" aria-hidden="true" />
+                    </a>
+                    @include('site.partials.custom-request', ['customLabel' => __('¿Prefieres que la armemos por ti?')])
                 </div>
             </section>
         @endif
