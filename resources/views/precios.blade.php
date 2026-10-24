@@ -67,7 +67,7 @@
 
         {{-- ═══ Hazlo tú: gratis o un pago único por el nivel que usaste ═══ --}}
         <section id="hazlo-tu" class="scroll-mt-20 border-t border-site-line" aria-labelledby="hazlo-tu-titulo">
-            <div class="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-28">
+            <div class="mx-auto max-w-7xl px-5 py-10 lg:px-8 lg:py-28">
                 <div class="max-w-3xl">
                     <h2 id="hazlo-tu-titulo" class="site-display site-display--md" data-reveal>{{ __('Hazlo tú') }}</h2>
                     <p class="site-muted-lead" data-reveal>
@@ -75,7 +75,7 @@
                     </p>
                 </div>
 
-                <div class="site-plans site-plans--pro mt-14" data-carousel>
+                <div class="site-plans site-plans--pro mt-8 lg:mt-14">
                     @foreach($diyTiers as $index => $tier)
                         <x-site.price-card
                             :name="$tier['name']"
@@ -109,13 +109,20 @@
 
         {{-- ═══ Comparar: qué trae cada nivel y qué cambia entre las tres formas ═══ --}}
         <section id="comparar" class="scroll-mt-20 border-t border-site-line" aria-labelledby="comparar-titulo">
-            <div class="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-28">
+            <div class="mx-auto max-w-7xl px-5 py-10 lg:px-8 lg:py-28">
                 <div class="max-w-3xl">
                     <h2 id="comparar-titulo" class="site-display site-display--md" data-reveal>{{ __('Qué trae cada nivel') }}</h2>
                     <p class="site-muted-lead" data-reveal>{{ __('Con «Hazlo tú», cada nivel trae estas partes. Con un plan, cada invitación trae todas las partes; la confirmación depende del plan.') }}</p>
                 </div>
 
-                <div class="site-compare mt-12" data-reveal>
+                {{-- En el celular la comparación queda tras un botón (las tarjetas de arriba ya dicen lo que trae cada una) --}}
+                <details class="site-compare-more mt-8 lg:mt-12" open data-accordion="closed">
+                <summary class="site-compare-more__summary">
+                    <span class="site-plan__more-open">{{ __('Ver la comparación completa') }}</span>
+                    <span class="site-plan__more-close">{{ __('Ocultar la comparación') }}</span>
+                    <x-phosphor-caret-down class="site-plan__caret" aria-hidden="true" />
+                </summary>
+                <div class="site-compare" data-reveal>
                     <table>
                         <caption class="sr-only">{{ __('Qué incluye cada nivel de la invitación') }}</caption>
                         <thead>
@@ -146,9 +153,10 @@
                         </tbody>
                     </table>
                 </div>
+                </details>
 
-                <h2 class="site-display site-display--md mt-20" data-reveal>{{ __('Hazlo tú o un plan') }}</h2>
-                <div class="site-table" data-reveal>
+                <h2 class="site-display site-display--md mt-12 lg:mt-20" data-reveal>{{ __('Hazlo tú o un plan') }}</h2>
+                <div class="site-table site-table--stack" data-reveal>
                     <table>
                         <caption class="sr-only">{{ __('Diferencias entre Hazlo tú y los planes') }}</caption>
                         <thead>
@@ -163,8 +171,8 @@
                             @foreach($products['rows'] as $row)
                                 <tr>
                                     <th scope="row">{{ $row[0] }}</th>
-                                    @foreach(array_slice($row, 1) as $cell)
-                                        <td>{{ $cell }}</td>
+                                    @foreach(array_slice($row, 1) as $i => $cell)
+                                        <td data-label="{{ $products['columns'][$i] ?? '' }}">{{ $cell }}</td>
                                     @endforeach
                                 </tr>
                             @endforeach

@@ -353,7 +353,7 @@
                     </p>
                 </div>
 
-                <div class="site-plans mt-14" data-carousel>
+                <div class="site-plans mt-14">
                     @foreach($pricingSummary as $index => $way)
                         <x-site.price-card
                             :name="$way['name']"

@@ -118,18 +118,48 @@ class SeoAndMobileFixesTest extends TestCase
 
     // ── M10 · Precios y portada compactos
 
-    public function test_the_price_cards_slide_sideways_on_phones_with_position_dots(): void
+    public function test_the_price_cards_stack_on_phones_instead_of_sliding_sideways(): void
     {
-        $this->withoutVite()->get('/precios')->assertOk()->assertSee('site-plans site-plans--pro mt-14" data-carousel', false)->assertSee('data-carousel class="site-plans site-plans--grid', false);
-        $this->withoutVite()->get('/')->assertOk()->assertSee('site-plans mt-14" data-carousel', false);
+        // Un carrusel horizontal alto le quita al celular el deslizar hacia abajo: las tarjetas van una bajo otra
+        foreach (['/precios', '/unete', '/'] as $url) {
+            $html = $this->withoutVite()->get($url)->assertOk()->getContent();
+
+            $this->assertStringNotContainsString('data-carousel', $html, $url);
+            $this->assertStringContainsString('<details class="site-plan__more" open data-accordion="closed">', $html, $url);
+        }
 
         $css = file_get_contents(resource_path('css/site/site.css'));
-        $this->assertStringContainsString('scroll-snap-type: x mandatory', $css);
-        $this->assertMatchesRegularExpression('/@media \(max-width: 1023px\) \{\s*\.site-plans \{\s*display: flex;/', $css);
+        $this->assertDoesNotMatchRegularExpression('/\.site-plans[^{}]*\{[^}]*(overflow-x|scroll-snap-type)/', $css);
+        // Las reglas del celular llevan el prefijo del contenedor para ganarle a las de base (misma especificidad, van después)
+        $this->assertStringContainsString('.site-plans .site-plan__amount', $css);
 
         $js = file_get_contents(resource_path('js/site.js'));
-        $this->assertStringContainsString('function initCarousels()', $js);
-        $this->assertStringContainsString('initCarousels();', $js);
+        $this->assertStringNotContainsString('initCarousels', $js);
+    }
+
+    public function test_the_features_and_the_full_comparison_fold_on_phones_but_stay_open_on_desktop(): void
+    {
+        $html = $this->withoutVite()->get('/precios')->assertOk()->getContent();
+
+        $this->assertStringContainsString('<details class="site-compare-more mt-8 lg:mt-12" open data-accordion="closed">', $html);
+        $this->assertStringContainsString('site-table site-table--stack', $html);
+        // Cada celda de la tabla apilada lleva el nombre de su columna para mostrarlo en el celular
+        $this->assertStringContainsString('data-label="', $html);
+
+        $js = file_get_contents(resource_path('js/site.js'));
+        $this->assertStringContainsString("dataset.accordion !== 'closed'", $js);
+        $this->assertStringContainsString('wide.matches || group === firstOpen', $js);
+    }
+
+    public function test_the_scrollable_tables_are_positioned_so_hidden_labels_cannot_widen_the_page(): void
+    {
+        // Un «sr-only» (absoluto) dentro de un contenedor con overflow pero sin posición se escapa y ensancha la página: el celular la achica
+        $site = file_get_contents(resource_path('css/site/site.css'));
+        $home = file_get_contents(resource_path('css/site/home.css'));
+
+        $this->assertMatchesRegularExpression('/\.site-compare \{[^}]*position: relative;/', $site);
+        $this->assertMatchesRegularExpression('/\.site-table \{[^}]*position: relative;/', $home);
+        $this->assertMatchesRegularExpression('/@media \(max-width: 1023px\) \{\s*\.site-plans \{\s*position: relative;/', $site);
     }
 
     public function test_the_home_includes_become_three_accordions_open_by_default(): void

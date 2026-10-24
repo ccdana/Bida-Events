@@ -49,7 +49,7 @@
 @endphp
 
 <section id="planes" class="scroll-mt-20 border-t border-site-line bg-site-surface" aria-labelledby="planes-titulo" x-data="{ cycle: 1 }">
-    <div class="mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-28">
+    <div class="mx-auto max-w-7xl px-5 py-10 lg:px-8 lg:py-28">
         <div class="max-w-3xl">
             <h2 id="planes-titulo" class="site-display site-display--md" data-reveal>{{ $diyTitle ?? __('Elige tu plan') }}</h2>
             <p class="site-muted-lead" data-reveal>
@@ -73,7 +73,7 @@
             </div>
         @endif
 
-        <div data-carousel @class(['site-plans site-plans--grid', 'mt-14' => count($cycles) <= 1, 'mt-8' => count($cycles) > 1])>
+        <div @class(['site-plans site-plans--grid', 'mt-8 lg:mt-14' => count($cycles) <= 1, 'mt-8' => count($cycles) > 1])>
             @foreach($plans as $index => $plan)
                 @php($featured = $plan['key'] === $featuredPlan)
                 {{-- El de más arriba (sin tope de invitaciones) lleva el estilo premium, como el paquete Premium --}}

@@ -783,6 +783,7 @@ a:hover > .site-link-arrow svg,
 
 /* Tablas de datos: filetes, sin cajas; se deslizan en el celular */
 .site-table {
+    position: relative;
     margin-top: 2.5rem;
     overflow-x: auto;
     border-block: 1px solid var(--site-line);
@@ -822,6 +823,62 @@ a:hover > .site-link-arrow svg,
 
 .site-table td {
     color: var(--site-muted);
+}
+
+/* Comparaciones de pocas columnas: en el celular cada fila se apila (el nombre arriba y, debajo, cada columna con su etiqueta) en vez de deslizarse de lado */
+@media (max-width: 1023px) {
+    .site-table--stack {
+        margin-top: 1.5rem;
+        overflow-x: visible;
+    }
+
+    .site-table--stack table {
+        min-width: 0;
+    }
+
+    .site-table--stack thead {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+    }
+
+    .site-table--stack :is(tbody, tr, th, td) {
+        display: block;
+    }
+
+    .site-table--stack tbody tr {
+        padding: 1rem 0;
+        border-bottom: 1px solid var(--site-line);
+    }
+
+    .site-table--stack tbody tr:last-child {
+        border-bottom: 0;
+    }
+
+    .site-table--stack :is(th, td) {
+        padding: 0;
+        border: 0;
+    }
+
+    .site-table--stack td {
+        display: grid;
+        grid-template-columns: 5.25rem minmax(0, 1fr);
+        gap: 0.75rem;
+        margin-top: 0.4rem;
+        font-size: 0.95rem;
+    }
+
+    .site-table--stack td::before {
+        content: attr(data-label);
+        padding-top: 0.15rem;
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--site-accent);
+    }
 }
 
 .site-table-note {

@@ -67,20 +67,28 @@
         <p class="site-plan__saving invisible" aria-hidden="true">&nbsp;</p>
     @endif
 
-    <p class="mt-4 max-w-[36ch] leading-relaxed text-site-muted">{{ $summary }}</p>
+    <p class="site-plan__summary">{{ $summary }}</p>
 
-    <ul class="site-plan__features">
-        @foreach($features as $feature)
-            <li>
-                <x-phosphor-check-bold class="site-plan__check" aria-hidden="true" />
-                <span>{{ $feature }}</span>
-            </li>
-        @endforeach
-    </ul>
+    {{-- Abierta en el HTML (sin JavaScript y en computador se ve toda); en el celular site.js la deja cerrada --}}
+    <details class="site-plan__more" open data-accordion="closed">
+        <summary>
+            <span class="site-plan__more-open">{{ __('Ver qué incluye') }}</span>
+            <span class="site-plan__more-close">{{ __('Ocultar') }}</span>
+            <x-phosphor-caret-down class="site-plan__caret" aria-hidden="true" />
+        </summary>
+        <ul class="site-plan__features">
+            @foreach($features as $feature)
+                <li>
+                    <x-phosphor-check-bold class="site-plan__check" aria-hidden="true" />
+                    <span>{{ $feature }}</span>
+                </li>
+            @endforeach
+        </ul>
+    </details>
 
     <a href="{{ $url }}" @if($cycles) :href="cycles[cycle].url" @endif @if($external) target="_blank" rel="noopener" @endif
         @class([
-            'site-btn site-btn--lg mt-10 justify-center',
+            'site-btn site-btn--lg site-plan__cta justify-center',
             'site-btn--gold' => $premium,
             'site-btn--ghost' => ! $featured && ! $premium,
         ])>

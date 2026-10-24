@@ -782,72 +782,177 @@ html[data-theme='dark'] .site-plan--premium {
     color: var(--plan-gold);
 }
 
-/* En celular y tablet las tarjetas se deslizan de lado (la siguiente asoma para avisar) en lugar de apilarse:
-   cada bloque de precios baja de ~3.000 px a ~900. Los puntos de abajo marcan en cuál va (site.js, [data-carousel]) */
+/* Resumen y botón: en computador conservan sus espacios de siempre; en el celular se compactan (abajo) */
+.site-plan__summary {
+    max-width: 36ch;
+    margin-top: 1rem;
+    line-height: 1.625;
+    color: var(--site-muted);
+}
+
+.site-plan__cta {
+    margin-top: 2.5rem;
+}
+
+/* En computador la lista va siempre abierta y sin título */
+.site-plan__more > summary {
+    display: none;
+}
+
+/* ── Precios en el celular y la tablet ───────────────────────────────────────
+   Las tarjetas se apilan, bajas: nombre y precio a la vista, el resumen en dos líneas y la lista de lo que
+   incluye plegada tras «Ver qué incluye» (site.js, details[data-accordion="closed"]). Nada se desliza de
+   lado: un carrusel alto le quitaba el desplazamiento vertical a la página. */
 @media (max-width: 1023px) {
     .site-plans {
-        display: flex;
-        gap: 0;
-        margin-inline: -1.25rem;
-        padding-inline: 1.25rem;
-        overflow-x: auto;
-        overscroll-behavior-x: contain;
-        scroll-snap-type: x mandatory;
-        scroll-padding-inline: 1.25rem;
-        scrollbar-width: none;
+        position: relative;
+        gap: 0.85rem;
         border-top: 0;
-        border-bottom: 1px solid var(--site-line);
     }
 
-    .site-plans::-webkit-scrollbar {
+    .site-plans .site-plan {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-content: start;
+        column-gap: 0.75rem;
+        padding: 1.15rem 1.15rem 1.25rem;
+        border: 1px solid var(--site-line);
+        border-radius: 1.25rem;
+        background: var(--site-surface);
+    }
+
+    .site-plans .site-plan > * {
+        grid-column: 1 / -1;
+    }
+
+    /* Nombre (con su etiqueta debajo) a la izquierda y el precio a la derecha, en la misma fila */
+    .site-plans .site-plan__head {
+        grid-column: 1;
+        grid-row: 1;
+        flex-wrap: wrap;
+        align-content: center;
+        gap: 0.3rem 0.75rem;
+    }
+
+    .site-plans .site-plan__amount {
+        grid-column: 2;
+        grid-row: 1;
+        align-self: center;
+        justify-items: end;
+        margin-top: 0;
+        text-align: right;
+    }
+
+    /* El ahorro («Ahorras…») va debajo, a todo el ancho, y solo si hay */
+    .site-plans .site-plan__saving {
+        grid-row: 2;
+    }
+
+    .site-plans .site-plan::before {
         display: none;
     }
 
-    .site-plan {
-        flex: 0 0 86%;
-        max-width: 24rem;
-        padding: 2rem 1.25rem 2rem 0;
-        scroll-snap-align: start;
-        border-bottom: 0;
+    .site-plans .site-plan--featured {
+        border-color: color-mix(in srgb, var(--site-accent) 60%, var(--site-line));
     }
 
-    .site-plan + .site-plan {
-        padding-left: 1.25rem;
-        border-left: 1px solid var(--site-line);
+    .site-plans .site-plan--premium {
+        border-color: color-mix(in srgb, var(--plan-gold) 50%, var(--site-line));
     }
 
-    .site-plan:last-child {
-        margin-right: 1.25rem;
+    .site-plans .site-plan__head {
+        min-height: 0;
     }
-}
 
-/* Puntos de posición del carrusel; solo donde las tarjetas se deslizan */
-.site-dots {
-    display: flex;
-    justify-content: center;
-    gap: 0.5rem;
-    margin-top: 1.25rem;
-}
+    .site-plans .site-plan__name {
+        font-size: 1.15rem;
+    }
 
-.site-dots span {
-    width: 6px;
-    height: 6px;
-    border-radius: 999px;
-    background: var(--site-line);
-    transition: width 0.3s var(--site-ease), background-color 0.3s ease;
-}
+    .site-plans .site-plan__amount {
+        gap: 0.1rem;
+    }
 
-.site-dots span.is-active {
-    width: 20px;
-    background: var(--site-accent);
-}
+    .site-plans .site-plan__price {
+        font-size: 2.25rem;
+    }
 
-@media (min-width: 1024px) {
-    .site-dots {
+    .site-plans .site-plan__old {
+        font-size: 0.95rem;
+    }
+
+    /* Los huecos que guardan el lugar del precio tachado y del ahorro solo sirven para alinear columnas */
+    .site-plans .site-plan__old.invisible,
+    .site-plans .site-plan__saving.invisible {
         display: none;
     }
-}
 
+    .site-plans .site-plan__saving {
+        margin-top: 0;
+        font-size: 0.85rem;
+    }
+
+    .site-plans .site-plan__summary {
+        margin-top: 0.75rem;
+        max-width: none;
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+
+    .site-plans .site-plan__more {
+        margin-top: 0.9rem;
+        border-top: 1px solid var(--site-line);
+    }
+
+    .site-plans .site-plan__more > summary {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        min-height: 2.75rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--site-accent);
+        cursor: pointer;
+        list-style: none;
+    }
+
+    .site-plans .site-plan__more > summary::-webkit-details-marker {
+        display: none;
+    }
+
+    .site-plans .site-plan__more > summary > span:first-child {
+        margin-right: auto;
+    }
+
+    .site-plans .site-plan__more[open] .site-plan__more-open,
+    .site-plans .site-plan__more:not([open]) .site-plan__more-close {
+        display: none;
+    }
+
+    .site-plans .site-plan__caret {
+        width: 1rem;
+        height: 1rem;
+        transition: rotate 0.3s var(--site-ease);
+    }
+
+    .site-plans .site-plan__more[open] .site-plan__caret {
+        rotate: 180deg;
+    }
+
+    .site-plans .site-plan__features {
+        gap: 0.6rem;
+        margin-top: 0;
+        padding-top: 0.35rem;
+        border-top: 0;
+        font-size: 0.95rem;
+    }
+
+    .site-plans .site-plan__cta {
+        width: 100%;
+        min-height: 3rem;
+        margin-top: 0.9rem;
+    }
+}
 @media (min-width: 1024px) {
     .site-plans {
         grid-template-columns: repeat(3, 1fr);
@@ -2279,6 +2384,8 @@ html.site-season-open {
 }
 
 .site-compare {
+    /* position: los textos .sr-only (absolutos) de las celdas se quedan dentro y no ensanchan la página en el celular */
+    position: relative;
     overflow-x: auto;
     border-block: 1px solid var(--site-line);
     -webkit-overflow-scrolling: touch;
@@ -2327,6 +2434,85 @@ html.site-season-open {
     color: var(--site-muted);
 }
 
+/* El triángulo de «Ver qué incluye» y de la comparación (las flechas son íconos de Phosphor: sin tamaño propio se ven enormes) */
+.site-plan__caret {
+    flex-shrink: 0;
+    width: 1rem;
+    height: 1rem;
+}
+
+/* La comparación completa: en computador va siempre abierta y sin título */
+.site-compare-more > summary {
+    display: none;
+}
+
+@media (max-width: 1023px) {
+    .site-compare-more > summary {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        min-height: 3rem;
+        padding: 0 1.15rem;
+        border: 1px solid var(--site-line);
+        border-radius: 999px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        list-style: none;
+    }
+
+    .site-compare-more > summary::-webkit-details-marker {
+        display: none;
+    }
+
+    .site-compare-more > summary > span:first-child {
+        margin-right: auto;
+    }
+
+    .site-compare-more[open] .site-plan__more-open,
+    .site-compare-more:not([open]) .site-plan__more-close {
+        display: none;
+    }
+
+    .site-compare-more[open] .site-plan__caret {
+        rotate: 180deg;
+    }
+
+    .site-compare-more[open] > summary {
+        margin-bottom: 1rem;
+    }
+
+    /* La tabla en pantalla chica: letra y celdas más chicas, y la columna de nombres fija mientras se desliza */
+    .site-compare {
+        margin-top: 0;
+    }
+
+    .site-compare table {
+        min-width: 27rem;
+        font-size: 0.85rem;
+    }
+
+    .site-compare th,
+    .site-compare td {
+        padding: 0.65rem 0.5rem;
+    }
+
+    .site-compare tbody th,
+    .site-compare thead th:first-child {
+        position: sticky;
+        left: 0;
+        z-index: 1;
+        width: 9.5rem;
+        min-width: 9.5rem;
+        background: var(--site-bg);
+        line-height: 1.3;
+    }
+
+    .site-compare tbody th {
+        box-shadow: 1px 0 0 var(--site-line);
+    }
+}
 .site-collections {
     display: grid;
     gap: 1.25rem;
