@@ -25,7 +25,7 @@
         </template>
     </div>
 
-    <span class="ed-toolbar__status" aria-live="polite" x-text="uploadStatus || (previewLoading ? 'Actualizando…' : '')"></span>
+    <span class="ed-toolbar__status" aria-live="polite" x-text="uploadStatus || previewError || (previewLoading ? 'Actualizando…' : '')"></span>
 
     <button type="button" role="switch" class="ed-tool" :class="{ 'is-on': guestView }"
         :aria-checked="guestView.toString()" @click="guestView = !guestView">
@@ -67,6 +67,12 @@
     </template>
 </div>
 
+{{-- La vista previa se dibuja con una sola petición: este formulario manda lo que se arma y la invitación llega al marco --}}
+<form x-ref="previewForm" method="POST" :action="previewRenderUrl" target="ed-preview-frame" class="hidden" aria-hidden="true">
+    @csrf
+    <input type="hidden" name="payload" x-ref="previewPayload">
+</form>
+
 <div class="ed-preview">
     <p class="ed-preview__tip" x-show="!guestView && panelMode === 'closed'" x-cloak x-transition.opacity>
         Toca un <strong>texto</strong> o una <strong>foto</strong> para cambiarlo
@@ -76,7 +82,7 @@
     </p>
     <div class="ed-preview__stage">
         <div class="adm-device mx-auto h-full w-full" :style="`max-width:${previewWidth}px`">
-            <iframe x-ref="previewFrame" src="about:blank" class="size-full rounded-[1.6rem] bg-white" title="Vista previa de la invitación"></iframe>
+            <iframe x-ref="previewFrame" name="ed-preview-frame" src="about:blank" class="size-full rounded-[1.6rem] bg-white" title="Vista previa de la invitación"></iframe>
         </div>
     </div>
 </div>

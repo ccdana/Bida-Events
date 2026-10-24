@@ -286,6 +286,7 @@ class InvitationEditorViewData
             return [
                 'previewUrl' => route('client.editor.preview.frame'),
                 'previewStoreUrl' => route('client.editor.preview.store'),
+                'previewRenderUrl' => route('client.editor.preview.render'),
                 'clientStoreUrl' => null,
                 'clientPasswordUrl' => null,
                 'mediaUploadUrl' => route('client.editor.media.upload'),
@@ -297,6 +298,7 @@ class InvitationEditorViewData
         return [
             'previewUrl' => route('admin.preview.frame'),
             'previewStoreUrl' => route('admin.preview.store'),
+            'previewRenderUrl' => route('admin.preview.render'),
             'clientStoreUrl' => route('admin.clients.store'),
             'clientPasswordUrl' => route('admin.clients.password', ['client' => '__ID__']),
             'mediaUploadUrl' => route('admin.media.upload'),

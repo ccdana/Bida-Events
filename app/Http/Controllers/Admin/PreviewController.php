@@ -45,12 +45,29 @@ class PreviewController extends Controller
         }
     }
 
+    /** La vista previa desde lo que se guardó en la sesión con store() (la forma de antes; el editor ya usa render()). */
     public function frame(Request $request)
     {
-        try {
-            $key = $request->query('key', 'draft');
-            $payload = InvitationPreviewSession::get($key);
+        return $this->renderPayload($request, InvitationPreviewSession::get($request->query('key', 'draft')));
+    }
 
+    /**
+     * La vista previa en una sola petición: el editor manda lo que se está armando y recibe la invitación
+     * ya dibujada, directo en el marco. Antes eran dos (guardar en la sesión y pedir el marco), cada una con
+     * su arranque del servidor, y la sesión crecía con cada cambio: la vista previa tardaba unos 2 segundos
+     * en reflejar una letra.
+     */
+    public function render(Request $request)
+    {
+        $raw = json_decode((string) $request->input('payload', ''), true);
+
+        return $this->renderPayload($request, is_array($raw) && $raw !== [] ? $this->payloadFromArray($raw) : null);
+    }
+
+    /** @param  array<string, mixed>|null  $payload */
+    protected function renderPayload(Request $request, ?array $payload)
+    {
+        try {
             if (! $payload) {
                 return response('<html><body style="font-family:sans-serif;padding:2rem;color:#888">Configura la invitación para ver la vista previa</body></html>')
                     ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
@@ -117,7 +134,18 @@ class PreviewController extends Controller
 
     protected function extractJsonPayload(Request $request): array
     {
-        $modulos = $request->input('modulos', []);
+        return $this->payloadFromArray($request->all());
+    }
+
+    /**
+     * Lo que se está armando en el editor, con los módulos completos y normalizados.
+     *
+     * @param  array<string, mixed>  $input
+     * @return array<string, mixed>
+     */
+    protected function payloadFromArray(array $input): array
+    {
+        $modulos = $input['modulos'] ?? [];
 
         if (! is_array($modulos)) {
             $modulos = [];
@@ -128,13 +156,13 @@ class PreviewController extends Controller
         );
 
         return [
-            'title' => $request->input('title'),
-            'slug' => $request->input('slug'),
-            'template' => $request->input('template'),
-            'event_date' => $request->input('event_date'),
-            'expires_at' => $request->input('expires_at'),
-            'package' => $request->input('package'),
-            'locale' => $request->input('locale'),
+            'title' => $input['title'] ?? null,
+            'slug' => $input['slug'] ?? null,
+            'template' => $input['template'] ?? null,
+            'event_date' => $input['event_date'] ?? null,
+            'expires_at' => $input['expires_at'] ?? null,
+            'package' => $input['package'] ?? null,
+            'locale' => $input['locale'] ?? null,
             'modulos' => $modulos,
         ];
     }

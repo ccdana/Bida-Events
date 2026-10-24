@@ -212,20 +212,20 @@ function invitationForm(config) {
         previewScrollY: null,
         // Tamaño del aparato en la vista previa: phone, tablet o desktop
         previewDevice: 'phone',
-        previewUrl: config.previewUrl,
-        previewStoreUrl: config.previewStoreUrl,
-        previewKey: config.previewKey ?? 'draft',
-        previewRevision: config.previewRevision ?? 0,
+        // La invitación se dibuja con una sola petición: el editor manda lo que arma y el servidor la devuelve lista
+        previewRenderUrl: config.previewRenderUrl,
+        previewError: '',
+        // Cuándo se cambió un texto directo en la invitación (setLiveText): la recarga completa espera a que se deje de escribir
+        livePatchedAt: 0,
+        previewTypingMs: 700,
         clientStoreUrl: config.clientStoreUrl,
         clientPasswordUrl: config.clientPasswordUrl,
         clientPasswordLoading: false,
         mediaUploadUrl: config.mediaUploadUrl,
-        previewTick: Date.now(),
         previewLoading: false,
         previewTimer: null,
         previewSeq: 0,
-        previewAbort: null,
-        previewDebounceMs: 280,
+        previewDebounceMs: 250,
         mediaUploading: false,
         // Lo que se está haciendo al guardar («Subiendo archivo 2 de 3…») y si ya se está saliendo de la página
         uploadStatus: '',
@@ -668,6 +668,10 @@ function invitationForm(config) {
             this.normalizeRsvp();
             this.$watch('modules', () => this.schedulePreview(), { deep: true });
             this.$watch('meta', () => this.schedulePreview(), { deep: true });
+            // En vivo: lo escrito, los colores y las letras se ven al instante en la invitación, sin esperar al servidor
+            document.getElementById('invitation-form')?.addEventListener('input', (event) => this.onFieldInput(event), true);
+            this.$watch('modules.config.colores', () => this.setLiveColors(), { deep: true });
+            this.$watch('modules.config.tipografias', () => this.setLiveFonts(), { deep: true });
             // La vista previa sigue a la pestaña: al cambiar de módulo (o al recargarse) salta a su sección
             this.$watch('activeTab', () => this.focusPreviewSection(true));
             this.$watch('panelMode', () => this.markPreviewActive());
@@ -676,6 +680,7 @@ function invitationForm(config) {
                 if (value) this.finishEditing();
             });
             this.$nextTick(() => this.$refs.previewFrame?.addEventListener('load', () => {
+                this.onPreviewLoaded();
                 this.setupPreviewEditing();
                 this.restorePreviewScroll();
                 this.revealNewPart();
@@ -2046,7 +2051,7 @@ function invitationForm(config) {
                 const entry = entries.find(item => item.tabId === sectionTab) ?? entries[0];
                 el.dataset.edField = String(fields.length);
                 el.dataset.edKind = 'text';
-                fields.push({ el, control: null, container: null, kind: 'text', copy: entry });
+                fields.push({ el, control: null, container: null, kind: 'text', copy: entry, shown: this.templateTextValue(entry) });
             };
 
             const register = (el, candidates, kind) => {
@@ -2055,7 +2060,7 @@ function invitationForm(config) {
                 const control = candidates.find(item => this.tabOfControl(item) === sectionTab) ?? candidates[0];
                 el.dataset.edField = String(fields.length);
                 el.dataset.edKind = kind;
-                fields.push({ el, control, container: this.fieldContainer(control), kind });
+                fields.push({ el, control, container: this.fieldContainer(control), kind, shown: kind === 'text' ? String(control.value ?? '') : null });
             };
 
             const walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT);
@@ -2372,24 +2377,31 @@ function invitationForm(config) {
             view.scrollTo({ top: Math.max(0, target.getBoundingClientRect().top + view.scrollY - 12), behavior: smooth ? 'smooth' : 'auto' });
         },
 
+        /**
+         * Pide actualizar la vista previa cuando se deja de escribir. Un texto ya se vio al instante (setLiveText), así
+         * que la recarga completa, que acomoda todo lo demás, espera un poco más para no estorbar mientras se escribe.
+         */
         schedulePreview() {
             // Mientras se suben los archivos al guardar la vista previa no se recarga: cada archivo
             // subido cambia la invitación y recargaba la vista previa una y otra vez
             if (this.mediaUploading) return;
             clearTimeout(this.previewTimer);
             this.previewLoading = true;
-            this.previewTimer = setTimeout(() => this.runPreviewUpdate(), this.previewDebounceMs);
+            const justPatched = Date.now() - this.livePatchedAt < 60;
+            this.previewTimer = setTimeout(() => this.runPreviewUpdate(), justPatched ? this.previewTypingMs : this.previewDebounceMs);
         },
 
-        previewFrameUrl() {
-            return `${this.previewUrl}?key=${encodeURIComponent(this.previewKey)}&rev=${this.previewRevision}&_=${this.previewTick}`;
-        },
 
-        reloadPreviewFrame() {
+        /**
+         * Manda lo que se está armando al servidor y la invitación ya dibujada aparece en el marco: una sola
+         * petición (formulario hacia el marco), sin guardar nada en la sesión.
+         */
+        submitPreview(payload, seq) {
             const frame = this.$refs.previewFrame;
-            if (!frame) return;
+            const form = this.$refs.previewForm;
+            const field = this.$refs.previewPayload;
+            if (!frame || !form || !field) return;
 
-            const url = this.previewFrameUrl();
             // Al recargar se vuelve a la misma altura: tipear no debe mover la invitación
             try {
                 if (frame.contentWindow?.document?.body?.dataset.edReady) this.previewScrollY = frame.contentWindow.scrollY;
@@ -2397,12 +2409,158 @@ function invitationForm(config) {
                 this.previewScrollY = null;
             }
 
-            if (frame.getAttribute('data-preview-url') === url) {
-                frame.src = 'about:blank';
+            field.value = JSON.stringify(payload);
+            this.frameSeq = seq;
+            this.previewError = '';
+            form.submit();
+        },
+
+        // ── En vivo: lo que se cambia aparece en la invitación al instante ──
+        // Dibujarla de nuevo en el servidor toma casi un segundo; mientras tanto el cambio ya se ve aquí, y
+        // la invitación completa llega después y acomoda todo lo demás (fechas, partes que dependen de otras…).
+
+        /** Una letra escrita en cualquier campo del panel: se cambia ese texto en la invitación, donde aparezca. */
+        onFieldInput(event) {
+            const control = event.target;
+            if (!(control instanceof HTMLInputElement || control instanceof HTMLTextAreaElement)) return;
+            if (!/^(text|search|tel|email|url|)$/.test(control.type ?? '')) return;
+
+            const fields = this.$refs.previewFrame?._edFields;
+            if (!fields?.length) return;
+
+            let hits = [];
+            if (control.id?.startsWith('texto-')) {
+                // Un texto de la plantilla: si se vacía, vuelve a decir el de la plantilla
+                const key = control.id.slice('texto-'.length);
+                const entry = this.templateTexts().find(item => item.key === key);
+                const value = control.value.trim() || String(entry?.default ?? '');
+                hits = fields.filter(field => field.copy?.key === key).map(field => ({ field, value }));
+            } else if (control.value.trim() !== '') {
+                hits = fields.filter(field => field.kind === 'text' && field.control === control).map(field => ({ field, value: control.value }));
             }
 
-            frame.setAttribute('data-preview-url', url);
-            frame.src = url;
+            if (hits.map(({ field, value }) => this.setLiveText(field, value)).some(Boolean)) {
+                this.livePatchedAt = Date.now();
+            }
+        },
+
+        /** Cambia el texto de un elemento de la invitación sin tocar lo demás (formato, animaciones, orden). */
+        setLiveText(field, value) {
+            const el = field.el;
+            if (!el?.isConnected) return false;
+
+            const previous = String(field.shown ?? '');
+            const squash = (text) => String(text).replace(/\s+/g, ' ').trim().toLowerCase();
+            let node = null;
+
+            if (previous !== '') {
+                const walker = el.ownerDocument.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+                while (walker.nextNode()) {
+                    if (walker.currentNode.nodeValue.toLowerCase().includes(previous.toLowerCase())) {
+                        node = walker.currentNode;
+                        break;
+                    }
+                }
+            }
+
+            if (node) {
+                // Solo cambia lo que era de este campo («Colección XV · 2027» conserva el año)
+                const at = node.nodeValue.toLowerCase().indexOf(previous.toLowerCase());
+                node.nodeValue = node.nodeValue.slice(0, at) + value + node.nodeValue.slice(at + previous.length);
+            } else if (el.childElementCount === 0 || squash(el.textContent) === squash(previous)) {
+                // Un título armado letra por letra: se reemplaza entero (la recarga completa devuelve su animación)
+                el.textContent = value;
+            } else {
+                return false;
+            }
+
+            field.shown = value;
+            return true;
+        },
+
+        /** Una foto cambiada (elegida o recortada): se cambia en la invitación donde se muestre, como foto o como fondo. */
+        patchPreviewImage(fromUrl, toUrl) {
+            const doc = this.$refs.previewFrame?.contentDocument;
+            if (!doc?.body || !fromUrl || !toUrl) return false;
+
+            const key = (url) => {
+                try {
+                    return (new URL(String(url), window.location.href).pathname.split('/').filter(Boolean).pop() ?? '').replace(/\.[a-z0-9]+$/i, '').toLowerCase();
+                } catch (error) {
+                    return '';
+                }
+            };
+            const from = key(fromUrl);
+            if (from === '') return false;
+
+            let changed = 0;
+            doc.querySelectorAll('img').forEach(img => {
+                if (key(img.currentSrc || img.getAttribute('src') || '') !== from) return;
+                img.removeAttribute('srcset');
+                img.src = toUrl;
+                changed++;
+            });
+            doc.querySelectorAll('[style*="url("]').forEach(el => {
+                const found = /url\((['"]?)([^'")]+)\1\)/.exec(el.getAttribute('style') ?? '');
+                if (!found || key(found[2]) !== from) return;
+                el.style.backgroundImage = `url("${toUrl}")`;
+                changed++;
+            });
+
+            if (changed > 0) this.livePatchedAt = Date.now();
+            return changed > 0;
+        },
+
+        /** Los colores de «Colores y letras» se ven al mover cada uno (la invitación los lee de variables de CSS). */
+        setLiveColors() {
+            const root = this.$refs.previewFrame?.contentDocument?.documentElement;
+            if (!root) return;
+            const colors = this.modules.config?.colores ?? {};
+            const variables = { primary: '--primary-color', secondary: '--secondary-color', accent: '--accent-color', text: '--text-color', background: '--bg-color' };
+            Object.entries(variables).forEach(([name, variable]) => {
+                if (colors[name]) root.style.setProperty(variable, colors[name]);
+            });
+            this.livePatchedAt = Date.now();
+        },
+
+        /** Las letras también: se pide la tipografía a Google Fonts y se aplica sin recargar. */
+        setLiveFonts() {
+            const doc = this.$refs.previewFrame?.contentDocument;
+            if (!doc?.documentElement) return;
+            const fonts = this.modules.config?.tipografias ?? {};
+            const variables = { titulos: ['--font-titles', 'serif'], cuerpo: ['--font-body', 'sans-serif'], script: ['--font-script', 'cursive'] };
+            Object.entries(variables).forEach(([name, [variable, fallback]]) => {
+                const family = String(fonts[name] ?? '').trim();
+                if (family === '') return;
+                this.ensureLiveFont(doc, family);
+                doc.documentElement.style.setProperty(variable, `'${family}', ${fallback}`);
+            });
+            this.livePatchedAt = Date.now();
+        },
+
+        ensureLiveFont(doc, family) {
+            const id = 'ed-font-' + family.replace(/\W+/g, '-').toLowerCase();
+            if (doc.getElementById(id)) return;
+            const name = encodeURIComponent(family).replace(/%20/g, '+');
+            const link = doc.createElement('link');
+            link.id = id;
+            link.rel = 'stylesheet';
+            link.href = `https://fonts.googleapis.com/css2?family=${name}:wght@300;400;500;600;700&display=swap`;
+            // Una letra que no trae todos los pesos: se pide solo la normal
+            link.onerror = () => { link.onerror = null; link.href = `https://fonts.googleapis.com/css2?family=${name}&display=swap`; };
+            doc.head.appendChild(link);
+        },
+
+        /** Al terminar de cargar el marco: se apaga «Actualizando…» y, si el servidor no pudo dibujarla, se dice. */
+        onPreviewLoaded() {
+            const body = this.$refs.previewFrame?.contentDocument?.body;
+            if (this.frameSeq === this.previewSeq) this.previewLoading = false;
+            if (body && !body.dataset.edReady && /^Error al renderizar/.test((body.textContent ?? '').trim())) {
+                this.previewError = 'La vista previa no se pudo dibujar: revisa el nombre de la portada y las fechas.';
+            } else if (body && !body.dataset.edReady && (body.querySelector('form[action$="/login"]') || /Page Expired|CSRF token mismatch/i.test(body.textContent ?? ''))) {
+                // La sesión se venció: la vista previa mostraba «Ingresar» o «Page Expired» sin explicar nada
+                this.previewError = 'Tu sesión se venció. Guarda lo que tengas y vuelve a entrar para seguir viendo los cambios.';
+            }
         },
 
         async buildPreviewState() {
@@ -2420,63 +2578,23 @@ function invitationForm(config) {
                 event_date: this.meta.event_date ?? '',
                 expires_at: this.meta.expires_at ?? '',
                 package: this.meta.package ?? '',
-                preview_key: this.previewKey,
                 modulos,
             };
         },
 
         async runPreviewUpdate() {
             const seq = ++this.previewSeq;
-
-            if (this.previewAbort) {
-                this.previewAbort.abort();
-            }
-
-            this.previewAbort = new AbortController();
-            const signal = this.previewAbort.signal;
             this.previewLoading = true;
 
             try {
                 const payload = await this.buildPreviewState();
+                // Si mientras tanto hubo otro cambio, ese es el que se dibuja
                 if (seq !== this.previewSeq) return;
-
-                const response = await fetch(this.previewStoreUrl, {
-                    method: 'POST',
-                    credentials: 'same-origin',
-                    signal,
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content ?? '',
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest',
-                    },
-                    body: JSON.stringify(payload),
-                });
-
-                if (seq !== this.previewSeq) return;
-
-                if (!response.ok) {
-                    const message = await response.text();
-                    throw new Error(message || `Error ${response.status} al actualizar la vista previa`);
-                }
-
-                const data = await response.json();
-                if (!data.success) {
-                    throw new Error(data.message || 'No se pudo guardar la vista previa');
-                }
-
-                this.previewRevision = data.revision ?? Date.now();
-                this.previewTick = Date.now();
-                this.frameSeq = seq;
-                this.reloadPreviewFrame();
+                this.submitPreview(payload, seq);
             } catch (error) {
-                if (error?.name !== 'AbortError') {
-                    console.error('Preview error:', error);
-                }
-            } finally {
-                if (seq === this.previewSeq) {
-                    this.previewLoading = false;
-                }
+                console.error('Preview error:', error);
+                this.previewLoading = false;
+                this.previewError = 'No se pudo actualizar la vista previa. Sigue editando: se reintenta con el próximo cambio.';
             }
         },
 
@@ -2755,8 +2873,9 @@ function invitationForm(config) {
         },
 
         pickLocalFileReplace(event, type, context, getUrl, setUrl) {
-            this.clearMediaUrl(getUrl());
-            this.pickLocalFile(event, type, context, setUrl);
+            const previous = getUrl();
+            this.clearMediaUrl(previous);
+            this.pickLocalFile(event, type, context, setUrl, previous);
         },
 
         /**
@@ -2783,7 +2902,7 @@ function invitationForm(config) {
             return true;
         },
 
-        pickLocalFile(event, type, context, setUrl) {
+        pickLocalFile(event, type, context, setUrl, previous = null) {
             const file = event.target.files?.[0];
             event.target.value = '';
             if (!file || !this.acceptMediaFile(file, type)) return;
@@ -2796,6 +2915,8 @@ function invitationForm(config) {
                 apply: (url) => setUrl(url),
             });
             setUrl(blobUrl);
+            // La foto nueva se ve en la invitación al instante (si ya había otra, se cambia en su lugar)
+            if (previous) this.patchPreviewImage(previous, blobUrl);
             this.schedulePreview();
 
             // Una foto para un espacio fijo se encuadra apenas se elige (el QR del banco se deja tal cual)
@@ -2920,7 +3041,7 @@ function invitationForm(config) {
                     const blob = await response.blob();
                     if (!blob.type.startsWith('image/')) throw new Error('No es una imagen');
                     const file = new File([blob], 'foto.' + (blob.type.split('/')[1] || 'jpg'), { type: blob.type });
-                    entry = { file, type: 'image', context: contextOverride || 'general', blobUrl: URL.createObjectURL(file), apply: setUrl, isDraft: true };
+                    entry = { file, type: 'image', context: contextOverride || 'general', blobUrl: URL.createObjectURL(file), apply: setUrl, isDraft: true, shownUrl: url };
                 } catch (error) {
                     alert('No se pudo abrir esta foto para recortarla. Súbela de nuevo desde tu equipo y podrás encuadrarla.');
                     return;
@@ -3171,9 +3292,12 @@ function invitationForm(config) {
                 const newFile = new File([blob], `${baseName}.${extension}`, { type: blob.type });
                 const newBlobUrl = URL.createObjectURL(newFile);
 
+                // Lo que la invitación muestra hoy de esta foto: la original (ya guardada) o la que se acaba de elegir
+                const shownBefore = entry.shownUrl ?? entry.blobUrl;
                 URL.revokeObjectURL(entry.blobUrl);
                 entry.file = newFile;
                 entry.blobUrl = newBlobUrl;
+                entry.shownUrl = newBlobUrl;
 
                 // Una foto que ya estaba guardada pasa a subirse de nuevo, recortada, al guardar
                 if (entry.isDraft) {
@@ -3184,6 +3308,7 @@ function invitationForm(config) {
                 if (typeof entry.apply === 'function') {
                     entry.apply(newBlobUrl);
                 }
+                this.patchPreviewImage(shownBefore, newBlobUrl);
 
                 this.cropperEntry = null;
                 this.closeImageCropper();

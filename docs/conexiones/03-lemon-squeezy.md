@@ -33,9 +33,26 @@ En *Settings › General* comprueba que la moneda sea **USD**.
 
 ### Paso 2. Crear el producto de las suscripciones
 
-1. *Products › + New product*. Nombre: `Únete`. Tipo: **Subscription**.
-2. Crea **una variante mensual por plan**, con el **mismo precio que el plan tiene hoy en el sitio**
-   (Admin › Ajustes; si tiene descuento, el precio con descuento):
+1. *Products › + New product* y llena el formulario así (lo que no aparece aquí se deja como está):
+
+   | Campo | Valor |
+   | --- | --- |
+   | Name | `Únete` |
+   | Description | Opcional |
+   | Pricing | **Subscription** |
+   | Pricing model | **Standard pricing** |
+   | Price per unit | `10.00` (el plan Inicial; pasa a ser su variante) |
+   | Repeat payment every | `1` **Month** |
+   | Usage is metered / setup fee / free trial | Los tres apagados |
+   | Tax category | La que viene por defecto |
+   | Media, Files, Links | Vacíos |
+   | Generate license keys | Apagado |
+   | Display product on storefront | Apagado (los cobros los crea el sitio) |
+
+   Pulsa **Publish product** (no *Save as draft*).
+2. Con **Add variant** crea el resto: **una variante mensual por plan**, con el **mismo precio que el
+   plan tiene hoy en el sitio** (Admin › Ajustes; si tiene descuento, el precio con descuento). Si
+   pide nombre para la primera, ponle `Inicial`:
 
    | Variante | Precio mensual | Variable del `.env` |
    | --- | --- | --- |
@@ -43,7 +60,9 @@ En *Settings › General* comprueba que la moneda sea **USD**.
    | Emprendedor | US$ 20 | `LEMONSQUEEZY_VARIANT_EMPRENDEDOR` |
    | Agencia | US$ 30 | `LEMONSQUEEZY_VARIANT_AGENCIA` |
 
-3. **Opcional — cobrar cada 3 meses y cada año con tarjeta.** Dentro del mismo producto, agrega por
+3. **Opcional — cobrar cada 3 meses y cada año con tarjeta.** Dentro del mismo producto (o en un
+   producto aparte por ciclo, por ejemplo `Trimestral` y `Anual`: al sitio solo le importa el id de cada
+   variante, no en qué producto está), agrega por
    cada plan una variante con intervalo de **3 meses** y otra de **1 año**. El precio debe ser el que
    cobra el sitio: precio mensual × meses, menos el descuento de Admin › Ajustes (con 10 % y 20 %):
 
@@ -64,16 +83,18 @@ En *Settings › General* comprueba que la moneda sea **USD**.
 
 La invitación que arma cada persona se paga una sola vez.
 
-1. *Products › + New product*. Nombre: `Invitación`. Tipo: **Single payment**.
-2. **Una sola variante**, con cualquier precio (por ejemplo US$ 1). El precio real lo manda el sitio en
-   cada cobro, según el nivel que se publica.
+1. *Products › + New product*. Name: `Invitación`. Pricing: **Single payment**, **Standard pricing**.
+   Storefront y licencias apagados; publícalo con **Publish product**.
+2. **Una sola variante**, con cualquier precio (por ejemplo `1.00`). El precio real lo manda el sitio
+   en cada cobro, según el nivel que se publica.
 3. Su id → `LEMONSQUEEZY_VARIANT_INVITACION`.
 
 Sin esta variable, «Hazlo tú» solo ofrece el QR (si está Libélula) o WhatsApp.
 
 ### Paso 4. Obtener los ids de las variantes
 
-El id de cada variante es el número que aparece en la dirección al editarla. Para verlos todos
+El `.env` usa el id de cada **variante**, no el del producto. Es el número que aparece en la
+dirección al editar la variante. Para verlos todos
 juntos, después de crear la API key (paso 5), desde cualquier terminal:
 
 ```bash
@@ -113,9 +134,30 @@ Cada `id` aparece seguido del `name` de la variante. Apunta cuál es cuál.
 
 ### Paso 7. Activar el portal del cliente
 
-*Settings › Customer portal*: permite que el cliente **cambie de plan** (entre las variantes de
-«Únete»), **actualice la tarjeta** y **cancele**. El sitio abre este portal desde «Mi plan ›
-Administrar mi suscripción».
+Es el panel donde el cliente cambia de plan, actualiza la tarjeta o cancela. El sitio lo abre desde
+«Mi plan › Administrar mi suscripción» con un enlace firmado que pide a Lemon Squeezy en el momento
+(vale 24 horas e inicia la sesión del cliente solo), así que no hace falta que el cliente tenga cuenta
+en Lemon Squeezy.
+
+Está en *Settings › Stores* → tu tienda → pestaña **Portal**. Con Test mode encendido:
+
+| Campo | Valor |
+| --- | --- |
+| Enable customer portal | **Encendido** |
+| Heading | `Administra tu suscripción y tu facturación` |
+| Description | `Consulta tus pagos, descarga tus facturas y administra tu suscripción y tu tarjeta.` |
+| Link (texto) / Link URL | `← Volver a Bida Events` / `https://bida-events.com` |
+| Cancel subscriptions | **Encendido** |
+| Pause subscriptions | Apagado |
+| Update subscription plans | **Encendido** → *Select products*: todos los productos de suscripción (el mensual, el trimestral y el anual; **no** `Invitación`) |
+| Apply changes immediately with proration | **Encendido** (el sitio espera que el cambio rija desde ya) |
+| Update subscription quantity | Apagado |
+| Discounts, License keys, Files, Expired subscriptions | Apagados |
+| Appearance | Sin tocar |
+Guarda con el botón de abajo.
+
+> Al pasar a modo real, los productos de suscripción son otros: vuelve a esta pantalla y selecciónalos
+> de nuevo en **Update subscription plans**.
 
 ### Paso 8. Poner las variables en el servidor
 

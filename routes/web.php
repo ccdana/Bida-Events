@@ -209,6 +209,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::post('/clients/{client}/password', [AdminInvitationController::class, 'regenerateClientPassword'])->name('clients.password');
     Route::post('/preview', [PreviewController::class, 'store'])->name('preview.store');
     Route::get('/preview/frame', [PreviewController::class, 'frame'])->name('preview.frame');
+    Route::post('/preview/render', [PreviewController::class, 'render'])->name('preview.render');
     Route::post('/media/upload', [MediaUploadController::class, 'store'])->name('media.upload');
     Route::get('/maps/search', [MapsController::class, 'search'])->name('maps.search');
     Route::post('/maps/resolve', [MapsController::class, 'resolve'])->name('maps.resolve');
@@ -278,6 +279,7 @@ Route::prefix('client')->name('client.')->middleware(['auth', 'client'])->group(
     Route::prefix('editor')->name('editor.')->middleware('can:useEditor,'.Invitation::class)->group(function () {
         Route::post('/preview', [PreviewController::class, 'store'])->middleware('throttle:reseller-editor')->name('preview.store');
         Route::get('/preview/frame', [PreviewController::class, 'frame'])->middleware('throttle:reseller-editor')->name('preview.frame');
+        Route::post('/preview/render', [PreviewController::class, 'render'])->middleware('throttle:reseller-editor')->name('preview.render');
         Route::post('/media/upload', [MediaUploadController::class, 'store'])->middleware('throttle:reseller-uploads')->name('media.upload');
         Route::get('/maps/search', [MapsController::class, 'search'])->middleware('throttle:reseller-editor')->name('maps.search');
         Route::post('/maps/resolve', [MapsController::class, 'resolve'])->middleware('throttle:reseller-editor')->name('maps.resolve');
