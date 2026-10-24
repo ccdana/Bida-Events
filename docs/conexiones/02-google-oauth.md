@@ -67,6 +67,8 @@ Guarda. No agregues ninguno más.
    ```
 
    Sin barra final, con `https` y sin `www`. Una diferencia mínima da el error `redirect_uri_mismatch`.
+   Quien escribe `www.bida-events.com` pasa a la raíz por una redirección de Nginx
+   (`docker/nginx.conf`); sin ella, Google recibe la dirección con `www` y da ese error.
    Para probar en tu computador, agrega también la del entorno local (por ejemplo
    `https://tu-subdominio.ngrok-free.app/auth/google/callback`); la guía está en
    [`../pruebas-locales.md`](../pruebas-locales.md).
