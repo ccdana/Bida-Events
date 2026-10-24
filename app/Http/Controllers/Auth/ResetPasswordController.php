@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Support\PasswordPolicy;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -12,7 +13,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rules\Password as PasswordRule;
 use Illuminate\View\View;
 
 /**
@@ -37,13 +37,11 @@ class ResetPasswordController extends Controller
         $request->validate([
             'token' => ['required', 'string'],
             'email' => ['required', 'string', 'email', 'max:255'],
-            'password' => ['required', 'string', PasswordRule::min(8)],
+            'password' => PasswordPolicy::rules($request->input('email')),
         ], [
             'email.required' => __('Escribe el correo de tu cuenta.'),
             'email.email' => __('Revisa el correo: parece que le falta algo.'),
-            'password.required' => __('Elige una contraseña nueva.'),
-            'password.min' => __('La contraseña necesita al menos 8 caracteres.'),
-        ]);
+        ] + PasswordPolicy::messages('password', new: true));
 
         $status = Password::reset(
             $request->only('email', 'password', 'token'),

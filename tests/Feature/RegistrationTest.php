@@ -26,7 +26,9 @@ class RegistrationTest extends TestCase
             ->assertOk()
             ->assertSee('Tu plan:')
             ->assertSee('Emprendedor')
-            ->assertSee('Paso 2 de 4');
+            ->assertSee('Después de confirmar tu correo, pagas el plan.')
+            // Sin la barra de pasos: el texto dice lo que sigue
+            ->assertDontSee('Paso 2 de 4');
 
         // El plan viaja con la sesión: al confirmar el correo sigue el pago de ese plan
         $this->assertSame(route('client.subscription', ['plan' => 'emprendedor']), session('url.intended'));

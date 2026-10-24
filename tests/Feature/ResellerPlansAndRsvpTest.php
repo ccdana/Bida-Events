@@ -93,15 +93,15 @@ class ResellerPlansAndRsvpTest extends TestCase
         $this->actingAs($reseller)->withoutVite()->get(route('client.account'))->assertOk()->assertSee('Cambiar contraseña');
 
         $this->actingAs($reseller)
-            ->put(route('client.account.password'), ['current_password' => 'otra-cosa', 'password' => 'mi-clave-nueva', 'password_confirmation' => 'mi-clave-nueva'])
+            ->put(route('client.account.password'), ['current_password' => 'otra-cosa', 'password' => 'mi-clave-nueva-1', 'password_confirmation' => 'mi-clave-nueva-1'])
             ->assertSessionHasErrors('current_password');
 
         $this->actingAs($reseller)
-            ->put(route('client.account.password'), ['current_password' => 'clave-que-le-dimos', 'password' => 'mi-clave-nueva', 'password_confirmation' => 'mi-clave-nueva'])
+            ->put(route('client.account.password'), ['current_password' => 'clave-que-le-dimos', 'password' => 'mi-clave-nueva-1', 'password_confirmation' => 'mi-clave-nueva-1'])
             ->assertSessionHasNoErrors()
             ->assertSessionHas('success');
 
-        $this->assertTrue(Hash::check('mi-clave-nueva', $reseller->fresh()->password));
+        $this->assertTrue(Hash::check('mi-clave-nueva-1', $reseller->fresh()->password));
 
         // Un cliente común también tiene su cuenta (correo y contraseña), sin el plan
         $this->actingAs(User::factory()->create())->withoutVite()->get(route('client.account'))->assertOk()->assertDontSee('Sin plan');

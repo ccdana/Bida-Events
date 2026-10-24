@@ -5,36 +5,34 @@
 @section('robots', 'noindex, nofollow')
 
 @section('auth')
-    <h1 class="site-enter text-3xl font-semibold tracking-tight sm:text-4xl" style="--enter-index: 1">{{ __('Crea una contraseña nueva') }}</h1>
-    <p class="site-enter mt-3 leading-relaxed text-site-muted" style="--enter-index: 2">
+    <h1 class="site-enter site-display site-display--md" style="--enter-index: 1">{{ __('Crea una contraseña nueva') }}</h1>
+    <p class="site-enter mt-2 text-site-muted" style="--enter-index: 2">
         {{ __('Al guardarla se cierran todas tus sesiones abiertas, y entras con la nueva.') }}
     </p>
 
-    <form method="POST" action="{{ lroute('password.store') }}" @class(['mt-10 grid gap-6', 'site-shake' => $errors->any()])
+    <form method="POST" action="{{ lroute('password.store') }}" @class(['mt-5 grid gap-4', 'site-shake' => $errors->any()])
         x-data="{ showPassword: false, submitting: false, capsLock: false }" @submit="submitting = true">
         @csrf
         <input type="hidden" name="token" value="{{ $token }}">
 
-        <div class="site-enter grid gap-2" style="--enter-index: 3">
-            <label for="email" class="text-[0.95rem] font-medium">{{ __('Correo de tu cuenta') }}</label>
+        <div class="site-enter grid gap-1" style="--enter-index: 3">
+            <label for="email" class="site-label">{{ __('Correo') }}</label>
             <div class="site-field">
-                <x-phosphor-envelope-simple class="site-field__icon" aria-hidden="true" />
+                <x-phosphor-envelope-simple-light class="site-field__icon" aria-hidden="true" />
                 <input id="email" type="email" name="email" value="{{ old('email', $email) }}" required maxlength="255"
                     autocomplete="username" autocapitalize="none" spellcheck="false"
                     @class(['site-input', 'is-invalid' => $errors->has('email')])
                     @error('email') aria-invalid="true" aria-describedby="email-error" @enderror>
             </div>
             @error('email')
-                <p id="email-error" class="site-enter text-sm text-site-danger">
-                    {{ $message }}
-                    <a href="{{ lroute('password.request') }}" class="font-medium underline underline-offset-4">{{ __('Pedir otro enlace') }}</a>
-                </p>
+                <p id="email-error" class="site-enter text-sm text-site-danger">{{ $message }}</p>
+                <p><a href="{{ lroute('password.request') }}" class="site-help"><x-phosphor-arrow-u-up-left-light aria-hidden="true" /> {{ __('Pedir otro enlace') }}</a></p>
             @enderror
         </div>
 
-        @include('auth.partials.password', ['index' => 4, 'label' => __('Contraseña nueva'), 'autocomplete' => 'new-password', 'hint' => __('Al menos 8 caracteres.')])
+        @include('auth.partials.password', ['index' => 4, 'label' => __('Contraseña nueva'), 'autocomplete' => 'new-password', 'hint' => __('Mínimo 8, con letras y números.')])
 
-        <div class="site-enter mt-2" style="--enter-index: 5">
+        <div class="site-enter" style="--enter-index: 5">
             <button type="submit" class="site-btn site-btn--lg w-full justify-center" :class="{ 'is-loading': submitting }" :disabled="submitting">
                 <span x-text="submitting ? @js(__('Guardando')) : @js(__('Guardar la contraseña'))">{{ __('Guardar la contraseña') }}</span>
                 <x-phosphor-arrow-right class="site-btn__arrow" x-show="!submitting" aria-hidden="true" />

@@ -2,11 +2,15 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Rules\PlainName;
+use App\Support\PasswordPolicy;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rules\Password;
 
-/** Cuenta nueva desde el sitio: nombre, correo (único, en minúsculas) y una contraseña propia. */
+/**
+ * Cuenta nueva desde el sitio: nombre (solo el nombre, sin enlaces), correo (único, en minúsculas) y una contraseña
+ * propia que cumple App\Support\PasswordPolicy (letras y números, distinta del correo y del nombre).
+ */
 class RegisterRequest extends FormRequest
 {
     protected $dontFlash = ['password'];
@@ -19,7 +23,7 @@ class RegisterRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->merge([
-            'name' => trim((string) $this->input('name')),
+            'name' => trim((string) preg_replace('/\s+/u', ' ', (string) $this->input('name'))),
             'email' => Str::lower(trim((string) $this->input('email'))),
         ]);
     }
@@ -27,9 +31,9 @@ class RegisterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:120'],
+            'name' => ['required', 'string', 'min:2', 'max:120', new PlainName],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
-            'password' => ['required', 'string', Password::min(8)],
+            'password' => PasswordPolicy::rules($this->input('email'), $this->input('name')),
         ];
     }
 
@@ -37,11 +41,12 @@ class RegisterRequest extends FormRequest
     {
         return [
             'name.required' => __('Escribe tu nombre.'),
+            'name.min' => __('Escribe tu nombre (al menos 2 letras).'),
             'email.required' => __('Escribe tu correo.'),
             'email.email' => __('Revisa el correo: parece que le falta algo.'),
-            'email.unique' => __('Ya hay una cuenta con este correo. Entra con él o recupera tu contraseña.'),
-            'password.required' => __('Elige una contraseña.'),
-            'password.min' => __('La contraseña necesita al menos 8 caracteres.'),
-        ];
+            // El formulario le agrega los enlaces a «Ingresar» y «¿Olvidaste tu contraseña?» (auth/register.blade.php),
+            // y la vista reconoce este aviso por su texto: si se cambia aquí, se cambia allá
+            'email.unique' => __('Este correo ya tiene una cuenta.'),
+        ] + PasswordPolicy::messages();
     }
 }

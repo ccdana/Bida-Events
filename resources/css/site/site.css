@@ -363,29 +363,41 @@ main:focus {
 
 .site-input {
     width: 100%;
-    min-height: 3.1rem;
-    padding: 0.7rem 1rem;
-    border: 1px solid var(--site-line);
-    border-radius: 12px;
-    background: var(--site-surface);
+    min-height: 2.9rem;
+    padding: 0.55rem 0;
+    border: 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--site-ink) 28%, var(--site-line));
+    border-radius: 0;
+    background: transparent;
     color: var(--site-ink);
     font: inherit;
     font-size: 1rem; /* 16px evita el zoom automático de iOS */
-    transition: border-color 0.2s ease, box-shadow 0.3s var(--site-ease), background-color 0.2s ease;
+    transition: border-color 0.2s ease, box-shadow 0.3s var(--site-ease);
+}
+
+.site-input::placeholder {
+    color: color-mix(in srgb, var(--site-muted) 75%, transparent);
 }
 
 .site-input:hover {
-    border-color: color-mix(in srgb, var(--site-ink) 25%, var(--site-line));
+    border-bottom-color: color-mix(in srgb, var(--site-ink) 50%, var(--site-line));
 }
 
 .site-input:focus {
     outline: none;
-    border-color: var(--site-accent);
-    box-shadow: 0 0 0 4px color-mix(in srgb, var(--site-accent) 18%, transparent);
+    border-bottom-color: var(--site-accent);
+    box-shadow: 0 1px 0 0 var(--site-accent);
 }
 
 .site-input.is-invalid {
-    border-color: var(--site-danger);
+    border-bottom-color: var(--site-danger);
+    box-shadow: 0 1px 0 0 var(--site-danger);
+}
+
+/* El relleno automático del navegador no pinta una caja sobre la línea */
+.site-input:-webkit-autofill {
+    -webkit-text-fill-color: var(--site-ink);
+    box-shadow: 0 0 0 100px var(--site-bg) inset;
 }
 
 .site-field {
@@ -393,26 +405,32 @@ main:focus {
 }
 
 .site-field .site-input {
-    padding-left: 2.9rem;
+    padding-left: 2rem;
 }
 
+/* El ícono va suelto, pegado a la línea; se pinta de dorado cuando el campo tiene el foco */
 .site-field__icon {
     position: absolute;
     top: 50%;
-    left: 1rem;
-    width: 1.25rem;
-    height: 1.25rem;
+    left: 0;
+    width: 1.2rem;
+    height: 1.2rem;
     color: var(--site-muted);
     pointer-events: none;
     translate: 0 -50%;
-    transition: color 0.2s ease, scale 0.35s var(--site-spring);
+    transition: color 0.2s ease;
 }
 
 .site-field:focus-within .site-field__icon {
     color: var(--site-accent);
-    scale: 1.1;
 }
 
+/* Etiqueta de un campo: una palabra, chica y apagada */
+.site-label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--site-muted);
+}
 /* Íconos que se intercambian (mostrar/ocultar contraseña) */
 .site-swap {
     position: absolute;
@@ -430,40 +448,121 @@ main:focus {
     scale: 1;
 }
 
-.site-checkbox {
-    appearance: none;
+/* «Mantener la sesión iniciada»: la casilla real (invisible) cubre una cajita con su visto y un ícono; el texto va
+   en el aria-label y el title */
+.site-remember {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    color: var(--site-muted);
+    cursor: pointer;
+}
+
+.site-remember input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.site-remember__box {
     display: grid;
     place-items: center;
-    flex-shrink: 0;
     width: 1.15rem;
     height: 1.15rem;
-    margin: 0;
     border: 1px solid color-mix(in srgb, var(--site-ink) 30%, var(--site-line));
-    border-radius: 6px;
-    background: var(--site-surface);
-    cursor: pointer;
+    border-radius: 4px;
     transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
-.site-checkbox::after {
-    content: '';
-    width: 0.7rem;
-    height: 0.7rem;
-    background: var(--site-on-accent);
-    clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0, 43% 62%);
+.site-remember__box svg {
+    width: 0.75rem;
+    height: 0.75rem;
+    color: var(--site-on-accent);
     scale: 0;
     transition: scale 0.3s var(--site-spring);
 }
 
-.site-checkbox:checked {
+.site-remember input:checked + .site-remember__box {
     border-color: var(--site-accent);
     background: var(--site-accent);
 }
 
-.site-checkbox:checked::after {
+.site-remember input:checked + .site-remember__box svg {
     scale: 1;
 }
 
+.site-remember input:focus-visible + .site-remember__box {
+    outline: 2px solid var(--site-accent);
+    outline-offset: 3px;
+}
+
+.site-remember__icon {
+    width: 1.3rem;
+    height: 1.3rem;
+}
+
+/* Otra forma de entrar: una línea con un círculo en medio (Google), sin texto */
+.site-or {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.site-or::before,
+.site-or::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--site-line);
+}
+
+.site-google {
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 999px;
+    box-shadow: inset 0 0 0 1px var(--site-line);
+    transition: background-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.site-google:hover {
+    background: var(--site-surface);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--site-ink) 35%, var(--site-line));
+}
+
+.site-google svg {
+    width: 1.3rem;
+    height: 1.3rem;
+}
+
+/* Enlaces de ayuda al pie de una página de acceso: una flecha o un ícono y una palabra corta */
+.site-help {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-height: 2.25rem;
+    font-size: 0.95rem;
+    color: var(--site-muted);
+    transition: color 0.2s ease;
+}
+
+.site-help:hover {
+    color: var(--site-ink);
+}
+
+.site-help svg {
+    width: 1.1rem;
+    height: 1.1rem;
+    flex-shrink: 0;
+    color: var(--site-accent);
+}
 @keyframes site-shake {
     0%, 100% { translate: 0; }
     20% { translate: -8px 0; }

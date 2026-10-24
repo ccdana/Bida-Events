@@ -102,8 +102,8 @@ class PricingPageTest extends TestCase
         // Sin cuenta: crearla, y al confirmar el correo sigue al editor de «Hazlo tú»
         $this->withoutVite()->get('/registro?crear=1')
             ->assertOk()
-            ->assertSee('Con tu cuenta armas tu invitación gratis')
-            ->assertSee('Publícala');
+            ->assertSee('Gratis para armarla')
+            ->assertDontSee('Paso 1 de 4');
         $this->assertSame(route('client.diy.create'), session('url.intended'));
 
         // Con cuenta: directo al editor; un revendedor, a su panel
