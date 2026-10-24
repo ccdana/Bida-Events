@@ -32,20 +32,26 @@ class PublicPagesTest extends TestCase
             ->assertSee('Un negocio de invitaciones, sin montarlo desde cero')
             ->assertSee('Lo que cobras es tuyo')
             ->assertSee('Tu marca al frente')
-            ->assertSee('Entrada con QR el día del evento')
-            // Los planes que se venden, con la misma columna que los paquetes: precio de hoy, descuento (Inicial: 20 → 16) y lo que trae
-            ->assertSee('id="planes"', false)
-            ->assertSee('site-plans site-plans--grid', false)
-            ->assertDontSee('id="comparar"', false)
-            ->assertSeeInOrder(['Elige tu plan', 'Inicial', 'US$ 20', '16', 'USD al mes', 'Ahorras US$ 4 al mes', '9 invitaciones al mes', 'plantillas para elegir', 'Emprendedor', 'Agencia', 'Invitaciones sin tope', 'Elegir Agencia'])
+            ->assertSee('Entrada con QR')
+            // Los planes, en tres renglones con su precio de hoy (Inicial: 20 → 16) y su cupo; las tarjetas están en /precios
+            ->assertSeeInOrder(['Inicial', '9 invitaciones al mes', 'US$ 16 al mes', 'Emprendedor', 'Agencia', 'Sin tope'])
+            ->assertSee('href="'.route('pricing').'#planes"', false)
+            ->assertDontSee('site-plan__features', false)
             // La pregunta de cuánto se gana usa el cupo y el precio de hoy (9 × 25 − 16)
-            ->assertSee('suman US$ 225 y te quedan US$ 209 después del plan')
+            ->assertSee('suman US$ 225 y te quedan US$ 209 tras el plan')
             // Lo a medida: solo el aviso, sin paquetes ni precios
             ->assertSee('id="a-medida"', false)
             ->assertDontSee('Te la hacemos')
-            // WhatsApp con el plan y el código de la página
-            ->assertSee(rawurlencode('quiero el plan Inicial (US$ 16 al mes)'), false)
+            // WhatsApp con el código de la página
             ->assertSee(rawurlencode('Ref. HAZLO'), false);
+
+        // Las tarjetas de los planes, con la misma columna que los niveles: precio de hoy, descuento y lo que trae
+        $this->withoutVite()->get(route('pricing'))
+            ->assertOk()
+            ->assertSee('id="planes"', false)
+            ->assertSee('site-plans site-plans--grid', false)
+            ->assertSeeInOrder(['id="planes"', 'Inicial', 'US$ 20', '16', 'USD al mes', 'Ahorras US$ 4 al mes', '9 invitaciones al mes', 'Emprendedor', 'Agencia', 'Invitaciones sin tope', 'Elegir Agencia'], false)
+            ->assertSee(rawurlencode('quiero el plan Inicial (US$ 16 al mes)'), false);
     }
 
     public function test_the_legal_pages_exist_and_are_linked_from_every_site_page(): void

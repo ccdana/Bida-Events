@@ -54,7 +54,7 @@ class DashboardViewData
             // «Hazlo tú»: crear su propia invitación (sin plan), con cuántos borradores le quedan
             'diy' => $user && DiyInvitations::canBuild($user) ? $this->diy($user) : null,
             // Dónde elegir el plan: pagarlo aquí si hay pago en línea; si no, ver los planes y escribirnos
-            'startUrl' => app(PaymentGateways::class)->availableMethods() ? route('client.subscription') : lroute('diy').'#planes',
+            'startUrl' => app(PaymentGateways::class)->availableMethods() ? route('client.subscription') : lroute('pricing').'#planes',
         ];
     }
 

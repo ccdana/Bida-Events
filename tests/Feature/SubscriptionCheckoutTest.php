@@ -45,14 +45,14 @@ class SubscriptionCheckoutTest extends TestCase
         $this->actingAs($user)->get(route('client.subscription'))->assertNotFound();
         $this->actingAs($user)->post(route('client.subscription.store'), ['plan' => 'inicial', 'method' => 'card'])->assertNotFound();
 
-        // «Únete» sigue llevando a WhatsApp
-        $this->withoutVite()->get(route('diy'))->assertOk()->assertDontSee(route('client.subscription', ['plan' => 'inicial']), false);
+        // Los planes de /precios siguen llevando a WhatsApp
+        $this->withoutVite()->get(route('pricing'))->assertOk()->assertDontSee(route('client.subscription', ['plan' => 'inicial']), false);
     }
 
     public function test_the_plans_page_offers_the_card_and_hazlo_tu_links_to_it(): void
     {
         // Quien no tiene cuenta pasa primero por crearla, con su plan, y de ahí sigue al pago
-        $this->withoutVite()->get(route('diy'))->assertOk()->assertSee(route('register', ['plan' => 'inicial']), false);
+        $this->withoutVite()->get(route('pricing'))->assertOk()->assertSee(route('register', ['plan' => 'inicial']), false);
 
         $this->actingAs(User::factory()->create())->withoutVite()->get(route('client.subscription', ['plan' => 'emprendedor']))
             ->assertOk()
@@ -70,7 +70,7 @@ class SubscriptionCheckoutTest extends TestCase
             ->assertDontSee('Cuántos meses pagas');
 
         // Quien ya entró va directo a pagar
-        $this->withoutVite()->get(route('diy'))->assertOk()->assertSee(route('client.subscription', ['plan' => 'inicial']), false);
+        $this->withoutVite()->get(route('pricing'))->assertOk()->assertSee(route('client.subscription', ['plan' => 'inicial']), false);
 
         // Sin credenciales de Lemon Squeezy no se ofrece la tarjeta
         config(['payments.lemonsqueezy.api_key' => null]);

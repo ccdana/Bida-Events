@@ -41,7 +41,7 @@ class PlanTermsAndMenuTest extends TestCase
                 ->assertDontSee('portal de pagos');
         }
 
-        $plans->assertSee('El pago lo coordinamos contigo por WhatsApp.')->assertDontSee('con tarjeta se renueva solo');
+        $prices->assertSee('El pago lo coordinamos contigo por WhatsApp.')->assertDontSee('con tarjeta se renueva solo');
 
         $this->withoutVite()->get('/legal/terminos')
             ->assertOk()
@@ -58,8 +58,11 @@ class PlanTermsAndMenuTest extends TestCase
         $this->withoutVite()->get('/unete')->assertOk()
             ->assertSee('Con tarjeta lo haces tú desde «Mi plan»')
             ->assertSee('portal de pagos')
-            ->assertSee('Pagas con tarjeta; se renueva solo y lo cancelas cuando quieras.')
             ->assertDontSee('Con QR no hay cobro automático');
+
+        // Los planes y su pago están en /precios: ahí se dice que con tarjeta se renueva solo
+        $this->withoutVite()->get('/precios')->assertOk()
+            ->assertSee('Pagas con tarjeta; se renueva solo y lo cancelas cuando quieras.');
 
         $this->withoutVite()->get('/legal/terminos')->assertOk()
             ->assertSee('Con tarjeta, la suscripción se renueva sola')
@@ -164,7 +167,7 @@ class PlanTermsAndMenuTest extends TestCase
 
         $this->withoutVite()->get('/unete')->assertOk()
             ->assertSee('Planes para profesionales')
-            ->assertSee('¿Qué son los planes?')
+            ->assertSee('¿Cuánto puedo ganar?')
             // «Hazlo tú» no es un plan: tiene su fila sin la palabra «Plan» y lleva a /precios
             ->assertSee('Hazlo tú (pago único)')
             ->assertDontSee('Plan Hazlo tú')

@@ -127,8 +127,13 @@ class SeoAndMobileFixesTest extends TestCase
             $this->assertStringNotContainsString('data-carousel', $html, $url);
             // La lista de lo que incluye cada plan va siempre a la vista, sin botón que la abra
             $this->assertStringNotContainsString('<details class="site-plan__more"', $html, $url);
-            $this->assertStringContainsString('class="site-plan__features"', $html, $url);
         }
+
+        // Las tarjetas viven en la portada y en /precios; «Únete» solo resume los planes y lleva allá
+        foreach (['/precios', '/'] as $url) {
+            $this->withoutVite()->get($url)->assertSee('class="site-plan__features"', false);
+        }
+        $this->withoutVite()->get('/unete')->assertDontSee('class="site-plan__features"', false);
 
         $css = file_get_contents(resource_path('css/site/site.css'));
         $this->assertDoesNotMatchRegularExpression('/\.site-plans[^{}]*\{[^}]*(overflow-x|scroll-snap-type)/', $css);
@@ -139,18 +144,23 @@ class SeoAndMobileFixesTest extends TestCase
         $this->assertStringNotContainsString('initCarousels', $js);
     }
 
-    public function test_the_features_and_the_full_comparison_fold_on_phones_but_stay_open_on_desktop(): void
+    public function test_the_tables_are_short_enough_to_fit_the_phone_without_folding_sliding_or_stacking(): void
     {
         $html = $this->withoutVite()->get('/precios')->assertOk()->getContent();
 
-        $this->assertStringContainsString('<details class="site-compare-more mt-8 lg:mt-12" open data-accordion="closed">', $html);
-        $this->assertStringContainsString('site-table site-table--stack', $html);
-        // Cada celda de la tabla apilada lleva el nombre de su columna para mostrarlo en el celular
-        $this->assertStringContainsString('data-label="', $html);
+        // Ninguna tabla se esconde tras un botón ni se apila con etiquetas: son tres columnas de celdas cortas
+        $this->assertStringNotContainsString('site-compare-more', $html);
+        $this->assertStringNotContainsString('data-accordion', $html);
+        $this->assertStringNotContainsString('data-label=', $html);
+        $this->assertStringContainsString('site-table site-table--fit', $html);
 
-        $js = file_get_contents(resource_path('js/site.js'));
-        $this->assertStringContainsString("dataset.accordion !== 'closed'", $js);
-        $this->assertStringContainsString('wide.matches || group === firstOpen', $js);
+        $css = file_get_contents(resource_path('css/site/site.css')).file_get_contents(resource_path('css/site/home.css'));
+        $this->assertMatchesRegularExpression('/\.site-compare table \{[^}]*table-layout: fixed;/', $css);
+        $this->assertDoesNotMatchRegularExpression('/\.site-compare \{[^}]*overflow-x/', $css);
+        $this->assertMatchesRegularExpression('/\.site-table--fit table \{[^}]*min-width: 0;/', $css);
+
+        // Ya nada usa los acordeones de «details[data-accordion]»
+        $this->assertStringNotContainsString('initAccordions', file_get_contents(resource_path('js/site.js')));
     }
 
     public function test_the_scrollable_tables_are_positioned_so_hidden_labels_cannot_widen_the_page(): void

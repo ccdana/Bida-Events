@@ -40,14 +40,14 @@ class PricingPageTest extends TestCase
     {
         $this->withoutVite()->get(route('pricing'))
             ->assertOk()
-            ->assertSee('Precios claros para cada forma de tener tu invitación')
+            ->assertSee('Precios claros, sin letra chica')
             // Hazlo tú: gratis y cada nivel con su pago único
             ->assertSeeInOrder(['id="hazlo-tu"', 'Gratis', 'Básico', '9', 'USD, pago único', 'Estándar', '19', 'Premium', '35'], false)
             ->assertSee('Crear mi invitación gratis')
             ->assertSee(route('register', ['crear' => 1]), false)
             // Planes, con el selector de ciclo
             ->assertSee('id="planes"', false)
-            ->assertSee('Planes, para quien arma muchas')
+            ->assertSee('Cada 3 meses')
             ->assertSee('20 % menos')
             // Lo a medida: solo el aviso, sin precios ni paquetes
             ->assertSee('id="a-medida"', false)
@@ -55,9 +55,9 @@ class PricingPageTest extends TestCase
             ->assertDontSee('rondas de cambios')
             // La comparación de los niveles y de las dos formas, y las preguntas
             ->assertSee('Qué trae cada nivel')
-            ->assertSee('Control de entrada en la puerta')
+            ->assertSee('Pase QR y control de entrada')
             ->assertSee('Hazlo tú o un plan')
-            ->assertSee('Fotógrafos, salones y organizadores')
+            ->assertSee('Profesionales')
             ->assertSee('¿Puedo empezar gratis?');
     }
 
@@ -65,11 +65,36 @@ class PricingPageTest extends TestCase
     {
         $matrix = collect($this->withoutVite()->get(route('pricing'))->viewData('tierMatrix'))->keyBy('label');
 
-        $this->assertSame(['gratis' => true, 'basico' => true, 'estandar' => true, 'premium' => true], $matrix['Ubicación con mapa y cómo llegar']['tiers']);
-        $this->assertSame(['gratis' => false, 'basico' => true, 'estandar' => true, 'premium' => true], $matrix['Música de fondo']['tiers']);
-        $this->assertSame(['gratis' => false, 'basico' => false, 'estandar' => true, 'premium' => true], $matrix['Confirmación por WhatsApp']['tiers']);
-        $this->assertSame(['gratis' => false, 'basico' => false, 'estandar' => false, 'premium' => true], $matrix['Control de entrada en la puerta']['tiers']);
-        $this->assertSame(['gratis' => false, 'basico' => true, 'estandar' => true, 'premium' => true], $matrix['Sin la franja de invitación gratuita']['tiers']);
+        // Solo los niveles de pago: lo de Gratis (portada, cuenta regresiva y ubicación) está en todos
+        $this->assertSame(['basico' => true, 'estandar' => true, 'premium' => true], $matrix['Itinerario y música de fondo']['tiers']);
+        $this->assertSame(['basico' => false, 'estandar' => true, 'premium' => true], $matrix['Confirmación por WhatsApp']['tiers']);
+        $this->assertSame(['basico' => false, 'estandar' => false, 'premium' => true], $matrix['Pase QR y control de entrada']['tiers']);
+        $this->assertSame(['basico' => false, 'estandar' => false, 'premium' => true], $matrix['Reportes e impresión']['tiers']);
+        $this->assertCount(8, $matrix);
+    }
+
+    public function test_the_english_plan_cards_show_the_monthly_quota_only_once(): void
+    {
+        // La primera línea de la lista de cada plan es el cupo y se cambia por el de hoy: en inglés no debe quedar repetida
+        $html = $this->withoutVite()->get('/en/pricing')->assertOk()->getContent();
+
+        $this->assertSame(1, substr_count($html, '5 invitations per month'));
+        $this->assertSame(1, substr_count($html, '20 invitations per month'));
+    }
+
+    public function test_each_level_lists_what_it_adds_to_the_previous_one_in_four_points_or_fewer(): void
+    {
+        $tiers = collect($this->withoutVite()->get(route('pricing'))->viewData('diyTiers'))->keyBy('key');
+
+        foreach ($tiers as $tier) {
+            $this->assertLessThanOrEqual(4, count($tier['features']), "{$tier['name']} lista de más");
+        }
+
+        $this->assertContains('Todo lo de Gratis', $tiers['basico']['features']);
+        $this->assertContains('Todo lo de Básico', $tiers['estandar']['features']);
+        $this->assertContains('Confirmación por WhatsApp', $tiers['estandar']['features']);
+        $this->assertContains('Todo lo de Estándar', $tiers['premium']['features']);
+        $this->assertContains('Pase QR y control de entrada', $tiers['premium']['features']);
     }
 
     public function test_create_my_invitation_goes_to_the_account_or_straight_to_the_editor(): void

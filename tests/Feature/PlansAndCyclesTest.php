@@ -42,13 +42,14 @@ class PlansAndCyclesTest extends TestCase
     {
         $this->assertSame(['inicial', 'emprendedor', 'agencia'], array_keys(Offers::resellerPlans()));
 
-        $response = $this->withoutVite()->get(route('diy'))
+        // Los planes con su selector de ciclo viven en /precios; «Únete» solo los resume y lleva allá
+        $response = $this->withoutVite()->get(route('pricing'))
             ->assertOk()
             ->assertSee('Emprendedor')
             // El selector de ciclo, con el descuento de cada uno
             ->assertSee('Cada 3 meses')
             ->assertSee('20 % menos')
-            ->assertSee('los borradores no lo gastan');
+            ->assertSee('los borradores no');
 
         // Inicial anual: 10 × 12 − 20 % = 96 (8 por mes), y «Elegir» pasa a pagar ese ciclo
         $inicial = collect($response->viewData('plans'))->firstWhere('key', 'inicial');

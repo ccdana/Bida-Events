@@ -55,7 +55,7 @@ final class PlanTerms
         ]));
     }
 
-    /** El cierre de «¿Cuánto cuesta y cómo se paga?» en /unete. */
+    /** El cierre de «¿Cómo se paga?» en /precios. */
     public static function payment(): string
     {
         $methods = self::methods();

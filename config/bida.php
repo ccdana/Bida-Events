@@ -653,7 +653,7 @@ return [
             'cycle_months' => 1,
             'templates' => null,
             'summary' => 'Con tu marca, todas las plantillas y el pase QR: para quien vende invitaciones cada mes.',
-            'features' => ['20 invitaciones al mes', 'Todo lo del plan Inicial', 'Las plantillas nuevas y de tendencia, a medida que salen', 'Confirmación con pase QR, control de entrada y reportes', 'Tu marca al pie, sin la de Bida Events'],
+            'features' => ['20 invitaciones al mes', 'Todo lo del plan Inicial', 'Pase QR, control de entrada y plantillas nuevas', 'Tu marca al pie, sin la de Bida Events'],
         ],
         'agencia' => [
             'name' => 'Agencia',

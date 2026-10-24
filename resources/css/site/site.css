@@ -169,6 +169,14 @@ html[data-theme='dark'] .site {
     font-size: 1rem;
 }
 
+/* A todo el ancho en el celular (el botón único de una lista de niveles) */
+@media (max-width: 639px) {
+    .site-btn--block {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
 /* El botón de la cabecera en el celular: cabe junto al logo y el menú sin pasar de 44 px de alto */
 .site-btn--compact {
     padding: 0 1rem;
@@ -877,6 +885,12 @@ html[data-theme='dark'] .site-plan--premium {
         line-height: 1.5;
     }
 
+    /* Con la lista corta y el precio basta: el resumen de cada nivel y plan solo se lee en pantallas anchas */
+    .site-plans--pro .site-plan__summary,
+    .site-plans--grid .site-plan__summary {
+        display: none;
+    }
+
     .site-plans .site-plan__features {
         gap: 0.5rem;
         margin-top: 0.9rem;
@@ -904,7 +918,7 @@ html[data-theme='dark'] .site-plan--premium {
     }
 
     .site-plan {
-        padding: 2.25rem 2rem 2rem;
+        padding: 2rem 2rem 1.75rem;
         border-bottom: 0;
     }
 
@@ -2291,24 +2305,24 @@ html.site-season-open {
     }
 }
 
+/* Qué trae cada nivel: la columna de nombres y tres niveles; cabe en el celular sin deslizar. El position evita
+   que los textos .sr-only (absolutos) de las celdas se escapen y ensanchen la página. */
 .site-compare {
-    /* position: los textos .sr-only (absolutos) de las celdas se quedan dentro y no ensanchan la página en el celular */
     position: relative;
-    overflow-x: auto;
     border-block: 1px solid var(--site-line);
-    -webkit-overflow-scrolling: touch;
 }
 
 .site-compare table {
     width: 100%;
-    min-width: 36rem;
     border-collapse: collapse;
+    table-layout: fixed;
+    font-size: 0.9rem;
     font-variant-numeric: tabular-nums;
 }
 
 .site-compare th,
 .site-compare td {
-    padding: 0.95rem 1rem;
+    padding: 0.65rem 0.15rem;
     border-bottom: 1px solid var(--site-line);
     text-align: center;
 }
@@ -2318,13 +2332,21 @@ html.site-season-open {
 }
 
 .site-compare thead th {
+    font-size: 0.78rem;
     font-weight: 600;
 }
 
 .site-compare tbody th {
+    width: 44%;
+    padding-right: 0.4rem;
     font-weight: 500;
+    line-height: 1.3;
     text-align: left;
     color: var(--site-muted);
+}
+
+.site-compare thead th:first-child {
+    width: 44%;
 }
 
 .site-compare .is-featured {
@@ -2342,83 +2364,19 @@ html.site-season-open {
     color: var(--site-muted);
 }
 
-/* El triángulo de «Ver qué incluye» y de la comparación (las flechas son íconos de Phosphor: sin tamaño propio se ven enormes) */
-.site-plan__caret {
-    flex-shrink: 0;
-    width: 1rem;
-    height: 1rem;
-}
-
-/* La comparación completa: en computador va siempre abierta y sin título */
-.site-compare-more > summary {
-    display: none;
-}
-
-@media (max-width: 1023px) {
-    .site-compare-more > summary {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 0.75rem;
-        min-height: 3rem;
-        padding: 0 1.15rem;
-        border: 1px solid var(--site-line);
-        border-radius: 999px;
-        font-size: 0.95rem;
-        font-weight: 600;
-        cursor: pointer;
-        list-style: none;
-    }
-
-    .site-compare-more > summary::-webkit-details-marker {
-        display: none;
-    }
-
-    .site-compare-more > summary > span:first-child {
-        margin-right: auto;
-    }
-
-    .site-compare-more[open] .site-plan__more-open,
-    .site-compare-more:not([open]) .site-plan__more-close {
-        display: none;
-    }
-
-    .site-compare-more[open] .site-plan__caret {
-        rotate: 180deg;
-    }
-
-    .site-compare-more[open] > summary {
-        margin-bottom: 1rem;
-    }
-
-    /* La tabla en pantalla chica: letra y celdas más chicas, y la columna de nombres fija mientras se desliza */
-    .site-compare {
-        margin-top: 0;
-    }
-
+@media (min-width: 1024px) {
     .site-compare table {
-        min-width: 27rem;
-        font-size: 0.85rem;
+        font-size: 1rem;
     }
 
     .site-compare th,
     .site-compare td {
-        padding: 0.65rem 0.5rem;
+        padding: 0.85rem 1rem;
     }
 
     .site-compare tbody th,
     .site-compare thead th:first-child {
-        position: sticky;
-        left: 0;
-        z-index: 1;
-        width: 9.5rem;
-        min-width: 9.5rem;
-        background: var(--site-bg);
-        line-height: 1.3;
-    }
-
-    .site-compare tbody th {
-        box-shadow: 1px 0 0 var(--site-line);
+        width: 46%;
     }
 }
 .site-collections {

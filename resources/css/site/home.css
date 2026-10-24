@@ -139,30 +139,6 @@ a:hover > .site-link-arrow svg,
     }
 }
 
-.site-hero__facts {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem 1.25rem;
-    margin-top: 2rem;
-    font-size: 0.92rem;
-    color: var(--site-muted);
-}
-
-.site-hero__facts li {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.site-hero__facts li + li::before {
-    content: '';
-    width: 4px;
-    height: 4px;
-    border-radius: 50%;
-    background: var(--site-line);
-    margin-left: -0.75rem;
-}
-
 .site-hero__stage {
     position: relative;
     width: 100%;
@@ -498,22 +474,6 @@ a:hover > .site-link-arrow svg,
     margin-top: 0.25rem;
 }
 
-/* Aviso bajo un teléfono con una muestra (lo usa «Únete») */
-.site-tester__hint {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    margin-top: 1rem;
-    font-size: 0.85rem;
-    color: var(--site-muted);
-}
-
-.site-tester__hint svg {
-    width: 1.05rem;
-    height: 1.05rem;
-}
-
 /* ── Así funciona y qué puede incluir ────────────────────────────────────────
    Los cuatro pasos (con su línea que se dibuja) y, al lado, lo que se puede encender: sin acordeones, una
    lista corta con un ícono suelto por renglón. */
@@ -602,53 +562,127 @@ a:hover > .site-link-arrow svg,
     line-height: 1.5;
     color: var(--site-muted);
 }
-/* ── «Únete» ─────────────────────────────────────────────────────────── */
+/* ── Secciones de las páginas de venta (Precios, Únete) ──────────────────────
+   Una caja de ancho completo con un filete arriba y el contenido centrado en 80rem; poco aire: se ve más
+   de la página por pantalla. */
 
-.site-diy-hero {
-    display: grid;
-    gap: 3rem;
-    max-width: 80rem;
-    margin-inline: auto;
-    padding: 2rem 1.25rem 4rem;
+.site-section,
+.site-pagehead,
+.site-close {
+    padding-block: 2.25rem;
+    padding-inline: max(1.25rem, calc((100% - 80rem) / 2 + 1.25rem));
 }
 
 @media (min-width: 1024px) {
-    .site-diy-hero {
-        grid-template-columns: 1.2fr 0.8fr;
-        align-items: center;
-        min-height: calc(100dvh - 72px);
-        padding: 3rem 2rem 4rem;
+    .site-section,
+    .site-pagehead,
+    .site-close {
+        padding-block: 4rem;
+        padding-inline: max(2rem, calc((100% - 80rem) / 2 + 2rem));
     }
 }
 
-.site-diy-hero__device {
-    display: grid;
-    justify-items: center;
-}
-
-.site-benefits,
-.site-diy-section {
-    max-width: 80rem;
-    margin-inline: auto;
-    padding: 4.5rem 1.25rem;
+.site-section,
+.site-close {
     border-top: 1px solid var(--site-line);
 }
 
+/* La primera de una página sin título aparte */
+.site-section--first {
+    border-top: 0;
+    padding-top: 1.75rem;
+}
+
+.site-section--surface {
+    background: var(--site-surface);
+}
+
+/* Título de la página: el titular, una línea y a dónde saltar */
+.site-pagehead {
+    padding-block: 1.75rem 1.5rem;
+}
+
 @media (min-width: 1024px) {
-    .site-benefits,
-    .site-diy-section {
-        padding: 6.5rem 2rem;
+    .site-pagehead {
+        padding-block: 3rem 2.5rem;
     }
 }
 
-.site-benefits__head,
-.site-diy-section__head {
-    max-width: 46rem;
+.site-jump {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 1.75rem;
+    margin-top: 0.75rem;
 }
+
+.site-jump a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.5rem;
+    font-weight: 500;
+    color: var(--site-ink);
+    background: linear-gradient(var(--site-accent), var(--site-accent)) 0 calc(100% - 0.5rem) / 100% 1px no-repeat;
+    transition: color 0.25s ease;
+}
+
+.site-jump a:hover {
+    color: var(--site-accent);
+}
+
+.site-note {
+    max-width: 62ch;
+    margin-top: 1.25rem;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--site-muted);
+}
+
+/* Cierre: una frase, el botón principal y los íconos de contacto */
+.site-close {
+    display: grid;
+    gap: 1.25rem;
+}
+
+.site-close .site-display {
+    max-width: 22ch;
+}
+
+.site-close__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1.5rem;
+}
+
+@media (max-width: 479px) {
+    .site-close__actions .site-btn {
+        flex: 1 1 100%;
+        justify-content: center;
+    }
+}
+
+@media (min-width: 1024px) {
+    .site-close {
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 3rem;
+    }
+
+    .site-close__actions {
+        justify-content: flex-end;
+    }
+}
+
+.site-icon-btn--lg {
+    width: 3.25rem;
+    height: 3.25rem;
+}
+
+/* ── «Únete» ─────────────────────────────────────────────────────────────── */
 
 .site-benefits__list {
     display: grid;
-    margin-top: 3rem;
+    margin-top: 1.5rem;
     border-top: 1px solid var(--site-line);
 }
 
@@ -661,45 +695,163 @@ a:hover > .site-link-arrow svg,
 
 .site-benefit {
     display: grid;
-    grid-template-columns: 2.25rem 1fr;
-    gap: 1rem;
-    padding: 2rem 0;
+    grid-template-columns: 1.75rem 1fr;
+    gap: 0.9rem;
+    padding: 1rem 0;
     border-bottom: 1px solid var(--site-line);
 }
 
 .site-benefit__icon {
-    width: 1.75rem;
-    height: 1.75rem;
+    width: 1.6rem;
+    height: 1.6rem;
+    margin-top: 0.15rem;
     color: var(--site-accent);
 }
 
 .site-benefit__title {
     font-family: var(--font-serif);
-    font-size: 1.65rem;
+    font-size: 1.4rem;
     font-weight: 400;
     line-height: 1.15;
 }
 
-.site-benefit__text {
-    margin-top: 0.6rem;
-    line-height: 1.65;
-    color: var(--site-muted);
-}
-
-.site-benefit__points {
-    display: grid;
-    gap: 0.45rem;
-    margin-top: 0.9rem;
-    padding-left: 1.1rem;
-    list-style: disc;
-    line-height: 1.55;
-}
-
-.site-benefit__points li::marker {
+/* «Desde Emprendedor»: junto al título, en chico y en dorado */
+.site-benefit__from {
+    margin-left: 0.4rem;
+    font-family: var(--font-display);
+    font-size: 0.78rem;
+    font-weight: 600;
+    white-space: nowrap;
     color: var(--site-accent);
 }
 
-/* Tablas de datos: filetes, sin cajas; se deslizan en el celular */
+.site-benefit__text {
+    margin-top: 0.2rem;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: var(--site-muted);
+}
+
+/* Para quién y cómo se empieza, lado a lado en pantallas anchas */
+@media (min-width: 1024px) {
+    .site-duo {
+        display: grid;
+        grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+        gap: 4rem;
+    }
+}
+
+.site-duo > * + * {
+    margin-top: 2rem;
+}
+
+@media (min-width: 1024px) {
+    .site-duo > * + * {
+        margin-top: 0;
+    }
+}
+
+/* Para quién: el nombre en serif, la frase y el plan que conviene */
+.site-diy-who {
+    margin-top: 1.25rem;
+    border-top: 1px solid var(--site-line);
+}
+
+.site-diy-who li {
+    display: grid;
+    gap: 0.15rem;
+    padding: 0.9rem 0;
+    border-bottom: 1px solid var(--site-line);
+}
+
+.site-diy-who__who {
+    font-family: var(--font-serif);
+    font-size: 1.4rem;
+    line-height: 1.15;
+}
+
+.site-diy-who__how {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: var(--site-muted);
+}
+
+.site-diy-who__plan {
+    width: fit-content;
+    font-size: 0.9rem;
+}
+
+/* Así empieza: la misma línea de tiempo de la portada, con sus tres pasos */
+.site-steps--solo {
+    display: grid;
+    gap: 1.25rem;
+    margin-top: 1.5rem;
+}
+
+/* Los planes de «Únete» en renglones: nombre, cupo y precio; llevan a /precios#planes */
+.site-planlines {
+    margin-top: 1.25rem;
+    border-top: 1px solid var(--site-line);
+}
+
+.site-planlines li {
+    border-bottom: 1px solid var(--site-line);
+}
+
+.site-planlines__row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-areas:
+        'name price arrow'
+        'quota price arrow';
+    align-items: center;
+    column-gap: 1rem;
+    min-height: 3.5rem;
+    padding: 0.7rem 0;
+    color: inherit;
+}
+
+.site-planlines__name {
+    grid-area: name;
+    font-family: var(--font-serif);
+    font-size: 1.4rem;
+    line-height: 1.1;
+}
+
+.site-planlines__quota {
+    grid-area: quota;
+    font-size: 0.9rem;
+    color: var(--site-muted);
+}
+
+.site-planlines__price {
+    grid-area: price;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.site-planlines__arrow {
+    grid-area: arrow;
+    width: 1.1rem;
+    height: 1.1rem;
+    color: var(--site-accent);
+    transition: translate 0.3s var(--site-ease);
+}
+
+@media (hover: hover) {
+    .site-planlines__row:hover .site-planlines__arrow {
+        translate: 4px 0;
+    }
+}
+
+@media (min-width: 900px) {
+    .site-planlines__row {
+        grid-template-columns: 1fr 1fr auto auto;
+        grid-template-areas: 'name quota price arrow';
+    }
+}
+
+/* Tablas de datos: filetes, sin cajas */
 .site-table {
     position: relative;
     margin-top: 2.5rem;
@@ -743,59 +895,36 @@ a:hover > .site-link-arrow svg,
     color: var(--site-muted);
 }
 
-/* Comparaciones de pocas columnas: en el celular cada fila se apila (el nombre arriba y, debajo, cada columna con su etiqueta) en vez de deslizarse de lado */
-@media (max-width: 1023px) {
-    .site-table--stack {
-        margin-top: 1.5rem;
-        overflow-x: visible;
-    }
+/* La tabla de pocas columnas y celdas cortas: cabe en el celular sin deslizar */
+.site-table--fit {
+    margin-top: 1.25rem;
+    overflow-x: visible;
+}
 
-    .site-table--stack table {
-        min-width: 0;
-    }
+.site-table--fit table {
+    min-width: 0;
+    table-layout: fixed;
+}
 
-    .site-table--stack thead {
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        overflow: hidden;
-        clip-path: inset(50%);
-    }
+.site-table--fit th,
+.site-table--fit td {
+    padding: 0.7rem 0.4rem;
+    font-size: 0.9rem;
+}
 
-    .site-table--stack :is(tbody, tr, th, td) {
-        display: block;
-    }
+.site-table--fit thead th {
+    letter-spacing: 0.04em;
+}
 
-    .site-table--stack tbody tr {
-        padding: 1rem 0;
-        border-bottom: 1px solid var(--site-line);
-    }
+.site-table--fit tbody th {
+    width: 32%;
+}
 
-    .site-table--stack tbody tr:last-child {
-        border-bottom: 0;
-    }
-
-    .site-table--stack :is(th, td) {
-        padding: 0;
-        border: 0;
-    }
-
-    .site-table--stack td {
-        display: grid;
-        grid-template-columns: 5.25rem minmax(0, 1fr);
-        gap: 0.75rem;
-        margin-top: 0.4rem;
-        font-size: 0.95rem;
-    }
-
-    .site-table--stack td::before {
-        content: attr(data-label);
-        padding-top: 0.15rem;
-        font-size: 0.72rem;
-        font-weight: 600;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: var(--site-accent);
+@media (min-width: 1024px) {
+    .site-table--fit th,
+    .site-table--fit td {
+        padding: 0.85rem 1rem;
+        font-size: 1rem;
     }
 }
 
@@ -803,284 +932,6 @@ a:hover > .site-link-arrow svg,
     margin-top: 0.9rem;
     font-size: 0.9rem;
     color: var(--site-muted);
-}
-
-/* ── «Únete»: vender (portada, calculadora, planes, te la hacemos) ───── */
-
-.site-diy-hero .site-display {
-    font-size: clamp(2.7rem, 10vw, 5.4rem);
-}
-
-.site-diy-hero__line {
-    display: block;
-}
-
-.site-diy-hero__line--gain {
-    font-style: italic;
-    color: var(--site-accent);
-}
-
-/* En el celular los datos van uno por línea: con el salto, los puntos separadores quedaban sueltos */
-@media (max-width: 639px) {
-    .site-diy-hero .site-hero__facts {
-        flex-direction: column;
-    }
-
-    .site-diy-hero .site-hero__facts li + li::before {
-        display: none;
-    }
-}
-
-/* Beneficios cortos: una línea por cosa y, si hace falta, desde qué plan */
-.site-benefit__from {
-    margin-top: 0.3rem;
-    font-size: 0.82rem;
-    font-weight: 600;
-    color: var(--site-accent);
-}
-
-/* Para quién: título en serif, la frase y el plan que conviene */
-.site-diy-who {
-    margin-top: 2.5rem;
-    border-top: 1px solid var(--site-line);
-}
-
-.site-diy-who li {
-    display: grid;
-    gap: 0.4rem;
-    padding: 1.35rem 0;
-    border-bottom: 1px solid var(--site-line);
-}
-
-@media (min-width: 900px) {
-    .site-diy-who li {
-        grid-template-columns: 1fr 1.2fr auto;
-        align-items: baseline;
-        gap: 2rem;
-    }
-}
-
-.site-diy-who__who {
-    font-family: var(--font-serif);
-    font-size: 1.65rem;
-    line-height: 1.15;
-}
-
-.site-diy-who__how {
-    color: var(--site-muted);
-    line-height: 1.55;
-}
-
-/* Plan de una sola invitación: una fila bajo las columnas, sin recuadro */
-.site-diy-single {
-    display: grid;
-    gap: 0.75rem;
-    padding: 1.75rem 0;
-    border-bottom: 1px solid var(--site-line);
-}
-
-@media (min-width: 900px) {
-    .site-diy-single {
-        grid-template-columns: 1fr auto auto;
-        align-items: center;
-        gap: 2.5rem;
-    }
-}
-
-.site-diy-single__name {
-    font-family: var(--font-serif);
-    font-size: 1.65rem;
-    line-height: 1.1;
-}
-
-.site-diy-single__text {
-    max-width: 52ch;
-    margin-top: 0.3rem;
-    line-height: 1.55;
-    color: var(--site-muted);
-}
-
-.site-diy-single__price {
-    display: flex;
-    align-items: baseline;
-    gap: 0.6rem;
-    font-size: 1.4rem;
-    font-weight: 600;
-    font-variant-numeric: tabular-nums;
-}
-
-.site-diy-single__price del {
-    font-size: 0.95rem;
-    font-weight: 500;
-    color: var(--site-muted);
-    text-decoration-color: var(--site-accent);
-}
-
-.site-diy-single__price small {
-    font-size: 0.85rem;
-    font-weight: 400;
-    color: var(--site-muted);
-}
-
-/* Comparación completa, escondida hasta que se pide */
-.site-diy-compare summary {
-    width: fit-content;
-    cursor: pointer;
-    list-style: none;
-}
-
-.site-diy-compare summary::-webkit-details-marker {
-    display: none;
-}
-
-.site-diy-compare summary svg {
-    transition: rotate 0.35s var(--site-ease);
-}
-
-.site-diy-compare[open] summary svg {
-    rotate: 180deg;
-}
-
-/* Cómo empiezas: tres pasos en una fila, sin numeración */
-.site-diy-steps {
-    display: grid;
-    margin-top: 2.5rem;
-    border-top: 1px solid var(--site-line);
-}
-
-.site-diy-steps li {
-    padding: 1.75rem 0;
-    border-bottom: 1px solid var(--site-line);
-}
-
-@media (min-width: 900px) {
-    .site-diy-steps {
-        grid-template-columns: repeat(3, 1fr);
-        border-bottom: 1px solid var(--site-line);
-    }
-
-    .site-diy-steps li {
-        padding: 2rem 2rem 2.25rem;
-        border-bottom: 0;
-    }
-
-    .site-diy-steps li + li {
-        border-left: 1px solid var(--site-line);
-    }
-
-    .site-diy-steps li:first-child {
-        padding-left: 0;
-    }
-}
-
-.site-diy-steps__icon {
-    width: 1.9rem;
-    height: 1.9rem;
-    color: var(--site-accent);
-}
-
-.site-diy-steps__title {
-    margin-top: 1rem;
-    font-family: var(--font-serif);
-    font-size: 1.7rem;
-    line-height: 1.1;
-}
-
-.site-diy-steps__text {
-    max-width: 32ch;
-    margin-top: 0.5rem;
-    line-height: 1.6;
-    color: var(--site-muted);
-}
-
-/* Lo secundario: filas sobrias, sin botones llenos */
-.site-diy-service {
-    max-width: 80rem;
-    margin-inline: auto;
-    padding: 4.5rem 1.25rem;
-    border-top: 1px solid var(--site-line);
-}
-
-@media (min-width: 1024px) {
-    .site-diy-service {
-        padding: 6rem 2rem;
-    }
-}
-
-.site-diy-service__head {
-    max-width: 46rem;
-}
-
-.site-diy-service__head .site-display--md {
-    font-size: clamp(1.9rem, 5.4vw, 3rem);
-}
-
-.site-diy-service__list {
-    margin-top: 2.5rem;
-    border-top: 1px solid var(--site-line);
-}
-
-.site-diy-service__list li {
-    display: grid;
-    gap: 0.75rem;
-    padding: 1.5rem 0;
-    border-bottom: 1px solid var(--site-line);
-}
-
-@media (min-width: 900px) {
-    .site-diy-service__list li {
-        grid-template-columns: 1fr 9rem 11rem;
-        align-items: center;
-        gap: 2rem;
-    }
-}
-
-.site-diy-service__name {
-    font-family: var(--font-serif);
-    font-size: 1.65rem;
-    line-height: 1.1;
-}
-
-.site-diy-service__text {
-    max-width: 46ch;
-    margin-top: 0.3rem;
-    line-height: 1.55;
-    color: var(--site-muted);
-}
-
-.site-diy-service__price {
-    display: flex;
-    align-items: baseline;
-    gap: 0.6rem;
-    font-size: 1.4rem;
-    font-weight: 600;
-    font-variant-numeric: tabular-nums;
-}
-
-.site-diy-service__price del {
-    font-size: 0.95rem;
-    font-weight: 500;
-    color: var(--site-muted);
-    text-decoration-color: var(--site-accent);
-}
-
-/* Cierre: una frase grande y dos botones */
-.site-diy-final {
-    max-width: 80rem;
-    margin-inline: auto;
-    padding: 3.75rem 1.25rem 4.5rem;
-    border-top: 1px solid var(--site-line);
-}
-
-@media (min-width: 1024px) {
-    .site-diy-final {
-        padding: 8rem 2rem 9rem;
-    }
-}
-
-.site-diy-final .site-display {
-    max-width: 18ch;
-    font-size: clamp(2.4rem, 8vw, 4.4rem);
 }
 
 /* ── Pie ────────────────────────────────────────────────────────────────── */
@@ -1498,7 +1349,7 @@ a:hover > .site-link-arrow svg,
     align-items: baseline;
     gap: 0.5rem;
     margin-bottom: -1px;
-    padding: 0.5rem 0 0.85rem;
+    padding: 0.35rem 0 0.7rem;
     border: 0;
     background: none;
     color: var(--site-muted);
@@ -1557,90 +1408,3 @@ a:hover > .site-link-arrow svg,
     }
 }
 
-/* La celda que completa la fila: sin precio ni botón, solo la invitación a escribir */
-.site-plan--note {
-    justify-content: center;
-}
-
-/* ── Precios (/precios): las tres formas, de un vistazo ─────────────────
-   Tres columnas separadas por filetes que llevan a su bloque; el nombre en la serif de los
-   titulares y el «desde» en versalitas doradas. Los bloques de abajo reutilizan los de siempre. */
-
-.site-pricing-intro {
-    max-width: 80rem;
-    margin-inline: auto;
-    padding: 4.5rem 1.25rem 4rem;
-}
-
-@media (min-width: 1024px) {
-    .site-pricing-intro {
-        padding: 6.5rem 2rem 5rem;
-    }
-}
-
-.site-pricing-ways {
-    display: grid;
-    margin-top: 3rem;
-    border-top: 1px solid var(--site-line);
-}
-
-.site-pricing-ways li {
-    border-bottom: 1px solid var(--site-line);
-}
-
-.site-pricing-ways__link {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    height: 100%;
-    padding: 1.75rem 0;
-    color: inherit;
-    text-decoration: none;
-}
-
-.site-pricing-ways__name {
-    font-family: var(--font-serif);
-    font-size: clamp(1.6rem, 3vw, 2.1rem);
-    line-height: 1.05;
-    transition: color 0.3s ease;
-}
-
-.site-pricing-ways__text {
-    max-width: 34ch;
-    line-height: 1.55;
-    color: var(--site-muted);
-}
-
-.site-pricing-ways__from {
-    margin-top: auto;
-    padding-top: 0.75rem;
-    font-size: 0.78rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--site-accent);
-}
-
-@media (min-width: 900px) {
-    .site-pricing-ways {
-        grid-template-columns: repeat(3, 1fr);
-    }
-
-    .site-pricing-ways li + li {
-        border-left: 1px solid var(--site-line);
-    }
-
-    .site-pricing-ways__link {
-        padding: 2rem 2rem 2.25rem;
-    }
-
-    .site-pricing-ways li:first-child .site-pricing-ways__link {
-        padding-left: 0;
-    }
-}
-
-@media (hover: hover) {
-    .site-pricing-ways__link:hover .site-pricing-ways__name {
-        color: var(--site-accent);
-    }
-}

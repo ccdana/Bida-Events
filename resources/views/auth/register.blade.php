@@ -16,7 +16,7 @@
         {{-- Quien eligió un plan en «Únete» lo ve aquí: sabe qué va a pagar después de confirmar su correo --}}
         <p class="site-enter mt-3 leading-relaxed text-site-muted" style="--enter-index: 2">
             {{ __('Tu plan:') }} <span class="font-medium text-site-ink">{{ $chosenPlan['name'] }}</span>{{ __(', :price al mes · :quota.', ['price' => $chosenPlan['price'], 'quota' => $chosenPlan['quota']]) }}
-            <a href="{{ lroute('diy') }}#planes" class="font-medium text-site-ink underline underline-offset-4 transition-colors hover:text-site-accent">{{ __('Cambiar') }}</a>
+            <a href="{{ lroute('pricing') }}#planes" class="font-medium text-site-ink underline underline-offset-4 transition-colors hover:text-site-accent">{{ __('Cambiar') }}</a>
         </p>
         <p class="site-enter mt-2 text-sm leading-relaxed text-site-muted" style="--enter-index: 2">
             {{ __('Creas tu cuenta, confirmas tu correo y pagas el plan. Después armas tu invitación.') }}

@@ -7,6 +7,7 @@
     - price / old / suffix: el precio de hoy, el normal tachado (o null) y lo que va después («USD»).
     - featured: el recomendado (filete dorado arriba); premium: el de más arriba (corona y botón dorado).
     - tag: la etiqueta junto al nombre («Recomendado»).
+    - cta: el texto del botón; false deja la fila sin botón (los niveles de «Hazlo tú» no se eligen: los dice el editor).
     - reserve: guarda el lugar del precio tachado y del ahorro, para que columnas con y sin rebaja alineen.
     - cycles (opcional, planes): por meses (1, 3, 12) el precio por mes, el tachado, el ahorro y el enlace;
       siguen a «cycle» del selector de la página (site.partials.diy-plans). Sin JavaScript queda el mensual.
@@ -79,13 +80,15 @@
         @endforeach
     </ul>
 
-    <a href="{{ $url }}" @if($cycles) :href="cycles[cycle].url" @endif @if($external) target="_blank" rel="noopener" @endif
-        @class([
-            'site-btn site-btn--lg site-plan__cta justify-center',
-            'site-btn--gold' => $premium,
-            'site-btn--ghost' => ! $featured && ! $premium,
-        ])>
-        {{ $cta }}
-        <x-phosphor-arrow-right class="site-btn__arrow" aria-hidden="true" />
-    </a>
+    @if($cta)
+        <a href="{{ $url }}" @if($cycles) :href="cycles[cycle].url" @endif @if($external) target="_blank" rel="noopener" @endif
+            @class([
+                'site-btn site-btn--lg site-plan__cta justify-center',
+                'site-btn--gold' => $premium,
+                'site-btn--ghost' => ! $featured && ! $premium,
+            ])>
+            {{ $cta }}
+            <x-phosphor-arrow-right class="site-btn__arrow" aria-hidden="true" />
+        </a>
+    @endif
 </article>

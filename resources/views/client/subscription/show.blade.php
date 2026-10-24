@@ -71,7 +71,7 @@
             @if($methods === [])
                 <p class="site-enter admin-card text-site-muted" style="--enter-index: 2">
                     El pago en línea no está disponible en este momento.
-                    <a href="{{ lroute('diy') }}#planes" class="font-medium text-site-ink underline underline-offset-4">Escríbenos</a> y lo activamos contigo.
+                    <a href="{{ lroute('pricing') }}#planes" class="font-medium text-site-ink underline underline-offset-4">Escríbenos</a> y lo activamos contigo.
                 </p>
             @else
                 {{-- El total cambia con el plan, la forma de pago (su moneda) y los meses (con tarjeta, los ciclos que tiene la pasarela) --}}

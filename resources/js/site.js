@@ -356,37 +356,8 @@ function initCoverReel(reel) {
     document.addEventListener('visibilitychange', () => (document.hidden ? stop() : start()));
 }
 
-/**
- * Acordeones (details[data-accordion]): vienen abiertos en el HTML, así que sin JavaScript se ve todo. En celular
- * y tablet, los de la portada dejan abierto solo el primero ([data-accordion] a secas: «Todo lo que tu invitación
- * puede hacer») y los marcados data-accordion="closed" (la lista de cada plan, la comparación) quedan cerrados.
- * En pantallas anchas todos van abiertos y no se cierran.
- */
-function initAccordions() {
-    const groups = [...document.querySelectorAll('details[data-accordion]')];
-
-    if (!groups.length) {
-        return;
-    }
-
-    const wide = window.matchMedia('(min-width: 1024px)');
-    const firstOpen = groups.find((group) => group.dataset.accordion !== 'closed');
-    const apply = () => groups.forEach((group) => {
-        group.open = wide.matches || group === firstOpen;
-    });
-
-    apply();
-    wide.addEventListener('change', apply);
-    groups.forEach((group) => group.addEventListener('toggle', () => {
-        if (wide.matches && !group.open) {
-            group.open = true;
-        }
-    }));
-}
-
 initReveal();
 initRotators();
 initMagnetic();
 initHeaderState();
 initCoverReels();
-initAccordions();
