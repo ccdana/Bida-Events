@@ -234,6 +234,7 @@ Route::prefix('client')->name('client.')->middleware(['auth', 'client'])->group(
 
     // Su cuenta: el correo (para recuperar la contraseña y recibir avisos) y una contraseña propia
     Route::get('/cuenta', [AccountController::class, 'edit'])->name('account');
+    Route::put('/cuenta/usuario', [AccountController::class, 'updateUsername'])->middleware('throttle:6,1')->name('account.username');
     Route::put('/cuenta/correo', [AccountController::class, 'updateEmail'])->middleware('throttle:6,1')->name('account.email');
     Route::put('/cuenta/contrasena', [AccountController::class, 'updatePassword'])->middleware('throttle:6,1')->name('account.password');
     Route::post('/cuenta/contrasena/enlace', [AccountController::class, 'sendPasswordLink'])->middleware('throttle:3,1')->name('account.password-link');

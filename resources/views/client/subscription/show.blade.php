@@ -13,10 +13,11 @@
         'qr' => ['qr-code', 'QR en Bolivia', 'Bolivianos: app de cualquier banco, Tigo Money o tarjeta boliviana. No se renueva sola.'],
     ])
 
-    <div class="grid max-w-xl gap-5">
+    {{-- Centrado: las opciones a la izquierda y, en pantallas anchas, un resumen fijo con el total y el botón a la derecha --}}
+    <div class="mx-auto grid w-full max-w-5xl gap-5">
         {{-- Quien todavía no tiene plan está en el paso 3: pagar para poder crear su invitación --}}
         @unless($user->isReseller())
-            <x-site.journey :current="3" class="site-enter" />
+            <x-site.journey :current="3" class="site-enter lg:max-w-xl" />
         @endunless
 
         <header class="site-enter">
@@ -32,7 +33,7 @@
 
         {{-- Ya paga con tarjeta: cambios de plan, de tarjeta y cancelación, en el portal de la pasarela --}}
         @if($recurring)
-            <section class="site-enter site-rows" style="--enter-index: 1" aria-labelledby="suscripcion-tarjeta">
+            <section class="site-enter site-rows w-full lg:max-w-xl" style="--enter-index: 1" aria-labelledby="suscripcion-tarjeta">
                 <div class="site-row">
                     <div class="site-row__summary">
                         <x-phosphor-credit-card-light class="site-row__icon" aria-hidden="true" />
@@ -64,11 +65,17 @@
                 @error('portal')
                     <p class="py-2 text-sm text-site-danger">{{ $message }}</p>
                 @enderror
+                @if($canOpenPortal)
+                    <p class="flex items-start gap-2 py-3 text-sm text-site-muted">
+                        <x-phosphor-info-light class="mt-0.5 size-4 shrink-0 text-site-accent" aria-hidden="true" />
+                        Si Lemon Squeezy te pide entrar, usa el correo con el que pagaste: te manda un código.
+                    </p>
+                @endif
             </section>
         @endif
 
         @if($needsEmail)
-            <p class="site-enter flex items-start gap-2 border-l-2 border-site-accent py-1 pl-3 text-sm" role="status" style="--enter-index: 1">
+            <p class="site-enter flex items-start gap-2 border-l-2 border-site-accent py-1 pl-3 text-sm lg:max-w-xl" role="status" style="--enter-index: 1">
                 <x-phosphor-envelope-simple-light class="mt-0.5 size-4 shrink-0 text-site-accent" aria-hidden="true" />
                 <span>
                     Para pagar necesitas un correo confirmado: ahí llega tu recibo.
@@ -79,7 +86,7 @@
 
         @if(! $user->renewsAutomatically())
             @if($methods === [])
-                <p class="site-enter flex items-start gap-2 text-site-muted" style="--enter-index: 2">
+                <p class="site-enter flex items-start gap-2 text-site-muted lg:max-w-xl" style="--enter-index: 2">
                     <x-phosphor-warning-circle-light class="mt-0.5 size-5 shrink-0 text-site-accent" aria-hidden="true" />
                     <span>
                         El pago en línea no está disponible ahora.
@@ -88,7 +95,7 @@
                 </p>
             @else
                 {{-- El total cambia con el plan, la forma de pago (su moneda) y los meses (con tarjeta, los ciclos que tiene la pasarela) --}}
-                <form method="POST" action="{{ route('client.subscription.store') }}" class="site-enter grid gap-6" style="--enter-index: 2"
+                <form method="POST" action="{{ route('client.subscription.store') }}" class="site-enter grid items-start gap-x-14 gap-y-6 lg:grid-cols-[minmax(0,1fr)_20rem]" style="--enter-index: 2"
                     x-data="{
                         sending: false,
                         plan: @js($selected),
@@ -107,6 +114,7 @@
                     }" x-effect="if (! cycles.includes(months)) months = 1" @submit="sending = true">
                     @csrf
 
+                    <div class="grid min-w-0 gap-6">
                     <fieldset>
                         <legend class="site-legend">Plan</legend>
                         <div class="site-choices">
@@ -185,7 +193,10 @@
                         </fieldset>
                     @endif
 
-                    <div class="grid gap-3">
+                    </div>
+
+                    {{-- El resumen: el total, el botón y lo que hay que saber; queda a la vista al bajar --}}
+                    <aside class="grid content-start gap-3 lg:sticky lg:top-24 lg:border-l lg:border-site-line lg:pl-8" aria-label="Resumen del pago">
                         <p class="site-total" x-show="total" x-cloak aria-live="polite">
                             <span class="text-site-muted">Total</span>
                             <span class="site-total__amount tabular-nums" x-text="current.symbol + ' ' + money(total)"></span>
@@ -204,7 +215,7 @@
                                 Al continuar aceptas los <a href="{{ lroute('legal', 'terminos') }}" class="underline underline-offset-4">términos</a>.
                             </span>
                         </p>
-                    </div>
+                    </aside>
                 </form>
             @endif
         @endif

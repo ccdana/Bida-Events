@@ -9,10 +9,13 @@
 --}}
 @section('content')
     @php($emailVerified = filled($user->email) && $user->hasVerifiedEmail())
+    @php($openUsername = $errors->has('username') || $errors->has('username_current_password'))
     @php($openEmail = $errors->has('email') || $errors->has('email_current_password'))
+    {{-- Con plan o con pago en línea hay una segunda columna (plan y pagos); si no, la lista va sola y centrada --}}
+    @php($hasPlanColumn = $user->isReseller() || $payOnline)
     @php($openPassword = $errors->has('current_password') || $errors->has('password') || $errors->has('password_link'))
 
-    <div class="grid max-w-xl gap-5">
+    <div @class(['mx-auto grid w-full gap-5', 'max-w-5xl' => $hasPlanColumn, 'max-w-xl' => ! $hasPlanColumn])>
         <header class="site-enter">
             <h1 class="site-display site-display--md">Mi cuenta</h1>
         </header>
@@ -24,7 +27,8 @@
             </p>
         @endif
 
-        <div class="site-rows site-enter" style="--enter-index: 1">
+        <div @class(['site-enter grid items-start gap-x-14 gap-y-5', 'lg:grid-cols-2' => $hasPlanColumn]) style="--enter-index: 1">
+        <div class="site-rows">
             {{-- Quién eres: nombre, usuario y, si tiene, el nombre comercial --}}
             <div class="site-row">
                 <div class="site-row__summary">
@@ -35,15 +39,63 @@
                     </span>
                 </div>
             </div>
-            <div class="site-row">
-                <div class="site-row__summary">
+            {{-- Usuario: con él (o con el correo) entra; «Cambiar» abre su formulario --}}
+            <details class="site-row" @if($openUsername) open @endif>
+                <summary class="site-row__summary">
                     <x-phosphor-at-light class="site-row__icon" aria-hidden="true" />
                     <span class="site-row__main">
                         <span class="site-row__label">Usuario</span>
                         <span class="site-row__value font-mono">{{ $user->username }}</span>
                     </span>
-                </div>
-            </div>
+                    <span class="site-row__change" title="Cambiar el usuario">
+                        <x-phosphor-pencil-simple-light class="site-row__open" aria-hidden="true" />
+                        <x-phosphor-x-light class="site-row__close" aria-hidden="true" />
+                        <span>Cambiar</span>
+                    </span>
+                </summary>
+
+                <form method="POST" action="{{ route('client.account.username') }}" class="site-row__body grid gap-4">
+                    @csrf
+                    @method('PUT')
+
+                    <div class="grid gap-1">
+                        <label for="username" class="site-label">Usuario nuevo</label>
+                        <div class="site-field">
+                            <x-phosphor-at-light class="site-field__icon" aria-hidden="true" />
+                            <input id="username" name="username" type="text" required minlength="3" maxlength="30" value="{{ old('username', $user->username) }}"
+                                autocomplete="username" autocapitalize="none" spellcheck="false" aria-describedby="username-help"
+                                @class(['site-input font-mono', 'is-invalid' => $errors->has('username')]) @error('username') aria-invalid="true" @enderror>
+                        </div>
+                        @error('username')
+                            <p class="text-sm text-site-danger">{{ $message }}</p>
+                        @else
+                            <p id="username-help" class="text-sm text-site-muted">De 3 a 30: minúsculas, números, punto o guion.</p>
+                        @enderror
+                    </div>
+                    <div class="grid gap-1">
+                        <label for="username_current_password" class="site-label">Tu contraseña</label>
+                        <div class="site-field">
+                            <x-phosphor-lock-key-light class="site-field__icon" aria-hidden="true" />
+                            <input id="username_current_password" name="username_current_password" type="password" required
+                                autocomplete="current-password" @class(['site-input', 'is-invalid' => $errors->has('username_current_password')]) @error('username_current_password') aria-invalid="true" @enderror>
+                        </div>
+                        @error('username_current_password')
+                            <p class="text-sm text-site-danger">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+                        <button type="submit" class="admin-primary-button min-h-11">
+                            <x-phosphor-check-bold aria-hidden="true" />
+                            Guardar
+                        </button>
+                        <span class="flex items-center gap-1.5 text-sm text-site-muted">
+                            <x-phosphor-sign-in-light class="size-4 text-site-accent" aria-hidden="true" />
+                            Con él o con tu correo entras al panel.
+                        </span>
+                    </div>
+                </form>
+            </details>
             @if($user->business_name)
                 <div class="site-row">
                     <div class="site-row__summary">
@@ -215,8 +267,11 @@
                 @endif
             </details>
 
-            {{-- Plan y pagos: para revendedores, o para quien puede empezar uno pagando en línea --}}
-            @if($user->isReseller() || $payOnline)
+        </div>
+
+        {{-- Segunda columna: el plan y los pagos (para revendedores, o para quien puede empezar uno pagando en línea) --}}
+        @if($hasPlanColumn)
+            <div class="site-rows">
                 <div class="site-row">
                     <div class="site-row__summary">
                         <x-phosphor-seal-check-light class="site-row__icon" aria-hidden="true" />
@@ -252,7 +307,7 @@
                 </div>
 
                 @if($payments->isNotEmpty())
-                    <details class="site-row">
+                    <details class="site-row" open>
                         <summary class="site-row__summary">
                             <x-phosphor-receipt-light class="site-row__icon" aria-hidden="true" />
                             <span class="site-row__main">
@@ -284,7 +339,8 @@
                         </table>
                     </details>
                 @endif
-            @endif
+            </div>
+        @endif
         </div>
     </div>
 @endsection

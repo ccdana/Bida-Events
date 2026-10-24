@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Client;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Client\UpdateEmailRequest;
 use App\Http\Requests\Client\UpdatePasswordRequest;
+use App\Http\Requests\Client\UpdateUsernameRequest;
 use App\Payments\PaymentGateways;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -13,7 +14,7 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\View\View;
 
 /**
- * La cuenta de cada cliente (y de cada revendedor): sus datos, el correo y el cambio de contraseña.
+ * La cuenta de cada cliente (y de cada revendedor): sus datos, el usuario, el correo y el cambio de contraseña.
  * La contraseña que da el equipo es dictable; aquí se cambia por una propia y las demás sesiones
  * abiertas se cierran. Con el correo confirmado puede recuperar la contraseña sin pedirla al equipo.
  */
@@ -29,6 +30,21 @@ class AccountController extends Controller
             'payments' => $user->subscriptionPayments()->latest('paid_at')->latest('id')->limit(6)->get(),
             'payOnline' => (bool) $gateways->availableMethods(),
         ]);
+    }
+
+    /** El usuario con el que entra (como el correo): pide la contraseña actual y deja libre el anterior. */
+    public function updateUsername(UpdateUsernameRequest $request): RedirectResponse
+    {
+        $user = $request->user();
+        $username = $request->validated('username');
+
+        if ($username === $user->username) {
+            return back()->with('success', 'Tu usuario sigue siendo el mismo.');
+        }
+
+        $user->forceFill(['username' => $username])->save();
+
+        return back()->with('success', 'Listo: tu usuario ahora es '.$username.'. Entra con él o con tu correo.');
     }
 
     public function updateEmail(UpdateEmailRequest $request): RedirectResponse

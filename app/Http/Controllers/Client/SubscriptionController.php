@@ -14,6 +14,7 @@ use App\Support\Offers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Throwable;
 
@@ -184,6 +185,12 @@ class SubscriptionController extends Controller
         } catch (Throwable $e) {
             report($e);
             $url = null;
+        }
+
+        // Un enlace firmado entra al portal sin pedir iniciar sesión; uno sin firma manda al ingreso por correo de Lemon Squeezy.
+        // No se anota la firma: solo de dónde vino y si traía una (php artisan bida:portal-de-pagos usuario lo muestra)
+        if ($url && ! str_contains($url, 'signature=')) {
+            Log::warning('El portal de pagos llegó sin firma: pedirá iniciar sesión', ['user' => $user->id, 'host' => parse_url($url, PHP_URL_HOST), 'path' => parse_url($url, PHP_URL_PATH)]);
         }
 
         if (! $url) {
