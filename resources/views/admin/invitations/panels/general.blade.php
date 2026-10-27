@@ -6,59 +6,43 @@
     ])
 
     {{-- Producto: invitación a un evento o tarjeta de temporada (cambia plantillas, pestañas y campos) --}}
-    <section class="admin-card space-y-3 p-4">
+    <section class="admin-card space-y-1 p-4">
         <h3 class="text-sm font-semibold">¿Qué vas a crear?</h3>
-        <div class="grid grid-cols-2 gap-2" role="radiogroup" aria-label="Tipo de producto">
+        <div class="ed-wiz-tabs" role="radiogroup" aria-label="Tipo de producto">
             <template x-for="kind in [{ value: 'invitation', label: 'Invitación', hint: 'Boda, XV, bautizo, cumpleaños, graduación, Halloween' }, { value: 'card', label: 'Tarjeta', hint: 'Día del Amor y otras fechas' }]" :key="kind.value">
-                <button type="button" role="radio" @click="chooseKind(kind.value)"
+                <button type="button" role="radio" @click="chooseKind(kind.value)" :title="kind.hint"
                     :aria-checked="((profile.kind ?? 'invitation') === kind.value).toString()"
                     :disabled="!kindAvailable(kind.value) && (profile.kind ?? 'invitation') !== kind.value"
-                    class="rounded-[12px] border p-3 text-left transition-colors disabled:opacity-50"
-                    :class="(profile.kind ?? 'invitation') === kind.value ? 'border-site-ink bg-site-bg' : 'border-site-line hover:bg-site-bg'">
-                    <span class="block text-sm font-semibold" x-text="kind.label"></span>
-                    <span class="mt-0.5 block text-xs text-site-muted" x-text="kind.hint"></span>
-                </button>
+                    class="ed-wiz-tab disabled:opacity-50" :class="{ 'is-on': (profile.kind ?? 'invitation') === kind.value }" x-text="kind.label"></button>
             </template>
         </div>
     </section>
 
     {{-- Idioma de la invitación: sus textos y botones salen en él; lo que escribe el cliente no se traduce --}}
-    <section class="admin-card space-y-3 p-4">
-        <div>
-            <h3 class="text-sm font-semibold">Idioma de la invitación</h3>
-            <p class="mt-0.5 text-xs text-site-muted">Los textos y botones que trae la invitación salen en este idioma, y los ejemplos de cada parte también. Lo que escribas tú queda como lo escribas; tus invitados pueden traducirla con su navegador a cualquier otro idioma.</p>
-        </div>
-        <div class="grid grid-cols-2 gap-2" role="radiogroup" aria-label="Idioma de la invitación">
+    <section class="admin-card space-y-1 p-4">
+        <h3 class="text-sm font-semibold" title="Los textos y botones que trae la invitación salen en este idioma. Lo que escribas tú queda como lo escribas.">Idioma de la invitación</h3>
+        <div class="ed-wiz-tabs" role="radiogroup" aria-label="Idioma de la invitación">
             <template x-for="option in (config.localeOptions ?? [])" :key="option.value">
                 <button type="button" role="radio" @click="meta.locale = option.value"
                     :aria-checked="(meta.locale === option.value).toString()"
-                    class="rounded-[12px] border p-3 text-left text-sm font-semibold transition-colors"
-                    :class="meta.locale === option.value ? 'border-site-ink bg-site-bg' : 'border-site-line hover:bg-site-bg'"
-                    x-text="option.label"></button>
+                    class="ed-wiz-tab" :class="{ 'is-on': meta.locale === option.value }" x-text="option.label"></button>
             </template>
         </div>
     </section>
 
     {{-- Paquete vendido: decide qué secciones se pueden encender y cómo confirma el invitado (App\Support\Packages) --}}
     @if(($editorMode ?? 'admin') === 'admin')
-    <section class="admin-card space-y-3 p-4" x-show="(profile.kind ?? 'invitation') === 'invitation'">
-        <div>
-            <h3 class="text-sm font-semibold">Paquete</h3>
-            <p class="mt-0.5 text-xs text-site-muted">Lo que no incluye queda marcado en la lista de secciones y no se muestra en la invitación.</p>
-        </div>
-        <div class="grid gap-2 sm:grid-cols-3" role="radiogroup" aria-label="Paquete de la invitación">
+    <section class="admin-card space-y-1 p-4" x-show="(profile.kind ?? 'invitation') === 'invitation'">
+        <h3 class="text-sm font-semibold" title="Lo que no incluye queda marcado en la lista de partes y no se muestra en la invitación.">Paquete</h3>
+        <div class="ed-wiz-tabs" role="radiogroup" aria-label="Paquete de la invitación">
             <template x-for="option in (config.packageOptions ?? [])" :key="option.value">
-                <button type="button" role="radio" @click="meta.package = option.value"
+                <button type="button" role="radio" @click="meta.package = option.value" :title="option.hint"
                     :aria-checked="(meta.package === option.value).toString()"
-                    class="rounded-[12px] border p-3 text-left transition-colors"
-                    :class="meta.package === option.value ? 'border-site-ink bg-site-bg' : 'border-site-line hover:bg-site-bg'">
-                    <span class="block text-sm font-semibold" x-text="option.label"></span>
-                    <span class="mt-0.5 block text-xs text-site-muted" x-text="option.hint"></span>
-                </button>
+                    class="ed-wiz-tab" :class="{ 'is-on': meta.package === option.value }" x-text="option.label"></button>
             </template>
         </div>
-        <p class="text-xs text-site-muted" x-show="!meta.package" x-cloak>Sin paquete: todo incluido (invitaciones anteriores a los paquetes).</p>
-        <p class="text-xs text-site-muted" x-show="rsvpMode === 'whatsapp'" x-cloak>Confirmación por WhatsApp: carga el número en «Confirmación por WhatsApp».</p>
+        <p class="text-xs text-site-muted" x-show="!meta.package" x-cloak>Sin paquete: todo incluido.</p>
+        <p class="text-xs text-site-muted" x-show="rsvpMode === 'whatsapp'" x-cloak>Confirma por WhatsApp: carga el número en «Confirmar por WhatsApp».</p>
     </section>
     @endif
 
@@ -255,26 +239,16 @@
     @endif
 
     {{-- Publicación --}}
-    <section class="admin-card space-y-3 p-4">
+    <section class="admin-card space-y-1 p-4">
         <h3 class="text-sm font-semibold">Publicación</h3>
-        <div class="grid grid-cols-2 gap-2" role="radiogroup" aria-label="Estado de la invitación">
+        <div class="ed-wiz-tabs" role="radiogroup" aria-label="Estado de la invitación">
             <button type="button" role="radio" @click="meta.status = 'active'" :aria-checked="(meta.status === 'active').toString()"
-                class="rounded-[12px] border p-3 text-left transition-colors"
-                :class="meta.status === 'active' ? 'border-site-ink bg-site-bg' : 'border-site-line hover:bg-site-bg'">
-                <span class="flex items-center gap-2 text-sm font-semibold">
-                    <x-phosphor-globe-simple class="size-4 text-site-accent" aria-hidden="true" />
-                    Activa
-                </span>
-                <span class="mt-1 block text-xs text-site-muted">Los invitados pueden abrir el enlace.</span>
+                class="ed-wiz-tab" :class="{ 'is-on': meta.status === 'active' }" title="Los invitados pueden abrir el enlace.">
+                <x-phosphor-globe-simple-light class="mr-1 inline size-4 align-[-0.2em]" aria-hidden="true" /> Activa
             </button>
             <button type="button" role="radio" @click="meta.status = 'inactive'" :aria-checked="(meta.status === 'inactive').toString()"
-                class="rounded-[12px] border p-3 text-left transition-colors"
-                :class="meta.status === 'inactive' ? 'border-site-ink bg-site-bg' : 'border-site-line hover:bg-site-bg'">
-                <span class="flex items-center gap-2 text-sm font-semibold">
-                    <x-phosphor-eye-slash class="size-4 text-site-muted" aria-hidden="true" />
-                    Inactiva
-                </span>
-                <span class="mt-1 block text-xs text-site-muted">El enlace no se muestra. Puedes seguir editándola.</span>
+                class="ed-wiz-tab" :class="{ 'is-on': meta.status === 'inactive' }" title="El enlace no se muestra. Puedes seguir editándola.">
+                <x-phosphor-eye-slash-light class="mr-1 inline size-4 align-[-0.2em]" aria-hidden="true" /> Inactiva
             </button>
         </div>
     </section>

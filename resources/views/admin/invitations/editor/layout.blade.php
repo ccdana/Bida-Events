@@ -13,6 +13,7 @@
         burbuja con solo ese campo (panel). Una invitación nueva empieza por el asistente (wizard).
     --}}
     <div class="ed-shell relative" :class="{ 'is-guest': guestView, 'is-editing': isEditingPart }">
+        @include('admin.invitations.editor.rail')
         @include('admin.invitations.editor.modules')
         <div class="ed-canvas" x-ref="canvas" :class="{ 'has-bubble': isBubble }">
             @include('admin.invitations.editor.preview')

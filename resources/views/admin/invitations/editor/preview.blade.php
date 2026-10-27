@@ -1,67 +1,78 @@
 {{--
     La invitación es el lienzo («tocar y cambiar»): cada texto o foto se toca y se cambia en una burbuja
     junto a él (editor/panel); el botón negro «Cambiar …» de cada parte muestra todo lo de esa parte.
-    Arriba, la barra de herramientas: las partes (celular), los datos del evento, los colores y letras,
-    el tamaño del aparato, «Ver como invitado» y publicar. Estilos: admin.css («Editor: estilo Canva»).
+    La barra de herramientas es solo de íconos: en el celular va abajo (Partes, Datos, Colores, Ver, Nivel y
+    Publicar); en computadora Partes, Datos y Colores están en el riel de la izquierda (editor/rail) y aquí
+    quedan el tamaño del aparato, Ver como invitado y publicar. Estilos: admin.css («Editor: estilo Canva»).
 --}}
 <div class="ed-toolbar" role="toolbar" aria-label="Herramientas del editor">
-    <button type="button" class="ed-tool ed-tool--parts" @click="modulesOpen = true">
-        <x-phosphor-squares-four aria-hidden="true" />
-        Partes
+    {{-- Celular: lo mismo que el riel de computadora --}}
+    <button type="button" class="ed-tool ed-tool--phone" :class="{ 'is-on': modulesOpen }" @click="modulesOpen = true" title="Partes">
+        <x-phosphor-squares-four-light aria-hidden="true" />
+        <span class="ed-tool__label">Partes</span>
     </button>
-    <button type="button" class="ed-tool" :class="{ 'is-on': panelMode === 'full' && activeTab === 'general' }" @click="openFull('general')">
-        <x-phosphor-calendar-blank aria-hidden="true" />
-        Datos del evento
+    <button type="button" class="ed-tool ed-tool--phone" :class="{ 'is-on': panelMode === 'full' && activeTab === 'general' }" @click="toggleFull('general')" title="Datos del evento">
+        <x-phosphor-calendar-blank-light aria-hidden="true" />
+        <span class="ed-tool__label">Datos</span>
+        <span class="sr-only">del evento</span>
     </button>
-    <button type="button" class="ed-tool" :class="{ 'is-on': panelMode === 'full' && activeTab === 'estetica' }" @click="openFull('estetica')">
-        <x-phosphor-palette aria-hidden="true" />
-        Colores y letras
+    <button type="button" class="ed-tool ed-tool--phone" :class="{ 'is-on': panelMode === 'full' && activeTab === 'estetica' }" @click="toggleFull('estetica')" title="Colores y letras">
+        <x-phosphor-palette-light aria-hidden="true" />
+        <span class="ed-tool__label">Colores</span>
+        <span class="sr-only">y letras</span>
     </button>
-
-    <div class="ed-device-switch" role="radiogroup" aria-label="Tamaño de la vista previa">
-        <template x-for="option in [{ id: 'phone', label: 'Celular' }, { id: 'tablet', label: 'Tableta' }, { id: 'desktop', label: 'Computadora' }]" :key="option.id">
-            <button type="button" role="radio" :aria-checked="(previewDevice === option.id).toString()"
-                :class="{ 'is-on': previewDevice === option.id }" @click="previewDevice = option.id; $nextTick(() => placeBubble())" x-text="option.label"></button>
-        </template>
-    </div>
 
     <span class="ed-toolbar__status" aria-live="polite" x-text="uploadStatus || previewError || (previewLoading ? 'Actualizando…' : '')"></span>
 
+    <div class="ed-device-switch" role="radiogroup" aria-label="Tamaño de la vista previa">
+        <template x-for="option in [{ id: 'phone', label: 'Celular', icon: 'device-mobile' }, { id: 'tablet', label: 'Tableta', icon: 'device-tablet' }, { id: 'desktop', label: 'Computadora', icon: 'desktop' }]" :key="option.id">
+            <button type="button" role="radio" :aria-checked="(previewDevice === option.id).toString()" :aria-label="option.label" :title="option.label"
+                :class="{ 'is-on': previewDevice === option.id }" @click="previewDevice = option.id; $nextTick(() => placeBubble())">
+                <x-phosphor-device-mobile-light x-show="option.icon === 'device-mobile'" aria-hidden="true" />
+                <x-phosphor-device-tablet-light x-show="option.icon === 'device-tablet'" aria-hidden="true" />
+                <x-phosphor-desktop-light x-show="option.icon === 'desktop'" aria-hidden="true" />
+            </button>
+        </template>
+    </div>
+
     <button type="button" role="switch" class="ed-tool" :class="{ 'is-on': guestView }"
-        :aria-checked="guestView.toString()" @click="guestView = !guestView">
-        <x-phosphor-eye aria-hidden="true" />
-        Ver como invitado
+        :aria-checked="guestView.toString()" @click="guestView = !guestView" title="Ver como invitado" aria-label="Ver como invitado">
+        <x-phosphor-eye-light aria-hidden="true" />
+        <span class="ed-tool__label">Ver</span>
     </button>
 
-    {{-- «Hazlo tú»: el nivel que piden las partes encendidas; al tocarlo, qué lo sube y cómo bajarlo --}}
+    {{-- «Hazlo tú»: el nivel que piden las partes encendidas (de 0 a 3 puntos); al tocarlo, qué lo sube y cómo bajarlo --}}
     <button type="button" class="ed-tool ed-tool--tier" x-show="isDiy" x-cloak @click="tierDialog = true"
-        :title="'Tu invitación hoy es nivel ' + diyTierName(diyRequiredTier) + '. Toca para ver por qué.'">
-        <span class="ed-tool__muted">Nivel</span>
-        <span x-text="diyTierName(diyRequiredTier)"></span>
+        :title="'Nivel ' + diyTierName(diyRequiredTier) + '. Toca para ver por qué.'"
+        :aria-label="'Tu invitación hoy es nivel ' + diyTierName(diyRequiredTier) + '. Toca para ver por qué.'">
+        <span class="ed-dots" :data-level="diyTierIndex(diyRequiredTier)" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="ed-tool__label">Nivel</span>
     </button>
 
     <template x-if="config.isCreate">
-        <button type="button" class="ed-tool ed-tool--primary" @click="document.getElementById('invitation-form').requestSubmit()" :disabled="mediaUploading">
-            <x-phosphor-plus aria-hidden="true" />
-            Crear invitación
+        <button type="button" class="ed-tool ed-tool--primary" @click="document.getElementById('invitation-form').requestSubmit()" :disabled="mediaUploading" title="Crear invitación">
+            <x-phosphor-plus-light aria-hidden="true" />
+            <span class="ed-tool__label">Crear</span>
         </button>
     </template>
     <template x-if="!config.isCreate">
         <span class="contents">
-            <button type="button" class="ed-tool ed-tool--primary" x-show="!isPublished" @click="requestPublish()" :disabled="mediaUploading">
-                <x-phosphor-paper-plane-tilt aria-hidden="true" />
-                Publicar
+            <button type="button" class="ed-tool ed-tool--primary" x-show="!isPublished" @click="requestPublish()" :disabled="mediaUploading" title="Publicar">
+                <x-phosphor-paper-plane-tilt-light aria-hidden="true" />
+                <span class="ed-tool__label">Publicar</span>
             </button>
             {{-- «Hazlo tú» publicada con un nivel menor que el que piden sus partes: lo de más no se ve todavía --}}
-            <button type="button" class="ed-tool ed-tool--primary" x-show="isPublished && diyNeedsUpgrade" x-cloak @click="publish()" :disabled="mediaUploading">
-                <x-phosphor-arrow-circle-up aria-hidden="true" />
-                <span x-text="'Subir a ' + diyTierName(diyRequiredTier)"></span>
+            <button type="button" class="ed-tool ed-tool--primary" x-show="isPublished && diyNeedsUpgrade" x-cloak @click="publish()" :disabled="mediaUploading"
+                :title="'Subir a ' + diyTierName(diyRequiredTier)">
+                <x-phosphor-arrow-circle-up-light aria-hidden="true" />
+                <span class="ed-tool__label">Subir</span>
+                <span class="sr-only" x-text="' a ' + diyTierName(diyRequiredTier)"></span>
             </button>
             <button type="button" class="ed-tool ed-tool--published" x-show="isPublished" :disabled="mediaUploading"
                 @click="if (confirm('¿Ocultar la invitación? Tus invitados dejarán de verla hasta que la publiques otra vez.')) unpublish()"
-                title="Está visible para tus invitados. Tócalo para ocultarla.">
-                <x-phosphor-check-circle aria-hidden="true" />
-                Publicada
+                title="Publicada: la ven tus invitados. Tócalo para ocultarla.">
+                <x-phosphor-check-circle-light aria-hidden="true" />
+                <span class="ed-tool__label">Publicada</span>
             </button>
         </span>
     </template>
@@ -74,11 +85,14 @@
 </form>
 
 <div class="ed-preview">
-    <p class="ed-preview__tip" x-show="!guestView && panelMode === 'closed'" x-cloak x-transition.opacity>
-        Toca un <strong>texto</strong> o una <strong>foto</strong> para cambiarlo
+    {{-- Un consejo que sale solo hasta que se toca algo por primera vez --}}
+    <p class="ed-preview__tip" x-show="tipOpen && !guestView && panelMode === 'closed'" x-cloak x-transition.opacity>
+        <x-phosphor-hand-tap-light aria-hidden="true" />
+        <span>Toca un <strong>texto</strong> o una <strong>foto</strong> para cambiarlo</span>
     </p>
     <p class="ed-preview__tip ed-preview__tip--guest" x-show="guestView" x-cloak>
-        Así la recibirán tus invitados. Para seguir cambiando cosas, apaga «Ver como invitado».
+        <x-phosphor-eye-light aria-hidden="true" />
+        <span>Así la ven tus invitados</span>
     </p>
     <div class="ed-preview__stage">
         <div class="adm-device mx-auto h-full w-full" :style="`max-width:${previewWidth}px`">

@@ -192,6 +192,10 @@ function invitationForm(config) {
         bubbleAnchor: null,
         // Celular: la barra lateral de partes se abre como cajón
         modulesOpen: false,
+        // Computadora: la lista de partes junto al riel se pliega para darle todo el ancho a la invitación
+        partsOpen: true,
+        // El consejo «Toca un texto o una foto» sale hasta que se toca algo por primera vez
+        tipOpen: false,
         // Parte recién encendida que se mostrará cuando la vista previa se recargue con ella
         revealPart: null,
         frameSeq: 0,
@@ -656,6 +660,7 @@ function invitationForm(config) {
             this.syncEventTypeWithTemplate();
             this.initEventDateFields();
             this.syncActiveGroup();
+            this.loadChromeState();
             this.$watch('meta.template', v => {
                 if (this.modules.config) this.modules.config.template = v;
                 this.applyProfile();
@@ -1075,6 +1080,11 @@ function invitationForm(config) {
             return tier === 'gratis' ? '' : this.diyTierName(tier);
         },
 
+        /** El nivel de una parte como 0–3 puntos (Gratis, Básico, Estándar, Premium); sin nivel fuera de «Hazlo tú». */
+        diyPartLevel(tab) {
+            return this.isDiy && tab.moduleCode ? Math.max(0, this.diyTierIndex(this.diyTierOf(tab.moduleCode))) : 0;
+        },
+
         /** Cómo confirma el invitado: 'whatsapp', 'pass' o null, según el módulo encendido y lo que incluye el paquete. */
         get rsvpMode() {
             const flags = this.modules.config?.modulos ?? {};
@@ -1205,6 +1215,38 @@ function invitationForm(config) {
                 this.bubbleAnchor = this.previewSectionElement(tabId);
                 this.placeBubble();
             });
+        },
+
+        /** Lo que el editor recuerda de este aparato (lista de partes plegada, consejo ya visto); sin almacenamiento, todo sigue funcionando. */
+        loadChromeState() {
+            try {
+                this.partsOpen = window.localStorage.getItem('ed.partsOpen') !== '0';
+                this.tipOpen = window.localStorage.getItem('ed.tipSeen') !== '1';
+            } catch {
+                this.tipOpen = true;
+            }
+            // Tocar algo por primera vez ya enseñó cómo se edita: el consejo no vuelve
+            this.$watch('panelMode', mode => {
+                if (mode === 'closed' || !this.tipOpen) return;
+                this.tipOpen = false;
+                try { window.localStorage.setItem('ed.tipSeen', '1'); } catch { /* sin almacenamiento */ }
+            });
+        },
+
+        /** Computadora: pliega o muestra la lista de partes. */
+        togglePartsColumn() {
+            this.partsOpen = !this.partsOpen;
+            try { window.localStorage.setItem('ed.partsOpen', this.partsOpen ? '1' : '0'); } catch { /* sin almacenamiento */ }
+            this.$nextTick(() => this.placeBubble());
+        },
+
+        /** Datos y Colores en el riel / la barra: abren su formulario y, tocados de nuevo, lo cierran. */
+        toggleFull(tabId) {
+            if (this.panelMode === 'full' && this.activeTab === tabId) {
+                this.finishEditing();
+                return;
+            }
+            this.openFull(tabId);
         },
 
         /** El formulario entero de una parte (sin parte: la abierta), en el panel lateral. */

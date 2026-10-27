@@ -108,16 +108,41 @@ class TapToEditTest extends TestCase
             ->assertSee('para cambiarlo', false)
             ->assertSee('¿Para qué sirve?', false)
             ->assertSee('Cambiar otra cosa de')
-            ->assertSee('¿Qué quieres cambiar?')
+            ->assertSee('openChoice(choice)', false)
             ->assertSee('Ver todas las opciones de')
             ->assertSee('Listo')
-            // Arriba: los datos, los colores, ver como invitado y publicar
+            // Los datos, los colores, ver como invitado y publicar: solo íconos con su nombre (el riel en computadora, la barra abajo en celular)
             ->assertSee('Datos del evento')
             ->assertSee('Colores y letras')
             ->assertSee('Ver como invitado')
             ->assertSee('Publicar')
-            ->assertDontSee('Banner principal')
-            ->assertDontSee('ed-rail', false);
+            ->assertSee('ed-rail__btn', false)
+            ->assertSee('ed-tool--phone', false)
+            ->assertDontSee('Banner principal');
+    }
+
+    public function test_the_editor_has_no_fixed_texts_and_every_part_row_is_an_icon_a_name_and_dots(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+        $invitation = $this->createInvitation();
+        app(InvitationModuleService::class)->syncAllModules($invitation, XvSofiaModuleData::all());
+
+        $this->actingAs($admin)->withoutVite()->get(route('admin.invitations.edit', $invitation))
+            ->assertOk()
+            // Ya no hay párrafos de introducción ni el aviso fijo de «Toca…» con su propio renglón
+            ->assertDontSee('Enciende lo que quieras mostrar. Después tócalo en la invitación para cambiarlo.')
+            ->assertDontSee('Prueba todas: pagas solo si al publicar dejas encendidas las que dicen su nivel.')
+            ->assertDontSee('Así la recibirán tus invitados. Para seguir cambiando cosas, apaga «Ver como invitado».')
+            // La fila de una parte: su ícono, el nivel en puntos y el «?»; sin la palabra «Apagada» a la vista
+            ->assertSee('ed-part__icon', false)
+            ->assertSee('ed-dots', false)
+            ->assertSee('partIcons', false)
+            ->assertDontSee('ed-part__status', false)
+            // El consejo sale solo hasta que se toca algo por primera vez
+            ->assertSee('tipOpen', false)
+            // La cabecera es una franja: flecha, nombre y guardar; lo secundario, en «⋯»
+            ->assertSee('ed-top__back', false)
+            ->assertSee('Más opciones');
     }
 
     public function test_a_new_invitation_starts_with_the_wizard(): void

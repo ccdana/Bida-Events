@@ -24,23 +24,38 @@
             <button type="button" class="ed-panel__back" x-show="panelMode !== 'section' && !!currentTab?.moduleCode" @click="goBack()"
                 :aria-label="'Ver todo lo que se puede cambiar de ' + (currentTab?.label ?? 'esta parte')"
                 :title="'Más de ' + (currentTab?.label ?? 'esta parte')">
-                <x-phosphor-caret-left aria-hidden="true" />
+                <x-phosphor-caret-left-light aria-hidden="true" />
             </button>
             <p class="ed-panel__title">
-                <small x-text="panelMode === 'field' ? (fieldGroup || currentTab?.label || '') :(panelMode === 'section' ? '¿Qué quieres cambiar?' : (currentTab?.moduleCode ? 'Todas las opciones' : 'Tu invitación'))"></small>
+                <small x-show="panelMode === 'field' && (fieldGroup || currentTab?.label)" x-text="fieldGroup || currentTab?.label || ''"></small>
                 <span x-text="panelMode === 'field' ? (fieldLabel || currentTab?.label) : (currentTab?.label ?? 'La invitación')"></span>
             </p>
             <button type="button" class="ed-help-btn" @click="helpOpen = helpOpen === 'panel' ? null : 'panel'"
-                :aria-expanded="(helpOpen === 'panel').toString()" aria-label="¿Para qué sirve?" title="¿Para qué sirve?">?</button>
-            <button type="button" class="ed-panel__done" @click="finishEditing()">Listo</button>
+                :aria-expanded="(helpOpen === 'panel').toString()" aria-label="¿Para qué sirve?" title="¿Para qué sirve?">
+                <x-phosphor-question-light aria-hidden="true" />
+            </button>
+            <button type="button" class="ed-panel__done" @click="finishEditing()" aria-label="Listo" title="Listo">
+                <x-phosphor-check-light aria-hidden="true" />
+            </button>
         </div>
 
         <p class="ed-panel__help" x-show="helpOpen === 'panel'" x-cloak x-transition.opacity x-text="currentHelp"></p>
         <p class="ed-panel__notice" x-show="partNotice" x-cloak x-text="partNotice"></p>
 
-        {{-- Mostrar u ocultar la parte entera --}}
+        {{-- Mostrar u ocultar la parte entera: un ojo y el interruptor (si el paquete no la incluye, lo dice) --}}
         <div class="ed-panel__show" x-show="(panelMode === 'section' || panelMode === 'full') && !!currentTab?.moduleCode" x-cloak>
-            <span x-text="currentTab ? (packageLockLabel(currentTab) || (isTabEnabled(currentTab) ? 'Se muestra en la invitación' : 'Oculta: tus invitados no la ven')) : ''"></span>
+            <span class="ed-panel__show-state">
+                <template x-if="currentTab && packageLockLabel(currentTab)">
+                    <span x-text="packageLockLabel(currentTab)"></span>
+                </template>
+                <template x-if="currentTab && !packageLockLabel(currentTab)">
+                    <span class="inline-flex items-center gap-2">
+                        <x-phosphor-eye-light x-show="isTabEnabled(currentTab)" aria-hidden="true" />
+                        <x-phosphor-eye-slash-light x-show="!isTabEnabled(currentTab)" aria-hidden="true" />
+                        <span class="sr-only" x-text="isTabEnabled(currentTab) ? 'Se muestra en la invitación' : 'Oculta: tus invitados no la ven'"></span>
+                    </span>
+                </template>
+            </span>
             <button type="button" role="switch" class="adm-switch"
                 :class="currentTab && isTabEnabled(currentTab) ? 'is-on' : ''"
                 :disabled="!currentTab || !!packageLockLabel(currentTab)"
@@ -56,24 +71,26 @@
             <button type="button" class="ed-choice" @click="openChoice(choice)">
                 <span class="ed-choice__thumb" :class="{ 'has-image': !!choice.image }" aria-hidden="true">
                     <img x-show="choice.image" :src="choice.image || ''" alt="">
-                    <x-phosphor-pencil-simple x-show="!choice.image" />
+                    <x-phosphor-pencil-simple-line-light x-show="!choice.image" />
                 </span>
                 <span class="min-w-0 flex-1">
                     <span class="ed-choice__label" x-text="choice.label"></span>
                     <span class="ed-choice__value" x-show="choice.summary" x-text="choice.summary"></span>
                 </span>
-                <x-phosphor-caret-right class="ed-choice__go" aria-hidden="true" />
+                <x-phosphor-caret-right-light class="ed-choice__go" aria-hidden="true" />
             </button>
         </template>
-        <button type="button" class="ed-choices__all" @click="openFull()">
-            Ver todas las opciones de <span x-text="currentTab?.label ?? 'esta parte'"></span>
+        <button type="button" class="ed-choices__all" @click="openFull()" :aria-label="'Ver todas las opciones de ' + (currentTab?.label ?? 'esta parte')">
+            <x-phosphor-list-bullets-light aria-hidden="true" />
+            <span>Ver todo</span>
         </button>
     </div>
 
     {{-- Un campo a la vista: el resto de la parte, a un toque --}}
-    <button type="button" class="ed-field-more" x-show="panelMode === 'field' && !!currentTab?.moduleCode" x-cloak @click="openSection(activeTab)">
-        <span>Cambiar otra cosa de <span x-text="currentTab?.label ?? 'esta parte'"></span></span>
-        <x-phosphor-caret-right aria-hidden="true" />
+    <button type="button" class="ed-field-more" x-show="panelMode === 'field' && !!currentTab?.moduleCode" x-cloak @click="openSection(activeTab)"
+        :aria-label="'Cambiar otra cosa de ' + (currentTab?.label ?? 'esta parte')">
+        <span>Más de <span x-text="currentTab?.label ?? 'esta parte'"></span></span>
+        <x-phosphor-caret-right-light aria-hidden="true" />
     </button>
 
 {{-- novalidate: un campo obligatorio de una parte cerrada no puede frenar el guardado sin que se vea; valida el servidor --}}
@@ -134,16 +151,15 @@
 
         {{-- Recorrido en orden: la parte anterior y la siguiente --}}
         <nav class="ed-pager" aria-label="Recorrer las partes de la invitación">
-            <button type="button" class="ed-pager__btn" x-show="prevTab" x-cloak @click="selectTab(prevTab.id)">
-                <x-phosphor-arrow-left aria-hidden="true" />
-                <span><small>Anterior</small><span x-text="prevTab?.label"></span></span>
+            <button type="button" class="ed-pager__btn" x-show="prevTab" x-cloak @click="selectTab(prevTab.id)" :aria-label="'Anterior: ' + (prevTab?.label ?? '')">
+                <x-phosphor-arrow-left-light aria-hidden="true" />
+                <span x-text="prevTab?.label"></span>
             </button>
-            <button type="button" class="ed-pager__btn ed-pager__btn--next" x-show="nextTab" x-cloak @click="selectTab(nextTab.id)">
-                <span><small>Siguiente</small><span x-text="nextTab?.label"></span></span>
-                <x-phosphor-arrow-right aria-hidden="true" />
+            <button type="button" class="ed-pager__btn ed-pager__btn--next" x-show="nextTab" x-cloak @click="selectTab(nextTab.id)" :aria-label="'Siguiente: ' + (nextTab?.label ?? '')">
+                <span x-text="nextTab?.label"></span>
+                <x-phosphor-arrow-right-light aria-hidden="true" />
             </button>
-        </nav>
-    </div>
+        </nav>    </div>
 
     @foreach($moduleCodes as $code)
         <input type="hidden" name="modulos[{{ $code }}]" :value="moduleToJson('{{ $code }}')">

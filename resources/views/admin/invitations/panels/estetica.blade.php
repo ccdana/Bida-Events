@@ -3,7 +3,8 @@
     x-data="{
         hover: null,
         active: null,
-        sampleOpen: true,
+        sampleOpen: false,
+        fold: 'paletas',
         {{-- Lo que se marca: lo que está bajo el mouse o, si no, el campo donde se está escribiendo --}}
         get focus() { return this.hover ?? this.active; },
         spot(key) { return this.focus === key ? 'outline-2 outline-dashed outline-offset-4 outline-site-accent' : ''; },
@@ -76,100 +77,106 @@
     </section>
 
     {{-- Paletas completas: primero las de este tipo de evento (config/palettes.php) --}}
-    <section class="admin-card space-y-4 p-4">
-        <div>
+    <section class="admin-card p-4">
+        <button type="button" class="ed-fold" @click="fold = fold === 'paletas' ? null : 'paletas'" :aria-expanded="(fold === 'paletas').toString()" title="Aplica una combinación completa y después ajusta el color que quieras.">
             <h3 class="text-sm font-semibold">Paletas listas</h3>
-            <p class="mt-0.5 text-xs text-site-muted">Aplica una combinación completa y después ajusta el color que quieras.</p>
-        </div>
+            <x-phosphor-caret-down-light class="ed-fold__caret" x-bind:class="{ 'is-open': fold === 'paletas' }" aria-hidden="true" />
+        </button>
+        <div x-show="fold === 'paletas'" x-cloak class="paletas-fold space-y-4 pt-3">
 
-        @foreach([
-            ['fn' => 'getEventColorPresets()', 'title' => 'Para esta plantilla', 'note' => 'La primera son los colores originales del diseño.'],
-            ['fn' => 'getGeneralColorPresets()', 'title' => 'Otras paletas', 'note' => 'Sirven para cualquier evento.'],
-        ] as $group)
-            <div x-show="{{ $group['fn'] }}.length" x-cloak>
-                <p class="text-[11px] font-semibold uppercase tracking-[0.14em] text-site-muted">{{ $group['title'] }}</p>
-                <p class="mt-0.5 text-[11px] text-site-muted">{{ $group['note'] }}</p>
-                <div class="mt-2 grid grid-cols-2 gap-2">
-                    <template x-for="preset in {{ $group['fn'] }}" :key="preset.name">
-                        <button type="button" @click="applyColorPreset(preset.name)"
-                            class="rounded-[12px] border p-2.5 text-left transition-colors"
-                            :class="isCurrentPreset(preset.name) ? 'border-site-ink bg-site-bg' : 'border-site-line hover:bg-site-bg'"
-                            :aria-pressed="isCurrentPreset(preset.name).toString()">
-                            <span class="flex h-9 items-center gap-1.5 overflow-hidden rounded-md border border-site-line px-1.5" :style="`background:${preset.colors.background}`">
-                                <span class="h-5 flex-1 rounded-sm" :style="`background:${preset.colors.accent}`"></span>
-                                <span class="size-3 shrink-0 rounded-full" :style="`background:${preset.colors.primary}`"></span>
-                                <span class="h-1.5 w-6 shrink-0 rounded-full" :style="`background:${preset.colors.text}`"></span>
-                            </span>
-                            <span class="mt-2 flex items-center justify-between gap-1">
-                                <span class="truncate text-xs font-semibold" x-text="preset.name"></span>
-                                <x-phosphor-check-circle-fill class="size-4 shrink-0 text-site-accent" x-show="isCurrentPreset(preset.name)" aria-hidden="true" />
-                            </span>
-                            <span class="flex items-center gap-1.5">
-                                <span class="truncate text-[11px] text-site-muted" x-text="preset.description || ''"></span>
-                                <span class="shrink-0 text-[10px] text-site-muted" x-show="preset.mode === 'night'" x-cloak>· de noche</span>
-                            </span>
-                        </button>
-                    </template>
+            @foreach([
+                ['fn' => 'getEventColorPresets()', 'title' => 'Para esta plantilla', 'note' => 'La primera son los colores originales del diseño.'],
+                ['fn' => 'getGeneralColorPresets()', 'title' => 'Otras paletas', 'note' => 'Sirven para cualquier evento.'],
+            ] as $group)
+                <div x-show="{{ $group['fn'] }}.length" x-cloak>
+                    <p class="text-[11px] font-semibold uppercase tracking-[0.14em] text-site-muted">{{ $group['title'] }}</p>
+                    <p class="mt-0.5 text-[11px] text-site-muted">{{ $group['note'] }}</p>
+                    <div class="mt-2 grid grid-cols-2 gap-2">
+                        <template x-for="preset in {{ $group['fn'] }}" :key="preset.name">
+                            <button type="button" @click="applyColorPreset(preset.name)"
+                                class="rounded-[12px] border p-2.5 text-left transition-colors"
+                                :class="isCurrentPreset(preset.name) ? 'border-site-ink bg-site-bg' : 'border-site-line hover:bg-site-bg'"
+                                :aria-pressed="isCurrentPreset(preset.name).toString()">
+                                <span class="flex h-9 items-center gap-1.5 overflow-hidden rounded-md border border-site-line px-1.5" :style="`background:${preset.colors.background}`">
+                                    <span class="h-5 flex-1 rounded-sm" :style="`background:${preset.colors.accent}`"></span>
+                                    <span class="size-3 shrink-0 rounded-full" :style="`background:${preset.colors.primary}`"></span>
+                                    <span class="h-1.5 w-6 shrink-0 rounded-full" :style="`background:${preset.colors.text}`"></span>
+                                </span>
+                                <span class="mt-2 flex items-center justify-between gap-1">
+                                    <span class="truncate text-xs font-semibold" x-text="preset.name"></span>
+                                    <x-phosphor-check-circle-fill class="size-4 shrink-0 text-site-accent" x-show="isCurrentPreset(preset.name)" aria-hidden="true" />
+                                </span>
+                                <span class="flex items-center gap-1.5">
+                                    <span class="truncate text-[11px] text-site-muted" x-text="preset.description || ''"></span>
+                                    <span class="shrink-0 text-[10px] text-site-muted" x-show="preset.mode === 'night'" x-cloak>· de noche</span>
+                                </span>
+                            </button>
+                        </template>
+                    </div>
                 </div>
-            </div>
-        @endforeach
+            @endforeach
+        </div>
     </section>
 
     {{-- Colores con su uso --}}
-    <section class="admin-card space-y-3 p-4">
-        <div>
+    <section class="admin-card p-4">
+        <button type="button" class="ed-fold" @click="fold = fold === 'colores' ? null : 'colores'" :aria-expanded="(fold === 'colores').toString()" title="Cada color tiene una función en la invitación.">
             <h3 class="text-sm font-semibold">Colores</h3>
-            <p class="mt-0.5 text-xs text-site-muted">Cada color tiene una función en la invitación.</p>
-        </div>
-        <div class="space-y-2">
-            <template x-for="role in colorRoles" :key="role.key">
-                <div class="flex items-center gap-3 rounded-[12px] border p-2.5 transition-colors"
-                    :class="focus === role.key || active === role.key ? 'border-site-ink bg-site-bg' : 'border-site-line'"
-                    @mouseenter="hover = role.key" @mouseleave="hover = null" @focusin="active = role.key" @focusout="leave($event)">
-                    <label class="relative size-10 shrink-0 cursor-pointer overflow-hidden rounded-full border border-site-line"
-                        :style="`background:${modules.config.colores[role.key]}`" :title="`Elegir color: ${role.label}`">
-                        <input type="color" x-model="modules.config.colores[role.key]" class="absolute inset-0 size-full cursor-pointer opacity-0"
-                            :aria-label="`Elegir color: ${role.label}`">
-                    </label>
-                    <div class="min-w-0 flex-1" :class="role.unused ? 'opacity-60' : ''">
-                        <p class="text-sm font-semibold" x-text="role.label"></p>
-                        <p class="text-xs leading-snug text-site-muted" x-text="role.usage"></p>
+            <x-phosphor-caret-down-light class="ed-fold__caret" x-bind:class="{ 'is-open': fold === 'colores' }" aria-hidden="true" />
+        </button>
+        <div x-show="fold === 'colores'" x-cloak class="colores-fold space-y-4 pt-3">
+            <div class="space-y-2">
+                <template x-for="role in colorRoles" :key="role.key">
+                    <div class="flex items-center gap-3 rounded-[12px] border p-2.5 transition-colors"
+                        :class="focus === role.key || active === role.key ? 'border-site-ink bg-site-bg' : 'border-site-line'"
+                        @mouseenter="hover = role.key" @mouseleave="hover = null" @focusin="active = role.key" @focusout="leave($event)">
+                        <label class="relative size-10 shrink-0 cursor-pointer overflow-hidden rounded-full border border-site-line"
+                            :style="`background:${modules.config.colores[role.key]}`" :title="`Elegir color: ${role.label}`">
+                            <input type="color" x-model="modules.config.colores[role.key]" class="absolute inset-0 size-full cursor-pointer opacity-0"
+                                :aria-label="`Elegir color: ${role.label}`">
+                        </label>
+                        <div class="min-w-0 flex-1" :class="role.unused ? 'opacity-60' : ''">
+                            <p class="text-sm font-semibold" x-text="role.label"></p>
+                            <p class="text-xs leading-snug text-site-muted" x-text="role.usage"></p>
+                        </div>
+                        <input type="text" x-model="modules.config.colores[role.key]" @change="validateHexColor(role.key)" maxlength="7"
+                            class="admin-hex-input shrink-0" :aria-label="`Código del color ${role.label}`">
                     </div>
-                    <input type="text" x-model="modules.config.colores[role.key]" @change="validateHexColor(role.key)" maxlength="7"
-                        class="admin-hex-input shrink-0" :aria-label="`Código del color ${role.label}`">
-                </div>
-            </template>
+                </template>
+            </div>
         </div>
     </section>
 
     {{-- Tipografías con muestra de texto real --}}
-    <section class="admin-card space-y-5 p-4">
-        <div>
+    <section class="admin-card p-4">
+        <button type="button" class="ed-fold" @click="fold = fold === 'letras' ? null : 'letras'" :aria-expanded="(fold === 'letras').toString()" title="Cada opción se muestra con el texto donde se va a usar.">
             <h3 class="text-sm font-semibold">Tipografías</h3>
-            <p class="mt-0.5 text-xs text-site-muted">Cada opción se muestra con el texto donde se va a usar.</p>
-        </div>
-        <template x-for="role in fontRoles" :key="role.key">
-            <div class="space-y-2" @mouseenter="hover = role.key" @mouseleave="hover = null" @focusin="active = role.key" @focusout="leave($event)">
-                <div class="flex items-baseline justify-between gap-3">
-                    <div class="min-w-0">
-                        <p class="text-sm font-semibold" x-text="role.label"></p>
-                        <p class="text-xs leading-snug text-site-muted" x-text="role.usage"></p>
+            <x-phosphor-caret-down-light class="ed-fold__caret" x-bind:class="{ 'is-open': fold === 'letras' }" aria-hidden="true" />
+        </button>
+        <div x-show="fold === 'letras'" x-cloak class="letras-fold space-y-4 pt-3">
+            <template x-for="role in fontRoles" :key="role.key">
+                <div class="space-y-2" @mouseenter="hover = role.key" @mouseleave="hover = null" @focusin="active = role.key" @focusout="leave($event)">
+                    <div class="flex items-baseline justify-between gap-3">
+                        <div class="min-w-0">
+                            <p class="text-sm font-semibold" x-text="role.label"></p>
+                            <p class="text-xs leading-snug text-site-muted" x-text="role.usage"></p>
+                        </div>
+                        <span class="shrink-0 text-xs text-site-muted" x-text="modules.config.tipografias[role.key]"></span>
                     </div>
-                    <span class="shrink-0 text-xs text-site-muted" x-text="modules.config.tipografias[role.key]"></span>
+                    <div class="grid grid-cols-2 gap-2">
+                        <template x-for="font in fontOptions[role.key]" :key="font">
+                            <button type="button" @click="modules.config.tipografias[role.key] = font"
+                                class="min-w-0 rounded-[10px] border px-3 py-2 text-left transition-colors"
+                                :class="modules.config.tipografias[role.key] === font ? 'border-site-ink bg-site-bg' : 'border-site-line hover:bg-site-bg'"
+                                :aria-pressed="(modules.config.tipografias[role.key] === font).toString()">
+                                <span class="block truncate leading-snug" :class="role.size"
+                                    :style="`font-family:'${font}', ${role.fallback}`" x-text="fontSample(role.key)"></span>
+                                <span class="mt-0.5 block truncate text-[11px] text-site-muted" x-text="font"></span>
+                            </button>
+                        </template>
+                    </div>
                 </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <template x-for="font in fontOptions[role.key]" :key="font">
-                        <button type="button" @click="modules.config.tipografias[role.key] = font"
-                            class="min-w-0 rounded-[10px] border px-3 py-2 text-left transition-colors"
-                            :class="modules.config.tipografias[role.key] === font ? 'border-site-ink bg-site-bg' : 'border-site-line hover:bg-site-bg'"
-                            :aria-pressed="(modules.config.tipografias[role.key] === font).toString()">
-                            <span class="block truncate leading-snug" :class="role.size"
-                                :style="`font-family:'${font}', ${role.fallback}`" x-text="fontSample(role.key)"></span>
-                            <span class="mt-0.5 block truncate text-[11px] text-site-muted" x-text="font"></span>
-                        </button>
-                    </template>
-                </div>
-            </div>
-        </template>
+            </template>
+        </div>
     </section>
 </div>

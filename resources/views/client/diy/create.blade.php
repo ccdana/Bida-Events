@@ -8,7 +8,9 @@
 @section('header-title', 'Crear mi invitación')
 
 @section('header-actions')
-    <a href="{{ route('client.dashboard') }}" class="admin-link-button">Cancelar</a>
+    <a href="{{ route('client.dashboard') }}" class="ed-act ed-act--solo" title="Cancelar" aria-label="Cancelar">
+        <x-phosphor-x-light aria-hidden="true" />
+    </a>
 @endsection
 
 @section('content')
