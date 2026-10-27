@@ -14,6 +14,14 @@ interface ManagesSubscriptions
     public function portalUrl(User $user): ?string;
 
     /**
+     * Los movimientos de su suscripción (cobros y devoluciones), del más nuevo al más viejo, para mostrarlos en «Mi cuenta»
+     * sin que el cliente tenga que entrar al portal. Vacío si no tiene o si la pasarela no responde a tiempo.
+     *
+     * @return list<array{date: \Carbon\CarbonImmutable, amount: float, currency: string, status: 'paid'|'refunded'|'pending'|'void', reason: string, test: bool, url: ?string}>
+     */
+    public function invoices(User $user, int $limit = 8): array;
+
+    /**
      * Cada cuántos meses puede renovarse sola la suscripción de este plan (1, 3 o 12): los ciclos que
      * la pasarela tiene configurados.
      *

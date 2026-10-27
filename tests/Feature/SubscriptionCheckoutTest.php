@@ -218,7 +218,7 @@ class SubscriptionCheckoutTest extends TestCase
             ->assertSee('venció el 14 de octubre')
             ->assertSee('Tienes hasta el 16 de octubre para renovarla')
             ->assertSee(route('client.invitations.create'), false)
-            // «Mi plan» de la barra lateral lleva a su plan y sus pagos
+            // Sin «Mi plan» en la barra lateral: el aviso de vencimiento lleva a renovar
             ->assertSee('href="'.route('client.subscription').'"', false);
 
         // Con tarjeta que se renueva sola, no hace falta avisar del vencimiento

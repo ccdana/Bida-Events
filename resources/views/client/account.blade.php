@@ -297,16 +297,80 @@
                                 @endif
                             </span>
                         </span>
-                        @if($payOnline)
-                            <a href="{{ route('client.subscription') }}" class="site-row__change" title="{{ $user->renewsAutomatically() ? 'Administrar mi suscripción' : ($user->isReseller() ? 'Renovar o cambiar de plan' : 'Elegir un plan') }}">
-                                <span>{{ $user->renewsAutomatically() ? 'Administrar' : ($user->isReseller() ? 'Renovar' : 'Elegir') }}</span>
+                        @if($canOpenPortal)
+                            {{-- Sus pagos y movimientos, la tarjeta y el plan, en el portal seguro de la pasarela (otra pestaña) --}}
+                            <a href="{{ route('client.subscription.portal') }}" target="_blank" rel="noopener" class="site-row__change" title="Tus pagos y movimientos, tu tarjeta y tu plan, en el portal de Lemon Squeezy">
+                                <span>Administrar</span>
+                                <x-phosphor-arrow-up-right-light aria-hidden="true" />
+                            </a>
+                        @elseif($payOnline)
+                            <a href="{{ route('client.subscription') }}" class="site-row__change" title="{{ $user->isReseller() ? 'Renovar o cambiar de plan' : 'Elegir un plan' }}">
+                                <span>{{ $user->isReseller() ? 'Renovar' : 'Elegir' }}</span>
                                 <x-phosphor-arrow-right-light aria-hidden="true" />
                             </a>
                         @endif
                     </div>
                 </div>
 
-                @if($payments->isNotEmpty())
+                {{-- Con tarjeta: los movimientos que da la pasarela (cada cobro, devolución y su factura), sin iniciar sesión allá --}}
+                @if($movements !== [])
+                    <details class="site-row" open>
+                        <summary class="site-row__summary">
+                            <x-phosphor-receipt-light class="site-row__icon" aria-hidden="true" />
+                            <span class="site-row__main">
+                                <span class="site-row__label">Movimientos</span>
+                                <span class="site-row__value">{{ count($movements) }} {{ count($movements) === 1 ? 'reciente' : 'recientes' }}</span>
+                            </span>
+                            <span class="site-row__change" title="Ver los últimos movimientos">
+                                <x-phosphor-caret-down-light class="site-row__open" aria-hidden="true" />
+                                <x-phosphor-caret-up-light class="site-row__close" aria-hidden="true" />
+                            </span>
+                        </summary>
+                        <table class="site-row__body w-full text-sm">
+                            <caption class="sr-only">Últimos movimientos de tu suscripción</caption>
+                            <thead class="sr-only">
+                                <tr><th scope="col">Fecha</th><th scope="col">Concepto</th><th scope="col">Monto</th><th scope="col">Estado</th><th scope="col">Factura</th></tr>
+                            </thead>
+                            <tbody class="divide-y divide-site-line">
+                                @foreach($movements as $movement)
+                                    <tr>
+                                        <td class="py-2 tabular-nums text-site-muted">{{ $movement['date']->timezone(config('app.timezone'))->format('d/m/Y') }}</td>
+                                        <td class="py-2">
+                                            {{ ['initial' => 'Primer pago', 'renewal' => 'Renovación', 'updated' => 'Cambio de plan'][$movement['reason']] ?? 'Cobro' }}
+                                            @if($movement['test'])
+                                                <x-phosphor-flask-light class="ml-1 inline size-4 text-site-muted" aria-hidden="true" />
+                                                <span class="sr-only">Pago de prueba</span>
+                                            @endif
+                                        </td>
+                                        <td @class(['py-2 text-right tabular-nums', 'text-site-muted line-through' => $movement['status'] === 'refunded'])>{{ \App\Support\Money::format($movement['amount'], $movement['currency']) }}</td>
+                                        <td class="py-2 pl-3">
+                                            @switch($movement['status'])
+                                                @case('paid')
+                                                    <x-phosphor-check-circle-light class="size-5 text-site-accent" aria-hidden="true" /><span class="sr-only">Pagado</span>
+                                                    @break
+                                                @case('refunded')
+                                                    <x-phosphor-arrow-u-up-left-light class="size-5 text-site-muted" aria-hidden="true" /><span class="sr-only">Devuelto</span>
+                                                    @break
+                                                @case('void')
+                                                    <x-phosphor-x-circle-light class="size-5 text-site-muted" aria-hidden="true" /><span class="sr-only">Anulado</span>
+                                                    @break
+                                                @default
+                                                    <x-phosphor-clock-light class="size-5 text-site-muted" aria-hidden="true" /><span class="sr-only">Pendiente</span>
+                                            @endswitch
+                                        </td>
+                                        <td class="py-2 text-right">
+                                            @if($movement['url'])
+                                                <a href="{{ $movement['url'] }}" target="_blank" rel="noopener" class="inline-grid size-9 place-items-center text-site-muted transition-colors hover:text-site-ink" aria-label="Ver la factura" title="Ver la factura">
+                                                    <x-phosphor-file-text-light class="size-5" aria-hidden="true" />
+                                                </a>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </details>
+                @elseif($payments->isNotEmpty())
                     <details class="site-row" open>
                         <summary class="site-row__summary">
                             <x-phosphor-receipt-light class="site-row__icon" aria-hidden="true" />

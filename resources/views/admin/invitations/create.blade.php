@@ -13,5 +13,6 @@
         'formAction' => route('admin.invitations.store'),
         'formMethod' => 'POST',
         'isCreate' => true,
+        'cancelUrl' => route('admin.dashboard'),
     ])
 @endsection

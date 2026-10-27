@@ -16,5 +16,6 @@
         'formAction' => route('client.diy.store'),
         'formMethod' => 'POST',
         'isCreate' => true,
+        'cancelUrl' => route('client.dashboard'),
     ])
 @endsection

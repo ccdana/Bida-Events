@@ -129,10 +129,41 @@ class TapToEditTest extends TestCase
             // El evento, el diseño y los datos, antes de ver la invitación
             ->assertSee('¿Qué vas a celebrar?')
             ->assertSee('Elige el diseño')
-            ->assertSee('Los datos de tu evento')
+            ->assertSee('Los datos')
             ->assertSee('finishWizard()', false)
             // El administrador elige además el cliente y el paquete
             ->assertSee('Sin cliente por ahora');
+    }
+
+    public function test_the_wizard_is_an_arrow_three_strokes_and_icons_without_explanatory_paragraphs(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+
+        $page = $this->actingAs($admin)->withoutVite()->get(route('admin.invitations.create'))->assertOk();
+
+        $page
+            // Arriba: la flecha que sale del asistente (a su panel) y las tres rayitas de avance, sin botones-píldora
+            ->assertSee('href="'.route('admin.dashboard').'" class="ed-wizard__back"', false)
+            ->assertSee('ed-wizard__steps', false)
+            ->assertDontSee('ed-wizard__num', false)
+            // Cada tipo de evento lleva su ícono suelto; uno nuevo usa el de «default»
+            ->assertSee('wizardIcons', false)
+            ->assertSee('ed-wiz-icon', false)
+            // Los párrafos de explicación ya no están
+            ->assertDontSee('Elige el tipo de evento. Después podrás cambiar todo.')
+            ->assertDontSee('Con esto armamos tu invitación.')
+            ->assertDontSee('Tus invitados también pueden traducirla con su navegador.')
+            // La descripción del diseño queda como título del botón, no como texto visible
+            ->assertDontSee('ed-design__desc', false);
+    }
+
+    public function test_the_wizard_arrow_of_a_client_goes_back_to_the_client_panel(): void
+    {
+        $client = User::factory()->reseller('inicial', now()->addDays(20)->toDateString())->create();
+
+        $this->actingAs($client)->withoutVite()->get(route('client.invitations.create'))
+            ->assertOk()
+            ->assertSee('href="'.route('client.dashboard').'" class="ed-wizard__back"', false);
     }
 
     public function test_the_wizard_never_fails_because_the_address_is_taken(): void

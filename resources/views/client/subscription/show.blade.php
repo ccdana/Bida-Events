@@ -68,7 +68,11 @@
                 @if($canOpenPortal)
                     <p class="flex items-start gap-2 py-3 text-sm text-site-muted">
                         <x-phosphor-info-light class="mt-0.5 size-4 shrink-0 text-site-accent" aria-hidden="true" />
-                        Si Lemon Squeezy te pide entrar, usa el correo con el que pagaste: te manda un código.
+                        @if(config('payments.lemonsqueezy.test_mode'))
+                            Con la tienda en modo de prueba, Lemon Squeezy puede pedir iniciar sesión con la cuenta de la tienda. Tus movimientos están en «Mi cuenta».
+                        @else
+                            Si Lemon Squeezy te pide entrar, usa el correo con el que pagaste: te manda un código.
+                        @endif
                     </p>
                 @endif
             </section>

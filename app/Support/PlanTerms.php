@@ -9,7 +9,7 @@ use App\Payments\PaymentGateways;
  * Términos no se contradigan, y se adapta a lo que el sitio puede hacer hoy:
  *
  *  - Con tarjeta (pago en línea activo) la suscripción se renueva sola y el cliente cambia de plan o cancela
- *    en el portal de pagos, desde «Mi plan».
+ *    en el portal de pagos, desde «Mi cuenta».
  *  - Con QR no hay cobro automático: cada pago cubre meses, se cambia de plan al pagar el siguiente y se deja
  *    el plan simplemente no pagándolo.
  *  - Sin pago en línea, todo se coordina por WhatsApp o correo.
@@ -48,7 +48,7 @@ final class PlanTerms
 
         return implode(' ', array_filter([
             __('Sí.'),
-            $methods['card'] ? __('Con tarjeta lo haces tú desde «Mi plan»: cambias de plan o cancelas en el portal de pagos.') : null,
+            $methods['card'] ? __('Con tarjeta lo haces tú desde «Mi cuenta»: cambias de plan o cancelas en el portal de pagos.') : null,
             $methods['qr'] ? __('Con QR no hay cobro automático: eliges otro plan en tu próximo pago y, si no pagas el siguiente período, el plan termina.') : null,
             __('Si tu plan lo coordinamos por WhatsApp, escríbenos y lo cambiamos.'),
             __('Lo que ya publicaste sigue en línea.'),
@@ -98,7 +98,7 @@ final class PlanTerms
         }
 
         return array_values(array_filter([
-            $methods['card'] ? __('Con tarjeta puedes cambiar de plan, cambiar de tarjeta o cancelar cuando quieras desde «Mi plan». Al cancelar no se hacen más cobros y conservas el acceso hasta el final del período ya pagado.') : null,
+            $methods['card'] ? __('Con tarjeta puedes cambiar de plan, cambiar de tarjeta o cancelar cuando quieras desde «Mi cuenta». Al cancelar no se hacen más cobros y conservas el acceso hasta el final del período ya pagado.') : null,
             $methods['qr'] ? __('Con QR no hay cobro automático: para cambiar de plan eliges otro en tu próximo pago y, para dejar el plan, no pagas el siguiente período. Conservas el acceso hasta el final del período ya pagado.') : null,
             __('No devolvemos meses parciales ni períodos ya pagados.'),
         ]));

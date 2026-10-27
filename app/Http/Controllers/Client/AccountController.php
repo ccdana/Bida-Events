@@ -7,6 +7,7 @@ use App\Http\Requests\Client\UpdateEmailRequest;
 use App\Http\Requests\Client\UpdatePasswordRequest;
 use App\Http\Requests\Client\UpdateUsernameRequest;
 use App\Payments\PaymentGateways;
+use App\Support\SubscriptionMovements;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -29,6 +30,10 @@ class AccountController extends Controller
             // Plan y pagos: los últimos pagos (a mano, tarjeta o QR) y si puede pagar en línea
             'payments' => $user->subscriptionPayments()->latest('paid_at')->latest('id')->limit(6)->get(),
             'payOnline' => (bool) $gateways->availableMethods(),
+            // Los movimientos de la tarjeta, pedidos a la pasarela (con caché): se ven aquí sin entrar a su portal
+            'movements' => SubscriptionMovements::for($user, $gateways),
+            // Con tarjeta que se renueva sola, «Administrar» abre el portal de la pasarela: sus pagos, movimientos, tarjeta y plan
+            'canOpenPortal' => $user->hasRecurringSubscription() && $gateways->subscriptionManager($user->payment_provider) !== null,
         ]);
     }
 

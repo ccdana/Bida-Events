@@ -209,6 +209,53 @@ class LemonSqueezyGateway implements ManagesSubscriptions, PaymentGateway
         return $response->successful() ? $response->json('data.attributes.urls.customer_portal') : null;
     }
 
+    /**
+     * Las facturas de la suscripción de este cliente (cada cobro: el primero, las renovaciones y los cambios de plan), con el
+     * enlace firmado a la factura (vale 24 horas). Se filtra por su suscripción, así cada cliente ve solo lo suyo. Espera
+     * poco y no reintenta: esta lista adorna «Mi cuenta» y nunca debe demorarla.
+     */
+    public function invoices(User $user, int $limit = 8): array
+    {
+        if ($user->payment_provider !== 'lemonsqueezy' || ! $user->provider_subscription_id) {
+            return [];
+        }
+
+        $response = $this->api()->timeout(4)->retry(0)->get('/subscription-invoices', [
+            'filter[subscription_id]' => $user->provider_subscription_id,
+            'sort' => '-createdAt',
+            'page[size]' => $limit,
+        ]);
+
+        if (! $response->successful()) {
+            return [];
+        }
+
+        return collect($response->json('data', []))
+            ->map(function (array $invoice): array {
+                $attributes = $invoice['attributes'] ?? [];
+                $status = (string) ($attributes['status'] ?? '');
+
+                return [
+                    'date' => \Carbon\CarbonImmutable::parse((string) ($attributes['created_at'] ?? now()->toIso8601String())),
+                    // Lemon Squeezy da el total en centavos
+                    'amount' => ((int) ($attributes['total'] ?? 0)) / 100,
+                    'currency' => (string) ($attributes['currency'] ?? 'USD'),
+                    'status' => match (true) {
+                        (bool) ($attributes['refunded'] ?? false), in_array($status, ['refunded', 'partial_refund'], true) => 'refunded',
+                        $status === 'paid' => 'paid',
+                        $status === 'void' => 'void',
+                        default => 'pending',
+                    },
+                    'reason' => (string) ($attributes['billing_reason'] ?? ''),
+                    'test' => (bool) ($attributes['test_mode'] ?? false),
+                    'url' => $attributes['urls']['invoice_url'] ?? null,
+                ];
+            })
+            ->sortByDesc('date')
+            ->values()
+            ->all();
+    }
+
     private function orderCreated(string $stamp, string $id, ?string $orderId, array $attributes): ?GatewayEvent
     {
         $status = $attributes['status'] ?? null;

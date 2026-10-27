@@ -37,7 +37,7 @@ class PlanTermsAndMenuTest extends TestCase
             $page->assertSee('¿Puedo cambiar de plan o cancelarlo?')
                 ->assertSee('Escríbenos por WhatsApp o al correo')
                 ->assertSee('solo no lo renuevas')
-                ->assertDontSee('desde «Mi plan»')
+                ->assertDontSee('desde «Mi cuenta»')
                 ->assertDontSee('portal de pagos');
         }
 
@@ -48,7 +48,7 @@ class PlanTermsAndMenuTest extends TestCase
             ->assertSee('Para cambiar de plan o dejarlo, escríbenos a')
             ->assertSee('No devolvemos meses parciales')
             ->assertDontSee('se renueva sola')
-            ->assertDontSee('desde «Mi plan»');
+            ->assertDontSee('desde «Mi cuenta»');
     }
 
     public function test_with_card_payments_the_pages_point_to_my_plan_and_the_portal(): void
@@ -56,7 +56,7 @@ class PlanTermsAndMenuTest extends TestCase
         $this->configureLemonSqueezy();
 
         $this->withoutVite()->get('/unete')->assertOk()
-            ->assertSee('Con tarjeta lo haces tú desde «Mi plan»')
+            ->assertSee('Con tarjeta lo haces tú desde «Mi cuenta»')
             ->assertSee('portal de pagos')
             ->assertDontSee('Con QR no hay cobro automático');
 
@@ -66,7 +66,7 @@ class PlanTermsAndMenuTest extends TestCase
 
         $this->withoutVite()->get('/legal/terminos')->assertOk()
             ->assertSee('Con tarjeta, la suscripción se renueva sola')
-            ->assertSee('Con tarjeta puedes cambiar de plan, cambiar de tarjeta o cancelar cuando quieras desde «Mi plan»')
+            ->assertSee('Con tarjeta puedes cambiar de plan, cambiar de tarjeta o cancelar cuando quieras desde «Mi cuenta»')
             ->assertDontSee('Con QR no hay cobro automático');
     }
 
@@ -77,7 +77,7 @@ class PlanTermsAndMenuTest extends TestCase
 
         foreach (['/unete', '/precios'] as $path) {
             $this->withoutVite()->get($path)->assertOk()
-                ->assertSee('Con tarjeta lo haces tú desde «Mi plan»')
+                ->assertSee('Con tarjeta lo haces tú desde «Mi cuenta»')
                 ->assertSee('Con QR no hay cobro automático: eliges otro plan en tu próximo pago')
                 ->assertSee('lo coordinamos por WhatsApp')
                 ->assertSee('Lo que ya publicaste sigue en línea.');

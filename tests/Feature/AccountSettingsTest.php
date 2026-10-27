@@ -7,11 +7,12 @@ use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
+use Tests\Concerns\LemonSqueezyPayloads;
 use Tests\TestCase;
 
 class AccountSettingsTest extends TestCase
 {
-    use RefreshDatabase;
+    use LemonSqueezyPayloads, RefreshDatabase;
 
     public function test_a_team_client_adds_an_email_and_must_confirm_it(): void
     {
@@ -155,5 +156,29 @@ class AccountSettingsTest extends TestCase
             ->assertSessionHasNoErrors()
             ->assertSessionHas('success', 'Tu usuario sigue siendo el mismo.');
         $this->assertSame($long, $client->fresh()->username);
+    }
+    public function test_the_plan_row_opens_the_card_portal_and_the_sidebar_has_no_my_plan_button(): void
+    {
+        $this->configureLemonSqueezy();
+        $card = User::factory()->reseller('inicial', now()->addDays(10)->toDateString())->create(['payment_provider' => 'lemonsqueezy', 'provider_subscription_id' => '3001']);
+
+        // Con tarjeta que se renueva sola: «Administrar» abre el portal de la pasarela (pagos y movimientos) en otra pestaña
+        $page = $this->actingAs($card)->withoutVite()->get(route('client.account'))->assertOk()
+            ->assertSee('href="'.route('client.subscription.portal').'" target="_blank" rel="noopener"', false)
+            ->assertSee('Administrar')
+            // La barra lateral ya no trae «Mi plan»
+            ->assertDontSee('Mi plan')
+            ->assertSee('Mi cuenta');
+
+        // Sin tarjeta (QR o sin plan): la fila lleva a renovar o elegir el plan, que sigue siendo esa pantalla
+        $qr = User::factory()->reseller('inicial', now()->addDays(10)->toDateString())->create();
+        $this->actingAs($qr)->withoutVite()->get(route('client.account'))->assertOk()
+            ->assertSee('Renovar')
+            ->assertSee('href="'.route('client.subscription').'"', false)
+            ->assertDontSee(route('client.subscription.portal'), false);
+
+        $this->actingAs(User::factory()->create())->withoutVite()->get(route('client.account'))->assertOk()
+            ->assertSee('Elegir')
+            ->assertDontSee(route('client.subscription.portal'), false);
     }
 }

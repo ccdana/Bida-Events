@@ -2291,10 +2291,12 @@ html[data-theme='dark'] .adm-device {
     height: 1.1rem;
 }
 
-/* ── Asistente de creación ── */
+/* ── Asistente de creación ──
+   Cubre toda la pantalla (también la cabecera del panel): una flecha y tres rayitas arriba, el título del paso y lo que
+   se toca, con filetes en lugar de cajas y los campos subrayados como en el login. */
 
 .ed-wizard {
-    position: absolute;
+    position: fixed;
     inset: 0;
     z-index: 60;
     overflow-y: auto;
@@ -2305,186 +2307,231 @@ html[data-theme='dark'] .adm-device {
     display: flex;
     flex-direction: column;
     min-height: 100%;
-    max-width: 62rem;
+    max-width: 46rem;
     margin: 0 auto;
-    padding: 1.25rem 1.25rem 0;
+    padding: 0 1.25rem;
 }
 
-.ed-wizard__steps {
+/* Arriba: la flecha (sale en el primer paso, vuelve en los demás) y tres rayitas, la actual en dorado */
+.ed-wizard__bar {
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-}
-
-.ed-wizard__step button {
-    display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    min-height: 2.5rem;
-    padding: 0 0.9rem 0 0.45rem;
-    border: 1px solid var(--site-line);
-    border-radius: 999px;
-    background: none;
-    color: var(--site-muted);
-    font: inherit;
-    font-size: 0.85rem;
-    font-weight: 600;
+    gap: 0.4rem;
+    padding-top: env(safe-area-inset-top);
 }
 
-.ed-wizard__step.is-done button {
+.ed-wizard__back {
+    display: inline-grid;
+    flex-shrink: 0;
+    place-items: center;
+    width: 2.75rem;
+    height: 3rem;
+    margin-left: -0.7rem;
+    border: 0;
+    background: none;
     color: var(--site-ink);
     cursor: pointer;
 }
 
-.ed-wizard__step.is-current button {
-    border-color: var(--site-ink);
-    color: var(--site-ink);
+.ed-wizard__back svg {
+    width: 1.4rem;
+    height: 1.4rem;
+    transition: translate 0.3s var(--site-ease);
 }
 
-.ed-wizard__num {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 1.7rem;
-    height: 1.7rem;
-    border-radius: 50%;
-    background: var(--site-surface);
-    font-size: 0.8rem;
+.ed-wizard__back:hover svg {
+    translate: -3px 0;
 }
 
-.ed-wizard__step.is-current .ed-wizard__num {
+.ed-wizard__steps {
+    display: flex;
+    flex: 1;
+    gap: 0.4rem;
+}
+
+.ed-wizard__step {
+    flex: 1;
+}
+
+.ed-wizard__step button {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 3rem;
+    padding: 0;
+    border: 0;
+    background: none;
+}
+
+.ed-wizard__step button::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 0;
+    left: 0;
+    height: 3px;
+    border-radius: 999px;
+    background: var(--site-line);
+    translate: 0 -50%;
+    transition: background-color 0.3s ease;
+}
+
+.ed-wizard__step.is-done button {
+    cursor: pointer;
+}
+
+.ed-wizard__step.is-done button::after {
     background: var(--site-ink);
-    color: var(--site-bg);
 }
 
-.ed-wizard__step.is-done .ed-wizard__num {
+.ed-wizard__step.is-current button::after {
     background: var(--site-accent);
-    color: var(--site-on-accent);
 }
 
 .ed-wizard__body {
     flex: 1;
-    padding-bottom: 1rem;
+    padding-bottom: 0.5rem;
 }
 
 .ed-wizard__title {
-    margin-top: 1.5rem;
-    font-size: clamp(1.6rem, 3vw, 2.2rem);
-    font-weight: 600;
-    letter-spacing: -0.02em;
-    line-height: 1.15;
-}
-
-.ed-wizard__lead {
-    margin-top: 0.45rem;
-    max-width: 40rem;
-    line-height: 1.5;
-    color: var(--site-muted);
+    margin-top: 0.6rem;
 }
 
 .ed-wizard__group {
-    margin-top: 1.5rem;
+    margin-top: 1rem;
 }
 
 .ed-wizard__label {
-    font-size: 0.72rem;
+    padding-bottom: 0.3rem;
+    font-size: 0.7rem;
     font-weight: 600;
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--site-muted);
 }
 
+/* Paso 1: el tipo de evento, con su ícono suelto, separado por filetes (dos columnas en el celular) */
 .ed-wizard__grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(10.5rem, 1fr));
-    gap: 0.75rem;
-    margin-top: 0.6rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 1.25rem;
+    border-top: 1px solid var(--site-line);
 }
 
-.ed-wiz-tile {
+.ed-wiz-row {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.25rem;
-    min-height: 4.25rem;
-    padding: 0.9rem 1rem;
-    border: 1.5px solid var(--site-line);
-    border-radius: 16px;
-    background: var(--site-surface);
+    align-items: center;
+    gap: 0.7rem;
+    min-height: 3.4rem;
+    padding: 0.5rem 0.1rem;
+    border: 0;
+    border-bottom: 1px solid var(--site-line);
+    background: none;
     color: var(--site-ink);
     font: inherit;
     text-align: left;
     cursor: pointer;
-    transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.ed-wiz-tile:hover:not(:disabled) {
-    border-color: var(--site-ink);
+.ed-wiz-row__icon {
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+    color: var(--site-muted);
+    transition: color 0.2s ease, translate 0.3s var(--site-ease);
 }
 
-.ed-wiz-tile.is-on {
-    border-color: var(--site-accent);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--site-accent) 28%, transparent);
+.ed-wiz-icon {
+    width: 1.5rem;
+    height: 1.5rem;
 }
 
-.ed-wiz-tile:disabled {
+.ed-wiz-row:hover:not(:disabled) .ed-wiz-row__icon {
+    color: var(--site-accent);
+    translate: 2px 0;
+}
+
+.ed-wiz-row.is-on .ed-wiz-row__icon {
+    color: var(--site-accent);
+}
+
+.ed-wiz-row.is-on .ed-wiz-row__name {
+    font-weight: 600;
+}
+
+.ed-wiz-row:disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
 
-.ed-wiz-tile__name {
-    font-size: 1rem;
-    font-weight: 600;
+.ed-wiz-row__text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
 }
 
-.ed-wiz-tile__note {
-    font-size: 0.78rem;
-    line-height: 1.35;
+.ed-wiz-row__name {
+    font-size: 0.98rem;
+    font-weight: 500;
+    line-height: 1.2;
+}
+
+/* El motivo de un tipo apagado va en una sola línea (completo en el título del botón) */
+.ed-wiz-row__note {
+    overflow: hidden;
+    font-size: 0.74rem;
+    line-height: 1.3;
     color: var(--site-muted);
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
+/* Paso 2: la captura y su nombre. El elegido lleva un borde dorado y una palomita; la descripción va de título */
 .ed-wizard__designs {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
-    gap: 1rem;
-    margin-top: 1.25rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem 0.9rem;
+    margin-top: 1rem;
+    padding: 0.2rem;
 }
 
 .ed-design {
     display: flex;
     flex-direction: column;
-    gap: 0.35rem;
-    padding: 0.55rem 0.55rem 0.9rem;
-    border: 1.5px solid var(--site-line);
-    border-radius: 18px;
-    background: var(--site-surface);
+    gap: 0.45rem;
+    padding: 0;
+    border: 0;
+    background: none;
     color: var(--site-ink);
     font: inherit;
     text-align: left;
     cursor: pointer;
-    transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.ed-design:hover:not(:disabled) {
-    border-color: var(--site-ink);
+.ed-design__shot {
+    position: relative;
+    display: block;
+    aspect-ratio: 3 / 4;
+    overflow: hidden;
+    border-radius: 4px;
+    background: var(--site-surface);
+    box-shadow: inset 0 0 0 1px var(--site-line);
+    outline: 2px solid transparent;
+    outline-offset: 3px;
+    transition: outline-color 0.2s ease;
 }
 
-.ed-design.is-on {
-    border-color: var(--site-accent);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--site-accent) 28%, transparent);
+.ed-design:hover:not(:disabled) .ed-design__shot {
+    outline-color: color-mix(in srgb, var(--site-ink) 30%, transparent);
+}
+
+.ed-design.is-on .ed-design__shot {
+    outline-color: var(--site-accent);
 }
 
 .ed-design:disabled {
     opacity: 0.5;
     cursor: not-allowed;
-}
-
-.ed-design__shot {
-    display: block;
-    aspect-ratio: 3 / 4;
-    overflow: hidden;
-    border-radius: 12px;
-    background: var(--site-line);
 }
 
 .ed-design__shot img {
@@ -2503,32 +2550,50 @@ html[data-theme='dark'] .adm-device {
     flex: 1;
 }
 
+.ed-design__check {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: 50%;
+    background: var(--site-bg);
+    color: var(--site-accent);
+    opacity: 0;
+    scale: 0.5;
+    transition: opacity 0.2s ease, scale 0.35s var(--site-spring);
+}
+
+.ed-design.is-on .ed-design__check {
+    opacity: 1;
+    scale: 1;
+}
+
 .ed-design__name {
-    padding: 0.2rem 0.3rem 0;
-    font-weight: 600;
+    font-size: 0.9rem;
+    font-weight: 500;
+    line-height: 1.25;
 }
 
-.ed-design__desc {
-    display: -webkit-box;
-    overflow: hidden;
-    padding: 0 0.3rem;
-    font-size: 0.8rem;
-    line-height: 1.4;
+.ed-design__note {
+    font-size: 0.74rem;
+    line-height: 1.3;
     color: var(--site-muted);
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 3;
 }
 
-.ed-wizard__form,
+/* Paso 3: campos subrayados, con una palabra y un ícono de etiqueta */
+.ed-wizard__form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+    max-width: 30rem;
+    margin-top: 0.9rem;
+}
+
 .ed-wizard__fields {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
-}
-
-.ed-wizard__form {
-    max-width: 34rem;
-    margin-top: 1.25rem;
+    gap: 1.1rem;
 }
 
 .ed-wizard__fields--admin {
@@ -2539,73 +2604,136 @@ html[data-theme='dark'] .adm-device {
 .ed-wiz-field {
     display: flex;
     flex-direction: column;
+}
+
+.ed-wiz-label {
+    display: inline-flex;
+    align-items: center;
     gap: 0.4rem;
 }
 
-.ed-wiz-field__label {
-    font-size: 0.95rem;
-    font-weight: 600;
+.ed-wiz-label > span:first-child:not(:only-child) {
+    display: inline-grid;
 }
 
-.ed-wiz-field__hint {
-    font-size: 0.8rem;
-    color: var(--site-muted);
-}
-
-.ed-wiz-input {
-    min-height: 3.25rem;
-    padding: 0 1rem;
-    border: 1.5px solid var(--site-line);
-    border-radius: 14px;
-    background: var(--site-surface);
-    color: var(--site-ink);
-    font: inherit;
-    font-size: 1.05rem;
-}
-
-.ed-wiz-input:focus {
-    border-color: var(--site-accent);
-    outline: none;
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--site-accent) 22%, transparent);
+.ed-wiz-label svg {
+    width: 1.05rem;
+    height: 1.05rem;
 }
 
 .ed-wizard__pair {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.75rem;
+    gap: 1.25rem;
 }
 
-.ed-wizard__packages {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0.6rem;
+.ed-wiz-hint {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.82rem;
+    color: var(--site-muted);
 }
 
-.ed-wiz-tile--small {
-    min-height: 0;
-    padding: 0.7rem 0.8rem;
+.ed-wiz-hint svg {
+    width: 1.05rem;
+    height: 1.05rem;
+    color: var(--site-accent);
 }
 
-.ed-wizard__error {
+/* Idioma y paquete: opciones sueltas, la elegida subrayada en dorado */
+.ed-wiz-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 1.4rem;
+}
+
+.ed-wiz-tab {
+    position: relative;
+    min-height: 2.6rem;
+    padding: 0.4rem 0;
+    border: 0;
+    background: none;
+    color: var(--site-muted);
+    font: inherit;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.ed-wiz-tab::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 2px;
+    background: var(--site-accent);
+    scale: 0 1;
+    transition: scale 0.35s var(--site-ease);
+}
+
+.ed-wiz-tab:hover,
+.ed-wiz-tab.is-on {
+    color: var(--site-ink);
+}
+
+.ed-wiz-tab.is-on {
     font-weight: 500;
-    color: var(--site-danger);
 }
 
-.ed-wizard__error--foot {
-    padding-bottom: 1rem;
-    text-align: right;
+.ed-wiz-tab.is-on::after {
+    scale: 1 1;
 }
 
+/* Seguir / Crear: pegado abajo, al alcance del pulgar */
 .ed-wizard__foot {
     position: sticky;
     bottom: 0;
     display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin-top: 1.5rem;
-    padding: 1rem 0 calc(1rem + env(safe-area-inset-bottom));
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    padding: 0.75rem 0 calc(0.75rem + env(safe-area-inset-bottom));
     border-top: 1px solid var(--site-line);
     background: var(--site-bg);
+}
+
+.ed-wizard__next {
+    justify-content: center;
+    width: 100%;
+}
+
+.ed-wizard__error {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--site-danger);
+}
+
+.ed-wizard__error svg {
+    width: 1.1rem;
+    height: 1.1rem;
+    flex-shrink: 0;
+}
+
+@media (min-width: 640px) {
+    .ed-wizard__grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .ed-wizard__designs {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .ed-wizard__foot {
+        align-items: flex-end;
+    }
+
+    .ed-wizard__next {
+        width: auto;
+    }
 }
 
 .ed-wiz-btn {
@@ -2841,24 +2969,6 @@ html[data-theme='dark'] .adm-device {
 
     .ed-wizard__inner {
         padding-inline: 1rem;
-    }
-
-    .ed-wizard__steps {
-        gap: 0.35rem;
-    }
-
-    .ed-wizard__step button {
-        padding-right: 0.7rem;
-        font-size: 0.78rem;
-    }
-
-    .ed-wizard__designs {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 0.7rem;
-    }
-
-    .ed-wizard__packages {
-        grid-template-columns: minmax(0, 1fr);
     }
 }
 
