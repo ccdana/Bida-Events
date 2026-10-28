@@ -1647,6 +1647,27 @@ a.site-row__change:hover {
     line-height: 1;
 }
 
+/* Lo que incluye una opción: una marca dorada y el texto, sin viñetas ni cajas */
+.site-checks {
+    display: grid;
+    gap: 0.45rem;
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+
+.site-checks li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+}
+
+.site-checks svg {
+    flex-shrink: 0;
+    width: 1.15rem;
+    height: 1.15rem;
+    margin-top: 0.12rem;
+    color: var(--site-accent);
+}
 /* ── Planes mensuales: tres columnas por fila, como los paquetes ─────────── */
 
 @media (min-width: 1024px) {

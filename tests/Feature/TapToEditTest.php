@@ -145,6 +145,32 @@ class TapToEditTest extends TestCase
             ->assertSee('Más opciones');
     }
 
+    public function test_the_publish_and_level_dialogs_are_rows_and_the_cropper_is_just_icons(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+        $invitation = $this->createInvitation();
+        app(InvitationModuleService::class)->syncAllModules($invitation, XvSofiaModuleData::all());
+
+        $this->actingAs($admin)->withoutVite()->get(route('admin.invitations.edit', $invitation))
+            ->assertOk()
+            // «Antes de publicar»: cada renglón es un botón entero; las dos salidas son «Seguir editando» y «Publicar igual»
+            ->assertSee('Antes de publicar')
+            ->assertSee('ed-dialog__row', false)
+            ->assertSee('Seguir editando')
+            ->assertSee('Publicar igual')
+            ->assertDontSee('ed-dialog__fix', false)
+            // El nivel: sus puntos y un renglón por parte que lo sube, con su ojo tachado
+            ->assertSee('Tu invitación hoy:')
+            ->assertSee('ed-dialog__off', false)
+            // El recortador: ✕ y ✓ arriba, centrar y acercar abajo; sin el párrafo ni el pie de «Usar encuadre»
+            ->assertSee('admin-crop-bar', false)
+            ->assertSee('aria-label="Usar encuadre"', false)
+            ->assertSee('aria-label="Cancelar"', false)
+            ->assertSee('aria-label="Centrar"', false)
+            ->assertDontSee('lo que ves dentro del marco es lo que se verá en la invitación')
+            ->assertDontSee('se guarda en <span class="font-mono"', false);
+    }
+
     public function test_a_new_invitation_starts_with_the_wizard(): void
     {
         $admin = User::factory()->create(['is_admin' => true]);

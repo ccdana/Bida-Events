@@ -130,7 +130,15 @@ class DiyInvitationTest extends TestCase
             ->assertSee('nivel <strong class="font-semibold text-site-ink">Premium</strong>', false)
             ->assertSee('Pedir Premium por WhatsApp')
             ->assertSee('Publicar gratis sin esas partes')
-            ->assertSee('Confirmar asistencia');
+            ->assertSee('Confirmar asistencia')
+            // Sin tarjetas: lo que incluye cada opción es una lista con marcas y el botón es el del sitio
+            ->assertSee('site-checks', false)
+            ->assertSee('site-btn site-btn--lg', false)
+            ->assertDontSee('admin-card', false)
+            ->assertDontSee('admin-primary-button', false)
+            // Y sin los párrafos que repetían lo que dicen las opciones
+            ->assertDontSee('Publícala así, o gratis apagando lo que la gratuita no trae.')
+            ->assertDontSee('Escríbenos y activamos tu invitación con este nivel.');
     }
 
     public function test_publishing_free_turns_off_the_paid_parts_and_shows_the_bida_mark(): void

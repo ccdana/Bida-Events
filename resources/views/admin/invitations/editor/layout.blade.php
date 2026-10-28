@@ -22,71 +22,105 @@
         @include('admin.invitations.editor.wizard')
     </div>
 
-    {{-- Antes de publicar: lo que sigue de ejemplo y lo que falta, con atajo a cada parte --}}
+    {{--
+        Antes de publicar: lo que sigue de ejemplo y lo que falta, con atajo a cada parte. Cada renglón es un botón entero
+        (nombre, cuánto falta y una flecha); sin párrafos. En el celular sube desde abajo como una hoja.
+    --}}
     <div class="ed-dialog-backdrop" x-show="publishDialog" x-cloak x-transition.opacity
         @click.self="publishDialog = false" @keydown.escape.window="publishDialog = false">
         <div class="ed-dialog" role="dialog" aria-modal="true" aria-labelledby="publish-title">
             <h2 id="publish-title" class="ed-dialog__title">Antes de publicar</h2>
-            <p class="ed-dialog__text" x-show="examplesTotal > 0">
-                Todavía hay cosas de ejemplo en tu invitación. Si no las cambias, tus invitados las verán tal cual.
+            <p class="ed-dialog__hint" x-show="examplesTotal > 0" title="Si no las cambias, tus invitados las verán tal cual.">
+                <x-phosphor-info-light aria-hidden="true" />
+                Quedan cosas de ejemplo: tus invitados las verían tal cual.
             </p>
             <ul class="ed-dialog__list">
                 <template x-for="item in examplesLeft" :key="'ej-' + item.tab.id">
                     <li>
-                        <span><strong x-text="item.tab.label"></strong>
-                            <small x-text="item.count === 1 ? '1 cosa de ejemplo' : item.count + ' cosas de ejemplo'"></small></span>
-                        <button type="button" class="ed-dialog__fix" @click="fixPart(item.tab.id)">Cambiar</button>
+                        <button type="button" class="ed-dialog__row" @click="fixPart(item.tab.id)">
+                            <span class="min-w-0 flex-1">
+                                <strong x-text="item.tab.label"></strong>
+                                <small x-text="item.count === 1 ? '1 cosa de ejemplo' : item.count + ' cosas de ejemplo'"></small>
+                            </span>
+                            <span class="sr-only">Cambiar</span>
+                            <x-phosphor-caret-right-light aria-hidden="true" />
+                        </button>
                     </li>
                 </template>
                 <template x-for="item in pendingIssues" :key="'pend-' + item.tabId + item.issue">
                     <li>
-                        <span><strong x-text="item.label"></strong> <small x-text="item.issue"></small></span>
-                        <button type="button" class="ed-dialog__fix" @click="fixPart(item.tabId)">Completar</button>
+                        <button type="button" class="ed-dialog__row" @click="fixPart(item.tabId)">
+                            <span class="min-w-0 flex-1">
+                                <strong x-text="item.label"></strong>
+                                <small x-text="item.issue"></small>
+                            </span>
+                            <span class="sr-only">Completar</span>
+                            <x-phosphor-caret-right-light aria-hidden="true" />
+                        </button>
                     </li>
                 </template>
             </ul>
             <div class="ed-dialog__actions">
-                <button type="button" class="ed-wiz-btn" @click="publishDialog = false">Seguir editando</button>
-                <button type="button" class="ed-wiz-btn ed-wiz-btn--primary" @click="publish()">Publicar igual</button>
-            </div>
-        </div>
-    </div>
-
-    {{-- «Hazlo tú»: de qué depende el nivel de la invitación, con atajo para apagar cada parte que lo sube --}}
-    <div class="ed-dialog-backdrop" x-show="tierDialog" x-cloak x-transition.opacity
-        @click.self="tierDialog = false" @keydown.escape.window="tierDialog = false">
-        <div class="ed-dialog" role="dialog" aria-modal="true" aria-labelledby="tier-title">
-            <h2 id="tier-title" class="ed-dialog__title">Tu invitación hoy: <span x-text="diyTierName(diyRequiredTier)"></span></h2>
-            <p class="ed-dialog__text">
-                Mientras la armas, todo está abierto para que la pruebes. El nivel sale de las partes que dejes
-                encendidas: la gratuita trae la portada, la cuenta regresiva y la ubicación.
-            </p>
-            {{-- El precio entero solo antes de pagar un nivel; subir de nivel cobra la diferencia (página de publicar) --}}
-            <p class="ed-dialog__text" x-show="config.diyTiers?.prices?.[diyRequiredTier] && [null, 'gratis'].includes(config.diyTiers?.paid ?? null)" x-cloak>
-                <span x-text="config.diyTiers?.paid ? 'Subirla a ' + diyTierName(diyRequiredTier) + ' cuesta' : 'Publicarla así cuesta'"></span>
-                <strong x-text="config.diyTiers?.prices?.[diyRequiredTier]"></strong>, un pago único.
-            </p>
-            <p class="ed-dialog__text" x-show="config.diyTiers?.paid" x-cloak>
-                Ya está publicada con el nivel <strong x-text="diyTierName(config.diyTiers?.paid)"></strong>.
-            </p>
-            <ul class="ed-dialog__list" x-show="diyPaidParts.length">
-                <template x-for="part in diyPaidParts" :key="'nivel-' + part.id">
-                    <li>
-                        <span><strong x-text="part.label"></strong> <small x-text="'Desde ' + part.tier"></small></span>
-                        <button type="button" class="ed-dialog__fix" @click="togglePart(flatTabs.find(tab => tab.id === part.id))">Apagar</button>
-                    </li>
-                </template>
-            </ul>
-            <div class="ed-dialog__actions">
-                <button type="button" class="ed-wiz-btn ed-wiz-btn--primary" @click="tierDialog = false">Listo</button>
+                <button type="button" class="ed-dialog__back" @click="publishDialog = false">
+                    <x-phosphor-arrow-left-light aria-hidden="true" />
+                    Seguir editando
+                </button>
+                <button type="button" class="site-btn" @click="publish()">Publicar igual</button>
             </div>
         </div>
     </div>
 
     {{--
-        Recortador: la foto se encuadra en el marco real del espacio donde va (proporción y forma de la
-        plantilla, App\Support\ImageFrames). Lo que queda fuera se ve atenuado alrededor, para saber qué
-        se pierde. Arrastrar mueve, la rueda o el pellizco acercan, las flechas mueven de a poco.
+        «Hazlo tú»: de qué depende el nivel de la invitación (de 0 a 3 puntos), con atajo para apagar cada parte que lo sube y
+        el precio de hoy. Sin párrafos de explicación: el nivel sale de las partes que quedan encendidas.
+    --}}
+    <div class="ed-dialog-backdrop" x-show="tierDialog" x-cloak x-transition.opacity
+        @click.self="tierDialog = false" @keydown.escape.window="tierDialog = false">
+        <div class="ed-dialog" role="dialog" aria-modal="true" aria-labelledby="tier-title">
+            <div class="ed-dialog__head">
+                <span class="ed-dots" :data-level="diyTierIndex(diyRequiredTier)" aria-hidden="true"><i></i><i></i><i></i></span>
+                <h2 id="tier-title" class="ed-dialog__title">Tu invitación hoy: <span x-text="diyTierName(diyRequiredTier)"></span></h2>
+            </div>
+            <p class="ed-dialog__hint" title="Mientras la armas, todo está abierto para que la pruebes. El nivel sale de las partes que dejes encendidas.">
+                <x-phosphor-info-light aria-hidden="true" />
+                El nivel sale de las partes encendidas. La gratuita trae portada, cuenta regresiva y ubicación.
+            </p>
+            {{-- El precio entero solo antes de pagar un nivel; subir de nivel cobra la diferencia (página de publicar) --}}
+            <p class="ed-dialog__price" x-show="config.diyTiers?.prices?.[diyRequiredTier] && [null, 'gratis'].includes(config.diyTiers?.paid ?? null)" x-cloak>
+                <strong x-text="config.diyTiers?.prices?.[diyRequiredTier]"></strong>
+                <span x-text="(config.diyTiers?.paid ? 'subirla a ' + diyTierName(diyRequiredTier) : 'publicarla así') + ', un pago único'"></span>
+            </p>
+            <p class="ed-dialog__hint" x-show="config.diyTiers?.paid" x-cloak>
+                <x-phosphor-seal-check-light aria-hidden="true" />
+                Ya está publicada con el nivel <strong x-text="diyTierName(config.diyTiers?.paid)"></strong>.
+            </p>
+            <ul class="ed-dialog__list" x-show="diyPaidParts.length">
+                <template x-for="part in diyPaidParts" :key="'nivel-' + part.id">
+                    <li>
+                        <div class="ed-dialog__row">
+                            <span class="min-w-0 flex-1">
+                                <strong x-text="part.label"></strong>
+                                <small x-text="'Desde ' + part.tier"></small>
+                            </span>
+                            <button type="button" class="ed-dialog__off" @click="togglePart(flatTabs.find(tab => tab.id === part.id))" :aria-label="'Apagar ' + part.label" title="Apagar">
+                                <x-phosphor-eye-slash-light aria-hidden="true" />
+                                <span>Apagar</span>
+                            </button>
+                        </div>
+                    </li>
+                </template>
+            </ul>
+            <div class="ed-dialog__actions">
+                <button type="button" class="site-btn" @click="tierDialog = false">Listo</button>
+            </div>
+        </div>
+    </div>
+
+    {{--
+        Recortador: la foto se encuadra en el marco real del espacio donde va (proporción y forma de la plantilla,
+        App\Support\ImageFrames). Lo que queda fuera se ve atenuado alrededor, para saber qué se pierde. Arrastrar mueve,
+        la rueda o el pellizco acercan, las flechas mueven de a poco. Solo íconos: ✕ cancela, ✓ usa el encuadre; abajo,
+        centrar y el acercamiento. En el celular ocupa toda la pantalla.
     --}}
     <div x-show="cropperOpen" x-cloak
         class="admin-crop-backdrop"
@@ -103,21 +137,18 @@
         @touchmove.window="onCropDrag($event)"
         @touchend.window="endCropDrag()">
 
-        <div class="admin-crop-panel relative flex flex-col" role="dialog" aria-modal="true" aria-labelledby="cropper-title"
-            x-transition:enter="transition ease-out duration-200 transform"
-            x-transition:enter-start="opacity-0 translate-y-4"
-            x-transition:enter-end="opacity-100 translate-y-0">
-
-            <button type="button" @click="closeImageCropper()" class="admin-icon-button absolute right-3 top-3" aria-label="Cerrar">
-                <x-phosphor-x aria-hidden="true" />
-            </button>
-
-            <div class="mb-4 pr-10">
-                <h3 id="cropper-title" class="text-lg font-semibold tracking-tight">Encuadra la foto</h3>
-                <p class="mt-0.5 text-sm text-site-muted">
-                    <span class="font-medium text-site-ink" x-text="cropperFrame?.label ?? 'Foto'"></span>:
-                    lo que ves dentro del marco es lo que se verá en la invitación.
-                </p>
+        <div class="admin-crop-panel" role="dialog" aria-modal="true" aria-labelledby="cropper-title">
+            <div class="admin-crop-bar">
+                <button type="button" @click="closeImageCropper()" class="admin-crop-btn" aria-label="Cancelar" title="Cancelar">
+                    <x-phosphor-x-light aria-hidden="true" />
+                </button>
+                <h3 id="cropper-title" class="admin-crop-title">
+                    <span class="sr-only">Encuadra la foto: </span>
+                    <span x-text="cropperFrame?.label ?? 'Foto'"></span>
+                </h3>
+                <button type="button" @click="applyImageCrop()" class="admin-crop-btn admin-crop-btn--ok" aria-label="Usar encuadre" title="Usar encuadre">
+                    <x-phosphor-check-light aria-hidden="true" />
+                </button>
             </div>
 
             <div x-ref="cropperStage" class="admin-crop-stage" tabindex="0"
@@ -137,36 +168,20 @@
                 <p x-show="cropperLoading" class="admin-crop-loading">Abriendo la foto…</p>
             </div>
 
-            {{-- Qué se guarda y si alcanza la calidad --}}
-            <div class="mt-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-1.5 text-xs">
-                <p class="text-site-muted" x-show="cropperFrame">
-                    <span class="font-medium capitalize text-site-ink" x-text="cropperFrame ? frameShapeLabel(cropperFrame) : ''"></span>
-                    · se guarda en <span class="font-mono" x-text="cropperOutputSize() ? `${cropperOutputSize().width} × ${cropperOutputSize().height} px` : '—'"></span>
-                </p>
-                <p class="admin-crop-quality" :class="'is-' + (cropperQuality()?.level ?? 'good')" x-show="cropperQuality()" x-text="cropperQuality()?.text"></p>
-            </div>
-
-            <div class="mt-4 flex items-center gap-2">
-                <button type="button" @click="cropperScale = Math.max(cropperMinScale, cropperScale - 0.1)" class="admin-icon-button" aria-label="Alejar">
-                    <x-phosphor-magnifying-glass-minus aria-hidden="true" />
-                </button>
-                <input type="range" :min="cropperMinScale" :max="cropperMaxScale" step="0.01" x-model.number="cropperScale" class="adm-range flex-1" aria-label="Acercar o alejar">
-                <button type="button" @click="cropperScale = Math.min(cropperMaxScale, cropperScale + 0.1)" class="admin-icon-button" aria-label="Acercar">
-                    <x-phosphor-magnifying-glass-plus aria-hidden="true" />
-                </button>
-            </div>
-
-            <div class="mt-5 flex flex-wrap items-center justify-between gap-2">
-                <button type="button" @click="cropperScale = cropperMinScale; cropperOffsetX = 0; cropperOffsetY = 0" class="admin-link-button">
-                    <x-phosphor-arrow-counter-clockwise aria-hidden="true" />
-                    Centrar
-                </button>
-
-                <div class="ml-auto flex gap-2">
-                    <button type="button" @click="closeImageCropper()" class="admin-link-button">Cancelar</button>
-                    <button type="button" @click="applyImageCrop()" class="admin-primary-button">
-                        <x-phosphor-check aria-hidden="true" />
-                        Usar encuadre
+            <div class="admin-crop-foot">
+                {{-- Si alcanza la calidad (un punto de color y pocas palabras); a cuántos píxeles se guarda, en el título --}}
+                <p class="admin-crop-quality" :class="'is-' + (cropperQuality()?.level ?? 'good')" x-show="cropperQuality()" x-text="cropperQuality()?.text"
+                    :title="cropperOutputSize() ? `Se guarda en ${cropperOutputSize().width} × ${cropperOutputSize().height} px` : ''"></p>
+                <div class="admin-crop-zoom">
+                    <button type="button" @click="cropperScale = cropperMinScale; cropperOffsetX = 0; cropperOffsetY = 0" class="admin-crop-btn" aria-label="Centrar" title="Centrar">
+                        <x-phosphor-arrow-counter-clockwise-light aria-hidden="true" />
+                    </button>
+                    <button type="button" @click="cropperScale = Math.max(cropperMinScale, cropperScale - 0.1)" class="admin-crop-btn" aria-label="Alejar" title="Alejar">
+                        <x-phosphor-magnifying-glass-minus-light aria-hidden="true" />
+                    </button>
+                    <input type="range" :min="cropperMinScale" :max="cropperMaxScale" step="0.01" x-model.number="cropperScale" class="adm-range flex-1" aria-label="Acercar o alejar">
+                    <button type="button" @click="cropperScale = Math.min(cropperMaxScale, cropperScale + 0.1)" class="admin-crop-btn" aria-label="Acercar" title="Acercar">
+                        <x-phosphor-magnifying-glass-plus-light aria-hidden="true" />
                     </button>
                 </div>
             </div>
