@@ -43,7 +43,10 @@ class ClientPortalTest extends TestCase
             ->withoutVite()
             ->get(route('client.dashboard'))
             ->assertOk()
-            ->assertSeeInOrder(['Mis invitaciones', 'XV de Lucía', 'Mis tarjetas', 'Tarjeta para Ana'], false)
+            // Una sola lista, sin secciones por tipo: el próximo evento arriba y el resto en filas
+            ->assertSeeInOrder(['Próximo', 'XV de Lucía', 'Tarjeta para Ana'], false)
+            ->assertDontSee('Mis invitaciones')
+            ->assertDontSee('Mis tarjetas')
             ->assertSee(route('invitation.show', $invitation->slug), false)
             ->assertSee(route('invitation.show', $card->slug), false)
             ->assertDontSee(route('invitation.show', $draft->slug), false)

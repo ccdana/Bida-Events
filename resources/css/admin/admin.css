@@ -3754,3 +3754,533 @@ button.ed-dialog__row:hover > svg {
         inset: -3px;
     }
 }
+
+/* ── Inicio: mis eventos (cliente y revendedor) ────────────────────────────
+   Una columna angosta. El próximo evento destacado y el resto en filas con filete, sin tarjetas: un punto de estado,
+   el nombre, la fecha, tres números sueltos y los íconos de acción. Lo ya celebrado, plegado al final. */
+
+.ev-add {
+    display: inline-grid;
+    flex-shrink: 0;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    background: var(--site-ink);
+    color: var(--site-bg);
+    transition: scale 0.2s var(--site-ease), background-color 0.2s ease;
+}
+
+.ev-add svg {
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+.ev-add:hover {
+    background: color-mix(in srgb, var(--site-ink) 84%, var(--site-accent));
+}
+
+.ev-add:active {
+    scale: 0.94;
+}
+
+.ev-add.is-off {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* Etiqueta chica en versalitas, con su ícono suelto */
+.ev-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--site-muted);
+}
+
+.ev-label svg {
+    width: 1.1rem;
+    height: 1.1rem;
+}
+
+/* La línea fina: lo confirmado sobre los invitados, o lo publicado sobre el cupo */
+.ev-bar {
+    height: 3px;
+    overflow: hidden;
+    border-radius: 2px;
+    background: var(--site-line);
+}
+
+.ev-bar i {
+    display: block;
+    height: 100%;
+    border-radius: 2px;
+    background: var(--site-accent);
+    transition: width 0.6s var(--site-ease);
+}
+
+/* El punto de estado: dorado en línea, aro vacío en borrador o sin publicar, gris si ya pasó */
+.ev-dot {
+    flex-shrink: 0;
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    background: var(--site-accent);
+}
+
+.ev-dot.is-draft {
+    background: transparent;
+    box-shadow: inset 0 0 0 1.5px var(--site-muted);
+}
+
+.ev-dot.is-past {
+    background: var(--site-line);
+}
+
+/* Plan del revendedor */
+.ev-plan {
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--site-line);
+}
+
+.ev-plan__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.25rem 1rem;
+}
+
+.ev-plan__renew {
+    font-size: 0.82rem;
+    color: var(--site-muted);
+}
+
+.ev-plan__count {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.1rem 0.6rem;
+    margin: 0.35rem 0 0.6rem;
+    font-size: 0.9rem;
+    color: var(--site-muted);
+}
+
+.ev-plan__count b {
+    font-size: 1.6rem;
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--site-ink);
+    font-variant-numeric: tabular-nums;
+}
+
+/* Un aviso de una línea, con su filete dorado a la izquierda */
+.ev-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.15rem 0 0.15rem 0.75rem;
+    border-left: 2px solid var(--site-accent);
+    font-size: 0.88rem;
+    line-height: 1.45;
+}
+
+.ev-note svg {
+    flex-shrink: 0;
+    width: 1.1rem;
+    height: 1.1rem;
+    margin-top: 0.1rem;
+    color: var(--site-accent);
+}
+
+.ev-note.is-danger {
+    border-left-color: var(--site-danger);
+    color: var(--site-danger);
+}
+
+.ev-note.is-danger svg {
+    color: var(--site-danger);
+}
+
+/* Por atender: filas con filete que llevan al editor */
+.ev-attn {
+    margin-top: 0.4rem;
+    border-top: 1px solid var(--site-line);
+}
+
+.ev-attn__row {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    min-height: 3rem;
+    padding: 0.3rem 0;
+    border-bottom: 1px solid var(--site-line);
+    font-size: 0.92rem;
+}
+
+.ev-attn__row > svg:first-child {
+    flex-shrink: 0;
+    width: 1.3rem;
+    height: 1.3rem;
+    color: var(--site-accent);
+}
+
+.ev-attn__row > span {
+    flex: 1;
+    min-width: 0;
+}
+
+.ev-attn__row > svg:last-child {
+    flex-shrink: 0;
+    width: 1.1rem;
+    height: 1.1rem;
+    color: var(--site-muted);
+    transition: translate 0.25s var(--site-ease), color 0.2s ease;
+}
+
+.ev-attn__row:hover > svg:last-child {
+    translate: 2px 0;
+    color: var(--site-ink);
+}
+
+/* El próximo evento */
+.ev-next {
+    padding: 1rem 0 0.9rem;
+    border-block: 1px solid var(--site-line);
+}
+
+.ev-next__name {
+    margin-top: 0.35rem;
+    font-size: clamp(1.5rem, 5vw, 1.9rem);
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+}
+
+.ev-next__count {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.1rem 1.1rem;
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--site-muted);
+}
+
+.ev-next__count b {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--site-ink);
+    font-variant-numeric: tabular-nums;
+}
+
+/* Una línea de datos con íconos sueltos: fecha, tipo, de quién es */
+.ev-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.1rem 0.9rem;
+    margin-top: 0.2rem;
+    font-size: 0.86rem;
+    color: var(--site-muted);
+}
+
+.ev-meta > span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.ev-meta svg {
+    width: 1rem;
+    height: 1rem;
+}
+
+.ev-news,
+.ev-hint {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.45rem;
+    margin-top: 0.6rem;
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+.ev-news {
+    color: var(--site-ink);
+}
+
+.ev-hint {
+    color: var(--site-muted);
+}
+
+.ev-news svg,
+.ev-hint svg {
+    flex-shrink: 0;
+    width: 1.05rem;
+    height: 1.05rem;
+    margin-top: 0.1rem;
+    color: var(--site-accent);
+}
+
+/* El control de entrada, el día del evento */
+.ev-door {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 0.8rem;
+    padding: 0.55rem 0;
+    border-top: 1px solid var(--site-line);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.ev-door svg:first-child {
+    width: 1.3rem;
+    height: 1.3rem;
+    color: var(--site-accent);
+}
+
+.ev-door span {
+    flex: 1;
+}
+
+.ev-door svg:last-child {
+    width: 1.1rem;
+    height: 1.1rem;
+    color: var(--site-muted);
+}
+
+/* Buscador: una línea, con su lupa suelta */
+.ev-search {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.ev-search__icon {
+    position: absolute;
+    left: 0;
+    width: 1.2rem;
+    height: 1.2rem;
+    color: var(--site-muted);
+    pointer-events: none;
+}
+
+.ev-search .site-input {
+    padding-left: 2rem;
+}
+
+/* La lista: una fila por evento */
+.ev-list {
+    border-top: 1px solid var(--site-line);
+}
+
+.ev-row {
+    display: grid;
+    grid-template-columns: 0.55rem minmax(0, 1fr);
+    gap: 0 0.8rem;
+    padding: 0.8rem 0 0.5rem;
+    border-bottom: 1px solid var(--site-line);
+}
+
+.ev-row > .ev-dot {
+    margin-top: 0.5rem;
+}
+
+.ev-row__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.ev-row__name {
+    min-width: 0;
+    overflow: hidden;
+    font-size: 1.02rem;
+    font-weight: 600;
+    line-height: 1.3;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ev-row__date {
+    flex-shrink: 0;
+    font-size: 0.85rem;
+    color: var(--site-muted);
+    font-variant-numeric: tabular-nums;
+}
+
+.ev-row.is-past .ev-row__name {
+    font-weight: 500;
+    color: var(--site-muted);
+}
+
+.ev-nums {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.35rem;
+    font-size: 0.85rem;
+    color: var(--site-muted);
+}
+
+.ev-nums > span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.ev-nums svg {
+    width: 1.05rem;
+    height: 1.05rem;
+}
+
+.ev-nums b {
+    font-weight: 600;
+    color: var(--site-ink);
+    font-variant-numeric: tabular-nums;
+}
+
+/* Íconos de acción: solo el dibujo, su nombre va en el título */
+.ev-acts {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.1rem;
+    margin: 0.35rem 0 0 -0.6rem;
+}
+
+.ev-next .ev-acts {
+    margin-top: 0.9rem;
+    margin-left: 0;
+    gap: 0.1rem 0;
+}
+
+.ev-next .ev-acts .site-btn {
+    margin-right: 0.35rem;
+}
+
+.ev-acts__end {
+    margin-left: auto;
+}
+
+.ev-act {
+    display: inline-grid;
+    flex-shrink: 0;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 0;
+    border-radius: 50%;
+    background: none;
+    color: var(--site-muted);
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.ev-act svg {
+    width: 1.35rem;
+    height: 1.35rem;
+}
+
+.ev-act:hover {
+    background: color-mix(in srgb, var(--site-ink) 7%, transparent);
+    color: var(--site-ink);
+}
+
+.ev-act.is-off {
+    cursor: help;
+    opacity: 0.55;
+}
+
+.ev-act.is-off:hover {
+    background: none;
+    color: var(--site-muted);
+}
+
+.ev-act.is-danger:hover {
+    background: color-mix(in srgb, var(--site-danger) 10%, transparent);
+    color: var(--site-danger);
+}
+
+/* El nombre del botón «copiar» sigue ahí para los lectores de pantalla */
+.ev-act > span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+.ev-act {
+    position: relative;
+}
+
+/* Lo ya celebrado, plegado */
+.ev-past {
+    margin-top: 0.25rem;
+}
+
+.ev-past__summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 2.75rem;
+    cursor: pointer;
+    list-style: none;
+}
+
+.ev-past__summary::-webkit-details-marker {
+    display: none;
+}
+
+.ev-past__caret {
+    width: 1.2rem;
+    height: 1.2rem;
+    color: var(--site-muted);
+    transition: rotate 0.3s var(--site-ease);
+}
+
+.ev-past[open] .ev-past__caret {
+    rotate: 180deg;
+}
+
+/* Sin eventos: un ícono, una frase y el botón */
+.ev-empty {
+    display: grid;
+    justify-items: center;
+    gap: 0.9rem;
+    padding: 2.5rem 0 1rem;
+    text-align: center;
+}
+
+.ev-empty__icon {
+    width: 2.75rem;
+    height: 2.75rem;
+    color: var(--site-accent);
+}
+
+.ev-empty__title {
+    font-size: 1.35rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+}
+
+.ev-empty__text {
+    max-width: 38ch;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--site-muted);
+}
+
+@media (min-width: 640px) {
+    .ev-row {
+        padding-block: 0.9rem 0.6rem;
+    }
+}

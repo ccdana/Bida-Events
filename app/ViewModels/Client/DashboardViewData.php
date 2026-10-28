@@ -8,10 +8,13 @@ use App\Models\User;
 use App\Modules\Module;
 use App\Payments\PaymentGateways;
 use App\Support\DiyInvitations;
+use App\Services\InvitationModuleService;
 use App\Support\InvitationTemplates;
+use App\Support\LeadSource;
 use App\Support\Localization;
 use App\Support\Packages;
 use App\Support\ResellerSubscription;
+use App\Support\SampleContent;
 use Illuminate\Support\Collection;
 
 /**
@@ -20,42 +23,68 @@ use Illuminate\Support\Collection;
  */
 class DashboardViewData
 {
+    /** @var array<string, int>|null */
+    private ?array $placeholders = null;
+
     public function __construct(private EventProfiles $profiles) {}
 
     public function make(Collection $invitations, string $search = '', ?User $user = null): array
     {
-        $rows = $invitations->map(fn (Invitation $invitation) => $this->row($invitation, (bool) $user?->isReseller(), $user));
+        $forReseller = (bool) $user?->isReseller();
+        $rows = $invitations->map(fn (Invitation $invitation) => $this->row($invitation, $forReseller, $user));
 
         // Primero lo que todavía no pasó y, dentro de eso, lo más cercano
-        $sort = fn (Collection $group) => $group
-            ->sortBy(fn (array $row) => [$row['isPast'] ? 1 : 0, $row['isPast'] ? -$row['timestamp'] : $row['timestamp']])
-            ->values();
+        $upcoming = $rows->where('isPast', false)->sortBy('timestamp')->values();
+        $past = $rows->where('isPast', true)->sortByDesc('timestamp')->values();
 
-        $sections = collect([
-            [
-                'key' => 'invitaciones',
-                'title' => 'Mis invitaciones',
-                'description' => 'Eventos con lista de invitados y confirmaciones.',
-                'rows' => $sort($rows->where('isCard', false)),
-            ],
-            [
-                'key' => 'tarjetas',
-                'title' => 'Mis tarjetas',
-                'description' => 'Tarjetas que enviaste y las respuestas que te dejaron.',
-                'rows' => $sort($rows->where('isCard', true)),
-            ],
-        ])->filter(fn (array $section) => $section['rows']->isNotEmpty())->values();
+        // El próximo evento con fecha se destaca arriba; el resto va en filas
+        $featured = $upcoming->first(fn (array $row) => $row['timestamp'] > 0);
+        $list = $upcoming->reject(fn (array $row) => $featured !== null && $row['invitation']->is($featured['invitation']))->values();
 
         return [
-            'sections' => $sections,
+            'featured' => $featured,
+            'list' => $list,
+            'past' => $past,
             'search' => $search,
             'total' => $rows->count(),
-            'reseller' => $user?->isReseller() ? $this->reseller($user) : null,
+            'reseller' => $forReseller ? $this->reseller($user) : null,
+            // Lo que pide atención del revendedor: sin cliente, sin publicar con la fecha cerca
+            'attention' => $forReseller && $user->hasActiveSubscription() ? $this->attention($rows) : [],
             // «Hazlo tú»: crear su propia invitación (sin plan), con cuántos borradores le quedan
             'diy' => $user && DiyInvitations::canBuild($user) ? $this->diy($user) : null,
             // Dónde elegir el plan: pagarlo aquí si hay pago en línea; si no, ver los planes y escribirnos
             'startUrl' => app(PaymentGateways::class)->availableMethods() ? route('client.subscription') : lroute('pricing').'#planes',
         ];
+    }
+
+    /**
+     * Lo que pide atención en el inicio del revendedor: cada evento suyo sin cliente asignado o sin publicar con la
+     * fecha a menos de dos semanas. Con el atajo al editor, donde se resuelve.
+     *
+     * @return array<int, array{icon: string, text: string, url: string}>
+     */
+    private function attention(Collection $rows): array
+    {
+        $items = [];
+
+        foreach ($rows->where('isPast', false)->sortBy('timestamp') as $row) {
+            if (! $row['ownedByReseller']) {
+                continue;
+            }
+
+            $invitation = $row['invitation'];
+            $url = route('client.invitations.edit', $invitation);
+
+            if ($invitation->user_id === null) {
+                $items[] = ['icon' => 'user-plus', 'text' => $invitation->title.' · sin cliente', 'url' => $url];
+            }
+
+            if ($row['publicUrl'] === null && $row['daysLeft'] !== null && $row['daysLeft'] <= 14) {
+                $items[] = ['icon' => 'eye-slash', 'text' => $invitation->title.' · sin publicar, '.$row['whenLabel'], 'url' => $url];
+            }
+        }
+
+        return $items;
     }
 
     /**
@@ -96,6 +125,8 @@ class DashboardViewData
             'quotaLimit' => $limit,
             'quotaLabel' => $limit === null ? "{$used} este mes (sin tope)" : "{$used} de {$limit}",
             'renewsLabel' => $user->subscription_renews_at?->locale(app()->getLocale())->translatedFormat(Localization::dateFormat('j \d\e F \d\e Y')),
+            'renewsShort' => $this->shortDate($user->subscription_renews_at),
+            'quotaPercent' => $limit ? min(100, (int) round($used / $limit * 100)) : null,
             'isActive' => $active,
             // Ya pasó la fecha (aunque siga en los días de gracia): «venció el», no «renueva el»
             'isPastDue' => $daysLeft !== null && $daysLeft < 0,
@@ -133,16 +164,31 @@ class DashboardViewData
         $guests = $invitation->guests;
         $isPublished = $invitation->status === 'active'
             && (! $invitation->expires_at || ! $invitation->expires_at->isBefore(now()->startOfDay()));
+        $publicUrl = $isPublished ? route('invitation.show', $invitation->slug) : null;
+        $isPast = (bool) $invitation->is_post_event;
+        $daysLeft = $invitation->event_date ? (int) now()->startOfDay()->diffInDays($invitation->event_date->copy()->startOfDay(), false) : null;
+        $ownedByReseller = $forReseller && $user && (int) $invitation->reseller_id === (int) $user->id;
+        // La armó el equipo (ni él mismo en «Hazlo tú» ni su revendedor): ahí pide los cambios por WhatsApp
+        $teamMade = ! $invitation->is_diy && ! $ownedByReseller && $invitation->reseller_id === null;
+        $confirmed = $guests->where('status', 'confirmed');
+        $weekAgo = now()->subDays(7);
+        $isDraft = $invitation->is_diy && $invitation->package === null;
 
         return [
             'invitation' => $invitation,
             'isCard' => $isCard,
-            'isPast' => (bool) $invitation->is_post_event,
+            'isPast' => $isPast,
             'timestamp' => $invitation->event_date?->getTimestamp() ?? 0,
+            'daysLeft' => $daysLeft,
+            'whenLabel' => $isPast ? 'ya pasó' : $this->whenLabel($daysLeft),
+            'dateLabel' => $this->shortDate($invitation->event_date),
+            'longDateLabel' => $invitation->event_date
+                ? $invitation->event_date->locale(app()->getLocale())->translatedFormat(Localization::dateFormat('j \d\e F')).', '.$invitation->event_date->format('H:i')
+                : null,
             'kindLabel' => $isCard ? 'Tarjeta' : 'Invitación',
             'typeLabel' => $profile->label(),
             'templateLabel' => InvitationTemplates::get($invitation->template)['label'],
-            'publicUrl' => $isPublished ? route('invitation.show', $invitation->slug) : null,
+            'publicUrl' => $publicUrl,
             // Por qué no se puede abrir la página: es lo que el cliente nos preguntaría
             'unavailableReason' => $isPublished
                 ? null
@@ -156,14 +202,85 @@ class DashboardViewData
                     $forReseller => 'Todavía sin publicar: publícala desde el editor.',
                     default => 'Todavía sin publicar: la estamos preparando.',
                 },
-            'metrics' => $isCard ? $this->cardMetrics($invitation) : $this->guestMetrics($guests),
-            'guestsCount' => $guests->count(),
+            'isDraft' => $isDraft,
+            // Un borrador de «Hazlo tú»: cuánto de ejemplo le queda por cambiar
+            'draftLeft' => $isDraft ? $this->examplesLeft($invitation) : null,
+            // En números sueltos, no en tarjetas: confirmaron, sin responder, no asisten (o las respuestas de una tarjeta)
+            'confirmed' => $confirmed->count(),
+            'passes' => (int) $confirmed->sum('passes_confirmed'),
+            'pending' => $guests->where('status', 'pending')->count(),
+            'declined' => $guests->where('status', 'declined')->count(),
+            'total' => $guests->count(),
+            'progress' => $guests->count() > 0 ? (int) round($confirmed->count() / $guests->count() * 100) : 0,
+            'replies' => (int) ($invitation->replies_count ?? 0),
+            'others' => max(0, (int) ($invitation->contributions_count ?? 0) - (int) ($invitation->replies_count ?? 0)),
+            // Lo que cambió en la última semana, calculado con las fechas (no se guarda nada)
+            'newConfirmed' => $confirmed->filter(fn ($guest) => $guest->confirmed_at !== null && $guest->confirmed_at->greaterThanOrEqualTo($weekAgo))->count(),
+            'newContributions' => (int) ($invitation->recent_contributions_count ?? 0),
             'ownerLabel' => $forReseller && $user ? $this->ownerLabel($invitation, $user) : null,
+            'ownedByReseller' => $ownedByReseller,
+            'clientName' => $invitation->user?->name,
+            'teamMade' => $teamMade,
             // «Hazlo tú»: el nivel con el que se publicó (Gratis, Básico…); null mientras es borrador
             'tierLabel' => $invitation->is_diy && Packages::isTier($invitation->package) ? (Packages::tierNames()[$invitation->package] ?? null) : null,
+            // WhatsApp: mandar el enlace (a los invitados; el revendedor, a su cliente) y, si la armó el equipo, pedir un cambio
+            'shareUrl' => $publicUrl ? $this->shareUrl($invitation, $publicUrl, $ownedByReseller) : null,
+            'helpUrl' => $teamMade
+                ? LeadSource::whatsappUrl(request(), "Hola {brand}, quiero un cambio en mi invitación «{$invitation->title}».", 'PANEL')
+                : null,
         ];
     }
 
+    /** «20 nov» (sin el punto con que el calendario abrevia el mes). */
+    private function shortDate(?\Carbon\CarbonInterface $date): ?string
+    {
+        return $date ? str_replace('.', '', $date->locale(app()->getLocale())->translatedFormat(Localization::dateFormat('j M'))) : null;
+    }
+
+    private function whenLabel(?int $days): string
+    {
+        return match (true) {
+            $days === null => '',
+            $days < 0 => 'ya pasó',
+            $days === 0 => 'hoy',
+            $days === 1 => 'mañana',
+            $days <= 60 => "faltan {$days} días",
+            default => 'faltan '.(int) round($days / 30).' meses',
+        };
+    }
+
+    /** El mensaje listo para WhatsApp: a los invitados, o del revendedor a su cliente. */
+    private function shareUrl(Invitation $invitation, string $publicUrl, bool $toClient): string
+    {
+        $text = $toClient && $invitation->user && $invitation->user_id !== $invitation->reseller_id
+            ? "Hola {$invitation->user->name}, aquí está tu invitación «{$invitation->title}»: {$publicUrl}"
+            : "Te invito a «{$invitation->title}»: {$publicUrl}";
+
+        return 'https://wa.me/?text='.rawurlencode($text);
+    }
+
+    /** Cuántas cosas de ejemplo siguen sin cambiar en las partes encendidas de un borrador («Tu foto aquí», «Escribe aquí…»). */
+    private function examplesLeft(Invitation $invitation): int
+    {
+        $this->placeholders ??= array_flip(array_map('trim', SampleContent::placeholders()));
+        $modules = app(InvitationModuleService::class)->storedModules($invitation);
+        $enabled = $modules['config']['modulos'] ?? [];
+        $count = 0;
+
+        foreach ($modules as $code => $data) {
+            if ($code === 'config' || empty($enabled[$code]) || ! is_array($data)) {
+                continue;
+            }
+
+            array_walk_recursive($data, function (mixed $value) use (&$count) {
+                if (is_string($value) && isset($this->placeholders[trim($value)])) {
+                    $count++;
+                }
+            });
+        }
+
+        return $count;
+    }
     /**
      * Para el revendedor, de quién es cada evento: de un cliente suyo, suyo propio, todavía sin
      * cliente, o una invitación que le armó el equipo (ahí él es el cliente y no la edita).
@@ -179,29 +296,5 @@ class DashboardViewData
             $invitation->user_id === null => 'Sin cliente todavía',
             default => 'Cliente: '.($invitation->user?->name ?? 'sin nombre'),
         };
-    }
-
-    /** @return array<int, array{label: string, value: int|string, note?: string}> */
-    private function guestMetrics(Collection $guests): array
-    {
-        $confirmed = $guests->where('status', 'confirmed');
-
-        return [
-            ['label' => 'Personas confirmadas', 'value' => (int) $confirmed->sum('passes_confirmed'), 'note' => $confirmed->count().' de '.$guests->count().' invitados'],
-            ['label' => 'Sin responder', 'value' => $guests->where('status', 'pending')->count()],
-            ['label' => 'No asisten', 'value' => $guests->where('status', 'declined')->count()],
-        ];
-    }
-
-    /** @return array<int, array{label: string, value: int|string, note?: string}> */
-    private function cardMetrics(Invitation $invitation): array
-    {
-        $replies = (int) ($invitation->replies_count ?? 0);
-        $others = max(0, (int) ($invitation->contributions_count ?? 0) - $replies);
-
-        return [
-            ['label' => 'Respuestas', 'value' => $replies, 'note' => $replies === 0 ? 'Todavía nadie respondió' : null],
-            ['label' => 'Fotos y canciones', 'value' => $others],
-        ];
     }
 }

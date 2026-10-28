@@ -29,12 +29,14 @@ class DashboardController extends Controller
                 'eventType:id,name,slug',
                 // El revendedor ve de qué cliente es cada evento
                 'user:id,name',
-                'guests:id,invitation_id,status,passes_confirmed',
+                'guests:id,invitation_id,status,passes_confirmed,confirmed_at',
             ])
             ->withCount([
                 'contributions',
                 // Las tarjetas se miden por las respuestas que dejó quien las recibió
                 'contributions as replies_count' => fn ($query) => $query->where('type', ReplyModule::CONTRIBUTION_TYPE),
+                // Lo que dejaron los invitados en la última semana (fotos y canciones): la novedad del evento
+                'contributions as recent_contributions_count' => fn ($query) => $query->where('type', '!=', ReplyModule::CONTRIBUTION_TYPE)->where('created_at', '>=', now()->subDays(7)),
             ])
             ->get();
 

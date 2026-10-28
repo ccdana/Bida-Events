@@ -215,7 +215,7 @@ class SubscriptionCheckoutTest extends TestCase
         $late = User::factory()->reseller('inicial', '2026-10-14')->create();
         $this->actingAs($late)->withoutVite()->get(route('client.dashboard'))
             ->assertOk()
-            ->assertSee('venció el 14 de octubre')
+            ->assertSee('venció el 14 oct')
             ->assertSee('Tienes hasta el 16 de octubre para renovarla')
             ->assertSee(route('client.invitations.create'), false)
             // Sin «Mi plan» en la barra lateral: el aviso de vencimiento lleva a renovar
