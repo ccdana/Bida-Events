@@ -49,7 +49,7 @@ class AdminPanelPerformanceTest extends TestCase
         $response = $this->actingAs($admin)->get(route('admin.dashboard'))->assertOk();
 
         // Una página son 20 invitaciones y las cifras salen de contar en la base
-        $this->assertSame(20, substr_count($response->getContent(), 'admin-status-badge'));
+        $this->assertSame(20, substr_count($response->getContent(), 'adm-row'));
         $response->assertSee('500');
         $response->assertSee('Página 1 de 2');
         $this->assertLessThan(15, $queries, "El panel hizo {$queries} consultas: debería contar en la base y paginar");

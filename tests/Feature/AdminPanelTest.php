@@ -29,10 +29,10 @@ class AdminPanelTest extends TestCase
         $this->admin = User::factory()->create(['is_admin' => true]);
     }
 
-    public function test_the_panel_separates_the_events_by_type(): void
+    public function test_the_panel_lists_the_events_in_one_list_by_date_with_the_type_as_an_icon(): void
     {
-        $this->createInvitation(['title' => 'XV de Sofía']);
-        $this->createInvitation(['title' => 'Boda de Marta', 'event_type_id' => $this->eventType('bodas', 'Bodas')->id]);
+        $this->createInvitation(['title' => 'XV de Sofía', 'event_date' => now()->addDays(40)]);
+        $this->createInvitation(['title' => 'Boda de Marta', 'event_date' => now()->addDays(10), 'event_type_id' => $this->eventType('bodas', 'Bodas')->id]);
         $this->createInvitation([
             'title' => 'Carta para Ana',
             'event_type_id' => $this->eventType('dia-del-amor', 'Día del Amor', 'card')->id,
@@ -42,9 +42,11 @@ class AdminPanelTest extends TestCase
         $this->actingAs($this->admin)
             ->get(route('admin.dashboard'))
             ->assertOk()
-            // Cada tipo de evento tiene su sección, y las tarjetas van al final
-            ->assertSeeInOrder(['Bodas', 'Boda de Marta', 'XV Años', 'XV de Sofía', 'Día del Amor', 'Carta para Ana'])
-            // Y se puede filtrar por un tipo
+            // Una sola lista: lo más cercano primero, sin una sección por tipo de evento (el tipo va como ícono con su nombre)
+            ->assertSeeInOrder(['Boda de Marta', 'XV de Sofía'])
+            ->assertSee('class="ev-type" title="Bodas"', false)
+            ->assertDontSee('admin-status-badge', false)
+            // Y se puede filtrar por un tipo desde la barra lateral
             ->assertSee(route('admin.dashboard', ['tipo' => 'bodas']), false);
 
         $this->actingAs($this->admin)

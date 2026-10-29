@@ -23,7 +23,6 @@ class DashboardController extends Controller
         $scope = fn () => Invitation::query()->where(fn ($query) => $query->where('user_id', $user->id)->orWhere('reseller_id', $user->id));
 
         $invitations = InvitationFilters::apply($scope(), $filters)
-            ->when($filters['orden'] === '', fn ($query) => $query->reorder()->latest('event_date'))
             ->select('id', 'user_id', 'reseller_id', 'is_diy', 'event_type_id', 'slug', 'template', 'package', 'title', 'event_date', 'status', 'expires_at', 'created_at')
             ->with([
                 'eventType:id,name,slug',
@@ -40,7 +39,7 @@ class DashboardController extends Controller
             ])
             ->get();
 
-        $data = $viewData->make($invitations, $search, $user);
+        $data = $viewData->make($invitations, $search, $user, recentFirst: $filters['orden'] === 'recientes');
 
         // El revendedor maneja muchos eventos: filtra desde la barra lateral
         if ($user->isReseller()) {

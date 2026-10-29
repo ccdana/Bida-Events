@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Modules\Module;
 use App\Payments\PaymentGateways;
 use App\Support\DiyInvitations;
+use App\Support\EventCountdown;
 use App\Services\InvitationModuleService;
 use App\Support\InvitationTemplates;
 use App\Support\LeadSource;
@@ -28,23 +29,25 @@ class DashboardViewData
 
     public function __construct(private EventProfiles $profiles) {}
 
-    public function make(Collection $invitations, string $search = '', ?User $user = null): array
+    public function make(Collection $invitations, string $search = '', ?User $user = null, bool $recentFirst = false): array
     {
         $forReseller = (bool) $user?->isReseller();
         $rows = $invitations->map(fn (Invitation $invitation) => $this->row($invitation, $forReseller, $user));
 
         // Primero lo que todavía no pasó y, dentro de eso, lo más cercano
         $upcoming = $rows->where('isPast', false)->sortBy('timestamp')->values();
+        // Con «creadas hace poco», la lista (no el próximo destacado) va de la más nueva a la más vieja
+        $newest = fn (Collection $group) => $recentFirst ? $group->sortByDesc(fn (array $row) => $row['invitation']->created_at?->getTimestamp() ?? 0)->values() : $group;
         $past = $rows->where('isPast', true)->sortByDesc('timestamp')->values();
 
         // El próximo evento con fecha se destaca arriba; el resto va en filas
         $featured = $upcoming->first(fn (array $row) => $row['timestamp'] > 0);
-        $list = $upcoming->reject(fn (array $row) => $featured !== null && $row['invitation']->is($featured['invitation']))->values();
+        $list = $newest($upcoming->reject(fn (array $row) => $featured !== null && $row['invitation']->is($featured['invitation']))->values());
 
         return [
             'featured' => $featured,
             'list' => $list,
-            'past' => $past,
+            'past' => $newest($past),
             'search' => $search,
             'total' => $rows->count(),
             'reseller' => $forReseller ? $this->reseller($user) : null,
@@ -166,7 +169,7 @@ class DashboardViewData
             && (! $invitation->expires_at || ! $invitation->expires_at->isBefore(now()->startOfDay()));
         $publicUrl = $isPublished ? route('invitation.show', $invitation->slug) : null;
         $isPast = (bool) $invitation->is_post_event;
-        $daysLeft = $invitation->event_date ? (int) now()->startOfDay()->diffInDays($invitation->event_date->copy()->startOfDay(), false) : null;
+        $daysLeft = EventCountdown::days($invitation->event_date);
         $ownedByReseller = $forReseller && $user && (int) $invitation->reseller_id === (int) $user->id;
         // La armó el equipo (ni él mismo en «Hazlo tú» ni su revendedor): ahí pide los cambios por WhatsApp
         $teamMade = ! $invitation->is_diy && ! $ownedByReseller && $invitation->reseller_id === null;
@@ -180,7 +183,7 @@ class DashboardViewData
             'isPast' => $isPast,
             'timestamp' => $invitation->event_date?->getTimestamp() ?? 0,
             'daysLeft' => $daysLeft,
-            'whenLabel' => $isPast ? 'ya pasó' : $this->whenLabel($daysLeft),
+            'whenLabel' => $isPast ? 'ya pasó' : EventCountdown::label($daysLeft),
             'dateLabel' => $this->shortDate($invitation->event_date),
             'longDateLabel' => $invitation->event_date
                 ? $invitation->event_date->locale(app()->getLocale())->translatedFormat(Localization::dateFormat('j \d\e F')).', '.$invitation->event_date->format('H:i')
@@ -235,18 +238,6 @@ class DashboardViewData
     private function shortDate(?\Carbon\CarbonInterface $date): ?string
     {
         return $date ? str_replace('.', '', $date->locale(app()->getLocale())->translatedFormat(Localization::dateFormat('j M'))) : null;
-    }
-
-    private function whenLabel(?int $days): string
-    {
-        return match (true) {
-            $days === null => '',
-            $days < 0 => 'ya pasó',
-            $days === 0 => 'hoy',
-            $days === 1 => 'mañana',
-            $days <= 60 => "faltan {$days} días",
-            default => 'faltan '.(int) round($days / 30).' meses',
-        };
     }
 
     /** El mensaje listo para WhatsApp: a los invitados, o del revendedor a su cliente. */

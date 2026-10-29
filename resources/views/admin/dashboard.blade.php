@@ -6,87 +6,115 @@
 
 @section('title', $isShowcase ? 'Muestras' : 'Invitaciones')
 
+{{--
+    Inicio del administrador: el título con su «+», tres números del momento, lo que pide atención (con atajo) y los
+    eventos en una sola lista por fecha, con el tipo como ícono y lo ya pasado al final. Filtros en la barra lateral.
+    Estilos: admin.css («Inicio: mis eventos» y «Inicio del administrador»).
+--}}
 @section('content')
-    <div class="grid gap-10">
-        <header class="site-enter">
-            <h1 class="text-3xl font-semibold tracking-tight md:text-4xl">{{ $isShowcase ? 'Muestras' : 'Invitaciones' }}</h1>
-            <p class="mt-2 max-w-[56ch] text-site-muted">
-                @if($isShowcase)
-                    Las invitaciones que el sitio enseña para probar: la portada, las temporadas, «Únete» y las páginas
-                    por evento. Se editan como cualquier otra, pero no se mezclan con las de tus clientes.
-                @else
-                    Los eventos de tus clientes separados por tipo. Filtra desde la barra lateral y abre la ficha de cualquiera
-                    para ver su cliente, sus enlaces y cómo van las confirmaciones sin entrar al editor. Las de muestra están en «Muestras».
-                @endif
-            </p>
+    <div class="mx-auto grid w-full max-w-[48rem] gap-5">
+        <header class="site-enter flex items-center justify-between gap-4">
+            <h1 class="site-display site-display--md">{{ $isShowcase ? 'Muestras' : 'Invitaciones' }}</h1>
+            <a href="{{ route('admin.invitations.create') }}" class="ev-add" title="Nueva invitación" aria-label="Nueva invitación">
+                <x-phosphor-plus-light aria-hidden="true" />
+            </a>
         </header>
 
-        <dl class="site-enter grid grid-cols-2 gap-y-6 border-y border-site-line py-6 lg:grid-cols-4" style="--enter-index: 1">
-            @foreach([
-                ['label' => 'Invitaciones', 'key' => 'total', 'icon' => 'envelope-simple'],
-                ['label' => 'Activas', 'key' => 'active', 'icon' => 'check-circle'],
-                ['label' => 'Inactivas', 'key' => 'inactive', 'icon' => 'eye-slash'],
-                ['label' => 'Invitados', 'key' => 'guests', 'icon' => 'users-three'],
-            ] as $metric)
-                <div class="lg:border-l lg:border-site-line lg:px-6 lg:first:border-l-0 lg:first:pl-0">
-                    <dt class="admin-metric-label flex items-center gap-2">
-                        <x-dynamic-component :component="'phosphor-'.$metric['icon']" class="size-4" aria-hidden="true" />
-                        {{ $metric['label'] }}
-                    </dt>
-                    <dd class="admin-metric-value">{{ $metrics[$metric['key']] }}</dd>
+        {{-- Tres números sueltos: los eventos de la semana, lo que está en línea y lo cobrado en el mes --}}
+        @if($pulse)
+            <dl class="site-enter adm-pulse" style="--enter-index: 1">
+                <div>
+                    <dt><x-phosphor-calendar-check-light aria-hidden="true" /> Esta semana</dt>
+                    <dd>{{ $pulse['weekEvents'] }} <small>{{ $pulse['weekEvents'] === 1 ? 'evento' : 'eventos' }}</small></dd>
                 </div>
-            @endforeach
-        </dl>
-
-        @if($isFiltered)
-            <p class="site-enter text-sm text-site-muted" style="--enter-index: 2">
-                {{ $invitations->total() }} {{ $invitations->total() === 1 ? 'invitación coincide' : 'invitaciones coinciden' }} con los filtros
-                @if($search !== '') y la búsqueda «{{ $search }}» @endif.
-                <a href="{{ route($listRoute) }}" class="font-medium text-site-ink underline underline-offset-4">Ver todo</a>
-            </p>
+                <div>
+                    <dt><x-phosphor-check-circle-light aria-hidden="true" /> Activas</dt>
+                    <dd>{{ $pulse['active'] }} <small>de {{ $pulse['total'] }} · {{ $pulse['guests'] }} invitados</small></dd>
+                </div>
+                <div>
+                    <dt><x-phosphor-coins-light aria-hidden="true" /> Este mes</dt>
+                    <dd>
+                        @forelse($pulse['revenue'] as $amount)
+                            <span class="block">{{ $amount }}</span>
+                        @empty
+                            <span class="text-site-muted">—</span>
+                        @endforelse
+                    </dd>
+                </div>
+            </dl>
         @endif
 
-        @forelse($sections as $index => $section)
-            <section class="site-enter" style="--enter-index: {{ $index + 3 }}">
-                <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-site-line pb-3">
-                    <h2 class="flex items-center gap-2 text-xl font-semibold tracking-tight">
-                        <x-dynamic-component :component="$section['isCard'] ? 'phosphor-heart' : 'phosphor-confetti'" class="size-5 text-site-accent" aria-hidden="true" />
-                        {{ $section['name'] }}
-                    </h2>
-                    <p class="text-sm text-site-muted">
-                        {{ $section['rows']->count() }} {{ $section['rows']->count() === 1 ? 'evento' : 'eventos' }} en esta página
-                        @if($section['total'] > $section['rows']->count())
-                            · {{ $section['total'] }} en total
-                        @endif
-                    </p>
-                </div>
-
-                <ul class="mt-4 grid gap-3">
-                    @foreach($section['rows'] as $row)
-                        @include('admin.partials.invitation-row', ['row' => $row])
+        {{-- Lo que pide atención, solo si hay algo: revendedores por vencer y pagos que siguen esperando --}}
+        @if($attention !== [])
+            <section class="site-enter" style="--enter-index: 2" aria-labelledby="por-atender">
+                <h2 id="por-atender" class="ev-label">Por atender</h2>
+                <ul class="ev-attn">
+                    @foreach($attention as $item)
+                        <li>
+                            <a href="{{ $item['url'] }}" class="ev-attn__row">
+                                <x-dynamic-component :component="'phosphor-'.$item['icon'].'-light'" aria-hidden="true" />
+                                <span>
+                                    {{ $item['text'] }}
+                                    <small @class(['block text-xs', 'text-site-danger' => $item['danger'], 'text-site-muted' => ! $item['danger']])>{{ $item['note'] }}</small>
+                                </span>
+                                <x-phosphor-caret-right-light aria-hidden="true" />
+                            </a>
+                        </li>
                     @endforeach
                 </ul>
             </section>
-        @empty
-            <div class="site-enter admin-card flex flex-col items-center px-6 py-16 text-center" style="--enter-index: 3">
-                <x-phosphor-envelope-simple-open-light class="size-12 text-site-accent" aria-hidden="true" />
+        @endif
+
+        {{-- Buscar: en el celular, a la vista (la barra lateral queda en el menú); en computadora ya está en la barra --}}
+        <form method="GET" action="{{ route($listRoute) }}" class="site-enter ev-search ev-search--mobile" style="--enter-index: 3" role="search">
+            @foreach(collect($filterValues ?? [])->except('q')->filter() as $key => $value)
+                <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+            @endforeach
+            <label for="buscar-invitacion" class="sr-only">Buscar invitaciones</label>
+            <x-phosphor-magnifying-glass-light class="ev-search__icon" aria-hidden="true" />
+            <input id="buscar-invitacion" type="search" name="q" value="{{ $search }}" class="site-input" placeholder="Evento, enlace o cliente" autocomplete="off">
+        </form>
+
+        @if($isFiltered)
+            <p class="site-enter flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-site-muted" style="--enter-index: 3">
+                <span>
+                    {{ $invitations->total() }} {{ $invitations->total() === 1 ? 'coincide' : 'coinciden' }}
+                    @if($search !== '') con «{{ $search }}» @endif
+                </span>
+                <a href="{{ route($listRoute) }}" class="site-help"><x-phosphor-x-light aria-hidden="true" /> Quitar filtros</a>
+            </p>
+        @endif
+
+        @if($items->isNotEmpty())
+            <ul class="site-enter ev-list" style="--enter-index: 4">
+                @php($pastShown = false)
+                @foreach($items as $row)
+                    {{-- Lo que ya pasó va al final, con un separador --}}
+                    @if($row['isPast'] && ! $pastShown)
+                        @php($pastShown = true)
+                        <li class="ev-sep"><span class="ev-label"><x-phosphor-clock-counter-clockwise-light aria-hidden="true" /> Ya pasaron</span></li>
+                    @endif
+                    @include('admin.partials.invitation-row', ['row' => $row])
+                @endforeach
+            </ul>
+        @else
+            <div class="site-enter ev-empty" style="--enter-index: 3">
+                <x-phosphor-envelope-simple-open-light class="ev-empty__icon" aria-hidden="true" />
                 @if($isFiltered)
-                    <h2 class="mt-4 text-lg font-medium">Nada coincide con esa búsqueda</h2>
-                    <p class="mt-1 max-w-[40ch] text-site-muted">Prueba con otro nombre, o quita el filtro de tipo de evento.</p>
-                    <a href="{{ route($listRoute) }}" class="admin-link-button mt-6">Ver todo</a>
+                    <h2 class="ev-empty__title">Nada coincide con esa búsqueda</h2>
+                    <a href="{{ route($listRoute) }}" class="site-help"><x-phosphor-x-light aria-hidden="true" /> Quitar filtros</a>
                 @elseif($isShowcase)
-                    <h2 class="mt-4 text-lg font-medium">No hay invitaciones de muestra</h2>
-                    <p class="mt-1 max-w-[44ch] text-site-muted">Son las que dice config/bida.php (demo_invitations, temporadas, «Únete» y páginas por evento).</p>
+                    <h2 class="ev-empty__title">No hay invitaciones de muestra</h2>
+                    <p class="ev-empty__text">Son las que dice config/bida.php (demo_invitations, temporadas, «Únete» y páginas por evento).</p>
                 @else
-                    <h2 class="mt-4 text-lg font-medium">Todavía no hay invitaciones</h2>
-                    <p class="mt-1 max-w-[40ch] text-site-muted">Crea la primera, asígnale un cliente y compártela cuando esté lista.</p>
-                    <a href="{{ route('admin.invitations.create') }}" class="admin-primary-button mt-6">
-                        <x-phosphor-plus-bold aria-hidden="true" />
+                    <h2 class="ev-empty__title">Todavía no hay invitaciones</h2>
+                    <a href="{{ route('admin.invitations.create') }}" class="site-btn site-btn--lg">
+                        <x-phosphor-plus-light aria-hidden="true" />
                         Nueva invitación
                     </a>
                 @endif
             </div>
-        @endforelse
+        @endif
 
         @include('layouts.partials.pagination', ['paginator' => $invitations])
     </div>

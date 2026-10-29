@@ -16,7 +16,8 @@ use Illuminate\Support\Facades\DB;
  * - tipo: «invitation» o «card» (el producto entero) o el slug de un tipo de evento.
  * - estado: publicadas, sin publicar, próximas (el evento todavía no pasó) o ya pasaron.
  * - origen (solo administrador): del equipo, armadas por revendedores o por el propio cliente («Hazlo tú»).
- * - orden: creadas recientemente o por fecha del evento.
+ * - orden: por defecto lo que viene primero (los eventos próximos por fecha y, al final, los que ya pasaron) o, con «recientes»,
+ *   lo creado hace poco.
  */
 final class InvitationFilters
 {
@@ -35,7 +36,6 @@ final class InvitationFilters
 
     public const SORTS = [
         'recientes' => 'Creadas hace poco',
-        'fecha' => 'Por fecha del evento',
     ];
 
     public const KINDS = [
@@ -86,7 +86,18 @@ final class InvitationFilters
             ->when(($filters['origen'] ?? '') === 'equipo', fn (Builder $q) => $q->whereNull('reseller_id')->where('is_diy', false))
             ->when(($filters['origen'] ?? '') === 'revendedores', fn (Builder $q) => $q->whereNotNull('reseller_id'))
             ->when(($filters['origen'] ?? '') === 'clientes', fn (Builder $q) => $q->where('is_diy', true))
-            ->when(($filters['orden'] ?? '') === 'fecha', fn (Builder $q) => $q->orderBy('event_date'), fn (Builder $q) => $q->latest());
+            ->when(($filters['orden'] ?? '') === 'recientes', fn (Builder $q) => $q->latest(), fn (Builder $q) => self::agenda($q));
+    }
+
+    /** Lo que viene primero: los eventos próximos del más cercano al más lejano y, después, los que ya pasaron (el más reciente primero). */
+    public static function agenda(Builder $query): Builder
+    {
+        $now = now()->toDateTimeString();
+
+        return $query
+            ->orderByRaw('CASE WHEN event_date >= ? THEN 0 ELSE 1 END', [$now])
+            ->orderByRaw('CASE WHEN event_date >= ? THEN event_date END', [$now])
+            ->orderByDesc('event_date');
     }
 
     /**
@@ -163,8 +174,8 @@ final class InvitationFilters
         $groups['orden'] = [
             'label' => 'Ordenar',
             'options' => [
-                $option('orden', '', self::SORTS['recientes'], null),
-                $option('orden', 'fecha', self::SORTS['fecha'], null),
+                $option('orden', '', 'Próximos primero', null),
+                $option('orden', 'recientes', self::SORTS['recientes'], null),
             ],
         ];
 

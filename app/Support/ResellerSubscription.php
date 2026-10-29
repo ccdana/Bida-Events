@@ -126,6 +126,26 @@ final class ResellerSubscription
      */
     public static function dueSoonCount(?CarbonInterface $today = null): int
     {
+        return self::dueSoonQuery($today)->count();
+    }
+
+    /**
+     * Los mismos revendedores, del que vence antes al que vence después (con su fecha), para mostrarlos con un atajo en
+     * el inicio del panel admin.
+     *
+     * @return \Illuminate\Support\Collection<int, User>
+     */
+    public static function dueSoon(int $limit = 5, ?CarbonInterface $today = null): \Illuminate\Support\Collection
+    {
+        return self::dueSoonQuery($today)
+            ->orderBy('subscription_renews_at')
+            ->limit($limit)
+            ->get(['id', 'name', 'business_name', 'reseller_plan', 'subscription_renews_at', 'subscription_status']);
+    }
+
+    /** @return \Illuminate\Database\Eloquent\Builder<User> */
+    private static function dueSoonQuery(?CarbonInterface $today = null): \Illuminate\Database\Eloquent\Builder
+    {
         $limit = Carbon::instance($today ?? now())->timezone(config('app.timezone'))->startOfDay()->addDays(self::WARNING_DAYS);
 
         return User::query()
@@ -136,8 +156,7 @@ final class ResellerSubscription
                 ->whereNotNull('payment_provider')
                 ->whereNotNull('provider_subscription_id')
                 ->where('cancel_at_period_end', false)
-                ->where('subscription_status', 'active'))
-            ->count();
+                ->where('subscription_status', 'active'));
     }
 
     /**

@@ -42,7 +42,7 @@ class DashboardController extends Controller
         // Solo la página que se ve, y los invitados los cuenta la base
         $invitations = InvitationFilters::apply($scope(), $filters)
             ->select('id', 'user_id', 'reseller_id', 'is_diy', 'event_type_id', 'slug', 'template', 'package', 'title', 'event_date', 'status', 'expires_at', 'created_at')
-            ->with(['eventType:id,name,slug,kind', 'user:id,name,username'])
+            ->with(['eventType:id,name,slug,kind,code', 'user:id,name,username'])
             ->withCount([
                 'guests',
                 'guests as confirmed_guests_count' => fn ($query) => $query->where('status', 'confirmed'),
@@ -53,7 +53,7 @@ class DashboardController extends Controller
             ->paginate(20)
             ->withQueryString();
 
-        return view('admin.dashboard', $viewData->make($invitations, $filters['tipo'], $filters['q'], $scope()) + [
+        return view('admin.dashboard', $viewData->make($invitations, $filters['tipo'], $filters['q'], $scope(), withPulse: ! $showcase) + [
             'filterValues' => $filters,
             'filterGroups' => InvitationFilters::sidebar($scope(), $filters, $route),
             'filterRoute' => $route,

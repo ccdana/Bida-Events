@@ -8,11 +8,9 @@
     lleva su ícono suelto (por su código; uno nuevo usa el de «default»).
 --}}
 @php
-    $wizardIcons = collect([
-        'xv' => 'crown', 'boda' => 'diamond', 'bautizo' => 'drop', 'cumple' => 'cake', 'graduacion' => 'graduation-cap',
-        'babyshower' => 'baby-carriage', 'lienzo' => 'sparkle', 'halloween' => 'ghost',
-        'amor' => 'heart', 'aventura' => 'compass', 'historia' => 'book-open-text',
-        'default' => 'confetti',
+    // Los íconos de los tipos de evento vienen de App\Support\EventIcons (los mismos de las listas del panel)
+    $wizardIcons = collect(\App\Support\EventIcons::MAP + [
+        'default' => \App\Support\EventIcons::FALLBACK,
         // Íconos de las etiquetas de los nombres (por la clave del campo de la portada)
         'campo-nombre' => 'user', 'campo-nombre_pareja' => 'heart', 'campo-edad' => 'hash', 'campo-default' => 'pencil-simple-line',
     ])->map(fn (string $name) => svg('phosphor-'.$name.'-light', 'ed-wiz-icon', ['aria-hidden' => 'true'])->toHtml());

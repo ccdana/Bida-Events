@@ -4284,3 +4284,225 @@ button.ed-dialog__row:hover > svg {
         padding-block: 0.9rem 0.6rem;
     }
 }
+
+/* ── Inicio del administrador ──────────────────────────────────────────────
+   Tres números sueltos arriba, lo que pide atención y la lista de eventos por fecha, con el tipo como ícono. */
+
+.adm-pulse {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    padding-block: 0.9rem;
+    border-block: 1px solid var(--site-line);
+}
+
+.adm-pulse > div {
+    min-width: 0;
+    padding-inline: 0.9rem;
+}
+
+.adm-pulse > div:first-child {
+    padding-left: 0;
+}
+
+.adm-pulse > div + div {
+    border-left: 1px solid var(--site-line);
+}
+
+.adm-pulse dt {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--site-muted);
+}
+
+.adm-pulse dt svg {
+    flex-shrink: 0;
+    width: 1rem;
+    height: 1rem;
+}
+
+.adm-pulse dd {
+    margin-top: 0.3rem;
+    font-size: 1.45rem;
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+}
+
+.adm-pulse dd small {
+    display: block;
+    margin-top: 0.15rem;
+    font-size: 0.74rem;
+    font-weight: 400;
+    letter-spacing: 0;
+    color: var(--site-muted);
+}
+
+@media (min-width: 640px) {
+    .adm-pulse dd small {
+        display: inline;
+        margin-left: 0.25rem;
+        font-size: 0.82rem;
+    }
+}
+
+.adm-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-top: 0.1rem;
+}
+
+.adm-foot .ev-nums {
+    margin: 0;
+}
+
+.adm-foot .ev-acts {
+    flex-wrap: nowrap;
+    margin: 0 -0.6rem 0 0;
+}
+
+/* El tipo de evento: su ícono suelto en lugar del punto de estado */
+.adm-row {
+    grid-template-columns: 1.4rem minmax(0, 1fr);
+}
+
+.ev-type {
+    display: grid;
+    place-items: start center;
+    padding-top: 0.2rem;
+    color: var(--site-accent);
+}
+
+.ev-type svg {
+    width: 1.3rem;
+    height: 1.3rem;
+}
+
+.adm-row.is-past .ev-type {
+    color: var(--site-muted);
+}
+
+/* Separador de lo que ya pasó, dentro de la lista */
+.ev-sep {
+    padding: 1rem 0 0.35rem;
+    border-bottom: 1px solid var(--site-line);
+}
+
+.ev-meta .ev-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+}
+
+.ev-dot.is-expired {
+    background: var(--site-danger);
+}
+
+/* La ficha, bajo la fila: filas con filete y los cuatro números de los invitados */
+.adm-ficha {
+    grid-column: 2;
+    margin: 0.35rem 0 0.4rem;
+    padding-top: 0.3rem;
+}
+
+.adm-kv > div {
+    display: grid;
+    grid-template-columns: 6.2rem minmax(0, 1fr);
+    gap: 0.75rem;
+    padding: 0.55rem 0;
+    border-top: 1px solid var(--site-line);
+    font-size: 0.88rem;
+}
+
+.adm-kv dt {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    color: var(--site-muted);
+}
+
+.adm-kv dt svg {
+    flex-shrink: 0;
+    width: 1rem;
+    height: 1rem;
+    align-self: center;
+}
+
+.adm-stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    padding: 0.6rem 0;
+    border-block: 1px solid var(--site-line);
+}
+
+.adm-stats > div + div {
+    padding-left: 0.75rem;
+    border-left: 1px solid var(--site-line);
+}
+
+.adm-stats dt {
+    font-size: 0.7rem;
+    color: var(--site-muted);
+}
+
+.adm-stats dd {
+    font-size: 1.25rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.adm-ficha__note {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-top: 0.55rem;
+    font-size: 0.82rem;
+    color: var(--site-muted);
+}
+
+.adm-ficha__note svg {
+    width: 1.05rem;
+    height: 1.05rem;
+    color: var(--site-accent);
+}
+
+.adm-ficha__del {
+    margin-top: 0.6rem;
+}
+
+.adm-del {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-height: 2.5rem;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--site-muted);
+    font: inherit;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.adm-del svg {
+    width: 1.2rem;
+    height: 1.2rem;
+}
+
+.adm-del:hover {
+    color: var(--site-danger);
+}
+
+/* En el panel del administrador el buscador de la página solo sirve en el celular: en computadora ya está en la barra lateral */
+@media (min-width: 1024px) {
+    .ev-search--mobile {
+        display: none;
+    }
+}

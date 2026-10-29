@@ -229,13 +229,15 @@ class SeptemberRequestsTest extends TestCase
             ->assertOk()
             ->assertSee('Boda de un cliente')
             ->assertDontSee('Invitación de muestra')
-            ->assertViewHas('metrics', fn (array $metrics) => $metrics['total'] === 1);
+            ->assertViewHas('pulse', fn (array $pulse) => $pulse['total'] === 1);
 
         $this->actingAs($admin)->withoutVite()->get(route('admin.showcase'))
             ->assertOk()
             ->assertSee('Invitación de muestra')
             ->assertDontSee('Boda de un cliente')
-            ->assertViewHas('filterRoute', 'admin.showcase');
+            ->assertViewHas('filterRoute', 'admin.showcase')
+            // Las muestras no llevan números ni avisos: solo la lista
+            ->assertViewHas('pulse', null);
 
         $this->actingAs(User::factory()->create())->get(route('admin.showcase'))->assertRedirect()->assertSessionHas('access_notice');
     }
