@@ -107,16 +107,16 @@ class TrendTemplatesTest extends TestCase
         $this->assertSame('clasica', InvitationTemplates::get(TrendTemplates::key('tendedero', 'babyshower'))['collection']);
     }
 
-    public function test_the_themed_collection_comes_with_the_upper_reseller_plans(): void
+    public function test_the_themed_collection_comes_with_every_reseller_plan(): void
     {
         $galeria = TrendTemplates::key('zapatos', 'xv');
 
-        $inicial = array_keys(ResellerSubscription::allowedTemplates(User::factory()->reseller('inicial')->make()));
-        $emprendedor = array_keys(ResellerSubscription::allowedTemplates(User::factory()->reseller('emprendedor')->make()));
+        foreach (['inicial', 'emprendedor', 'agencia'] as $plan) {
+            $templates = array_keys(ResellerSubscription::allowedTemplates(User::factory()->reseller($plan)->make()));
 
-        $this->assertNotContains($galeria, $inicial);
-        $this->assertContains(TrendTemplates::key('tendedero', 'babyshower'), $inicial);
-        $this->assertContains($galeria, $emprendedor);
+            $this->assertContains($galeria, $templates, "El plan {$plan} trae las plantillas de tendencia");
+            $this->assertContains(TrendTemplates::key('tendedero', 'babyshower'), $templates);
+        }
     }
 
     public function test_the_baby_shower_page_shows_its_demo(): void

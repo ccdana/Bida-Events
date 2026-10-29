@@ -606,7 +606,10 @@ return [
     /*
     | Planes de suscripción para quien arma invitaciones para otros (fotógrafos, wedding planners,
     | decoradores, salones). Se pagan por mes, o por 3 o 12 meses con descuento (config
-    | «payments.prepay», Ajustes). Tres a la venta, cada uno suma al anterior:
+    | «payments.prepay», Ajustes). Tres a la venta; los tres traen todas las
+    | plantillas y todas las partes de la invitación. Lo que los separa es el cupo, la confirmación con
+    | pase QR (con su control de entrada, reportes e invitación para imprimir: desde Emprendedor) y la
+    | marca propia al pie:
     |  - «quota_per_month»: invitaciones que puede **publicar** por mes calendario (null = sin tope).
     |    Los borradores no gastan cupo (ResellerSubscription::quotaUsed).
     |  - «collections»: qué familias de plantillas puede usar (ver «collection» en
@@ -632,14 +635,14 @@ return [
             'price' => 10,
             'promo_price' => null,
             'quota_per_month' => 5,
-            'collections' => ['lienzo', 'clasica', 'temporada'],
+            'collections' => ['lienzo', 'clasica', 'temporada', 'nueva', 'tendencias'],
             // Confirmación de asistencia que puede usar: [] ninguna, 'whatsapp', 'pass' (pase QR, puerta y reportes)
             'rsvp' => ['whatsapp'],
             'white_label' => false,
             'cycle_months' => 1,
             'templates' => null,
-            'summary' => 'Para empezar a vender invitaciones: las clásicas y las de temporada, con confirmación por WhatsApp.',
-            'features' => ['5 invitaciones al mes', 'Plantilla en blanco, clásicas y de temporada', 'Confirmación de asistencia por WhatsApp', 'Acceso para tu cliente en cada evento'],
+            'summary' => 'Para empezar a vender invitaciones: todas las plantillas y todas las partes, con confirmación por WhatsApp.',
+            'features' => ['5 invitaciones al mes', 'Todas las plantillas y todas las partes de la invitación', 'Confirmación de asistencia por WhatsApp', 'Acceso para tu cliente en cada evento'],
         ],
         'emprendedor' => [
             'name' => 'Emprendedor',
@@ -652,8 +655,8 @@ return [
             'featured' => true,
             'cycle_months' => 1,
             'templates' => null,
-            'summary' => 'Con tu marca, todas las plantillas y el pase QR: para quien vende invitaciones cada mes.',
-            'features' => ['20 invitaciones al mes', 'Todo lo del plan Inicial', 'Pase QR, control de entrada y plantillas nuevas', 'Tu marca al pie, sin la de Bida Events'],
+            'summary' => 'Con tu marca y el pase QR: para quien vende invitaciones cada mes.',
+            'features' => ['20 invitaciones al mes', 'Todo lo del plan Inicial', 'Pase QR, control de entrada, reportes e invitación para imprimir', 'Tu marca al pie, sin la de Bida Events'],
         ],
         'agencia' => [
             'name' => 'Agencia',

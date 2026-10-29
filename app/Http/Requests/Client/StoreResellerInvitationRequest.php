@@ -18,6 +18,9 @@ class StoreResellerInvitationRequest extends StoreInvitationRequest
         // Sin dueño ni paquete: la invitación es del revendedor y su plan ya dice qué incluye
         unset($rules['user_id'], $rules['package']);
 
+        // Del propio revendedor (queda a su nombre, sin gastar un acceso) o de un cliente (se le crea después)
+        $rules['for_self'] = ['nullable', 'boolean'];
+
         $rules['template'] = [
             'required',
             'string',

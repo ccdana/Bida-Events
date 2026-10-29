@@ -97,7 +97,8 @@ class InvitationActivator
             $payment->order?->forceFill(['status' => PaymentOrder::REFUNDED])->save();
             $payment->delete();
 
-            if ($invitation) {
+            // Si ya pasó a un plan (SubscriptionActivator::absorbDiyInvitations), el plan manda: solo se devuelve el pago
+            if ($invitation?->is_diy) {
                 $from = Packages::isTier($payment->from_tier) ? $payment->from_tier : null;
 
                 $invitation->forceFill([

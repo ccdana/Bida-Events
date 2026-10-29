@@ -144,6 +144,19 @@
                     </div>
                 </div>
 
+                {{-- Plan: el evento es de un cliente (se le crea su acceso después) o del propio revendedor (queda a su nombre) --}}
+                @if(($editorMode ?? 'admin') === 'reseller')
+                    <div class="ed-wiz-field" role="radiogroup" aria-label="De quién es el evento">
+                        <span class="site-label ed-wiz-label"><x-phosphor-user-circle-light aria-hidden="true" /> ¿De quién es el evento?</span>
+                        <div class="ed-wiz-tabs">
+                            <button type="button" role="radio" class="ed-wiz-tab" @click="ownEvent = false"
+                                :class="{ 'is-on': !ownEvent }" :aria-checked="(!ownEvent).toString()">De un cliente</button>
+                            <button type="button" role="radio" class="ed-wiz-tab" @click="ownEvent = true"
+                                :class="{ 'is-on': ownEvent }" :aria-checked="ownEvent.toString()">Mío</button>
+                        </div>
+                    </div>
+                @endif
+
                 @if(($editorMode ?? 'admin') === 'admin')
                     <div class="ed-wizard__fields ed-wizard__fields--admin">
                         <label class="ed-wiz-field">

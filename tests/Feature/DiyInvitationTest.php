@@ -6,6 +6,7 @@ use App\Models\EventType;
 use App\Models\Invitation;
 use App\Models\User;
 use App\Services\InvitationModuleService;
+use App\Services\SubscriptionActivator;
 use App\Support\DiyInvitations;
 use App\Support\InvitationTemplates;
 use App\Support\Packages;
@@ -287,6 +288,33 @@ class DiyInvitationTest extends TestCase
         $this->actingAs($reseller)->withoutVite()->get(route('client.dashboard'))
             ->assertOk()
             ->assertDontSee(route('client.diy.create'), false);
+    }
+
+    public function test_buying_a_plan_makes_the_accounts_diy_invitations_part_of_the_plan(): void
+    {
+        $draft = $this->draft(['slug' => 'borrador-previo']);
+        $paid = $this->draft(['slug' => 'ya-pagada', 'package' => Packages::PREMIUM, 'status' => 'active']);
+        $otherPerson = $this->createInvitation(['user_id' => User::factory()->create()->id, 'is_diy' => true, 'package' => Packages::BASIC, 'status' => 'active']);
+
+        app(SubscriptionActivator::class)->recordPayment($this->owner, 'inicial', ['amount' => 10, 'currency' => 'USD']);
+
+        // Ya no piden nivel ni pago: lo que trae lo dice el plan, y siguen a su nombre
+        foreach ([$draft, $paid] as $invitation) {
+            $invitation->refresh();
+            $this->assertFalse($invitation->is_diy);
+            $this->assertSame($this->owner->id, $invitation->reseller_id);
+            $this->assertSame($this->owner->id, $invitation->user_id);
+            $this->assertNull($invitation->package);
+        }
+        $this->assertSame('active', $paid->status);
+
+        // Y las de otra cuenta, que no compró nada, no se tocan
+        $this->assertTrue($otherPerson->fresh()->is_diy);
+        $this->assertSame(Packages::BASIC, $otherPerson->fresh()->package);
+
+        // El dueño ya puede editarlas con el editor del plan, sin pasar por la página de publicar
+        $this->actingAs($this->owner->fresh())->withoutVite()
+            ->get(route('client.invitations.edit', $draft))->assertOk();
     }
 
     private function draft(array $attributes = []): Invitation

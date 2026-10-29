@@ -113,6 +113,10 @@
     @if(($editorMode ?? 'admin') === 'admin')
         <input type="hidden" name="package" :value="meta.package">
     @endif
+    {{-- Revendedor: si el evento nuevo es suyo o de un cliente (Client\InvitationController::store) --}}
+    @if(($editorMode ?? 'admin') === 'reseller')
+        <input type="hidden" name="for_self" :value="ownEvent ? 1 : 0">
+    @endif
     {{-- «Hazlo tú»: después de guardar, a la página de publicar (Client\DiyInvitationController) --}}
     @if(($editorMode ?? 'admin') === 'diy')
         <input type="hidden" name="next" :value="diyNext">

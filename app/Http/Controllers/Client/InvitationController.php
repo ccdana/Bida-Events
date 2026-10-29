@@ -65,13 +65,13 @@ class InvitationController extends Controller
             $held = $request->validated('status') === 'active' && ! ResellerSubscription::hasQuotaLeft($user);
 
             $invitation = Invitation::create([
-                ...$request->safe()->except('modulos_data'),
+                ...$request->safe()->except('modulos_data', 'for_self'),
                 'slug' => Str::slug($request->validated('slug')),
                 'status' => $held ? 'inactive' : $request->validated('status'),
-                // El revendedor no viene del formulario: siempre es quien la crea. El cliente del evento
-                // se le asigna después, si lo quiere crear (ResellerClientController)
+                // El revendedor no viene del formulario: siempre es quien la crea. Si el evento es suyo
+                // queda a su nombre; si es de un cliente, se le crea el acceso después (ResellerClientController)
                 'reseller_id' => $user->id,
-                'user_id' => null,
+                'user_id' => $request->boolean('for_self') ? $user->id : null,
             ]);
 
             $this->syncModules($invitation, $request->modulesData());

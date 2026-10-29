@@ -12,8 +12,7 @@ use Tests\Concerns\CreatesInvitations;
 use Tests\TestCase;
 
 /**
- * Planes de revendedor y las dos formas de confirmar: el catálogo crece con cada plan (Inicial: en
- * blanco, clásicas y de temporada; Emprendedor y Agencia: más las nuevas y de tendencia), la
+ * Planes de revendedor y las dos formas de confirmar: los tres traen todas las plantillas, la
  * confirmación por WhatsApp llega con Inicial y el pase QR con la puerta desde Emprendedor. Una
  * invitación confirma de una sola forma. El revendedor cambia su contraseña.
  */
@@ -39,10 +38,11 @@ class ResellerPlansAndRsvpTest extends TestCase
         $collections = fn (string $plan) => collect(ResellerSubscription::allowedTemplates(User::factory()->reseller($plan)->make()))
             ->pluck('collection')->unique()->sort()->values()->all();
 
-        // Inicial: en blanco, clásicas y de temporada; desde Emprendedor, también las nuevas y de tendencia
-        $this->assertSame(['clasica', 'lienzo', 'temporada'], $collections('inicial'));
-        $this->assertSame(['clasica', 'lienzo', 'nueva', 'temporada', 'tendencias'], $collections('emprendedor'));
-        $this->assertContains('nueva', config('bida.reseller_plans.agencia.collections'));
+        // Los tres planes traen todas las plantillas: lo que los separa es el cupo, el pase QR y la marca propia
+        $all = ['clasica', 'lienzo', 'nueva', 'temporada', 'tendencias'];
+        $this->assertSame($all, $collections('inicial'));
+        $this->assertSame($all, $collections('emprendedor'));
+        $this->assertSame($all, $collections('agencia'));
     }
 
     public function test_the_whatsapp_confirmation_comes_with_inicial_and_the_qr_pass_from_emprendedor(): void

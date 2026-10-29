@@ -210,6 +210,8 @@ function invitationForm(config) {
         wizardError: '',
         wizardSaving: false,
         wizardCard: { de: '', para: '' },
+        // Revendedor: el evento nuevo es suyo (queda a su nombre) o de un cliente
+        ownEvent: false,
         // «Ver como invitado»: la vista previa sin botones «Cambiar», para probarla como la recibirán
         guestView: false,
         skipPreviewScroll: false,

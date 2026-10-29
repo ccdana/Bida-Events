@@ -51,6 +51,31 @@ class ResellerEditorTest extends TestCase
         );
     }
 
+    public function test_an_event_that_is_the_resellers_own_is_saved_in_its_name_without_using_an_access(): void
+    {
+        $this->actingAs($this->reseller)
+            ->post(route('client.invitations.store'), $this->payload(['for_self' => 1]))
+            ->assertRedirect();
+
+        $invitation = Invitation::where('slug', 'xv-revendedor')->firstOrFail();
+
+        // Él mismo es el cliente: ve sus invitados desde su panel y no gasta ningún acceso del mes
+        $this->assertSame($this->reseller->id, $invitation->reseller_id);
+        $this->assertSame($this->reseller->id, $invitation->user_id);
+        $this->assertSame(0, \App\Support\ResellerSubscription::clientsUsed($this->reseller));
+        $this->assertFalse($invitation->is_diy);
+        $this->assertNull($invitation->package);
+    }
+
+    public function test_the_wizard_asks_whether_the_event_is_a_clients_or_the_resellers_own(): void
+    {
+        $this->actingAs($this->reseller)->withoutVite()->get(route('client.invitations.create'))
+            ->assertOk()
+            ->assertSee('¿De quién es el evento?')
+            ->assertSee('De un cliente')
+            ->assertSee('name="for_self"', false);
+    }
+
     public function test_without_quota_a_new_invitation_is_saved_as_a_draft_with_a_clear_message(): void
     {
         foreach (range(1, 5) as $ignored) {

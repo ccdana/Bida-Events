@@ -2,11 +2,14 @@
 
 namespace App\Services;
 
+use App\Events\InvitationUpdated;
+use App\Models\Invitation;
 use App\Models\PaymentOrder;
 use App\Models\SubscriptionPayment;
 use App\Models\User;
 use App\Support\ResellerSubscription;
 use DomainException;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Throwable;
@@ -32,8 +35,9 @@ class SubscriptionActivator
     public function recordPayment(User $user, string $plan, array $payment, ?int $months = null): ?SubscriptionPayment
     {
         $payment['provider'] ??= SubscriptionPayment::MANUAL;
+        $absorbed = collect();
 
-        return DB::transaction(function () use ($user, $plan, $payment, $months) {
+        $record = DB::transaction(function () use ($user, $plan, $payment, $months, &$absorbed) {
             $user = User::whereKey($user->id)->lockForUpdate()->firstOrFail();
 
             if ($this->alreadyRecorded($payment)) {
@@ -64,8 +68,32 @@ class SubscriptionActivator
                 'subscription_renews_at' => $renewsUntil->toDateString(),
             ])->save();
 
+            $absorbed = $this->absorbDiyInvitations($user);
+
             return $record;
         });
+
+        // Fuera de la transacción: la caché de cada página pública se limpia con la invitación ya guardada
+        $absorbed->each(fn (Invitation $invitation) => InvitationUpdated::dispatch($invitation));
+
+        return $record;
+    }
+
+    /**
+     * Las invitaciones de «Hazlo tú» de quien tiene un plan pasan a ser del plan: dejan de pedir nivel y
+     * pago, y lo que pueden usar lo dice el plan (en Inicial, sin pase QR). Lo que se pagó antes por
+     * cada una es independiente: no se descuenta ni se devuelve. Siguen a su nombre (él es el cliente).
+     *
+     * @return Collection<int, Invitation>
+     */
+    public function absorbDiyInvitations(User $user): Collection
+    {
+        return Invitation::where('user_id', $user->id)->where('is_diy', true)->get()
+            ->each(fn (Invitation $invitation) => $invitation->forceFill([
+                'is_diy' => false,
+                'reseller_id' => $user->id,
+                'package' => null,
+            ])->save());
     }
 
     /**
