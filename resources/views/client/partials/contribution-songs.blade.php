@@ -1,47 +1,40 @@
 {{--
-    Canciones que sugieren los invitados para la playlist: casi siempre un video de YouTube (se ve su
-    miniatura y se abre en YouTube) o el nombre de la canción escrito. Se pueden ocultar sin borrarlas.
-    Recibe $invitation y $songs.
+    Canciones que sugieren los invitados para la playlist: casi siempre un video de YouTube (se ve su miniatura y se abre
+    en YouTube) o el nombre de la canción escrito. En filas con filete; se pueden ocultar sin borrarlas (lo oculto deja de
+    verse en la invitación). Recibe $invitation y $songs.
 --}}
 @include('client.partials.moderation-script')
 
-<section class="site-enter mt-10 overflow-hidden rounded-[16px] border border-site-line bg-site-surface" style="--enter-index: 5" aria-labelledby="canciones-invitados">
-    <div class="flex flex-wrap items-end justify-between gap-2 border-b border-site-line px-5 py-4">
-        <div>
-            <h2 id="canciones-invitados" class="text-lg font-semibold tracking-tight">Canciones y videos que sugirieron</h2>
-            <p class="mt-1 text-sm text-site-muted">Pásale la lista a tu DJ. Lo que ocultes deja de verse en la invitación.</p>
-        </div>
-        <p class="text-sm text-site-muted"><span class="font-semibold text-site-ink">{{ $songs->count() }}</span> {{ $songs->count() === 1 ? 'sugerencia' : 'sugerencias' }}</p>
-    </div>
+<section class="grid grid-cols-[minmax(0,1fr)] gap-3" aria-labelledby="canciones-invitados">
+    <h2 id="canciones-invitados" class="sr-only">Canciones y videos que sugirieron</h2>
 
-    <ul class="divide-y divide-site-line">
+    <p class="ev-meta" title="Pásale la lista a tu DJ. Lo que ocultes deja de verse en la invitación.">
+        <span><b class="text-site-ink">{{ $songs->count() }}</b> {{ $songs->count() === 1 ? 'sugerencia' : 'sugerencias' }}</span>
+        <span><x-phosphor-music-notes-light aria-hidden="true" /> Para tu DJ</span>
+    </p>
+
+    <ul class="ev-list">
         @foreach($songs as $item)
-            <li class="flex items-center gap-4 px-5 py-3 transition-opacity" :class="hidden && 'opacity-60'"
+            <li class="ev-row eg-song" :class="hidden && 'is-past'"
                 x-data="moderation(@js(route('client.contributions.update', [$invitation, $item['id']])), @js($item['isHidden']))">
                 @if($item['youtubeId'])
                     <a href="https://www.youtube.com/watch?v={{ $item['youtubeId'] }}" target="_blank" rel="noopener"
-                        class="relative block w-24 shrink-0 overflow-hidden rounded-[10px] bg-site-tint" aria-label="Ver el video en YouTube">
-                        <img src="https://i.ytimg.com/vi/{{ $item['youtubeId'] }}/mqdefault.jpg" alt="" loading="lazy" decoding="async" class="aspect-video w-full object-cover">
-                        <span class="absolute inset-0 grid place-items-center">
-                            <span class="grid size-7 place-items-center rounded-full bg-black/60 text-white">
-                                <x-phosphor-play-fill class="size-3.5" aria-hidden="true" />
-                            </span>
-                        </span>
+                        class="eg-song__thumb" aria-label="Ver el video en YouTube">
+                        <img src="https://i.ytimg.com/vi/{{ $item['youtubeId'] }}/mqdefault.jpg" alt="" loading="lazy" decoding="async">
+                        <x-phosphor-play-fill aria-hidden="true" />
                     </a>
                 @else
-                    <span class="grid size-14 shrink-0 place-items-center rounded-[10px] bg-site-tint text-site-accent">
-                        <x-phosphor-music-notes class="size-6" aria-hidden="true" />
-                    </span>
+                    <span class="eg-song__thumb is-note"><x-phosphor-music-notes-light aria-hidden="true" /></span>
                 @endif
 
-                <div class="min-w-0 flex-1">
-                    <p class="truncate font-medium">{{ $item['youtubeId'] ? 'Video de YouTube' : $item['text'] }}</p>
+                <div class="ev-row__main">
+                    <h3 class="ev-row__name">{{ $item['youtubeId'] ? 'Video de YouTube' : $item['text'] }}</h3>
                     @if($item['youtubeId'])
                         <p class="truncate font-mono text-xs text-site-muted">{{ $item['text'] }}</p>
                     @endif
-                    <p class="mt-0.5 text-sm text-site-muted">
-                        {{ $item['meta'] }}
-                        <span x-show="hidden" @if(! $item['isHidden']) x-cloak @endif class="font-medium text-site-ink">· Oculta</span>
+                    <p class="ev-meta">
+                        <span>{{ $item['meta'] }}</span>
+                        <span x-show="hidden" @if(! $item['isHidden']) x-cloak @endif class="font-medium text-site-ink">Oculta</span>
                     </p>
                 </div>
 
@@ -49,7 +42,10 @@
                     @csrf
                     @method('PATCH')
                     <input type="hidden" name="moderation_status" value="{{ $item['isHidden'] ? 'visible' : 'hidden' }}">
-                    <button type="submit" class="admin-link-button" :disabled="busy" x-text="hidden ? 'Mostrar' : 'Ocultar'">{{ $item['isHidden'] ? 'Mostrar' : 'Ocultar' }}</button>
+                    <button type="submit" class="ev-act" :disabled="busy" :title="hidden ? 'Mostrar' : 'Ocultar'" :aria-label="hidden ? 'Mostrar esta sugerencia' : 'Ocultar esta sugerencia'">
+                        <x-phosphor-eye-slash-light aria-hidden="true" x-show="!hidden" />
+                        <x-phosphor-eye-light aria-hidden="true" x-show="hidden" x-cloak />
+                    </button>
                     <span class="sr-only" role="status" x-text="message"></span>
                 </form>
             </li>

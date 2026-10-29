@@ -1,58 +1,54 @@
 {{--
-    Respuestas a una tarjeta: lo que escribió quien la recibió y con qué flor respondió.
-    Se leen completas, no en una línea. Recibe $invitation y $replies.
+    Respuestas a una tarjeta: lo que escribió quien la recibió y con qué flor respondió. Se leen completas, en filas con
+    filete (sin tarjetas); cada una se puede ocultar. Recibe $invitation y $replies.
 --}}
 @include('client.partials.moderation-script')
 
-<section class="site-enter mt-10" style="--enter-index: 3">
-    <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2 border-b border-site-line pb-3">
-        <h2 class="text-xl font-semibold tracking-tight">Respuestas a tu tarjeta</h2>
-        <p class="text-sm text-site-muted">
-            {{ $replies->count() }} {{ $replies->count() === 1 ? 'respuesta' : 'respuestas' }}. Solo las ves tú.
-        </p>
-    </div>
+<section class="grid grid-cols-[minmax(0,1fr)] gap-4" aria-labelledby="respuestas-tarjeta">
+    <h2 id="respuestas-tarjeta" class="sr-only">Respuestas a tu tarjeta</h2>
 
     @if($replies->isEmpty())
-        <div class="mt-5 rounded-[16px] border border-dashed border-site-line px-6 py-12 text-center">
-            <x-phosphor-envelope-simple-light class="mx-auto size-12 text-site-accent" aria-hidden="true" />
-            <p class="mt-4 font-medium">Todavía no hay respuestas</p>
-            <p class="mt-1 text-site-muted">Cuando abran tu tarjeta y te contesten, lo verás aquí.</p>
+        <div class="ev-empty">
+            <x-phosphor-envelope-simple-light class="ev-empty__icon" aria-hidden="true" />
+            <h3 class="ev-empty__title">Todavía no hay respuestas</h3>
+            <p class="ev-empty__text">Cuando abran tu tarjeta y te contesten, lo verás aquí. Solo las ves tú.</p>
         </div>
     @else
-        <div class="mt-5 grid gap-4 md:grid-cols-2">
+        <ul class="ev-list">
             @foreach($replies as $reply)
-                <article class="flex flex-col rounded-[16px] border border-site-line bg-site-surface p-5 transition-opacity" :class="hidden && 'opacity-60'"
+                <li class="ev-row eg-reply" :class="hidden && 'is-past'"
                     x-data="moderation(@js(route('client.contributions.update', [$invitation, $reply['id']])), @js($reply['isHidden']))">
-                    @if($reply['reaction'])
-                        <p class="flex flex-wrap items-center gap-x-2 text-sm font-medium text-site-accent">
-                            <x-phosphor-flower-tulip class="size-5" aria-hidden="true" />
-                            Te respondió con {{ mb_strtolower($reply['reaction']['label']) }}
-                            <span class="font-normal text-site-muted">· {{ $reply['reaction']['meaning'] }}</span>
-                        </p>
-                    @endif
+                    <div class="ev-row__main">
+                        @if($reply['reaction'])
+                            <p class="ev-meta text-site-accent">
+                                <span><x-phosphor-flower-tulip-light aria-hidden="true" /> Te respondió con {{ mb_strtolower($reply['reaction']['label']) }} <span class="text-site-muted">· {{ $reply['reaction']['meaning'] }}</span></span>
+                            </p>
+                        @endif
 
-                    @if($reply['text'] !== '')
-                        <blockquote class="mt-3 whitespace-pre-line text-[1.05rem] leading-relaxed">{{ $reply['text'] }}</blockquote>
-                    @endif
+                        @if($reply['text'] !== '')
+                            <blockquote class="eg-quote">{{ $reply['text'] }}</blockquote>
+                        @endif
 
-                    <div class="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-site-line pt-3 text-sm text-site-muted">
-                        <p>
-                            {{ $reply['author'] ?: 'Quien recibió tu tarjeta' }}
-                            @if($reply['date'])
-                                · {{ $reply['date'] }}
-                            @endif
-                            <span x-show="hidden" @if(! $reply['isHidden']) x-cloak @endif class="font-medium text-site-ink">· Oculta</span>
-                        </p>
-                        <form method="POST" action="{{ route('client.contributions.update', [$invitation, $reply['id']]) }}" @submit.prevent="toggle()">
-                            @csrf
-                            @method('PATCH')
-                            <input type="hidden" name="moderation_status" value="{{ $reply['isHidden'] ? 'visible' : 'hidden' }}">
-                            <button type="submit" class="admin-link-button" :disabled="busy" x-text="hidden ? 'Mostrar' : 'Ocultar'">{{ $reply['isHidden'] ? 'Mostrar' : 'Ocultar' }}</button>
-                            <span class="sr-only" role="status" x-text="message"></span>
-                        </form>
+                        <div class="eg-reply__foot">
+                            <p class="ev-meta">
+                                <span>{{ $reply['author'] ?: 'Quien recibió tu tarjeta' }}</span>
+                                @if($reply['date'])<span>{{ $reply['date'] }}</span>@endif
+                                <span x-show="hidden" @if(! $reply['isHidden']) x-cloak @endif class="font-medium text-site-ink">Oculta</span>
+                            </p>
+                            <form method="POST" action="{{ route('client.contributions.update', [$invitation, $reply['id']]) }}" @submit.prevent="toggle()">
+                                @csrf
+                                @method('PATCH')
+                                <input type="hidden" name="moderation_status" value="{{ $reply['isHidden'] ? 'visible' : 'hidden' }}">
+                                <button type="submit" class="ev-act" :disabled="busy" :title="hidden ? 'Mostrar' : 'Ocultar'" :aria-label="hidden ? 'Mostrar esta respuesta' : 'Ocultar esta respuesta'">
+                                    <x-phosphor-eye-slash-light aria-hidden="true" x-show="!hidden" />
+                                    <x-phosphor-eye-light aria-hidden="true" x-show="hidden" x-cloak />
+                                </button>
+                                <span class="sr-only" role="status" x-text="message"></span>
+                            </form>
+                        </div>
                     </div>
-                </article>
+                </li>
             @endforeach
-        </div>
+        </ul>
     @endif
 </section>

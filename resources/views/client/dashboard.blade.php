@@ -153,7 +153,7 @@
                 @if(! $row['isCard'] && $row['daysLeft'] !== null && $row['daysLeft'] >= 0 && $row['daysLeft'] <= 2)
                     @can('manageOwnGuests', $invitation)
                         @if(\App\Support\Packages::allowsFor($invitation, 'door'))
-                            <a href="{{ route('client.invitation.show', $invitation) }}#control-entrada" class="ev-door">
+                            <a href="{{ route('client.invitation.show', $invitation) }}#puerta" class="ev-door">
                                 <x-phosphor-door-open-light aria-hidden="true" />
                                 <span>Abrir el control de entrada</span>
                                 <x-phosphor-caret-right-light aria-hidden="true" />

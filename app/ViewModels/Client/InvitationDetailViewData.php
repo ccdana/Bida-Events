@@ -9,6 +9,7 @@ use App\Models\PollVote;
 use App\Modules\Card\ReplyModule;
 use App\Modules\Module;
 use App\Support\CloudinaryImage;
+use App\Support\EventCountdown;
 use App\Support\InvitationTemplates;
 use App\Support\Localization;
 use App\Support\YouTubeHelper;
@@ -54,6 +55,11 @@ class InvitationDetailViewData
             'dietaryRestrictions' => $guest->dietary_restrictions ?: 'Sin indicar',
             'link' => route('invitation.guest', [$invitation->slug, $guest->qr_code_token]),
             'whatsapp' => $this->whatsapp($guest->phone),
+            // Con teléfono: su enlace personal por WhatsApp y, a quien no respondió, el recordatorio de confirmar
+            'shareUrl' => $this->whatsappText($guest->phone, "Hola {$guest->name}, te comparto tu invitación a «{$invitation->title}»: ".route('invitation.guest', [$invitation->slug, $guest->qr_code_token])),
+            'remindUrl' => $guest->status === 'pending'
+                ? $this->whatsappText($guest->phone, "Hola {$guest->name}, te recordamos confirmar tu asistencia a «{$invitation->title}». Entra a tu enlace y toca «Confirmar»: ".route('invitation.guest', [$invitation->slug, $guest->qr_code_token]))
+                : null,
             // Solo se puede quitar a quien todavía no respondió: nadie pierde una confirmación por error
             'canRemove' => $guest->status === 'pending',
         ])->values();
@@ -109,6 +115,12 @@ class InvitationDetailViewData
             'isCard',
         ) + [
             'kindLabel' => $isCard ? 'Tarjeta' : 'Invitación',
+            'isPast' => (bool) $invitation->is_post_event,
+            'whenLabel' => $invitation->is_post_event ? 'ya pasó' : EventCountdown::label(EventCountdown::days($invitation->event_date)),
+            'longDateLabel' => $invitation->event_date
+                ? $invitation->event_date->locale(app()->getLocale())->translatedFormat(Localization::dateFormat('j \d\e F \d\e Y')).', '.$invitation->event_date->format('H:i')
+                : null,
+            'progress' => $guests->count() > 0 ? (int) round($confirmed->count() / $guests->count() * 100) : 0,
             'typeLabel' => $profile->label(),
             'templateLabel' => InvitationTemplates::get($invitation->template)['label'],
             'publicUrl' => $isPublished ? route('invitation.show', $invitation->slug) : null,
@@ -163,6 +175,14 @@ class InvitationDetailViewData
                 'options' => $options->map(fn (array $option) => $option + ['leads' => $total > 0 && $option['votes'] === $top])->all(),
             ];
         })->values();
+    }
+
+    /** El enlace de WhatsApp al teléfono de un invitado con el mensaje ya escrito; null si no tiene teléfono. */
+    private function whatsappText(?string $phone, string $text): ?string
+    {
+        $link = $this->whatsapp($phone);
+
+        return $link ? $link.'?text='.rawurlencode($text) : null;
     }
 
     /** Los celulares bolivianos de 8 dígitos se completan con el código de país para WhatsApp. */

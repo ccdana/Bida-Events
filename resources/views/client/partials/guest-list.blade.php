@@ -1,19 +1,24 @@
 {{--
-    Lista de invitados del cliente: buscador, filtro por estado, alta de invitados y el enlace
-    personal de cada uno. Recibe $invitation, $rows y $canAddGuests.
+    Lista de invitados del cliente, en filas con filete: filtros por estado con su número (subrayados), buscador, el alta de
+    uno o de varios pegando una lista y, por invitado, copiar su enlace personal, mandarlo o recordarle por WhatsApp y
+    quitarlo. Recibe $invitation, $rows y $canAddGuests.
 --}}
 @php
     $guestIndex = $rows->map(fn (array $row) => [
         'name' => mb_strtolower($row['guest']->name),
         'status' => $row['guest']->status,
     ]);
+    $counts = ['' => $rows->count(), 'confirmed' => $confirmed->count(), 'pending' => $pending->count(), 'declined' => $declined->count()];
+    // Los filtros: «Todos» con palabra y los tres estados con su ícono y su número (la palabra, para lectores de pantalla)
+    $filters = ['' => ['Todos', null], 'confirmed' => ['Confirmaron', 'check-circle'], 'pending' => ['Sin responder', 'clock'], 'declined' => ['No asisten', 'x-circle']];
 @endphp
 
-<section class="site-enter mt-10" style="--enter-index: 2"
+<section class="grid grid-cols-[minmax(0,1fr)] gap-4" aria-labelledby="mis-invitados"
     x-data="{
         q: '',
         estado: '',
         open: {{ $errors->any() ? 'true' : 'false' }},
+        mode: '{{ $errors->has('list') ? 'list' : 'one' }}',
         guests: @js($guestIndex),
         matches(name, status) {
             const term = this.q.trim().toLowerCase();
@@ -24,159 +29,165 @@
             return this.guests.filter((guest) => this.matches(guest.name, guest.status)).length;
         },
     }">
-    <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2 border-b border-site-line pb-3">
-        <h2 class="text-xl font-semibold tracking-tight">Mis invitados</h2>
-        <p class="text-sm text-site-muted">
-            {{ $rows->count() }} {{ $rows->count() === 1 ? 'invitado' : 'invitados' }}. Cada uno recibe su propio enlace para confirmar.
-        </p>
+    <h2 id="mis-invitados" class="sr-only">Mis invitados</h2>
+
+    {{-- Al agregar un invitado, lo útil es su enlace personal: se copia o se manda de una vez --}}
+    @if(session('guest'))
+        <div class="ev-note" role="status">
+            <x-phosphor-check-circle-light aria-hidden="true" />
+            <span class="flex flex-wrap items-center gap-x-1 gap-y-1">
+                <span>{{ session('guest')['name'] }} ya está en tu lista.</span>
+                <code class="eg-door__url w-full">{{ session('guest')['link'] }}</code>
+                <x-ui.copy-button :text="session('guest')['link']" label="Copiar su enlace" done="Enlace copiado" icon="link-simple-light" plain class="ev-act" title="Copiar su enlace" />
+                <a href="https://wa.me/?text={{ rawurlencode(session('guest')['link']) }}" target="_blank" rel="noopener" class="ev-act" title="Mandar por WhatsApp" aria-label="Mandar su enlace por WhatsApp">
+                    <x-phosphor-whatsapp-logo-light aria-hidden="true" />
+                </a>
+            </span>
+        </div>
+    @endif
+
+    {{-- Filtros por estado (con su número) y el «+» para agregar --}}
+    <div class="eg-bar">
+        <div class="ev-tabs eg-filters" role="group" aria-label="Filtrar por estado">
+            @foreach($filters as $value => [$label, $icon])
+                <button type="button" class="ev-tab" :class="{ 'is-on': estado === '{{ $value }}' }" :aria-pressed="(estado === '{{ $value }}').toString()" @click="estado = '{{ $value }}'" title="{{ $label }}">
+                    @if($icon)
+                        <x-dynamic-component :component="'phosphor-'.$icon.'-light'" aria-hidden="true" />
+                        <span class="sr-only">{{ $label }}</span>
+                    @else
+                        {{ $label }}
+                    @endif
+                    <span class="ev-tab__count">{{ $counts[$value] }}</span>
+                </button>
+            @endforeach
+        </div>
+        @if($canAddGuests)
+            <button type="button" class="ev-add ev-add--sm" @click="open = !open" :aria-expanded="open.toString()" title="Agregar invitados" aria-label="Agregar invitados">
+                <x-phosphor-plus-light aria-hidden="true" x-show="!open" />
+                <x-phosphor-x-light aria-hidden="true" x-show="open" x-cloak />
+            </button>
+        @endif
     </div>
 
     @if($canAddGuests)
-        <div class="mt-4">
-            <button type="button" class="admin-link-button" @click="open = !open" :aria-expanded="open ? 'true' : 'false'">
-                <x-phosphor-user-plus aria-hidden="true" />
-                <span x-text="open ? 'Cerrar' : 'Agregar invitado'">Agregar invitado</span>
-            </button>
+        {{-- Agregar: uno, o varios pegando una lista (un invitado por línea) --}}
+        <div x-show="open" x-cloak class="eg-add">
+            <div class="ev-tabs" role="group" aria-label="Cómo agregar">
+                <button type="button" class="ev-tab" :class="{ 'is-on': mode === 'one' }" @click="mode = 'one'"><x-phosphor-user-plus-light aria-hidden="true" /> Uno</button>
+                <button type="button" class="ev-tab" :class="{ 'is-on': mode === 'list' }" @click="mode = 'list'"><x-phosphor-list-plus-light aria-hidden="true" /> Varios</button>
+            </div>
 
-            <form method="POST" action="{{ route('client.guests.store', $invitation) }}" x-show="open" x-cloak
-                class="mt-4 grid gap-4 rounded-[12px] border border-site-line bg-site-surface p-5 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_7rem_auto] sm:items-end">
+            <form method="POST" action="{{ route('client.guests.store', $invitation) }}" x-show="mode === 'one'" class="eg-form">
                 @csrf
-                <div>
-                    <label for="nuevo-invitado" class="admin-label">Nombre o familia</label>
-                    <input id="nuevo-invitado" type="text" name="name" value="{{ old('name') }}" required class="admin-input" placeholder="Familia Quispe">
-                    @error('name')
-                        <p class="mt-1.5 text-sm text-site-danger">{{ $message }}</p>
-                    @enderror
+                <label class="eg-field">
+                    <span class="site-label">Nombre o familia</span>
+                    <input type="text" name="name" value="{{ old('name') }}" required class="site-input" placeholder="Familia Quispe">
+                    @error('name')<span class="eg-error">{{ $message }}</span>@enderror
+                </label>
+                <div class="eg-pair">
+                    <label class="eg-field">
+                        <span class="site-label">Teléfono <span class="font-normal">(opcional)</span></span>
+                        <input type="tel" name="phone" value="{{ old('phone') }}" inputmode="tel" class="site-input" placeholder="71234567">
+                        @error('phone')<span class="eg-error">{{ $message }}</span>@enderror
+                    </label>
+                    <label class="eg-field">
+                        <span class="site-label" title="Cuántas personas vienen con ese nombre">Pases</span>
+                        <input type="number" name="passes_allocated" value="{{ old('passes_allocated', 1) }}" min="1" max="20" class="site-input">
+                        @error('passes_allocated')<span class="eg-error">{{ $message }}</span>@enderror
+                    </label>
                 </div>
                 <div>
-                    <label for="nuevo-telefono" class="admin-label">Teléfono <span class="font-normal text-site-muted">(opcional)</span></label>
-                    <input id="nuevo-telefono" type="tel" name="phone" value="{{ old('phone') }}" inputmode="tel" class="admin-input" placeholder="71234567">
-                    @error('phone')
-                        <p class="mt-1.5 text-sm text-site-danger">{{ $message }}</p>
-                    @enderror
+                    <button type="submit" class="site-btn"><x-phosphor-plus-light aria-hidden="true" /> Agregar</button>
                 </div>
+            </form>
+
+            <form method="POST" action="{{ route('client.guests.bulk', $invitation) }}" x-show="mode === 'list'" x-cloak class="eg-form">
+                @csrf
+                <label class="eg-field">
+                    <span class="site-label">Uno por línea <span class="font-normal">· nombre, teléfono y pases (opcionales)</span></span>
+                    <textarea name="list" rows="6" class="site-input eg-list" placeholder="Familia Quispe, 71234567, 3&#10;Ana Pérez&#10;Luis Rojas, 70011223">{{ old('list') }}</textarea>
+                    @foreach((array) $errors->get('list') as $message)
+                        <span class="eg-error">{{ $message }}</span>
+                    @endforeach
+                </label>
                 <div>
-                    <label for="nuevos-pases" class="admin-label">Pases</label>
-                    <input id="nuevos-pases" type="number" name="passes_allocated" value="{{ old('passes_allocated', 1) }}" min="1" max="20" class="admin-input">
-                    @error('passes_allocated')
-                        <p class="mt-1.5 text-sm text-site-danger">{{ $message }}</p>
-                    @enderror
+                    <button type="submit" class="site-btn"><x-phosphor-list-plus-light aria-hidden="true" /> Agregar todos</button>
                 </div>
-                <button type="submit" class="admin-primary-button min-h-11">
-                    <x-phosphor-plus aria-hidden="true" />
-                    Agregar
-                </button>
-                <p class="text-sm text-site-muted sm:col-span-4">
-                    Los pases son cuántas personas vienen con ese nombre. Para cambiar mesas o pases ya confirmados, escríbenos.
-                </p>
             </form>
         </div>
     @endif
 
-    <div class="mt-5 overflow-hidden rounded-[16px] border border-site-line bg-site-surface">
-        {{-- Buscar y filtrar sin recargar: la lista completa ya está en la página --}}
-        <div class="flex flex-wrap items-end gap-3 border-b border-site-line p-4">
-            <div class="relative min-w-[12rem] flex-1">
-                <label for="buscar-invitado" class="sr-only">Buscar invitado</label>
-                <x-phosphor-magnifying-glass class="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-site-muted" aria-hidden="true" />
-                <input id="buscar-invitado" type="search" x-model="q" class="admin-input has-icon" placeholder="Buscar por nombre" autocomplete="off">
-            </div>
-            <div>
-                <label for="filtrar-invitados" class="sr-only">Filtrar por estado</label>
-                <select id="filtrar-invitados" x-model="estado" class="admin-input">
-                    <option value="">Todos</option>
-                    <option value="confirmed">Confirmados</option>
-                    <option value="pending">Sin responder</option>
-                    <option value="declined">No asisten</option>
-                </select>
-            </div>
-            <p class="text-sm text-site-muted" x-show="q !== '' || estado !== ''" x-cloak>
-                <span x-text="visible"></span> de {{ $rows->count() }}
-            </p>
+    @if($rows->isNotEmpty())
+        <div class="ev-search">
+            <label for="buscar-invitado" class="sr-only">Buscar invitado</label>
+            <x-phosphor-magnifying-glass-light class="ev-search__icon" aria-hidden="true" />
+            <input id="buscar-invitado" type="search" x-model="q" class="site-input" placeholder="Buscar por nombre" autocomplete="off">
         </div>
+    @endif
 
-        <div class="overflow-x-auto">
-            <table class="adm-table">
-                <thead>
-                    <tr>
-                        <th scope="col">Invitado</th>
-                        <th scope="col">Estado</th>
-                        <th scope="col">Pases</th>
-                        <th scope="col">Alimentación</th>
-                        <th scope="col"><span class="sr-only">Acciones</span></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($rows as $row)
-                        <tr x-show="matches(@js(mb_strtolower($row['guest']->name)), @js($row['guest']->status))">
-                            <td class="font-medium">
-                                {{ $row['guest']->name }}
-                                @if($row['guest']->phone)
-                                    <span class="mt-0.5 block text-sm font-normal text-site-muted">{{ $row['guest']->phone }}</span>
-                                @endif
-                            </td>
-                            <td>
-                                <span class="admin-status-badge {{ $row['statusClass'] }}">
-                                    <span class="admin-status-dot"></span>
-                                    {{ $row['statusLabel'] }}
-                                </span>
-                            </td>
-                            <td class="tabular-nums">
-                                {{ $row['passesLabel'] }}
-                                @if($row['guest']->checked_in_at)
-                                    <span class="mt-0.5 block text-xs text-site-muted">Ingresó {{ $row['guest']->checked_in_passes }} · {{ $row['guest']->checked_in_at->timezone(config('app.timezone'))->format('H:i') }}</span>
-                                @endif
-                            </td>
-                            <td class="text-site-muted">{{ $row['dietaryRestrictions'] }}</td>
-                            <td>
-                                <div class="flex justify-end gap-1">
-                                    <x-ui.copy-button :text="$row['link']" label="Enlace" done="Copiado" icon="link-simple" class="admin-link-button" />
-                                    @if($row['whatsapp'])
-                                        <a href="{{ $row['whatsapp'] }}?text={{ rawurlencode('Te comparto tu invitación: '.$row['link']) }}"
-                                            target="_blank" rel="noopener" class="admin-icon-button"
-                                            aria-label="Escribir a {{ $row['guest']->name }} por WhatsApp" title="Enviar por WhatsApp">
-                                            <x-phosphor-whatsapp-logo aria-hidden="true" />
-                                        </a>
-                                    @endif
-                                    @if($canAddGuests && $row['canRemove'])
-                                        <form method="POST" action="{{ route('client.guests.destroy', [$invitation, $row['guest']]) }}"
-                                            onsubmit="return confirm('¿Quitar a {{ e($row['guest']->name) }} de tu lista?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="admin-icon-button is-danger" aria-label="Quitar a {{ $row['guest']->name }}" title="Quitar de la lista">
-                                                <x-phosphor-trash aria-hidden="true" />
-                                            </button>
-                                        </form>
-                                    @endif
-                                </div>
-                            </td>
-                        </tr>
-                    @endforeach
-
-                    @if($rows->isEmpty())
-                        <tr>
-                            <td colspan="5">
-                                <div class="flex flex-col items-center py-12 text-center">
-                                    <x-phosphor-users-three-light class="size-12 text-site-accent" aria-hidden="true" />
-                                    <p class="mt-4 font-medium">Todavía no hay invitados</p>
-                                    <p class="mt-1 text-site-muted">
-                                        {{ $canAddGuests ? 'Agrega el primero y comparte su enlace por WhatsApp.' : 'Cuando el equipo los agregue, verás aquí sus confirmaciones.' }}
-                                    </p>
-                                </div>
-                            </td>
-                        </tr>
+    <ul class="ev-list">
+        @foreach($rows as $row)
+            @php($guest = $row['guest'])
+            <li class="ev-row eg-row" x-show="matches(@js(mb_strtolower($guest->name)), @js($guest->status))">
+                <span class="eg-state is-{{ $guest->status }}" title="{{ $row['statusLabel'] }}">
+                    @if($guest->status === 'confirmed')
+                        <x-phosphor-check-circle-light aria-hidden="true" />
+                    @elseif($guest->status === 'declined')
+                        <x-phosphor-x-circle-light aria-hidden="true" />
                     @else
-                        <tr x-show="visible === 0" x-cloak>
-                            <td colspan="5">
-                                <div class="flex flex-col items-center py-12 text-center">
-                                    <p class="font-medium">Ningún invitado coincide con la búsqueda</p>
-                                    <button type="button" class="admin-link-button mt-3" @click="q = ''; estado = ''">Ver todos</button>
-                                </div>
-                            </td>
-                        </tr>
+                        <x-phosphor-clock-light aria-hidden="true" />
                     @endif
-                </tbody>
-            </table>
+                    <span class="sr-only">{{ $row['statusLabel'] }}</span>
+                </span>
+                <div class="ev-row__main">
+                    <div class="ev-row__head">
+                        <h3 class="ev-row__name">{{ $guest->name }}</h3>
+                        <span class="ev-row__date" title="Pases confirmados de los que tiene">{{ $row['passesLabel'] }} <span class="sr-only">pases</span></span>
+                    </div>
+                    <p class="ev-meta">
+                        @if($guest->phone)<span>{{ $guest->phone }}</span>@endif
+                        @if($guest->dietary_restrictions)<span>{{ $guest->dietary_restrictions }}</span>@endif
+                        @if($guest->checked_in_at)<span>Ingresó {{ $guest->checked_in_passes }} · {{ $guest->checked_in_at->timezone(config('app.timezone'))->format('H:i') }}</span>@endif
+                    </p>
+                    <div class="ev-acts">
+                        <x-ui.copy-button :text="$row['link']" label="Copiar enlace" done="Copiado" icon="link-simple-light" plain class="ev-act" title="Copiar su enlace personal" />
+                        @if($row['shareUrl'])
+                            <a href="{{ $row['shareUrl'] }}" target="_blank" rel="noopener" class="ev-act" title="Mandar su enlace por WhatsApp" aria-label="Mandar su enlace a {{ $guest->name }} por WhatsApp">
+                                <x-phosphor-whatsapp-logo-light aria-hidden="true" />
+                            </a>
+                        @endif
+                        {{-- A quien no respondió: un recordatorio con su enlace, para que confirme --}}
+                        @if($row['remindUrl'])
+                            <a href="{{ $row['remindUrl'] }}" target="_blank" rel="noopener" class="ev-act" title="Recordarle que confirme" aria-label="Recordarle a {{ $guest->name }} que confirme por WhatsApp">
+                                <x-phosphor-bell-ringing-light aria-hidden="true" />
+                            </a>
+                        @endif
+                        @if($canAddGuests && $row['canRemove'])
+                            <form method="POST" action="{{ route('client.guests.destroy', [$invitation, $guest]) }}" class="ev-acts__end"
+                                onsubmit="return confirm('¿Quitar a {{ e($guest->name) }} de tu lista?')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="ev-act is-danger" aria-label="Quitar a {{ $guest->name }}" title="Quitar de la lista">
+                                    <x-phosphor-trash-light aria-hidden="true" />
+                                </button>
+                            </form>
+                        @endif
+                    </div>
+                </div>
+            </li>
+        @endforeach
+    </ul>
+
+    @if($rows->isEmpty())
+        <div class="ev-empty">
+            <x-phosphor-users-three-light class="ev-empty__icon" aria-hidden="true" />
+            <h3 class="ev-empty__title">Todavía no hay invitados</h3>
+            <p class="ev-empty__text">{{ $canAddGuests ? 'Agrega el primero (o pega toda la lista) y comparte su enlace por WhatsApp.' : 'Cuando el equipo los agregue, verás aquí sus confirmaciones.' }}</p>
         </div>
-    </div>
+    @else
+        <div x-show="visible === 0" x-cloak class="ev-empty">
+            <h3 class="ev-empty__title">Ningún invitado coincide</h3>
+            <button type="button" class="site-help" @click="q = ''; estado = ''"><x-phosphor-x-light aria-hidden="true" /> Ver todos</button>
+        </div>
+    @endif
 </section>

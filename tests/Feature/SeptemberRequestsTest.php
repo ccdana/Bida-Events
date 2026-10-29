@@ -172,7 +172,7 @@ class SeptemberRequestsTest extends TestCase
         $this->assertNull(collect($config['templateOptions'])->firstWhere('value', 'invitations.templates.halloween-calabazas')['disabledReason']);
     }
 
-    public function test_the_client_event_page_puts_downloads_and_door_first_and_splits_photos_from_songs(): void
+    public function test_the_client_event_page_has_tabs_for_what_it_has_and_splits_photos_from_songs(): void
     {
         $client = User::factory()->create();
         $invitation = $this->createInvitation(['user_id' => $client->id, 'door_token' => str_repeat('a', 48)]);
@@ -181,7 +181,11 @@ class SeptemberRequestsTest extends TestCase
 
         $this->actingAs($client)->withoutVite()->get(route('client.invitation.show', $invitation))
             ->assertOk()
-            ->assertSeeInOrder(['Descargar', 'Control de entrada', 'Cómo va tu evento', 'Mis invitados', 'Fotos de tus invitados', 'Canciones y videos que sugirieron'])
+            // Arriba los íconos (descargar entre ellos) y, debajo, una pestaña por lo que tiene: invitados, fotos, música y puerta
+            ->assertSeeInOrder(['Descargar', 'Mis invitados', 'Fotos de tus invitados', 'Canciones y videos que sugirieron', 'Control de entrada'])
+            ->assertSee('role="tablist"', false)
+            ->assertSeeInOrder(['Invitados', 'Fotos', 'Música', 'Puerta'])
+            ->assertDontSee('Cómo va tu evento')
             ->assertSee('i.ytimg.com/vi/dQw4w9WgXcQ', false)
             ->assertSee('Copiar enlace en historias');
 

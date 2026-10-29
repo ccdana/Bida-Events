@@ -124,7 +124,7 @@ class ClientHomeTest extends TestCase
         $this->actingAs($owner)->withoutVite()->get(route('client.dashboard'))
             ->assertOk()
             ->assertSee('Abrir el control de entrada')
-            ->assertSee('#control-entrada', false);
+            ->assertSee('#puerta', false);
 
         $far = User::factory()->create();
         $this->createInvitation(['user_id' => $far->id, 'title' => 'Lejos', 'event_date' => now()->addDays(30), 'package' => 'premium']);

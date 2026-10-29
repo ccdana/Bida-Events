@@ -289,6 +289,7 @@ Route::prefix('client')->name('client.')->middleware(['auth', 'client'])->group(
     // El cliente arma su lista de invitados; el invitado debe pertenecer a su invitación (scopeBindings)
     Route::scopeBindings()->middleware('can:manageOwnGuests,invitation')->group(function () {
         Route::post('/invitations/{invitation}/guests', [ClientGuestController::class, 'store'])->name('guests.store');
+        Route::post('/invitations/{invitation}/guests/lista', [ClientGuestController::class, 'storeMany'])->middleware('throttle:20,1')->name('guests.bulk');
         Route::delete('/invitations/{invitation}/guests/{guest}', [ClientGuestController::class, 'destroy'])->name('guests.destroy');
     });
 

@@ -1,6 +1,7 @@
 {{--
-    Pedidos de archivos: se arman en segundo plano y el aviso de arriba muestra cuándo están listos.
-    Recibe $invitation y, opcional, $isCard (una tarjeta solo descarga su propia versión impresa).
+    Pedidos de archivos, como filas de un menú (ícono y nombre; lo que trae cada uno, en el título): se arman en segundo
+    plano y el aviso de arriba muestra cuándo están listos. Recibe $invitation y, opcional, $isCard (una tarjeta solo
+    descarga su propia versión impresa).
 --}}
 @php
     $buttons = [
@@ -18,12 +19,11 @@
 
 @foreach($types as $type)
     @php([$label, $icon, $help] = $buttons[$type])
-    <form method="POST" action="{{ route('client.export.store', [$invitation, $type]) }}" class="max-w-[16rem] flex-1">
+    <form method="POST" action="{{ route('client.export.store', [$invitation, $type]) }}">
         @csrf
-        <button type="submit" class="admin-link-button w-full justify-center">
-            <x-dynamic-component :component="'phosphor-'.$icon" aria-hidden="true" />
+        <button type="submit" class="ev-menu__row" title="{{ $help }}">
+            <x-dynamic-component :component="'phosphor-'.$icon.'-light'" aria-hidden="true" />
             {{ $label }}
         </button>
-        <p class="mt-1.5 text-xs text-site-muted">{{ $help }}</p>
     </form>
 @endforeach

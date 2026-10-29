@@ -1,8 +1,7 @@
 {{--
-    El cliente de este evento (solo lo ve el revendedor que armó la invitación): un acceso para que
-    la familia vea sus invitados y descargue sus reportes. Uno por evento; si se creó mal, se elimina
-    y se crea otro. Si el evento es del propio revendedor, queda a su nombre sin gastar un acceso.
-    Recibe $invitation.
+    El cliente de este evento (solo lo ve el revendedor que armó la invitación): un acceso para que la familia vea sus
+    invitados y descargue sus reportes. Uno por evento; si se creó mal, se elimina y se crea otro. Si el evento es del propio
+    revendedor, queda a su nombre sin gastar un acceso. En filas con filete, sin tarjeta. Recibe $invitation.
 --}}
 @php
     $eventClient = $invitation->user;
@@ -11,55 +10,52 @@
     $clientsLeft = App\Support\ResellerSubscription::clientsLeft(auth()->user());
 @endphp
 
-<section class="site-enter mt-10 rounded-[16px] border border-site-line bg-site-surface p-5" style="--enter-index: 1">
-    <h2 class="text-lg font-semibold tracking-tight">Cliente de este evento</h2>
-    <p class="mt-1 max-w-[60ch] text-sm text-site-muted">
-        Un acceso para tu cliente: con su usuario y contraseña ve quién confirmó y descarga sus reportes.
-        No puede editar la invitación; eso lo haces tú.
+<section class="grid grid-cols-[minmax(0,1fr)] gap-4" aria-labelledby="cliente-del-evento">
+    <h2 id="cliente-del-evento" class="sr-only">Cliente de este evento</h2>
+
+    <p class="ev-meta" title="Con su usuario y contraseña ve quién confirmó y descarga sus reportes. No puede editar la invitación.">
+        <span><x-phosphor-user-circle-light aria-hidden="true" /> Un acceso para tu cliente: ve quién confirmó y descarga sus reportes. Editar lo haces tú.</span>
     </p>
 
     @error('client')
-        <p class="mt-3 text-sm text-site-danger">{{ $message }}</p>
+        <p class="ev-note is-danger" role="alert"><x-phosphor-warning-circle-light aria-hidden="true" /> <span>{{ $message }}</span></p>
     @enderror
 
     {{-- Las credenciales recién creadas se ven una sola vez --}}
     @if(session('client_credentials'))
         @php($credentials = session('client_credentials'))
-        <div class="mt-4 rounded-[12px] bg-site-tint p-4" role="status">
-            <p class="text-sm font-medium">Datos de acceso de {{ $credentials['name'] }} (cópialos ahora: no se vuelven a mostrar)</p>
-            <dl class="mt-2 grid gap-2 text-sm sm:grid-cols-2">
-                <div>
-                    <dt class="text-site-muted">Usuario</dt>
-                    <dd class="font-mono font-semibold">{{ $credentials['username'] }}</dd>
-                </div>
-                <div>
-                    <dt class="text-site-muted">Contraseña</dt>
-                    <dd class="font-mono font-semibold">{{ $credentials['password'] }}</dd>
-                </div>
+        <div class="eg-credentials" role="status">
+            <p class="ev-label"><x-phosphor-key-light aria-hidden="true" /> Datos de acceso de {{ $credentials['name'] }}</p>
+            <dl class="adm-kv">
+                <div><dt>Usuario</dt><dd class="font-mono font-semibold">{{ $credentials['username'] }}</dd></div>
+                <div><dt>Contraseña</dt><dd class="font-mono font-semibold">{{ $credentials['password'] }}</dd></div>
             </dl>
-            <x-ui.copy-button class="admin-link-button mt-3"
-                :text="'Hola '.$credentials['name'].', ya puedes ver quién confirmó en tu invitación. Entra en '.lroute('login').' con el usuario '.$credentials['username'].' y la contraseña '.$credentials['password'].'.'"
-                label="Copiar mensaje para enviar" done="Mensaje copiado" icon="whatsapp-logo" />
+            <p class="ev-hint"><x-phosphor-info-light aria-hidden="true" /> Cópialos ahora: no se vuelven a mostrar.</p>
+            <div>
+                <x-ui.copy-button class="site-btn"
+                    :text="'Hola '.$credentials['name'].', ya puedes ver quién confirmó en tu invitación. Entra en '.lroute('login').' con el usuario '.$credentials['username'].' y la contraseña '.$credentials['password'].'.'"
+                    label="Copiar mensaje para enviar" done="Mensaje copiado" icon="whatsapp-logo-light" plain />
+            </div>
         </div>
     @endif
 
     @if($isOwnEvent)
-        <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
+        <div class="eg-client">
             <p class="flex items-center gap-2">
-                <x-phosphor-user-circle class="size-5 text-site-accent" aria-hidden="true" />
+                <x-phosphor-user-circle-light class="size-5 text-site-accent" aria-hidden="true" />
                 <span><span class="font-medium">Este evento es tuyo.</span> <span class="text-sm text-site-muted">Sus invitados y reportes están en esta página.</span></span>
             </p>
             <form method="POST" action="{{ route('client.invitations.client.destroy', $invitation) }}">
                 @csrf
                 @method('DELETE')
-                <button type="submit" class="admin-link-button">
-                    <x-phosphor-arrow-u-up-left aria-hidden="true" />
+                <button type="submit" class="site-help">
+                    <x-phosphor-arrow-u-up-left-light aria-hidden="true" />
                     Es de un cliente
                 </button>
             </form>
         </div>
     @elseif($eventClient)
-        <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
+        <div class="eg-client">
             <p>
                 <span class="font-medium">{{ $eventClient->name }}</span>
                 <span class="ml-1 font-mono text-sm text-site-muted">{{ $eventClient->username }}</span>
@@ -69,46 +65,42 @@
                     onsubmit="return confirm('¿Eliminar el acceso de {{ e($eventClient->name) }}? Ya no podrá entrar; después puedes crear otro.')">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" class="admin-link-button is-danger">
-                        <x-phosphor-trash aria-hidden="true" />
+                    <button type="submit" class="adm-del">
+                        <x-phosphor-trash-light aria-hidden="true" />
                         Eliminar cliente
                     </button>
                 </form>
             @endif
         </div>
     @elseif($canCreateClients)
-        <form method="POST" action="{{ route('client.invitations.client.store', $invitation) }}" class="mt-4 flex flex-wrap items-end gap-3">
+        <form method="POST" action="{{ route('client.invitations.client.store', $invitation) }}" class="eg-form">
             @csrf
-            <div class="min-w-[14rem] flex-1">
-                <label for="cliente-evento" class="admin-label">Nombre del cliente</label>
-                <input id="cliente-evento" type="text" name="name" required maxlength="255" value="{{ old('name') }}"
-                    class="admin-input" placeholder="Familia Quispe">
-                @error('name')
-                    <p class="mt-1.5 text-sm text-site-danger">{{ $message }}</p>
-                @enderror
+            <label class="eg-field">
+                <span class="site-label ed-wiz-label"><x-phosphor-user-plus-light aria-hidden="true" /> Nombre del cliente</span>
+                <input type="text" name="name" required maxlength="255" value="{{ old('name') }}" class="site-input" placeholder="Familia Quispe">
+                @error('name')<span class="eg-error">{{ $message }}</span>@enderror
+            </label>
+            <div>
+                <button type="submit" class="site-btn"><x-phosphor-user-plus-light aria-hidden="true" /> Crear acceso</button>
             </div>
-            <button type="submit" class="admin-primary-button min-h-11">
-                <x-phosphor-user-plus aria-hidden="true" />
-                Crear acceso
-            </button>
+            @if($clientsLeft !== null)
+                <p class="ev-hint" title="Tantos como las invitaciones de tu plan.">
+                    <x-phosphor-info-light aria-hidden="true" />
+                    {{ $clientsLeft === 1 ? 'Te queda 1 acceso de cliente este mes' : "Te quedan {$clientsLeft} accesos de cliente este mes" }}
+                </p>
+            @endif
         </form>
-        @if($clientsLeft !== null)
-            <p class="mt-2 text-xs text-site-muted">
-                {{ $clientsLeft === 1 ? 'Te queda 1 acceso de cliente este mes' : "Te quedan {$clientsLeft} accesos de cliente este mes" }}
-                (tantos como las invitaciones de tu plan).
-            </p>
-        @endif
     @else
-        <p class="mt-4 text-sm text-site-muted">Ya creaste todos los accesos de cliente de este mes (tantos como las invitaciones de tu plan). El mes que viene puedes crear más, o pasar a un plan con más invitaciones.</p>
+        <p class="ev-note"><x-phosphor-info-light aria-hidden="true" /> <span>Ya creaste todos los accesos de cliente de este mes (tantos como las invitaciones de tu plan). El mes que viene puedes crear más, o pasar a un plan con más invitaciones.</span></p>
     @endif
 
     {{-- Sin cliente todavía: también puede ser un evento del propio revendedor --}}
     @unless($eventClient)
-        <form method="POST" action="{{ route('client.invitations.client.self', $invitation) }}" class="mt-4 flex flex-wrap items-center gap-3 border-t border-site-line pt-4">
+        <form method="POST" action="{{ route('client.invitations.client.self', $invitation) }}" class="eg-client">
             @csrf
             <p class="text-sm text-site-muted">¿Es un evento tuyo?</p>
-            <button type="submit" class="admin-link-button">
-                <x-phosphor-user-circle aria-hidden="true" />
+            <button type="submit" class="site-help">
+                <x-phosphor-user-circle-light aria-hidden="true" />
                 Es mío, no necesito un acceso
             </button>
         </form>

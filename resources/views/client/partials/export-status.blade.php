@@ -1,7 +1,7 @@
 {{-- Estado del último archivo pedido: pregunta cada dos segundos hasta que esté listo. --}}
 @if(session('export'))
-    <div class="site-enter admin-card mt-6 flex flex-wrap items-center gap-3 p-4"
-        x-data="exportWatcher(@js(session('export')))" x-init="watch()">
+    {{-- Un aviso de una línea, con su filete a la izquierda --}}
+    <div class="site-enter ev-note" x-data="exportWatcher(@js(session('export')))" x-init="watch()">
         <template x-if="state.status === 'pending'">
             <span class="inline-flex items-center gap-2 text-site-muted">
                 <x-phosphor-spinner class="size-5 animate-spin" aria-hidden="true" />
@@ -10,13 +10,13 @@
         </template>
 
         <template x-if="state.status === 'ready'">
-            <span class="inline-flex flex-wrap items-center gap-3">
+            <span class="inline-flex flex-wrap items-center gap-x-3 gap-y-1">
                 <span class="inline-flex items-center gap-2">
-                    <x-phosphor-check-circle class="size-5 text-site-accent" aria-hidden="true" />
+                    <x-phosphor-check-circle-light class="size-5 text-site-accent" aria-hidden="true" />
                     Tu <span x-text="state.label"></span> está listo.
                 </span>
-                <a :href="state.download_url" class="admin-primary-button">
-                    <x-phosphor-download-simple aria-hidden="true" />
+                <a :href="state.download_url" class="site-help">
+                    <x-phosphor-download-simple-light aria-hidden="true" />
                     Descargar
                 </a>
             </span>
@@ -24,12 +24,11 @@
 
         <template x-if="state.status === 'failed'">
             <span class="inline-flex items-center gap-2 text-site-danger">
-                <x-phosphor-warning-circle class="size-5" aria-hidden="true" />
+                <x-phosphor-warning-circle-light class="size-5" aria-hidden="true" />
                 No pudimos generar el archivo. Intenta de nuevo o escríbenos.
             </span>
         </template>
     </div>
-
     <script>
         function exportWatcher(initial) {
             return {
