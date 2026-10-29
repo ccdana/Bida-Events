@@ -4609,9 +4609,31 @@ button.ed-dialog__row:hover > svg {
     color: var(--site-accent);
 }
 
+/* La cabecera de la ficha: la animación de entrada le da su propio apilado, así que sube sobre las pestañas para que el menú Descargar quede encima y se pueda tocar */
+.ev-head {
+    position: relative;
+    z-index: 2;
+}
+
 /* Descargar: un menú de filas con su ícono */
 .ev-menu {
     position: relative;
+}
+
+/* En el celular el menú se ancla al borde de la fila de acciones y no al botón, para no salirse de la pantalla */
+@media (max-width: 40rem) {
+    .ev-acts--head {
+        position: relative;
+    }
+
+    .ev-acts--head .ev-menu {
+        position: static;
+    }
+
+    .ev-acts--head .ev-menu__list {
+        left: 0.6rem;
+        max-width: calc(100vw - 2.5rem);
+    }
 }
 
 .ev-menu__list {

@@ -43,7 +43,7 @@
             },
         }"
         @submit="try { sessionStorage.setItem('ficha-tab', tab) } catch (error) {}">
-        <header class="site-enter">
+        <header class="site-enter ev-head">
             <a href="{{ route('client.dashboard') }}" class="ev-back">
                 <x-phosphor-arrow-left-light aria-hidden="true" />
                 Mis eventos
