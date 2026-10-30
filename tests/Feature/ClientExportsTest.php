@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 use Tests\Concerns\CreatesInvitations;
 use Tests\TestCase;
 
@@ -196,6 +197,59 @@ class ClientExportsTest extends TestCase
         $modules['regalos']['sobres'] = ['titulo' => 'Lluvia de sobres', 'direccion' => $long];
 
         return $modules;
+    }
+
+    /**
+     * La hoja «Resumen» escrita de verdad: cada formato y cada banda de encabezado tiene que caer en la fila de su dato. Las
+     * filas en blanco (un arreglo vacío) las descartaba Maatwebsite y todo lo de abajo subía una fila: «Respondieron» salía
+     * como 0,85 y «Faltan responder» como 400 %.
+     */
+    public function test_the_summary_sheet_formats_land_on_their_own_rows(): void
+    {
+        $invitation = $this->createInvitation();
+        $this->createGuests($invitation);
+        $invitation->guests()->create(['name' => 'Pedro Gómez', 'passes_allocated' => 2, 'passes_confirmed' => 2, 'status' => 'confirmed', 'table_number' => '4']);
+        $report = app(GuestReportData::class)->make($invitation, $invitation->guests()->get());
+
+        $path = $this->cacheRoot.'/resumen.xlsx';
+        File::ensureDirectoryExists($this->cacheRoot);
+        File::put($path, Excel::raw(new GuestReportExport($report), \Maatwebsite\Excel\Excel::XLSX));
+        $sheet = IOFactory::load($path)->getSheetByName('Resumen');
+
+        // Busca cada fila por su etiqueta, no por su posición
+        $row = function (string $label) use ($sheet): int {
+            foreach ($sheet->getRowIterator() as $candidate) {
+                if ($sheet->getCell('A'.$candidate->getRowIndex())->getValue() === $label) {
+                    return $candidate->getRowIndex();
+                }
+            }
+
+            $this->fail("No hay una fila «{$label}» en el Resumen");
+        };
+        $format = fn (string $cell) => $sheet->getStyle($cell)->getNumberFormat()->getFormatCode();
+        $fill = fn (string $cell) => $sheet->getStyle($cell)->getFill()->getStartColor()->getARGB();
+
+        // Respondieron es un porcentaje (3 de 4 invitados contestaron = 75 %); lo demás son enteros sin formato
+        $responded = $row('Respondieron');
+        $this->assertSame('0%', $format("B{$responded}"));
+        $this->assertEqualsWithDelta(0.75, (float) $sheet->getCell("B{$responded}")->getValue(), 0.0001);
+        $pending = $row('Faltan responder');
+        $this->assertSame('General', $format("B{$pending}"));
+        $this->assertSame(1, (int) $sheet->getCell("B{$pending}")->getValue());
+        $this->assertSame('General', $format('B'.$row('Personas confirmadas')));
+        $this->assertSame($responded + 1, $pending);
+
+        // Los encabezados de las dos tablas son la banda oscura, y los datos de abajo, filas normales
+        foreach (['Dato' => ['Valor', 'Para qué sirve'], 'Mesa' => ['Invitados confirmados', 'Personas']] as $first => [$second, $third]) {
+            $header = $row($first);
+            $this->assertSame($second, $sheet->getCell("B{$header}")->getValue());
+            $this->assertSame($third, $sheet->getCell("C{$header}")->getValue());
+            $this->assertSame('FF1D1E20', $fill("A{$header}"));
+        }
+        $this->assertNotSame('FF1D1E20', $fill('A'.($row('Personas confirmadas'))));
+        $firstTable = $row('Mesa') + 1;
+        $this->assertStringContainsString('4', (string) $sheet->getCell("A{$firstTable}")->getValue());
+        $this->assertNotSame('FF1D1E20', $fill("A{$firstTable}"));
     }
 
     private function createGuests(Invitation $invitation): void

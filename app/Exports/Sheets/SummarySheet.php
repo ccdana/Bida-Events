@@ -13,6 +13,13 @@ use PhpOffice\PhpSpreadsheet\Style\Alignment;
 /** Hoja "Resumen": cifras con su explicación, qué hacer ahora y distribución por mesa. */
 class SummarySheet extends ReportSheet implements FromArray, WithColumnWidths, WithEvents, WithStrictNullComparison, WithTitle
 {
+    /**
+     * Una fila en blanco. Tiene que llevar una celda vacía: Maatwebsite descarta las filas que son un arreglo vacío, y entonces
+     * todo lo que sigue sube una fila mientras los estilos (formato de porcentaje, banda del encabezado) siguen apuntando a
+     * la posición calculada, y quedan corridos respecto de los datos.
+     */
+    private const BLANK = [null];
+
     private array $sectionRows = [];
 
     private array $headerRows = [];
@@ -43,7 +50,7 @@ class SummarySheet extends ReportSheet implements FromArray, WithColumnWidths, W
             [$this->report['invitation']->title],
             [$this->report['eventDateLabel']],
             ['Generado el '.$this->report['generatedAt']],
-            [],
+            self::BLANK,
         ];
 
         // Seis cifras, las que se usan para decidir; el detalle por invitado está en las otras hojas
@@ -67,7 +74,7 @@ class SummarySheet extends ReportSheet implements FromArray, WithColumnWidths, W
 
         $this->bodyRanges[] = [$from, count($rows)];
 
-        $rows[] = [];
+        $rows[] = self::BLANK;
         $this->sectionRows[] = count($rows) + 1;
         $rows[] = ['Qué hacer ahora'];
 
@@ -77,7 +84,7 @@ class SummarySheet extends ReportSheet implements FromArray, WithColumnWidths, W
         }
 
         if ($this->report['tables']->isNotEmpty()) {
-            $rows[] = [];
+            $rows[] = self::BLANK;
             $this->addSection($rows, 'Mesas', ['Mesa', 'Invitados confirmados', 'Personas']);
             $from = count($rows) + 1;
 
