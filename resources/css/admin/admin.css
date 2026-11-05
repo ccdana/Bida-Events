@@ -374,6 +374,7 @@ textarea.admin-input {
     opacity: 0.55;
 }
 
+/* El sitio público usa este botón (tema claro/oscuro) y lleva una copia en site/icon-button.css: si cambia aquí, cambiarla allá */
 .admin-icon-button {
     display: inline-grid;
     flex-shrink: 0;

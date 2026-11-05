@@ -628,9 +628,19 @@ main:focus {
     scale: 1;
 }
 
+/* Solo opacity y transform: las anima la tarjeta gráfica sin repintar. El revelado anterior animaba
+   clip-path, que se recalcula y se pinta en el hilo principal en cada fotograma. */
 @keyframes site-unveil {
-    from { clip-path: inset(18% 12% 18% 12% round 20px); opacity: 0; }
-    to { clip-path: inset(0 0 0 0 round 20px); opacity: 1; }
+    from { opacity: 0; transform: translateY(18px) scale(0.965); }
+    to { opacity: 1; transform: none; }
+}
+
+/* Portada: la foto y el teléfono esperan a que la foto principal ya esté decodificada para entrar
+   (home.blade.php pone «hero-ready» en <html>); así la entrada no compite con la descarga.
+   Si el script no corre, o site.js no carga, el contenido aparece igual. */
+.js:not(.hero-ready):not(.site-reveal-all) .site-hero__photo,
+.js:not(.hero-ready):not(.site-reveal-all) .site-hero__phone {
+    animation-play-state: paused;
 }
 
 /* ── Teléfono con vista previa real de una invitación ───────────────────── */
@@ -1288,36 +1298,50 @@ html.theme-changing *:not(.theme-toggle__icon) {
    cuando la nueva ya cargó, así la pantalla nunca queda en blanco. Sin JS se ve el primero.
    ──────────────────────────────────────────────────────────────────────── */
 
-[data-cover-reel] .site-phone__screen > iframe {
+/* Las capturas del modo ligero (celulares de pocos recursos) se cruzan igual que los iframes */
+[data-cover-reel] .site-phone__screen > iframe,
+[data-cover-reel] .site-phone__screen > img {
     position: absolute;
     top: 0;
     left: 0;
 }
 
-.site-motion [data-cover-reel] .site-phone__screen > iframe {
+.site-motion [data-cover-reel] .site-phone__screen > iframe,
+.site-motion [data-cover-reel] .site-phone__screen > img {
     opacity: 0;
     transition: opacity 0.7s ease;
 }
 
-.site-motion [data-cover-reel] .site-phone__screen > iframe.is-shown {
+.site-motion [data-cover-reel] .site-phone__screen > iframe.is-shown,
+.site-motion [data-cover-reel] .site-phone__screen > img.is-shown {
     z-index: 1;
     opacity: 1;
 }
 
-/* Mientras carga la primera muestra, un brillo recorre la pantalla en lugar de un blanco plano */
+/* Mientras carga la primera muestra, un brillo recorre la pantalla en lugar de un blanco plano.
+   El fondo es la pantalla misma y el brillo se mueve con transform (lo anima la tarjeta gráfica);
+   antes movía background-position, que repintaba la pantalla en cada fotograma y no se detenía
+   ni cuando la invitación ya la tapaba. Con «is-live» (site.js) el brillo se apaga del todo. */
+.site-phone__screen {
+    background: linear-gradient(180deg, var(--site-tint), var(--site-surface) 60%);
+}
+
 .site-phone__screen::before {
     content: '';
     position: absolute;
     inset: 0;
-    background:
-        linear-gradient(100deg, transparent 30%, color-mix(in srgb, var(--site-accent) 14%, transparent) 50%, transparent 70%) 0 0 / 250% 100%,
-        linear-gradient(180deg, var(--site-tint), var(--site-surface) 60%);
+    background: linear-gradient(100deg, transparent 30%, color-mix(in srgb, var(--site-accent) 14%, transparent) 50%, transparent 70%);
+    transform: translateX(-100%);
     animation: site-screen-wait 1.6s linear infinite;
 }
 
+.site-phone__screen.is-live::before {
+    animation: none;
+    visibility: hidden;
+}
+
 @keyframes site-screen-wait {
-    from { background-position: 120% 0, 0 0; }
-    to { background-position: -120% 0, 0 0; }
+    to { transform: translateX(100%); }
 }
 
 .site-phone__tag {

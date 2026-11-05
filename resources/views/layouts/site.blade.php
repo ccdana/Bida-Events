@@ -31,13 +31,12 @@
             }
         }, 3500);
     </script>
-    {{-- Serif editorial de los titulares; el resto usa Outfit (empaquetada con Vite) --}}
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    {{-- No bloquea el primer pintado: el texto sale ya con la fuente de respaldo y cambia cuando llega --}}
-    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-    <noscript><link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"></noscript>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    {{-- Serif editorial de los titulares y Outfit, las dos empaquetadas con Vite. Se precarga la serif (normal y cursiva
+         de la palabra que rota) para que el titular salga con su letra desde el primer pintado, sin saltar. --}}
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="{{ Vite::asset('node_modules/@fontsource/instrument-serif/files/instrument-serif-latin-400-normal.woff2') }}">
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="{{ Vite::asset('node_modules/@fontsource/instrument-serif/files/instrument-serif-latin-400-italic.woff2') }}">
+    {{-- Solo el CSS del sitio público (public.css), no el de las invitaciones ni el del panel --}}
+    @vite(['resources/css/public.css', 'resources/js/app.js'])
     @stack('head')
 </head>
 <body class="site min-h-[100dvh]">

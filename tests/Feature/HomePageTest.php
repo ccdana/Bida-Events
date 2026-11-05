@@ -15,6 +15,23 @@ class HomePageTest extends TestCase
 {
     use RefreshDatabase;
 
+    /**
+     * La portada se anima en el mismo hilo donde el navegador procesa el CSS: carga solo el de las páginas públicas
+     * (no los temas de las invitaciones ni el panel) y la serif de los titulares va empaquetada, no desde Google.
+     */
+    public function test_public_pages_load_the_lean_stylesheet_and_their_own_serif(): void
+    {
+        foreach ([route('home'), route('login')] as $url) {
+            $response = $this->get($url)->assertOk()
+                ->assertSee('/build/assets/public-', false)
+                ->assertDontSee('fonts.googleapis.com', false)
+                ->assertSee('instrument-serif-latin-400-normal', false);
+
+            // app.js es la entrada de JS de todas las páginas; lo que no debe venir es app.css
+            $this->assertDoesNotMatchRegularExpression('#/build/assets/app-[^"\']+\.css#', $response->getContent());
+        }
+    }
+
     public function test_guests_see_the_services_and_whatsapp_contact(): void
     {
         config(['bida.whatsapp' => '+591 7123-4567', 'bida.facebook' => 'bidaeventsbo']);

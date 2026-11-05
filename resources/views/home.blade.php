@@ -63,7 +63,8 @@
     $coverReel = array_values(array_filter(array_map(function (array $demo) use ($showcase): ?array {
         $position = array_search($demo['eventKey'], array_column($showcase, 'event'), true);
 
-        return $position === false ? null : ['url' => $demo['coverUrl'], 'label' => $demo['label'], 'rotator' => $position];
+        // «capture» es la imagen de la apertura: con ella el teléfono funciona en modo ligero (resources/js/site.js)
+        return $position === false ? null : ['url' => $demo['coverUrl'], 'label' => $demo['label'], 'rotator' => $position, 'capture' => $demo['capture'] ?? null];
     }, $demos)));
     // Lo de temporada no es un precio más: va en una línea bajo los precios, con su panel o su página
     $seasonService = collect($services)->firstWhere('key', 'temporada');
@@ -118,6 +119,18 @@
                         <x-site.image :key="$event['image']" :priority="$index === 0" :class="$index === 0 ? 'is-active' : ''" />
                     @endforeach
                 </div>
+
+                {{-- La foto y el teléfono entran cuando la foto principal ya está decodificada, no mientras se descarga
+                     (site.css: .site-hero__photo). Sin este script, o si tarda, el tope de 1.8 s los deja entrar igual. --}}
+                <script>
+                    (function () {
+                        var go = function () { document.documentElement.classList.add('hero-ready'); };
+                        var photo = document.querySelector('.site-hero__photo img');
+
+                        setTimeout(go, 1800);
+                        photo && photo.decode ? photo.decode().then(go, go) : go();
+                    })();
+                </script>
 
                 <div class="site-phone site-hero__phone"
                     @if(count($demos)) data-cover-reel="{{ json_encode($coverReel, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) }}" @endif>

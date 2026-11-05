@@ -117,7 +117,7 @@ whenNear('[data-video-player]', '800px 0px', () => {
 // ── Lottie Icons — solo si hay iconos animados, ya cargada la página ────
 // Tampoco bloquea Alpine: son adornos; las galerías e itinerarios los piden con window.initLottieIcons?.()
 if (document.querySelector('[data-lottie-icon]')) {
-    whenIdle(() => {
+    const loadIcons = () => whenIdle(() => {
         import('./lottie-icons.js')
             .then(({ initLottieIcons, refreshLottieIconColors }) => {
                 window.initLottieIcons = initLottieIcons;
@@ -126,6 +126,11 @@ if (document.querySelector('[data-lottie-icon]')) {
             })
             .catch((error) => console.error('[Bida Events] Error al cargar los iconos animados:', error));
     });
+
+    // En el teléfono de la portada del sitio (?portada=1) solo se ve la primera pantalla y nadie la toca: si no hay
+    // iconos a la vista no se carga Lottie, que son ~0,8 s de trabajo en el mismo hilo que la portada. Una invitación
+    // real (sin ese parámetro) los carga como siempre, al quedar libre el navegador.
+    new URLSearchParams(window.location.search).has('portada') ? whenNear('[data-lottie-icon]', '0px', loadIcons) : loadIcons();
 }
 
 // ── Gallery Stack (~110 kB con motion) — solo si hay galería ────────────

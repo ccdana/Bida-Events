@@ -1,0 +1,24 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   SITIO PÚBLICO — portada, ingreso, precios, guías y legales (layouts/site.blade.php)
+
+   Antes cargaba app.css, que además trae los temas de las invitaciones y el panel de administración:
+   unos 460 KB que el navegador debía procesar (estilo, selectores) antes de pintar la portada, en el
+   mismo hilo donde corren las animaciones. Aquí va solo lo que usan las páginas públicas.
+
+   Las invitaciones, el panel y la puerta siguen con app.css.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+@import 'tailwindcss';
+/* Serif editorial de los titulares, empaquetada con el sitio (antes venía de Google Fonts: un viaje más y un salto
+   de letra). Solo aquí: las invitaciones y el panel no la usan de esta forma. */
+@import '@fontsource/instrument-serif/latin-400.css';
+@import '@fontsource/instrument-serif/latin-400-italic.css';
+@import './site/brand.css';
+@import './site/site.css';
+@import './site/home.css';
+@import './site/icon-button.css';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';

@@ -316,6 +316,8 @@ class SeoAndMobileFixesTest extends TestCase
 
         $this->assertStringContainsString("whenNear('[data-video-player]'", $app);
         $this->assertStringContainsString('whenIdle(() => {', $app);
+        // En el teléfono de la portada del sitio (?portada) los iconos solo se piden si alguno está a la vista
+        $this->assertStringContainsString("has('portada') ? whenNear('[data-lottie-icon]'", $app);
         // Ya no se descargan al abrir la página
         $this->assertDoesNotMatchRegularExpression("/^\\s*import\\('\\.\\/video-player\\.js'\\)/m", Str::before($app, 'whenNear('));
     }
