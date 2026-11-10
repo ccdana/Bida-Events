@@ -16,7 +16,13 @@
 @import './site/brand.css';
 @import './site/site.css';
 @import './site/home.css';
+@import './site/skeleton.css';
 @import './site/icon-button.css';
+
+/* Lo que Alpine muestra o esconde (el menú del celular, los paneles de temporada, la contraseña) sale oculto desde el
+   primer pintado, antes de que Alpine cargue. Es la misma regla de app.css: al separar este CSS faltaba, y mientras
+   cargaba el script el menú se veía abierto empujando toda la portada. */
+[x-cloak] { display: none !important; }
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';

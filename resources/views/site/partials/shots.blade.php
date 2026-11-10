@@ -17,11 +17,14 @@
                     @if($demo['isNew'])
                         <span class="site-badge-new site-shot__badge">{{ __('Nuevo') }}</span>
                     @endif
-                    <span class="site-phone__screen">
+                    {{-- Esqueleto con brillo hasta que llega la captura (o la apertura en vivo); entonces se funde (skeleton.css) --}}
+                    <span class="site-phone__screen site-skel--fade">
                         @if($demo['capture'])
-                            <img src="{{ $demo['capture'] }}" width="390" height="844" alt="" decoding="async" @if($index > 0 || empty($eager)) loading="lazy" @endif>
+                            <img src="{{ $demo['capture'] }}" width="390" height="844" alt="" decoding="async" @if($index > 0 || empty($eager)) loading="lazy" @endif
+                                onload="this.parentNode.classList.add('is-live')" onerror="this.parentNode.classList.add('is-live')">
                         @else
-                            <iframe src="{{ $demo['demoUrl'] }}" title="{{ __('Apertura de :label', ['label' => $demo['label']]) }}" tabindex="-1" aria-hidden="true" loading="lazy"></iframe>
+                            <iframe src="{{ $demo['demoUrl'] }}" title="{{ __('Apertura de :label', ['label' => $demo['label']]) }}" tabindex="-1" aria-hidden="true" loading="lazy"
+                                onload="this.parentNode.classList.add('is-live')"></iframe>
                         @endif
                     </span>
                 </span>

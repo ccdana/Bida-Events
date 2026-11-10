@@ -24,6 +24,19 @@
     @include('layouts.partials.theme-script')
     <script>
         document.documentElement.classList.add('js');
+        // Equipo de pocos recursos o con ahorro de datos: los esqueletos quedan quietos, sin brillo («site-lite», skeleton.css).
+        // «?hero=lite» y «?hero=live» lo fuerzan para probar; site.js lo suma también si mide que la pantalla va a menos de 20 fps.
+        (function () {
+            var forced = /[?&]hero=(lite|live)(&|$)/.exec(location.search);
+            var conn = navigator.connection;
+            var slow = (conn && conn.saveData === true)
+                || (typeof navigator.deviceMemory === 'number' && navigator.deviceMemory <= 2)
+                || (typeof navigator.hardwareConcurrency === 'number' && navigator.hardwareConcurrency <= 2);
+
+            if (forced ? forced[1] === 'lite' : slow) {
+                document.documentElement.classList.add('site-lite');
+            }
+        })();
         // Si site.js no llega a cargar, se muestra todo el contenido igual
         setTimeout(function () {
             if (!document.documentElement.classList.contains('site-motion')) {

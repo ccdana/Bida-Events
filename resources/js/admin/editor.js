@@ -199,6 +199,11 @@ function invitationForm(config) {
         // Parte recién encendida que se mostrará cuando la vista previa se recargue con ella
         revealPart: null,
         frameSeq: 0,
+        // El marco que se ve (a partir de la segunda recarga ya no es el de la página) y el que se está cargando detrás
+        liveFrame: null,
+        pendingFrame: null,
+        frameObserver: null,
+        framesMade: 0,
         partNotice: '',
         publishDialog: false,
         // «Hazlo tú»: el aviso de qué nivel tiene la invitación y «next» del formulario (publish = ir a publicar)
@@ -683,22 +688,19 @@ function invitationForm(config) {
             this.$watch('activeTab', () => this.focusPreviewSection(true));
             this.$watch('panelMode', () => this.markPreviewActive());
             this.$watch('guestView', (value) => {
-                this.$refs.previewFrame?.contentDocument?.body?.classList.toggle('ed-guest', value);
+                this.previewFrameEl?.contentDocument?.body?.classList.toggle('ed-guest', value);
                 if (value) this.finishEditing();
             });
-            this.$nextTick(() => this.$refs.previewFrame?.addEventListener('load', () => {
-                this.onPreviewLoaded();
-                this.setupPreviewEditing();
-                this.restorePreviewScroll();
-                this.revealNewPart();
-            }));
+            // La primera invitación llega al marco de la página; las siguientes, a un marco nuevo (ver submitPreview)
+            this.$nextTick(() => this.$refs.previewFrame?.addEventListener('load', () => this.afterPreviewLoad()));
             // La burbuja sigue a lo tocado: al cambiar de tamaño el panel o la ventana
             this.$nextTick(() => {
                 if (!window.ResizeObserver) return;
                 // El panel cambia de alto y el celular se corre para dejarle lugar: la burbuja se reubica
                 const observer = new ResizeObserver(() => this.placeBubble());
-                [this.$refs.panel, this.$refs.previewFrame].forEach(el => el && observer.observe(el));
-                this.$refs.previewFrame?.closest('.ed-preview__stage')?.addEventListener('transitionend', () => this.placeBubble());
+                this.frameObserver = observer;
+                [this.$refs.panel, this.previewFrameEl].forEach(el => el && observer.observe(el));
+                this.previewFrameEl?.closest('.ed-preview__stage')?.addEventListener('transitionend', () => this.placeBubble());
             });
             window.addEventListener('resize', () => this.placeBubble());
             this.$watch('panelMode', () => this.$nextTick(() => this.placeBubble()));
@@ -737,6 +739,11 @@ function invitationForm(config) {
             });
             // La foto del estado inicial se toma cuando el editor terminó de armarse
             setTimeout(() => { this.savedSnapshot = this.editSnapshot(); }, 2500);
+        },
+
+        /** El marco con la invitación que se ve ahora. */
+        get previewFrameEl() {
+            return this.liveFrame ?? this.$refs.previewFrame;
         },
 
         /** Cambia al idioma nuevo los textos de ejemplo que siguen tal como estaban: lo que la persona escribió no se toca. */
@@ -1319,7 +1326,7 @@ function invitationForm(config) {
         },
 
         previewSectionElement(tabId) {
-            return this.$refs.previewFrame?.contentDocument?.querySelector('[data-ed-tab="' + tabId + '"]') ?? null;
+            return this.previewFrameEl?.contentDocument?.querySelector('[data-ed-tab="' + tabId + '"]') ?? null;
         },
 
         scrollPreviewTo(el, smooth = true) {
@@ -1535,7 +1542,7 @@ function invitationForm(config) {
                 return;
             }
             const canvas = this.$refs.canvas?.getBoundingClientRect();
-            const frame = this.$refs.previewFrame?.getBoundingClientRect();
+            const frame = this.previewFrameEl?.getBoundingClientRect();
             const panel = this.$refs.panel;
             if (!canvas || !frame || !panel) return;
 
@@ -2156,7 +2163,7 @@ function invitationForm(config) {
          * contenga el punto), después las fotos.
          */
         previewFieldAt(doc, event) {
-            const fields = this.$refs.previewFrame?._edFields ?? [];
+            const fields = this.previewFrameEl?._edFields ?? [];
             const direct = event.target.closest?.('[data-ed-field]');
             if (direct?.dataset.edKind === 'text') return fields[Number(direct.dataset.edField)] ?? null;
 
@@ -2187,7 +2194,7 @@ function invitationForm(config) {
          * botón o el resto de la parte, sus opciones. Se prepara en cada carga del marco.
          */
         setupPreviewEditing() {
-            const doc = this.$refs.previewFrame?.contentDocument;
+            const doc = this.previewFrameEl?.contentDocument;
             if (!doc || !doc.body || doc.body.dataset.edReady) return;
             doc.body.dataset.edReady = '1';
             doc.body.classList.toggle('ed-guest', this.guestView);
@@ -2238,10 +2245,10 @@ function invitationForm(config) {
             });
 
             // Los textos y las fotos se buscan cuando la plantilla ya armó todo (algunas lo hacen al cargar)
-            this.$refs.previewFrame._edFields = this.collectPreviewFields(doc);
+            this.previewFrameEl._edFields = this.collectPreviewFields(doc);
             setTimeout(() => {
-                if (this.$refs.previewFrame?.contentDocument !== doc) return;
-                this.collectPreviewFields(doc, this.$refs.previewFrame._edFields);
+                if (this.previewFrameEl?.contentDocument !== doc) return;
+                this.collectPreviewFields(doc, this.previewFrameEl._edFields);
                 this.markPreviewActive();
             }, 900);
 
@@ -2335,7 +2342,7 @@ function invitationForm(config) {
          * o esa foto (todas sus apariciones). Devuelve lo marcado más específico.
          */
         markPreviewActive() {
-            const doc = this.$refs.previewFrame?.contentDocument;
+            const doc = this.previewFrameEl?.contentDocument;
             if (!doc?.body) return null;
 
             doc.querySelectorAll('.ed-active, .ed-field-active').forEach(el => el.classList.remove('ed-active', 'ed-field-active'));
@@ -2348,7 +2355,7 @@ function invitationForm(config) {
             if (this.panelMode !== 'field' || !this.focusContainerEl) return section;
 
             const container = this.focusContainerEl;
-            const hits = (this.$refs.previewFrame._edFields ?? [])
+            const hits = (this.previewFrameEl._edFields ?? [])
                 .filter(field => field.el.isConnected && (field.copy
                     ? field.copy.key === this.copyFocusKey
                     : (field.container === container || container.contains(field.control))))
@@ -2361,7 +2368,7 @@ function invitationForm(config) {
         /** Que lo tocado no quede debajo de la hoja de edición (celular) ni fuera del marco. */
         keepPreviewTargetVisible(el) {
             setTimeout(() => {
-                const frame = this.$refs.previewFrame;
+                const frame = this.previewFrameEl;
                 const view = frame?.contentWindow;
                 if (!view || !el.isConnected) return;
 
@@ -2379,7 +2386,7 @@ function invitationForm(config) {
 
         /** Tras cada recarga la invitación vuelve a donde estaba (la primera vez, a la parte abierta). */
         restorePreviewScroll() {
-            const view = this.$refs.previewFrame?.contentWindow;
+            const view = this.previewFrameEl?.contentWindow;
             if (!view) return;
             if (this.previewScrollY === null) {
                 this.focusPreviewSection(false);
@@ -2403,7 +2410,7 @@ function invitationForm(config) {
          * sin lugar propio (datos del evento, colores) llevan al principio.
          */
         focusPreviewSection(smooth = true) {
-            const doc = this.$refs.previewFrame?.contentDocument;
+            const doc = this.previewFrameEl?.contentDocument;
             if (!doc || !doc.body) return;
 
             const marked = this.markPreviewActive();
@@ -2441,7 +2448,7 @@ function invitationForm(config) {
          * petición (formulario hacia el marco), sin guardar nada en la sesión.
          */
         submitPreview(payload, seq) {
-            const frame = this.$refs.previewFrame;
+            const frame = this.previewFrameEl;
             const form = this.$refs.previewForm;
             const field = this.$refs.previewPayload;
             if (!frame || !form || !field) return;
@@ -2456,7 +2463,89 @@ function invitationForm(config) {
             field.value = JSON.stringify(payload);
             this.frameSeq = seq;
             this.previewError = '';
+            form.target = this.frameForNextPreview().name;
             form.submit();
+        },
+
+        /**
+         * El marco donde se dibuja la próxima vista previa. Cada recarga de un marco ya cargado deja una entrada más
+         * en el historial de la página: al tocar «atrás» el marco volvía a una recarga vieja (un POST que el navegador
+         * no repite) y se veía en blanco, sin salir del editor. Un marco recién creado se estrena sin dejar entrada,
+         * así que cada recarga va a uno nuevo, escondido detrás del que se ve, y lo reemplaza al terminar de cargar.
+         */
+        frameForNextPreview() {
+            const current = this.previewFrameEl;
+
+            // El marco de la página, todavía sin usar: la primera invitación va directo ahí
+            if (current && !current.dataset.edUsed) {
+                current.dataset.edUsed = '1';
+                return current;
+            }
+
+            // Si había otra cargando, ya no hace falta: esta es más nueva
+            this.discardPendingFrame();
+
+            const frame = document.createElement('iframe');
+            frame.name = 'ed-preview-frame-' + (++this.framesMade);
+            frame.className = current.className;
+            frame.title = current.title;
+            frame.dataset.edUsed = '1';
+            // Detrás del que se ve, del mismo tamaño y sin dejarse tocar
+            Object.assign(frame.style, {
+                position: 'absolute',
+                left: current.offsetLeft + 'px',
+                top: current.offsetTop + 'px',
+                width: current.offsetWidth + 'px',
+                height: current.offsetHeight + 'px',
+                opacity: '0',
+                pointerEvents: 'none',
+            });
+            frame.addEventListener('load', () => this.adoptPendingFrame(frame));
+            this.pendingFrame = frame;
+            current.parentNode.appendChild(frame);
+
+            return frame;
+        },
+
+        discardPendingFrame() {
+            this.pendingFrame?.remove();
+            this.pendingFrame = null;
+        },
+
+        /** La invitación nueva terminó de cargar detrás: se acomoda (lugar, textos tocables) y toma el lugar de la anterior. */
+        adoptPendingFrame(frame) {
+            if (frame !== this.pendingFrame) return;
+            this.pendingFrame = null;
+
+            let readable = false;
+            try { readable = !!frame.contentDocument?.body; } catch (error) { /* la página de error del navegador no se puede leer */ }
+
+            if (!readable) {
+                frame.remove();
+                if (this.frameSeq === this.previewSeq) this.previewLoading = false;
+                this.previewError = 'La vista previa no se pudo cargar. Revisa tu conexión e intenta de nuevo.';
+                return;
+            }
+
+            const old = this.previewFrameEl;
+            this.liveFrame = frame;
+            // Todo lo de la carga se hace con la invitación nueva todavía escondida: al mostrarla ya está en su lugar
+            this.afterPreviewLoad();
+            frame.removeAttribute('style');
+            if (old && old !== frame) {
+                this.frameObserver?.unobserve(old);
+                old.remove();
+            }
+            this.frameObserver?.observe(frame);
+            this.placeBubble();
+        },
+
+        /** Al terminar de cargar la invitación en el marco: se apaga «Actualizando…», se hace tocable y se vuelve a su altura. */
+        afterPreviewLoad() {
+            this.onPreviewLoaded();
+            this.setupPreviewEditing();
+            this.restorePreviewScroll();
+            this.revealNewPart();
         },
 
         // ── En vivo: lo que se cambia aparece en la invitación al instante ──
@@ -2469,7 +2558,7 @@ function invitationForm(config) {
             if (!(control instanceof HTMLInputElement || control instanceof HTMLTextAreaElement)) return;
             if (!/^(text|search|tel|email|url|)$/.test(control.type ?? '')) return;
 
-            const fields = this.$refs.previewFrame?._edFields;
+            const fields = this.previewFrameEl?._edFields;
             if (!fields?.length) return;
 
             let hits = [];
@@ -2524,7 +2613,7 @@ function invitationForm(config) {
 
         /** Una foto cambiada (elegida o recortada): se cambia en la invitación donde se muestre, como foto o como fondo. */
         patchPreviewImage(fromUrl, toUrl) {
-            const doc = this.$refs.previewFrame?.contentDocument;
+            const doc = this.previewFrameEl?.contentDocument;
             if (!doc?.body || !fromUrl || !toUrl) return false;
 
             const key = (url) => {
@@ -2557,7 +2646,7 @@ function invitationForm(config) {
 
         /** Los colores de «Colores y letras» se ven al mover cada uno (la invitación los lee de variables de CSS). */
         setLiveColors() {
-            const root = this.$refs.previewFrame?.contentDocument?.documentElement;
+            const root = this.previewFrameEl?.contentDocument?.documentElement;
             if (!root) return;
             const colors = this.modules.config?.colores ?? {};
             const variables = { primary: '--primary-color', secondary: '--secondary-color', accent: '--accent-color', text: '--text-color', background: '--bg-color' };
@@ -2569,7 +2658,7 @@ function invitationForm(config) {
 
         /** Las letras también: se pide la tipografía a Google Fonts y se aplica sin recargar. */
         setLiveFonts() {
-            const doc = this.$refs.previewFrame?.contentDocument;
+            const doc = this.previewFrameEl?.contentDocument;
             if (!doc?.documentElement) return;
             const fonts = this.modules.config?.tipografias ?? {};
             const variables = { titulos: ['--font-titles', 'serif'], cuerpo: ['--font-body', 'sans-serif'], script: ['--font-script', 'cursive'] };
@@ -2597,7 +2686,7 @@ function invitationForm(config) {
 
         /** Al terminar de cargar el marco: se apaga «Actualizando…» y, si el servidor no pudo dibujarla, se dice. */
         onPreviewLoaded() {
-            const body = this.$refs.previewFrame?.contentDocument?.body;
+            const body = this.previewFrameEl?.contentDocument?.body;
             if (this.frameSeq === this.previewSeq) this.previewLoading = false;
             if (body && !body.dataset.edReady && /^Error al renderizar/.test((body.textContent ?? '').trim())) {
                 this.previewError = 'La vista previa no se pudo dibujar: revisa el nombre de la portada y las fechas.';

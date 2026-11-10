@@ -253,7 +253,14 @@ async function wantsLite(items) {
         return true;
     }
 
-    return (await frameInterval()) > 50;
+    const slow = (await frameInterval()) > 50;
+
+    // Los esqueletos también se quedan quietos en un equipo que mide lento (skeleton.css)
+    if (slow) {
+        root.classList.add('site-lite');
+    }
+
+    return slow;
 }
 
 async function startReel(reel, first, src) {

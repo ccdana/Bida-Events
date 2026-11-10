@@ -114,21 +114,24 @@
             </div>
 
             <div class="site-hero__stage">
-                <div class="site-stage site-hero__photo" data-rotator-group>
+                <div class="site-stage site-hero__photo site-skel" data-rotator-group>
                     @foreach($showcase as $index => $event)
                         <x-site.image :key="$event['image']" :priority="$index === 0" :class="$index === 0 ? 'is-active' : ''" />
                     @endforeach
                 </div>
 
-                {{-- La foto y el teléfono entran cuando la foto principal ya está decodificada, no mientras se descarga
-                     (site.css: .site-hero__photo). Sin este script, o si tarda, el tope de 1.8 s los deja entrar igual. --}}
+                {{-- La foto y el teléfono están desde el primer pintado como esqueleto (skeleton.css). La foto principal se funde
+                     encima cuando ya está decodificada («hero-ready» en <html>, home.css) y ahí se apaga el brillo
+                     («hero-photo-in»). Si tarda más de 4.5 s se muestra igual, con lo que lleve, y el brillo sigue hasta que llegue. --}}
                 <script>
                     (function () {
-                        var go = function () { document.documentElement.classList.add('hero-ready'); };
+                        var root = document.documentElement;
+                        var go = function () { root.classList.add('hero-ready'); };
+                        var arrived = function () { root.classList.add('hero-photo-in'); go(); };
                         var photo = document.querySelector('.site-hero__photo img');
 
-                        setTimeout(go, 1800);
-                        photo && photo.decode ? photo.decode().then(go, go) : go();
+                        setTimeout(go, 4500);
+                        photo && photo.decode ? photo.decode().then(arrived, arrived) : arrived();
                     })();
                 </script>
 
@@ -138,7 +141,8 @@
                         @if(count($demos))
                             <iframe data-defer-src="{{ $demos[0]['coverUrl'] }}" data-defer-until-idle title="{{ __('Apertura de las invitaciones de muestra') }}" tabindex="-1" aria-hidden="true" data-cover-reel-frame></iframe>
                         @elseif($demoUrl)
-                            <iframe src="{{ $demoUrl }}" title="{{ __('Vista previa de una invitación de ejemplo') }}" loading="lazy" tabindex="-1" aria-hidden="true"></iframe>
+                            <iframe src="{{ $demoUrl }}" title="{{ __('Vista previa de una invitación de ejemplo') }}" loading="lazy" tabindex="-1" aria-hidden="true"
+                                onload="this.parentNode.classList.add('is-live')"></iframe>
                         @endif
                     </div>
 

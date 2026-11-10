@@ -116,4 +116,19 @@ class PreviewRenderTest extends TestCase
             ->assertSee('name="ed-preview-frame"', false)
             ->assertSee('previewRenderUrl', false);
     }
+
+    /**
+     * Cada recarga de un marco ya cargado suma una entrada al historial: al tocar «atrás» el marco volvía a un POST viejo
+     * y el editor quedaba en blanco. Las recargas van a un marco nuevo (que se estrena sin dejar entrada). Esto vigila
+     * que el editor no vuelva a mandar el formulario a un marco ya usado; la prueba real es contar history.length.
+     */
+    public function test_the_preview_reloads_into_a_fresh_frame_so_back_does_not_land_on_a_dead_post(): void
+    {
+        $editor = file_get_contents(resource_path('js/admin/editor.js'));
+
+        $this->assertStringContainsString('frameForNextPreview()', $editor);
+        $this->assertStringContainsString('form.target = this.frameForNextPreview().name;', $editor);
+        // El marco que se ve ya no es siempre el de la página: todo pasa por previewFrameEl
+        $this->assertStringNotContainsString('this.$refs.previewFrame?.contentDocument', $editor);
+    }
 }

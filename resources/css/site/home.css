@@ -169,12 +169,29 @@ a:hover > .site-link-arrow svg,
     width: 78%;
     margin-left: auto;
     aspect-ratio: 4 / 5;
+    /* Está desde el primer pintado como esqueleto (skeleton.css) y la foto se funde encima al llegar */
+    animation: none;
+}
+
+/* La primera foto espera, oculta, a estar decodificada (home.blade.php pone «hero-ready» en <html>) y se funde con
+   la transición de opacidad de .site-stage > img. Sin JS, o si site.js no carga, se muestra igual. */
+.js:not(.hero-ready):not(.site-reveal-all) .site-hero__photo > img.is-active {
+    opacity: 0;
+}
+
+/* Llegó la foto (decodificada): el brillo del esqueleto se apaga y deja de animar detrás de ella. Si se mostró por el
+   tope de tiempo sin haber llegado entera, el brillo sigue en la parte que falta. */
+:is(.hero-photo-in, .site-reveal-all) .site-hero__photo::before {
+    animation: none;
+    visibility: hidden;
 }
 
 .site-hero__phone {
     position: absolute;
     bottom: 0;
     left: 0;
+    /* Tampoco sube desde abajo: el marco ya está y su pantalla es el esqueleto hasta que pinta la muestra */
+    animation: none;
 }
 
 /* ── Precios de la portada: las dos formas de tenerla y, en pantallas anchas, una foto ──

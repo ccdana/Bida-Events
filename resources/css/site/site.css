@@ -635,13 +635,8 @@ main:focus {
     to { opacity: 1; transform: none; }
 }
 
-/* Portada: la foto y el teléfono esperan a que la foto principal ya esté decodificada para entrar
-   (home.blade.php pone «hero-ready» en <html>); así la entrada no compite con la descarga.
-   Si el script no corre, o site.js no carga, el contenido aparece igual. */
-.js:not(.hero-ready):not(.site-reveal-all) .site-hero__photo,
-.js:not(.hero-ready):not(.site-reveal-all) .site-hero__phone {
-    animation-play-state: paused;
-}
+/* Portada: la foto y el teléfono ya están desde el primer pintado como esqueleto (skeleton.css, home.css) y lo que
+   llega se funde encima; no hay una entrada animada que compita con la descarga. */
 
 /* ── Teléfono con vista previa real de una invitación ───────────────────── */
 
@@ -1318,31 +1313,7 @@ html.theme-changing *:not(.theme-toggle__icon) {
     opacity: 1;
 }
 
-/* Mientras carga la primera muestra, un brillo recorre la pantalla en lugar de un blanco plano.
-   El fondo es la pantalla misma y el brillo se mueve con transform (lo anima la tarjeta gráfica);
-   antes movía background-position, que repintaba la pantalla en cada fotograma y no se detenía
-   ni cuando la invitación ya la tapaba. Con «is-live» (site.js) el brillo se apaga del todo. */
-.site-phone__screen {
-    background: linear-gradient(180deg, var(--site-tint), var(--site-surface) 60%);
-}
-
-.site-phone__screen::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(100deg, transparent 30%, color-mix(in srgb, var(--site-accent) 14%, transparent) 50%, transparent 70%);
-    transform: translateX(-100%);
-    animation: site-screen-wait 1.6s linear infinite;
-}
-
-.site-phone__screen.is-live::before {
-    animation: none;
-    visibility: hidden;
-}
-
-@keyframes site-screen-wait {
-    to { transform: translateX(100%); }
-}
+/* Mientras carga la muestra, la pantalla es un esqueleto con un brillo que la recorre (skeleton.css) */
 
 .site-phone__tag {
     position: absolute;
@@ -1370,10 +1341,6 @@ html.theme-changing *:not(.theme-toggle__icon) {
 @media (prefers-reduced-motion: reduce) {
     .site-feature__icon {
         transition: none;
-    }
-
-    .site-phone__screen::before {
-        animation: none;
     }
 }
 

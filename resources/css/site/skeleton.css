@@ -1,0 +1,80 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   ESQUELETOS DE CARGA — portada y páginas por evento
+
+   Mientras llega una foto o la pantalla de un teléfono se ve un bloque con la forma de lo que viene y un
+   brillo que lo recorre, en lugar de un hueco en blanco. Al llegar, la imagen aparece con un fundido.
+
+   Piezas
+   - .site-skel          el bloque: fondo y brillo. Se apaga al ponerle «is-live».
+   - .site-skel--fade    además, su <img> o <iframe> espera oculto y se funde al llegar.
+   - .site-phone__screen la pantalla de cualquier teléfono ya es un esqueleto (no necesita clase).
+
+   «is-live» lo pone el propio elemento al cargar (onload/onerror en las vistas, así funciona antes de
+   que site.js exista); en el teléfono de la portada lo pone site.js cuando la muestra pinta.
+
+   Costo: el brillo se mueve con transform (la tarjeta gráfica, sin repintar). En equipos lentos
+   («site-lite» en <html>, layouts/site.blade.php y site.js) y con movimiento reducido no se anima: queda
+   el bloque quieto. Sin JavaScript no se pinta el brillo, para que nunca quede sobre una foto ya cargada.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+.site-skel,
+.site-phone__screen {
+    /* Un contexto propio deja el brillo (z-index: -1) detrás de la imagen, sin tener que posicionarla */
+    isolation: isolate;
+    background: linear-gradient(180deg, var(--site-tint), var(--site-surface) 60%);
+}
+
+.site-photo.site-skel {
+    position: relative;
+}
+
+.js .site-skel::before,
+.site-phone__screen::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(100deg, transparent 30%, color-mix(in srgb, var(--site-accent) 14%, transparent) 50%, transparent 70%);
+    transform: translateX(-100%);
+    animation: site-skel-sweep 1.6s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes site-skel-sweep {
+    to { transform: translateX(100%); }
+}
+
+/* Ya llegó lo que se esperaba: el brillo se apaga del todo (no queda animando detrás de la imagen) */
+.site-skel.is-live::before,
+.site-phone__screen.is-live::before {
+    animation: none;
+    visibility: hidden;
+}
+
+/* Equipos lentos: el bloque queda quieto, sin trabajo extra justo donde más cuesta */
+.site-lite .site-skel::before,
+.site-lite .site-phone__screen::before {
+    animation: none;
+}
+
+/* ── Fundido de la imagen al llegar ─────────────────────────────────────── */
+
+.site-skel--fade > :is(img, iframe) {
+    transition: opacity 0.4s ease;
+}
+
+/* Si el script no corre no se oculta nada; si el aviso de carga no llega, site-reveal-all lo muestra igual */
+.js:not(.site-reveal-all) .site-skel--fade:not(.is-live) > :is(img, iframe) {
+    opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .site-skel::before,
+    .site-phone__screen::before {
+        animation: none;
+    }
+
+    .site-skel--fade > :is(img, iframe) {
+        transition: none;
+    }
+}

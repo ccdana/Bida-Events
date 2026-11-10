@@ -202,9 +202,21 @@ if (document.body.classList.contains('site')) {
 
 const loader = loaders.length > 0 ? createLoader() : null;
 
+// El teléfono de la portada del sitio (?portada=1) solo enseña la apertura de la invitación: nadie baja ni toca lo que
+// queda más abajo. Alpine no lo inicializa (x-ignore): son 12 de los 19 componentes (cuenta regresiva, galería,
+// encuestas, playlist, mural…) y casi todo el DOM, y eran más de la mitad del bloqueo del hilo al arrancar la
+// invitación dentro del teléfono. Una invitación real (sin ese parámetro) arranca completa.
+const startAlpine = () => {
+    if (document.body.classList.contains('inv-page') && new URLSearchParams(window.location.search).has('portada')) {
+        document.querySelectorAll('#contenido, .inv-footer').forEach((part) => part.setAttribute('x-ignore', ''));
+    }
+
+    Alpine.start();
+};
+
 Promise.all(loaders)
     .then(() => {
-        Alpine.start();
+        startAlpine();
         loader?.finish();
     })
     .catch((error) => {
@@ -212,6 +224,6 @@ Promise.all(loaders)
 
         // Iniciar Alpine de todas formas para que los componentes inline
         // de Blade (countdown, rsvpForm, etc.) sigan funcionando.
-        Alpine.start();
+        startAlpine();
         loader?.finish();
     });

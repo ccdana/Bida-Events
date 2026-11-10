@@ -131,8 +131,8 @@
                 @if(count($demos) && ! $shotsInRow)
                     {{-- Los diseños: la captura de cómo empieza cada apertura, en abanico sobre la foto del evento. Al tocarla se abre la muestra completa --}}
                     <div id="disenos" class="site-landing__stage scroll-mt-24 lg:col-span-7">
-                        <div class="site-landing__photo" aria-hidden="true">
-                            <x-site.image :key="$page['image']" :priority="true" />
+                        <div class="site-landing__photo site-skel site-skel--fade" aria-hidden="true">
+                            <x-site.image :key="$page['image']" :priority="true" :skel="true" />
                         </div>
 
                         @include('site.partials.shots', ['demos' => $demos, 'noun' => $noun, 'layout' => 'fan', 'eager' => true])
@@ -141,8 +141,8 @@
                     </div>
                 @else
                     {{-- Con los diseños en fila debajo, la foto solo acompaña en pantallas anchas: en el celular son dos pantallas de más --}}
-                    <div @class(['site-photo aspect-[16/10] w-full lg:aspect-[6/5] lg:col-span-6 lg:col-start-7', 'hidden lg:block' => $shotsInRow])>
-                        <x-site.image :key="$page['image']" :priority="true" />
+                    <div @class(['site-photo site-skel site-skel--fade aspect-[16/10] w-full lg:aspect-[6/5] lg:col-span-6 lg:col-start-7', 'hidden lg:block' => $shotsInRow])>
+                        <x-site.image :key="$page['image']" :priority="true" :skel="true" />
                     </div>
                 @endif
             </div>

@@ -835,6 +835,8 @@ textarea.admin-input {
 /* ── Editor: vista previa, mapa y recorte ───────────────────────────────── */
 
 .adm-device {
+    /* La vista previa nueva se carga detrás de la que se ve (ver frameForNextPreview en editor.js) */
+    position: relative;
     padding: 0.55rem;
     border-radius: 2.1rem;
     background: #1d1e20;
