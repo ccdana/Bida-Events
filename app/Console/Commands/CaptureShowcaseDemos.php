@@ -93,7 +93,7 @@ class CaptureShowcaseDemos extends Command
         $temp = sys_get_temp_dir().DIRECTORY_SEPARATOR.'bida-captura-'.bin2hex(random_bytes(4));
         $png = $temp.'.png';
 
-        (new Process([
+        $process = new Process([
             $browser,
             '--headless=new',
             '--disable-gpu',
@@ -108,7 +108,28 @@ class CaptureShowcaseDemos extends Command
             '--virtual-time-budget='.self::WAIT_MS,
             '--screenshot='.$png,
             $url,
-        ]))->setTimeout(120)->run();
+        ]);
+        $process->start();
+
+        // Edge sin ventana a veces no se cierra después de guardar la captura: se espera la imagen (hasta
+        // que deja de crecer) y se cierra el navegador con los procesos que relanzó
+        $deadline = microtime(true) + 120;
+        $lastSize = -1;
+
+        while ($process->isRunning() && microtime(true) < $deadline) {
+            clearstatcache(true, $png);
+            $size = is_file($png) ? filesize($png) : 0;
+
+            if ($size > 0 && $size === $lastSize) {
+                break;
+            }
+
+            $lastSize = $size;
+            usleep(400_000);
+        }
+
+        $process->stop(1);
+        $this->closeBrowser($temp);
 
         File::deleteDirectory($temp);
 
@@ -124,6 +145,21 @@ class CaptureShowcaseDemos extends Command
         clearstatcache(true, $target);
 
         return filesize($target) ?: null;
+    }
+
+    /** Cierra los procesos del navegador que usan este perfil de paso (en Windows se relanza solo). */
+    private function closeBrowser(string $profile): void
+    {
+        if (PHP_OS_FAMILY !== 'Windows') {
+            return;
+        }
+
+        $name = basename($profile);
+
+        (new Process([
+            'powershell', '-NoProfile', '-Command',
+            "Get-CimInstance Win32_Process | Where-Object { \$_.CommandLine -like '*{$name}*' -and \$_.Name -ne 'powershell.exe' } | ForEach-Object { Stop-Process -Id \$_.ProcessId -Force -ErrorAction SilentlyContinue }",
+        ]))->setTimeout(30)->run();
     }
 
     private function findBrowser(): ?string

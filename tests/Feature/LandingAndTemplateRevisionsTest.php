@@ -275,7 +275,7 @@ class LandingAndTemplateRevisionsTest extends TestCase
             // la zapatería, la llave del joyero y la caja del perfume (en 3D, sobre su pedestal), cada una con su fondo propio
             'Atelier' => [InvitationTemplates::XV_PREMIUM, 'xv-isabella', ['at-zip__pull', 'at-bag__lining', 'at-gown__sash', 'at-tag-card__name', 'at-sheet__fields', 'at-ambient__tape--right', 'Toca el cierre para abrir la funda']],
             'Cuento desplegable' => [TrendTemplates::key('cuento', 'xv'), 'xv-isabella', ['cu-popup__name', 'cu-cover__back', 'cu-message', 'cu-ambient__edge--left']],
-            'El cambio de zapatos' => [TrendTemplates::key('zapatos', 'xv'), 'xv-isabella', ['zp-sleeve__name', 'zp-pull__ribbon', 'zp-tissue--right', 'zp-seal', 'zp-open__print', 'zp-label__size', 'zp-ambient__step', 'Toca la caja para abrirla']],
+            'El cambio de zapatos' => [TrendTemplates::key('zapatos', 'xv'), 'xv-isabella', ['zp-shop__name', 'zp-shop__lid-inside', 'zp-shop__tissue--right', 'zp-heel__tip', 'zp-heel__bow', 'zp-open__print', 'zp-label__size', 'zp-ambient__step', 'Toca la caja para abrirla']],
             'Joyero musical' => [TrendTemplates::key('joyero', 'xv'), 'xv-isabella', ['jo-box__lining', 'jo-figure__svg', 'jo-case__tray', 'jo-ambient__quilt']],
             // Las dos de boda nuevas: la servilleta que se aparta del plato y los dos relojes que se vuelven uno
             'Mesa de honor' => [TrendTemplates::key('mesa', 'boda'), 'boda-camila-andres', ['ms-plate__monogram', 'ms-placecard__guest', 'ms-course__number', 'ms-ambient__glow--right']],
@@ -283,7 +283,7 @@ class LandingAndTemplateRevisionsTest extends TestCase
             // Las dos de cumpleaños nuevas: las hojas del almanaque que se arrancan y la cabina de fotos con su tira
             'Día feriado' => [TrendTemplates::key('feriado', 'cumple'), 'cumple-daniela-30', ['fd-leaf--day', 'fd-sticky', 'is-marked', 'fd-ambient__leaf--right']],
             'Cabina de fotos' => [TrendTemplates::key('cabina', 'cumple'), 'cumple-daniela-30', ['cb-booth__screen', 'cb-strip--intro', 'cb-intro__guest', 'cb-ambient__flash--right']],
-            'Esencia XV' => [TrendTemplates::key('esencia', 'xv'), 'xv-isabella', ['ez-mist', 'ez-intro__reveal', 'ez-cube__lid', 'ez-face--under', 'ez-band--across', 'ez-plinth__top', 'ez-tier--2', 'ez-ambient__mist--center']],
+            'Esencia XV' => [TrendTemplates::key('esencia', 'xv'), 'xv-isabella', ['ez-mist', 'ez-intro__reveal', 'ez-mirror__fog', 'ez-bulb__tassel', 'ez-flacon__facet', 'ez-pearls', 'ez-vase__rose', 'ez-tier--2', 'ez-ambient__mist--center']],
             // La borla del birrete cruza con el cordón en vuelo: nunca hay un cuadro sin borla ni sin cordón
             'Birrete al aire' => [InvitationTemplates::GRADUACION_BIRRETE, 'graduacion-mariana', ['br-cap__cord--live', 'br-cap__tassel--right', 'br-intro__cheer']],
             // Halloween: la casa de muñecas que se abre en dos

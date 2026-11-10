@@ -30,9 +30,9 @@ class TrendTemplatesTest extends TestCase
     {
         return [
             'Cuento desplegable' => ['cuento', 'xv', 'xv-isabella', ['cu-book__cover', 'Toca el libro para abrirlo', 'cu-popup__layer--mid', 'cu-plate', 'Las páginas de la noche', 'cu-page__tab', 'cu-character__medal']],
-            'El cambio de zapatos' => ['zapatos', 'xv', 'xv-isabella', ['zp-sleeve', 'Toca la caja para abrirla', 'Hecho a mano para', 'zp-shoe__name', 'Mis primeros tacones', 'Los pasos de la noche', 'zp-step is-moment', 'El cambio de zapatos', 'zp-shelf__label']],
+            'El cambio de zapatos' => ['zapatos', 'xv', 'xv-isabella', ['zp-shop__body', 'zp-heel', 'Toca la caja para abrirla', 'Hecho a mano para', 'zp-shoe__name', 'Mis primeros tacones', 'Los pasos de la noche', 'zp-step is-moment', 'El cambio de zapatos', 'zp-shelf__label']],
             'Joyero musical' => ['joyero', 'xv', 'xv-isabella', ['jo-key', 'Toca la llave para abrir el joyero', 'jo-figure', 'jo-locket__photo', 'Los dijes de mi noche', 'jo-charm__pendant', 'jo-jewel__medal']],
-            'Esencia XV' => ['esencia', 'xv', 'xv-isabella', ['ez-bow', 'Toca la cinta para abrir la caja', 'ez-campaign__bottle', 'Eau de Quince', 'Notas de salida', 'ez-credit__names']],
+            'Esencia XV' => ['esencia', 'xv', 'xv-isabella', ['ez-bulb', 'Aprieta la perilla para perfumar', 'ez-campaign__bottle', 'Eau de Quince', 'Notas de salida', 'ez-credit__names']],
             'Partitura a dos voces' => ['partitura', 'boda', 'boda-camila-andres', ['pt-baton', 'Toca la batuta para empezar', 'Concierto para dos voces', 'pt-system', 'Andante', 'Quienes tocan con nosotros']],
             'Mesa de honor' => ['mesa', 'boda', 'boda-camila-andres', ['ms-napkin__ring', 'Toca el servilletero para abrir', 'ms-plate__photo', 'Menú de la celebración', 'Primer tiempo', 'ms-seat__names']],
             'A la misma hora' => ['reloj', 'boda', 'boda-camila-andres', ['rl-watch--left', 'Toca la corona para darles cuerda', 'rl-face__date', 'rl-subdial', 'rl-mini__minute', 'rl-sponsor__gear']],

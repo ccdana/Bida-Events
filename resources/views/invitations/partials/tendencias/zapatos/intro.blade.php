@@ -1,24 +1,21 @@
 {{--
-    Apertura de «El cambio de zapatos»: la caja de la zapatería, vista desde arriba sobre la mesa de la
-    tienda. Es una caja de cajón: la funda de laca con su nombre como marca, el filete dorado y la
-    etiqueta de modelo y talla, y abajo asoma la cinta de satén para tirar del cajón. Al tocarla, la
-    cinta se estira, la funda se desliza y deja el cajón a la vista: el papel de seda cerrado con el
-    sello de su inicial. Después el sello salta, el papel se abre hacia los dos lados y aparecen sus
-    primeros tacones (uno con la punta hacia arriba y el otro hacia abajo, como vienen en la caja) con
-    su nombre grabado en la plantilla; un brillo recorre el satén y destella. Todo con la paleta del
-    editor (la caja con el secundario, el satén con el principal, el papel con el acento). Solo
-    transform y opacity. Lógica en shell/cover-component; estilos en css/invitation/tendencias/zapatos.css.
+    Apertura de «El cambio de zapatos»: la caja clásica de la zapatería, de frente y en dos piezas. En
+    el frente de laca, su nombre como la marca, el filete dorado y la etiqueta de modelo y talla; arriba,
+    la tapa. Al tocarla, la tapa sube, se inclina hacia atrás sobre su canto y queda apoyada detrás de
+    la caja, mostrando su forro. Después el papel de seda se abre hacia los dos costados por encima del
+    borde y sus primeros tacones (stilettos de perfil, en espejo, punta con punta) suben un poco del
+    papel, un brillo recorre el satén y aparece su nombre. Todo con la paleta del editor (la caja con el
+    secundario, el satén con el principal, el papel con el acento). Solo transform y opacity. Lógica en
+    shell/cover-component; estilos en css/invitation/tendencias/zapatos.css.
 --}}
 @php
     $introDate = \Illuminate\Support\Str::ucfirst($page->eventDate->locale(app()->getLocale())->translatedFormat(\App\Support\Localization::dateFormat('j \d\e F · H:i')));
-    $firstName = \Illuminate\Support\Str::of($page->displayName)->explode(' ')->first();
-    $initial = mb_strtoupper(mb_substr(trim($page->displayName), 0, 1));
 @endphp
 
 <div class="inv-themed-intro zp-intro"
-    x-data="invitationCover({ part: 1250, reveal: 2850, close: 3750 })"
+    x-data="invitationCover({ part: 1250, reveal: 3150, close: 4000 })"
     x-show="!closed"
-    :class="{ 'is-pulled': stage >= 1, 'is-open': stage >= 2 }"
+    :class="{ 'is-lifted': stage >= 1, 'is-open': stage >= 2 }"
     @click="open()"
     role="dialog"
     aria-modal="true"
@@ -26,40 +23,48 @@
     <span class="zp-intro__light" aria-hidden="true"></span>
     <p class="zp-intro__eyebrow">{{ $invCopy['intro_eyebrow'] ?? __('Una caja muy especial') }}</p>
 
-    <div class="zp-box">
-        {{-- El cajón: el borde de la caja, el fondo y los tacones; encima, el papel de seda con su sello --}}
-        <div class="zp-tray" aria-hidden="true">
-            <span class="zp-tray__floor"></span>
-            <div class="zp-tray__pair">
-                @include('invitations.partials.tendencias.zapatos.shoe', ['id' => 'zp-intro-left', 'name' => $firstName, 'class' => 'zp-tray__shoe zp-tray__shoe--left'])
-                @include('invitations.partials.tendencias.zapatos.shoe', ['id' => 'zp-intro-right', 'class' => 'zp-tray__shoe zp-tray__shoe--right'])
-            </div>
-            <span class="zp-tray__sparkles">
-                @foreach([[30, 22], [70, 30], [24, 62], [76, 70], [50, 48]] as [$x, $y])
+    <div class="zp-shop">
+        {{-- El papel de seda, en dos mitades que se juntan al medio --}}
+        <div class="zp-shop__inside" aria-hidden="true">
+            <span class="zp-shop__tissue zp-shop__tissue--left"></span>
+            <span class="zp-shop__tissue zp-shop__tissue--right"></span>
+        </div>
+
+        {{-- Adentro: los tacones, que suben del papel de seda y se paran sobre el borde --}}
+        <div class="zp-shop__pair" aria-hidden="true">
+            <span class="zp-shop__heel zp-shop__heel--left">
+                @include('invitations.partials.tendencias.zapatos.heel', ['id' => 'zp-intro-left'])
+            </span>
+            <span class="zp-shop__heel zp-shop__heel--right">
+                @include('invitations.partials.tendencias.zapatos.heel', ['id' => 'zp-intro-right'])
+            </span>
+            <span class="zp-shop__sparkles">
+                @foreach([[18, 30], [82, 30], [50, 12], [30, 62], [70, 62]] as [$x, $y])
                     <i style="--x: {{ $x }}%; --y: {{ $y }}%; --n: {{ $loop->index }}"></i>
                 @endforeach
             </span>
-            <span class="zp-tissue zp-tissue--left"></span>
-            <span class="zp-tissue zp-tissue--right"></span>
-            <span class="zp-seal">{{ $initial }}</span>
         </div>
 
-        {{-- La funda de laca, con su nombre como marca --}}
-        <div class="zp-sleeve" aria-hidden="true">
-            <span class="zp-sleeve__frame"></span>
-            <span class="zp-sleeve__made">{{ $invCopy['shoe_made'] ?? __('Hecho a mano para') }}</span>
-            <span class="zp-sleeve__name">{{ $page->displayName }}</span>
-            <span class="zp-sleeve__line">{{ $invCopy['shoe_line'] ?? __('Colección XV') }}</span>
-            <span class="zp-sleeve__label">
+        {{-- El frente de la caja, con su nombre como la marca --}}
+        <div class="zp-shop__body" aria-hidden="true">
+            <span class="zp-shop__frame"></span>
+            <span class="zp-shop__made">{{ $invCopy['shoe_made'] ?? __('Hecho a mano para') }}</span>
+            <span class="zp-shop__name">{{ $page->displayName }}</span>
+            <span class="zp-shop__line">{{ $invCopy['shoe_line'] ?? __('Colección XV') }}</span>
+            <span class="zp-shop__label">
                 <span><small>{{ $invCopy['shoe_model'] ?? __('Modelo') }}</small>{{ $invCopy['shoe_model_name'] ?? __('Mis primeros tacones') }}</span>
                 <span><small>{{ $invCopy['shoe_size'] ?? __('Talla') }}</small>XV</span>
             </span>
         </div>
 
-        {{-- La cinta para tirar del cajón --}}
-        <button type="button" class="zp-pull" data-cover-trigger @click="open()" aria-label="{{ __('Tirar de la cinta y abrir la caja') }}">
-            <span class="zp-pull__ribbon" aria-hidden="true"></span>
-        </button>
+        {{-- La tapa: el canto que se ve de frente y su forro, que queda a la vista cuando se apoya atrás --}}
+        <div class="zp-shop__lid" aria-hidden="true">
+            <span class="zp-shop__lid-inside"><i>{{ $invCopy['shoe_line'] ?? __('Colección XV') }}</i></span>
+            <span class="zp-shop__lid-front"></span>
+        </div>
+
+        <button type="button" class="zp-shop__open" data-cover-trigger @click.stop="open()" aria-label="{{ __('Levantar la tapa y abrir la caja') }}"></button>
+        <span class="zp-shop__shadow" aria-hidden="true"></span>
     </div>
 
     {{-- Su nombre, cuando aparecen los tacones --}}

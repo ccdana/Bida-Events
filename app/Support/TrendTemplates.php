@@ -364,7 +364,7 @@ final class TrendTemplates
                 'copy' => [
                     'menu_heading' => 'El lanzamiento de',
                     'intro_eyebrow' => 'Lanzamiento exclusivo',
-                    'intro_hint' => 'Toca la cinta para abrir la caja',
+                    'intro_hint' => 'Aprieta la perilla para perfumar',
                     'guest_banner_eyebrow' => 'Muestra exclusiva para',
                     'scent_line' => 'Eau de Quince',
                     'scent_edition' => 'Edición',

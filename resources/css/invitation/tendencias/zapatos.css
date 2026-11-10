@@ -108,12 +108,59 @@
     stroke-linecap: round;
 }
 
-/* ── Apertura: la caja de cajón de la zapatería ─────────────────────────────
-   Medidas con --zp-w (el ancho de la caja). La funda tapa el cajón; la cinta
-   asoma abajo. */
+/* ── El tacón de perfil (zapatos/heel) ──────────────────────────────────── */
+
+.zp-heel {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    filter: drop-shadow(0 5px 4px rgb(0 0 0 / 0.22));
+}
+
+.zp-heel__tip { fill: #1a1416; }
+.zp-heel__lining { fill: color-mix(in srgb, var(--tr-accent) 70%, #fff); }
+
+.zp-heel__piping {
+    fill: none;
+    stroke: color-mix(in srgb, var(--tr-primary) 62%, #000);
+    stroke-width: 1.6;
+    stroke-linecap: round;
+}
+
+.zp-heel__sole {
+    fill: none;
+    stroke: color-mix(in srgb, var(--tr-primary) 40%, #1a0f13);
+    stroke-width: 2.2;
+    stroke-linecap: round;
+}
+
+.zp-heel__shine {
+    fill: none;
+    stroke: #fff;
+    stroke-width: 2.4;
+    stroke-linecap: round;
+    opacity: 0.5;
+}
+
+.zp-heel__shine--back {
+    stroke-width: 1.6;
+    opacity: 0.35;
+}
+
+.zp-heel__bow path,
+.zp-heel__bow circle {
+    fill: color-mix(in srgb, var(--tr-primary) 78%, #000);
+}
+
+/* ── Apertura: la caja de la zapatería, de frente ───────────────────────────
+   Medidas con --zp-w (el ancho del frente de la caja). La tapa es la única
+   pieza en 3D: su canto se ve de frente y su forro (de canto mientras está
+   cerrada) queda a la vista cuando se apoya detrás de la caja. Los tacones
+   esperan adentro, debajo del borde. */
 
 .zp-intro.inv-themed-intro {
-    --zp-w: min(66vw, 17rem, 33svh);
+    --zp-w: min(86vw, 22rem, 42svh);
     gap: clamp(0.8rem, 2.4svh, 1.3rem);
     padding: calc(1.5rem + env(safe-area-inset-top)) 1.25rem calc(1.5rem + env(safe-area-inset-bottom));
     background:
@@ -148,222 +195,253 @@
     transition: opacity 0.5s ease;
 }
 
-.zp-box {
+.zp-shop {
+    --zp-d: calc(var(--zp-w) * 0.42);
     position: relative;
     width: var(--zp-w);
-    aspect-ratio: 3 / 4.15;
-    margin-bottom: calc(var(--zp-w) * 0.14);
-    filter: drop-shadow(0 24px 22px rgb(0 0 0 / 0.25));
+    height: calc(var(--zp-w) * 0.8);
+    margin-top: calc(var(--zp-w) * 0.2);
+    perspective: 1100px;
+    perspective-origin: 50% 20%;
 }
 
-/* El cajón: el borde de la caja, el fondo de papel de seda y adentro los tacones */
-.zp-tray {
+/* El frente de la caja: laca, filete dorado, su nombre como la marca y la etiqueta */
+.zp-shop__body {
     position: absolute;
-    inset: 0;
-    border-radius: calc(var(--zp-w) * 0.025);
-    background: var(--zp-box-lacquer);
-    perspective: 900px;
-}
-
-.zp-tray__floor {
-    position: absolute;
-    inset: 4.5%;
-    border-radius: calc(var(--zp-w) * 0.012);
-    background: var(--zp-tissue);
-    box-shadow: inset 0 0 calc(var(--zp-w) * 0.08) rgb(0 0 0 / 0.28);
-}
-
-.zp-tray__pair {
-    position: absolute;
-    inset: 7% 12%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 6%;
-}
-
-.zp-tray__shoe {
-    width: auto;
-    height: 94%;
-}
-
-.zp-tray__shoe--right {
-    rotate: 180deg;
-}
-
-/* Los destellos sobre el satén cuando se abre el papel */
-.zp-tray__sparkles i {
-    position: absolute;
-    top: var(--y);
-    left: var(--x);
-    width: calc(var(--zp-w) * 0.07);
-    aspect-ratio: 1;
-    margin: calc(var(--zp-w) * -0.035);
-    background: #fff;
-    clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%);
-    opacity: 0;
-}
-
-/* El papel de seda: dos hojas que se juntan al medio */
-.zp-tissue {
-    position: absolute;
-    top: 4.5%;
-    bottom: 4.5%;
-    width: 45.5%;
-    background: var(--zp-tissue);
-    box-shadow: 0 0 calc(var(--zp-w) * 0.03) rgb(0 0 0 / 0.12);
-    transition: transform 0.95s cubic-bezier(0.55, 0, 0.25, 1) 0.15s, opacity 0.5s ease 0.6s;
-}
-
-.zp-tissue--left {
-    left: 4.5%;
-    border-radius: 0 0.3rem 0.3rem 0;
-    transform-origin: 0 50%;
-}
-
-.zp-tissue--right {
-    right: 4.5%;
-    border-radius: 0.3rem 0 0 0.3rem;
-    transform-origin: 100% 50%;
-}
-
-/* El sello con su inicial, que cierra el papel */
-.zp-seal {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    display: grid;
-    place-items: center;
-    width: calc(var(--zp-w) * 0.2);
-    aspect-ratio: 1;
-    border-radius: 50%;
-    translate: -50% -50%;
-    background:
-        radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--tr-primary) 55%, #fff), var(--tr-primary) 55%, color-mix(in srgb, var(--tr-primary) 75%, #000));
-    box-shadow: 0 3px 5px rgb(0 0 0 / 0.3), inset 0 0 0 2px color-mix(in srgb, var(--tr-primary) 55%, #fff);
-    color: var(--tr-ink-primary);
-    font-family: var(--font-titles);
-    font-size: calc(var(--zp-w) * 0.09);
-    line-height: 1;
-    transition: scale 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease 0.1s;
-}
-
-/* La funda de laca, con su nombre como marca y la etiqueta de modelo y talla */
-.zp-sleeve {
-    position: absolute;
-    inset: -2% -2.5%;
+    top: calc(var(--zp-w) * 0.18);
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 2;
     display: grid;
     align-content: center;
     justify-items: center;
-    gap: calc(var(--zp-w) * 0.025);
-    padding: 12% 10% 30%;
-    border-radius: calc(var(--zp-w) * 0.03);
+    gap: calc(var(--zp-w) * 0.02);
+    padding: calc(var(--zp-w) * 0.1) 9% calc(var(--zp-w) * 0.2);
+    border-radius: 0 0 calc(var(--zp-w) * 0.02) calc(var(--zp-w) * 0.02);
     background:
         linear-gradient(115deg, transparent 30%, rgb(255 255 255 / 0.07) 42%, transparent 54%),
         var(--zp-box-lacquer);
+    box-shadow: inset 0 calc(var(--zp-w) * 0.018) calc(var(--zp-w) * 0.03) rgb(0 0 0 / 0.35);
     color: var(--zp-box-ink);
     text-align: center;
-    transition: translate 0.95s cubic-bezier(0.6, 0, 0.25, 1) 0.2s, opacity 0.45s ease 0.75s;
 }
 
-/* El filete dorado de la funda */
-.zp-sleeve__frame {
+.zp-shop__frame {
     position: absolute;
-    inset: calc(var(--zp-w) * 0.045);
+    inset: calc(var(--zp-w) * 0.1) calc(var(--zp-w) * 0.04) calc(var(--zp-w) * 0.04);
     border: 1px solid color-mix(in srgb, var(--zp-foil) 70%, transparent);
-    border-radius: calc(var(--zp-w) * 0.015);
+    border-radius: calc(var(--zp-w) * 0.012);
     pointer-events: none;
 }
 
-.zp-sleeve__made,
-.zp-sleeve__line {
+.zp-shop__made,
+.zp-shop__line {
     padding-left: 0.36em;
-    font-size: calc(var(--zp-w) * 0.036);
+    font-size: max(0.75rem, calc(var(--zp-w) * 0.034));
     font-weight: 600;
     letter-spacing: 0.36em;
     text-transform: uppercase;
     color: var(--zp-foil);
 }
 
-.zp-sleeve__name {
+.zp-shop__name {
+    max-width: 100%;
     font-family: var(--font-titles);
-    font-size: calc(var(--zp-w) * 0.11);
+    font-size: calc(var(--zp-w) * 0.1);
     line-height: 1.06;
     text-wrap: balance;
     overflow-wrap: break-word;
 }
 
-.zp-sleeve__line {
-    margin-top: calc(var(--zp-w) * 0.01);
-}
-
-/* La etiqueta de papel pegada en la funda */
-.zp-sleeve__label {
+/* La etiqueta de papel pegada en el frente */
+.zp-shop__label {
     position: absolute;
     right: 12%;
-    bottom: 9%;
+    bottom: calc(var(--zp-w) * 0.065);
     left: 12%;
     display: grid;
     grid-template-columns: 1fr auto;
     gap: 0.6rem;
-    padding: calc(var(--zp-w) * 0.035) calc(var(--zp-w) * 0.045);
+    padding: calc(var(--zp-w) * 0.026) calc(var(--zp-w) * 0.04);
     border-radius: 2px;
     background: var(--zp-paper);
     color: var(--zp-paper-ink);
     font-family: var(--font-titles);
-    font-size: calc(var(--zp-w) * 0.05);
+    font-size: calc(var(--zp-w) * 0.046);
     line-height: 1.15;
     text-align: left;
     box-shadow: 0 2px 4px rgb(0 0 0 / 0.25);
 }
 
-.zp-sleeve__label small {
+.zp-shop__label small {
     display: block;
     font-family: var(--font-body);
-    font-size: calc(var(--zp-w) * 0.028);
+    font-size: max(0.75rem, calc(var(--zp-w) * 0.026));
     font-weight: 600;
     letter-spacing: 0.18em;
     text-transform: uppercase;
     color: var(--inv-muted);
 }
 
-/* La cinta del cajón, que asoma abajo */
-.zp-pull {
+/* La tapa: el canto, apenas más ancho que la caja, con su filete; y el forro, de canto mientras
+   está cerrada. Gira sobre su canto de atrás (transform-origin con z = -profundidad) */
+.zp-shop__lid {
     position: absolute;
-    top: 97%;
+    top: calc(var(--zp-w) * 0.1);
+    right: -3%;
+    left: -3%;
+    z-index: 3;
+    height: calc(var(--zp-w) * 0.15);
+    transform-style: preserve-3d;
+    transform-origin: 50% 100% calc(var(--zp-d) * -1);
+}
+
+.zp-shop__lid-front,
+.zp-shop__lid-inside {
+    position: absolute;
+    right: 0;
+    left: 0;
+    backface-visibility: hidden;
+}
+
+.zp-shop__lid-front {
+    inset: 0;
+    border-radius: calc(var(--zp-w) * 0.015);
+    background:
+        linear-gradient(180deg, transparent 72%, color-mix(in srgb, var(--zp-foil) 75%, transparent) 72% 76%, transparent 76%),
+        linear-gradient(115deg, transparent 30%, rgb(255 255 255 / 0.08) 42%, transparent 54%),
+        var(--zp-box-lacquer);
+    box-shadow: 0 calc(var(--zp-w) * 0.02) calc(var(--zp-w) * 0.03) rgb(0 0 0 / 0.3);
+}
+
+/* El forro de la tapa: el mismo papel de seda, con la línea de la colección estampada */
+.zp-shop__lid-inside {
+    top: 0;
+    display: grid;
+    align-items: start;
+    justify-items: center;
+    padding-top: calc(var(--zp-w) * 0.06);
+    height: var(--zp-d);
+    border-radius: calc(var(--zp-w) * 0.015);
+    background: var(--zp-tissue);
+    box-shadow: inset 0 0 0 calc(var(--zp-w) * 0.022) var(--zp-box), inset 0 0 calc(var(--zp-w) * 0.06) rgb(0 0 0 / 0.18);
+    transform-origin: 50% 0;
+    transform: rotateX(-90deg);
+}
+
+.zp-shop__lid-inside i {
+    padding-left: 0.36em;
+    font-size: max(0.75rem, calc(var(--zp-w) * 0.032));
+    font-style: normal;
+    font-weight: 600;
+    letter-spacing: 0.36em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--zp-paper-ink) 55%, transparent);
+}
+
+/* Adentro, debajo de la tapa: el papel de seda en dos mitades que se juntan al medio */
+.zp-shop__inside {
+    position: absolute;
+    top: calc(var(--zp-w) * 0.1);
+    right: 3%;
+    left: 3%;
+    z-index: 1;
+    height: calc(var(--zp-w) * 0.13);
+}
+
+.zp-shop__tissue {
+    position: absolute;
+    bottom: 0;
+    width: 54%;
+    height: 100%;
+    background: var(--zp-tissue);
+    box-shadow: inset 0 calc(var(--zp-w) * 0.015) calc(var(--zp-w) * 0.02) rgb(255 255 255 / 0.4), 0 0 calc(var(--zp-w) * 0.02) rgb(0 0 0 / 0.14);
+}
+
+.zp-shop__tissue--left {
+    left: 0;
+    border-radius: 30% 80% 0 0 / 60% 100% 0 0;
+    transform-origin: 0 100%;
+}
+
+.zp-shop__tissue--right {
+    right: 0;
+    border-radius: 80% 30% 0 0 / 100% 60% 0 0;
+    transform-origin: 100% 100%;
+}
+
+/* Los tacones: en espejo, punta con punta, esperan dentro de la caja y suben a pararse sobre el borde */
+.zp-shop__pair {
+    position: absolute;
+    bottom: calc(100% - var(--zp-w) * 0.175);
     left: 50%;
-    width: calc(var(--zp-w) * 0.18);
-    height: calc(var(--zp-w) * 0.2);
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    gap: calc(var(--zp-w) * 0.01);
+    width: calc(var(--zp-w) * 0.98);
+    margin-left: calc(var(--zp-w) * -0.49);
+}
+
+.zp-shop__heel {
+    display: block;
+    width: 49.5%;
+}
+
+.zp-shop__heel--right {
+    scale: -1 1;
+}
+
+/* Los destellos sobre el satén */
+.zp-shop__sparkles {
+    position: absolute;
+    inset: 0;
+}
+.zp-shop__sparkles i {
+    position: absolute;
+    top: var(--y);
+    left: var(--x);
+    width: calc(var(--zp-w) * 0.06);
+    aspect-ratio: 1;
+    margin: calc(var(--zp-w) * -0.03);
+    background: #fff;
+    clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%);
+    opacity: 0;
+}
+
+/* Toda la caja se toca para abrirla */
+.zp-shop__open {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
     padding: 0;
     border: 0;
     background: none;
-    translate: -50% 0;
     cursor: pointer;
-    transition: opacity 0.4s ease 0.55s;
 }
 
-.zp-pull__ribbon {
-    position: absolute;
-    inset: 0 22%;
-    background: linear-gradient(90deg, color-mix(in srgb, var(--tr-primary) 70%, #000), var(--tr-primary) 30%, color-mix(in srgb, var(--tr-primary) 60%, #fff) 52%, var(--tr-primary) 72%, color-mix(in srgb, var(--tr-primary) 70%, #000));
-    clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%);
-    transform-origin: 50% 0;
-    animation: zp-tug 3.4s ease-in-out 1.4s infinite;
-}
-
-.zp-pull:focus-visible {
-    outline: none;
-}
-
-.zp-pull:focus-visible .zp-pull__ribbon {
+.zp-shop__open:focus-visible {
     outline: 2px solid var(--tr-text);
-    outline-offset: 3px;
+    outline-offset: 4px;
+    border-radius: 0.3rem;
+}
+
+.zp-shop__shadow {
+    position: absolute;
+    top: 100%;
+    left: 6%;
+    width: 88%;
+    height: calc(var(--zp-w) * 0.07);
+    margin-top: calc(var(--zp-w) * -0.025);
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgb(0 0 0 / 0.28), transparent);
 }
 
 /* Su nombre, cuando aparecen los tacones */
 .zp-intro__reveal {
     position: absolute;
-    top: 7%;
+    top: calc(5.8rem + env(safe-area-inset-top));
     right: 1.25rem;
     left: 1.25rem;
     z-index: 2;
@@ -378,7 +456,7 @@
     text-wrap: balance;
     opacity: 0;
     translate: 0 0.6rem;
-    transition: opacity 0.8s ease 0.75s, translate 1s var(--tr-ease) 0.75s;
+    transition: opacity 0.8s ease 0.9s, translate 1s var(--tr-ease) 0.9s;
 }
 
 .zp-intro__reveal small {
@@ -419,79 +497,54 @@
     transition: opacity 0.3s ease;
 }
 
-@keyframes zp-tug {
-    0%, 62%, 100% { translate: 0 0; scale: 1; }
-    70% { translate: 0 0.3rem; scale: 1 1.06; }
-    80% { translate: 0 0; scale: 1; }
+/* 1 · La tapa: sube, se inclina hacia atrás sobre su canto y queda apoyada detrás de la caja
+   (un solo movimiento, zp-lid-off; pasa detrás de la caja cuando ya está arriba) */
+.zp-intro.is-lifted .zp-shop__lid {
+    z-index: 0;
+    translate: 0 calc(var(--zp-w) * 0.03) 0;
+    rotate: x 108deg;
+    animation: zp-lid-off 1.2s linear;
 }
 
-@keyframes zp-hint {
-    50% { translate: 0 -3px; }
-}
-
-@keyframes zp-sparkle {
-    0%, 100% { opacity: 0; scale: 0.2; rotate: 0deg; }
-    45% { opacity: 1; scale: 1; rotate: 45deg; }
-}
-
-@keyframes zp-sheen {
-    0% { opacity: 0; translate: -120% 0; }
-    30%, 70% { opacity: 1; }
-    100% { opacity: 0; translate: 120% 0; }
-}
-
-/* El brillo que recorre el satén cuando se abre el papel */
-.zp-tray::after {
-    content: '';
-    position: absolute;
-    inset: 4.5%;
-    background: linear-gradient(105deg, transparent 35%, rgb(255 255 255 / 0.45) 50%, transparent 65%);
-    opacity: 0;
+.zp-intro.is-lifted .zp-shop__open {
     pointer-events: none;
 }
 
-/* 1 · Se tira de la cinta: la cinta se estira y la funda se desliza hacia arriba */
-.zp-intro.is-pulled .zp-pull__ribbon {
-    animation: none;
-    translate: 0 0.5rem;
-    scale: 1 1.12;
-    transition: translate 0.3s ease, scale 0.3s ease;
-}
-
-.zp-intro.is-pulled .zp-pull {
-    opacity: 0;
-}
-
-.zp-intro.is-pulled .zp-sleeve {
-    translate: 0 -118%;
-    opacity: 0;
-}
-
-.zp-intro.is-pulled :is(.zp-intro__hint, .zp-intro__eyebrow, .zp-intro__meta) {
+.zp-intro.is-lifted :is(.zp-intro__hint, .zp-intro__eyebrow, .zp-intro__meta) {
     opacity: 0;
     animation: none;
 }
 
-/* 2 · Salta el sello, el papel se abre hacia los dos lados y aparecen los tacones con su brillo */
-.zp-intro.is-open .zp-seal {
-    scale: 1.35;
-    opacity: 0;
+/* 2 · El papel de seda se abre hacia los costados y los tacones suben a pararse sobre el borde (el
+   izquierdo primero), con sus destellos; aparece su nombre */
+.zp-shop__tissue {
+    transition: translate 0.75s cubic-bezier(0.25, 0.8, 0.3, 1), rotate 0.75s cubic-bezier(0.25, 0.8, 0.3, 1);
 }
 
-.zp-intro.is-open .zp-tissue--left {
-    transform: rotateY(-176deg) scaleX(0.32);
+.zp-shop__heel {
+    transition: translate 1s cubic-bezier(0.2, 0.85, 0.3, 1.04) 0.3s;
 }
 
-.zp-intro.is-open .zp-tissue--right {
-    transform: rotateY(176deg) scaleX(0.32);
+.zp-shop__heel--right {
+    transition-delay: 0.42s;
 }
 
-.zp-intro.is-open .zp-tray::after {
-    animation: zp-sheen 1.1s ease-in-out 0.75s;
+.zp-intro:not(.is-open) .zp-shop__heel {
+    translate: 0 calc(var(--zp-w) * 0.38);
 }
 
-.zp-intro.is-open .zp-tray__sparkles i {
-    animation: zp-sparkle 0.9s ease-out calc(0.95s + var(--n) * 0.12s);
+.zp-intro.is-open .zp-shop__tissue--left {
+    translate: -24% 18%;
+    rotate: -16deg;
+}
+
+.zp-intro.is-open .zp-shop__tissue--right {
+    translate: 24% 18%;
+    rotate: 16deg;
+}
+
+.zp-intro.is-open .zp-shop__sparkles i {
+    animation: zp-sparkle 0.9s ease-out calc(1.05s + var(--n) * 0.12s);
 }
 
 .zp-intro.is-open .zp-intro__reveal {
@@ -500,7 +553,24 @@
 }
 
 .zp-intro.is-open {
-    animation-delay: 1.6s;
+    animation-delay: 1.9s;
+}
+
+@keyframes zp-lid-off {
+    0% { z-index: 3; translate: 0 0 0; rotate: x 0deg; animation-timing-function: cubic-bezier(0.3, 0, 0.3, 1); }
+    28% { z-index: 3; translate: 0 calc(var(--zp-w) * -0.09) 0; rotate: x 0deg; animation-timing-function: cubic-bezier(0.45, 0, 0.6, 1); }
+    44% { z-index: 3; }
+    46% { z-index: 0; }
+    82% { z-index: 0; translate: 0 calc(var(--zp-w) * 0.03) 0; rotate: x 114deg; animation-timing-function: ease-in-out; }
+    100% { z-index: 0; translate: 0 calc(var(--zp-w) * 0.03) 0; rotate: x 108deg; }
+}
+@keyframes zp-hint {
+    50% { translate: 0 -3px; }
+}
+
+@keyframes zp-sparkle {
+    0%, 100% { opacity: 0; scale: 0.2; rotate: 0deg; }
+    45% { opacity: 1; scale: 1; rotate: 45deg; }
 }
 
 /* ── Portada: la caja abierta ───────────────────────────────────────────── */
@@ -1490,7 +1560,6 @@ html:not(.inv-story-on) .inv-zapatos .reveal.is-visible .zp-shelf__box[data-step
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .zp-pull__ribbon,
     .zp-intro__hint {
         animation: none !important;
     }
